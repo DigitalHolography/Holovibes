@@ -198,6 +198,19 @@ namespace holovibes
 		void setStftCursor(const units::PointFd& rect);
 		//! @}
 
+		/*!
+		 * @{
+		 *
+		 * \brief General getters to avoid code duplication
+		 *
+		 */
+		float get_contrast_min(WindowKind kind);
+		float get_contrast_max(WindowKind kind);
+		bool get_img_log_scale_slice_enabled(WindowKind kind);
+		bool get_img_acc_slice_enabled(WindowKind kind);
+		unsigned get_img_acc_slice_level(WindowKind kind);
+		//! @}
+
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;

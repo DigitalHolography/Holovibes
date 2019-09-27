@@ -251,4 +251,74 @@ namespace holovibes
 		LockGuard g(mutex_);
 		zoomed_zone = rect;
 	}
+
+	float ComputeDescriptor::get_contrast_min(WindowKind kind)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			return log_scale_slice_xy_enabled ? contrast_min_slice_xy.load() : log10(contrast_min_slice_xy);
+		case WindowKind::XZview:
+			return log_scale_slice_xz_enabled ? contrast_min_slice_xz.load() : log10(contrast_min_slice_xz);
+		case WindowKind::YZview:
+			return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_slice_yz);
+		}
+		return 0;
+	}
+
+	float ComputeDescriptor::get_contrast_max(WindowKind kind)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			return log_scale_slice_xy_enabled ? contrast_max_slice_xy.load() : log10(contrast_max_slice_xy);
+		case WindowKind::XZview:
+			return log_scale_slice_xz_enabled ? contrast_max_slice_xz.load() : log10(contrast_max_slice_xz);
+		case WindowKind::YZview:
+			return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load() : log10(contrast_max_slice_yz);
+		}
+		return 0;
+	}
+
+	bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			return log_scale_slice_xy_enabled;
+		case WindowKind::XZview:
+			return log_scale_slice_xz_enabled;
+		case WindowKind::YZview:
+			return log_scale_slice_yz_enabled;
+		}
+		return false;
+	}
+
+	bool ComputeDescriptor::get_img_acc_slice_enabled(WindowKind kind)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			return img_acc_slice_xy_enabled;
+		case WindowKind::XZview:
+			return img_acc_slice_xz_enabled;
+		case WindowKind::YZview:
+			return img_acc_slice_yz_enabled;
+		}
+		return false;
+	}
+
+	unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			return img_acc_slice_xy_level;
+		case WindowKind::XZview:
+			return img_acc_slice_xz_level;
+		case WindowKind::YZview:
+			return img_acc_slice_yz_level;
+		}
+		return 0;
+	}
 }
