@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.0)
-
 project (CameraXiq CXX)
 
 add_library("${PROJECT_NAME}" SHARED
