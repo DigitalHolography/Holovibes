@@ -26,7 +26,7 @@ using json = ::nlohmann::json;
 
 namespace holovibes
 {
-	/*! \brief Used to get meta data from .holo files instead of file titles
+	/*! Used to get meta data from .holo files instead of file titles
 	*
 	* Reads the header of a file and if it is a .holo file reads the json
 	* meta data stored at the end of the file and update the main window
@@ -34,36 +34,36 @@ namespace holovibes
 	class HoloFile
 	{
 	public:
-		/*! \brief Packed .holo header to read the good amount bytes into it at once 
+		/*! Packed 18 bytes .holo header to read the right amount bytes into it at once
 		*
 		* Only contains the necessarys information to retrieve the size of the binary images
 		* data to skip directly to the meta data part at the end */
 		#pragma pack(2)
 		struct Header
 		{
-			/*! \brief .holo file magic number, should be equal to "HOLO" */
+			/*! .holo file magic number, should be equal to "HOLO" */
 			char HOLO[4];
-			/*! \brief Number of bits in 1 pixel */
+			/*! Number of bits in 1 pixel */
 			uint16_t pixel_bits;
-			/*! \brief Width of 1 image in pixels */
+			/*! Width of 1 image in pixels */
 			uint32_t img_width;
-			/*! \brief Height of 1 image in pixels */
+			/*! Height of 1 image in pixels */
 			uint32_t img_height;
-			/*! \brief Number of images in the file */
+			/*! Number of images in the file */
 			uint32_t img_nb;
 		};
 
 		static HoloFile& new_instance(const std::string& file_path);
 		static HoloFile& get_instance();
 
-		/*! \brief Returns the current file's header */
+		/*! Returns the current file's header */
 		const Header& get_header() const;
-		/*! \brief Returns the current file's meta data */
+		/*! Returns the current file's meta data */
 		const json& get_meta_data() const;
-		/*! \brief Sets the current file's meta data */
+		/*! Sets the current file's meta data */
 		void set_meta_data(const json& meta_data);
 
-		/*! \brief Returns true if the file is a .holo file */
+		/*! Returns true if the file is a .holo file */
 		operator bool() const;
 
 		/*! Creates a HoloFile::Header with the given arguments */
@@ -81,6 +81,11 @@ namespace holovibes
 		* \param raw_file_path Path to the raw file to convert */
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
+		/*! Returns a json object containing the settings from a compute descriptor
+		*
+		* \param cd Current compute descriptor */
+		static json get_json_settings(const ComputeDescriptor& cd);
+
 		/*! Returns a json object containing the settings from a frame descriptor and a compute descriptor
 		*
 		* \param fd Current frame descriptor
@@ -88,24 +93,24 @@ namespace holovibes
 		static json get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd);
 
 	private:
-		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data
+		/*! Creates a HoloFile object from an existing file path and reads all of the required data
 		*
 		* \param file_path Path of the .holo file to process */
 		HoloFile(const std::string& file_path);
 
-		/*! \brief Path of the .holo file */
+		/*! Path of the .holo file */
 		std::string holo_file_path_;
 
-		/*! \brief Header of the .holo file */
+		/*! Header of the .holo file */
 		Header header_;
 
-		/*! \brief Meta data offset in the file */
+		/*! Meta data offset in the file */
 		uintmax_t meta_data_offset_;
 
-		/*! \brief True if header_.HOLO == "HOLO" */
+		/*! True if header_.HOLO == "HOLO" */
 		bool is_holo_file_ = false;
 
-		/*! \brief The json meta data as a std::string */
+		/*! The json meta data as a std::string */
 		std::string meta_data_str_;
 
 		/*! The json meta data as a json object */

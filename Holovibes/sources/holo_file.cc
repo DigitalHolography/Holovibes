@@ -42,6 +42,9 @@ namespace holovibes
 	HoloFile::HoloFile(const std::string& file_path)
 		: holo_file_path_(file_path)
 	{
+		if (file_path == "")
+			return;
+
 		std::ifstream file(file_path, std::ios::in | std::ios::binary);
 
 		if (!file)
@@ -133,20 +136,12 @@ namespace holovibes
 
 			LOG_INFO("Updating file: " + holo_file_path_);
 
-			std::string tmp_path = "update_" + holo_file_path_ + ".tmp";
-			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, tmp_path, sizeof(Header), meta_data_offset_);
+			std::string new_file_path = "copy_" + holo_file_path_;
+			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, new_file_path, sizeof(Header), meta_data_offset_);
 
 			if (ret)
 			{
-				std::filesystem::remove(holo_file_path_);
-				std::filesystem::rename(tmp_path, holo_file_path_);
-				meta_data_str_ = meta_data_str;
-				meta_data_ = meta_data;
 				LOG_INFO("Done.");
-			}
-			else if (std::filesystem::exists(tmp_path))
-			{
-				std::filesystem::remove(tmp_path);
 			}
 
 			return true;
@@ -242,23 +237,38 @@ namespace holovibes
 		return true;
 	}
 
-	json HoloFile::get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd)
+	json HoloFile::get_json_settings(const ComputeDescriptor& cd)
 	{
 		try
 		{
 			return json
 			{
-				// We need the height / width / bits to be able to create
-				// a header object later on without having a frame descriptor
-				{"img_width", fd.width},
-				{"img_height", fd.height},
-				{"pixel_bits", fd.depth},
 				{"algorithm", cd.algorithm.load()},
 				{"#img", cd.nSize.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
-				{"z", cd.zdistance.load()}
+				{"z", cd.zdistance.load()},
+				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
+				{"contrast_min", cd.log_scale_slice_xy_enabled ? cd.contrast_min_slice_xy.load() : log10(cd.contrast_min_slice_xy)},
+				{"contrast_max", cd.log_scale_slice_xy_enabled ? cd.contrast_max_slice_xy.load() : log10(cd.contrast_max_slice_xy)}
 			};
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR(e.what());
+			return json();
+		}
+	}
+
+	json HoloFile::get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd)
+	{
+		try
+		{
+			json json_settings = HoloFile::get_json_settings(cd);
+			json_settings.emplace("img_width", fd.width);
+			json_settings.emplace("img_height", fd.height);
+			json_settings.emplace("pixel_bits", fd.depth);
+			return json_settings;
 		}
 		catch (const std::exception& e)
 		{

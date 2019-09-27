@@ -307,45 +307,25 @@ namespace holovibes
 			window_selection->setEnabled(compute_desc_.stft_view_enabled);
 			window_selection->setCurrentIndex(window_selection->isEnabled() ? compute_desc_.current_window : 0);
 
+			ui.ContrastMinDoubleSpinBox->setValue(compute_desc_.get_contrast_min(compute_desc_.current_window));
+			ui.ContrastMaxDoubleSpinBox->setValue(compute_desc_.get_contrast_max(compute_desc_.current_window));
+			ui.LogScaleCheckBox->setEnabled(true);
+			ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.get_img_log_scale_slice_enabled(compute_desc_.current_window));
+			ui.ImgAccuCheckBox->setEnabled(true);
+			ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.get_img_acc_slice_enabled(compute_desc_.current_window));
+			ui.ImgAccuSpinBox->setValue(compute_desc_.get_img_acc_slice_level(compute_desc_.current_window));
 			if (compute_desc_.current_window == WindowKind::XYview)
 			{
-				ui.ContrastMinDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy));
-				ui.ContrastMaxDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy));
-				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled);
-				ui.LogScaleCheckBox->setEnabled(true);
-				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled);
-				ui.ImgAccuCheckBox->setEnabled(true);
-				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xy_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
 			else if (compute_desc_.current_window == WindowKind::XZview)
 			{
-				ui.ContrastMinDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_xz_enabled ? compute_desc_.contrast_min_slice_xz.load() : log10(compute_desc_.contrast_min_slice_xz));
-				ui.ContrastMaxDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_xz_enabled ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz));
-				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xz_enabled);
-				ui.LogScaleCheckBox->setEnabled(true);
-				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(true);
-				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
 			}
 			else if (compute_desc_.current_window == WindowKind::YZview)
 			{
-				ui.ContrastMinDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_yz_enabled ? compute_desc_.contrast_min_slice_yz.load() : log10(compute_desc_.contrast_min_slice_yz));
-				ui.ContrastMaxDoubleSpinBox
-					->setValue(compute_desc_.log_scale_slice_yz_enabled ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz));
-				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_yz_enabled);
-				ui.LogScaleCheckBox->setEnabled(true);
-				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(true);
-				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_yz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
@@ -3331,6 +3311,7 @@ namespace holovibes
 				auto holo_file = HoloFile::new_instance(filename.toStdString());
 				compute_desc_.is_holo_file = holo_file;
 				holo_file_update_ui();
+				holo_file_update_cd();
 
 				if (!holo_file)
 				{
@@ -3440,6 +3421,9 @@ namespace holovibes
 				holovibes_.dispose_compute();
 				holovibes_.dispose_capture();
 			}
+
+			holo_file_update_cd();
+
 			notify();
 		}
 
@@ -3597,7 +3581,7 @@ namespace holovibes
 			unsigned height = ui.ImportHeightSpinBox->value();
 			unsigned pixel_bits = std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3);
 			auto header = HoloFile::create_header(pixel_bits, width, height);
-			HoloFile::create(header, "{}", ui.ImportPathLineEdit->text().toStdString());
+			HoloFile::create(header, holo_file_get_json_settings().dump(), ui.ImportPathLineEdit->text().toStdString());
 		}
 
 		void MainWindow::holo_file_update_ui()
@@ -3609,34 +3593,41 @@ namespace holovibes
 			if (!holo_file)
 				return;
 
-			json json_settings = holo_file.get_meta_data();
-			ui.ImportWidthSpinBox->setValue(holo_file.get_header().img_width);
-			ui.ImportHeightSpinBox->setValue(holo_file.get_header().img_height);
-			ui.ImportDepthComboBox->setCurrentIndex(log2(holo_file.get_header().pixel_bits) - 3);
-			ui.AlgorithmComboBox->setCurrentIndex(json_settings.value("algorithm", 0));
-			ui.nSizeSpinBox->setValue(json_settings.value("#img", 1));
-			ui.PSpinBox->setValue(json_settings.value("p", 0));
-			ui.WaveLengthDoubleSpinBox->setValue(json_settings.value("lambda", 700));
-			ui.ZDoubleSpinBox->setValue(json_settings.value("z", 0));
+			const HoloFile::Header& header = holo_file.get_header();
+			ui.ImportWidthSpinBox->setValue(header.img_width);
+			ui.ImportHeightSpinBox->setValue(header.img_height);
+			ui.ImportDepthComboBox->setCurrentIndex(log2(header.pixel_bits) - 3);
+		}
+
+		void MainWindow::holo_file_update_cd()
+		{
+			auto holo_file = HoloFile::get_instance();
+
+			if (!holo_file)
+				return;
+
+			const json& json_settings = holo_file.get_meta_data();
+			compute_desc_.algorithm = static_cast<Algorithm>(json_settings.value("algorithm", 0));
+			compute_desc_.nSize = json_settings.value("#img", 1);
+			compute_desc_.pindex = json_settings.value("p", 0);
+			compute_desc_.lambda = json_settings.value("lambda", 0.0f);
+			compute_desc_.zdistance = json_settings.value("z", 0.0f);
+			compute_desc_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
+			compute_desc_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
+			compute_desc_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
 		}
 
 		json MainWindow::holo_file_get_json_settings()
 		{
 			try
 			{
-				return json
-				{
-					// We need the height / width / bits to be able to create
-					// a header object later on without having a frame descriptor
-					{"img_width", ui.ImportWidthSpinBox->value()},
-					{"img_height", ui.ImportHeightSpinBox->value()},
-					{"pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3)},
-					{"algorithm", ui.AlgorithmComboBox->currentIndex()},
-					{"#img", ui.nSizeSpinBox->value()},
-					{"p", ui.PSpinBox->value()},
-					{"lambda", static_cast<float>(ui.WaveLengthDoubleSpinBox->value())},
-					{"z", static_cast<float>(ui.ZDoubleSpinBox->value())}
-				};
+				json json_settings = HoloFile::get_json_settings(compute_desc_);
+				// Adding these from the ui because we don't have access to a frame descriptor here
+				json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
+				json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
+				json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
+
+				return json_settings;
 			}
 			catch (const std::exception& e)
 			{

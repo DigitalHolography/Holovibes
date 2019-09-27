@@ -301,7 +301,11 @@ namespace holovibes
 			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
 			// HoloFile related
+			/*! Updates the import ui with the holo file settings */
 			void holo_file_update_ui();
+			/*! Updates the compute descriptor with the holo file settings */
+			void holo_file_update_cd();
+			/*! Creates a json object containing the compute descriptor settings */
 			json MainWindow::holo_file_get_json_settings();
 
 			#pragma endregion
