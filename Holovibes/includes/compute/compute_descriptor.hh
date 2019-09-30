@@ -201,14 +201,17 @@ namespace holovibes
 		/*!
 		 * @{
 		 *
-		 * \brief General getters to avoid code duplication
+		 * \brief General getters / setters to avoid code duplication
 		 *
 		 */
-		float get_contrast_min(WindowKind kind);
-		float get_contrast_max(WindowKind kind);
-		bool get_img_log_scale_slice_enabled(WindowKind kind);
-		bool get_img_acc_slice_enabled(WindowKind kind);
-		unsigned get_img_acc_slice_level(WindowKind kind);
+		float get_contrast_min(WindowKind kind) const;
+		float get_contrast_max(WindowKind kind) const;
+		bool get_img_log_scale_slice_enabled(WindowKind kind) const;
+		bool get_img_acc_slice_enabled(WindowKind kind) const;
+		unsigned get_img_acc_slice_level(WindowKind kind) const;
+
+		void set_contrast_min(WindowKind kind, float value);
+		void set_contrast_max(WindowKind kind, float value);
 		//! @}
 
 #pragma region Atomics vars

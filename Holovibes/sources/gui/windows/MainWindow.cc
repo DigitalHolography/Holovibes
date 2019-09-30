@@ -2482,29 +2482,9 @@ namespace holovibes
 			{
 				if (compute_desc_.contrast_enabled)
 				{
-					if (compute_desc_.current_window == WindowKind::XYview)
-					{
-						if (compute_desc_.log_scale_slice_xy_enabled)
-							compute_desc_.contrast_min_slice_xy = value;
-						else
-							compute_desc_.contrast_min_slice_xy = pow(10, value);
-					}
-					else if (compute_desc_.current_window == WindowKind::XZview)
-					{
-						if (compute_desc_.log_scale_slice_xz_enabled)
-							compute_desc_.contrast_min_slice_xz = value;
-						else
-							compute_desc_.contrast_min_slice_xz = pow(10, value);
-					}
-					else if (compute_desc_.current_window == WindowKind::YZview)
-					{
-						if (compute_desc_.log_scale_slice_yz_enabled)
-							compute_desc_.contrast_min_slice_yz = value;
-						else
-							compute_desc_.contrast_min_slice_yz = pow(10, value);
-					}
+					compute_desc_.set_contrast_min(compute_desc_.current_window, value);
+					pipe_refresh();
 				}
-				pipe_refresh();
 			}
 		}
 
@@ -2514,27 +2494,7 @@ namespace holovibes
 			{
 				if (compute_desc_.contrast_enabled)
 				{
-					if (compute_desc_.current_window == WindowKind::XYview)
-					{
-						if (compute_desc_.log_scale_slice_xy_enabled)
-							compute_desc_.contrast_max_slice_xy = value;
-						else
-							compute_desc_.contrast_max_slice_xy = pow(10, value);
-					}
-					else if (compute_desc_.current_window == WindowKind::XZview)
-					{
-						if (compute_desc_.log_scale_slice_xz_enabled)
-							compute_desc_.contrast_max_slice_xz = value;
-						else
-							compute_desc_.contrast_max_slice_xz = pow(10, value);
-					}
-					else if (compute_desc_.current_window == WindowKind::YZview)
-					{
-						if (compute_desc_.log_scale_slice_yz_enabled)
-							compute_desc_.contrast_max_slice_yz = value;
-						else
-							compute_desc_.contrast_max_slice_yz = pow(10, value);
-					}
+					compute_desc_.set_contrast_max(compute_desc_.current_window, value);
 					pipe_refresh();
 				}
 			}
@@ -3356,7 +3316,6 @@ namespace holovibes
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
-			// import_file_stop();
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 

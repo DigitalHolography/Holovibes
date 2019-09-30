@@ -261,8 +261,8 @@ namespace holovibes
 				{"lambda", cd.lambda.load()},
 				{"z", cd.zdistance.load()},
 				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
-				{"contrast_min", cd.log_scale_slice_xy_enabled ? cd.contrast_min_slice_xy.load() : log10(cd.contrast_min_slice_xy)},
-				{"contrast_max", cd.log_scale_slice_xy_enabled ? cd.contrast_max_slice_xy.load() : log10(cd.contrast_max_slice_xy)}
+				{"contrast_min", cd.get_contrast_min(WindowKind::XYview)},
+				{"contrast_max", cd.get_contrast_max(WindowKind::XYview)}
 			};
 		}
 		catch (const std::exception& e)

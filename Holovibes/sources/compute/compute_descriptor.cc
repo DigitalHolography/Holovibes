@@ -252,7 +252,7 @@ namespace holovibes
 		zoomed_zone = rect;
 	}
 
-	float ComputeDescriptor::get_contrast_min(WindowKind kind)
+	float ComputeDescriptor::get_contrast_min(WindowKind kind) const
 	{
 		switch (kind)
 		{
@@ -266,7 +266,7 @@ namespace holovibes
 		return 0;
 	}
 
-	float ComputeDescriptor::get_contrast_max(WindowKind kind)
+	float ComputeDescriptor::get_contrast_max(WindowKind kind) const
 	{
 		switch (kind)
 		{
@@ -280,7 +280,7 @@ namespace holovibes
 		return 0;
 	}
 
-	bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind)
+	bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const
 	{
 		switch (kind)
 		{
@@ -294,7 +294,7 @@ namespace holovibes
 		return false;
 	}
 
-	bool ComputeDescriptor::get_img_acc_slice_enabled(WindowKind kind)
+	bool ComputeDescriptor::get_img_acc_slice_enabled(WindowKind kind) const
 	{
 		switch (kind)
 		{
@@ -308,7 +308,7 @@ namespace holovibes
 		return false;
 	}
 
-	unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind)
+	unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind) const
 	{
 		switch (kind)
 		{
@@ -320,5 +320,37 @@ namespace holovibes
 			return img_acc_slice_yz_level;
 		}
 		return 0;
+	}
+
+	void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			contrast_min_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
+			break;
+		case WindowKind::XZview:
+			contrast_min_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
+			break;
+		case WindowKind::YZview:
+			contrast_min_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
+			break;
+		}
+	}
+
+	void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			contrast_max_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
+			break;
+		case WindowKind::XZview:
+			contrast_max_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
+			break;
+		case WindowKind::YZview:
+			contrast_max_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
+			break;
+		}
 	}
 }
