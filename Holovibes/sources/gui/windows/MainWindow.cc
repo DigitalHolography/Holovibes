@@ -1229,10 +1229,13 @@ namespace holovibes
 				InfoManager::get_manager()->insertInputSource(fd);
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
-				set_auto_contrast();
-				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-				if (pipe)
-					pipe->autocontrast_end_pipe(XYview);
+				if (!compute_desc_.is_holo_file)
+				{
+					set_auto_contrast();
+					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					if (pipe)
+						pipe->autocontrast_end_pipe(XYview);
+				}
 				ui.DivideConvoCheckBox->setEnabled(false);
 				notify();
 			}
