@@ -385,8 +385,8 @@ namespace holovibes
 
 
 		//! HSV
-		std::atomic<ushort>			composite_p_min_h;
-		std::atomic<ushort>			composite_p_max_h;
+		std::atomic<ushort>			composite_p_min_h{0};
+		std::atomic<ushort>			composite_p_max_h{0};
 		std::atomic<float>			slider_h_threshold_min{ 0.01f };
 		std::atomic<float>			slider_h_threshold_max{ 1.0f };
 		std::atomic<float>			composite_low_h_threshold{ 0.2f };
@@ -395,16 +395,16 @@ namespace holovibes
 		std::atomic<uint>			h_blur_kernel_size{ 1 };
 
 		std::atomic<bool>			composite_p_activated_s{ false };
-		std::atomic<ushort>			composite_p_min_s;
-		std::atomic<ushort>			composite_p_max_s;
+		std::atomic<ushort>			composite_p_min_s{0};
+		std::atomic<ushort>			composite_p_max_s{0};
 		std::atomic<float>			slider_s_threshold_min{ 0.01f };
 		std::atomic<float>			slider_s_threshold_max{ 1.0f };
 		std::atomic<float>			composite_low_s_threshold{ 0.2f };
 		std::atomic<float>			composite_high_s_threshold{ 99.8f };
 
 		std::atomic<bool>			composite_p_activated_v{ false };
-		std::atomic<ushort>			composite_p_min_v;
-		std::atomic<ushort>			composite_p_max_v;
+		std::atomic<ushort>			composite_p_min_v{0};
+		std::atomic<ushort>			composite_p_max_v{0};
 		std::atomic<float>			slider_v_threshold_min{ 0.01f };
 		std::atomic<float>			slider_v_threshold_max{ 1.0f };
 		std::atomic<float>			composite_low_v_threshold{ 0.2f };
