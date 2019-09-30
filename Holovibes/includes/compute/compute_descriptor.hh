@@ -212,6 +212,9 @@ namespace holovibes
 
 		void set_contrast_min(WindowKind kind, float value);
 		void set_contrast_max(WindowKind kind, float value);
+		void set_log_scale_slice_enabled(WindowKind kind, bool value);
+		void set_accumulation(WindowKind kind, bool value);
+		void set_accumulation_level(WindowKind kind, float value);
 		//! @}
 
 #pragma region Atomics vars

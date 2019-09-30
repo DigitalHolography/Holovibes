@@ -353,4 +353,52 @@ namespace holovibes
 			break;
 		}
 	}
+
+	void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			log_scale_slice_xy_enabled = value;
+			break;
+		case WindowKind::XZview:
+			log_scale_slice_xz_enabled = value;
+			break;
+		case WindowKind::YZview:
+			log_scale_slice_yz_enabled = value;
+			break;
+		}
+	}
+
+	void ComputeDescriptor::set_accumulation(WindowKind kind, bool value)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			img_acc_slice_xy_enabled = value;
+			break;
+		case WindowKind::XZview:
+			img_acc_slice_xz_enabled = value;
+			break;
+		case WindowKind::YZview:
+			img_acc_slice_yz_enabled = value;
+			break;
+		}
+	}
+
+	void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
+	{
+		switch (kind)
+		{
+		case WindowKind::XYview:
+			img_acc_slice_xy_level = value;
+			break;
+		case WindowKind::XZview:
+			img_acc_slice_xz_level = value;
+			break;
+		case WindowKind::YZview:
+			img_acc_slice_yz_level = value;
+			break;
+		}
+	}
 }

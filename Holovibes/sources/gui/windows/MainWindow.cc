@@ -2120,12 +2120,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.current_window == WindowKind::XYview)
-					compute_desc_.img_acc_slice_xy_enabled = value;
-				else if (compute_desc_.current_window == WindowKind::XZview)
-					compute_desc_.img_acc_slice_xz_enabled = value;
-				else if (compute_desc_.current_window == WindowKind::YZview)
-					compute_desc_.img_acc_slice_yz_enabled = value;
+				compute_desc_.set_accumulation(compute_desc_.current_window, value);
 				holovibes_.get_pipe()->request_acc_refresh();
 				notify();
 			}
@@ -2135,12 +2130,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.current_window == WindowKind::XYview)
-					compute_desc_.img_acc_slice_xy_level = value;
-				else if (compute_desc_.current_window == WindowKind::XZview)
-					compute_desc_.img_acc_slice_xz_level = value;
-				else if (compute_desc_.current_window == WindowKind::YZview)
-					compute_desc_.img_acc_slice_yz_level = value;
+				compute_desc_.set_accumulation_level(compute_desc_.current_window, value);
 				holovibes_.get_pipe()->request_acc_refresh();
 			}
 		}
@@ -2507,12 +2497,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.current_window == WindowKind::XYview)
-					compute_desc_.log_scale_slice_xy_enabled = value;
-				else if (compute_desc_.current_window == WindowKind::XZview)
-					compute_desc_.log_scale_slice_xz_enabled = value;
-				else if (compute_desc_.current_window == WindowKind::YZview)
-					compute_desc_.log_scale_slice_yz_enabled = value;
+				compute_desc_.set_log_scale_slice_enabled(compute_desc_.current_window, value);
 				if (compute_desc_.contrast_enabled)
 				{
 					set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
