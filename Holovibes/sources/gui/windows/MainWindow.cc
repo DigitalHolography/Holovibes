@@ -1530,7 +1530,6 @@ namespace holovibes
 
 			ui.DivideConvoCheckBox->setEnabled(value);
 			compute_desc_.convolution_enabled = value;
-			ui.ContrastMaxDoubleSpinBox->setValue(3);
 			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
 			notify();
@@ -2827,7 +2826,7 @@ namespace holovibes
 				uint matrix_z = std::stoi(matrix_size[2]);
 				boost::trim(v_str[1]);
 				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
-				if ((compute_desc_.convo_matrix_width * compute_desc_.convo_matrix_height * compute_desc_.convo_matrix_z) != matrix.size())
+				if (matrix_width * matrix_height * matrix_z != matrix.size())
 				{
 					holovibes_.reset_convolution_matrix();
 					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");

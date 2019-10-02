@@ -57,9 +57,6 @@ __global__
 void kernel_float_divide(float		*input,
 						const uint	size,
 						const float	divider);
-void gpu_float_divide(float		*input,
-					const uint	size,
-					const float	divider);
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
