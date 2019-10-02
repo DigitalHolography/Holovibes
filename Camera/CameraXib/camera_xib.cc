@@ -196,10 +196,10 @@ namespace camera
         status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
     }
     status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
-    status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
-    status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
     status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
     status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
