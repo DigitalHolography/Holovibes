@@ -112,8 +112,8 @@ Cuda functions
 * Works with these cameras:
     * PCO Edge 4.2 LT
     * Andor iXon +885
-    * IDS imaging CMOSIS CMV 4000 
-    * AVT Pike Kodak KAI 4022 F-421 
+    * IDS imaging CMOSIS CMV 4000
+    * AVT Pike Kodak KAI 4022 F-421
     * PCO Pixelfly
     * Ximea CMOSIS XiQ
     * Ximea CMOSIS XiB
@@ -199,6 +199,13 @@ To let the versioning tool consistent, you have to respect these rules.
 * Git names conventions
 
 ## Changelog ##
+
+### v.7.2
+
+* CMake build
+* .holo file format
+* Bugfixes on Xib camera
+* General code cleanup
 
 ### v.7.1
 
@@ -565,7 +572,7 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 * Add: Convolution with loaded kernels
 * Add: temporal Flowgraphy
 * Add: cine file parsing
-* Add: GUI themes 
+* Add: GUI themes
 
 
 ### v.2.0.1

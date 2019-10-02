@@ -23,7 +23,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v7.1.1"; /*!< Current version of this project. */
+	const static std::string version = "v7.2.0"; /*!< Current version of this project. */
 
 	using	Tuple4f = std::tuple<float, float, float, float>;
 
@@ -231,7 +231,7 @@ namespace holovibes
 		std::atomic<ushort>			nSize;
 		//! index in the depth axis
 		std::atomic<ushort>			pindex;
-		
+
 		//! wave length of the laser
 		std::atomic<float>			lambda;
 		//! Input matrix used for convolution
@@ -294,7 +294,7 @@ namespace holovibes
 		std::atomic<bool>			log_scale_slice_xz_enabled;
 		//! is log scale in slice YZ enabled
 		std::atomic<bool>			log_scale_slice_yz_enabled;
-		//! is shift fft enabled (switching representation diagram) 
+		//! is shift fft enabled (switching representation diagram)
 		std::atomic<bool>			shift_corners_enabled;
 		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
