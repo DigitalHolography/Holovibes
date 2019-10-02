@@ -2819,7 +2819,7 @@ namespace holovibes
 		void MainWindow::browse_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
-				tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
+				tr("Record output file"), "C://", tr("Holo files (*.holo);; All files (*)"));
 
 			QLineEdit* path_line_edit = ui.ImageOutputPathLineEdit;
 			path_line_edit->clear();
@@ -2910,7 +2910,9 @@ namespace holovibes
 
 				if (queue)
 				{
-					path = set_record_filename_properties(queue->get_frame_desc(), path);
+					// path = set_record_filename_properties(queue->get_frame_desc(), path);
+					if (path.substr(path.size() - 5, 5) != ".holo")
+						path += ".holo";
 					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));

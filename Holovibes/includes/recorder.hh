@@ -77,7 +77,6 @@ namespace holovibes
 	private:
 		bool is_file_exist(const std::string& filepath);
 		void createFilePath(const std::string folderName);
-		void createHoloFile(const json& json_settings);
 
 	private:
 		std::string execDir;

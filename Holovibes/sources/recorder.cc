@@ -56,6 +56,9 @@ namespace holovibes
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
+		auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024), n_images);
+		file_.write((char*)(&header), sizeof(HoloFile::Header));
+
 		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
 		{
 			while (queue_.get_current_elts() < 1)
@@ -86,29 +89,13 @@ namespace holovibes
 			emit value_change(i);
 		}
 
+		std::string json_str = json_settings.dump();
+		file_.write(json_str.data(), json_str.size());
+
 		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");
 		delete[] buffer;
-
-		createHoloFile(json_settings);
 	}
-
-	void Recorder::createHoloFile(const json& json_settings)
-	{
-		try
-		{
-			file_.close();
-			auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024));
-			HoloFile::create(header, json_settings.dump(), output_path_);
-			file_.open(output_path_, std::ios::app);
-		}
-		catch (const std::exception& e)
-		{
-			LOG_ERROR(e.what());
-			LOG_ERROR("Could not create holo file after recording");
-		}
-	}
-
 
 	void Recorder::stop()
 	{
