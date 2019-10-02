@@ -1,0 +1,27 @@
+target_sources(holocuda PRIVATE
+    aberration.cu
+    autofocus.cu
+    average.cu
+    composite.cu
+    contrast_correction.cu
+    convolution.cu
+    debug_img.cu
+    fft1.cu
+    fft2.cu
+    filter2D.cu
+    flowgraphy.cu
+    hsv.cu
+    interpolation.cu
+    min_max.cu
+    percentile.cu
+    preprocessing.cu
+    stabilization.cu
+    stft.cu
+    texture_update.cu
+    tools.cu
+    tools_compute.cu
+    tools_conversion.cu
+    tools_unwrap.cu
+    transforms.cu
+    vibrometry.cu
+)

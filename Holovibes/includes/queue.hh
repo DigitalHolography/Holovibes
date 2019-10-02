@@ -20,6 +20,8 @@
 # include <iostream>
 # include <mutex>
 
+# include <cuda_runtime.h>
+
 # include "frame_desc.hh"
 # include "unique_ptr.hh"
 

@@ -15,6 +15,11 @@
     Documentation for developpers. \n
 */
 
+#include <QApplication>
+#include <QLocale>
+#include <QPixmap>
+#include <QSplashScreen>
+
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "logger.hh"

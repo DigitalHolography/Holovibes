@@ -27,44 +27,34 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * Make sure the following installations respect the paths set in "PropertySheet.props":
     * Visual Studio 2017
-    * CUDA 10 (AFTER installing visual Studio)
-    * Qt 5.9.0
+    * CUDA 10 or 10.1 (AFTER installing visual Studio)
+    * Qt 5.9
     * QT VS TOOLS (Usefull Visual studio add-on)
-    * Install and build Qwt 6.1.3 in the "lib" directory
-    * Boost 1.65.1 (A prebuilt version is easier. If you build it yourself, make sure libs are built in $(BoostLib)\lib64-msvc-14.1)
+    * Boost 1.71.0
     * Doxywizard (optionnal, usefull to manipulate 'doxygen_config' file)
-* Make sure the environment variable "CUDA_PATH_V9_1" is set
 * Make sure your path contains:
-    * $(CUDA_PATH_V9_1)\bin
-    * $(CUDA_PATH_V9_1)\libnvvp
+    * $(CUDA_PATH_V10_1)\bin
+    * $(CUDA_PATH_V10_1)\libnvvp
     * $(QTDIR)\bin
-    * $(QWTDIR)\lib
 * After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
 * Verify that it builds with the correct dll. If not, your path contain something wrong.
 
 
 ### IDE ###
 
-* Visual Studio 2017 Community 15.6.7
+* Visual Studio 2017 Community 15.6.7 OR Visual Studio 2019
 
 ### CUDA ###
 
 * [CUDA 10 Production Release](https://developer.nvidia.com/cuda-downloads)
 
-### Visual C++ redistributable ###
-
-* [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
-* [Visual C++ Redistributable Packages for Visual Studio 2015](https://www.microsoft.com/fr-fr/download/details.aspx?id=48145)
-
 ### Qt 5.9.0 ###
 
-* [Qt OpenSource Windows x64 5.9.0](https://download.qt.io/archive/qt/5.9/5.9.0/)
-
+* [Qt OpenSource Windows x64 5.9](https://download.qt.io/archive/qt/5.9/)
 
 ### Libraries ###
 
-* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.65.1
-* [Qwt 6.1.3](http://sourceforge.net/projects/qwt/files/qwt/6.1.3/)
+* [Boost C++ Library](https://boost.teeks99.com/bin/1.71.0/) 1.71.0
 
 ## Typical Usage ##
 
@@ -158,6 +148,9 @@ Cuda functions
 
 ## Authors ##
 
+* Loïc Bellonnet-Mottet
+* Antoine Martin
+* François Te
 * Ellena Davoine
 * Clement Fang
 * Danae Marmai
@@ -188,7 +181,7 @@ If you do not know how to use git, please have a look at the following tutorial.
 ### Clone the repository
 
 You can use a GUI tool as SourceTree or use git in command line.
-git clone https://username@bitbucket.org/PierrePagnoux/holovibes.git
+git clone git@bitbucket.org:micatlan/holovibes.git
 
 ### Git rules
 

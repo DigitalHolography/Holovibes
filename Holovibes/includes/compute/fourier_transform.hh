@@ -15,6 +15,8 @@
  Implementation of FFT1, FFT2 and STFT algorithms. */
 #pragma once
 
+#include <cufft.h>
+
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "rect.hh"

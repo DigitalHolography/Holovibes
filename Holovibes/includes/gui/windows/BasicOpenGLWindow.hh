@@ -15,6 +15,13 @@
 * Interface implemented by each Qt window. */
 #pragma once
 
+#include <glm/glm.hpp>
+
+#include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLWindow>
+
 #include "overlay_manager.hh"
 #include "tools_conversion.cuh"
 #include "queue.hh"

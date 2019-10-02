@@ -15,6 +15,8 @@
 Implementation of autofocus feature. */
 #pragma once
 
+#include <cufft.h>
+
 #define FOCUS_RANGE      0.5f
 
 #include "pipeline_utils.hh"
@@ -31,7 +33,7 @@ namespace holovibes
 	namespace compute
 	{
 		/*! \brief Describing the autofocus state */
-		enum af_state
+		enum class af_state
 		{
 			STOPPED, /**< Autofocus not requested */
 			COPYING, /**< Copying frames when autofocus is used with stft */
@@ -67,7 +69,7 @@ namespace holovibes
 
 			unsigned int		old_steps; /**< old value of stft steps*/
 			int					stft_index; /**< current index of the frame to save/copy when stft is enabled. We need it since the input_length_ is equal to 1 when stft */
-			enum af_state		state; /**< state of autofocus process */
+			af_state	    	state; /**< state of autofocus process */
 		};
 
 		class Autofocus
@@ -133,9 +135,6 @@ namespace holovibes
 			*/
 			void autofocus_reset();
 
-			//! Containing every special vairables needed to run autofocus
-			af_env	af_env_;
-
 			/// Main pipe buffers.
 			const CoreBuffers&				buffers_;
 			/// Vector function in which we insert the processing
@@ -148,6 +147,9 @@ namespace holovibes
 			Queue&							input_;
 			/// Pointer on the pipe.
 			ICompute*						Ic_;
+
+			//! Containing every special vairables needed to run autofocus
+			af_env	af_env_;
 		};
 	}
 }

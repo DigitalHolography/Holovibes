@@ -40,7 +40,7 @@
 # include "PlotWindow.hh"
 # include "thread_csv_record.hh"
 # include "thread_recorder.hh"
-# include "ui_MainWindow.h"
+# include "ui_mainwindow.h"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 Q_DECLARE_METATYPE(std::function<void()>)

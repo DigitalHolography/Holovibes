@@ -15,6 +15,11 @@
  * std::unique_ptr "specialization" for cudaFree */
 #pragma once
 
+#include <functional>
+#include <memory>
+
+#include <cstddef>
+
 #include "logger.hh"
 
 namespace holovibes

@@ -15,15 +15,21 @@
  * Widget wrapping for a QtChart. Used to display average/ROI computations. */
 #pragma once
 
+#include <memory>
+#include <vector>
+
+#include <QObject>
+#include <QString>
+#include <QTimer>
+
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMainWindow>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
-using namespace QtCharts;
-
-#include <memory>
 
 #include "concurrent_deque.hh"
+
+using namespace QtCharts;
 
 namespace holovibes
 {

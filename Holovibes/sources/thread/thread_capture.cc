@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <windows.h>
+
 #include "thread_capture.hh"
 #include "info_manager.hh"
 #include "icamera.hh"

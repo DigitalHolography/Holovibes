@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <cufft.h>
 
 namespace holovibes

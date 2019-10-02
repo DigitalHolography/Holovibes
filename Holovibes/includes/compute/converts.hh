@@ -15,6 +15,11 @@
   Implmentation of the conversions between buffers.*/
 #pragma once
 
+#include <memory>
+
+#include <cufft.h>
+
+#include "compute_descriptor.hh"
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
 #include "queue.hh"
@@ -90,9 +95,9 @@ namespace holovibes
 			void insert_slice_ushort();
 
 			//! pindex.
-			ushort pmin_;
+			unsigned short pmin_;
 			//! maximum value of p accumulation
-			ushort pmax_;
+			unsigned short pmax_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;

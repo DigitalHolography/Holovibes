@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <sstream>
+
 #include "fourier_transform.hh"
 #include "compute_descriptor.hh"
 #include "tools_conversion.cuh"

@@ -156,7 +156,7 @@ namespace holovibes
 			return;
 		}
 
-		if (autofocus_requested_ && autofocus_->get_state() == compute::STOPPED)
+		if (autofocus_requested_ && autofocus_->get_state() == compute::af_state::STOPPED)
 		{
 			autofocus_->insert_init();
 			autofocus_requested_ = false;
@@ -164,9 +164,11 @@ namespace holovibes
 		}
 
 		// Converting input_ to complex.
-		if (autofocus_->get_state() == compute::STOPPED)
+		if (autofocus_->get_state() == compute::af_state::STOPPED)
+		{
 			fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
-		else if (autofocus_->get_state() == compute::COPYING)
+		}
+		else if (autofocus_->get_state() == compute::af_state::COPYING)
 		{
 			autofocus_->insert_copy();
 			return;

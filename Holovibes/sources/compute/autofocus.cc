@@ -27,12 +27,13 @@ namespace holovibes
 			holovibes::Queue& input,
 			holovibes::ComputeDescriptor& cd,
 			ICompute *Ic)
-			: fn_vect_(fn_vect)
-			, buffers_(buffers)
-			, input_(input)
+			: buffers_(buffers)
+			, fn_vect_(fn_vect)
 			, fd_(input.get_frame_desc())
 			, cd_(cd)
+			, input_(input)
 			, Ic_(Ic)
+			, af_env_()
 		{}
 
 		void Autofocus::insert_init()
@@ -70,7 +71,7 @@ namespace holovibes
 
 		float Autofocus::get_zvalue() const
 		{
-			return af_env_.state == RUNNING ? af_env_.z : cd_.zdistance;
+			return af_env_.state == af_state::RUNNING ? af_env_.z : cd_.zdistance;
 		}
 
 		void Autofocus::autofocus_init()

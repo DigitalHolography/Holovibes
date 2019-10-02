@@ -10,6 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <filesystem>
+
+#include <cassert>
+
 #include "holovibes.hh"
 #include "queue.hh"
 #include "config.hh"
@@ -32,7 +36,7 @@ namespace holovibes
 		output_(),
 		compute_desc_(),
 		average_queue_(),
-		launch_path(boost::filesystem::current_path().generic_string())
+		launch_path(std::filesystem::current_path().generic_string())
 	{
 	}
 

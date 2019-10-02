@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cuda_runtime.h>
+
 #include "info_manager.hh"
 #include "tools.hh"
 

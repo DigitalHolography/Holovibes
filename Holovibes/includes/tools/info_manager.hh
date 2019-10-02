@@ -15,6 +15,15 @@
 * Singleton managing the 'Infos' GroupBox. TODO: recode this class. */
 #pragma once
 
+#include <mutex>
+#include <thread>
+
+#include <QObject>
+#include <QProgressBar>
+#include <QString>
+#include <QTextEdit>
+#include <QThread>
+
 #include "gui_group_box.hh"
 #include "frame_desc.hh"
 

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cmath>
+#include <cuda_runtime.h>
+
 #include "hardware_limits.hh"
 
 

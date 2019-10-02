@@ -15,6 +15,8 @@
  * Contains functions relative jitter cancel. */
 #pragma once
 
+#include <cuComplex.h>
+
 # include "cuda_tools/unique_ptr.hh"
 # include "cuda_tools/array.hh"
 # include "pipeline_utils.hh"
@@ -79,15 +81,15 @@ namespace holovibes
 
 			/*! Number of slices we split the input into, must be odd
 			*/
-			uint							nb_slices_{ 7 };
+			unsigned int					nb_slices_{ 7 };
 
 			/*! Size of a slice in the time axis
 			*/
-			uint							slice_depth_;
+			unsigned int					slice_depth_;
 
 			/*! Difference between the start of two consecutive slices (depth / 2)
 			*/
-			uint							slice_shift_;
+			unsigned int					slice_shift_;
 
 
 

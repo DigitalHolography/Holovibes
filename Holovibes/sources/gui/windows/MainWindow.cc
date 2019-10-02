@@ -10,11 +10,25 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <filesystem>
+
+#include <QAction>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QRect>
+#include <QScreen>
+#include <QShortcut>
+#include <QStyleFactory>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+#include "ui_mainwindow.h"
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include <filesystem>
-
 
 #define MIN_IMG_NB_STFT_CUTS 8
 
@@ -1111,7 +1125,7 @@ namespace holovibes
 
 		void MainWindow::configure_camera()
 		{
-			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
+			open_file(std::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 		}
 #pragma endregion
 		/* ------------ */

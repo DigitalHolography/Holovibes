@@ -15,6 +15,9 @@
  * Stores functions helping the editing of the images. */
 #pragma once
 
+#include <atomic>
+#include <memory>
+
 # include "config.hh"
 # include "pipeline_utils.hh"
 # include "rect.hh"
@@ -45,7 +48,7 @@ namespace holovibes
 		cuda_tools::UniquePtr<float>			gpu_float_buffer_ = nullptr;
 		/** Size in components (size in byte / sizeof(float)) of the gpu_float_buffer_.
 		 Could be removed by changing gpu_float_buffer_ type to cuda_tools::Array. */
-		uint									gpu_float_buffer_size_ = 0;
+		unsigned int							gpu_float_buffer_size_ = 0;
 		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame.
 		 It is of void type because it is also used for complex slices.
 		 Could be better to have an other buffer used only for complex slices. */
@@ -89,14 +92,14 @@ namespace holovibes
 		/** Boolean set if the STFT has been performed during this pipe iteration. Used to not re-compute post-processing between STFT Steps. */
 		bool								stft_handle_ = false;
 		/** Frame Counter. Counter before the next STFT perform. */
-		uint								stft_frame_counter_ = 1;
+		unsigned int						stft_frame_counter_ = 1;
 	};
 
 	/** \brief Structure containing variables related to the average computation and recording. */
 	struct Average_env
 	{
 		ConcurrentDeque<Tuple4f>* average_output_ = nullptr;
-		uint	average_n_ = 0;
+		unsigned int	average_n_ = 0;
 	};
 
 	/* \brief Stores functions helping the editing of the images.
@@ -130,7 +133,7 @@ namespace holovibes
 		void request_unwrapping_2d(const bool value);
 		void request_average(ConcurrentDeque<Tuple4f>* output);
 		void request_average_stop();
-		void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
+		void request_average_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
 		void request_termination();
 		/*!
 		 * \brief Updates the queues size
@@ -138,7 +141,7 @@ namespace holovibes
 		void update_acc_parameter(
 			std::unique_ptr<Queue>& gpu_img_acc,
 			std::atomic<bool>& enabled,
-			std::atomic<uint>& queue_length,
+			std::atomic<unsigned int>& queue_length,
 			camera::FrameDescriptor new_fd);
 
 		/*! \brief Execute one iteration of the ICompute.
@@ -181,7 +184,7 @@ namespace holovibes
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
 
-		void set_stft_frame_counter(uint value)
+		void set_stft_frame_counter(unsigned int value)
 		{
 			stft_env_.stft_frame_counter_ = value;
 		}
@@ -225,7 +228,7 @@ namespace holovibes
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
 		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
-		uint	frame_count_;
+		unsigned int	frame_count_;
 
 		/** YZ Image Accumulation Queue. */
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;

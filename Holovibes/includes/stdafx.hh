@@ -19,21 +19,6 @@
 // First, sort all the line
 // To remove duplicated line, replace  ^(.*)(\r?\n\1)+$  by $1
 
-// Because Boost uses std::unary_function which has been removed in C++17
-#ifndef _HAS_AUTO_PTR_ETC
-#define _HAS_AUTO_PTR_ETC 1
-#endif // !_HAS_AUTO_PTR_ETC
-
-// Because Boost uses std::iterator which is deprecated in C++17
-#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#endif
-
-// Because Boost uses std::allocator which is deprecated in C++17
-#ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#endif
-
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
@@ -48,6 +33,7 @@
 #include <exception>
 #include <fstream>
 #include <functional>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <list>
@@ -72,14 +58,20 @@
 #include <ctime>
 
 // Qt
+#include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
 #include <QDesktopWidget.h>
+#include <QDragEnterEvent>
 #include <QEvent.h>
 #include <QFileDialog>
+#include <QFont>
 #include <QGroupBox>
+#include <QGuiApplication>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QObject>
 #include <QOpenGLFunctions>
 #include <QOpenGLPaintDevice>
@@ -89,10 +81,16 @@
 #include <QPainter>
 #include <QPen>
 #include <QProgressBar>
+#include <QRect>
+#include <QScreen>
 #include <QShortcut>
 #include <QTextBrowser>
+#include <QTextDocument>
 #include <QThread>
 #include <QVector>
+#include <QWheelEvent>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 #include <QtWidgets>
 
 #include <qabstracttextdocumentlayout.h>
@@ -107,7 +105,6 @@
 
 // Boost
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options/cmdline.hpp>
 #include <boost/program_options/config.hpp>
@@ -140,5 +137,3 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtc\type_ptr.hpp>

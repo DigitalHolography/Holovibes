@@ -10,6 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#ifdef WIN32
+  #include <windows.h>
+#endif
+#include <cuda_gl_interop.h>
+
+#include <QGuiApplication>
+#include <QMouseEvent>
+#include <QRect>
+#include <QScreen>
+#include <QWheelEvent>
+
 #include "DirectWindow.hh"
 #include "HoloWindow.hh"
 #include "info_manager.hh"

@@ -10,6 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <exception>
+
+#include <cuda_runtime.h>
+
 #include "compute_bundles.hh"
 
 namespace holovibes

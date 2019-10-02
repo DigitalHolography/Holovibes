@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <stdexcept>
+#include <memory>
+
 #include "gpib_dll.hh"
 
 namespace gpib

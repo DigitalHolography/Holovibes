@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <iomanip>
+
 #include "remove_jitter.hh"
 #include "compute_descriptor.hh"
 #include "rect.hh"

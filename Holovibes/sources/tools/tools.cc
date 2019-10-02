@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <iomanip>
+#include <sstream>
+
 #include "tools.hh"
 #include "tools_conversion.cuh"
 #include "power_of_two.hh"
@@ -147,7 +150,7 @@ std::string engineering_notation(double value, int nb_significant_figures)
 {
 
 	static std::string prefix[] = {
-		"y", "z", "a", "f", "p", "n", "µ", "m", "",
+		"y", "z", "a", "f", "p", "n", "ï¿½", "m", "",
 		"k", "M", "G", "T", "P", "E", "Z", "Y"
 	};
 

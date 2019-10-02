@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <sstream>
+
 #include "info_manager.hh"
 #include "HoloWindow.hh"
 #include "MainWindow.hh"
