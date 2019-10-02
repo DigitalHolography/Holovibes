@@ -25,13 +25,15 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### Developpers Setup ###
 
-* Make sure the following installations respect the paths set in "PropertySheet.props":
+* Make sure the following software is installed:
     * Visual Studio 2017
     * CUDA 10 or 10.1 (AFTER installing visual Studio)
     * Qt 5.9
     * QT VS TOOLS (Usefull Visual studio add-on)
-    * Boost 1.71.0
+    * Boost 1.71.0 (if building with CMake ; fetched from NuGet in VS)
     * Doxywizard (optionnal, usefull to manipulate 'doxygen_config' file)
+* Make sure the following environment variables are set:
+    * `QTDIR` pointing to something like `C:\Qt\Qt5.x.x\5.x.x\msvc2017_64\`
 * Make sure your path contains:
     * $(CUDA_PATH_V10_1)\bin
     * $(CUDA_PATH_V10_1)\libnvvp
