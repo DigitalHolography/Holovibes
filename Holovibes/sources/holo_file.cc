@@ -261,8 +261,8 @@ namespace holovibes
 				{"lambda", cd.lambda.load()},
 				{"z", cd.zdistance.load()},
 				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
-				{"contrast_min", cd.get_contrast_min(WindowKind::XYview)},
-				{"contrast_max", cd.get_contrast_max(WindowKind::XYview)}
+				{"contrast_min", cd.contrast_min_slice_xy.load()},
+				{"contrast_max", cd.contrast_max_slice_xy.load()}
 			};
 		}
 		catch (const std::exception& e)
@@ -272,14 +272,15 @@ namespace holovibes
 		}
 	}
 
-	json HoloFile::get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd)
+	json HoloFile::get_json_settings(const ComputeDescriptor& cd, const camera::FrameDescriptor& fd)
 	{
 		try
 		{
 			json json_settings = HoloFile::get_json_settings(cd);
 			json_settings.emplace("img_width", fd.width);
 			json_settings.emplace("img_height", fd.height);
-			json_settings.emplace("pixel_bits", fd.depth);
+			json_settings.emplace("pixel_bits", fd.depth * 8);
+			json_settings.emplace("endianess", fd.byteEndian);
 			return json_settings;
 		}
 		catch (const std::exception& e)

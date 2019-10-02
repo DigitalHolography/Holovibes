@@ -141,7 +141,7 @@ namespace holovibes
 			filepath);
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder->record(rec_n_images, HoloFile::get_json_settings(get_cam_frame_desc(), compute_desc_));
+		recorder->record(rec_n_images, HoloFile::get_json_settings(compute_desc_, get_cam_frame_desc()));
 		delete recorder;
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}

@@ -90,7 +90,7 @@ namespace holovibes
 		*
 		* \param fd Current frame descriptor
 		* \param cd Current compute descriptor */
-		static json get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd);
+		static json get_json_settings(const ComputeDescriptor& cd, const camera::FrameDescriptor& fd);
 
 	private:
 		/*! Creates a HoloFile object from an existing file path and reads all of the required data

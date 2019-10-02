@@ -63,17 +63,21 @@ namespace holovibes
 
 			cur_size = queue_.get_current_elts();
 			if (cur_size >= max_size - 1)
-		  	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
 			else if (cur_size > (max_size * 0.8f))
 				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
 			else
 				gui::InfoManager::get_manager()->remove_info("Recording");
 
-			if (queue_.get_frame_desc().depth == 6) {// Record 48-bit color image into 24-bit color
+			if (queue_.get_frame_desc().depth == 6)
+			{
+				// Record 48-bit color image into 24-bit color
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
 				file_.write(buffer, size/2);
 			}	
-			else {// Normal recording
+			else
+			{
+				// Normal recording
 				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
 				cudaStreamSynchronize(0);
 				file_.write(buffer, size);

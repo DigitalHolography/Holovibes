@@ -3543,9 +3543,11 @@ namespace holovibes
 				return;
 
 			const HoloFile::Header& header = holo_file.get_header();
+			const json& json_settings = holo_file.get_meta_data();
 			ui.ImportWidthSpinBox->setValue(header.img_width);
 			ui.ImportHeightSpinBox->setValue(header.img_height);
 			ui.ImportDepthComboBox->setCurrentIndex(log2(header.pixel_bits) - 3);
+			ui.ImportEndiannessComboBox->setCurrentIndex(json_settings.value("endianess", 0));
 		}
 
 		void MainWindow::holo_file_update_cd()
@@ -3570,12 +3572,8 @@ namespace holovibes
 		{
 			try
 			{
-				json json_settings = HoloFile::get_json_settings(compute_desc_);
-				// Adding these from the ui because we don't have access to a frame descriptor here
-				json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
-				json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
-				json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
-
+				json json_settings = HoloFile::get_json_settings(compute_desc_, holovibes_.get_output_queue()->get_frame_desc());
+				std::cout << json_settings << "\n";
 				return json_settings;
 			}
 			catch (const std::exception& e)
