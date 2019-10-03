@@ -1,4 +1,4 @@
-project (CameraPhotoFocus CXX)
+project (CameraPhotonFocus CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_photon_focus.cc
