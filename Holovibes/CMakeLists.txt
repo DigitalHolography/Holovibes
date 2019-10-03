@@ -20,6 +20,15 @@ add_executable("${PROJECT_NAME}"
 # C++ standard
 target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_17)
 
+target_link_options("${PROJECT_NAME}"
+    PRIVATE
+
+    # Holovibes requires elevated privilege on Windows 10 to write
+    # to *.ini files inside Program Files/
+    # TODO: put *.ini files in %APPDATA%
+    "$<$<NOT:$<CONFIG:Debug>>:/MANIFESTUAC:level='requireAdministrator' uiAccess='false'>"
+)
+
 add_library(holocuda STATIC)
 
 target_include_directories(holocuda
