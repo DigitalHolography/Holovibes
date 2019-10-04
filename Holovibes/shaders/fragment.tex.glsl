@@ -17,7 +17,34 @@ uniform sampler2D	tex;
 
 out		vec4		outColor;
 
+uniform bool display_cross;
+uniform int window_width;
+uniform int window_height;
+
+int cross_thickness = 2;
+int cross_length = 20;
+int w_2 = window_width / 2;
+int h_2 = window_height / 2;
+
 void main()
 {
 	outColor = texture(tex, texCoord);
+	if (display_cross)
+	{
+		vec4 pos = gl_FragCoord;
+		if (w_2 - cross_thickness <= pos.x && pos.x <= w_2 + cross_thickness)
+		{
+			if (h_2 - cross_length <= pos.y && pos.y <= h_2 + cross_length)
+			{
+				outColor = vec4(1, 0, 0, 1);
+			}
+		}
+		else if (h_2 - cross_thickness <= pos.y && pos.y <= h_2 + cross_thickness)
+		{
+			if (w_2 - cross_length <= pos.x && pos.x <= w_2 + cross_length)
+			{
+				outColor = vec4(1, 0, 0, 1);
+			}
+		}
+	}
 }

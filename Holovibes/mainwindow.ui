@@ -154,6 +154,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="DisplayCrossCheckBox">
+           <property name="text">
+            <string>Display cross</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_26">
            <item>
             <widget class="QLabel" name="label">
@@ -6806,6 +6813,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>DisplayCrossCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>display_cross(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6957,5 +6980,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
+  <slot>display_cross(bool)</slot>
  </slots>
 </ui>

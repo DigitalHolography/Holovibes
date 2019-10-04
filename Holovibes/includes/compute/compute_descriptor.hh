@@ -373,6 +373,9 @@ namespace holovibes
 		//! Lock the zoom.
 		std::atomic<bool>			locked_zoom{ false };
 
+		//! Middle cross.
+		std::atomic<bool>			display_cross{ false };
+
 		//! Composite images
 		//! \{
 

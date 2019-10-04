@@ -258,6 +258,10 @@ namespace holovibes
 			Vao.bind();
 			Program->bind();
 
+			Program->setUniformValue("display_cross", Cd->display_cross.load());
+			Program->setUniformValue("window_width", size().width());
+			Program->setUniformValue("window_height", size().height());
+
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 			void* frame = Qu->get_last_images(1);

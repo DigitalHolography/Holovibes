@@ -2949,6 +2949,11 @@ namespace holovibes
 			compute_desc_.normalize_enabled = value;
 		}
 
+		void MainWindow::display_cross(bool value)
+		{
+			compute_desc_.display_cross = value;
+		}
+
 		void MainWindow::start_recording()
 		{
 			record_thread_->start();

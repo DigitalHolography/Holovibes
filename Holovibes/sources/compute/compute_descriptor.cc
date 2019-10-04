@@ -143,6 +143,7 @@ namespace holovibes
 		current_window = cd.current_window.load();
 		cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
 		display_rate = cd.display_rate.load();
+		display_cross = cd.display_cross.load();
 		stft_slice_cursor = cd.stft_slice_cursor;
 		signal_zone = cd.signal_zone;
 		noise_zone = cd.noise_zone;
