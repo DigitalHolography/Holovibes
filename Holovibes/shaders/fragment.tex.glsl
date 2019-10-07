@@ -21,10 +21,53 @@ uniform bool display_cross;
 uniform int window_width;
 uniform int window_height;
 
-int cross_thickness = 2;
+int cross_thickness = 1;
 int cross_length = 20;
 int w_2 = window_width / 2;
 int h_2 = window_height / 2;
+int w_4 = window_width / 4;
+int h_4 = window_height / 4;
+
+bool val_between(float val, float lo, float hi)
+{
+	return lo <= val && val <= hi;
+}
+
+bool pos_in_cross(vec2 pos)
+{
+	if (val_between(pos.x, w_2 - cross_thickness, w_2 + cross_thickness)
+		&& val_between(pos.y, h_2 - cross_length, h_2 + cross_length))
+	{
+		return true;
+	}
+	if (val_between(pos.y, h_2 - cross_thickness, h_2 + cross_thickness)
+		&& val_between(pos.x, w_2 - cross_length, w_2 + cross_length))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool pos_in_border(vec2 pos)
+{
+	if (val_between(pos.x, w_4 - cross_thickness, w_4 * 3 + cross_thickness))
+	{
+		if (val_between(pos.y, h_4 - cross_thickness, h_4 + cross_thickness)
+			|| val_between(pos.y, h_4 * 3 - cross_thickness, h_4 * 3 + cross_thickness))
+		{
+			return true;
+		}
+	}
+	if (val_between(pos.y, h_4 - cross_thickness, h_4 * 3 + cross_thickness))
+	{
+		if (val_between(pos.x, w_4 - cross_thickness, w_4 + cross_thickness)
+			|| val_between(pos.x, w_4 * 3 - cross_thickness, w_4 * 3 + cross_thickness))
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 void main()
 {
@@ -32,19 +75,9 @@ void main()
 	if (display_cross)
 	{
 		vec4 pos = gl_FragCoord;
-		if (w_2 - cross_thickness <= pos.x && pos.x <= w_2 + cross_thickness)
+		if (pos_in_cross(pos.xy) || pos_in_border(pos.xy))
 		{
-			if (h_2 - cross_length <= pos.y && pos.y <= h_2 + cross_length)
-			{
-				outColor = vec4(1, 0, 0, 1);
-			}
-		}
-		else if (h_2 - cross_thickness <= pos.y && pos.y <= h_2 + cross_thickness)
-		{
-			if (w_2 - cross_length <= pos.x && pos.x <= w_2 + cross_length)
-			{
-				outColor = vec4(1, 0, 0, 1);
-			}
+			outColor = vec4(1.0, 0.0, 0.0, 0.5);
 		}
 	}
 }
