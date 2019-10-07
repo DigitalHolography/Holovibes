@@ -13,7 +13,6 @@
 #include "thread_recorder.hh"
 #include "recorder.hh"
 #include "queue.hh"
-
 #include "info_manager.hh"
 
 namespace holovibes
@@ -24,11 +23,13 @@ namespace holovibes
 			Queue& queue,
 			const std::string& filepath,
 			const unsigned int n_images,
+			const json& json_settings,
 			QObject* parent)
 			: QThread(parent)
 			, queue_(queue)
 			, recorder_(queue, filepath)
 			, n_images_(n_images)
+			, json_settings_(json_settings)
 		{
 		}
 
@@ -48,7 +49,7 @@ namespace holovibes
 			queue_.flush();
 			progress_bar->setMaximum(n_images_);
 			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-			recorder_.record(n_images_);
+			recorder_.record(n_images_, json_settings_);
 		}
 	}
 }

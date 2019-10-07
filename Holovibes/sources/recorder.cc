@@ -17,6 +17,7 @@
 #include "recorder.hh"
 #include "queue.hh"
 #include "logger.hh"
+#include "holo_file.hh"
 
 # include "gui_group_box.hh"
 # include "info_manager.hh"
@@ -30,9 +31,11 @@ namespace holovibes
 		, file_()
 		, stop_requested_(false)
 	{
-		if (filepath.find('/') != std::string::npos)
-			createFilePath(filepath);
+		// TODO: This seems useless
+		// if (filepath.find('/') != std::string::npos)
+		// 	createFilePath(filepath);
 
+		output_path_ = filepath;
 		file_.open(filepath, std::ios::binary | std::ios::trunc);
 	}
 
@@ -44,7 +47,7 @@ namespace holovibes
 		_chdir(execDir.c_str());
 	}
 
-	void Recorder::record(const unsigned int n_images)
+	void Recorder::record(const unsigned int n_images, const json& json_settings)
 	{
 		const size_t size = queue_.get_size();
 		char* buffer = new char[size]();
@@ -53,6 +56,9 @@ namespace holovibes
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
+		auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024), n_images);
+		file_.write((char*)(&header), sizeof(HoloFile::Header));
+
 		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
 		{
 			while (queue_.get_current_elts() < 1)
@@ -60,17 +66,21 @@ namespace holovibes
 
 			cur_size = queue_.get_current_elts();
 			if (cur_size >= max_size - 1)
-		  	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
 			else if (cur_size > (max_size * 0.8f))
 				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
 			else
 				gui::InfoManager::get_manager()->remove_info("Recording");
 
-			if (queue_.get_frame_desc().depth == 6) {// Record 48-bit color image into 24-bit color
+			if (queue_.get_frame_desc().depth == 6)
+			{
+				// Record 48-bit color image into 24-bit color
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
 				file_.write(buffer, size/2);
 			}	
-			else {// Normal recording
+			else
+			{
+				// Normal recording
 				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
 				cudaStreamSynchronize(0);
 				file_.write(buffer, size);
@@ -78,6 +88,9 @@ namespace holovibes
 			
 			emit value_change(i);
 		}
+
+		std::string json_str = json_settings.dump();
+		file_.write(json_str.data(), json_str.size());
 
 		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");

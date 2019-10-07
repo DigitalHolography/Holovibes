@@ -374,6 +374,9 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_reader.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="sources\holo_file.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -648,6 +651,12 @@
     </ClInclude>
     <ClInclude Include="includes\logger.hh">
       <Filter>c++ includes\other</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\holo_file.hh">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\json.hh">
+      <Filter>c++ includes\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

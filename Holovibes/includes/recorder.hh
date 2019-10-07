@@ -21,6 +21,9 @@
 #include <QObject>
 #include <QThread>
 
+#include "json.hh"
+using json = ::nlohmann::json;
+
  /* Forward declaration. */
 namespace holovibes
 {
@@ -66,7 +69,7 @@ namespace holovibes
 		 * Recorder is thread safe and you can stop this function anytime
 		 * by using the "stop" button.
 		 */
-		void record(const unsigned int n_images);
+		void record(const unsigned int n_images, const json& json_settings);
 
 		/*! \brief Stop current record */
 		void stop();
@@ -80,5 +83,6 @@ namespace holovibes
 		Queue& queue_;
 		std::ofstream file_;
 		bool stop_requested_;
+		std::string output_path_;
 	};
 }

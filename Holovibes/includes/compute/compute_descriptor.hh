@@ -23,7 +23,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v7.1.1"; /*!< Current version of this project. */
+	const static std::string version = "v7.2.0"; /*!< Current version of this project. */
 
 	using	Tuple4f = std::tuple<float, float, float, float>;
 
@@ -198,6 +198,25 @@ namespace holovibes
 		void setStftCursor(const units::PointFd& rect);
 		//! @}
 
+		/*!
+		 * @{
+		 *
+		 * \brief General getters / setters to avoid code duplication
+		 *
+		 */
+		float get_contrast_min(WindowKind kind) const;
+		float get_contrast_max(WindowKind kind) const;
+		bool get_img_log_scale_slice_enabled(WindowKind kind) const;
+		bool get_img_acc_slice_enabled(WindowKind kind) const;
+		unsigned get_img_acc_slice_level(WindowKind kind) const;
+
+		void set_contrast_min(WindowKind kind, float value);
+		void set_contrast_max(WindowKind kind, float value);
+		void set_log_scale_slice_enabled(WindowKind kind, bool value);
+		void set_accumulation(WindowKind kind, bool value);
+		void set_accumulation_level(WindowKind kind, float value);
+		//! @}
+
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;
@@ -212,7 +231,7 @@ namespace holovibes
 		std::atomic<ushort>			nSize;
 		//! index in the depth axis
 		std::atomic<ushort>			pindex;
-		
+
 		//! wave length of the laser
 		std::atomic<float>			lambda;
 		//! Input matrix used for convolution
@@ -275,7 +294,7 @@ namespace holovibes
 		std::atomic<bool>			log_scale_slice_xz_enabled;
 		//! is log scale in slice YZ enabled
 		std::atomic<bool>			log_scale_slice_yz_enabled;
-		//! is shift fft enabled (switching representation diagram) 
+		//! is shift fft enabled (switching representation diagram)
 		std::atomic<bool>			shift_corners_enabled;
 		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
@@ -297,6 +316,8 @@ namespace holovibes
 
 		//! is file a .cine
 		std::atomic<bool>			is_cine_file;
+		//! is file a .holo
+		std::atomic<bool>			is_holo_file;
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;

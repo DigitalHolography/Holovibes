@@ -226,9 +226,11 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
+    <ClInclude Include="includes\holo_file.hh" />
     <ClInclude Include="includes\logger.hh" />
     <ClInclude Include="includes\stdafx.hh" />
     <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh" />
+    <ClInclude Include="includes\tools\json.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
@@ -516,6 +518,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\windows\HoloWindow.cc" />
     <ClCompile Include="sources\gui\windows\MainWindow.cc" />
     <ClCompile Include="sources\gui\windows\SliceWindow.cc" />
+    <ClCompile Include="sources\holo_file.cc" />
     <ClCompile Include="sources\main.cc" />
     <ClCompile Include="sources\options_parser.cc" />
     <ClCompile Include="sources\pipeline_utils.cc" />

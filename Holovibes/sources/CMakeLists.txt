@@ -2,6 +2,7 @@ target_sources(Holovibes PRIVATE
     camera_dll.cc
     config.cc
     gpib_dll.cc
+    holo_file.cc
     main.cc
     options_parser.cc
     pipeline_utils.cc

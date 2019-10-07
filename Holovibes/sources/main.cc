@@ -23,6 +23,7 @@
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
+#include "holo_file.hh"
 
 using camera::Endianness;
 

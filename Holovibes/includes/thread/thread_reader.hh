@@ -60,6 +60,7 @@ namespace holovibes
       , unsigned int spanEnd
       , Queue& input
 	  , bool is_cine_file
+	  , bool is_holo_file
 	  , Holovibes& holovibes
 	  , QProgressBar *reader_progress_bar
 	  , gui::MainWindow *main_window);
@@ -109,6 +110,8 @@ namespace holovibes
     Queue& queue_;
 	/*! \brief Reading a cine file */
 	bool is_cine_file_;
+	/*! \brief Reading a holo file */
+	bool is_holo_file_;
 	/*! \brief Holovibes class */
 	Holovibes& holovibes_;
 	/*\ current buffer frame to be read */
