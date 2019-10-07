@@ -37,7 +37,7 @@ def parse_args(config):
     config.build_dir += f"{config.gen}/"
 
 def log(string, arg):
-    print(f"[BUILD.PY] {string}: {arg}")
+    print(f"[BUILD.PY] {string}: {arg}", flush=True)
 
 if __name__ == "__main__":
     config = Config()

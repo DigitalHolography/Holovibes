@@ -20,13 +20,14 @@ out		vec4		outColor;
 uniform bool display_cross;
 uniform int window_width;
 uniform int window_height;
+uniform float border_scale;
 
 int cross_thickness = 1;
 int cross_length = 20;
 int w_2 = window_width / 2;
 int h_2 = window_height / 2;
-int w_4 = window_width / 4;
-int h_4 = window_height / 4;
+int w_border = int(w_2 * border_scale);
+int h_border = int(h_2 * border_scale);
 
 bool val_between(float val, float lo, float hi)
 {
@@ -35,37 +36,45 @@ bool val_between(float val, float lo, float hi)
 
 bool pos_in_cross(vec2 pos)
 {
+	// Vertical cross line
 	if (val_between(pos.x, w_2 - cross_thickness, w_2 + cross_thickness)
 		&& val_between(pos.y, h_2 - cross_length, h_2 + cross_length))
 	{
 		return true;
 	}
+
+	// Horizontal cross line
 	if (val_between(pos.y, h_2 - cross_thickness, h_2 + cross_thickness)
 		&& val_between(pos.x, w_2 - cross_length, w_2 + cross_length))
 	{
 		return true;
 	}
+
 	return false;
 }
 
 bool pos_in_border(vec2 pos)
 {
-	if (val_between(pos.x, w_4 - cross_thickness, w_4 * 3 + cross_thickness))
+	// Top and bottom lines of border
+	if (val_between(pos.x, w_2 - w_border - cross_thickness, w_2 + w_border + cross_thickness))
 	{
-		if (val_between(pos.y, h_4 - cross_thickness, h_4 + cross_thickness)
-			|| val_between(pos.y, h_4 * 3 - cross_thickness, h_4 * 3 + cross_thickness))
+		if (val_between(pos.y, h_2 - h_border - cross_thickness, h_2 - h_border + cross_thickness)
+			|| val_between(pos.y, h_2 + h_border - cross_thickness, h_2 + h_border + cross_thickness))
 		{
 			return true;
 		}
 	}
-	if (val_between(pos.y, h_4 - cross_thickness, h_4 * 3 + cross_thickness))
+
+	// Left and right lines of border
+	if (val_between(pos.y, h_2 - h_border - cross_thickness, h_2 + h_border + cross_thickness))
 	{
-		if (val_between(pos.x, w_4 - cross_thickness, w_4 + cross_thickness)
-			|| val_between(pos.x, w_4 * 3 - cross_thickness, w_4 * 3 + cross_thickness))
+		if (val_between(pos.x, w_2 - w_border - cross_thickness, w_2 - w_border + cross_thickness)
+			|| val_between(pos.x, w_2 + w_border - cross_thickness, w_2 + w_border + cross_thickness))
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
 

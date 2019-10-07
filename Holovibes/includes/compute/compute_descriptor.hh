@@ -375,6 +375,8 @@ namespace holovibes
 
 		//! Middle cross.
 		std::atomic<bool>			display_cross{ false };
+		//! Reticle border scale.
+		std::atomic<float>			reticle_scale{ 0.5f };
 
 		//! Composite images
 		//! \{

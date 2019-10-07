@@ -32,7 +32,7 @@ def parse_args(config):
             break
 
 def log(string, arg):
-    print(f"[RUN.PY] {string}: {arg}")
+    print(f"[RUN.PY] {string}: {arg}", flush=True)
 
 if __name__ == "__main__":
     config = Config()

@@ -261,6 +261,7 @@ namespace holovibes
 			Program->setUniformValue("display_cross", Cd->display_cross.load());
 			Program->setUniformValue("window_width", size().width());
 			Program->setUniformValue("window_height", size().height());
+			Program->setUniformValue("border_scale", Cd->reticle_scale.load());
 
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);

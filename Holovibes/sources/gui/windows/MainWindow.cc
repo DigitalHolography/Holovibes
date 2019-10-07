@@ -726,6 +726,7 @@ namespace holovibes
 				displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
 				xzFlip = ptree.get("view.xCut_flip", xzFlip);
 				yzFlip = ptree.get("view.yCut_flip", yzFlip);
+				compute_desc_.reticle_scale = ptree.get("view.reticle_scale", 0.5f);
 
 				// Post Processing
 				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", special_group_box->isHidden()));
@@ -858,6 +859,7 @@ namespace holovibes
 			ptree.put<int>("view.mainWindow_flip", displayFlip);
 			ptree.put<int>("view.xCut_flip", xzFlip);
 			ptree.put<int>("view.yCut_flip", yzFlip);
+			ptree.put<float>("view.reticle_scale", 0.5f);
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
