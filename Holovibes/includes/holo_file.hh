@@ -12,7 +12,20 @@
 
 /*! \file
  *
- * Holovibes file format */
+ * Holovibes file format
+ *
+ * -----------------------------------------------------------------------
+ * | File header (sizeof(HoloFile::Header)) | Image data | File metadata |
+ * -----------------------------------------------------------------------
+ * | HOLO Magic number (4 bytes)            | Raw        | Metadata as   |
+ * | Number of bits per pixel (2 bytes)     | image      | json format   |
+ * | Image width (4 bytes)                  | data       |               |
+ * | Image height (4 bytes)                 |            | #img / p / z  |
+ * | Number of images (4 bytes)             |            | contrast / ...|
+ * -----------------------------------------------------------------------
+ *
+ * Constant size header to open the files in ImageJ as raw with offset
+ */
 
 #pragma once
 

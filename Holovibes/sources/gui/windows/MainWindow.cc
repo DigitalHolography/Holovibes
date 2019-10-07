@@ -3303,6 +3303,8 @@ namespace holovibes
 			ui.ConvoCheckBox->setChecked(false);
 			set_convolution_mode(false);
 
+			ui.ToHoloFilePushButton->setEnabled(!HoloFile::get_instance());
+			ui.UpdateHoloPushButton->setEnabled(HoloFile::get_instance());
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
@@ -3538,8 +3540,8 @@ namespace holovibes
 		{
 			auto holo_file = HoloFile::get_instance();
 
-			ui.ToHoloFilePushButton->setDisabled(holo_file);
-			ui.UpdateHoloPushButton->setDisabled(!holo_file);
+			ui.ToHoloFilePushButton->setEnabled(!holo_file && compute_desc_.compute_mode != Computation::Stop);
+			ui.UpdateHoloPushButton->setEnabled(holo_file && compute_desc_.compute_mode != Computation::Stop);
 
 			if (!holo_file)
 				return;
@@ -3574,8 +3576,21 @@ namespace holovibes
 		{
 			try
 			{
-				json json_settings = HoloFile::get_json_settings(compute_desc_, holovibes_.get_output_queue()->get_frame_desc());
-				std::cout << json_settings << "\n";
+				json json_settings;
+				auto& output_queue = holovibes_.get_output_queue();
+				if (output_queue != nullptr)
+				{
+					json_settings = HoloFile::get_json_settings(compute_desc_, output_queue->get_frame_desc());
+				}
+				else
+				{
+					// This code shouldn't run but it's here to avoid a segfault in case something weird happens
+					json_settings = HoloFile::get_json_settings(compute_desc_);
+					json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
+					json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
+					json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
+					json_settings.emplace("endianess", ui.ImportEndiannessComboBox->currentIndex());
+				}
 				return json_settings;
 			}
 			catch (const std::exception& e)
