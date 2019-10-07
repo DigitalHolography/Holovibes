@@ -2062,29 +2062,19 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				bool was_none = compute_desc_.algorithm == Algorithm::None;
 				if (value == "None")
-				{
 					compute_desc_.algorithm = Algorithm::None;
-					close_windows();
-					createHoloWindow();
-				}
+				else if (value == "1FFT")
+					compute_desc_.algorithm = Algorithm::FFT1;
+				else if (value == "2FFT")
+					compute_desc_.algorithm = Algorithm::FFT2;
 				else
 				{
-					if (value == "1FFT")
-						compute_desc_.algorithm = Algorithm::FFT1;
-					else if (value == "2FFT")
-						compute_desc_.algorithm = Algorithm::FFT2;
-					else
-						assert(!"Unknow Algorithm.");
-					if (was_none)
-					{
-						close_windows();
-						createHoloWindow();
-					}
+					// Shouldn't happen
+					compute_desc_.algorithm = Algorithm::None;
+					LOG_ERROR("Unknown algorithm: " + value.toStdString() + ", falling back to None");
 				}
-				set_auto_contrast();
-				notify();
+				set_holographic_mode();
 			}
 		}
 
