@@ -200,6 +200,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.7.3
+
+* Toggle reticle on view window
+* Scale reticle with "reticle_scale" in Holovibes.ini
+* Fix holo file segfault
+
 ### v.7.2
 
 * CMake build
