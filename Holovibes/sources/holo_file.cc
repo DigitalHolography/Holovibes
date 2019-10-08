@@ -53,7 +53,7 @@ namespace holovibes
 			return;
 		}
 
-		file.read((char*)(&header_), sizeof(Header));
+		file.read(reinterpret_cast<char*>(&header_), sizeof(Header));
 		if (file.gcount() != sizeof(Header))
 		{
 			return;
@@ -65,7 +65,10 @@ namespace holovibes
 			return;
 		}
 
-		meta_data_offset_ = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * (header_.pixel_bits / 8));
+		meta_data_offset_ = sizeof(Header) + (static_cast<uintmax_t>(header_.img_height)
+											  * static_cast<uintmax_t>(header_.img_width)
+											  * static_cast<uintmax_t>(header_.img_nb)
+											  * static_cast<uintmax_t>((header_.pixel_bits / 8)));
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset_;
 
