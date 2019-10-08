@@ -135,8 +135,8 @@ namespace holovibes
 					buffers_.gpu_float_buffer_,
 					size,
 					65535,
-					cd_.contrast_min_slice_xy,
-					cd_.contrast_max_slice_xy);
+					cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy,
+					cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy);
 			});
 		}
 
@@ -148,16 +148,16 @@ namespace holovibes
 					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 					size,
 					65535,
-					cd_.contrast_min_slice_xz,
-					cd_.contrast_max_slice_xz);
+					cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz,
+					cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz);
 			});
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
 					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 					size,
 					65535,
-					cd_.contrast_min_slice_yz,
-					cd_.contrast_max_slice_yz);
+					cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz,
+					cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz);
 			});
 		}
 
