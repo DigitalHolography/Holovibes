@@ -83,7 +83,7 @@ namespace holovibes
 			is_enabled_average_(false),
 			is_batch_img_(true),
 			is_batch_interrupted_(false),
-			z_step_(0.01f),
+			z_step_(0.005f),
 			kCamera(CameraKind::NONE),
 			last_img_type_("Magnitude"),
 			plot_window_(nullptr),
@@ -670,7 +670,7 @@ namespace holovibes
 
 				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
 				if (z_step > 0.0f)
-					z_step_ = z_step;
+					set_z_step(z_step);
 
 				compute_desc_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", compute_desc_.algorithm));
 
