@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include <filesystem>
+#include <chrono>
 
 #include <direct.h>
 
@@ -59,8 +60,13 @@ namespace holovibes
 		auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024), n_images);
 		file_.write((char*)(&header), sizeof(HoloFile::Header));
 
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
+		size_t written_bytes = 0;
+
 		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
 		{
+			auto start_time = std::chrono::steady_clock::now();
+
 			while (queue_.get_current_elts() < 1)
 				std::this_thread::yield();
 
@@ -72,11 +78,13 @@ namespace holovibes
 			else
 				gui::InfoManager::get_manager()->remove_info("Recording");
 
+
 			if (queue_.get_frame_desc().depth == 6)
 			{
 				// Record 48-bit color image into 24-bit color
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
 				file_.write(buffer, size/2);
+				written_bytes = size / 2;
 			}	
 			else
 			{
@@ -84,16 +92,25 @@ namespace holovibes
 				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
 				cudaStreamSynchronize(0);
 				file_.write(buffer, size);
+				written_bytes = size;
 			}
-			
+
+			auto end_time = std::chrono::steady_clock::now();
+			auto elapsed = end_time - start_time;
+			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+			long long saving_rate = written_bytes / microseconds; // bytes / microsecond which is equal to MegaByte / second
+			gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
+
 			emit value_change(i);
 		}
+
 
 		std::string json_str = json_settings.dump();
 		file_.write(json_str.data(), json_str.size());
 
 		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");
+		gui::InfoManager::get_manager()->remove_info("Saving Throughput");
 		delete[] buffer;
 	}
 
