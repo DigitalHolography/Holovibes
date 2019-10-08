@@ -489,8 +489,8 @@ namespace holovibes
 				&& mainDisplay
 				&& mainDisplay->getOverlayManager().getKind() != KindOfOverlay::Reticle)
 			{
-				mainDisplay->getOverlayManager().disable_all(Reticle);
 				ui.DisplayReticleCheckBox->setChecked(false);
+				display_cross(false);
 			}
 		}
 
@@ -2962,7 +2962,7 @@ namespace holovibes
 
 		void MainWindow::display_cross(bool value)
 		{
-			// compute_desc_.display_cross = value;
+			ui.ReticleScaleDoubleSpinBox->setEnabled(value);
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Reticle>();
@@ -2972,6 +2972,13 @@ namespace holovibes
 				mainDisplay->getOverlayManager().disable_all(Reticle);
 			}
 			notify();
+		}
+
+		void MainWindow::reticle_scale(double value)
+		{
+			if (0 > value || value > 1)
+				return;
+			compute_desc_.reticle_scale = value;
 		}
 
 		void MainWindow::start_recording()
