@@ -483,6 +483,15 @@ namespace holovibes
 			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
 			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
 			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
+
+			// Reticle
+			if (ui.DisplayReticleCheckBox->isChecked()
+				&& mainDisplay
+				&& mainDisplay->getOverlayManager().getKind() != KindOfOverlay::Reticle)
+			{
+				mainDisplay->getOverlayManager().disable_all(Reticle);
+				ui.DisplayReticleCheckBox->setChecked(false);
+			}
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -859,7 +868,7 @@ namespace holovibes
 			ptree.put<int>("view.mainWindow_flip", displayFlip);
 			ptree.put<int>("view.xCut_flip", xzFlip);
 			ptree.put<int>("view.yCut_flip", yzFlip);
-			ptree.put<float>("view.reticle_scale", 0.5f);
+			ptree.put<float>("view.reticle_scale", compute_desc_.reticle_scale);
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
@@ -2953,7 +2962,16 @@ namespace holovibes
 
 		void MainWindow::display_cross(bool value)
 		{
-			compute_desc_.display_cross = value;
+			// compute_desc_.display_cross = value;
+			if (value)
+			{
+				mainDisplay->getOverlayManager().create_overlay<Reticle>();
+			}
+			else
+			{
+				mainDisplay->getOverlayManager().disable_all(Reticle);
+			}
+			notify();
 		}
 
 		void MainWindow::start_recording()

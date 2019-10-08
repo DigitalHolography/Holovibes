@@ -10,14 +10,40 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#version 450
+/*! \file
+ *
+ * Overlay used to display a reticle in the center of the window. */
+#pragma once
 
-in		vec2		texCoord;
-uniform sampler2D	tex;
+#include "BasicOpenGLWindow.hh"
+#include "Overlay.hh"
 
-out		vec4		outColor;
-
-void main()
+namespace holovibes
 {
-	outColor = texture(tex, texCoord);
+	namespace gui
+	{
+		class ReticleOverlay : public Overlay
+		{
+		public:
+			ReticleOverlay(BasicOpenGLWindow* parent);
+			virtual ~ReticleOverlay()
+			{}
+
+			void init() override;
+			void draw() override;
+
+			virtual void move(QMouseEvent *e) override
+			{}
+			virtual void release(ushort frameside) override
+			{}
+			virtual void setZone(units::RectFd rect, ushort frameside) override
+			{}
+
+		protected:
+			void setBuffer() override;
+
+			//! Transparency of the lines
+			float alpha_;
+		};
+	}
 }

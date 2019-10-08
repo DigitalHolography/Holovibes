@@ -1187,6 +1187,9 @@
          </item>
          <item row="9" column="0">
           <widget class="QCheckBox" name="DisplayReticleCheckBox">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="text">
             <string>Display reticle</string>
            </property>
