@@ -48,7 +48,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### CUDA ###
 
-* [CUDA 10 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 10.1 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Qt 5.9.0 ###
 
@@ -199,6 +199,17 @@ To let the versioning tool consistent, you have to respect these rules.
 * Git names conventions
 
 ## Changelog ##
+
+### v.7.4
+
+* Reticle now handled as an overlay instead of a shader
+* Reticle scale can now be controlled from a spinbox on the main window
+* Contrast inversion
+* z_step now defaults to 0.005
+* Saving throughput in MB/s in the info manager when recording
+* Fix not being able to open large holo files due to an overflow
+* Fix a crash / freeze when opening a file with parameters overloading the GPU
+* Fix holographic mode not triggering when changing algorithm from None to FFT
 
 ### v.7.3
 
