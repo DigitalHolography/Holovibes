@@ -83,7 +83,7 @@ namespace holovibes
 			is_enabled_average_(false),
 			is_batch_img_(true),
 			is_batch_interrupted_(false),
-			z_step_(0.01f),
+			z_step_(0.005f),
 			kCamera(CameraKind::NONE),
 			last_img_type_("Magnitude"),
 			plot_window_(nullptr),
@@ -679,7 +679,7 @@ namespace holovibes
 
 				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
 				if (z_step > 0.0f)
-					z_step_ = z_step;
+					set_z_step(z_step);
 
 				compute_desc_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", compute_desc_.algorithm));
 
@@ -2071,29 +2071,19 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				bool was_none = compute_desc_.algorithm == Algorithm::None;
 				if (value == "None")
-				{
 					compute_desc_.algorithm = Algorithm::None;
-					close_windows();
-					createHoloWindow();
-				}
+				else if (value == "1FFT")
+					compute_desc_.algorithm = Algorithm::FFT1;
+				else if (value == "2FFT")
+					compute_desc_.algorithm = Algorithm::FFT2;
 				else
 				{
-					if (value == "1FFT")
-						compute_desc_.algorithm = Algorithm::FFT1;
-					else if (value == "2FFT")
-						compute_desc_.algorithm = Algorithm::FFT2;
-					else
-						assert(!"Unknow Algorithm.");
-					if (was_none)
-					{
-						close_windows();
-						createHoloWindow();
-					}
+					// Shouldn't happen
+					compute_desc_.algorithm = Algorithm::None;
+					LOG_ERROR("Unknown algorithm: " + value.toStdString() + ", falling back to None");
 				}
-				set_auto_contrast();
-				notify();
+				set_holographic_mode();
 			}
 		}
 

@@ -56,7 +56,30 @@ namespace holovibes
 		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, fourier_transforms_->get_lens_queue().get());
 
 		update_n_requested_ = true;
-		refresh();
+
+		try
+		{
+			refresh();
+		}
+		catch (const holovibes::CustomException& e)
+		{
+			// If refresh() fails the compute descriptor settings will be
+			// changed to something that should make refresh() work
+			// (ex: lowering the GPU memory usage)
+			LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
+			try
+			{
+				refresh();
+			}
+			catch (const holovibes::CustomException& e)
+			{
+				// If it still didn't work holovibes is probably going to freeze
+				// and the only thing you can do is restart it manually
+				LOG_ERROR("Pipe could not be initialized");
+				LOG_ERROR("You might want to restart holovibes");
+				throw e;
+			}
+		}
 	}
 
 	Pipe::~Pipe()
