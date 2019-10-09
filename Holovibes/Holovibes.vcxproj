@@ -224,6 +224,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\composite_area_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\reticle_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
     <ClInclude Include="includes\holo_file.hh" />
@@ -488,6 +489,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\rainbow_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\reticle_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />

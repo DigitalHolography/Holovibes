@@ -49,7 +49,8 @@ namespace holovibes
 			Scale,
 			// Composite overlays
 			CompositeArea,
-			Rainbow
+			Rainbow,
+			Reticle
 		};
 
 		class BasicOpenGLWindow;

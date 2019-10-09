@@ -377,6 +377,9 @@
     <ClCompile Include="sources\holo_file.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\reticle_overlay.cc">
+      <Filter>c++ sources\gui\selections\Overlays</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -657,6 +660,9 @@
     </ClInclude>
     <ClInclude Include="includes\tools\json.hh">
       <Filter>c++ includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\reticle_overlay.hh">
+      <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -39,6 +39,7 @@ target_sources(Holovibes PRIVATE
     gui/selections/overlays/filter2d_overlay.cc
     gui/selections/overlays/noise_overlay.cc
     gui/selections/overlays/rainbow_overlay.cc
+    gui/selections/overlays/reticle_overlay.cc
     gui/selections/overlays/scale_overlay.cc
     gui/selections/overlays/signal_overlay.cc
     gui/selections/overlays/slice_cross_overlay.cc

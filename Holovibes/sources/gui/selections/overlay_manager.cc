@@ -24,6 +24,7 @@
 #include "scale_overlay.hh"
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
+#include "reticle_overlay.hh"
 
 namespace holovibes
 {
@@ -124,6 +125,13 @@ namespace holovibes
 		{
 			if (!set_current(KindOfOverlay::Rainbow))
 				create_overlay(std::make_shared<RainbowOverlay>(parent_));
+		}
+
+		template<>
+		void OverlayManager::create_overlay<Reticle>()
+		{
+			if (!set_current(KindOfOverlay::Reticle))
+				create_overlay(std::make_shared<ReticleOverlay>(parent_));
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
