@@ -2494,6 +2494,18 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::invert_contrast(bool value)
+		{
+			if (!is_direct_mode())
+			{
+				if (compute_desc_.contrast_enabled)
+				{
+					compute_desc_.contrast_invert = value;
+					pipe_refresh();
+				}
+			}
+		}
+
 		void MainWindow::set_log_scale(const bool value)
 		{
 			if (!is_direct_mode())

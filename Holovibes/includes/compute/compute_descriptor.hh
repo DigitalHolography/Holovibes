@@ -251,6 +251,8 @@ namespace holovibes
 		std::atomic<float>			contrast_min_slice_yz;
 		//! maximum constrast value in yz view
 		std::atomic<float>			contrast_max_slice_yz;
+		//! invert contrast
+		std::atomic<bool> contrast_invert { false };
 
 		std::atomic<float> contrast_threshold_low_percentile{ 0.5f };
 

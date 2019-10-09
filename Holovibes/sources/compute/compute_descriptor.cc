@@ -44,6 +44,7 @@ namespace holovibes
 		contrast_min_slice_yz(1.f),
 		contrast_max_slice_xz(65535.f),
 		contrast_max_slice_yz(65535.f),
+		contrast_invert(false),
 		scale_bar_correction_factor(1),
 		autofocus_size(10),
 		convo_matrix_width(0),
@@ -119,6 +120,7 @@ namespace holovibes
 		contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
 		contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
 		contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
+		contrast_invert = cd.contrast_invert.load();
 		autofocus_size = cd.autofocus_size.load();
 		convo_matrix_width = cd.convo_matrix_width.load();
 		convo_matrix_height = cd.convo_matrix_height.load();
