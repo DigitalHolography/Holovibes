@@ -267,3 +267,17 @@ void kernel_rescale_argument(float		*input,
 void rescale_argument(float			*input,
 					const uint		frame_res,
 					cudaStream_t	stream = 0);
+
+template<typename T>
+__global__
+void kernel_convert_frame_for_display(const T     	*input,
+	void     		*output,
+	const uint	    size,
+	const uint     depth,
+	const ushort	shift);
+
+void convert_frame_for_display(const void   	*input,
+	void			*output,
+	const uint	size,
+	const uint    depth,
+	const ushort	shift);

@@ -364,10 +364,11 @@ void endianness_conversion(const ushort	*input,
  ** the call easier
  **/
 static __global__
-void kernel_float_to_ushort(const float	*input,
-							void		*output,
-							const uint	size,
-							const size_t	depth)
+void kernel_float_to_ushort(const float		*input,
+							void			*output,
+							const uint		size,
+							const size_t	depth,
+							ushort			shift = 0)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -381,12 +382,12 @@ void kernel_float_to_ushort(const float	*input,
 			else if (input[index] < 0.f)
 				out[index] = 0;
 			else
-				out[index] = static_cast<ushort>(input[index]);
+				out[index] = static_cast<ushort>(input[index]) << shift;
 		}
 		else
 		{
 			uchar *out = reinterpret_cast<uchar *>(output);
-			out[index] = static_cast<uchar>(input[index]);
+			out[index] = static_cast<uchar>(input[index]) << shift;
 		}
 	}
 }
@@ -488,7 +489,8 @@ void ushort_to_uchar(const ushort	*input,
 static __global__
 void kernel_complex_to_ushort(const cuComplex	*input,
 							uint				*output,
-							const uint			size)
+							const uint			size,
+							ushort				shift = 0)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -510,6 +512,7 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 		auto& res = output[index];
 		res = x << 16;
 		res |= y;
+		res <<= shift;
 	}
 }
 
@@ -650,5 +653,50 @@ void normalize_complex(cuComplex *image,
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(size, threads);
 	kernel_normalize_complex << <blocks, threads, 0, 0 >> > (image, size);
+	cudaCheckError();
+}
+
+template<typename T>
+__global__
+void kernel_convert_frame_for_display(const T     	*input,
+	void     		*output,
+	const uint	    size,
+	const uint     depth,
+	const ushort	shift)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < size)
+	{
+		T* out = reinterpret_cast<T*>(output);
+		out[index] = input[index] << shift;
+	}
+}
+
+void convert_frame_for_display(const void   	*input,
+	void			*output,
+	const uint	size,
+	const uint    depth,
+	const ushort	shift)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	if (depth == 8)
+	{
+		kernel_complex_to_ushort << <blocks, threads, 0 >> > (static_cast<const cuComplex*>(input), static_cast<uint*>(output), size, shift);
+	}
+	else if (depth == 4)
+	{
+		kernel_float_to_ushort << <blocks, threads, 0, 0 >> > (static_cast<const float*>(input), output, size, depth, shift);
+	}
+	else if (depth == 2)
+	{
+		kernel_convert_frame_for_display<ushort> << <blocks, threads, 0, 0 >> > (static_cast<const ushort*>(input), output, size, depth, shift);
+	}
+	else if (depth == 1)
+	{
+		kernel_convert_frame_for_display<uchar> << <blocks, threads, 0, 0 >> > (static_cast<const uchar*>(input), output, size, depth, shift);
+	}
+
 	cudaCheckError();
 }
