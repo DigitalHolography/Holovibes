@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <stdexcept>
 
 #include "camera_hamamatsu.hh"
 
@@ -20,7 +21,7 @@ namespace camera
 	CameraHamamatsu::CameraHamamatsu()
 		: Camera("hamamatsu.ini")
 	{
-		name_ = "C11440";
+		name_ = "MISSING NAME";
 
 		load_default_params();
 
@@ -47,12 +48,20 @@ namespace camera
 				continue;
 
 			dcam_getmodelinfo(iDevice, DCAM_IDSTR_MODEL, buf, sizeof(buf));
-			if (strcmp(buf, "C11440-22C"))
-				continue;
+
+			//Using the std::string(const char *, size_t) constructor would not stop at the null bytes
+			//This should not be needed, but it could happen in some unlucky setting
+			buf[sizeof(buf) - 1] = '\0';
+			name_ = buf;
 
 			std::cout << "Connecting to " << name_ << std::endl;
-			if (dcam_open(&hdcam_, iDevice, NULL)) {
+			if (dcam_open(&hdcam_, iDevice, NULL))
+			{
 				bind_params();
+
+				double bits_per_channel;
+				dcam_getpropertyvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
+				desc_.depth = bits_per_channel / 8;
 
 				output_frame_ = std::make_unique<unsigned short[]>(desc_.frame_res());
 				memset(output_frame_.get(), 0, desc_.frame_res());
@@ -107,31 +116,35 @@ namespace camera
 			//throw CameraException::CANT_GET_FRAME;
 			std::cerr << "Cant fire trigger" << std::endl;
 		}*/
-		_DWORD	dw = DCAM_EVENT_FRAMEEND;
+		//_DWORD	dw = DCAM_EVENT_FRAMEEND;
 
 		long	err = dcam_getlasterror(hdcam_);
 		if (err == DCAMERR_TIMEOUT)
 			throw CameraException(CameraException::CANT_GET_FRAME);
 
 		if (dcam_lockdata(hdcam_, (void**)&(src), &sRow, -1)) {
-			WORD*	dsttopleft = output_frame_.get();
+			
+			//WORD*	dsttopleft = output_frame_.get();
 
-			long srcwidth = desc_.width, srcheight = desc_.height;
-			const BYTE* lut = nullptr;
-			const WORD* srctopleft = src;
-			long srcrowbytes = desc_.width;
+			//long srcwidth = desc_.width, srcheight = desc_.height;
+			//const BYTE* lut = nullptr;
+			//const WORD* srctopleft = src;
+			//long srcrowbytes = desc_.width;
 
-			//memcpy(output_frame_.get(), src, desc_.frame_size());
-			copybits_bw16(dsttopleft, desc_.width, lut
-				, (const WORD*)srctopleft, srcrowbytes
-				, 0/*srcox_*/, 0/*srcoy_*/, srcwidth, srcheight);
+			//copybits_bw16(dsttopleft, desc_.width, lut
+			//	, (const WORD*)srctopleft, srcrowbytes
+			//	, 0/*srcox_*/, 0/*srcoy_*/, srcwidth, srcheight);
+
+			// The above looks like software level ROI management
+
+			memcpy(output_frame_.get(), src, desc_.frame_size());
 
 			dcam_unlockdata(hdcam_);
 		}
 		return output_frame_.get();
 	}
 
-	long CameraHamamatsu::copybits_bw16(WORD* dsttopleft, long dstrowpix, const BYTE* lut
+	/*long CameraHamamatsu::copybits_bw16(WORD* dsttopleft, long dstrowpix, const BYTE* lut
 		, const WORD* srctopleft, long srcrowpix
 		, long srcox, long srcoy, long srcwidth, long srcheight)
 	{
@@ -154,7 +167,7 @@ namespace camera
 		}
 
 		return lines;
-	}
+	}*/
 
 	void CameraHamamatsu::load_default_params()
 	{
