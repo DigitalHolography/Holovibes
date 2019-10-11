@@ -2950,7 +2950,7 @@ namespace holovibes
 					// path = set_record_filename_properties(queue->get_frame_desc(), path);
 					if (path.substr(path.size() - 5, 5) != ".holo")
 						path += ".holo";
-					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(), this));
+					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(queue), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					if (compute_desc_.synchronized_record)
@@ -3073,7 +3073,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(), this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(q), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3100,7 +3100,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(), this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(q), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3170,7 +3170,7 @@ namespace holovibes
 				{
 					if (gpib_interface_->execute_next_block())
 					{
-						record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, holo_file_get_json_settings(), this));
+						record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, holo_file_get_json_settings(q), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3570,7 +3570,7 @@ namespace holovibes
 			unsigned height = ui.ImportHeightSpinBox->value();
 			unsigned pixel_bits = std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3);
 			auto header = HoloFile::create_header(pixel_bits, width, height);
-			HoloFile::create(header, holo_file_get_json_settings().dump(), ui.ImportPathLineEdit->text().toStdString());
+			HoloFile::create(header, holo_file_get_json_settings(holovibes_.get_current_window_output_queue().get()).dump(), ui.ImportPathLineEdit->text().toStdString());
 		}
 
 		void MainWindow::holo_file_update_ui()
@@ -3609,15 +3609,14 @@ namespace holovibes
 			compute_desc_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
 		}
 
-		json MainWindow::holo_file_get_json_settings()
+		json MainWindow::holo_file_get_json_settings(const Queue* q)
 		{
 			try
 			{
 				json json_settings;
-				auto& output_queue = holovibes_.get_output_queue();
-				if (output_queue != nullptr)
+				if (q != nullptr)
 				{
-					json_settings = HoloFile::get_json_settings(compute_desc_, output_queue->get_frame_desc());
+					json_settings = HoloFile::get_json_settings(compute_desc_, q->get_frame_desc());
 				}
 				else
 				{
@@ -3639,7 +3638,7 @@ namespace holovibes
 
 		void MainWindow::holo_file_update()
 		{
-			HoloFile::get_instance().update(holo_file_get_json_settings().dump());
+			HoloFile::get_instance().update(holo_file_get_json_settings(holovibes_.get_current_window_output_queue().get()).dump());
 		}
 
 
