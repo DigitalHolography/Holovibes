@@ -2859,23 +2859,38 @@ namespace holovibes
 			}
 			std::string mode = (is_direct_mode() || compute_desc_.record_raw) ? "D" : "H";
 
-			std::string sub_str = "_" + slice
-				+ "_" + mode
-				+ "_" + std::to_string(fd.width)
-				+ "_" + std::to_string(fd.height);
 			int depth = fd.depth;
 			if (depth == 6)
 				depth = 3;
-			sub_str += "_" + std::to_string(depth << 3) + "bit"
-				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
-				if (filename[i] == '.')
+			std::string sub_str = 
+				  "_" + slice +
+				  "_" + mode +
+				  "_" + std::to_string(fd.width) +
+				  "_" + std::to_string(fd.height) +
+			      "_" + std::to_string(depth << 3) + "bit_e";
+
+			// Insert sub_str before extension (or at the end if no extension)
+			size_t dot_index = filename.find_last_of('.');
+			if (dot_index == filename.npos)
+				dot_index = filename.size();
+			filename.insert(dot_index, sub_str, 0, sub_str.length());
+
+			// Make sure 2 files don't have the same name by adding -1 / -2 / -3 ... in the name
+			unsigned i = 1;
+			while (std::filesystem::exists(filename))
+			{
+				if (i == 1)
 				{
-					filename.insert(i, sub_str, 0, sub_str.length());
-					return filename;
+					filename.insert(dot_index, "-1", 0, 2);
+					++i;
+					continue;
 				}
-			filename += sub_str;
+				unsigned digits_nb = std::log10(i - 1) + 1;
+				filename.replace(dot_index, digits_nb + 1, "-" + std::to_string(i));
+				++i;
+			}
+
 			return filename;
 		}
 
@@ -2947,9 +2962,7 @@ namespace holovibes
 
 				if (queue)
 				{
-					// path = set_record_filename_properties(queue->get_frame_desc(), path);
-					if (path.substr(path.size() - 5, 5) != ".holo")
-						path += ".holo";
+					path = set_record_filename_properties(queue->get_frame_desc(), path);
 					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(queue), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
