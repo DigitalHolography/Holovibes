@@ -221,6 +221,7 @@ namespace holovibes
 			void browse_file();
 			void set_raw_recording(bool value);
 			void set_record();
+			void set_record_frame_step(int value);
 			void browse_roi_output_file();
 			void average_record();
 			void browse_batch_input();
@@ -349,6 +350,7 @@ namespace holovibes
 			bool		is_batch_img_;
 			bool		is_batch_interrupted_;
 			double		z_step_;
+			unsigned	record_frame_step_;
 
 			CameraKind	kCamera;
 			ImportType	import_type_;

@@ -3094,10 +3094,37 @@
               <string># of frames to record</string>
              </property>
              <property name="minimum">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="maximum">
               <number>10000000</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <item>
+            <widget class="QLabel" name="NumberOfFrameStepLabel">
+             <property name="text">
+              <string># of frame step:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="NumberOfFrameStepSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="value">
+              <number>1024</number>
              </property>
             </widget>
            </item>
@@ -6926,7 +6953,7 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-   <connection>
+  <connection>
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -6935,6 +6962,22 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>293</x>
      <y>371</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumberOfFrameStepSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_record_frame_step(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1316</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -6958,6 +7001,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_shifted_corners(bool)</slot>
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
+  <slot>set_record_frame_step(int)</slot>
   <slot>browse_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>

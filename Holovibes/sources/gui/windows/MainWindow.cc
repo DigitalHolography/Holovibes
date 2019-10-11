@@ -84,6 +84,7 @@ namespace holovibes
 			is_batch_img_(true),
 			is_batch_interrupted_(false),
 			z_step_(0.005f),
+			record_frame_step_(1024),
 			kCamera(CameraKind::NONE),
 			last_img_type_("Magnitude"),
 			plot_window_(nullptr),
@@ -727,6 +728,9 @@ namespace holovibes
 
 				// Record
 				record_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
+
+				const float record_frame_step = ptree.get<float>("record.record_frame_step", record_frame_step_);
+				set_record_frame_step(record_frame_step);
 
 				// Motion Focus
 				motion_focus_action->setChecked(!ptree.get<bool>("motion_focus.hidden", motion_focus_group_box->isHidden()));
@@ -2704,6 +2708,8 @@ namespace holovibes
 			QSpinBox* nb_of_frames_spin_box = ui.NumberOfFramesSpinBox;
 
 			nb_frames_ = nb_of_frames_spin_box->value();
+			if (nb_frames_ == 0)
+				return;
 			std::string output_path = output_line_edit->text().toUtf8();
 			if (output_path == "")
 			{
@@ -2945,6 +2951,8 @@ namespace holovibes
 			QLineEdit* path_line_edit = ui.ImageOutputPathLineEdit;
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
+			if (nb_of_frames == 0)
+				return;
 			std::string path = path_line_edit->text().toUtf8();
 			if (path == "")
 				return display_error("No output file");
@@ -2988,6 +2996,12 @@ namespace holovibes
 			{
 				display_error(e.what());
 			}
+		}
+
+		void MainWindow::set_record_frame_step(int value)
+		{
+			record_frame_step_ = value;
+			ui.NumberOfFramesSpinBox->setSingleStep(value);
 		}
 
 		void MainWindow::finished_image_record()
