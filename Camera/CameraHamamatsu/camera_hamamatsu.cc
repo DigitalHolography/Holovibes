@@ -304,6 +304,8 @@ namespace camera
 
 	void CameraHamamatsu::bind_params()
 	{
+		//Hardcoded max width and height of the camera
+		//Should change with the model
 		if (desc_.width != 2048 || desc_.height != 2048) // SUBARRAY
 		{
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYMODE, DCAMPROP_MODE__ON);
@@ -318,6 +320,8 @@ namespace camera
 
 		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
+		desc_.width /= binning_;
+		desc_.height /= binning_;
 
 		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERSOURCE, ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
