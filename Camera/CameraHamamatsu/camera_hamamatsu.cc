@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <chrono>
-#include <stdexcept>
+#include <cstring>
 
 #include "camera_hamamatsu.hh"
 
@@ -33,141 +33,207 @@ namespace camera
 
 	void CameraHamamatsu::init_camera()
 	{
-		char	buf[256];
-		int32	nDevice;
-
 		// initialize DCAM-API
-		if (!dcam_init(NULL, &nDevice, NULL) || nDevice <= 0)
+		DCAMAPI_INIT param_init;
+		std::memset(&param_init, 0, sizeof(DCAMAPI_INIT));
+		param_init.size = sizeof(param_init); //This line is required by the API
+		if (dcamapi_init(&param_init) != DCAMERR_SUCCESS || param_init.iDeviceCount <= 0)
+		{
 			throw CameraException(CameraException::NOT_CONNECTED);
+		}
 
-		// show all camera information by text
+
+		//Trying to connect the first available Camera
+		int32 nDevice = param_init.iDeviceCount;
+
+		DCAMDEV_OPEN param_open;
+		std::memset(&param_open, 0, sizeof(param_open));
+		param_open.size = sizeof(param_open); //This line is required by the API
 		for (int32 iDevice = 0; iDevice < nDevice; iDevice++)
 		{
-			dcam_getmodelinfo(iDevice, DCAM_IDSTR_VENDOR, buf, sizeof(buf));
-			if (strcmp(buf, "Hamamatsu"))
+			param_open.index = iDevice;
+			//Opening camera
+			if (dcamdev_open(&param_open) != DCAMERR_SUCCESS)
+			{
 				continue;
+			}
+			
+			hdcam_ = param_open.hdcam;
 
-			dcam_getmodelinfo(iDevice, DCAM_IDSTR_MODEL, buf, sizeof(buf));
+			//Gets and sets camera model name
+			retrieve_camera_name();
+			std::cout << "Connected to " << name_ << std::endl;
 
-			//Using the std::string(const char *, size_t) constructor would not stop at the null bytes
-			//This should not be needed, but it could happen in some unlucky setting
-			buf[sizeof(buf) - 1] = '\0';
-			name_ = buf;
-
-			std::cout << "Connecting to " << name_ << std::endl;
-			if (dcam_open(&hdcam_, iDevice, NULL))
+			//Binding parameters
+			try
 			{
 				bind_params();
-
-				double bits_per_channel;
-				dcam_getpropertyvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
-				desc_.depth = bits_per_channel / 8;
-
-				output_frame_ = std::make_unique<unsigned short[]>(desc_.frame_res());
-				memset(output_frame_.get(), 0, desc_.frame_res());
-				return; // SUCCESS
 			}
-			else {
-				dcam_uninit(NULL, NULL);
-				throw CameraException(CameraException::NOT_CONNECTED);
+			catch (const CameraException &e)
+			{
+				//this closes Camera and releases DCAM driver resources
+				shutdown_camera();
+				throw e;
 			}
+
+			//Gets and sets camera pixel size in bytes
+			retrieve_pixel_depth();
+
+			//Allocates buffer for image reception
+			allocate_host_frame_buffer();
+
+			return; // SUCCESS
 		}
+
+		//Could not connect to any camera
+		dcamapi_uninit();
 		throw CameraException(CameraException::NOT_CONNECTED);
+	}
+
+	void CameraHamamatsu::retrieve_camera_name()
+	{
+		constexpr int buf_size = 256;
+		char buf[buf_size];
+
+		DCAMDEV_STRING param_getstring;
+		std::memset(&param_getstring, 0, sizeof(param_getstring));
+		param_getstring.size = sizeof(param_getstring); //This line is required by the API
+		param_getstring.iString = DCAM_IDSTR_MODEL;
+		param_getstring.text = buf;
+		param_getstring.textbytes = buf_size;
+		if (dcamdev_getstring(hdcam_, &param_getstring) == DCAMERR_SUCCESS)
+		{
+			name_ = buf; // This calls the std::string constructor on buf, which is equal to param_getstring.text
+		}
+	}
+
+	void CameraHamamatsu::retrieve_pixel_depth()
+	{
+		double bits_per_channel;
+		dcamprop_getvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
+		desc_.depth = bits_per_channel / 8;
+	}
+
+	void CameraHamamatsu::allocate_host_frame_buffer()
+	{
+		auto frame_size = desc_.frame_res();
+		output_frame_ = std::make_unique<unsigned short[]>(frame_size);
+	}
+
+	//Should be called AFTER the camera has been setup ( init_camera() )
+	void CameraHamamatsu::set_frame_acq_info()
+	{
+		std::memset(&dcam_frame_acq_info_, 0, sizeof(dcam_frame_acq_info_));
+
+		//This separation is used to differentiate between API reserved fields and Host writeable fields
+
+		dcam_frame_acq_info_.size = sizeof(dcam_frame_acq_info_); //Line required by the API
+		dcam_frame_acq_info_.iFrame = 0; //Frame index in camera internal buffer
+		dcam_frame_acq_info_.buf = output_frame_.get(); //Pointer to host memory where the image will be copied
+		dcam_frame_acq_info_.rowbytes = desc_.width * desc_.depth; //Row size in bytes
+		dcam_frame_acq_info_.width = desc_.width;
+		dcam_frame_acq_info_.height = desc_.height;
+		dcam_frame_acq_info_.left = 0;
+		dcam_frame_acq_info_.top = 0;
+	}
+
+	void CameraHamamatsu::set_wait_info()
+	{
+		std::memset(&dcam_wait_info_, 0, sizeof(dcam_wait_info_));
+
+		dcam_wait_info_.size = sizeof(dcam_wait_info_); //Line required by the API
+		dcam_wait_info_.eventmask = DCAMWAIT_CAPEVENT_FRAMEREADY; //Waiting for event 
+		dcam_wait_info_.timeout = camera::FRAME_TIMEOUT; // This field should be in milliseconds
+	}
+
+	void CameraHamamatsu::get_event_waiter_handle()
+	{
+		DCAMWAIT_OPEN param_waitopen;
+		std::memset(&param_waitopen, 0, sizeof(param_waitopen));
+		param_waitopen.size = sizeof(param_waitopen);
+		param_waitopen.hdcam = hdcam_;
+
+		if (dcamwait_open(&param_waitopen) != DCAMERR_SUCCESS || !(param_waitopen.supportevent & DCAMWAIT_CAPEVENT_FRAMEREADY))
+		{
+			//The Event Wait system is needed to capture frames
+			//It would typically be used to wait for an FRAME_READY event
+			//The supportevent field is set after the call to dcamwait_open and contains the flags representing the supported events
+
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
+		}
+		else
+		{
+			hwait_ = param_waitopen.hwait;
+		}
+
 	}
 
 	void CameraHamamatsu::start_acquisition()
 	{
-		if (!dcam_precapture(hdcam_, DCAM_CAPTUREMODE_SEQUENCE))
-			throw CameraException(CameraException::CANT_START_ACQUISITION);
-
-		int32 frame_count = 1;
 		// allocate capturing buffer
-		if (!dcam_allocframe(hdcam_, frame_count))
+		int32 frame_count = 1;
+		if (dcambuf_alloc(hdcam_, frame_count) != DCAMERR_SUCCESS)
+		{
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
+		}
 
-		// start capturing
-		if (!dcam_capture(hdcam_))
+		//Start acquisition in "SEQUENCE" mode (camera writes frames in its internal circular buffer until dcamcap_stop() is called)
+		if (dcamcap_start(hdcam_, DCAMCAP_START_SEQUENCE) != DCAMERR_SUCCESS)
+		{
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
+		}
+
+		//Might throw a CameraException like the lines above
+		get_event_waiter_handle();
+
+		//Setting struct members values needed for acquisition
+		set_frame_acq_info();
+		set_wait_info();
 	}
 
 	void CameraHamamatsu::stop_acquisition()
 	{
 		// stop capturing
-		dcam_idle(hdcam_);
+		dcamcap_stop(hdcam_);
+
 		// release capturing buffer
-		dcam_freeframe(hdcam_);
+		dcambuf_release(hdcam_);
+
+		//close event waiter
+		dcamwait_close(hwait_);
 	}
 
 	void CameraHamamatsu::shutdown_camera()
 	{
 		// close HDCAM handle
-		dcam_close(hdcam_);
+		dcamdev_close(hdcam_);
 
 		// terminate DCAM-API
-		dcam_uninit(NULL, NULL);
+		dcamapi_uninit();
 	}
 
 	void* CameraHamamatsu::get_frame()
 	{
-		int32 sRow;
-		unsigned short* src;
-
-		/*if (!dcam_firetrigger(hdcam_)) {
-			//throw CameraException::CANT_GET_FRAME;
-			std::cerr << "Cant fire trigger" << std::endl;
-		}*/
-		//_DWORD	dw = DCAM_EVENT_FRAMEEND;
-
-		long	err = dcam_getlasterror(hdcam_);
-		if (err == DCAMERR_TIMEOUT)
+		//Waiting for frame to be ready
+		auto err_code = dcamwait_start(hwait_, &dcam_wait_info_);
+		if (err_code != DCAMERR_SUCCESS)
+		{
+			//Log err here
+			if (err_code == DCAMERR_TIMEOUT)
+			{
+				std::cout << "Frame acquisition timed out" << std::endl;
+			}
 			throw CameraException(CameraException::CANT_GET_FRAME);
-
-		if (dcam_lockdata(hdcam_, (void**)&(src), &sRow, -1)) {
-			
-			//WORD*	dsttopleft = output_frame_.get();
-
-			//long srcwidth = desc_.width, srcheight = desc_.height;
-			//const BYTE* lut = nullptr;
-			//const WORD* srctopleft = src;
-			//long srcrowbytes = desc_.width;
-
-			//copybits_bw16(dsttopleft, desc_.width, lut
-			//	, (const WORD*)srctopleft, srcrowbytes
-			//	, 0/*srcox_*/, 0/*srcoy_*/, srcwidth, srcheight);
-
-			// The above looks like software level ROI management
-
-			memcpy(output_frame_.get(), src, desc_.frame_size());
-
-			dcam_unlockdata(hdcam_);
 		}
+
+		err_code = dcambuf_copyframe(hdcam_, &dcam_frame_acq_info_);
+		if (err_code != DCAMERR_SUCCESS)
+		{
+			throw CameraException(CameraException::CANT_GET_FRAME);
+		}
+
 		return output_frame_.get();
 	}
-
-	/*long CameraHamamatsu::copybits_bw16(WORD* dsttopleft, long dstrowpix, const BYTE* lut
-		, const WORD* srctopleft, long srcrowpix
-		, long srcox, long srcoy, long srcwidth, long srcheight)
-	{
-		long	lines = 0;
-		const WORD*	src = srctopleft + srcrowpix * srcoy + srcox;
-		WORD* dst = dsttopleft;
-
-		int	x, y;
-		for (y = srcheight; y-- > 0; )
-		{
-			const WORD*	s = (const WORD*)src;
-			WORD*	d = dst;
-
-			for (x = srcwidth; x-- > 0; )
-				*d++ = *s++; // lut[*s++];
-
-			src += srcrowpix;
-			dst += dstrowpix;
-			lines++;
-		}
-
-		return lines;
-	}*/
 
 	void CameraHamamatsu::load_default_params()
 	{
@@ -186,6 +252,7 @@ namespace camera
 		binning_ = 1;
 
 		ext_trig_ = false;
+		trig_mode_ = DCAMPROP_TRIGGER_MODE__NORMAL;
 		trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__BNC;
 		trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
 
@@ -210,6 +277,12 @@ namespace camera
 
 		ext_trig_ = pt.get<bool>("hamamatsu.ext_trig", ext_trig_);
 
+		std::string trig_mode = pt.get<std::string>("hamamatsu.trig_mode", "");
+		if (trig_mode == "NORMAL")
+			trig_mode_ = DCAMPROP_TRIGGER_MODE__NORMAL;
+		else if (trig_mode == "START")
+			trig_mode_ = DCAMPROP_TRIGGER_MODE__START;
+
 		std::string trig_connector = pt.get<std::string>("hamamatsu.trig_connector", "");
 		if (trig_connector == "INTERFACE")
 			trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__INTERFACE;
@@ -233,26 +306,26 @@ namespace camera
 	{
 		if (desc_.width != 2048 || desc_.height != 2048) // SUBARRAY
 		{
-			dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_SUBARRAYMODE, DCAMPROP_MODE__ON);
-			dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_SUBARRAYHSIZE, desc_.width * binning_);
-			dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_SUBARRAYVSIZE, desc_.height * binning_);
-			dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_SUBARRAYHPOS, srcox_);
-			dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_SUBARRAYVPOS, srcoy_);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYMODE, DCAMPROP_MODE__ON);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHSIZE, desc_.width);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVSIZE, desc_.height);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHPOS, srcox_);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVPOS, srcoy_);
 		}
 
-		if (!dcam_setexposuretime(hdcam_, exposure_time_ / 1E6))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_EXPOSURETIME, exposure_time_ / 1E6))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 
-		if (!dcam_setbinning(hdcam_, binning_))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 
-		if (!dcam_settriggermode(hdcam_, ext_trig_ ? DCAM_TRIGMODE_EDGE: DCAM_TRIGMODE_INTERNAL))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERSOURCE, ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_))
+		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_))
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 	}
 
@@ -260,5 +333,4 @@ namespace camera
 	{
 		return new CameraHamamatsu();
 	}
-
 }

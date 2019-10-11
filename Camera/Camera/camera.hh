@@ -71,7 +71,7 @@ namespace camera
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
-	  , pixel_size_(0.0f)
+	    , pixel_size_(0.0f)
       , dll_instance_(nullptr)
       , create_logfile_(nullptr)
       , log_msg_(nullptr)
@@ -158,7 +158,7 @@ namespace camera
 
 	// Exposure time in �s
     float exposure_time_;
-	float pixel_size_;
+	  float pixel_size_;
 
     HINSTANCE dll_instance_; //!< Handle to the CamUtils DLL.
 

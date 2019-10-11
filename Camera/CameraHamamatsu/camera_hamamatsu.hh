@@ -20,7 +20,7 @@
 
 //#pragma comment(lib,"dcamapi.lib")
 #define WIN32
-#include "dcamapi.h"
+#include "dcamapi4.h"
 #include "dcamprop.h"
 
 namespace camera
@@ -47,14 +47,30 @@ namespace camera
 		virtual void load_default_params() override;
 		virtual void bind_params() override;
 
+		void retrieve_camera_name();
+		void retrieve_pixel_depth();
+		void allocate_host_frame_buffer();
+
+		void get_event_waiter_handle();
+
+		void set_frame_acq_info();
+		void set_wait_info();
+
 		std::unique_ptr<unsigned short[]> output_frame_;
 
-		HDCAM hdcam_;
+		HDCAM hdcam_; //Camera handle
+		HDCAMWAIT hwait_; //Event waiter handle (will typically wait for the FRAME_READY event)
 		long srcox_, srcoy_;
 		unsigned short binning_;
 		bool ext_trig_;
+		_DCAMPROPMODEVALUE trig_mode_;
 		_DCAMPROPMODEVALUE trig_connector_;
 		_DCAMPROPMODEVALUE trig_polarity_;
 		_DCAMPROPMODEVALUE readoutspeed_;
+
+		//Structures needed to acquire frames
+		//Will be passed as arguments to the API functions
+		DCAMBUF_FRAME dcam_frame_acq_info_;
+		DCAMWAIT_START dcam_wait_info_;
 	};
 }
