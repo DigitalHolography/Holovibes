@@ -144,6 +144,7 @@ void convolution_float(		const float			*a,
 	uint	blocks = map_blocks_to_problem(size, threads);
 
 	// The convolution operator could be optimized.
+	// TODO: pre allocate tmp buffers and pass them to the function
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
@@ -593,6 +594,7 @@ void kernel_translation(float		*input,
 	}
 }
 
+// TODO: change name (array_circshift)
 void complex_translation(float		*frame,
 						uint		width,
 						uint		height,
@@ -607,11 +609,10 @@ void complex_translation(float		*frame,
 		return;
 	}
 
-
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(width * height, threads);
 
-	kernel_translation << <blocks, threads, 0, 0 >> > (frame, tmp_buffer, width, height, shift_x, shift_y);
+	kernel_translation<<<blocks, threads, 0, 0>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
 	cudaCheckError();
 	cudaStreamSynchronize(0);
 	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);

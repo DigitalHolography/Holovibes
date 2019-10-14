@@ -69,7 +69,7 @@ void Stabilization::insert_correlation()
 	});
 }
 
-
+// x and y are the 2 images to correlate, **NOT COORDINATES**
 void Stabilization::compute_correlation(const float *x, const float *y)
 {
 	auto zone = cd_.getStabilizationZone();
@@ -100,7 +100,8 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
 
-	CufftHandle plan2d_a(zone.height(), zone.height(), CUFFT_R2C);
+	// TODO: only allocate once when zone changes
+	CufftHandle plan2d_a(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_b(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_inverse(zone.height(), zone.width(), CUFFT_C2R);
 
