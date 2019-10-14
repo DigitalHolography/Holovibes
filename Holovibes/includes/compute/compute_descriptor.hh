@@ -401,6 +401,9 @@ namespace holovibes
 		//! Reticle border scale.
 		std::atomic<float>			reticle_scale{ 0.5f };
 
+		//! Number of bits to shift when in direct mode
+		std::atomic<ushort>			direct_bitshift{ 0 };
+
 		//! Composite images
 		//! \{
 
