@@ -136,6 +136,16 @@ namespace holovibes
 			return;
 		}
 
+		if (resize_requested_)
+		{
+			output_.resize(requested_output_size_);
+			resize_requested_ = false;
+			if (kill_raw_queue_)
+			{
+				gpu_raw_queue_.reset(nullptr);
+			}
+		}
+
 		postprocess_->allocate_buffers();
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();

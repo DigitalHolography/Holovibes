@@ -59,6 +59,12 @@ namespace holovibes
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
 		size_t get_size() const;
 
+		/*! \brief Empty the Queue and change its size.
+		**
+		**  \param size the new size of the Queue
+		*/
+		void resize(const unsigned int size);
+
 		/*! \return pointer to internal buffer that contains data. */
 		void* get_buffer();
 
@@ -152,7 +158,7 @@ namespace holovibes
 		camera::FrameDescriptor	frame_desc_;
 		const size_t			frame_size_;
 		const int				frame_resolution_;
-		const unsigned int		max_elts_;
+		unsigned int		    max_elts_;
 		size_t					curr_elts_;
 		unsigned int			start_index_;
 		const bool				is_big_endian_;

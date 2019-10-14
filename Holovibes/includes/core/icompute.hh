@@ -120,6 +120,7 @@ namespace holovibes
 		virtual ~ICompute();
 
 		void request_refresh();
+		void request_resize(unsigned int new_output_size, bool kill_raw_queue);
 		void request_acc_refresh();
 		void request_ref_diff_refresh();
 		void request_autofocus();
@@ -183,6 +184,7 @@ namespace holovibes
 		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
+		bool get_resize_request()           const { return resize_requested_; }
 
 		void set_stft_frame_counter(unsigned int value)
 		{
@@ -235,6 +237,8 @@ namespace holovibes
 		/** XZ Image Accumulation Queue. */
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
 
+		unsigned int requested_output_size_;
+
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;
 		std::atomic<bool>	autofocus_requested_;
@@ -248,6 +252,8 @@ namespace holovibes
 		std::atomic<bool>	average_requested_;
 		std::atomic<bool>	average_record_requested_;
 		std::atomic<bool>	abort_construct_requested_;
+		std::atomic<bool>   resize_requested_;
+		std::atomic<bool>   kill_raw_queue_;
 		std::atomic<bool>	termination_requested_;
 		std::atomic<bool>	update_acc_requested_;
 		std::atomic<bool>	update_ref_diff_requested_;

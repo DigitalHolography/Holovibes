@@ -2903,6 +2903,21 @@ namespace holovibes
 		void MainWindow::set_raw_recording(bool value)
 		{
 			compute_desc_.record_raw = value;
+
+			// When switching to raw recording, we no longer care about
+			// having a big Pipe::output_ buffer for the processed output,
+			// and we need GPU memory for the Pipe::gpu_raw_queue_ so that
+			// we don't miss any frame.
+			if (value)
+			{
+				// Use an output Queue of size 4
+				holovibes_.get_pipe()->request_resize(4, false);
+			}
+			else
+			{
+				// Restore original size
+				holovibes_.get_pipe()->request_resize(global::global_config.output_queue_max_size, true);
+			}
 		}
 
 		void MainWindow::set_synchronized_record(bool value)

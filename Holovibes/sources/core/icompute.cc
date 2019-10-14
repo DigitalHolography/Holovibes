@@ -47,6 +47,7 @@ namespace holovibes
 		: compute_desc_(desc),
 		input_(input),
 		output_(output),
+		requested_output_size_(global::global_config.output_queue_max_size),
 		unwrap_1d_requested_(false),
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
@@ -59,6 +60,7 @@ namespace holovibes
 		average_requested_(false),
 		average_record_requested_(false),
 		abort_construct_requested_(false),
+		resize_requested_(false),
 		termination_requested_(false),
 		update_acc_requested_(false),
 		update_ref_diff_requested_(false),
@@ -331,6 +333,14 @@ namespace holovibes
 	void ICompute::request_termination()
 	{
 		termination_requested_ = true;
+	}
+
+	void ICompute::request_resize(unsigned int new_output_size, bool kill_raw_queue)
+	{
+		requested_output_size_ = new_output_size;
+		resize_requested_ = true;
+		kill_raw_queue_ = kill_raw_queue;
+		request_refresh();
 	}
 
 	void ICompute::request_autocontrast(WindowKind kind)

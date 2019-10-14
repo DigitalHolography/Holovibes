@@ -55,6 +55,20 @@ namespace holovibes
 		cudaStreamDestroy(stream_);
 	}
 
+	void Queue::resize(const unsigned int size)
+	{
+		max_elts_ = size;
+
+		if (!max_elts_ || !data_buffer_.resize(frame_size_ * max_elts_))
+		{
+			LOG_ERROR("Queue: couldn't resize queue");
+			throw std::logic_error(name_ + ": couldn't resize queue");
+		}
+
+		curr_elts_ = 0;
+		start_index_ = 0;
+	}
+
 	size_t Queue::get_size() const
 	{
 		return frame_size_;
