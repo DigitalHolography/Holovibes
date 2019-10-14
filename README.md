@@ -200,6 +200,14 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.7.5
+
+* Reduce output queue size when in raw output mode
+* Number of recorded frames has a step (default=1024)
+* When recording if a file with the same name already exists it won't be overwritten
+* Set the amount of bitshift in direct mode to compensate for cameras recording on a weird number of bits
+* Camera hamamatsu: cleanup and bugfixes
+
 ### v.7.4
 
 * Reticle now handled as an overlay instead of a shader

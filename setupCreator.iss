@@ -7,7 +7,7 @@
 #define DestVersionDir "cmake"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.4.0"
+#define MyAppVersion "7.5.0"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
