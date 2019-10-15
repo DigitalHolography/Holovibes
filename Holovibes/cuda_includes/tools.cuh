@@ -120,6 +120,54 @@ void frame_memcpy(float*			input,
 				const uint			output_width,
 				cudaStream_t		stream = 0);
 
+/*! \brief Copies whole input image into output at position (output_srcx, output_srcy)
+*
+* \param input The full input image
+* \param input_width The input image's width in elements (number of elements on one row)
+* \param input_height The input image's height in elements (number of elements on one column)
+* \param output The full output image
+* \param output_width The output image's width in elements (number of elements on one row)
+* \param output_height The output image's height in elements (number of elements on one column)
+* \param output_startx The output image's subzone's top left corner's x coordinate
+* \param output_starty The output image's subzone's top left corner's y coordinate
+* \param kind The direction of the data transfer (host/device to host/device)
+* \param stream The cuda Stream
+*/
+void embedded_frame_cpy(const float *input,
+						const uint input_width,
+						const uint input_height,
+						float *output,
+						const uint output_width,
+						const uint output_height,
+						const uint output_startx,
+						const uint output_starty,
+						cudaMemcpyKind kind,
+						cudaStream_t stream);
+
+/*! \brief Crops input image into whole output image
+*
+* \param input The full input image
+* \param input_width The input image's width in elements (number of elements on one row)
+* \param input_height The input image's height in elements (number of elements on one column)
+* \param output The full output image
+* \param crop_startx The input image's subzone's top left corner's x coordinate
+* \param crop_starty The input image's subzone's top left corner's y coordinate
+* \param crop_width The input image's subzone's width in elements (number of elements on one row)
+* \param crop_height The input image's subzone's height in elements (number of elements on one column)
+* \param kind The direction of the data transfer (host/device to host/device)
+* \param stream The cuda Stream
+*/
+void crop_frame(const float *input,
+				const uint input_width,
+				const uint input_height,
+				const uint crop_start_x,
+				const uint crop_start_y,
+				const uint crop_width,
+				const uint crop_height,
+				float *output,
+				cudaMemcpyKind kind,
+				cudaStream_t stream);
+
 /*! \brief Make the average of every element contained in the input.
  *
  * \param input The input data to average.

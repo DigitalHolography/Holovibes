@@ -236,6 +236,56 @@ void frame_memcpy(float				*input,
 	cudaStreamSynchronize(stream);
 }
 
+void embedded_frame_cpy(const float *input,
+						const uint input_width,
+						const uint input_height,
+						float *output,
+						const uint output_width,
+						const uint output_height,
+						const uint output_startx,
+						const uint output_starty,
+						cudaMemcpyKind kind,
+						cudaStream_t stream)
+{
+	assert(input_width + output_startx < output_width);
+	assert(input_height + output_starty < output_height);
+
+	float *output_write_start = output + (output_starty * output_width + output_startx);
+	cudaMemcpy2DAsync(output_write_start,
+					  output_width * sizeof(float),
+					  input,
+					  input_width * sizeof(float),
+					  input_width * sizeof(float),
+					  input_height,
+					  kind,
+					  stream);
+}
+
+void crop_frame(const float *input,
+				const uint input_width,
+				const uint input_height,
+				const uint crop_start_x,
+				const uint crop_start_y,
+				const uint crop_width,
+				const uint crop_height,
+				float *output,
+				cudaMemcpyKind kind,
+				cudaStream_t stream)
+{
+	assert(crop_start_x + crop_width < input_width);
+	assert(crop_start_y + crop_height < input_height);
+
+	float *crop_start = input + (crop_start_y * input_width + crop_start_x);
+	cudaMemcpy2DAsync(output,
+					  crop_width * sizeof(float),
+					  crop_start,
+					  input_width * sizeof(float),
+					  crop_width * sizeof(float),
+					  crop_height,
+					  kind,
+					  stream);
+}
+
 /* Kernel helper used in average.
  *
  * Sums up the *size* first elements of input and stores the result in sum.
