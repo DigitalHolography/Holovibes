@@ -315,21 +315,21 @@ namespace camera
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVPOS, srcoy_);
 		}
 
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_EXPOSURETIME, exposure_time_ / 1E6))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_EXPOSURETIME, exposure_time_ / 1E6) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 		desc_.width /= binning_;
 		desc_.height /= binning_;
 
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERSOURCE, ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERSOURCE, ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		if (!dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_))
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 	}
 
