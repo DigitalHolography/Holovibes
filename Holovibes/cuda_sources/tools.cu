@@ -18,6 +18,8 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "logger.hh"
 
+#include <cassert>
+
 using camera::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::UniquePtr;
@@ -247,8 +249,8 @@ void embedded_frame_cpy(const float *input,
 						cudaMemcpyKind kind,
 						cudaStream_t stream)
 {
-	assert(input_width + output_startx < output_width);
-	assert(input_height + output_starty < output_height);
+	assert(input_width + output_startx <= output_width);
+	assert(input_height + output_starty <= output_height);
 
 	float *output_write_start = output + (output_starty * output_width + output_startx);
 	cudaMemcpy2DAsync(output_write_start,
@@ -259,6 +261,32 @@ void embedded_frame_cpy(const float *input,
 					  input_height,
 					  kind,
 					  stream);
+}
+
+void embed_into_square(const float *input,
+					   const uint input_width,
+					   const uint input_height,
+					   float *output,
+					   cudaMemcpyKind kind,
+					   cudaStream_t stream)
+{
+	uint output_startx;
+	uint output_starty;
+	uint square_side_len;
+
+	if (input_width >= input_height) //Usually the case
+	{
+		square_side_len = input_width;
+		output_startx = 0;
+		output_starty = (input_width - input_height) / 2;
+	}
+	else
+	{
+		square_side_len = input_height;
+		output_startx = (input_height - input_width) / 2;
+		output_starty = 0;
+	}
+	embedded_frame_cpy(input, input_width, input_height, output, square_side_len, square_side_len, output_startx, output_starty, kind, stream);
 }
 
 void crop_frame(const float *input,
@@ -272,10 +300,10 @@ void crop_frame(const float *input,
 				cudaMemcpyKind kind,
 				cudaStream_t stream)
 {
-	assert(crop_start_x + crop_width < input_width);
-	assert(crop_start_y + crop_height < input_height);
+	assert(crop_start_x + crop_width <= input_width);
+	assert(crop_start_y + crop_height <= input_height);
 
-	float *crop_start = input + (crop_start_y * input_width + crop_start_x);
+	const float *crop_start = input + (crop_start_y * input_width + crop_start_x);
 	cudaMemcpy2DAsync(output,
 					  crop_width * sizeof(float),
 					  crop_start,
@@ -284,6 +312,42 @@ void crop_frame(const float *input,
 					  crop_height,
 					  kind,
 					  stream);
+}
+
+void crop_into_square(const float *input,
+					  const uint input_width,
+					  const uint input_height,
+					  float *output,
+					  cudaMemcpyKind kind,
+					  cudaStream_t stream)
+{
+	uint crop_start_x;
+	uint crop_start_y;
+	uint square_side_len;
+
+	if (input_width >= input_height)
+	{
+		square_side_len = input_height;
+		crop_start_x = (input_width - input_height) / 2;
+		crop_start_y = 0;
+	}
+	else
+	{
+		square_side_len = input_width;
+		crop_start_x = 0;
+		crop_start_y = (input_height - input_width) / 2;
+	}
+
+	crop_frame(input,
+			   input_width,
+			   input_height,
+			   crop_start_x,
+			   crop_start_y,
+			   square_side_len,
+			   square_side_len,
+			   output,
+			   kind,
+			   stream);
 }
 
 /* Kernel helper used in average.

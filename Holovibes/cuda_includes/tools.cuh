@@ -144,6 +144,22 @@ void embedded_frame_cpy(const float *input,
 						cudaMemcpyKind kind,
 						cudaStream_t stream);
 
+/*! \brief Copies whole input image into output, a square of side max(input_width, input_height), such that the copy is centered
+*
+* \param input The full input image
+* \param input_width The input image's width in elements (number of elements on one row)
+* \param input_height The input image's height in elements (number of elements on one column)
+* \param output The full output image (should be a square of side = max(input_width, input_height))
+* \param kind The direction of the data transfer (host/device to host/device)
+* \param stream The cuda Stream
+*/
+void embed_into_square(const float *input,
+					   const uint input_width,
+					   const uint input_height,
+					   float *output,
+					   cudaMemcpyKind kind,
+					   cudaStream_t stream);
+
 /*! \brief Crops input image into whole output image
 *
 * \param input The full input image
@@ -167,6 +183,21 @@ void crop_frame(const float *input,
 				float *output,
 				cudaMemcpyKind kind,
 				cudaStream_t stream);
+
+/*! \brief Crops input (keeping the center and leaving the borders) as a square and copies the result into output
+* \param input The full image
+* \param input_width The full image's width in elements (number of elements in one row)
+* \param input_height The full image's height in element (number of elements in one column)
+* \param output The full output image (should be a square of size = min(input_width, input_height))
+* \param kind The direction of the data transfer (host/device to host/device)
+* \param stream The cuda Stream
+*/
+void crop_into_square(const float *input,
+					  const uint input_width,
+					  const uint input_height,
+					  float *output,
+					  cudaMemcpyKind kind,
+					  cudaStream_t stream);
 
 /*! \brief Make the average of every element contained in the input.
  *
