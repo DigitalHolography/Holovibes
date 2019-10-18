@@ -1163,7 +1163,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
-				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
+				mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
 				set_divide_convolution_mode(false);
@@ -1222,7 +1222,7 @@ namespace holovibes
 				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
-				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
+				mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
 
 			}
 			catch (std::runtime_error& e)
