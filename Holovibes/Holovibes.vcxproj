@@ -232,6 +232,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\stdafx.hh" />
     <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh" />
     <ClInclude Include="includes\tools\cuda_tools\nppi_data.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\nppi_functions.hh" />
     <ClInclude Include="includes\tools\json.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />

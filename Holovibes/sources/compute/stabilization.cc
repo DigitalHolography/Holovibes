@@ -15,6 +15,7 @@
 #include "rect.hh"
 #include "power_of_two.hh"
 #include "cufft_handle.hh"
+#include "nppi_functions.hh"
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -78,8 +79,8 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
 	QPoint dimensions{ zone.width(), zone.height() };
-	cuda_tools::UniquePtr<float> selected_x(size);
-	cuda_tools::UniquePtr<float> selected_y(size);
+	UniquePtr<float> selected_x(size);
+	UniquePtr<float> selected_y(size);
 	if (!selected_x || !selected_y)
 		return;
 
@@ -103,7 +104,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
 
-	// TODO: only allocate once when zone changes
 	CufftHandle plan2d_a(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_b(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_inverse(zone.height(), zone.width(), CUFFT_C2R);
@@ -119,8 +119,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_inverse);
 }
 
-#include <chrono>
-
 void Stabilization::insert_extremums()
 {
 	fn_vect_.push_back([=]()
@@ -131,21 +129,13 @@ void Stabilization::insert_extremums()
 		const auto frame_res = zone.area();
 		if (convolution_.is_large_enough(frame_res))
 		{
-			auto max = UniquePtr<float>(1);
-			auto max_index = UniquePtr<int>(2);
-
-			nppiMaxIndx_32f_C1R(convolution_.get(),
-				nppi_data_.get_step<float>(),
-				nppi_data_.get_size(),
-				nppi_data_.get_scratch_buffer(&nppiMaxIndxGetBufferHostSize_32f_C1R),
-				max.get(), max_index.get(), max_index.get() + 1);
-
+			float max = 0;
 			int x = 0;
 			int y = 0;
+			
+			cuda_tools::nppi_get_max_index(convolution_.get(), nppi_data_, &max, &x, &y);
 
-			cudaMemcpy(&x, max_index.get(), sizeof(int), cudaMemcpyDeviceToHost);
-			cudaMemcpy(&y, max_index.get() + 1, sizeof(int), cudaMemcpyDeviceToHost);
-
+			// (0, 0) is top left of image so we need to center it
 			if (x > zone.width() / 2)
 				x -= zone.width();
 			if (y > zone.height() / 2)
