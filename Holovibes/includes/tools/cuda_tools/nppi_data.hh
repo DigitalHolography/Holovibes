@@ -48,7 +48,10 @@ namespace holovibes
 
 			/*! Returns the image line step (number of bytes in 1 line) */
 			template <typename T>
-			int get_step() const;
+			int get_step() const
+			{
+				return size_.width * sizeof(T);
+			}
 
 			/*! Returns the scratch buffer allocated with the required size or nullptr on error
 			* \param size_function Nppi function used to get the required size of the scratch buffer */

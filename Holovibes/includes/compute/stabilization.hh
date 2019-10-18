@@ -17,6 +17,7 @@
 
 # include "cuda_tools/unique_ptr.hh"
 # include "cuda_tools/array.hh"
+# include "cuda_tools/nppi_data.hh"
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
 # include "queue.hh"
@@ -108,6 +109,9 @@ namespace holovibes
 
 			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
+
+			//! Nppi data used for Nppi function calls
+			cuda_tools::NppiData nppi_data_;
 		};
 	}
 }

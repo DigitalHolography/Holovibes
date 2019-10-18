@@ -22,11 +22,13 @@
 #include "stabilization.cuh"
 #include "icompute.hh"
 #include "logger.hh"
+#include "nppi.h"
 
 
 using holovibes::compute::Stabilization;
 using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
+using holovibes::cuda_tools::UniquePtr;
 using holovibes::CoreBuffers;
 
 
@@ -38,6 +40,7 @@ Stabilization::Stabilization(FnVector& fn_vect,
 	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
+	, nppi_data_(fd.width, fd.height)
 {}
 
 void Stabilization::insert_post_img_type()
@@ -59,7 +62,7 @@ void Stabilization::insert_correlation()
 		auto zone = cd_.getStabilizationZone();
 		if (!zone.area())
 			return;
-		auto frame_res = fd_.frame_res();
+		nppi_data_.set_size(zone.width(), zone.height());
 		if (accumulation_queue_->get_current_elts())
 		{
 			if (!convolution_.ensure_minimum_size(zone.area()))
@@ -116,6 +119,8 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_inverse);
 }
 
+#include <chrono>
+
 void Stabilization::insert_extremums()
 {
 	fn_vect_.push_back([=]()
@@ -126,11 +131,21 @@ void Stabilization::insert_extremums()
 		const auto frame_res = zone.area();
 		if (convolution_.is_large_enough(frame_res))
 		{
-			uint max = 0;
-			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
-			// x y: Coordinates of maximum of the correlation function
-			int x = max % zone.width();
-			int y = max / zone.width();
+			auto max = UniquePtr<float>(1);
+			auto max_index = UniquePtr<int>(2);
+
+			nppiMaxIndx_32f_C1R(convolution_.get(),
+				nppi_data_.get_step<float>(),
+				nppi_data_.get_size(),
+				nppi_data_.get_scratch_buffer(&nppiMaxIndxGetBufferHostSize_32f_C1R),
+				max.get(), max_index.get(), max_index.get() + 1);
+
+			int x = 0;
+			int y = 0;
+
+			cudaMemcpy(&x, max_index.get(), sizeof(int), cudaMemcpyDeviceToHost);
+			cudaMemcpy(&y, max_index.get() + 1, sizeof(int), cudaMemcpyDeviceToHost);
+
 			if (x > zone.width() / 2)
 				x -= zone.width();
 			if (y > zone.height() / 2)

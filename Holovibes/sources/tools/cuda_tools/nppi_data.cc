@@ -36,12 +36,6 @@ namespace holovibes
 			size_.height = height;
 		}
 
-		template <typename T>
-		int NppiData::get_step() const
-		{
-			return size_.width * sizeof(T);
-		}
-
 		Npp8u* NppiData::get_scratch_buffer(std::function<NppStatus(NppiSize, int*)> size_function)
 		{
 			int required_size = 0;
@@ -59,7 +53,7 @@ namespace holovibes
 		{
 			if (scratch_buffer_.get() == nullptr || size > scratch_buffer_size_)
 			{
-				scratch_buffer_ = size;
+				scratch_buffer_size_ = size;
 				scratch_buffer_.resize(size);
 			}
 			return scratch_buffer_.get();
