@@ -171,8 +171,7 @@ namespace camera
 	void CameraHamamatsu::start_acquisition()
 	{
 		// allocate capturing buffer
-		int32 frame_count = 1;
-		if (dcambuf_alloc(hdcam_, frame_count) != DCAMERR_SUCCESS)
+		if (dcambuf_alloc(hdcam_, circ_buffer_frame_count_) != DCAMERR_SUCCESS)
 		{
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
 		}
@@ -252,6 +251,7 @@ namespace camera
 		binning_ = 1;
 
 		ext_trig_ = false;
+		circ_buffer_frame_count_ = 4;
 		trig_mode_ = DCAMPROP_TRIGGER_MODE__NORMAL;
 		trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__BNC;
 		trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
@@ -276,6 +276,8 @@ namespace camera
 		binning_ = pt.get<unsigned short>("hamamatsu.binning", binning_);
 
 		ext_trig_ = pt.get<bool>("hamamatsu.ext_trig", ext_trig_);
+
+		circ_buffer_frame_count_ = pt.get<int32>("hamamatsu.circ_buffer_frame_count", circ_buffer_frame_count_);
 
 		std::string trig_mode = pt.get<std::string>("hamamatsu.trig_mode", "");
 		if (trig_mode == "NORMAL")

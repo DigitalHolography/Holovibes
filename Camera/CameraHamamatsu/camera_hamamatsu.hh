@@ -63,6 +63,7 @@ namespace camera
 		long srcox_, srcoy_;
 		unsigned short binning_;
 		bool ext_trig_;
+		int32 circ_buffer_frame_count_;
 		_DCAMPROPMODEVALUE trig_mode_;
 		_DCAMPROPMODEVALUE trig_connector_;
 		_DCAMPROPMODEVALUE trig_polarity_;
