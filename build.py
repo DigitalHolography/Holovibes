@@ -49,13 +49,17 @@ if __name__ == "__main__":
     log("BUILD_DIR", config.build_dir)
 
     if "Visual Studio" in config.gen:
-        cmd = ["cmake", "-G", config.gen, "-B", config.build_dir, "-S", ".", "-A", "x64"]
-        log("CMD", cmd)
-        subprocess.call(cmd)
+        if not os.path.isdir(config.build_dir): # create build dir
+            cmd = ["cmake", "-G", config.gen, "-B", config.build_dir, "-S", ".", "-A", "x64"]
+            log("CMD", cmd)
+            subprocess.call(cmd)
         cmd = ["cmake", "--build", config.build_dir, "--config", config.conf] + config.remain + ["--", "/verbosity:normal"]
         log("CMD", cmd)
         subprocess.call(cmd)
     else:
-        cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&", "cmake", "-B", config.build_dir, "-S", ".", "-G", config.gen, f"-DCMAKE_BUILD_TYPE={config.conf}", "-DCMAKE_VERBOSE_MAKEFILE=ON", "&&", "cmake", "--build", config.build_dir] + config.remain
+        cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&"]
+        if not os.path.isdir(config.build_dir): # if build dir doesn't exist, run CMake configure step
+            cmd += ["cmake", "-B", config.build_dir, "-S", ".", "-G", config.gen, f"-DCMAKE_BUILD_TYPE={config.conf}", "-DCMAKE_VERBOSE_MAKEFILE=ON", "&&"]
+        cmd += ["cmake", "--build", config.build_dir] + config.remain
         log("CMD", cmd)
         subprocess.call(cmd)
