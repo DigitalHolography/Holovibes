@@ -95,8 +95,12 @@ target_link_libraries("${PROJECT_NAME}"
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
-    cufft
     OpenGL::GL
+
+    cufft
+    nppc
+    nppial
+    nppist
 
     holocuda
 )
@@ -115,7 +119,7 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HOLO_DIR}/shaders/"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/shaders/"
-    
+
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/pco/SC2_Cam.dll"

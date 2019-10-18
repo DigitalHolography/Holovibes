@@ -380,6 +380,9 @@
     <ClCompile Include="sources\gui\selections\overlays\reticle_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
+    <ClCompile Include="sources\tools\cuda_tools\nppi_data.cc">
+      <Filter>c++ sources\tools\cuda_tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -663,6 +666,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\reticle_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\nppi_data.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
