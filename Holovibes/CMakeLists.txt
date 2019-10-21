@@ -100,6 +100,7 @@ target_link_libraries("${PROJECT_NAME}"
     cufft
     nppc
     nppial
+    nppif
     nppist
 
     holocuda
