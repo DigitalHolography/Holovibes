@@ -194,3 +194,6 @@ Holovibes/holovibes.ini
 Holovibes/sources/gui/opengl_widgets/
 
 *.holo
+
+# python cache from scripts
+__pycache__/
