@@ -200,6 +200,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v7.5.1
+
+* Camera Hamamatsu bugfixes and updates
+* Window ratio bugfix
+* CMake does not try to re-build the project every time
+
 ### v.7.5
 
 * Reduce output queue size when in raw output mode
