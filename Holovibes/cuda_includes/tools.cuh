@@ -134,7 +134,7 @@ void frame_memcpy(float*			input,
 * \param stream The cuda Stream
 */
 template <typename T>
-void embedded_frame_cpy(const T *input,
+cudaError_t embedded_frame_cpy(const T *input,
 						const uint input_width,
 						const uint input_height,
 						T *output,
@@ -149,14 +149,14 @@ void embedded_frame_cpy(const T *input,
 	assert(input_height + output_starty <= output_height);
 						
 	T *output_write_start = output + (output_starty * output_width + output_startx);
-	cudaMemcpy2DAsync(output_write_start,
-	output_width * sizeof(T),
-	input,
-	input_width * sizeof(T),
-	input_width * sizeof(T),
-	input_height,
-	kind,
-	stream);
+	return cudaMemcpy2DAsync(output_write_start,
+		   output_width * sizeof(T),
+		   input,
+	       input_width * sizeof(T),
+	       input_width * sizeof(T),
+	       input_height,
+	       kind,
+		   stream);
 }
 
 /*! \brief Copies whole input image into output, a square of side max(input_width, input_height), such that the copy is centered
@@ -192,16 +192,16 @@ void embed_into_square(const T *input,
 		output_startx = (input_height - input_width) / 2;
 		output_starty = 0;
 	}
-	embedded_frame_cpy<T>(input,
-						  input_width,
-						  input_height,
-						  output,
-						  square_side_len,
-						  square_side_len,
-						  output_startx,
-						  output_starty,
-						  kind,
-						  stream);
+	return embedded_frame_cpy<T>(input,
+					  		     input_width,
+							     input_height,
+						 	     output,
+							     square_side_len,
+						 		 square_side_len,
+							     output_startx,
+						  		 output_starty,
+						  		 kind,
+						  		 stream);
 }
 
 /*! \brief Crops input image into whole output image
@@ -233,14 +233,14 @@ void crop_frame(const T *input,
 	assert(crop_start_y + crop_height <= input_height);
 
 	const T *crop_start = input + (crop_start_y * input_width + crop_start_x);
-	cudaMemcpy2DAsync(output,
-					  crop_width * sizeof(T),
-					  crop_start,
-					  input_width * sizeof(T),
-					  crop_width * sizeof(T),
-					  crop_height,
-					  kind,
-					  stream);
+	return cudaMemcpy2DAsync(output,
+					  		 crop_width * sizeof(T),
+					  		 crop_start,
+					  		 input_width * sizeof(T),
+					  		 crop_width * sizeof(T),
+					  		 crop_height,
+					  		 kind,
+					  		 stream);
 }
 
 /*! \brief Crops input (keeping the center and leaving the borders) as a square and copies the result into output
@@ -276,16 +276,16 @@ void crop_into_square(const T *input,
 		crop_start_y = (input_height - input_width) / 2;
 	}
 
-	crop_frame<T>(input,
-			     input_width,
-			     input_height,
-			     crop_start_x,
-			     crop_start_y,
-		  	     square_side_len,
-			     square_side_len,
-			     output,
-			     kind,
-			     stream);
+	return crop_frame<T>(input,
+			     		 input_width,
+			     		 input_height,
+			     		 crop_start_x,
+			     		 crop_start_y,
+		  	     		 square_side_len,
+			     		 square_side_len,
+			     		 output,
+			     		 kind,
+			     		 stream);
 }
 
 /*! \brief Make the average of every element contained in the input.
