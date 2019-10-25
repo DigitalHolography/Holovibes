@@ -436,6 +436,7 @@ namespace holovibes
 			template<>
 			NppStatus nppi_convolution_<float>(float* src, float* dst, NppiData& nppi_data, float* kernel, NppiData& nppi_kernel_data)
 			{
+				NppiPoint anchor{ nppi_kernel_data.get_size().width / 2, nppi_kernel_data.get_size().height / 2 };
 				NppiPoint offset{ 0, 0 };
 				return nppiFilterBorder_32f_C1R(src,
 					nppi_data.get_step<float>(),
@@ -446,7 +447,7 @@ namespace holovibes
 					nppi_data.get_size(),
 					kernel,
 					nppi_kernel_data.get_size(),
-					offset,
+					anchor,
 					NPP_BORDER_REPLICATE);
 			}
 #pragma endregion NPPI_CONVOLUTION
@@ -718,27 +719,36 @@ namespace holovibes
 
 		/*! Apply a high pass filter on an image
 		* \param src The source image
-		* \param dst The destination image (src != dst)
+		* \param dst The destination image (will allocate memory if src == dst)
 		* \param nppi_data NppiData corresponding to the images
 		* \param mask_size The mask going to be applied
 		*/
 		template <typename T>
 		NppStatus nppi_high_pass_filter(T* src, T* dst, NppiData& nppi_data, NppiMaskSize mask_size)
 		{
+			T* tmp_dst = dst;
+			size_t size = nppi_data.get_size().width * nppi_data.get_size().height;
 			if (src == dst)
 			{
-				LOG_ERROR("could not apply npp high pass filter, src == dst");
-				return NPP_ERROR;
+				T* tmp;
+				cudaMalloc(&tmp, size * sizeof(T));
+				tmp_dst = tmp;
 			}
 
-			NppStatus ret = nppi_high_pass_filter_(src, dst, nppi_data, mask_size);
+			NppStatus ret = nppi_high_pass_filter_(src, tmp_dst, nppi_data, mask_size);
+
+			if (src == dst)
+			{
+				cudaMemcpy(src, tmp_dst, size * sizeof(T), cudaMemcpyDeviceToDevice);
+				cudaFree(tmp_dst);
+			}
 
 			return ret;
 		}
 
-		/*! Computes the convolution of an image and a kernel (!!! fix crash !!!)
+		/*! Computes the convolution of an image and a kernel
 		* \param src The source image
-		* \param dst The destination image (src != dst)
+		* \param dst The destination image (will allocate memory if src == dst)
 		* \param nppi_data The NppiData conrresponding to src and dst
 		* \param kernel The convolution kernel to apply
 		* \param nppi_kernel_data The NppiData corresponding to the kernel
@@ -746,13 +756,22 @@ namespace holovibes
 		template<typename T>
 		NppStatus nppi_convolution(T* src, T* dst, NppiData& nppi_data, T* kernel, NppiData& nppi_kernel_data)
 		{
+			T* tmp_dst = dst;
+			size_t size = nppi_data.get_size().width * nppi_data.get_size().height;
 			if (src == dst)
 			{
-				LOG_ERROR("could not apply npp convolution, src == dst");
-				return NPP_ERROR;
+				T* tmp;
+				cudaMalloc(&tmp, size * sizeof(T));
+				tmp_dst = tmp;
 			}
 
-			NppStatus ret = nppi_convolution_(src, dst, nppi_data, kernel, nppi_kernel_data);
+			NppStatus ret = nppi_convolution_(src, tmp_dst, nppi_data, kernel, nppi_kernel_data);
+
+			if (src == dst)
+			{
+				cudaMemcpy(src, tmp_dst, size * sizeof(T), cudaMemcpyDeviceToDevice);
+				cudaFree(tmp_dst);
+			}
 
 			return ret;
 		}
