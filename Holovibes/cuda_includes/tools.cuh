@@ -133,16 +133,31 @@ void frame_memcpy(float*			input,
 * \param kind The direction of the data transfer (host/device to host/device)
 * \param stream The cuda Stream
 */
-void embedded_frame_cpy(const float *input,
+template <typename T>
+void embedded_frame_cpy(const T *input,
 						const uint input_width,
 						const uint input_height,
-						float *output,
+						T *output,
 						const uint output_width,
 						const uint output_height,
 						const uint output_startx,
 						const uint output_starty,
 						cudaMemcpyKind kind,
-						cudaStream_t stream);
+						cudaStream_t stream)
+{
+	assert(input_width + output_startx <= output_width);
+	assert(input_height + output_starty <= output_height);
+						
+	T *output_write_start = output + (output_starty * output_width + output_startx);
+	cudaMemcpy2DAsync(output_write_start,
+	output_width * sizeof(T),
+	input,
+	input_width * sizeof(T),
+	input_width * sizeof(T),
+	input_height,
+	kind,
+	stream);
+}
 
 /*! \brief Copies whole input image into output, a square of side max(input_width, input_height), such that the copy is centered
 *
@@ -153,12 +168,41 @@ void embedded_frame_cpy(const float *input,
 * \param kind The direction of the data transfer (host/device to host/device)
 * \param stream The cuda Stream
 */
-void embed_into_square(const float *input,
+template <typename T>
+void embed_into_square(const T *input,
 					   const uint input_width,
 					   const uint input_height,
-					   float *output,
+					   T *output,
 					   cudaMemcpyKind kind,
-					   cudaStream_t stream);
+					   cudaStream_t stream)
+{
+	uint output_startx;
+	uint output_starty;
+	uint square_side_len;
+
+	if (input_width >= input_height) //Usually the case
+	{
+		square_side_len = input_width;
+		output_startx = 0;
+		output_starty = (input_width - input_height) / 2;
+	}
+	else
+	{
+		square_side_len = input_height;
+		output_startx = (input_height - input_width) / 2;
+		output_starty = 0;
+	}
+	embedded_frame_cpy<T>(input,
+						  input_width,
+						  input_height,
+						  output,
+						  square_side_len,
+						  square_side_len,
+						  output_startx,
+						  output_starty,
+						  kind,
+						  stream);
+}
 
 /*! \brief Crops input image into whole output image
 *
@@ -173,16 +217,31 @@ void embed_into_square(const float *input,
 * \param kind The direction of the data transfer (host/device to host/device)
 * \param stream The cuda Stream
 */
-void crop_frame(const float *input,
+template <typename T>
+void crop_frame(const T *input,
 				const uint input_width,
 				const uint input_height,
 				const uint crop_start_x,
 				const uint crop_start_y,
 				const uint crop_width,
 				const uint crop_height,
-				float *output,
+				T *output,
 				cudaMemcpyKind kind,
-				cudaStream_t stream);
+				cudaStream_t stream)
+{
+	assert(crop_start_x + crop_width <= input_width);
+	assert(crop_start_y + crop_height <= input_height);
+
+	const T *crop_start = input + (crop_start_y * input_width + crop_start_x);
+	cudaMemcpy2DAsync(output,
+					  crop_width * sizeof(T),
+					  crop_start,
+					  input_width * sizeof(T),
+					  crop_width * sizeof(T),
+					  crop_height,
+					  kind,
+					  stream);
+}
 
 /*! \brief Crops input (keeping the center and leaving the borders) as a square and copies the result into output
 * \param input The full image
@@ -192,12 +251,42 @@ void crop_frame(const float *input,
 * \param kind The direction of the data transfer (host/device to host/device)
 * \param stream The cuda Stream
 */
-void crop_into_square(const float *input,
+template <typename T>
+void crop_into_square(const T *input,
 					  const uint input_width,
 					  const uint input_height,
-					  float *output,
+					  T *output,
 					  cudaMemcpyKind kind,
-					  cudaStream_t stream);
+					  cudaStream_t stream)
+{
+	uint crop_start_x;
+	uint crop_start_y;
+	uint square_side_len;
+
+	if (input_width >= input_height)
+	{
+		square_side_len = input_height;
+		crop_start_x = (input_width - input_height) / 2;
+		crop_start_y = 0;
+	}
+	else
+	{
+		square_side_len = input_width;
+		crop_start_x = 0;
+		crop_start_y = (input_height - input_width) / 2;
+	}
+
+	crop_frame<T>(input,
+			     input_width,
+			     input_height,
+			     crop_start_x,
+			     crop_start_y,
+		  	     square_side_len,
+			     square_side_len,
+			     output,
+			     kind,
+			     stream);
+}
 
 /*! \brief Make the average of every element contained in the input.
  *
