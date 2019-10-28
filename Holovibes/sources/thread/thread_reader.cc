@@ -28,8 +28,8 @@ using TimePoint = std::chrono::time_point<Clock>;
 namespace holovibes
 {
 	ThreadReader::ThreadReader(std::string file_src,
-		camera::FrameDescriptor& new_frame_desc,
 		camera::FrameDescriptor& frame_desc,
+		IThreadInput::SquareInputMode mode,
 		bool loop,
 		unsigned int fps,
 		unsigned int spanStart,
@@ -40,10 +40,9 @@ namespace holovibes
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
-		: IThreadInput()
+		: IThreadInput(mode)
 		, file_src_(file_src)
 		, frame_desc_(frame_desc)
-		, real_frame_desc_(new_frame_desc)
 		, loop_(loop)
 		, fps_(fps)
 		, frameId_(spanStart)
@@ -60,7 +59,7 @@ namespace holovibes
 		, thread_(&ThreadReader::thread_proc, this)
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
-		auto fd = get_frame_descriptor();
+		auto fd = get_input_frame_descriptor();
 		std::string input_descriptor_info = std::to_string(fd.width)
 			+ std::string("x")
 			+ std::to_string(fd.height)
@@ -72,27 +71,12 @@ namespace holovibes
 		reader_progress_bar->show();
 	}
 
-	void ThreadReader::clear_memory(char **buffer, char **resize_buffer)
-	{
-		cudaFreeHost(*buffer);
-		cudaFree(*resize_buffer);
-		*buffer = nullptr;
-		*resize_buffer = nullptr;
-	}
-
 	void ThreadReader::thread_proc()
 	{
 		unsigned int refresh_fps = fps_;
-		unsigned int frame_size = frame_desc_.frame_size();
-		unsigned int resize_frame_size = real_frame_desc_.frame_size();
+		unsigned int frame_size = get_queue_frame_descriptor().frame_size();
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 		char* buffer = nullptr;
-		char* resize_buffer = nullptr;
-		if (real_frame_desc_.width != frame_desc_.width || real_frame_desc_.height != frame_desc_.height)
-		{
-			if (cudaMalloc(&resize_buffer, resize_frame_size) != CUDA_SUCCESS)
-				throw std::runtime_error("[CUDA] : Memory allocation failed");
-		}
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
 		const Clock::duration frame_frequency = std::chrono::microseconds(1000000 / fps_);
@@ -114,14 +98,13 @@ namespace holovibes
 			}
 			if (cudaMallocHost(&buffer, frame_size * elts_max_nbr) != CUDA_SUCCESS)
 			{
-				clear_memory(&buffer, &resize_buffer);
 				throw std::runtime_error("[CUDA] : Memory allocation failed");
 			}
 			fpos_t pos = offset + frame_size * (spanStart_ - 1);
 			std::fsetpos(file, &pos);
 			if (!file)
 			{
-				clear_memory(&buffer, &resize_buffer);
+				cudaFreeHost(buffer);
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 			}
 			auto beginFrames = std::chrono::high_resolution_clock::now();
@@ -130,7 +113,7 @@ namespace holovibes
 			{
 				while (std::chrono::high_resolution_clock::now() > next_game_tick && !stop_requested_)
 				{
-					if (!reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos))
+					if (!reader_loop(file, buffer, frame_size, elts_max_nbr, pos))
 						stop_requested_ = true;
 					next_game_tick += frame_frequency;
 					if (--refresh_fps == 0)
@@ -155,15 +138,14 @@ namespace holovibes
 		if (file)
 			std::fclose(file);
 		stop_requested_ = true;
-		clear_memory(&buffer, &resize_buffer);
+		cudaFreeHost(buffer);
 	}
 
 	bool ThreadReader::reader_loop(
 		FILE* file,
 		char* buffer,
-		char* resize_buffer,
-		const unsigned int& frame_size,
-		const unsigned int& elts_max_nbr,
+		const unsigned int frame_size,
+		const unsigned int elts_max_nbr,
 		fpos_t pos)
 	{
 		unsigned int cine_offset = 0;
@@ -191,20 +173,9 @@ namespace holovibes
 			nbr_stored_ = static_cast<unsigned int>(length) / frame_size;
 			act_frame_ = 0;
 		}
-		if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
-		{
-			if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice))
-				return false;
-		}
-		else
-		{
-			buffer_size_conversion(resize_buffer
-				, buffer + cine_offset + act_frame_ * frame_size
-				, real_frame_desc_
-				, frame_desc_);
-			if (!queue_.enqueue(resize_buffer))
-				return false;
-		}
+
+		if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice, this->square_input_mode_))
+			return false;
 
 		++frameId_;
 		++act_frame_;
@@ -223,9 +194,14 @@ namespace holovibes
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "none");
 	}
 
-	const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
+	const camera::FrameDescriptor& ThreadReader::get_input_frame_descriptor() const
 	{
 		return frame_desc_;
+	}
+
+	const camera::FrameDescriptor& ThreadReader::get_queue_frame_descriptor() const
+	{
+		return queue_.get_frame_desc();
 	}
 
 	long int ThreadReader::offset_cine_first_image(FILE *file)

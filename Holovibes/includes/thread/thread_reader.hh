@@ -53,21 +53,24 @@ namespace holovibes
     /*! \brief Create a preconfigured ThreadReader. */
     ThreadReader(std::string file_src
       , camera::FrameDescriptor& frame_desc
-	  , camera::FrameDescriptor& real_frame_desc
+      , IThreadInput::SquareInputMode mode
       , bool loop
       , unsigned int fps
       , unsigned int spanStart
       , unsigned int spanEnd
       , Queue& input
-	  , bool is_cine_file
-	  , bool is_holo_file
-	  , Holovibes& holovibes
-	  , QProgressBar *reader_progress_bar
-	  , gui::MainWindow *main_window);
+	    , bool is_cine_file
+	    , bool is_holo_file
+	    , Holovibes& holovibes
+	    , QProgressBar *reader_progress_bar
+	    , gui::MainWindow *main_window);
 
     virtual ~ThreadReader();
 
-    const camera::FrameDescriptor& get_frame_descriptor() const;
+    const camera::FrameDescriptor& get_input_frame_descriptor() const override;
+
+    const camera::FrameDescriptor& get_queue_frame_descriptor() const override;
+
 	signals:
 		void at_begin();
 
@@ -77,15 +80,11 @@ namespace holovibes
 	  /* Proc that will launch the import mode. */
     void  thread_proc(void);
 
-	/*! \brief Function that clear thread_reader buffers*/
-	void  clear_memory(char **buffer, char **resize_buffer);
-
 	/* the loop that will read elements from a specified file. It is launched FPS times */
 	bool reader_loop(FILE* file,
 		char* buffer,
-		char* resize_buffer,
-		const unsigned int& frame_size,
-		const unsigned int& elts_max_nbr,
+		const unsigned int frame_size,
+		const unsigned int elts_max_nbr,
 		fpos_t pos);
 	/*! \brief Seek the offset to attain the .cine file first image */
 	long int  offset_cine_first_image(FILE *file);
@@ -98,8 +97,6 @@ namespace holovibes
     unsigned int fps_;
     /*! \brief Describes the image format asked by the user. */
     camera::FrameDescriptor frame_desc_;
-	/*! \brief Casted frame_desc_ into the nearest power of 2 sized frame and read by thread_reader. */
-	camera::FrameDescriptor real_frame_desc_;
     /*! \brief Current frame id in file. */
     unsigned int frameId_;
     /*! \brief Id of the first frame to read. */
