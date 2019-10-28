@@ -29,13 +29,29 @@ namespace holovibes
    */
   class IThreadInput
   {
+  
   public:
+    //If you can find better names, please replace them with yours
+    enum SquareInputMode
+    {
+      NO_MODIFICATION,
+      EMBED_INTO_SQUARE,
+      CROP_INTO_SQUARE
+    };
+
+  public:
+    IThreadInput(SquareInputMode mode);
     virtual ~IThreadInput();
 
-    virtual const camera::FrameDescriptor& get_frame_descriptor() const = 0;
+    virtual const camera::FrameDescriptor& get_input_frame_descriptor() const = 0;
+
+    //If the input is not square, it might need to be croped or embedded into one
+    //This would be the effective frame descriptor for the rest of the program
+    virtual const camera::FrameDescriptor& get_queue_frame_descriptor() const = 0;
   public:
     /*! \brief Stop thread and join it */
     bool stop_requested_;
+    const SquareInputMode square_input_mode_;
 
   protected:
     IThreadInput();
