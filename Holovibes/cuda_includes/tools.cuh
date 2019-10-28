@@ -169,12 +169,12 @@ cudaError_t embedded_frame_cpy(const T *input,
 * \param stream The cuda Stream
 */
 template <typename T>
-void embed_into_square(const T *input,
-					   const uint input_width,
-					   const uint input_height,
-					   T *output,
-					   cudaMemcpyKind kind,
-					   cudaStream_t stream)
+cudaError_t embed_into_square(const T *input,
+					   		  const uint input_width,
+					   	  	  const uint input_height,
+					   		  T *output,
+					   		  cudaMemcpyKind kind,
+					   		  cudaStream_t stream)
 {
 	uint output_startx;
 	uint output_starty;
@@ -218,7 +218,7 @@ void embed_into_square(const T *input,
 * \param stream The cuda Stream
 */
 template <typename T>
-void crop_frame(const T *input,
+cudaError_t crop_frame(const T *input,
 				const uint input_width,
 				const uint input_height,
 				const uint crop_start_x,
@@ -252,7 +252,7 @@ void crop_frame(const T *input,
 * \param stream The cuda Stream
 */
 template <typename T>
-void crop_into_square(const T *input,
+cudaError_t crop_into_square(const T *input,
 					  const uint input_width,
 					  const uint input_height,
 					  T *output,
