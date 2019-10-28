@@ -70,11 +70,11 @@ namespace holovibes
 			flag = ThreadState::Null;
 		}
 
-		void InfoManager::insertInputSource(const camera::FrameDescriptor& fd)
+		void InfoManager::insertFrameDescriptorInfo(const camera::FrameDescriptor& fd, InfoManager::InfoType infotype, std::string name)
 		{
-			std::string output_descriptor_info = std::to_string(fd.width) + "x" + std::to_string(fd.height) +
-				" - " + std::to_string(fd.depth * 8) + "bit";
-			insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
+			std::string fd_info = std::to_string(fd.width) + "x" + std::to_string(fd.height) +
+								   " - " + std::to_string(fd.depth * 8) + "bit";
+			insert_info(infotype, name, fd_info);
 		}
 
 		void InfoManager::update_info(const std::string& key, const std::string& value)

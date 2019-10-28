@@ -73,12 +73,17 @@ namespace holovibes
 		/*! Stop to refresh the info_panel display*/
 		void stop_display();
 
-		void insertInputSource(const camera::FrameDescriptor& fd);
+		/*! insert_info but with a message formatted using a Frame Descriptor's values
+		** \param fd The frame descriptor
+		** \param infotype The info type
+		** \param name The name to display
+		*/
+		void InfoManager::insertFrameDescriptorInfo(const camera::FrameDescriptor &fd, InfoManager::InfoType infotype, std::string name);
 
-		/*! Add your information until is remove, and call draw()
+			/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information
 		** \param value is your information linked to key */
-		void update_info(const std::string& key, const std::string& value);
+			void update_info(const std::string &key, const std::string &value);
 		void remove_info(const std::string& key);
 		void insert_info(const uint pos, const std::string& key, const std::string& value);
 		void clear_infos();
