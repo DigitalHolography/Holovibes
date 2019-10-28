@@ -61,7 +61,7 @@ namespace holovibes
 		 *
 		 * Launch the capture thread to continuously acquire frames in input
 		 * buffer. */
-		void Holovibes::init_capture(const CameraKind c);
+		void Holovibes::init_capture(const CameraKind c, IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
 
 		/*! \brief Request the capture thread to stop - Free ressources. */
 		void dispose_capture();
@@ -126,7 +126,8 @@ namespace holovibes
 			unsigned int q_max_size_,
 			Holovibes& holovibes,
 			QProgressBar *reader_progress_bar = nullptr,
-			gui::MainWindow *main_window = nullptr);
+			gui::MainWindow *main_window = nullptr,
+			IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
 
 		/*! \{ \name Getters/Setters */
 		std::shared_ptr<ICompute> get_pipe()
@@ -171,7 +172,7 @@ namespace holovibes
 		}
 		/*! \} */
 
-		const camera::FrameDescriptor& get_cam_frame_desc();
+		const camera::FrameDescriptor& get_capture_frame_desc();
 
 		/* \brief Get zb = N d^2 / lambda
 		  Is updated everytime the camera changes or lamdba changes

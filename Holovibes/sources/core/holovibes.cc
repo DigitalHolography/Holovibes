@@ -26,8 +26,6 @@ namespace holovibes
 {
 	using camera::FrameDescriptor;
 
-
-
 	Holovibes::Holovibes()
 		: camera_(),
 		camera_initialized_(false),
@@ -45,7 +43,7 @@ namespace holovibes
 	{
 	}
 
-	void Holovibes::init_capture(const CameraKind c)
+	void Holovibes::init_capture(const CameraKind c, IThreadInput::SquareInputMode mode)
 	{
 		camera_initialized_ = false;
 		try
@@ -77,7 +75,22 @@ namespace holovibes
 			camera_->init_camera();
 			compute_desc_.pixel_size = camera_->get_pixel_size();
 			LOG_INFO("(Holovibes) Resetting queues...");
-			input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
+
+			auto frame_descriptor = camera_->get_frame_descriptor();
+			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
+			if (mode == IThreadInput::SquareInputMode::EMBED_INTO_SQUARE)
+			{
+				//Set values to the max of the two
+				set_max_of_the_two(frame_descriptor.width, frame_descriptor.height);
+			}
+			else if (mode == IThreadInput::SquareInputMode::CROP_INTO_SQUARE)
+			{
+				//Set values to the min of the two
+				set_min_of_the_two(frame_descriptor.width, frame_descriptor.height);
+			}
+			
+			input_.reset(new Queue(frame_descriptor, global::global_config.input_queue_max_size, "InputQueue"));
+
 			LOG_INFO("(Holovibes) Starting initialization...");
 			camera_->start_acquisition();
 			tcapture_.reset(new ThreadCapture(*camera_, *input_));
@@ -198,16 +211,16 @@ namespace holovibes
 		compute_desc_.convo_matrix.clear();
 	}
 
-	const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
+	const camera::FrameDescriptor& Holovibes::get_capture_frame_desc()
 	{
-		return tcapture_.get()->get_frame_descriptor();
+		return tcapture_->get_queue_frame_descriptor();
 	}
 
 	const float Holovibes::get_boundary()
 	{
 		if (tcapture_)
 		{
-			FrameDescriptor fd = get_cam_frame_desc();
+			FrameDescriptor fd = get_capture_frame_desc();
 			const float n = static_cast<float>(fd.height);
 			const float d = compute_desc_.pixel_size * 0.000001f;
 			return (n * d * d) / compute_desc_.lambda;
@@ -224,21 +237,31 @@ namespace holovibes
 		unsigned int q_max_size_,
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
-		gui::MainWindow *main_window)
+		gui::MainWindow *main_window,
+		IThreadInput::SquareInputMode mode)
 	{
 		camera_initialized_ = false;
 
 		try
 		{
 			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
-			camera::FrameDescriptor real_frame_desc = frame_desc;
-			real_frame_desc.width = frame_desc.width;
-			real_frame_desc.height = frame_desc.height;
-			input_.reset(new Queue(real_frame_desc, q_max_size_, "InputQueue"));
+
+			if (mode == IThreadInput::SquareInputMode::EMBED_INTO_SQUARE)
+			{
+				//Set values to the max of the two
+				set_max_of_the_two(frame_desc.width, frame_desc.height);
+			}
+			else if (mode == IThreadInput::SquareInputMode::CROP_INTO_SQUARE)
+			{
+				//Set values to the min of the two
+				set_min_of_the_two(frame_desc.width, frame_desc.height);
+			}
+
+			input_.reset(new Queue(frame_desc, q_max_size_, "InputQueue"));
 			tcapture_.reset(
 				new ThreadReader(file_src,
-					real_frame_desc,
 					frame_desc,
+					mode,
 					loop,
 					fps,
 					spanStart,
