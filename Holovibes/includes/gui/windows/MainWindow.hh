@@ -43,6 +43,7 @@ using json = ::nlohmann::json;
 # include "thread_csv_record.hh"
 # include "thread_recorder.hh"
 # include "ui_mainwindow.h"
+# include "ithread_input.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -281,7 +282,7 @@ namespace holovibes
 			virtual void closeEvent(QCloseEvent* event) override;
 
 		private:
-			void		change_camera(CameraKind c);
+			void		change_camera(CameraKind c, IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);
 			void		open_file(const std::string& path);

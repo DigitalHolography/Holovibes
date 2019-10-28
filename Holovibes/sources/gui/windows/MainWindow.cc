@@ -1039,7 +1039,7 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Cameras
-		void MainWindow::change_camera(CameraKind c)
+		void MainWindow::change_camera(CameraKind c, IThreadInput::SquareInputMode mode)
 		{
 			close_windows();
 			close_critical_compute();
@@ -1052,7 +1052,7 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
-					holovibes_.init_capture(c);
+					holovibes_.init_capture(c, mode);
 					is_enabled_camera_ = true;
 					set_image_mode();
 					import_type_ = ImportType::Camera;
@@ -1164,7 +1164,7 @@ namespace holovibes
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
-				InfoManager::get_manager()->insertInputSource(fd);
+				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::INPUT_SOURCE, "Input Format");
 				set_convolution_mode(false);
 				set_divide_convolution_mode(false);
 				notify();
@@ -1244,7 +1244,7 @@ namespace holovibes
 				createHoloWindow();
 				/* ---------- */
 				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_frame_desc();
-				InfoManager::get_manager()->insertInputSource(fd);
+				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
 				if (!compute_desc_.is_holo_file)
@@ -1415,7 +1415,7 @@ namespace holovibes
 					}
 					else
 					{
-						auto fd = holovibes_.get_cam_frame_desc();
+						auto fd = holovibes_.get_capture_frame_desc();
 						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
 					}
 					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
