@@ -15,6 +15,7 @@
 #include "queue.hh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
+#include "tools.cuh"
 
 #include "info_manager.hh"
 #include "logger.hh"
@@ -44,6 +45,12 @@ namespace holovibes
 			LOG_ERROR("Queue: couldn't allocate queue");
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
+
+		//Needed if input is embedded into a bigger square
+		cudaMemset(data_buffer_.get(), 0, frame_size_ * elts);
+
+		cudaCheckError();
+
 		frame_desc_.byteEndian = Endianness::LittleEndian;
 		cudaStreamCreate(&stream_);
 	}
@@ -64,6 +71,11 @@ namespace holovibes
 			LOG_ERROR("Queue: couldn't resize queue");
 			throw std::logic_error(name_ + ": couldn't resize queue");
 		}
+
+		//Needed if input is embedded into a bigger square
+		cudaMemset(data_buffer_.get(), 0, frame_size_ * max_elts_);
+
+		cudaCheckError();
 
 		curr_elts_ = 0;
 		start_index_ = 0;
@@ -119,17 +131,49 @@ namespace holovibes
 		return (start_index_ + curr_elts_) % max_elts_;
 	}
 
-	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
+	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind, IThreadInput::SquareInputMode mode)
 	{
 		MutexGuard mGuard(mutex_);
 
 		const uint	end_ = (start_index_ + curr_elts_) % max_elts_;
 		char		*new_elt_adress = data_buffer_.get() + (end_ * frame_size_);
-		cudaError_t	cuda_status = cudaMemcpyAsync(new_elt_adress,
-			elt,
-			frame_size_,
-			cuda_kind,
-			stream_);
+
+		cudaError_t cuda_status;
+		switch (mode)
+		{
+			case IThreadInput::SquareInputMode::NO_MODIFICATION:
+				cuda_status = cudaMemcpyAsync(new_elt_adress,
+											  elt,
+											  frame_size_,
+				 							  cuda_kind,
+											  stream_);
+				break;
+			case IThreadInput::SquareInputMode::EMBED_INTO_SQUARE:
+				//The black bands should have been written at the allocation of the data buffer
+				cuda_status = embed_into_square<char>(static_cast<char *>(elt),
+													  frame_desc_.width,
+													  frame_desc_.height,
+													  new_elt_adress,
+													  cuda_kind,
+													  stream_);
+				break;
+			case IThreadInput::SquareInputMode::CROP_INTO_SQUARE:
+				cuda_status = crop_into_square<char>(static_cast<char *>(elt),
+													 frame_desc_.width,
+													 frame_desc_.height,
+													 new_elt_adress,
+													 cuda_kind,
+													 stream_);
+				break;
+			default:
+				assert(false);
+				LOG_ERROR(std::string("Missing switch case for square input mode"));
+				if (display_)
+					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
+				return false;
+		}
+
+
 		if (cuda_status != CUDA_SUCCESS)
 		{
 			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cudaGetLastError())));

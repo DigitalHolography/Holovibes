@@ -24,7 +24,7 @@
 
 # include "frame_desc.hh"
 # include "unique_ptr.hh"
-
+#include "ithread_input.hh"
 
 namespace holovibes
 {
@@ -109,8 +109,10 @@ namespace holovibes
 		**
 		** \param elt pointer to element to enqueue
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		** \param mode Wether elt should be : copied as it is | copied into a bigger square | cropped into a smaller square
 		*/
-		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+					 IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
 
 		/*! \brief Dequeue method overload
 		**
