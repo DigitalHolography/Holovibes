@@ -189,7 +189,7 @@ void phi_unwrap_2d(const cufftHandle	plan2d,
 **   and the size of the frame.
 */
 __global__
-void circ_shift(cuComplex*	input,
+void circ_shift(const cuComplex*	input,
 				cuComplex*	output,
 				const int	i, // shift on x axis
 				const int	j, // shift on y axis
@@ -201,7 +201,7 @@ void circ_shift(cuComplex*	input,
  *	given float output & inputs.
  */
 __global__
-void circ_shift_float(float*	input,
+void circ_shift_float(const float*	input,
 					float*		output,
 					const int	i, // shift on x axis
 					const int	j, // shift on y axis

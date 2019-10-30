@@ -520,7 +520,7 @@ void phi_unwrap_2d(	const cufftHandle			plan2d,
 }
 
 __global__
-void circ_shift(cuComplex	*input,
+void circ_shift(const cuComplex	*input,
 				cuComplex	*output,
 				const int	i, // shift on x axis
 				const int	j, // shift on y axis
@@ -529,26 +529,21 @@ void circ_shift(cuComplex	*input,
 				const uint	size)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
-	int		index_x = 0;
-	int		index_y = 0;
-	int		shift_x = 0;
-	int		shift_y = 0;
-	// In ROI
-	//while (index < size)
+	if (index < size)
 	{
-		index_x = index % width;
-		index_y = index / height;
-		shift_x = index_x - i;
-		shift_y = index_y - j;
+		int index_x = index % width;
+		int index_y = index / width;
+		int shift_x = index_x - i;
+		int shift_y = index_y - j;
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
-		output[(width * shift_y) + shift_x] = input[index];
-		//index += blockDim.x * gridDim.x;
+        auto rhs = input[index];
+		output[(width * shift_y) + shift_x] = rhs;
 	}
 }
 
 __global__
-void circ_shift_float(float		*input,
+void circ_shift_float(const float		*input,
 					float		*output,
 					const int	i, // shift on x axis
 					const int	j, // shift on y axis
@@ -557,21 +552,16 @@ void circ_shift_float(float		*input,
 					const uint	size)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
-	int		index_x = 0;
-	int		index_y = 0;
-	int		shift_x = 0;
-	int		shift_y = 0;
-	// In ROI
-	//while (index < size)
+	if (index < size)
 	{
-		index_x = index % width;
-		index_y = index / height;
-		shift_x = index_x - i;
-		shift_y = index_y - j;
+		int index_x = index % width;
+		int index_y = index / width;
+		int shift_x = index_x - i;
+		int shift_y = index_y - j;
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
-		output[(width * shift_y) + shift_x] = input[index];
-		//index += blockDim.x * gridDim.x;
+        auto rhs = input[index];
+		output[(width * shift_y) + shift_x] = rhs;
 	}
 }
 
