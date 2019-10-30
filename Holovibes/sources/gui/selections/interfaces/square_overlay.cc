@@ -34,7 +34,8 @@ namespace holovibes
 
 		void SquareOverlay::checkCorners()
 		{
-			ushort frameSide = parent_->getFd().width;
+            auto parent_fd = parent_->getFd();
+			ushort frameSide = std::min(parent_fd.width, parent_fd.height);
 
 			// Resizing the square selection to the window
 			if (zone_.dst().x() < 0)
