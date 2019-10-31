@@ -70,10 +70,6 @@ namespace holovibes
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset_;
 
-		std::cout << "FILE SIZE: " << file_size << "\n";
-		std::cout << "FILE DATA SIZE: " << header_.total_data_size << "\n";
-		std::cout << "FILE META DATA SIZE: " << meta_data_size << "\n";
-
 		meta_data_str_.resize(meta_data_size + 1);
 		meta_data_str_[meta_data_size] = 0;
 
@@ -83,6 +79,7 @@ namespace holovibes
 		try
 		{
 			meta_data_ = json::parse(meta_data_str_);
+			LOG_INFO("Loaded holo file: " + file_path + ", detected version: " + std::to_string(header_.version));
 		}
 		catch (const json::exception&)
 		{
@@ -267,6 +264,7 @@ namespace holovibes
 				{"#img", cd.nSize.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
+				{"pixel_size", cd.pixel_size.load()},
 				{"z", cd.zdistance.load()},
 				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
 				{"contrast_min", cd.contrast_min_slice_xy.load()},

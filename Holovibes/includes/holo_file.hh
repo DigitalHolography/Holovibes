@@ -107,11 +107,15 @@ namespace holovibes
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
 		/*! Returns a json object containing the settings from a compute descriptor
+		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
 		* \param cd Current compute descriptor */
 		static json get_json_settings(const ComputeDescriptor& cd);
 
 		/*! Returns a json object containing the settings from a frame descriptor and a compute descriptor
+		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
 		* \param fd Current frame descriptor
 		* \param cd Current compute descriptor */
