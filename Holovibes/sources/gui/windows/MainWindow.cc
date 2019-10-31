@@ -1617,9 +1617,12 @@ namespace holovibes
 				compute_desc_.filter_2d_enabled = false;
 				compute_desc_.log_scale_slice_xy_enabled = false;
 				compute_desc_.setStftZone(units::RectFd());
-				mainDisplay->getOverlayManager().disable_all(Filter2D);
-				mainDisplay->getOverlayManager().create_default();
-				mainDisplay->resetTransform();
+				if (mainDisplay)
+				{
+					mainDisplay->getOverlayManager().disable_all(Filter2D);
+					mainDisplay->getOverlayManager().create_default();
+					mainDisplay->resetTransform();
+				}
 				set_auto_contrast();
 				notify();
 			}
