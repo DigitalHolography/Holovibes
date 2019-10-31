@@ -776,7 +776,8 @@ namespace holovibes
 			return ret;
 		}
 
-		void nppi_normalize(float* src, NppiData& nppi_data)
+		template<typename T>
+		void nppi_normalize(T* src, NppiData& nppi_data)
 		{
 			double mean = 0;
 			nppi_mean(src, nppi_data, &mean);
