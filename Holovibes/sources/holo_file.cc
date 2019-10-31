@@ -23,6 +23,7 @@
 namespace holovibes
 {
 	HoloFile* HoloFile::instance = nullptr;
+	const uint16_t HoloFile::current_version = 0;
 
 	HoloFile& HoloFile::new_instance(const std::string& file_path)
 	{
@@ -65,12 +66,13 @@ namespace holovibes
 			return;
 		}
 
-		meta_data_offset_ = sizeof(Header) + (static_cast<uintmax_t>(header_.img_height)
-											  * static_cast<uintmax_t>(header_.img_width)
-											  * static_cast<uintmax_t>(header_.img_nb)
-											  * static_cast<uintmax_t>((header_.pixel_bits / 8)));
+		meta_data_offset_ = sizeof(Header) + header_.total_data_size;
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset_;
+
+		std::cout << "FILE SIZE: " << file_size << "\n";
+		std::cout << "FILE DATA SIZE: " << header_.total_data_size << "\n";
+		std::cout << "FILE META DATA SIZE: " << meta_data_size << "\n";
 
 		meta_data_str_.resize(meta_data_size + 1);
 		meta_data_str_[meta_data_size] = 0;
@@ -117,10 +119,17 @@ namespace holovibes
 		header.HOLO[1] = 'O';
 		header.HOLO[2] = 'L';
 		header.HOLO[3] = 'O';
+		header.version = current_version;
 		header.pixel_bits = pixel_bits;
 		header.img_width = img_width;
 		header.img_height = img_height;
 		header.img_nb = img_nb;
+
+		header.total_data_size = (pixel_bits / 8);
+		header.total_data_size *= img_width;
+		header.total_data_size *= img_height;
+		header.total_data_size *= img_nb;
+
 		return header;
 	}
 
@@ -181,11 +190,7 @@ namespace holovibes
 			// Throws an exception if the file doesn't exist
 			uintmax_t file_size = std::filesystem::file_size(raw_file_path);
 			header.img_nb = file_size / (header.img_width * header.img_height * (header.pixel_bits / 8));
-			if (file_size != header.img_height * header.img_width * header.img_nb * (header.pixel_bits / 8))
-			{
-				LOG_WARN("File " + raw_file_path + "actual size != computed size, the file is corrupted or the header information is not right");
-				return false;
-			}
+			header.total_data_size = file_size;
 
 			// Throws an exception if the json string contains mistakes
 			json meta_data = json::parse(meta_data_str);
@@ -232,7 +237,7 @@ namespace holovibes
 		unsigned percent = 0;
 		while (w < data_size)
 		{
-			// If the remaining data is less then BUF_SIZE only read what is necessary
+			// If the remaining data is less then UPDATE_BUF_SIZE only read what is necessary
 			size_t to_read = data_size - r > UPDATE_BUF_SIZE ? UPDATE_BUF_SIZE : data_size - r;
 			r = std::fread(buffer, 1, to_read, input);
 			w += std::fwrite(buffer, 1, r, output);

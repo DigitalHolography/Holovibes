@@ -57,7 +57,12 @@ namespace holovibes
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
-		auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024), n_images);
+		auto header = HoloFile::create_header(
+			json_settings.value("pixel_bits", 8),
+			json_settings.value("img_width", 1024),
+			json_settings.value("img_height", 1024),
+			n_images
+		);
 		file_.write((char*)(&header), sizeof(HoloFile::Header));
 
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
