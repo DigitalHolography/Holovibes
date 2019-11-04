@@ -241,11 +241,11 @@ To let the versioning tool consistent, you have to respect these rules.
 ### v.7.1
 
 * add: dark mode for chart window
-* up: replace cou calls by logger class calls
-* add: logger clas
-* up: Change char autoscale offset
-* up: Remove qwt ibrary, plot now  uses QtCharts
-* fix: Use std::flesystem instead of std::experimental::filesystem
+* up: replace std::cout calls by logger class calls
+* add: logger class
+* up: Change chart autoscale offset
+* up: Remove qwt library, plot now uses QtCharts
+* fix: Use std::filesystem instead of std::experimental::filesystem
 * up: Remove complex mode
 * up: remove *.ccincludes for moc_* files
 * up: remove vibrmetry
@@ -255,7 +255,7 @@ To let the versioning tool consistent, you have to respect these rules.
 * up: remove stftlongtimes
 * fix: .cu fix arument type warning with static_casts
 * up: composite.c / hsv.cu remove debug gpu function causing warnings
-* fix: array.hh   postprocessing.cc fix initialize type warnings
+* fix: array.hh postprocessing.cc fix initialize type warnings
 * fix: tools.cu /MainWindow.cc fix initialize type warnings
 * up: compute_desriptor.hh fix std::atomic warnings + code format
 * up: bump CUDA vrsion to 10
