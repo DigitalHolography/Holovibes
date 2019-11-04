@@ -23,7 +23,7 @@
 namespace holovibes
 {
 	HoloFile* HoloFile::instance = nullptr;
-	const uint16_t HoloFile::current_version = 0;
+	const uint16_t HoloFile::current_version = 1;
 
 	HoloFile& HoloFile::new_instance(const std::string& file_path)
 	{
@@ -116,11 +116,13 @@ namespace holovibes
 		header.HOLO[1] = 'O';
 		header.HOLO[2] = 'L';
 		header.HOLO[3] = 'O';
+
 		header.version = current_version;
 		header.pixel_bits = pixel_bits;
 		header.img_width = img_width;
 		header.img_height = img_height;
 		header.img_nb = img_nb;
+		header.endianess = camera::Endianness::LittleEndian;
 
 		header.total_data_size = (pixel_bits / 8);
 		header.total_data_size *= img_width;
@@ -246,7 +248,7 @@ namespace holovibes
 			}
 		}
 		std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
-#undef BUF_SIZE
+#undef UPDATE_BUF_SIZE
 
 		std::fclose(output);
 		std::fclose(input);
@@ -286,7 +288,6 @@ namespace holovibes
 			json_settings.emplace("img_width", fd.width);
 			json_settings.emplace("img_height", fd.height);
 			json_settings.emplace("pixel_bits", fd.depth * 8);
-			json_settings.emplace("endianess", fd.byteEndian);
 			return json_settings;
 		}
 		catch (const std::exception& e)

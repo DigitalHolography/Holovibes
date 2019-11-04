@@ -72,10 +72,13 @@ namespace holovibes
 			uint32_t img_height;
 			/*! Number of images in the file */
 			uint32_t img_nb;
-			/*! Total size of the data in bytes */
+			/*! Total size of the data in bytes
+			 *  width * height * nb_img * (pixel_bits * 8) */
 			uint64_t total_data_size;
+			/*! Data endianess */
+			uint8_t endianess;
 			/*! Padding to make the header 64 bytes long */
-			char padding_[36];
+			char padding_[35];
 		};
 
 		static HoloFile& new_instance(const std::string& file_path);

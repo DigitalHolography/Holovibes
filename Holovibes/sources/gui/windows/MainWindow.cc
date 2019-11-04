@@ -3630,7 +3630,7 @@ namespace holovibes
 			ui.ImportWidthSpinBox->setValue(header.img_width);
 			ui.ImportHeightSpinBox->setValue(header.img_height);
 			ui.ImportDepthComboBox->setCurrentIndex(log2(header.pixel_bits) - 3);
-			ui.ImportEndiannessComboBox->setCurrentIndex(json_settings.value("endianess", 0));
+			ui.ImportEndiannessComboBox->setCurrentIndex(header.endianess);
 			ui.PixelSizeDoubleSpinBox->setValue(json_settings.value("pixel_size", 12.0));
 		}
 
@@ -3669,7 +3669,6 @@ namespace holovibes
 					json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
 					json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
 					json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
-					json_settings.emplace("endianess", ui.ImportEndiannessComboBox->currentIndex());
 				}
 				return json_settings;
 			}
