@@ -168,7 +168,6 @@ namespace holovibes
 		assert(input_ && "Input queue not initialized");
 
 		camera::FrameDescriptor output_fd = input_->get_frame_desc();
-		std::cout << "output width : " << output_fd.width << "\noutput height : " << output_fd.height << std::endl;
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
 		output_fd.depth = depth;
 		try
