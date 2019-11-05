@@ -22,7 +22,7 @@ namespace holovibes
 	ThreadCapture::ThreadCapture(
 		camera::ICamera& camera,
 		Queue& input,
-		IThreadInput::SquareInputMode mode)
+		SquareInputMode mode)
 		: IThreadInput(mode)
 		, camera_(camera)
 		, queue_(input)
@@ -54,7 +54,7 @@ namespace holovibes
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 		while (!stop_requested_)
 		{
-			queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice, this->square_input_mode_);
+			queue_.enqueue(camera_.get_frame(), square_input_mode_, cudaMemcpyHostToDevice);
 		}
 	}
 

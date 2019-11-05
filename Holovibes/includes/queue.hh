@@ -111,8 +111,7 @@ namespace holovibes
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		** \param mode Wether elt should be : copied as it is | copied into a bigger square | cropped into a smaller square
 		*/
-		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
-					 IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
+		bool enqueue(void* elt, SquareInputMode mode = SquareInputMode::NO_MODIFICATION, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
 		/*! \brief Dequeue method overload
 		**

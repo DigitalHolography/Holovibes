@@ -38,7 +38,7 @@ namespace holovibes
     /*! \brief Set a capture thread from a given camera and a destination queue.
      * \param The camera must be initialized
      * \param Destination queue */
-    ThreadCapture(camera::ICamera& camera, Queue& input, IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
+    ThreadCapture(camera::ICamera& camera, Queue& input, SquareInputMode mode);
 
     ~ThreadCapture();
 

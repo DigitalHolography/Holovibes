@@ -61,7 +61,7 @@ namespace holovibes
 		 *
 		 * Launch the capture thread to continuously acquire frames in input
 		 * buffer. */
-		void Holovibes::init_capture(const CameraKind c, IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
+		void Holovibes::init_capture(const CameraKind c);
 
 		/*! \brief Request the capture thread to stop - Free ressources. */
 		void dispose_capture();
@@ -126,8 +126,7 @@ namespace holovibes
 			unsigned int q_max_size_,
 			Holovibes& holovibes,
 			QProgressBar *reader_progress_bar = nullptr,
-			gui::MainWindow *main_window = nullptr,
-			IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
+			gui::MainWindow *main_window = nullptr);
 
 		/*! \{ \name Getters/Setters */
 		std::shared_ptr<ICompute> get_pipe()

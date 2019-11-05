@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1841</width>
-    <height>748</height>
+    <height>758</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -149,6 +149,39 @@
              <property name="checked">
               <bool>false</bool>
              </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QLabel" name="SquareInputModeLabel">
+             <property name="text">
+              <string>Square Input</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="SquareInputModeComboBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Default</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Zero Padded</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Cropped</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -3972,7 +4005,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -6985,6 +7018,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>SquareInputModeComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_square_input_mode(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7048,6 +7097,7 @@ p, li { white-space: pre-wrap; }
   <slot>reset()</slot>
   <slot>set_direct_mode()</slot>
   <slot>set_holographic_mode()</slot>
+  <slot>set_square_input_mode(QString)</slot>
   <slot>set_demodulation_mode()</slot>
   <slot>load_convo_matrix()</slot>
   <slot>browse_convo_matrix_file()</slot>

@@ -316,7 +316,7 @@ namespace holovibes
 		}
 	}
 
-	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
+	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels, SquareInputMode mode)
 	{
 		if (!queue)
 		{
@@ -325,7 +325,7 @@ namespace holovibes
 		}
 		/*Add image to phase accumulation buffer*/
 
-		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); });
+		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue, mode); });
 		fn_vect_.push_back([=]() {
 			accumulate_images(
 				static_cast<float *>(queue->get_buffer()),

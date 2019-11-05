@@ -210,7 +210,7 @@ void Stabilization::insert_float_buffer_overwrite()
 	{
 		fn_vect_.push_back([=]()
 		{
-			accumulation_queue_->enqueue(buffers_.gpu_float_buffer_);
+			accumulation_queue_->enqueue(buffers_.gpu_float_buffer_, cd_.square_input_mode);
 			if (cd_.img_acc_slice_xy_enabled)
 				cudaMemcpy(buffers_.gpu_float_buffer_, float_buffer_average_, accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
 		});

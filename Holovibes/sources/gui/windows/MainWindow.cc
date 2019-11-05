@@ -619,9 +619,13 @@ namespace holovibes
 				std::cout << e.what() << std::endl;
 			}
 			if (import_type_ == ImportType::File)
+			{
 				import_file();
+			}
 			else if (import_type_ == ImportType::Camera)
+			{
 				change_camera(kCamera);
+			}
 			notify();
 		}
 
@@ -1039,7 +1043,7 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Cameras
-		void MainWindow::change_camera(CameraKind c, IThreadInput::SquareInputMode mode)
+		void MainWindow::change_camera(CameraKind c)
 		{
 			close_windows();
 			close_critical_compute();
@@ -1052,7 +1056,7 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
-					holovibes_.init_capture(c, mode);
+					holovibes_.init_capture(c);
 					is_enabled_camera_ = true;
 					set_image_mode();
 					import_type_ = ImportType::Camera;
@@ -1143,6 +1147,7 @@ namespace holovibes
 		{
 			close_windows();
 			close_critical_compute();
+			ui.SquareInputModeComboBox->setEnabled(false);
 			InfoManager::get_manager()->remove_info("Throughput");
 			compute_desc_.compute_mode = Computation::Stop;
 			notify();
@@ -1235,6 +1240,9 @@ namespace holovibes
 		{
 			close_windows();
 			close_critical_compute();
+
+			ui.SquareInputModeComboBox->setEnabled(true);
+
 			/* ---------- */
 			try
 			{
@@ -1261,6 +1269,14 @@ namespace holovibes
 			{
 				LOG_ERROR(std::string("cannot set holographic mode: ") + std::string(e.what()));
 			}
+		}
+
+		void MainWindow::set_square_input_mode(const QString &name)
+		{
+			auto mode = get_square_input_mode_from_string(name.toStdString());
+			compute_desc_.square_input_mode = mode;
+			//Need to reset the whole computation process since we change the size of the different buffers
+			set_holographic_mode();
 		}
 
 		void MainWindow::refreshViewMode()
@@ -3390,6 +3406,7 @@ namespace holovibes
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
+
 			try
 			{
 				if (cine->isChecked() == true)
@@ -3402,6 +3419,8 @@ namespace holovibes
 				display_error(e.what());
 				return;
 			}
+
+
 			depth_multi = pow(2, depth_spinbox->currentIndex());
 			FrameDescriptor frame_desc = {
 				static_cast<ushort>(width_spinbox->value()),
@@ -3437,13 +3456,19 @@ namespace holovibes
 				holovibes_.dispose_capture();
 				return;
 			}
+
+
 			is_enabled_camera_ = true;
 			set_image_mode();
+
+
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
 			QAction *settings = ui.actionSettings;
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
+
+
 			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
 				import_type_ = ImportType::None;
@@ -3453,7 +3478,9 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			}
 
+
 			holo_file_update_cd();
+
 
 			notify();
 		}

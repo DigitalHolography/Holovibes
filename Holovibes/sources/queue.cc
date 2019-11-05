@@ -131,7 +131,7 @@ namespace holovibes
 		return (start_index_ + curr_elts_) % max_elts_;
 	}
 
-	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind, IThreadInput::SquareInputMode mode)
+	bool Queue::enqueue(void* elt, SquareInputMode mode, cudaMemcpyKind cuda_kind)
 	{
 		MutexGuard mGuard(mutex_);
 
@@ -141,14 +141,14 @@ namespace holovibes
 		cudaError_t cuda_status;
 		switch (mode)
 		{
-			case IThreadInput::SquareInputMode::NO_MODIFICATION:
+			case SquareInputMode::NO_MODIFICATION:
 				cuda_status = cudaMemcpyAsync(new_elt_adress,
 											  elt,
 											  frame_size_,
 				 							  cuda_kind,
 											  stream_);
 				break;
-			case IThreadInput::SquareInputMode::EMBED_INTO_SQUARE:
+			case SquareInputMode::ZERO_PADDED_SQUARE:
 				//The black bands should have been written at the allocation of the data buffer
 				cuda_status = embed_into_square<char>(static_cast<char *>(elt),
 													  frame_desc_.width,
@@ -157,7 +157,7 @@ namespace holovibes
 													  cuda_kind,
 													  stream_);
 				break;
-			case IThreadInput::SquareInputMode::CROP_INTO_SQUARE:
+			case SquareInputMode::CROPPED_SQUARE:
 				cuda_status = crop_into_square<char>(static_cast<char *>(elt),
 													 frame_desc_.width,
 													 frame_desc_.height,

@@ -28,4 +28,4 @@ namespace holovibes
   using FnDeque = std::deque<FnType>;
 }
 
-bool queue_enqueue(void* input, holovibes::Queue* queue);
+bool queue_enqueue(void* input, holovibes::Queue* queue, holovibes::SquareInputMode mode = holovibes::SquareInputMode::NO_MODIFICATION);

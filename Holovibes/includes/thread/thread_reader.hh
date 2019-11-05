@@ -53,7 +53,7 @@ namespace holovibes
     /*! \brief Create a preconfigured ThreadReader. */
     ThreadReader(std::string file_src
       , camera::FrameDescriptor& frame_desc
-      , IThreadInput::SquareInputMode mode
+      , SquareInputMode mode
       , bool loop
       , unsigned int fps
       , unsigned int spanStart

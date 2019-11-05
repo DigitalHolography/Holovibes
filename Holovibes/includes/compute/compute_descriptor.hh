@@ -19,6 +19,7 @@
 # include <mutex>
 # include "observable.hh"
 # include "rect.hh"
+# include "ithread_input.hh"
 
 
 namespace holovibes
@@ -222,6 +223,8 @@ namespace holovibes
 		std::atomic<Algorithm>		algorithm;
 		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode;
+		//! Square conversion mode of the input
+		std::atomic<SquareInputMode> square_input_mode{SquareInputMode::NO_MODIFICATION};
 		//! type of the image displayed
 		std::atomic<ImgType>		img_type;
 

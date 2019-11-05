@@ -43,7 +43,7 @@ namespace holovibes
 	{
 	}
 
-	void Holovibes::init_capture(const CameraKind c, IThreadInput::SquareInputMode mode)
+	void Holovibes::init_capture(const CameraKind c)
 	{
 		camera_initialized_ = false;
 		try
@@ -77,13 +77,14 @@ namespace holovibes
 			LOG_INFO("(Holovibes) Resetting queues...");
 
 			auto frame_descriptor = camera_->get_frame_descriptor();
+			SquareInputMode mode = compute_desc_.square_input_mode;
 			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
-			if (mode == IThreadInput::SquareInputMode::EMBED_INTO_SQUARE)
+			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
 				set_max_of_the_two(frame_descriptor.width, frame_descriptor.height);
 			}
-			else if (mode == IThreadInput::SquareInputMode::CROP_INTO_SQUARE)
+			else if (mode == SquareInputMode::CROPPED_SQUARE)
 			{
 				//Set values to the min of the two
 				set_min_of_the_two(frame_descriptor.width, frame_descriptor.height);
@@ -93,7 +94,7 @@ namespace holovibes
 
 			LOG_INFO("(Holovibes) Starting initialization...");
 			camera_->start_acquisition();
-			tcapture_.reset(new ThreadCapture(*camera_, *input_));
+			tcapture_.reset(new ThreadCapture(*camera_, *input_, mode));
 			LOG_INFO("[CAPTURE] Capture thread started");
 			camera_initialized_ = true;
 		}
@@ -237,21 +238,20 @@ namespace holovibes
 		unsigned int q_max_size_,
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
-		gui::MainWindow *main_window,
-		IThreadInput::SquareInputMode mode)
+		gui::MainWindow *main_window)
 	{
 		camera_initialized_ = false;
 
 		try
 		{
 			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
-
-			if (mode == IThreadInput::SquareInputMode::EMBED_INTO_SQUARE)
+			SquareInputMode mode = compute_desc_.square_input_mode;
+			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
 				set_max_of_the_two(frame_desc.width, frame_desc.height);
 			}
-			else if (mode == IThreadInput::SquareInputMode::CROP_INTO_SQUARE)
+			else if (mode == SquareInputMode::CROPPED_SQUARE)
 			{
 				//Set values to the min of the two
 				set_min_of_the_two(frame_desc.width, frame_desc.height);

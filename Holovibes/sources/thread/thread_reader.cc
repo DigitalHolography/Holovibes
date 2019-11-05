@@ -29,7 +29,7 @@ namespace holovibes
 {
 	ThreadReader::ThreadReader(std::string file_src,
 		camera::FrameDescriptor& frame_desc,
-		IThreadInput::SquareInputMode mode,
+		SquareInputMode mode,
 		bool loop,
 		unsigned int fps,
 		unsigned int spanStart,
@@ -174,7 +174,7 @@ namespace holovibes
 			act_frame_ = 0;
 		}
 
-		if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice, this->square_input_mode_))
+		if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, this->square_input_mode_, cudaMemcpyHostToDevice))
 			return false;
 
 		++frameId_;

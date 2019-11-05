@@ -12,6 +12,8 @@
 
 #include "ithread_input.hh"
 
+#include "logger.hh"
+
 namespace holovibes
 {
   IThreadInput::IThreadInput(SquareInputMode mode)
@@ -23,4 +25,26 @@ namespace holovibes
   IThreadInput::~IThreadInput()
   {
   }
+
+  SquareInputMode get_square_input_mode_from_string(const std::string &name)
+  {
+    if (name == "Zero Padded")
+    {
+      return SquareInputMode::ZERO_PADDED_SQUARE;
+    }
+    else if (name == "Cropped")
+    {
+      return SquareInputMode::CROPPED_SQUARE;
+    }
+    else if (name == "Default")
+    {
+      return SquareInputMode::NO_MODIFICATION;
+    } 
+    else
+    {
+      LOG_WARN(std::string("Unsupported square input mode : ") + name);
+      return SquareInputMode::NO_MODIFICATION;
+    }
+  }
+
 }

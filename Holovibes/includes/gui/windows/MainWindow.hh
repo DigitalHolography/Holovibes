@@ -130,6 +130,7 @@ namespace holovibes
 			void set_image_mode();
 			void set_direct_mode();
 			void set_holographic_mode();
+			void set_square_input_mode(const QString &name);
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
 			void set_divide_convolution_mode(const bool value);
@@ -282,7 +283,7 @@ namespace holovibes
 			virtual void closeEvent(QCloseEvent* event) override;
 
 		private:
-			void		change_camera(CameraKind c, IThreadInput::SquareInputMode mode = IThreadInput::SquareInputMode::NO_MODIFICATION);
+			void		change_camera(CameraKind c);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);
 			void		open_file(const std::string& path);
