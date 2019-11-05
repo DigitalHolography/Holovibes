@@ -2821,65 +2821,95 @@ namespace holovibes
 			std::string str;
 			std::string delims = " \f\n\r\t\v";
 			std::vector<std::string> v_str, matrix_size, matrix;
+			std::vector<float> gaussian_kernel;
 			set_convolution_mode(false);
 			ui.ConvoCheckBox->setChecked(false);
 			holovibes_.reset_convolution_matrix();
 
+			unsigned matrix_width = 0;
+			unsigned matrix_height = 0;
+			unsigned matrix_z = 1;
+
+			// If the path is invalid use a computed gaussian kernel of
+			// size ui.GaussianKernelSizeSpinBox->value() for convolution
+			bool invalid_path = path == "" || !std::filesystem::exists(path);
+
 			try
 			{
-				std::ifstream file(path);
-
-				strStream << file.rdbuf();
-				file.close();
-				str = strStream.str();
-				boost::split(v_str, str, boost::is_any_of(";"));
-				if (v_str.size() != 2)
+				if (invalid_path)
 				{
-					display_error("Couldn't load file : too many or not enough separators \";\"\n");
-					notify();
-					return;
+					int gaussian_kernel_size = ui.GaussianKernelSizeSpinBox->value();
+					if (gaussian_kernel_size % 2 == 0)
+					{
+						gaussian_kernel_size--;
+					}
+					gaussian_kernel = compute_gaussian_kernel(gaussian_kernel_size, gaussian_kernel_size);
+
+					matrix_width = gaussian_kernel_size;
+					matrix_height = gaussian_kernel_size;
 				}
-
-				boost::trim(v_str[0]);
-				boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
-				if (matrix_size.size() != 3)
+				else
 				{
-					display_error("Couldn't load file : too much or too little arguments for size\n");
-					notify();
-					return;
-				}
+					std::ifstream file(path);
 
-				uint matrix_width = std::stoi(matrix_size[0]);
-				uint matrix_height = std::stoi(matrix_size[1]);
-				uint matrix_z = std::stoi(matrix_size[2]);
-				boost::trim(v_str[1]);
-				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
-				if (matrix_width * matrix_height * matrix_z != matrix.size())
-				{
-					holovibes_.reset_convolution_matrix();
-					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
+					strStream << file.rdbuf();
+					file.close();
+					str = strStream.str();
+					boost::split(v_str, str, boost::is_any_of(";"));
+					if (v_str.size() != 2)
+					{
+						display_error("Couldn't load file : too many or not enough separators \";\"\n");
+						notify();
+						return;
+					}
+
+					boost::trim(v_str[0]);
+					boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
+					if (matrix_size.size() != 3)
+					{
+						display_error("Couldn't load file : too much or too little arguments for size\n");
+						notify();
+						return;
+					}
+
+					matrix_width = std::stoi(matrix_size[0]);
+					matrix_height = std::stoi(matrix_size[1]);
+					matrix_z = std::stoi(matrix_size[2]);
+					boost::trim(v_str[1]);
+					boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
+					if (matrix_width * matrix_height * matrix_z != matrix.size())
+					{
+						holovibes_.reset_convolution_matrix();
+						display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
+					}
 				}
 
 				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
 				//TODO a paralleliser
-				uint h = 0;
 				uint c = 0;
 				uint nx = ui.ImportWidthSpinBox->value();
 				uint ny = ui.ImportHeightSpinBox->value();
 				uint size = nx * ny;
-
-				std::vector<float> convo_matrix(size, 0.0f);
 
 				const  uint minw = (nx / 2) - (matrix_width / 2);
 				const  uint maxw = (nx / 2) + (matrix_width / 2);
 				const  uint minh = (ny / 2) - (matrix_height / 2);
 				const  uint maxh = (ny / 2) + (matrix_height / 2);
 
+				std::vector<float> convo_matrix(size, 0.0f);
+
 				for (size_t i = minw; i < maxw; i++)
 				{
 					for (size_t j = minh; j < maxh; j++)
 					{
-						convo_matrix[i * nx + j] = std::stof(matrix[c]);
+						if (invalid_path)
+						{
+							convo_matrix[i * nx + j] = gaussian_kernel[c];
+						}
+						else
+						{
+							convo_matrix[i * nx + j] = std::stof(matrix[c]);
+						}
 						c++;
 					}
 				}
@@ -2889,7 +2919,6 @@ namespace holovibes
 				compute_desc_.convo_matrix_height = ny;
 				compute_desc_.convo_matrix_z = matrix_z;
 				compute_desc_.convo_matrix = convo_matrix;
-
 			}
 			catch (std::exception& e)
 			{

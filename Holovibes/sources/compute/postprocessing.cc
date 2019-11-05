@@ -99,4 +99,39 @@ namespace holovibes
 			}
 		}
 	}
+
+	/*! Returns the value of a gaussian filter at coordinates (x, y) */
+	static float get_gaussian_value(int x, int y)
+	{
+		// G(x, y) = (1 / (2 * pi * sigma²)) * exp(-(x² + y²) / (2 * sigma²))
+		constexpr float sigma = 5.0f;
+		constexpr float sigma_sq = sigma * sigma;
+		constexpr float pi = M_PI;
+
+		constexpr float	left = 1.0f / (2.0f * pi * sigma_sq);
+		float right = std::expf(-(x * x + y * y) / (2.0f * sigma_sq));
+
+		return left * right;
+	}
+
+	std::vector<float> compute_gaussian_kernel(int width, int height)
+	{
+		std::vector<float> kernel(width * height, 0.0f);
+
+		int width_2 = width / 2;
+		int height_2 = height / 2;
+
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				unsigned matrix_idx = y * width + x;
+				int x_idx = x - width_2;
+				int y_idx = y - height_2;
+				kernel[matrix_idx] = get_gaussian_value(x_idx, y_idx);
+			}
+		}
+
+		return kernel;
+	}
 }

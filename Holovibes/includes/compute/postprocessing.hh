@@ -15,6 +15,8 @@
  Implementation of postprocessing features on complex buffers. */
 #pragma once
 
+#include <vector>
+
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
@@ -25,6 +27,12 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	struct CoreBuffers;
+
+	/*! Stores a gaussian kernel for convolution in the compute descriptor
+
+	* \param width Width of the gaussian kernel
+	* \param height Height of the gaussian kernel */
+	std::vector<float> compute_gaussian_kernel(int width, int height);
 
 	namespace compute
 	{
