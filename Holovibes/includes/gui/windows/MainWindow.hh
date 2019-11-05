@@ -128,8 +128,7 @@ namespace holovibes
 			** \param value true for direct mode, false for hologram mode.
 			*/
 			void set_image_mode();
-			void set_direct_mode();
-			void set_holographic_mode();
+			void reset_input();
 			void set_square_input_mode(const QString &name);
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
@@ -283,6 +282,8 @@ namespace holovibes
 			virtual void closeEvent(QCloseEvent* event) override;
 
 		private:
+			void 		set_direct_mode();
+			void 		set_holographic_mode();
 			void		change_camera(CameraKind c);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);

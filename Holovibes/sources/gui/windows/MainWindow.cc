@@ -626,6 +626,20 @@ namespace holovibes
 			{
 				change_camera(kCamera);
 			}
+			notify(); 
+		}
+
+		void MainWindow::reset_input()
+		{
+			import_file_stop();
+			if (import_type_ == ImportType::File)
+			{
+				import_file();
+			}
+			else if (import_type_ == ImportType::Camera)
+			{
+				change_camera(kCamera);
+			}
 			notify();
 		}
 
@@ -1238,6 +1252,7 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
+			//That function is used to reallocate the buffers since the Square input mode could have changed
 			close_windows();
 			close_critical_compute();
 
@@ -1276,7 +1291,7 @@ namespace holovibes
 			auto mode = get_square_input_mode_from_string(name.toStdString());
 			compute_desc_.square_input_mode = mode;
 			//Need to reset the whole computation process since we change the size of the different buffers
-			set_holographic_mode();
+			reset_input();
 		}
 
 		void MainWindow::refreshViewMode()

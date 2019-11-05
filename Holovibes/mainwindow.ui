@@ -5374,7 +5374,7 @@ p, li { white-space: pre-wrap; }
    <sender>DirectRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_direct_mode()</slot>
+   <slot>reset_input()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
@@ -5390,7 +5390,7 @@ p, li { white-space: pre-wrap; }
    <sender>HologramRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_holographic_mode()</slot>
+   <slot>reset_input()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>181</x>
@@ -7095,8 +7095,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_unwrap_history_size(int)</slot>
   <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>
-  <slot>set_direct_mode()</slot>
-  <slot>set_holographic_mode()</slot>
+  <slot>reset_input()</slot>
   <slot>set_square_input_mode(QString)</slot>
   <slot>set_demodulation_mode()</slot>
   <slot>load_convo_matrix()</slot>
