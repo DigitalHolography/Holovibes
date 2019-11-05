@@ -23,6 +23,7 @@
 namespace holovibes
 {
 	HoloFile* HoloFile::instance = nullptr;
+	const uint16_t HoloFile::current_version = 1;
 
 	HoloFile& HoloFile::new_instance(const std::string& file_path)
 	{
@@ -65,10 +66,7 @@ namespace holovibes
 			return;
 		}
 
-		meta_data_offset_ = sizeof(Header) + (static_cast<uintmax_t>(header_.img_height)
-											  * static_cast<uintmax_t>(header_.img_width)
-											  * static_cast<uintmax_t>(header_.img_nb)
-											  * static_cast<uintmax_t>((header_.pixel_bits / 8)));
+		meta_data_offset_ = sizeof(Header) + header_.total_data_size;
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset_;
 
@@ -81,6 +79,7 @@ namespace holovibes
 		try
 		{
 			meta_data_ = json::parse(meta_data_str_);
+			LOG_INFO("Loaded holo file: " + file_path + ", detected version: " + std::to_string(header_.version));
 		}
 		catch (const json::exception&)
 		{
@@ -117,10 +116,19 @@ namespace holovibes
 		header.HOLO[1] = 'O';
 		header.HOLO[2] = 'L';
 		header.HOLO[3] = 'O';
+
+		header.version = current_version;
 		header.pixel_bits = pixel_bits;
 		header.img_width = img_width;
 		header.img_height = img_height;
 		header.img_nb = img_nb;
+		header.endianess = camera::Endianness::LittleEndian;
+
+		header.total_data_size = (pixel_bits / 8);
+		header.total_data_size *= img_width;
+		header.total_data_size *= img_height;
+		header.total_data_size *= img_nb;
+
 		return header;
 	}
 
@@ -181,11 +189,7 @@ namespace holovibes
 			// Throws an exception if the file doesn't exist
 			uintmax_t file_size = std::filesystem::file_size(raw_file_path);
 			header.img_nb = file_size / (header.img_width * header.img_height * (header.pixel_bits / 8));
-			if (file_size != header.img_height * header.img_width * header.img_nb * (header.pixel_bits / 8))
-			{
-				LOG_WARN("File " + raw_file_path + "actual size != computed size, the file is corrupted or the header information is not right");
-				return false;
-			}
+			header.total_data_size = file_size;
 
 			// Throws an exception if the json string contains mistakes
 			json meta_data = json::parse(meta_data_str);
@@ -232,7 +236,7 @@ namespace holovibes
 		unsigned percent = 0;
 		while (w < data_size)
 		{
-			// If the remaining data is less then BUF_SIZE only read what is necessary
+			// If the remaining data is less then UPDATE_BUF_SIZE only read what is necessary
 			size_t to_read = data_size - r > UPDATE_BUF_SIZE ? UPDATE_BUF_SIZE : data_size - r;
 			r = std::fread(buffer, 1, to_read, input);
 			w += std::fwrite(buffer, 1, r, output);
@@ -244,7 +248,7 @@ namespace holovibes
 			}
 		}
 		std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
-#undef BUF_SIZE
+#undef UPDATE_BUF_SIZE
 
 		std::fclose(output);
 		std::fclose(input);
@@ -262,6 +266,7 @@ namespace holovibes
 				{"#img", cd.nSize.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
+				{"pixel_size", cd.pixel_size.load()},
 				{"z", cd.zdistance.load()},
 				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
 				{"contrast_min", cd.contrast_min_slice_xy.load()},
@@ -283,7 +288,6 @@ namespace holovibes
 			json_settings.emplace("img_width", fd.width);
 			json_settings.emplace("img_height", fd.height);
 			json_settings.emplace("pixel_bits", fd.depth * 8);
-			json_settings.emplace("endianess", fd.byteEndian);
 			return json_settings;
 		}
 		catch (const std::exception& e)

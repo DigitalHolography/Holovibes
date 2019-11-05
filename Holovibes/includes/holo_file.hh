@@ -18,10 +18,13 @@
  * | File header (sizeof(HoloFile::Header)) | Image data | File metadata |
  * -----------------------------------------------------------------------
  * | HOLO Magic number (4 bytes)            | Raw        | Metadata as   |
- * | Number of bits per pixel (2 bytes)     | image      | json format   |
- * | Image width (4 bytes)                  | data       |               |
+ * | Version number (2 bytes)               | image		 |               |
+ * | Number of bits per pixel (2 bytes)     | data       | json format   |
+ * | Image width (4 bytes)                  |            |               |
  * | Image height (4 bytes)                 |            | #img / p / z  |
  * | Number of images (4 bytes)             |            | contrast / ...|
+ * | Total data size (8 bytes)              |            |               |
+ * | Padding up to 64 bytes                 |            |               |
  * -----------------------------------------------------------------------
  *
  * Constant size header to open the files in ImageJ as raw with offset
@@ -47,7 +50,10 @@ namespace holovibes
 	class HoloFile
 	{
 	public:
-		/*! Packed 18 bytes .holo header to read the right amount bytes into it at once
+		/*! Current version of the .holo header, update it in holo_file.cc when changing version */
+		static const uint16_t current_version;
+
+		/*! Packed 64 bytes .holo header to read the right amount bytes into it at once
 		*
 		* Only contains the necessarys information to retrieve the size of the binary images
 		* data to skip directly to the meta data part at the end */
@@ -56,6 +62,8 @@ namespace holovibes
 		{
 			/*! .holo file magic number, should be equal to "HOLO" */
 			char HOLO[4];
+			/*! Version number, starts at 0 */
+			uint16_t version;
 			/*! Number of bits in 1 pixel */
 			uint16_t pixel_bits;
 			/*! Width of 1 image in pixels */
@@ -64,6 +72,13 @@ namespace holovibes
 			uint32_t img_height;
 			/*! Number of images in the file */
 			uint32_t img_nb;
+			/*! Total size of the data in bytes
+			 *  width * height * nb_img * (pixel_bits * 8) */
+			uint64_t total_data_size;
+			/*! Data endianess */
+			uint8_t endianess;
+			/*! Padding to make the header 64 bytes long */
+			char padding_[35];
 		};
 
 		static HoloFile& new_instance(const std::string& file_path);
@@ -95,11 +110,15 @@ namespace holovibes
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
 		/*! Returns a json object containing the settings from a compute descriptor
+		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
 		* \param cd Current compute descriptor */
 		static json get_json_settings(const ComputeDescriptor& cd);
 
 		/*! Returns a json object containing the settings from a frame descriptor and a compute descriptor
+		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
 		* \param fd Current frame descriptor
 		* \param cd Current compute descriptor */

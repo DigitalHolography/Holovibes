@@ -3633,7 +3633,8 @@ namespace holovibes
 			ui.ImportWidthSpinBox->setValue(header.img_width);
 			ui.ImportHeightSpinBox->setValue(header.img_height);
 			ui.ImportDepthComboBox->setCurrentIndex(log2(header.pixel_bits) - 3);
-			ui.ImportEndiannessComboBox->setCurrentIndex(json_settings.value("endianess", 0));
+			ui.ImportEndiannessComboBox->setCurrentIndex(header.endianess);
+			ui.PixelSizeDoubleSpinBox->setValue(json_settings.value("pixel_size", 12.0));
 		}
 
 		void MainWindow::holo_file_update_cd()
@@ -3648,6 +3649,7 @@ namespace holovibes
 			compute_desc_.nSize = json_settings.value("#img", 1);
 			compute_desc_.pindex = json_settings.value("p", 0);
 			compute_desc_.lambda = json_settings.value("lambda", 0.0f);
+			compute_desc_.pixel_size = json_settings.value("pixel_size", 12.0);
 			compute_desc_.zdistance = json_settings.value("z", 0.0f);
 			compute_desc_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
 			compute_desc_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
@@ -3670,7 +3672,6 @@ namespace holovibes
 					json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
 					json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
 					json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
-					json_settings.emplace("endianess", ui.ImportEndiannessComboBox->currentIndex());
 				}
 				return json_settings;
 			}

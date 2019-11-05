@@ -20,8 +20,8 @@ namespace camera
 	using	Endianness =
 	enum
 	{
-		LittleEndian,
-		BigEndian
+		LittleEndian = 0,
+		BigEndian = 1
 	};
 
 	/*! This structure contains everything related to the format of the images
