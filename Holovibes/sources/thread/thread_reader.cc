@@ -74,7 +74,7 @@ namespace holovibes
 	void ThreadReader::thread_proc()
 	{
 		unsigned int refresh_fps = fps_;
-		unsigned int frame_size = get_queue_frame_descriptor().frame_size();
+		unsigned int frame_size = get_input_frame_descriptor().frame_size();
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 		char* buffer = nullptr;
 		FILE*   file = nullptr;

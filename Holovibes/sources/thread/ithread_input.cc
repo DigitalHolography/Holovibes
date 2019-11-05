@@ -47,4 +47,19 @@ namespace holovibes
     }
   }
 
+  std::string get_string(const SquareInputMode mode)
+  {
+    switch (mode)
+    {
+      case SquareInputMode::NO_MODIFICATION:
+        return std::string("NO_MODIFICATION");
+      case SquareInputMode::ZERO_PADDED_SQUARE:
+        return std::string("ZERO_PADDED_SQUARE");
+      case SquareInputMode::CROPPED_SQUARE:
+        return std::string("CROPPED_SQUARE");
+      default:
+        return std::string("Not implemented");
+    }
+  }
+
 }

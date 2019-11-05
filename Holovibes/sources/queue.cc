@@ -17,6 +17,7 @@
 #include "unique_ptr.hh"
 #include "tools.cuh"
 
+
 #include "info_manager.hh"
 #include "logger.hh"
 
@@ -27,18 +28,22 @@ namespace holovibes
 
 	using MutexGuard = std::lock_guard<std::mutex>;
 
-	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)
+	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name, unsigned int input_width, unsigned int input_height, unsigned int elm_size)
 		: frame_desc_(frame_desc)
 		, frame_size_(frame_desc_.frame_size())
 		, frame_resolution_(frame_desc_.frame_res())
 		, max_elts_(elts)
 		, curr_elts_(0)
 		, start_index_(0)
-		, display_(true)
 		, is_big_endian_(frame_desc.depth >= 2 &&
 			frame_desc.byteEndian == Endianness::BigEndian)
 		, name_(name)
 		, data_buffer_()
+		, stream_()
+		, display_(true)
+		, input_width_(input_width)
+		, input_height_(input_height)
+		, elm_size_(elm_size)
 	{
 		if (!elts || !data_buffer_.resize(frame_size_ * elts))
 		{
@@ -150,20 +155,22 @@ namespace holovibes
 				break;
 			case SquareInputMode::ZERO_PADDED_SQUARE:
 				//The black bands should have been written at the allocation of the data buffer
-				cuda_status = embed_into_square<char>(static_cast<char *>(elt),
-													  frame_desc_.width,
-													  frame_desc_.height,
-													  new_elt_adress,
-													  cuda_kind,
-													  stream_);
+				cuda_status = embed_into_square(static_cast<char *>(elt),
+												input_width_,
+												input_height_,
+												new_elt_adress,
+												elm_size_,
+												cuda_kind,
+												stream_); 
 				break;
 			case SquareInputMode::CROPPED_SQUARE:
-				cuda_status = crop_into_square<char>(static_cast<char *>(elt),
-													 frame_desc_.width,
-													 frame_desc_.height,
-													 new_elt_adress,
-													 cuda_kind,
-													 stream_);
+				cuda_status = crop_into_square(static_cast<char *>(elt),
+											   input_width_,
+											   input_height_,
+											   new_elt_adress,
+											   elm_size_,
+											   cuda_kind,
+											   stream_);
 				break;
 			default:
 				assert(false);
@@ -173,10 +180,9 @@ namespace holovibes
 				return false;
 		}
 
-
 		if (cuda_status != CUDA_SUCCESS)
 		{
-			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cudaGetLastError())));
+			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cuda_status)));
 			if (display_)
 				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 			data_buffer_.reset();

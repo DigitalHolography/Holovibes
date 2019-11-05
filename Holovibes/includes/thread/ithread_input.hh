@@ -35,6 +35,7 @@ namespace holovibes
   };
 
   SquareInputMode get_square_input_mode_from_string(const std::string &name);
+  std::string get_string(const SquareInputMode mode);
 
 
   /*! \brief Interface for a thread encapsulation class that

@@ -76,21 +76,22 @@ namespace holovibes
 			compute_desc_.pixel_size = camera_->get_pixel_size();
 			LOG_INFO("(Holovibes) Resetting queues...");
 
-			auto frame_descriptor = camera_->get_frame_descriptor();
+			auto camera_fd = camera_->get_frame_descriptor();
+			auto queue_fd = camera_fd;
 			SquareInputMode mode = compute_desc_.square_input_mode;
 			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
 			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
-				set_max_of_the_two(frame_descriptor.width, frame_descriptor.height);
+				set_max_of_the_two(queue_fd.width, queue_fd.height);
 			}
 			else if (mode == SquareInputMode::CROPPED_SQUARE)
 			{
 				//Set values to the min of the two
-				set_min_of_the_two(frame_descriptor.width, frame_descriptor.height);
+				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
 			
-			input_.reset(new Queue(frame_descriptor, global::global_config.input_queue_max_size, "InputQueue"));
+			input_.reset(new Queue(queue_fd, global::global_config.input_queue_max_size, "InputQueue", camera_fd.width, camera_fd.height, camera_fd.depth));
 
 			LOG_INFO("(Holovibes) Starting initialization...");
 			camera_->start_acquisition();
@@ -167,6 +168,7 @@ namespace holovibes
 		assert(input_ && "Input queue not initialized");
 
 		camera::FrameDescriptor output_fd = input_->get_frame_desc();
+		std::cout << "output width : " << output_fd.width << "\noutput height : " << output_fd.height << std::endl;
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
 		output_fd.depth = depth;
 		try
@@ -244,20 +246,20 @@ namespace holovibes
 
 		try
 		{
-			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
 			SquareInputMode mode = compute_desc_.square_input_mode;
+			camera::FrameDescriptor queue_fd = frame_desc;
 			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
-				set_max_of_the_two(frame_desc.width, frame_desc.height);
+				set_max_of_the_two(queue_fd.width, queue_fd.height);
 			}
 			else if (mode == SquareInputMode::CROPPED_SQUARE)
 			{
 				//Set values to the min of the two
-				set_min_of_the_two(frame_desc.width, frame_desc.height);
+				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
 
-			input_.reset(new Queue(frame_desc, q_max_size_, "InputQueue"));
+			input_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", frame_desc.width, frame_desc.height, frame_desc.depth));
 			tcapture_.reset(
 				new ThreadReader(file_src,
 					frame_desc,

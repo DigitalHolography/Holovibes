@@ -53,7 +53,7 @@ namespace holovibes
 		** images or a FrameDescriptor used for computations.
 		** \param elts Max number of elements that the queue can contain.
 		**/
-		Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name);
+		Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name, unsigned int input_width = 0, unsigned int input_height = 0, unsigned int elm_size = 1);
 		~Queue();
 
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
@@ -166,5 +166,11 @@ namespace holovibes
 		cuda_tools::UniquePtr<char>	data_buffer_;
 		cudaStream_t			stream_;
 		bool					display_;
+
+		//utils used for square input mode
+		//Original size of the input
+		unsigned int input_width_;
+		unsigned int input_height_;
+		unsigned int elm_size_;
 	};
 }
