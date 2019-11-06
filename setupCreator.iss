@@ -2,12 +2,12 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 ; CMake: build/Generator      VisualStudio: x64
-#define BuildDir "build/Ninja"
+#define BuildDir "x64"
 ; Subdirectory to differenciate between CMake or VisualStudio install
-#define DestVersionDir "cmake"
+#define DestVersionDir "visualstudio"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.5.1"
+#define MyAppVersion "7.6"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"

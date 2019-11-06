@@ -200,6 +200,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v7.6
+
+* New 64 bytes holo file header with endianness
+* Fix overlay selection bug on rectangular windows
+* Fix crash on filter2D
+
 ### v7.5.1
 
 * Camera Hamamatsu bugfixes and updates
