@@ -2839,7 +2839,7 @@ namespace holovibes
 				if (invalid_path)
 				{
 					int gaussian_kernel_size = ui.GaussianKernelSizeSpinBox->value();
-					if (gaussian_kernel_size % 2 == 0)
+					if (gaussian_kernel_size % 2 != 0)
 					{
 						gaussian_kernel_size--;
 					}
