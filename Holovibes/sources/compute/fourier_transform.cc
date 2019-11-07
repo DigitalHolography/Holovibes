@@ -171,7 +171,7 @@ void FourierTransform::enqueue_lens()
 	{
 		// Getting the pointer in the location of the next enqueued element
 		cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());
-		gpu_lens_queue_->enqueue(gpu_lens_, cd_.square_input_mode);
+		gpu_lens_queue_->enqueue(gpu_lens_);
 		// Normalizing the newly enqueued element
 		normalize_complex(copied_lens_ptr, fd_.frame_res());
 	}

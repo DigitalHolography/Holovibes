@@ -12,7 +12,7 @@
 
 #include "pipeline_utils.hh"
 
-bool queue_enqueue(void* input, holovibes::Queue* queue, holovibes::SquareInputMode mode)
+bool queue_enqueue(void* input, holovibes::Queue* queue)
 {
-	return queue->enqueue(input, mode);
+	return queue->enqueue(input);
 }

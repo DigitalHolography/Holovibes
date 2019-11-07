@@ -16,9 +16,8 @@
 
 namespace holovibes
 {
-  IThreadInput::IThreadInput(SquareInputMode mode)
-    : stop_requested_(false),
-      square_input_mode_(mode)
+  IThreadInput::IThreadInput()
+    : stop_requested_(false)
   {
   }
 

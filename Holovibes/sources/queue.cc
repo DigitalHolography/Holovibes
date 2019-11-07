@@ -44,6 +44,7 @@ namespace holovibes
 		, input_width_(input_width)
 		, input_height_(input_height)
 		, elm_size_(elm_size)
+		, square_input_mode_(SquareInputMode::NO_MODIFICATION)
 	{
 		if (!elts || !data_buffer_.resize(frame_size_ * elts))
 		{
@@ -136,7 +137,7 @@ namespace holovibes
 		return (start_index_ + curr_elts_) % max_elts_;
 	}
 
-	bool Queue::enqueue(void* elt, SquareInputMode mode, cudaMemcpyKind cuda_kind)
+	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
 	{
 		MutexGuard mGuard(mutex_);
 
@@ -144,7 +145,7 @@ namespace holovibes
 		char		*new_elt_adress = data_buffer_.get() + (end_ * frame_size_);
 
 		cudaError_t cuda_status;
-		switch (mode)
+		switch (square_input_mode_)
 		{
 			case SquareInputMode::NO_MODIFICATION:
 				cuda_status = cudaMemcpyAsync(new_elt_adress,
@@ -253,6 +254,11 @@ namespace holovibes
 	void Queue::set_display(bool value)
 	{
 		display_ = value;
+	}
+
+	void Queue::set_square_input_mode(SquareInputMode mode)
+	{
+		square_input_mode_ = mode;
 	}
 
 	void Queue::display_queue_to_InfoManager() const

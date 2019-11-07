@@ -44,7 +44,6 @@ namespace holovibes
   class IThreadInput
   {
   public:
-    IThreadInput(SquareInputMode mode);
     virtual ~IThreadInput();
 
     virtual const camera::FrameDescriptor& get_input_frame_descriptor() const = 0;
@@ -55,7 +54,6 @@ namespace holovibes
   public:
     /*! \brief Stop thread and join it */
     bool stop_requested_;
-    const SquareInputMode square_input_mode_;
 
   protected:
     IThreadInput();

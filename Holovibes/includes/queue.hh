@@ -111,7 +111,7 @@ namespace holovibes
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		** \param mode Wether elt should be : copied as it is | copied into a bigger square | cropped into a smaller square
 		*/
-		bool enqueue(void* elt, SquareInputMode mode = SquareInputMode::NO_MODIFICATION, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
 		/*! \brief Dequeue method overload
 		**
@@ -146,6 +146,8 @@ namespace holovibes
 		/* allow us to choose if we want to display the queue or not */
 		void set_display(bool value);
 
+		void set_square_input_mode(SquareInputMode mode);
+
 		/*Create a string containing the buffer size in MB*/
 		std::string calculate_size(void) const;
 
@@ -172,5 +174,6 @@ namespace holovibes
 		unsigned int input_width_;
 		unsigned int input_height_;
 		unsigned int elm_size_;
+		SquareInputMode square_input_mode_;
 	};
 }

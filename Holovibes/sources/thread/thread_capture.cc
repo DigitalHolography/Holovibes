@@ -23,12 +23,13 @@ namespace holovibes
 		camera::ICamera& camera,
 		Queue& input,
 		SquareInputMode mode)
-		: IThreadInput(mode)
+		: IThreadInput()
 		, camera_(camera)
 		, queue_(input)
 		, thread_(&ThreadCapture::thread_proc, this)
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
+		queue_.set_square_input_mode(mode);
 		auto fd = get_input_frame_descriptor();
 		std::string input_descriptor_info = std::to_string(fd.width)
 			+ std::string("x")
@@ -54,7 +55,7 @@ namespace holovibes
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 		while (!stop_requested_)
 		{
-			queue_.enqueue(camera_.get_frame(), square_input_mode_, cudaMemcpyHostToDevice);
+			queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
 		}
 	}
 

@@ -40,7 +40,7 @@ namespace holovibes
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
-		: IThreadInput(mode)
+		: IThreadInput()
 		, file_src_(file_src)
 		, frame_desc_(frame_desc)
 		, loop_(loop)
@@ -59,6 +59,7 @@ namespace holovibes
 		, thread_(&ThreadReader::thread_proc, this)
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
+		queue_.set_square_input_mode(mode);
 		auto fd = get_input_frame_descriptor();
 		std::string input_descriptor_info = std::to_string(fd.width)
 			+ std::string("x")
@@ -174,7 +175,7 @@ namespace holovibes
 			act_frame_ = 0;
 		}
 
-		if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, this->square_input_mode_, cudaMemcpyHostToDevice))
+		if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice))
 			return false;
 
 		++frameId_;
