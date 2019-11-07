@@ -2842,88 +2842,67 @@ namespace holovibes
 		{
 			QLineEdit* path_line_edit = ui.ConvoMatrixPathLineEdit;
 			std::string path = path_line_edit->text().toUtf8();
-			boost::property_tree::ptree ptree;
-			std::stringstream strStream;
-			std::string str;
-			std::string delims = " \f\n\r\t\v";
-			std::vector<std::string> v_str, matrix_size, matrix;
-			std::vector<float> gaussian_kernel;
+			std::vector<float> matrix;
 			set_convolution_mode(false);
 			ui.ConvoCheckBox->setChecked(false);
 			holovibes_.reset_convolution_matrix();
 
-			unsigned matrix_width = 0;
-			unsigned matrix_height = 0;
-			unsigned matrix_z = 1;
-
-			// If the path is invalid use a computed gaussian kernel of
-			// size ui.GaussianKernelSizeSpinBox->value() for convolution
-			bool invalid_path = path == "" || !std::filesystem::exists(path);
-
 			try
 			{
-				if (invalid_path)
+				// If no path is given use the text in "kernel quick select" as the kernel path
+				if (path == "")
 				{
-					// int gaussian_kernel_size = ui.GaussianKernelSizeSpinBox->value();
-					// if (gaussian_kernel_size % 2 != 0)
-					// {
-					// 	gaussian_kernel_size--;
-					// }
-					// gaussian_kernel = compute_gaussian_kernel(gaussian_kernel_size, gaussian_kernel_size);
-					// 
-					// matrix_width = gaussian_kernel_size;
-					// matrix_height = gaussian_kernel_size;
 					std::filesystem::path dir(get_exe_dir());
 					dir = dir / "ConvolutionKernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
 					path = dir.string();
 				}
-				// else
-				// {
-				std::ifstream file(path);
 
-				strStream << file.rdbuf();
-				file.close();
-				str = strStream.str();
-				boost::split(v_str, str, boost::is_any_of(";"));
-				if (v_str.size() != 2)
+				unsigned matrix_width = 0;
+				unsigned matrix_height = 0;
+				unsigned matrix_z = 1;
+
+				// Doing this the C way cause it's faster
+				FILE* c_file;
+				fopen_s(&c_file, path.c_str(), "r");
+
+				if (c_file == nullptr)
 				{
-					display_error("Couldn't load file : too many or not enough separators \";\"\n");
-					notify();
-					return;
+					fclose(c_file);
+					throw std::runtime_error("Invalid file path");
 				}
 
-				boost::trim(v_str[0]);
-				boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
-				if (matrix_size.size() != 3)
+				// Read kernel dimensions
+				if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
 				{
-					display_error("Couldn't load file : too much or too little arguments for size\n");
-					notify();
-					return;
+					fclose(c_file);
+					throw std::runtime_error("Invalid kernel dimensions");
 				}
 
-				matrix_width = std::stoi(matrix_size[0]);
-				matrix_height = std::stoi(matrix_size[1]);
-				matrix_z = std::stoi(matrix_size[2]);
-				boost::trim(v_str[1]);
-				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
-				if (matrix_width * matrix_height * matrix_z != matrix.size())
+				size_t matrix_size = matrix_width * matrix_height * matrix_z;
+				matrix.resize(matrix_size);
+
+				// Read kernel values
+				for (size_t i = 0; i < matrix_size; ++i)
 				{
-					holovibes_.reset_convolution_matrix();
-					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
+					if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+					{
+						fclose(c_file);
+						throw std::runtime_error("Missing values");
+					}
 				}
-				// }
+
+				fclose(c_file);
 
 				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
-				//TODO a paralleliser
 				uint c = 0;
-				uint nx = ui.ImportWidthSpinBox->value();
-				uint ny = ui.ImportHeightSpinBox->value();
+				uint nx = holovibes_.get_output_queue()->get_frame_desc().width;
+				uint ny = holovibes_.get_output_queue()->get_frame_desc().height;
 				uint size = nx * ny;
 
-				const  uint minw = (nx / 2) - (matrix_width / 2);
-				const  uint maxw = (nx / 2) + (matrix_width / 2);
-				const  uint minh = (ny / 2) - (matrix_height / 2);
-				const  uint maxh = (ny / 2) + (matrix_height / 2);
+				const uint minw = (nx / 2) - (matrix_width / 2);
+				const uint maxw = (nx / 2) + (matrix_width / 2);
+				const uint minh = (ny / 2) - (matrix_height / 2);
+				const uint maxh = (ny / 2) + (matrix_height / 2);
 
 				std::vector<float> convo_matrix(size, 0.0f);
 
@@ -2931,14 +2910,7 @@ namespace holovibes
 				{
 					for (size_t j = minh; j < maxh; j++)
 					{
-						// if (invalid_path)
-						// {
-						// 	convo_matrix[i * nx + j] = gaussian_kernel[c];
-						// }
-						// else
-						// {
-							convo_matrix[i * nx + j] = std::stof(matrix[c]);
-						// }
+						convo_matrix[i * nx + j] = matrix[c];
 						c++;
 					}
 				}

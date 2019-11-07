@@ -2852,7 +2852,7 @@
              <item>
               <widget class="QLabel" name="KernelQuickSelectLabel">
                <property name="text">
-                <string>Kernel quick select</string>
+                <string>Quick select</string>
                </property>
               </widget>
              </item>
@@ -2860,27 +2860,6 @@
               <widget class="QComboBox" name="KernelQuickSelectComboBox">
                <property name="currentText">
                 <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QLabel" name="GaussianKernelSizeLabel">
-               <property name="text">
-                <string>G.Kernel Size</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="GaussianKernelSizeSpinBox">
-               <property name="minimum">
-                <number>3</number>
-               </property>
-               <property name="maximum">
-                <number>9999</number>
                </property>
               </widget>
              </item>
