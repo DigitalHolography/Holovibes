@@ -12,6 +12,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <Windows.h>
 
 #include "tools.hh"
 #include "tools_conversion.cuh"
@@ -142,6 +143,21 @@ namespace holovibes
 		{
 			width = window_size * width / height;
 			height = window_size;
+		}
+	}
+
+	std::string get_exe_path()
+	{
+		char path[MAX_PATH];
+		HMODULE hmodule = GetModuleHandle(NULL);
+		if (hmodule != NULL)
+		{
+			GetModuleFileName(hmodule, path, (sizeof(path)));
+			return path;
+		}
+		else
+		{
+			return "";
 		}
 	}
 }

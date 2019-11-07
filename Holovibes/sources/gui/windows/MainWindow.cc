@@ -2804,8 +2804,19 @@ namespace holovibes
 #pragma region Convolution
 		void MainWindow::browse_convo_matrix_file()
 		{
+			std::string exe_path_str = get_exe_path();
+			std::filesystem::path convo_matrix_path(exe_path_str);
+			convo_matrix_path = convo_matrix_path.parent_path() / "ConvolutionKernels";
+			std::string convo_matrix_path_str = "";
+			if (std::filesystem::exists(convo_matrix_path))
+			{
+				convo_matrix_path_str = convo_matrix_path.string();
+			}
+
 			QString filename = QFileDialog::getOpenFileName(this,
-				tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
+				tr("Matrix file"),
+				convo_matrix_path_str.c_str(),
+				tr("Txt files (*.txt)"));
 
 			QLineEdit* matrix_output_line_edit = ui.ConvoMatrixPathLineEdit;
 			matrix_output_line_edit->clear();

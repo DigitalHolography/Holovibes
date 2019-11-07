@@ -116,7 +116,12 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HOLO_DIR}/shaders/"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/shaders/"
-    
+
+    # Copy convolution kernels
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/ConvolutionKernels/"
+        "${CMAKE_BINARY_DIR}/$<CONFIG>/ConvolutionKernels/"
+
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/pco/SC2_Cam.dll"

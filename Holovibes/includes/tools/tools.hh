@@ -107,4 +107,6 @@ namespace holovibes
 	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts);
 	/*! \brief return width and height with the same ratio and the max of the two being window_size*/
 	void get_good_size(ushort& width, ushort& height, ushort window_size);
+	/*! \brief Returns the path of the currently used executable file*/
+	std::string get_exe_path();
 }
