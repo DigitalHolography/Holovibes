@@ -284,6 +284,8 @@ namespace holovibes
 		private:
 			void 		set_direct_mode();
 			void 		set_holographic_mode();
+			void        set_computation_mode();
+			void        set_correct_square_input_mode();
 			void		change_camera(CameraKind c);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);

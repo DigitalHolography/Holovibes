@@ -1070,6 +1070,11 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
+					
+					//Needed for correct read of SquareInputMode during allocation of buffers
+					set_computation_mode();
+					set_correct_square_input_mode();
+
 					holovibes_.init_capture(c);
 					is_enabled_camera_ = true;
 					set_image_mode();
@@ -1283,6 +1288,30 @@ namespace holovibes
 			catch (std::runtime_error& e)
 			{
 				LOG_ERROR(std::string("cannot set holographic mode: ") + std::string(e.what()));
+			}
+		}
+
+		void MainWindow::set_computation_mode()
+		{
+			if (ui.DirectRadioButton->isChecked())
+			{
+				compute_desc_.compute_mode = Computation::Direct;
+			}
+			else if (ui.HologramRadioButton->isChecked())
+			{
+				compute_desc_.compute_mode = Computation::Hologram;
+			}
+		}
+
+		void MainWindow::set_correct_square_input_mode()
+		{
+			if (compute_desc_.compute_mode == Computation::Direct)
+			{
+				compute_desc_.square_input_mode = SquareInputMode::NO_MODIFICATION;
+			}
+			else if (compute_desc_.compute_mode == Computation::Hologram)
+			{
+				compute_desc_.square_input_mode = get_square_input_mode_from_string(ui.SquareInputModeComboBox->currentText().toStdString());
 			}
 		}
 
@@ -3450,6 +3479,11 @@ namespace holovibes
 					/ frame_desc.frame_size();
 				if (file_end > end_spinbox->value())
 					file_end = end_spinbox->value();
+				
+				//Needed for correct read of SquareInputMode during the allocation of buffers
+				set_computation_mode();
+				set_correct_square_input_mode();
+
 				holovibes_.init_import_mode(
 					file_src,
 					frame_desc,
