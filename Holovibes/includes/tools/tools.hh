@@ -109,4 +109,6 @@ namespace holovibes
 	void get_good_size(ushort& width, ushort& height, ushort window_size);
 	/*! \brief Returns the path of the currently used executable file*/
 	std::string get_exe_path();
+	/*! \brief Returns the directory of the currently used executable file*/
+	std::string get_exe_dir();
 }

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <sstream>
 #include <Windows.h>
+#include <filesystem>
 
 #include "tools.hh"
 #include "tools_conversion.cuh"
@@ -154,6 +155,22 @@ namespace holovibes
 		{
 			GetModuleFileName(hmodule, path, (sizeof(path)));
 			return path;
+		}
+		else
+		{
+			return "";
+		}
+	}
+
+	std::string get_exe_dir()
+	{
+		char path[MAX_PATH];
+		HMODULE hmodule = GetModuleHandle(NULL);
+		if (hmodule != NULL)
+		{
+			GetModuleFileName(hmodule, path, (sizeof(path)));
+			std::filesystem::path p(path);
+			return p.parent_path().string();
 		}
 		else
 		{

@@ -2848,6 +2848,24 @@
             </layout>
            </item>
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="KernelQuickSelectLabel">
+               <property name="text">
+                <string>Kernel quick select</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="KernelQuickSelectComboBox">
+               <property name="currentText">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QLabel" name="GaussianKernelSizeLabel">

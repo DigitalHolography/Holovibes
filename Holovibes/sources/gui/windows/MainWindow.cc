@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include <filesystem>
+#include <algorithm>
+#include <list>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -176,6 +178,20 @@ namespace holovibes
 
 			ui.FileReaderProgressBar->hide();
 			ui.RecordProgressBar;
+
+			// Fill the quick kernel combo box with files from ConvolutionKernels directory
+			std::filesystem::path convo_matrix_path(get_exe_dir());
+			convo_matrix_path = convo_matrix_path / "ConvolutionKernels";
+			if (std::filesystem::exists(convo_matrix_path))
+			{
+				QVector<QString> files;
+				for (const auto& file : std::filesystem::directory_iterator(convo_matrix_path))
+				{
+					files.push_back(QString(file.path().filename().string().c_str()));
+				}
+				std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
+				ui.KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
+			}
 		}
 
 		MainWindow::~MainWindow()
@@ -2804,10 +2820,9 @@ namespace holovibes
 #pragma region Convolution
 		void MainWindow::browse_convo_matrix_file()
 		{
-			std::string exe_path_str = get_exe_path();
-			std::filesystem::path convo_matrix_path(exe_path_str);
-			convo_matrix_path = convo_matrix_path.parent_path() / "ConvolutionKernels";
-			std::string convo_matrix_path_str = "";
+			std::filesystem::path convo_matrix_path(get_exe_dir());
+			convo_matrix_path = convo_matrix_path / "ConvolutionKernels";
+			std::string convo_matrix_path_str = "C://";
 			if (std::filesystem::exists(convo_matrix_path))
 			{
 				convo_matrix_path_str = convo_matrix_path.string();
@@ -2826,7 +2841,7 @@ namespace holovibes
 		void MainWindow::load_convo_matrix()
 		{
 			QLineEdit* path_line_edit = ui.ConvoMatrixPathLineEdit;
-			const std::string path = path_line_edit->text().toUtf8();
+			std::string path = path_line_edit->text().toUtf8();
 			boost::property_tree::ptree ptree;
 			std::stringstream strStream;
 			std::string str;
@@ -2849,51 +2864,54 @@ namespace holovibes
 			{
 				if (invalid_path)
 				{
-					int gaussian_kernel_size = ui.GaussianKernelSizeSpinBox->value();
-					if (gaussian_kernel_size % 2 != 0)
-					{
-						gaussian_kernel_size--;
-					}
-					gaussian_kernel = compute_gaussian_kernel(gaussian_kernel_size, gaussian_kernel_size);
-
-					matrix_width = gaussian_kernel_size;
-					matrix_height = gaussian_kernel_size;
+					// int gaussian_kernel_size = ui.GaussianKernelSizeSpinBox->value();
+					// if (gaussian_kernel_size % 2 != 0)
+					// {
+					// 	gaussian_kernel_size--;
+					// }
+					// gaussian_kernel = compute_gaussian_kernel(gaussian_kernel_size, gaussian_kernel_size);
+					// 
+					// matrix_width = gaussian_kernel_size;
+					// matrix_height = gaussian_kernel_size;
+					std::filesystem::path dir(get_exe_dir());
+					dir = dir / "ConvolutionKernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
+					path = dir.string();
 				}
-				else
+				// else
+				// {
+				std::ifstream file(path);
+
+				strStream << file.rdbuf();
+				file.close();
+				str = strStream.str();
+				boost::split(v_str, str, boost::is_any_of(";"));
+				if (v_str.size() != 2)
 				{
-					std::ifstream file(path);
-
-					strStream << file.rdbuf();
-					file.close();
-					str = strStream.str();
-					boost::split(v_str, str, boost::is_any_of(";"));
-					if (v_str.size() != 2)
-					{
-						display_error("Couldn't load file : too many or not enough separators \";\"\n");
-						notify();
-						return;
-					}
-
-					boost::trim(v_str[0]);
-					boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
-					if (matrix_size.size() != 3)
-					{
-						display_error("Couldn't load file : too much or too little arguments for size\n");
-						notify();
-						return;
-					}
-
-					matrix_width = std::stoi(matrix_size[0]);
-					matrix_height = std::stoi(matrix_size[1]);
-					matrix_z = std::stoi(matrix_size[2]);
-					boost::trim(v_str[1]);
-					boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
-					if (matrix_width * matrix_height * matrix_z != matrix.size())
-					{
-						holovibes_.reset_convolution_matrix();
-						display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
-					}
+					display_error("Couldn't load file : too many or not enough separators \";\"\n");
+					notify();
+					return;
 				}
+
+				boost::trim(v_str[0]);
+				boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
+				if (matrix_size.size() != 3)
+				{
+					display_error("Couldn't load file : too much or too little arguments for size\n");
+					notify();
+					return;
+				}
+
+				matrix_width = std::stoi(matrix_size[0]);
+				matrix_height = std::stoi(matrix_size[1]);
+				matrix_z = std::stoi(matrix_size[2]);
+				boost::trim(v_str[1]);
+				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
+				if (matrix_width * matrix_height * matrix_z != matrix.size())
+				{
+					holovibes_.reset_convolution_matrix();
+					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
+				}
+				// }
 
 				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
 				//TODO a paralleliser
@@ -2913,14 +2931,14 @@ namespace holovibes
 				{
 					for (size_t j = minh; j < maxh; j++)
 					{
-						if (invalid_path)
-						{
-							convo_matrix[i * nx + j] = gaussian_kernel[c];
-						}
-						else
-						{
+						// if (invalid_path)
+						// {
+						// 	convo_matrix[i * nx + j] = gaussian_kernel[c];
+						// }
+						// else
+						// {
 							convo_matrix[i * nx + j] = std::stof(matrix[c]);
-						}
+						// }
 						c++;
 					}
 				}
