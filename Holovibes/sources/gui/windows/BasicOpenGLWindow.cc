@@ -65,7 +65,10 @@ namespace holovibes
 		{
 			makeCurrent();
 
-			cudaGraphicsUnregisterResource(cuResource);
+			if (cuResource)
+			{
+				cudaGraphicsUnregisterResource(cuResource);
+			}
 			cudaStreamDestroy(cuStream);
 
 			if (Tex) glDeleteBuffers(1, &Tex);

@@ -619,9 +619,27 @@ namespace holovibes
 				std::cout << e.what() << std::endl;
 			}
 			if (import_type_ == ImportType::File)
+			{
 				import_file();
+			}
 			else if (import_type_ == ImportType::Camera)
+			{
 				change_camera(kCamera);
+			}
+			notify(); 
+		}
+
+		void MainWindow::reset_input()
+		{
+			import_file_stop();
+			if (import_type_ == ImportType::File)
+			{
+				import_file();
+			}
+			else if (import_type_ == ImportType::Camera)
+			{
+				change_camera(kCamera);
+			}
 			notify();
 		}
 
@@ -1052,6 +1070,11 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
+					
+					//Needed for correct read of SquareInputMode during allocation of buffers
+					set_computation_mode();
+					set_correct_square_input_mode();
+
 					holovibes_.init_capture(c);
 					is_enabled_camera_ = true;
 					set_image_mode();
@@ -1143,6 +1166,7 @@ namespace holovibes
 		{
 			close_windows();
 			close_critical_compute();
+			ui.SquareInputModeComboBox->setEnabled(false);
 			InfoManager::get_manager()->remove_info("Throughput");
 			compute_desc_.compute_mode = Computation::Stop;
 			notify();
@@ -1164,7 +1188,7 @@ namespace holovibes
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-				InfoManager::get_manager()->insertInputSource(fd);
+				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::INPUT_SOURCE, "Input Format");
 				set_convolution_mode(false);
 				set_divide_convolution_mode(false);
 				notify();
@@ -1233,8 +1257,12 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
+			//That function is used to reallocate the buffers since the Square input mode could have changed
 			close_windows();
 			close_critical_compute();
+
+			ui.SquareInputModeComboBox->setEnabled(true);
+
 			/* ---------- */
 			try
 			{
@@ -1244,7 +1272,7 @@ namespace holovibes
 				createHoloWindow();
 				/* ---------- */
 				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_frame_desc();
-				InfoManager::get_manager()->insertInputSource(fd);
+				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
 				if (!compute_desc_.is_holo_file)
@@ -1261,6 +1289,38 @@ namespace holovibes
 			{
 				LOG_ERROR(std::string("cannot set holographic mode: ") + std::string(e.what()));
 			}
+		}
+
+		void MainWindow::set_computation_mode()
+		{
+			if (ui.DirectRadioButton->isChecked())
+			{
+				compute_desc_.compute_mode = Computation::Direct;
+			}
+			else if (ui.HologramRadioButton->isChecked())
+			{
+				compute_desc_.compute_mode = Computation::Hologram;
+			}
+		}
+
+		void MainWindow::set_correct_square_input_mode()
+		{
+			if (compute_desc_.compute_mode == Computation::Direct)
+			{
+				compute_desc_.square_input_mode = SquareInputMode::NO_MODIFICATION;
+			}
+			else if (compute_desc_.compute_mode == Computation::Hologram)
+			{
+				compute_desc_.square_input_mode = get_square_input_mode_from_string(ui.SquareInputModeComboBox->currentText().toStdString());
+			}
+		}
+
+		void MainWindow::set_square_input_mode(const QString &name)
+		{
+			auto mode = get_square_input_mode_from_string(name.toStdString());
+			compute_desc_.square_input_mode = mode;
+			//Need to reset the whole computation process since we change the size of the different buffers
+			reset_input();
 		}
 
 		void MainWindow::refreshViewMode()
@@ -1415,7 +1475,7 @@ namespace holovibes
 					}
 					else
 					{
-						auto fd = holovibes_.get_cam_frame_desc();
+						auto fd = holovibes_.get_capture_frame_desc();
 						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
 					}
 					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
@@ -3394,6 +3454,7 @@ namespace holovibes
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
+
 			try
 			{
 				if (cine->isChecked() == true)
@@ -3406,6 +3467,8 @@ namespace holovibes
 				display_error(e.what());
 				return;
 			}
+
+
 			depth_multi = pow(2, depth_spinbox->currentIndex());
 			FrameDescriptor frame_desc = {
 				static_cast<ushort>(width_spinbox->value()),
@@ -3420,6 +3483,11 @@ namespace holovibes
 					/ frame_desc.frame_size();
 				if (file_end > end_spinbox->value())
 					file_end = end_spinbox->value();
+				
+				//Needed for correct read of SquareInputMode during the allocation of buffers
+				set_computation_mode();
+				set_correct_square_input_mode();
+
 				holovibes_.init_import_mode(
 					file_src,
 					frame_desc,
@@ -3441,13 +3509,19 @@ namespace holovibes
 				holovibes_.dispose_capture();
 				return;
 			}
+
+
 			is_enabled_camera_ = true;
 			set_image_mode();
+
+
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
 			QAction *settings = ui.actionSettings;
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
+
+
 			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
 				import_type_ = ImportType::None;
@@ -3459,6 +3533,7 @@ namespace holovibes
 
 			holo_file_update_ui();
 			holo_file_update_cd();
+
 
 			notify();
 		}

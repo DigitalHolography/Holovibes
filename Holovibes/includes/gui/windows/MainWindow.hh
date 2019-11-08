@@ -43,6 +43,7 @@ using json = ::nlohmann::json;
 # include "thread_csv_record.hh"
 # include "thread_recorder.hh"
 # include "ui_mainwindow.h"
+# include "ithread_input.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -127,8 +128,8 @@ namespace holovibes
 			** \param value true for direct mode, false for hologram mode.
 			*/
 			void set_image_mode();
-			void set_direct_mode();
-			void set_holographic_mode();
+			void reset_input();
+			void set_square_input_mode(const QString &name);
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
 			void set_divide_convolution_mode(const bool value);
@@ -281,6 +282,10 @@ namespace holovibes
 			virtual void closeEvent(QCloseEvent* event) override;
 
 		private:
+			void 		set_direct_mode();
+			void 		set_holographic_mode();
+			void        set_computation_mode();
+			void        set_correct_square_input_mode();
 			void		change_camera(CameraKind c);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);

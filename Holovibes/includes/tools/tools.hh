@@ -65,6 +65,32 @@ bool is_between(T val, T min, T max)
 	return min <= val && val <= max;
 }
 
+template<typename T>
+void set_min_of_the_two(T &a, T &b)
+{
+	if (a < b)
+	{
+		b = a;
+	}
+	else
+	{
+		a = b;
+	}
+}
+
+template<typename T>
+void set_max_of_the_two(T &a, T &b)
+{
+	if (a < b)
+	{
+		a = b;
+	}
+	else
+	{
+		b = a;
+	}
+}
+
 namespace holovibes
 {
 	/*! \brief Get framerate from .cine file */

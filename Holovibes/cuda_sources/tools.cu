@@ -18,6 +18,8 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "logger.hh"
 
+#include <cassert>
+
 using camera::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::UniquePtr;
@@ -234,6 +236,133 @@ void frame_memcpy(float				*input,
 						cudaMemcpyDeviceToDevice,
 						stream);
 	cudaStreamSynchronize(stream);
+}
+
+cudaError_t embedded_frame_cpy(const char *input,
+	                           const uint input_width,
+	                           const uint input_height,
+	                           char *output,
+	                           const uint output_width,
+	                           const uint output_height,
+	                           const uint output_startx,
+	                           const uint output_starty,
+	                           const uint elm_size,
+	                           cudaMemcpyKind kind,
+	                           cudaStream_t stream)
+{
+    assert(input_width + output_startx <= output_width);
+    assert(input_height + output_starty <= output_height);
+
+    char *output_write_start = output + elm_size * (output_starty * output_width + output_startx);
+    return cudaMemcpy2DAsync(output_write_start,
+                             output_width * elm_size,
+                             input,
+                             input_width * elm_size,
+                             input_width * elm_size,
+                             input_height,
+                             kind,
+                             stream);
+}
+
+cudaError_t embed_into_square(const char *input,
+							  const uint input_width,
+	  						  const uint input_height,
+							  char *output,
+  							  const uint elm_size,
+							  cudaMemcpyKind kind,
+							  cudaStream_t stream)
+{
+	uint output_startx;
+	uint output_starty;
+	uint square_side_len;
+
+	if (input_width >= input_height) //Usually the case
+	{
+		square_side_len = input_width;
+		output_startx = 0;
+		output_starty = (square_side_len - input_height) / 2;
+	}
+	else
+	{
+		square_side_len = input_height;
+		output_startx = (square_side_len - input_width) / 2;
+		output_starty = 0;
+	}
+	return embedded_frame_cpy(input,
+	  					  	  input_width,
+						  	  input_height,
+	 					  	  output,
+						  	  square_side_len,
+			 			      square_side_len,
+						  	  output_startx,
+	  					  	  output_starty,
+						  	  elm_size,
+	  					  	  kind,
+	  					  	  stream);
+}
+
+cudaError_t crop_frame(const char *input,
+					   const uint input_width,
+					   const uint input_height,
+					   const uint crop_start_x,
+					   const uint crop_start_y,
+					   const uint crop_width,
+					   const uint crop_height,
+					   char *output,
+					   const uint elm_size,
+					   cudaMemcpyKind kind,
+					   cudaStream_t stream)
+{
+	assert(crop_start_x + crop_width <= input_width);
+	assert(crop_start_y + crop_height <= input_height);
+
+	const char *crop_start = input + elm_size * (crop_start_y * input_width + crop_start_x);
+	return cudaMemcpy2DAsync(output,
+				 		     crop_width * elm_size,
+				   			 crop_start,
+						     input_width * elm_size,
+						     crop_width * elm_size,
+						     crop_height,
+						     kind,
+						     stream);
+}
+
+cudaError_t crop_into_square(const char *input,
+						     const uint input_width,
+							 const uint input_height,
+							 char *output,
+							 const uint elm_size,
+							 cudaMemcpyKind kind,
+							 cudaStream_t stream)
+{
+	uint crop_start_x;
+	uint crop_start_y;
+	uint square_side_len;
+
+	if (input_width >= input_height)
+	{
+		square_side_len = input_height;
+		crop_start_x = (input_width - square_side_len) / 2;
+		crop_start_y = 0;
+	}
+	else
+	{
+		square_side_len = input_width;
+		crop_start_x = 0;
+		crop_start_y = (input_height - square_side_len) / 2;
+	}
+
+	return crop_frame(input,
+					  input_width,
+					  input_height,
+					  crop_start_x,
+					  crop_start_y,
+		  			  square_side_len,
+					  square_side_len,
+					  output,
+					  elm_size,
+					  kind,
+					  stream);
 }
 
 /* Kernel helper used in average.

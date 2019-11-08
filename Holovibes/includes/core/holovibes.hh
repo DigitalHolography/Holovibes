@@ -171,7 +171,7 @@ namespace holovibes
 		}
 		/*! \} */
 
-		const camera::FrameDescriptor& get_cam_frame_desc();
+		const camera::FrameDescriptor& get_capture_frame_desc();
 
 		/* \brief Get zb = N d^2 / lambda
 		  Is updated everytime the camera changes or lamdba changes

@@ -24,7 +24,7 @@
 
 # include "frame_desc.hh"
 # include "unique_ptr.hh"
-
+#include "ithread_input.hh"
 
 namespace holovibes
 {
@@ -53,7 +53,7 @@ namespace holovibes
 		** images or a FrameDescriptor used for computations.
 		** \param elts Max number of elements that the queue can contain.
 		**/
-		Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name);
+		Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name, unsigned int input_width = 0, unsigned int input_height = 0, unsigned int elm_size = 1);
 		~Queue();
 
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
@@ -109,6 +109,7 @@ namespace holovibes
 		**
 		** \param elt pointer to element to enqueue
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		** \param mode Wether elt should be : copied as it is | copied into a bigger square | cropped into a smaller square
 		*/
 		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -145,6 +146,8 @@ namespace holovibes
 		/* allow us to choose if we want to display the queue or not */
 		void set_display(bool value);
 
+		void set_square_input_mode(SquareInputMode mode);
+
 		/*Create a string containing the buffer size in MB*/
 		std::string calculate_size(void) const;
 
@@ -165,5 +168,12 @@ namespace holovibes
 		cuda_tools::UniquePtr<char>	data_buffer_;
 		cudaStream_t			stream_;
 		bool					display_;
+
+		//utils used for square input mode
+		//Original size of the input
+		unsigned int input_width_;
+		unsigned int input_height_;
+		unsigned int elm_size_;
+		SquareInputMode square_input_mode_;
 	};
 }

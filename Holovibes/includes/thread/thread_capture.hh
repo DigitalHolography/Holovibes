@@ -38,11 +38,12 @@ namespace holovibes
     /*! \brief Set a capture thread from a given camera and a destination queue.
      * \param The camera must be initialized
      * \param Destination queue */
-    ThreadCapture(camera::ICamera& camera, Queue& input);
+    ThreadCapture(camera::ICamera& camera, Queue& input, SquareInputMode mode);
 
     ~ThreadCapture();
 
-    const camera::FrameDescriptor& get_frame_descriptor() const;
+    const camera::FrameDescriptor& get_input_frame_descriptor() const override;
+    const camera::FrameDescriptor& get_queue_frame_descriptor() const override;
   private:
     /*! While the thread is running, the get_frame() function (see ICamera
      * interface) is called with the current camera. Images sent are enqueued. */

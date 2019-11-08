@@ -16,6 +16,8 @@
  * grabs images from a source. */
 #pragma once
 
+#include <string>
+
 /*! Forward declaration*/
 namespace camera
 {
@@ -24,6 +26,18 @@ namespace camera
 
 namespace holovibes
 {
+    //If you can find better names, please replace them with yours
+  enum class SquareInputMode
+  {
+    NO_MODIFICATION,
+    ZERO_PADDED_SQUARE,
+    CROPPED_SQUARE
+  };
+
+  SquareInputMode get_square_input_mode_from_string(const std::string &name);
+  std::string get_string(const SquareInputMode mode);
+
+
   /*! \brief Interface for a thread encapsulation class that
    * grabs images from a source.
    */
@@ -32,7 +46,11 @@ namespace holovibes
   public:
     virtual ~IThreadInput();
 
-    virtual const camera::FrameDescriptor& get_frame_descriptor() const = 0;
+    virtual const camera::FrameDescriptor& get_input_frame_descriptor() const = 0;
+
+    //If the input is not square, it might need to be croped or embedded into one
+    //This would be the effective frame descriptor for the rest of the program
+    virtual const camera::FrameDescriptor& get_queue_frame_descriptor() const = 0;
   public:
     /*! \brief Stop thread and join it */
     bool stop_requested_;
