@@ -78,6 +78,10 @@ namespace holovibes
 
 		try
 		{
+			if (meta_data_size == 0)
+			{
+				meta_data_str_ = "{}";
+			}
 			meta_data_ = json::parse(meta_data_str_);
 			LOG_INFO("Loaded holo file: " + file_path + ", detected version: " + std::to_string(header_.version));
 		}
