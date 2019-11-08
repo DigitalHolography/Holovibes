@@ -3363,6 +3363,7 @@ namespace holovibes
 
 		void MainWindow::import_file()
 		{
+			holo_file_update_ui();
 			holo_file_update_cd();
 			import_file_stop();
 			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
@@ -3456,6 +3457,7 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			}
 
+			holo_file_update_ui();
 			holo_file_update_cd();
 
 			notify();
