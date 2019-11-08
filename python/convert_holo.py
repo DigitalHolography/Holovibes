@@ -3,7 +3,8 @@
 import json
 import struct
 import sys
-from os.path import basename, getsize, splitext
+import os.path as path
+from os.path import basename, dirname, getsize, splitext
 
 bits_to_bytes = {'8bit': 1, '16bit': 2}
 
@@ -64,6 +65,9 @@ def parse_holo(fpath: str) -> (int, int, int, int, int):
         
         return (w, h, bytes_per_pixel, img_nb, j['endianess']) # typo in encoded data
 
+def new_file_path(fpath: str) -> str:
+    return path.join(dirname(fpath), f'new_{basename(fpath)}')
+
 
 if len(sys.argv) != 2:
     exit(1)
@@ -71,7 +75,7 @@ if len(sys.argv) != 2:
 fpath = sys.argv[1]
 
 is_holo = True
-nfpath = f'new_{fpath}' # don't overwrite file
+nfpath = new_file_path(fpath) # don't overwrite file
 path_no_ext, ext = splitext(nfpath)
 if ext != '.holo':
     is_holo = False
