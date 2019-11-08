@@ -200,6 +200,13 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v7.6.1
+
+* Holovibes can now handle rectangular input
+* Quick convolution kernel selection
+* Python scripts to convert .raw and old .holo files to new .holo files
+* Fix .holo files not loading if json footer is empty
+
 ### v7.6
 
 * New 64 bytes holo file header with endianness
