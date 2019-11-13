@@ -340,6 +340,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 		blur_matrix[i] = blur_value;
 	}
 
+	//FIXME Might want to replace that with a cudaMemcpy2D
 	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
 	{
 		cudaMemcpy(gpu_convolution_matrix + min_pos_kernel  + width * (i + min_pos_kernel),
@@ -349,17 +350,25 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 
 	shift_corners(gpu_convolution_matrix, width, height);
 
+	cuComplex *gpu_kernel;
+	cudaMalloc(&gpu_kernel, frame_res * sizeof(cuComplex));
+	cudaMemset(gpu_kernel, 0, frame_res * sizeof(cuComplex));
+	cudaMemcpy2D(gpu_kernel, sizeof(cuComplex), gpu_convolution_matrix, sizeof(float), sizeof(float), frame_res, cudaMemcpyDeviceToDevice);
 
 	float *gpu_memory_space;
+	cuComplex *gpu_cuComplex_buffer;
 	cudaMalloc(&gpu_memory_space, frame_res * sizeof(float));
+	cudaMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
 	cudaCheckError();
 	CufftHandle handle{ static_cast<int>(width), static_cast<int>(height), CUFFT_C2C };
-	convolution_kernel(gpu_arr, gpu_memory_space, &handle, width, height, gpu_convolution_matrix, false, false);
+	convolution_kernel(gpu_arr, gpu_memory_space, gpu_cuComplex_buffer, &handle, width, height, gpu_kernel, false, false);
 	cudaCheckError();
 
 	delete[] blur_matrix;
 	cudaFree(gpu_memory_space);
+	cudaFree(gpu_cuComplex_buffer);
 	cudaFree(gpu_convolution_matrix);
+	cudaFree(gpu_kernel);
 }
 
 void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width)
