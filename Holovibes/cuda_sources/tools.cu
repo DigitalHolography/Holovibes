@@ -43,48 +43,70 @@ void kernel_apply_lens(cuComplex		*input,
 		//index += blockDim.x * gridDim.x;
 	}
 }
-static __global__
-void kernel_shift_corners(float		*input,
-						const uint	size_x,
-						const uint	size_y)
+
+namespace
 {
-	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
-	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
-	const uint	index = j * blockDim.x * gridDim.x + i;
-	uint	ni = 0;
-	uint	nj = 0;
-	uint	nindex = 0;
-
-	// Superior half of the matrix
-	const uint size_x2 = size_x >> 1;
-	const uint size_y2 = size_y >> 1;
-	if (j >= size_y2)
+	template<typename T>				
+	__global__
+	void kernel_shift_corners(T		*input,
+							const uint	size_x,
+							const uint	size_y)
 	{
-		// Left superior quarter of the matrix
-		if (i < size_x2)
-			ni = i + size_x2;
-		else // Right superior quarter
-			ni = i - size_x2;
-		nj = j - size_y2;
-		nindex = nj * size_x + ni;
+		const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
+		const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
+		const uint	index = j * blockDim.x * gridDim.x + i;
+		uint	ni = 0;
+		uint	nj = 0;
+		uint	nindex = 0;
 
-		float tmp = input[nindex];
-		input[nindex] = input[index];
-		input[index] = tmp;
+		// Superior half of the matrix
+		const uint size_x2 = size_x >> 1;
+		const uint size_y2 = size_y >> 1;
+		if (j >= size_y2)
+		{
+			// Left superior quarter of the matrix
+			if (i < size_x2)
+				ni = i + size_x2;
+			else // Right superior quarter
+				ni = i - size_x2;
+			nj = j - size_y2;
+			nindex = nj * size_x + ni;
+
+			T tmp = input[nindex];
+			input[nindex] = input[index];
+			input[index] = tmp;
+		}
+	}
+
+	template<typename T>
+	void shift_corners_caller(T*		input,
+							  const uint		size_x,
+							  const uint		size_y,
+							  cudaStream_t	stream)
+	{
+		uint threads_2d = get_max_threads_2d();
+		dim3 lthreads(threads_2d, threads_2d);
+		dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+
+		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
+		cudaCheckError();
 	}
 }
 
-void shift_corners(float		*input,
-				const uint		size_x,
-				const uint		size_y,
-				cudaStream_t	stream)
+void shift_corners(float *input,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
 {
-	uint threads_2d = get_max_threads_2d();
-	dim3 lthreads(threads_2d, threads_2d);
-	dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+	shift_corners_caller<float>(input, size_x, size_y, stream);
+}
 
-	kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
-	cudaCheckError();
+void shift_corners(cuComplex *input,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
+{
+	shift_corners_caller<cuComplex>(input, size_x, size_y, stream);
 }
 
 /* Kernel used in apply_log10 */
