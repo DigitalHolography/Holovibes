@@ -291,6 +291,8 @@ namespace holovibes
 		std::atomic<int>			special_buffer_size;
 		//! is convolution enabled
 		std::atomic<bool>			convolution_enabled;
+		//! signal for the post-processing class that the convolution status has changed
+		std::atomic<bool>           convolution_enabled_changed{false};
 		//! is divide by convolution enabled
 		std::atomic<bool>			divide_convolution_enabled;
 		//! is log scale in slice XY enabled

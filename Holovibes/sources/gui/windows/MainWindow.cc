@@ -1624,6 +1624,9 @@ namespace holovibes
 			compute_desc_.convolution_enabled = value;
 			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
+
+			compute_desc_.convolution_enabled_changed = true;
+
 			notify();
 		}
 
