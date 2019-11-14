@@ -799,7 +799,7 @@ namespace holovibes
 			double mean = 0;
 			nppi_mean(src, nppi_data, &mean);
 			nppi_divide_by_constant(src, nppi_data, static_cast<float>(mean));
-			nppi_multiply_by_constant(src, nppi_data, 65535.0f);
+			nppi_multiply_by_constant(src, nppi_data, float(1 << 15));
 		}
 	} // namespace cuda_tools
 } // namespace holovibes

@@ -1558,6 +1558,13 @@ namespace holovibes
 			notify();
 		}
 
+		void MainWindow::toggle_renormalize(bool value)
+		{
+			compute_desc_.renorm_enabled = value;
+			pipe_refresh();
+			notify();
+		}
+
 		void MainWindow::take_reference()
 		{
 			if (!is_direct_mode())

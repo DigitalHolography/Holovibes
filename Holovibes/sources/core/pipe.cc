@@ -223,6 +223,7 @@ namespace holovibes
 		converts_->insert_to_float(unwrap_2d_requested_);
 
 		postprocess_->insert_convolution();
+		postprocess_->insert_renormalize();
 		//TODO : apply convolution to XZ YZ cuts
 
 		stabilization_->insert_post_img_type();

@@ -3004,6 +3004,17 @@
           </widget>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="RenormalizeCheckBox">
+             <property name="text">
+              <string>Renormalize</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -6985,6 +6996,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>RenormalizeCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggle_renormalize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1058</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7053,6 +7080,7 @@ p, li { white-space: pre-wrap; }
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
+  <slot>toggle_renormalize(bool)</slot>
   <slot>set_special_buffer_size(int)</slot>
   <slot>set_z_min(double)</slot>
   <slot>set_z_max(double)</slot>
