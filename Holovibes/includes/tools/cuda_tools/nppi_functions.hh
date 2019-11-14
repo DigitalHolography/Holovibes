@@ -39,7 +39,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_max_(T* image, NppiData& nppi_data, T* max)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -61,7 +62,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_max_index_(T* image, NppiData& nppi_data, T* max, int* max_x, int* max_y)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -83,7 +85,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_min_(T* image, NppiData& nppi_data, T* min)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -105,7 +108,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_min_index_(T* image, NppiData& nppi_data, T* min, int* min_x, int* min_y)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -127,7 +131,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_min_max_(T* image, NppiData& nppi_data, T* min, T* max)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -150,7 +155,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_get_min_max_index_(T* image, NppiData& nppi_data, T* min, NppiPoint* min_idx, T* max, NppiPoint* max_idx)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -173,7 +179,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_add_constant_(T* src, NppiData& nppi_data, T constant)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -198,7 +205,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_add_(T* img1, T* img2, NppiData& nppi_data)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -228,7 +236,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_sub_constant_(T* src, NppiData& nppi_data, T constant)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -253,7 +262,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_sub_(T* img1, T* img2, NppiData& nppi_data)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -283,7 +293,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_divide_by_constant_(T* src, NppiData& nppi_data, T constant)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -299,7 +310,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_divide_(T* img1, T* img2, NppiData& nppi_data)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -329,7 +341,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_multiply_by_constant_(T* src, NppiData& nppi_data, T constant)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -355,7 +368,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_multiply_(T* img1, T* img2, NppiData& nppi_data)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -385,7 +399,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_mean_(T* src, NppiData& nppi_data, double* mean)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -405,7 +420,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_high_pass_filter_(T* src, T* dst, NppiData& nppi_data, NppiMaskSize mask_size)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>
@@ -430,7 +446,8 @@ namespace holovibes
 			template <typename T>
 			NppStatus nppi_convolution_(T* src, T* dst, NppiData& nppi_data, T* kernel, NppiData& nppi_kernel_data)
 			{
-				static_assert(false);
+				std::cerr << "Cannot call non specialized template function" << std::endl;
+				abort();
 			}
 
 			template<>

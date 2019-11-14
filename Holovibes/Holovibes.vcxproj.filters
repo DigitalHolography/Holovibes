@@ -673,6 +673,9 @@
     <ClInclude Include="includes\tools\cuda_tools\nppi_functions.hh">
       <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
+    <ClInclude Include="includes\tools\chrono.hh">
+      <Filter>c++ includes\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
