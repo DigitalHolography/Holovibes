@@ -45,11 +45,10 @@ namespace holovibes
 		{
 			if (cd_.shift_corners_enabled)
 			{
-				uint size_x = buffers_.gpu_float_buffer_size_ / fd_.height;
 				fn_vect_.push_back([=]() {
 					shift_corners(
-						buffers_.gpu_float_buffer_.get(),
-						size_x,
+						buffers_.gpu_float_buffer_,
+						fd_.width,
 						fd_.height);
 				});
 			}

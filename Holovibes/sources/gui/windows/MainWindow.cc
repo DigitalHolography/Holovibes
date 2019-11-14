@@ -2909,9 +2909,9 @@ namespace holovibes
 
 				std::vector<float> convo_matrix(size, 0.0f);
 
-				for (size_t i = minw; i < maxw; i++)
+				for (size_t i = minh; i < maxh; i++)
 				{
-					for (size_t j = minh; j < maxh; j++)
+					for (size_t j = minw; j < maxw; j++)
 					{
 						convo_matrix[i * nx + j] = matrix[c];
 						c++;
