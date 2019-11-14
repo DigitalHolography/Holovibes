@@ -37,9 +37,10 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 */
 void convolution_kernel(float			*gpu_input,
 						float			*gpu_convolved_buffer,
+						cuComplex 		*cuComplex_buffer,
 						CufftHandle		*plan,
 						const uint		frame_width,
 						const uint		frame_height,
-						const float		*gpu_kernel,
+						const cuComplex	*gpu_kernel,
 						const bool		divide_convolution_enabled,
 						const bool		normalize_enabled);

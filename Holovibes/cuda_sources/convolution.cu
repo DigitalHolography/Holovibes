@@ -49,14 +49,15 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 	float sum = get_norm(gpu_kernel_buffer_, size);
 }
 
-void convolution_kernel(float		*gpu_input,
-	float			*gpu_convolved_buffer,
-	CufftHandle		*plan,
-	const uint		frame_width,
-	const uint		frame_height,
-	const float		*gpu_kernel,
-	const bool		divide_convolution_enabled,
-	const bool		normalize_enabled)
+void convolution_kernel(float				*gpu_input,
+						float				*gpu_convolved_buffer,
+						cuComplex	        *cuComplex_buffer,
+						CufftHandle			*plan,
+						const uint			frame_width,
+						const uint			frame_height,
+						const cuComplex		*gpu_kernel,
+						const bool			divide_convolution_enabled,
+						const bool			normalize_enabled)
 {
 	size_t size = frame_width * frame_height;
 
@@ -67,28 +68,20 @@ void convolution_kernel(float		*gpu_input,
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
 
-	holovibes::cuda_tools::UniquePtr<cuComplex> output_fft(size);
-	holovibes::cuda_tools::UniquePtr<cuComplex> output_kernel(size);
-	if (!output_fft || !output_kernel)
-	{
-		LOG_ERROR("Couldn't allocate buffers for convolution.\n");
-		return;
-	}
-
-	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_complex(size);
-	cudaMemset(tmp_complex.get(), 0, size * sizeof(cuComplex));
+	cudaMemset(cuComplex_buffer, 0, size * sizeof(cuComplex));
 	cudaCheckError();
-	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
-	cufftExecC2C(plan->get(), tmp_complex.get(), output_fft.get(), CUFFT_FORWARD);
+	cudaMemcpy2D(cuComplex_buffer, sizeof(cuComplex), gpu_input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+	//At this point, cuComplex_buffer is the same as the input
 
-	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
-	cufftExecC2C(plan->get(), tmp_complex.get(), output_kernel.get(), CUFFT_FORWARD);
+	cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_FORWARD);
+	//At this point, cuComplex_buffer is the FFT of the input
 
-	kernel_multiply_frames_complex << <blocks, threads >> > (output_fft, output_kernel, output_fft, static_cast<uint>(size));
+	kernel_multiply_frames_complex << <blocks, threads >> > (cuComplex_buffer, gpu_kernel, cuComplex_buffer, static_cast<uint>(size));
+	//At this point, cuComplex_buffer is the FFT of the input multiplied by the FFT of the kernel
 
-	cufftExecC2C(plan->get(), output_fft, output_fft, CUFFT_INVERSE);
+	cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_INVERSE);
 
-	kernel_complex_to_modulus << <blocks, threads >> > (output_fft, gpu_convolved_buffer, (uint)size);
+	kernel_complex_to_modulus << <blocks, threads >> > (cuComplex_buffer, gpu_convolved_buffer, (uint)size);
 
 	if (divide_convolution_enabled)
 		kernel_divide_frames_float << <blocks, threads >> > (gpu_input, gpu_convolved_buffer, gpu_input, static_cast<uint>(size));

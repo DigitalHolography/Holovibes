@@ -29,6 +29,8 @@ namespace holovibes
 			const camera::FrameDescriptor& input_fd,
 			ComputeDescriptor& cd)
 			: gpu_kernel_buffer_()
+			, cuComplex_buffer_()
+			, hsv_arr_()
 			, fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, fd_(input_fd)
@@ -36,40 +38,94 @@ namespace holovibes
 			, plan_(input_fd.width, input_fd.height, CUFFT_C2C)
 		{	
 			allocate_buffers();
-		}
+		} 
 
 		void Postprocessing::allocate_buffers()
 		{
-			if (cd_.convolution_enabled)
+			if (cd_.convolution_enabled_changed)
 			{
-				size_t size = cd_.convo_matrix.size();
+				if (cd_.convolution_enabled)
+				{
+					size_t width = fd_.width;
+					size_t height = fd_.height;
+					size_t frame_res = width * height;
 
-				gpu_kernel_buffer_.resize(size * sizeof(float));
-				cudaMemcpy(gpu_kernel_buffer_, cd_.convo_matrix.data(), sizeof(float) * size, cudaMemcpyHostToDevice);
-				shift_corners(gpu_kernel_buffer_, cd_.convo_matrix_width, cd_.convo_matrix_height);
-				
-				buffers_.gpu_convolution_buffer_.resize(fd_.frame_res() * sizeof(float));
+					//No need for memset here since it will be completely overwritten by cuComplex values
+					buffers_.gpu_convolution_buffer_.resize(frame_res);
+
+					//No need for memset here since it will be memset in the actual convolution
+					cuComplex_buffer_.resize(frame_res);
+
+					gpu_kernel_buffer_.resize(frame_res);
+					cudaMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
+					cudaMemcpy2D(gpu_kernel_buffer_.get(),
+								 sizeof(cuComplex),
+								 cd_.convo_matrix.data(),
+								 sizeof(float), sizeof(float),
+								 frame_res,
+								 cudaMemcpyHostToDevice);
+					//We compute the FFT of the kernel, once, here instead of every time the convolution subprocess is called
+					shift_corners(gpu_kernel_buffer_.get(), width, height);
+					cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD);
+
+					hsv_arr_.resize(frame_res * 3);
+
+					cd_.convolution_enabled_changed = false;
+				}
+				else
+				{
+					buffers_.gpu_convolution_buffer_.reset();
+					gpu_kernel_buffer_.reset();
+					cuComplex_buffer_.reset();
+					hsv_arr_.reset();
+				}
 			}
 		}
 
-		void Postprocessing::insert_convolution_composite()
+		void Postprocessing::convolution_composite()
 		{
-			float *tmp_hsv_arr;
-			cudaMalloc(&tmp_hsv_arr, sizeof(float) * fd_.frame_res() * 3);
-			cudaCheckError();
+			auto width = fd_.width;
+			auto height = fd_.height;
+			auto frame_res = width * height;
 
-			from_interweaved_components_to_distinct_components(buffers_.gpu_float_buffer_, tmp_hsv_arr, fd_.frame_res());
+			from_interweaved_components_to_distinct_components(buffers_.gpu_float_buffer_,
+															   hsv_arr_.get(),
+															   frame_res);
 
-			convolution_kernel(tmp_hsv_arr, buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
-				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
-			convolution_kernel(tmp_hsv_arr + fd_.frame_res() , buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
-				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
-			convolution_kernel(tmp_hsv_arr + (fd_.frame_res() * 2), buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
-				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
+			convolution_kernel(hsv_arr_.get(),
+							   buffers_.gpu_convolution_buffer_.get(),
+							   cuComplex_buffer_.get(),
+							   &plan_,
+							   width,
+							   height, 
+							   gpu_kernel_buffer_.get(),
+							   cd_.divide_convolution_enabled,
+							   true);
 
-			from_distinct_components_to_interweaved_components(tmp_hsv_arr, buffers_.gpu_float_buffer_, fd_.frame_res());
+			convolution_kernel(hsv_arr_.get() + frame_res,
+							   buffers_.gpu_convolution_buffer_.get(),
+							   cuComplex_buffer_.get(),
+							   &plan_,
+							   width,
+							   height, 
+							   gpu_kernel_buffer_.get(),
+							   cd_.divide_convolution_enabled,
+							   true);
 
-			cudaFree(tmp_hsv_arr);
+			convolution_kernel(hsv_arr_.get() + (frame_res * 2),
+							   buffers_.gpu_convolution_buffer_.get(),
+							   cuComplex_buffer_.get(),
+							   &plan_,
+							   width,
+							   height, 
+							   gpu_kernel_buffer_,
+							   cd_.divide_convolution_enabled,
+							   true);
+
+			from_distinct_components_to_interweaved_components(hsv_arr_.get(),
+															   buffers_.gpu_float_buffer_,
+															   frame_res);
+
 		}
 
 		void Postprocessing::insert_convolution()
@@ -81,12 +137,13 @@ namespace holovibes
 			{
 				fn_vect_.push_back([=]() {
 					convolution_kernel(
-						buffers_.gpu_float_buffer_,
-						buffers_.gpu_convolution_buffer_,
+						buffers_.gpu_float_buffer_.get(),
+						buffers_.gpu_convolution_buffer_.get(),
+						cuComplex_buffer_.get(),
 						&plan_,
 						fd_.width,
 						fd_.height,
-						gpu_kernel_buffer_,
+						gpu_kernel_buffer_.get(),
 						cd_.divide_convolution_enabled,
 						true);
 				});
@@ -94,7 +151,7 @@ namespace holovibes
 			else
 			{
 				fn_vect_.push_back([=]() {
-					insert_convolution_composite();
+					convolution_composite();
 				});
 			}
 		}

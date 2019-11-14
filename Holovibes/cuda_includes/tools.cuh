@@ -46,9 +46,14 @@ void kernel_apply_lens(cuComplex*		input,
  * \param stream The CUDA stream on which to launch the operation.
  */
 void shift_corners(float*		input,
-				const uint		size_x,
-				const uint		size_y,
-				cudaStream_t	stream = 0);
+				   const uint		size_x,
+				   const uint		size_y,
+				   cudaStream_t	stream = 0);
+				
+void shift_corners(cuComplex *input,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream = 0);
 
 /*! \brief Compute the log base-10 of every element of the input.
 *

@@ -52,11 +52,13 @@ namespace holovibes
 			void insert_convolution();
 
 		private:
-
+ 
 			//! used only when the image is composite convolution to do a convolution on each component
-			void insert_convolution_composite();
+			void convolution_composite();
 
-			cuda_tools::UniquePtr<float>		gpu_kernel_buffer_;
+			cuda_tools::UniquePtr<cuComplex>	gpu_kernel_buffer_;
+			cuda_tools::UniquePtr<cuComplex> 	cuComplex_buffer_;
+			cuda_tools::UniquePtr<float>        hsv_arr_;
 
 			// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
