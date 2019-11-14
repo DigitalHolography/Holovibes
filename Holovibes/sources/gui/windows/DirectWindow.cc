@@ -262,7 +262,14 @@ namespace holovibes
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 			void* frame = Qu->get_last_images(1);
 
-			convert_frame_for_display(frame, cuPtrToPbo, Fd.frame_res(), Fd.depth, Cd->compute_mode == Computation::Direct ? Cd->direct_bitshift.load() : 0);
+			if (Cd->img_type == ImgType::Composite)
+			{
+				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
+			}
+			else
+			{
+				convert_frame_for_display(frame, cuPtrToPbo, Fd.frame_res(), Fd.depth, Cd->compute_mode == Computation::Direct ? Cd->direct_bitshift.load() : 0);
+			}
 
 			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 			cudaStreamSynchronize(cuStream);
