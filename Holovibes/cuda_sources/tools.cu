@@ -60,16 +60,16 @@ namespace
 		uint	nindex = 0;
 
 		// Superior half of the matrix
-		const uint size_x2 = size_x >> 1;
-		const uint size_y2 = size_y >> 1;
-		if (j >= size_y2)
+		const uint size_x2 = size_x / 2;
+		const uint size_y2 = size_y / 2;
+		if (j < size_y2)
 		{
 			// Left superior quarter of the matrix
 			if (i < size_x2)
 				ni = i + size_x2;
 			else // Right superior quarter
 				ni = i - size_x2;
-			nj = j - size_y2;
+			nj = j + size_y2;
 			nindex = nj * size_x + ni;
 
 			T tmp = input[nindex];
@@ -86,7 +86,7 @@ namespace
 	{
 		uint threads_2d = get_max_threads_2d();
 		dim3 lthreads(threads_2d, threads_2d);
-		dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
 
 		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
 		cudaCheckError();
