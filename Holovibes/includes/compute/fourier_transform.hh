@@ -104,6 +104,7 @@ namespace holovibes
 
 			//! Roi zone of Filter 2D
 			units::RectFd					filter2d_zone_;
+			units::RectFd					filter2d_subzone_;
 
 			//! Lens used for fresnel transform (During FFT1 and FFT2)
 			cuda_tools::Array<cufftComplex>		gpu_lens_;

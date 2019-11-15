@@ -44,6 +44,7 @@ namespace holovibes
 			// -------
 			Autofocus,
 			Filter2D,
+			Filter2DSubZone,
 			Stabilization,
 			// scale bar
 			Scale,

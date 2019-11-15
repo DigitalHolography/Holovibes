@@ -366,6 +366,11 @@
                <string>High pass</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Band pass</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
