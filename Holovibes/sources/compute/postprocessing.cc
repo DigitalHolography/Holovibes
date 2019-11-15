@@ -70,15 +70,15 @@ namespace holovibes
 
 					hsv_arr_.resize(frame_res * 3);
 
-					cd_.convolution_enabled_changed = false;
 				}
 				else
 				{
 					buffers_.gpu_convolution_buffer_.reset();
-					gpu_kernel_buffer_.reset();
 					cuComplex_buffer_.reset();
+					gpu_kernel_buffer_.reset();
 					hsv_arr_.reset();
 				}
+				cd_.convolution_enabled_changed = false;
 			}
 		}
 

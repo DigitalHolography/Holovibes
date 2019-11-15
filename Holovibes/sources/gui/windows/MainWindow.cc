@@ -1620,12 +1620,12 @@ namespace holovibes
 				set_divide_convolution_mode(false);
 			}
 
+			compute_desc_.convolution_enabled_changed = compute_desc_.convolution_enabled != value;
+
 			ui.DivideConvoCheckBox->setEnabled(value);
 			compute_desc_.convolution_enabled = value;
 			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
-
-			compute_desc_.convolution_enabled_changed = true;
 
 			notify();
 		}
