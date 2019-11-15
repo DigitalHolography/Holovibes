@@ -1688,6 +1688,23 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::set_filter2D_type(const QString &filter2Dtype)
+		{
+			const std::string &type = filter2Dtype.toStdString();
+			if (type == "Low pass")
+			{
+				compute_desc_.filter_2d_type = Filter2DType::LowPass;
+			}
+			else if (type == "High pass")
+			{
+				compute_desc_.filter_2d_type = Filter2DType::HighPass;
+			}
+
+			std::cout << "yes or no" << std::endl;
+
+			notify();
+		}
+
 		void MainWindow::cancel_filter2D()
 		{
 			if (!is_direct_mode())

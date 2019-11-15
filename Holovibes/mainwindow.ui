@@ -346,6 +346,31 @@
           </layout>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_15">
+           <item>
+            <widget class="QLabel" name="Filter2DTypeLabel">
+             <property name="text">
+              <string>Filter2D type</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Filter2DTypeComboBox">
+             <item>
+              <property name="text">
+               <string>Low pass</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>High pass</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="2" column="0">
             <widget class="QLabel" name="nSizeLabel">
@@ -5597,38 +5622,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>Filter2DPushButton</sender>
-   <signal>pressed()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_filter2D()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>83</x>
-     <y>190</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CancelFilter2DPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cancel_filter2D()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>186</x>
-     <y>190</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>226</x>
-     <y>143</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SlidingRefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -7052,6 +7045,54 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Filter2DPushButton</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2D()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CancelFilter2DPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancel_filter2D()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DTypeComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2D_type(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7140,6 +7181,7 @@ p, li { white-space: pre-wrap; }
   <slot>reload_ini()</slot>
   <slot>set_feature()</slot>
   <slot>set_filter2D()</slot>
+  <slot>set_filter2D_type(Qstring)</slot>
   <slot>cancel_filter2D()</slot>
   <slot>take_sliding_ref()</slot>
   <slot>write_ini()</slot>

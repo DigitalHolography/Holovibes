@@ -139,6 +139,7 @@ namespace holovibes
 			void take_sliding_ref();
 			void cancel_take_reference();
 			void set_filter2D();
+			void set_filter2D_type(const QString &filter2Dtype);
 			void cancel_filter2D();
 			void setPhase();
 			void set_special_buffer_size(int value);

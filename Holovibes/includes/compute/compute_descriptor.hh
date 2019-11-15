@@ -72,6 +72,13 @@ namespace holovibes
 		Composite /**< Displays different frequency intervals on color RBG or HSV chanels*/
 	};
 
+	/*! \brief Type of filter for the Filter2D feature */
+	enum Filter2DType
+	{
+		LowPass,
+		HighPass
+	};
+
 	/*! \brief Describes the access mode of an accessor. */
 	enum AccessMode
 	{
@@ -314,6 +321,8 @@ namespace holovibes
 		std::atomic<int>			ref_diff_level;
 		//! allows to limit the computations to a selected zone
 		std::atomic<bool>			filter_2d_enabled;
+		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};
+
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled;
 		//! is gpu lens display activated
