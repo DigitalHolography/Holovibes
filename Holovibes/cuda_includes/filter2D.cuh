@@ -22,4 +22,5 @@ void filter2D(cuComplex				*input,
 			const cufftHandle		plan2d,
 			const holovibes::units::RectFd&	r,
 			const camera::FrameDescriptor&	fd,
+			const bool				exclude_roi,
 			cudaStream_t			stream = 0);

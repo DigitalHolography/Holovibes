@@ -21,7 +21,8 @@ void filter2D_roi(cuComplex	*input,
 				const uint	br_x,
 				const uint	br_y,
 				const uint	width,
-				const uint	size)
+				const uint	size,
+				const bool  exclude_roi)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -29,8 +30,11 @@ void filter2D_roi(cuComplex	*input,
 	if (index < size)
 	{
 		uint mod_index = index % width;
-		if (!(index >= tl_y * width && index < br_y * width
-			&& mod_index >= tl_x && mod_index < br_x))
+		bool inside_roi = (index >= tl_y * width && index < br_y * width
+						  && mod_index >= tl_x && mod_index < br_x);
+		//If exclude_roi is false, we want the condition to be equivalent to !inside_roi
+		//If exclude_roi is true, we went the condition to be equivalent to inside_roi
+		if (inside_roi == exclude_roi)
 		{
 			input[index] = make_cuComplex(0, 0);
 		}
@@ -43,6 +47,7 @@ void filter2D(cuComplex				*input,
 			const cufftHandle		plan2d,
 			const holovibes::units::RectFd&	r,
 			const FrameDescriptor&	desc,
+			const bool              exclude_roi,
 			cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
@@ -64,7 +69,8 @@ void filter2D(cuComplex				*input,
 		r.bottomRight().x(),
 		r.bottomRight().y(),
 		desc.width,
-		desc.width * desc.height);
+		desc.width * desc.height,
+		exclude_roi);
 	cudaCheckError();
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);

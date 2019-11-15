@@ -96,13 +96,15 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
+	bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
 	fn_vect_.push_back([=]() {
 		filter2D(
 			buffers_.gpu_input_buffer_,
 			gpu_filter2d_buffer_,
 			plan2d_,
 			filter2d_zone_,
-			fd_);
+			fd_,
+			exclude_roi);
 	});
 }
 
