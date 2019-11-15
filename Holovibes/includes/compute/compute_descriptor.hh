@@ -76,7 +76,8 @@ namespace holovibes
 	enum Filter2DType
 	{
 		LowPass,
-		HighPass
+		HighPass,
+		BandPass
 	};
 
 	/*! \brief Describes the access mode of an accessor. */
@@ -143,6 +144,8 @@ namespace holovibes
 		units::RectFd		autofocus_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		units::RectFd		stft_roi_zone;
+		/*! \brief	The subzone of the filter2D area in band-pass mode */
+		units::RectFd		filter2D_sub_zone;
 		/*! \brief	The area on which we'll normalize the colors*/
 		units::RectFd		composite_zone;
 		/*! \brief	The area on which we'll run the convolution to stabilize*/
@@ -187,6 +190,7 @@ namespace holovibes
 		 */
 
 		units::RectFd getStftZone() const;
+		units::RectFd getFilter2DSubZone() const;
 		units::RectFd getCompositeZone() const;
 		units::RectFd getStabilizationZone() const;
 		units::RectFd getZoomedZone() const;
@@ -200,6 +204,7 @@ namespace holovibes
 		 *
 		 */
 		void setStftZone(const units::RectFd& rect);
+		void setFilter2DSubZone(const units::RectFd& rect);
 		void setCompositeZone(const units::RectFd& rect);
 		void setStabilizationZone(const units::RectFd& rect);
 		void setZoomedZone(const units::RectFd& rect);

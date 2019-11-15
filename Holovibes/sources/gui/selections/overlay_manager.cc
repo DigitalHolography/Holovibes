@@ -21,6 +21,7 @@
 #include "stabilization_overlay.hh"
 #include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
+#include "filter2d_subzone_overlay.hh"
 #include "scale_overlay.hh"
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
@@ -57,6 +58,17 @@ namespace holovibes
 		{
 			if (!set_current(Filter2D))
 				create_overlay(std::make_shared<Filter2DOverlay>(parent_));
+		}
+
+		template<>
+		void OverlayManager::create_overlay<Filter2DSubZone>()
+		{
+			if (!set_current(Filter2DSubZone))
+			{
+				auto &filter2d_overlay = std::dynamic_pointer_cast<Filter2DOverlay>(current_overlay_);
+				create_overlay(std::make_shared<Filter2DSubZoneOverlay>(parent_));
+				std::dynamic_pointer_cast<Filter2DSubZoneOverlay>(overlays_.back())->setFilter2dOverlay(filter2d_overlay);
+			}
 		}
 
 		template <>
@@ -210,6 +222,8 @@ namespace holovibes
 					create_overlay<Signal>();
 				else if (current_overlay_->getKind() == Signal)
 					create_overlay<Noise>();
+				else if (current_overlay_->getKind() == Filter2D && parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
+					create_overlay<Filter2DSubZone>();
 				else if (current_overlay_->getKind() == Stabilization)
 					create_default();
 			}

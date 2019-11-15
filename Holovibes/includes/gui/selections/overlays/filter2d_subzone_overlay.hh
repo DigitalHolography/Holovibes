@@ -10,42 +10,30 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay ending the band-pass filtering ROI procedure. */
+#pragma once
+
+#include "square_overlay.hh"
+#include <memory>
 #include "filter2d_overlay.hh"
-#include "BasicOpenGLWindow.hh"
-#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
-			: SquareOverlay(KindOfOverlay::Filter2D, parent)
+		class Filter2DSubZoneOverlay : public SquareOverlay
 		{
-			color_ = { 0.f, 0.62f, 1.f };
-		}
+		public:
+			Filter2DSubZoneOverlay(BasicOpenGLWindow* parent);
 
-		void Filter2DOverlay::release(ushort frameSide)
-		{
-			checkCorners();
+			void release(ushort frameSide) override;
 
-			if (zone_.src() == zone_.dst())
-				return;
+			void setFilter2dOverlay(std::shared_ptr<Filter2DOverlay> rhs);
 
-			// handle Filter2D
-			auto window = dynamic_cast<HoloWindow *>(parent_);
-			if (window)
-			{
-				window->getCd()->setStftZone(zone_);
-				window->getPipe()->request_filter2D_roi_update();
-				window->getPipe()->request_filter2D_roi_end();
-				if (parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
-				{
-					//active_ = true;
-					return;
-				}
-			}
-
-			active_ = false;
-		}
+		private:
+			std::shared_ptr<Filter2DOverlay> filter2d_overlay_;
+		};
 	}
 }

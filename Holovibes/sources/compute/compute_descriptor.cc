@@ -154,6 +154,7 @@ namespace holovibes
 		noise_zone = cd.noise_zone;
 		autofocus_zone = cd.autofocus_zone;
 		stft_roi_zone = cd.stft_roi_zone;
+		filter2D_sub_zone = cd.filter2D_sub_zone;
 		return *this;
 	}
 
@@ -218,6 +219,18 @@ namespace holovibes
 	{
 		LockGuard g(mutex_);
 		stft_roi_zone = rect;
+	}
+
+	units::RectFd ComputeDescriptor::getFilter2DSubZone() const
+	{
+		LockGuard g(mutex_);
+		return filter2D_sub_zone;
+	}
+
+	void ComputeDescriptor::setFilter2DSubZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		filter2D_sub_zone = rect;
 	}
 
 	units::RectFd ComputeDescriptor::getCompositeZone() const

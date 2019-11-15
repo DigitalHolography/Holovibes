@@ -1690,17 +1690,22 @@ namespace holovibes
 
 		void MainWindow::set_filter2D_type(const QString &filter2Dtype)
 		{
-			const std::string &type = filter2Dtype.toStdString();
-			if (type == "Low pass")
+			const std::string &type_str = filter2Dtype.toStdString();
+			Filter2DType type = Filter2DType::LowPass;
+			if (type_str == "Low pass")
 			{
-				compute_desc_.filter_2d_type = Filter2DType::LowPass;
+				type = Filter2DType::LowPass;
 			}
-			else if (type == "High pass")
+			else if (type_str == "High pass")
 			{
-				compute_desc_.filter_2d_type = Filter2DType::HighPass;
+				type = Filter2DType::HighPass;
+			}
+			else if (type_str == "Band pass")
+			{
+				type = Filter2DType::BandPass;
 			}
 
-			std::cout << "yes or no" << std::endl;
+			compute_desc_.filter_2d_type = type;
 
 			notify();
 		}
