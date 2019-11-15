@@ -91,8 +91,6 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	normalize_frame(selected_y.get(), zone.area());
 
 
-	rotation_180(selected_y.get(), dimensions);
-
 	compute_convolution(selected_x.get(), selected_y.get(), convolution_.get());
 	cudaStreamSynchronize(0);
 }

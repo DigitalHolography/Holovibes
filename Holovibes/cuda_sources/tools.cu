@@ -177,6 +177,12 @@ void convolution_float(		const float			*a,
 	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get());
 	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get());
 	
+	cudaStreamSynchronize(0);
+
+	cudaMemset(tmp_a.get(), 0, sizeof(cuComplex));
+	cudaMemset(tmp_b.get(), 0, sizeof(cuComplex));
+
+	kernel_conjugate_complex <<<blocks, threads, 0, stream>>> (tmp_b.get(), size);
 
 	cudaStreamSynchronize(0);
 	cudaCheckError();
