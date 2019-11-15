@@ -200,6 +200,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v7.6.2
+
+* Stabilization: improve stabiliztaion algorithm (cross correlation)
+* Add image normalization option in postprocessing
+* Add different filter2D options (low/high/band pass)
+
 ### v7.6.1
 
 * Holovibes can now handle rectangular input

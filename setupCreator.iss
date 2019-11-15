@@ -7,7 +7,7 @@
 #define DestVersionDir "visualstudio"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.6.1"
+#define MyAppVersion "7.6.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
