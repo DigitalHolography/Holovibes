@@ -96,17 +96,34 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
-	bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
-	filter2d_subzone_ = cd_.getFilter2DSubZone();
-	fn_vect_.push_back([=]() {
-		filter2D(
-			buffers_.gpu_input_buffer_,
-			gpu_filter2d_buffer_,
-			plan2d_,
-			filter2d_zone_,
-			fd_,
-			exclude_roi);
-	});
+	if (cd_.filter_2d_type == Filter2DType::BandPass)
+	{
+		filter2d_subzone_ = cd_.getFilter2DSubZone();
+		fn_vect_.push_back([=](){
+			filter2D_BandPass(
+				buffers_.gpu_input_buffer_,
+				gpu_filter2d_buffer_,
+				plan2d_,
+				filter2d_zone_,
+				filter2d_subzone_,
+				fd_
+			);
+		});
+	}
+	else//Low pass or High pass
+	{
+		bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
+		fn_vect_.push_back([=]() {
+			filter2D(
+				buffers_.gpu_input_buffer_,
+				gpu_filter2d_buffer_,
+				plan2d_,
+				filter2d_zone_,
+				fd_,
+				exclude_roi);
+		});
+	}
+	
 }
 
 void FourierTransform::insert_fft1()
