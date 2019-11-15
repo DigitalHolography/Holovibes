@@ -15,6 +15,7 @@
 #include "rect.hh"
 #include "power_of_two.hh"
 #include "cufft_handle.hh"
+#include "nppi_functions.hh"
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -22,11 +23,13 @@
 #include "stabilization.cuh"
 #include "icompute.hh"
 #include "logger.hh"
+#include "nppi.h"
 
 
 using holovibes::compute::Stabilization;
 using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
+using holovibes::cuda_tools::UniquePtr;
 using holovibes::CoreBuffers;
 
 
@@ -38,6 +41,7 @@ Stabilization::Stabilization(FnVector& fn_vect,
 	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
+	, nppi_data_(fd.width, fd.height)
 {}
 
 void Stabilization::insert_post_img_type()
@@ -59,7 +63,7 @@ void Stabilization::insert_correlation()
 		auto zone = cd_.getStabilizationZone();
 		if (!zone.area())
 			return;
-		auto frame_res = fd_.frame_res();
+		nppi_data_.set_size(zone.width(), zone.height());
 		if (accumulation_queue_->get_current_elts())
 		{
 			if (!convolution_.ensure_minimum_size(zone.area()))
@@ -75,8 +79,8 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
 	QPoint dimensions{ zone.width(), zone.height() };
-	cuda_tools::UniquePtr<float> selected_x(size);
-	cuda_tools::UniquePtr<float> selected_y(size);
+	UniquePtr<float> selected_x(size);
+	UniquePtr<float> selected_y(size);
 	if (!selected_x || !selected_y)
 		return;
 
@@ -100,7 +104,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
 
-	// TODO: only allocate once when zone changes
 	CufftHandle plan2d_a(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_b(zone.height(), zone.width(), CUFFT_R2C);
 	CufftHandle plan2d_inverse(zone.height(), zone.width(), CUFFT_C2R);
@@ -126,11 +129,13 @@ void Stabilization::insert_extremums()
 		const auto frame_res = zone.area();
 		if (convolution_.is_large_enough(frame_res))
 		{
-			uint max = 0;
-			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
-			// x y: Coordinates of maximum of the correlation function
-			int x = max % zone.width();
-			int y = max / zone.width();
+			float max = 0;
+			int x = 0;
+			int y = 0;
+			
+			cuda_tools::nppi_get_max_index(convolution_.get(), nppi_data_, &max, &x, &y);
+
+			// (0, 0) is top left of image so we need to center it
 			if (x > zone.width() / 2)
 				x -= zone.width();
 			if (y > zone.height() / 2)

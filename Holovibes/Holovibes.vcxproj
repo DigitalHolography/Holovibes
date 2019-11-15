@@ -230,7 +230,10 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\holo_file.hh" />
     <ClInclude Include="includes\logger.hh" />
     <ClInclude Include="includes\stdafx.hh" />
+    <ClInclude Include="includes\tools\chrono.hh" />
     <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\nppi_data.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\nppi_functions.hh" />
     <ClInclude Include="includes\tools\json.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
@@ -542,6 +545,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     </ClCompile>
     <ClCompile Include="sources\thread\thread_recorder.cc" />
     <ClCompile Include="sources\tools\cuda_tools\cufft_handle.cc" />
+    <ClCompile Include="sources\tools\cuda_tools\nppi_data.cc" />
     <ClCompile Include="sources\tools\hardware_limits.cc" />
     <ClCompile Include="sources\tools\info_manager.cc" />
     <ClCompile Include="sources\tools\power_of_two.cc" />

@@ -18,6 +18,8 @@
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
 #include "hsv.cuh"
+#include "nppi_data.hh"
+#include "nppi_functions.hh"
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -154,6 +156,17 @@ namespace holovibes
 					convolution_composite();
 				});
 			}
+		}
+
+		void Postprocessing::insert_renormalize()
+		{
+			if (!cd_.renorm_enabled)
+				return;
+
+			fn_vect_.push_back([=]() {
+				cuda_tools::NppiData nppi_data(fd_.width, fd_.height);
+				cuda_tools::nppi_normalize(buffers_.gpu_float_buffer_.get(), nppi_data);
+			});
 		}
 	}
 }

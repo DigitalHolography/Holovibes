@@ -51,6 +51,11 @@ namespace holovibes
 			*/
 			void insert_convolution();
 
+			/** \brief Insert the normalization function.
+
+			*/
+			void insert_renormalize();
+
 		private:
  
 			//! used only when the image is composite convolution to do a convolution on each component
