@@ -110,7 +110,7 @@ with open(nfpath, 'wb') as new_file, open(fpath, 'rb') as file:
         data = file.read(2**21)
         if data:
             total += new_file.write(data)
-            print(f'\r{total / file_size:.2%}', end='')
+            print(f'\r{total / file_size:.2%}', end='', flush=True)
         else:
             print()
             break
