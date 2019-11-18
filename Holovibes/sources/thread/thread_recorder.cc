@@ -46,7 +46,7 @@ namespace holovibes
 		{
 			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 
-			queue_.flush();
+			queue_.clear();
 			progress_bar->setMaximum(n_images_);
 			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
 			recorder_.record(n_images_, json_settings_);

@@ -21,8 +21,8 @@ void make_contiguous_complex(Queue&			input,
 	cudaStream_t	stream)
 {
 	const uint				threads = get_max_threads_1d();
-	const uint				blocks = map_blocks_to_problem(input.get_pixels(), threads);
-	const uint				frame_resolution = input.get_pixels();
+	const uint				blocks = map_blocks_to_problem(input.get_frame_res(), threads);
+	const uint				frame_resolution = input.get_frame_res();
 	const FrameDescriptor&	frame_desc = input.get_frame_desc();
 
 	if (frame_desc.depth == 1)

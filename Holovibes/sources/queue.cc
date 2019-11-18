@@ -87,7 +87,7 @@ namespace holovibes
 		start_index_ = 0;
 	}
 
-	size_t Queue::get_size() const
+	size_t Queue::get_frame_size() const
 	{
 		return frame_size_;
 	}
@@ -102,7 +102,7 @@ namespace holovibes
 		return frame_desc_;
 	}
 
-	int Queue::get_pixels()
+	int Queue::get_frame_res()
 	{
 		return frame_resolution_;
 	}
@@ -248,7 +248,7 @@ namespace holovibes
 		}
 	}
 
-	void Queue::flush()
+	void Queue::clear()
 	{
 		MutexGuard mGuard(mutex_);
 
@@ -282,7 +282,7 @@ namespace holovibes
 
 	std::string Queue::calculate_size(void) const
 	{
-		std::string display_size = std::to_string((get_max_elts() * get_size()) >> 20); // get_size() / (1024 * 1024)
+		std::string display_size = std::to_string((get_max_elts() * get_frame_size()) >> 20); // get_size() / (1024 * 1024)
 		size_t pos = display_size.find(".");
 
 		if (pos != std::string::npos)
@@ -294,5 +294,4 @@ namespace holovibes
 	{
 		return mutex_;
 	}
-
 }

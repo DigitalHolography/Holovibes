@@ -59,7 +59,7 @@ namespace holovibes
 		{
 			af_env_.stft_index--;
 			// We have to compute dest outside the lambda, otherwise it will be evaluated when the lambda will be called.
-			auto dest = af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * input_.get_pixels();
+			auto dest = af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * input_.get_frame_res();
 			fn_vect_.push_back([=]() {make_contiguous_complex(input_, dest); });
 			if (af_env_.stft_index == 0)
 			{

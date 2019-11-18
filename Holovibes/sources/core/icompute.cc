@@ -95,7 +95,7 @@ namespace holovibes
 		}
 
 		int inembed[1];
-		int zone_size = input_.get_pixels();
+		int zone_size = input_.get_frame_res();
 			
 		inembed[0] = compute_desc_.nSize;
 		if (compute_desc_.croped_stft)
@@ -118,14 +118,14 @@ namespace holovibes
 			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
 		}
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
+		if (!buffers_.gpu_input_buffer_.resize(input_.get_frame_res()))
 			err++;
-		int output_buffer_size = input_.get_pixels();
+		int output_buffer_size = input_.get_frame_res();
 		if (compute_desc_.img_type == Composite)
 			output_buffer_size *= 3;
 		if (!buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
-		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
+		buffers_.gpu_float_buffer_size_ = input_.get_frame_res();
 		if (compute_desc_.img_type == ImgType::Composite)
 			buffers_.gpu_float_buffer_size_ *= 3;
 		if (!buffers_.gpu_float_buffer_.resize(buffers_.gpu_float_buffer_size_))
@@ -155,7 +155,7 @@ namespace holovibes
 			/* CUFFT plan1d realloc */
 			int inembed_stft[1] = { n };
 
-			int zone_size = input_.get_pixels();
+			int zone_size = input_.get_frame_res();
 			if (compute_desc_.croped_stft)
 				zone_size = compute_desc_.getZoomedZone().area();
 
@@ -163,7 +163,7 @@ namespace holovibes
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
-			stft_env_.gpu_stft_buffer_.resize(input_.get_pixels() * n);
+			stft_env_.gpu_stft_buffer_.resize(input_.get_frame_res() * n);
 		}
 
 		stft_env_.gpu_stft_queue_.reset();
@@ -198,7 +198,7 @@ namespace holovibes
 			return false;
 		}
 
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
+		if (!buffers_.gpu_input_buffer_.resize(input_.get_frame_res()))
 			return false;
 		notify_observers();
 		return true;

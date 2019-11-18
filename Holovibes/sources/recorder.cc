@@ -50,7 +50,7 @@ namespace holovibes
 
 	void Recorder::record(const unsigned int n_images, const json& json_settings)
 	{
-		const size_t size = queue_.get_size();
+		const size_t size = queue_.get_frame_size();
 		char* buffer = new char[size]();
 		size_t cur_size = queue_.get_current_elts();
 		const size_t max_size = queue_.get_max_elts();

@@ -265,7 +265,7 @@ namespace holovibes
 	void Pipe::exec()
 	{
 		if (global::global_config.flush_on_refresh)
-			input_.flush();
+			input_.clear();
 		while (!termination_requested_)
 		{
 			try

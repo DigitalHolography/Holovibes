@@ -57,7 +57,7 @@ namespace holovibes
 		~Queue();
 
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
-		size_t get_size() const;
+		size_t get_frame_size() const;
 
 		/*! \brief Empty the Queue and change its size.
 		**
@@ -72,7 +72,7 @@ namespace holovibes
 		const camera::FrameDescriptor& get_frame_desc() const;
 
 		/*! \return the size of one frame (i-e element) of the Queue in pixels. */
-		int get_pixels();
+		int get_frame_res();
 
 		/*! \return the cuda stream associated */
 		cudaStream_t get_stream() const;
@@ -144,7 +144,7 @@ namespace holovibes
 		void dequeue();
 
 		/*! Empties the Queue. */
-		void flush();
+		void clear();
 
 		/* allow us to choose if we want to display the queue or not */
 		void set_display(bool value);
