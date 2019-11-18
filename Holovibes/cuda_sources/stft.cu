@@ -181,7 +181,7 @@ void stft(cuComplex			*input,
 		else
 			cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD);
 	}
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 	cudaMemcpy(	input,
 				stft_buf + p * frame_size,
 				complex_frame_size,

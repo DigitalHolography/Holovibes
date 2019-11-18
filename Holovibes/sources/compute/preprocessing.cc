@@ -64,7 +64,6 @@ namespace holovibes
 		float Preprocessing::compute_current_intensity(cufftComplex* buffer_ptr, size_t nb_pixels)
 		{
 			float res = average_operator_from_complex(buffer_ptr, static_cast<uint>(nb_pixels));
-			cudaStreamSynchronize(0);
 			return res;
 		}
 

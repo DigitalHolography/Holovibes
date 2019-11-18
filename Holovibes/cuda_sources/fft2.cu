@@ -79,24 +79,27 @@ void fft_2(cuComplex			*input,
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
 
-	cudaStreamSynchronize(stream);
-
 	fft_2_dc(fd.width, frame_resolution, input, 0, stream);
+	
+	cudaStreamSynchronize(stream);
 
 	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
 
+	cudaStreamSynchronize(0);
+
 	kernel_apply_lens << <blocks, threads, 0, stream >> >(input, frame_resolution, lens, frame_resolution);
-	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
-
+	cudaCheckError();
 
 	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
+
+	cudaStreamSynchronize(0);
 
 	fft_2_dc(fd.width, frame_resolution, input, 1, stream);
 
 	kernel_complex_divide << <blocks, threads, 0, stream >> >(input, frame_resolution, static_cast<float>(frame_resolution));
-	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
+	cudaCheckError();
 }

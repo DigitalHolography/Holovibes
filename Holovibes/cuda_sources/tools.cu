@@ -179,14 +179,16 @@ void convolution_float(		const float			*a,
 	
 
 	cudaStreamSynchronize(0);
-	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 	cudaCheckError();
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 
 	cudaStreamSynchronize(stream);
+	cudaCheckError();
 
 	cufftExecC2R(plan2d_inverse, tmp_a.get(), out);
 
 	cudaStreamSynchronize(0);
+	cudaCheckError();
 
 	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
 	//cudaStreamSynchronize(stream);
@@ -224,7 +226,7 @@ void convolution_operator(	const cuComplex		*a,
 	free(abs_a);
 	free(abs_b);*/
 
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 	cudaCheckError();
 
@@ -232,7 +234,7 @@ void convolution_operator(	const cuComplex		*a,
 
 	cufftExecC2C(plan2d_a, tmp_a.get(), tmp_a.get(), CUFFT_INVERSE);
 
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 
 	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a.get(), out, size);
 	cudaCheckError();
@@ -452,7 +454,6 @@ float average_operator(const float	*input,
 		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
 	else
 		return 0.f;
-	cudaStreamSynchronize(stream);
 
 	// A SpanSize of 4 has been determined to be an optimal choice here.
 	kernel_sum <4> << <blocks, threads, 0, stream >> >(
@@ -460,7 +461,7 @@ float average_operator(const float	*input,
 		gpu_sum,
 		size);
 	cudaCheckError();
-	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 	cudaStreamSynchronize(stream);
 
 	cudaFree(gpu_sum);
@@ -482,7 +483,6 @@ float average_operator_from_complex(const cufftComplex *input,
 		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
 	else
 		return 0.f;
-	cudaStreamSynchronize(stream);
 
 	// A SpanSize of 4 has been determined to be an optimal choice here.
 	kernel_sum_of_real_parts <4> << <blocks, threads, 0, stream >> >(
@@ -490,8 +490,7 @@ float average_operator_from_complex(const cufftComplex *input,
 		gpu_sum,
 		size);
 	cudaCheckError();
-	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
-	cudaStreamSynchronize(stream);
+	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
 	cudaFree(gpu_sum);
 
@@ -755,9 +754,10 @@ void complex_translation(float		*frame,
 
 	kernel_translation<<<blocks, threads, 0, 0>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
 	cudaCheckError();
-	cudaStreamSynchronize(0);
 	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
+	cudaCheckError();
 	cudaFree(tmp_buffer);
+	cudaCheckError();
 }
 
 void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
@@ -773,13 +773,13 @@ void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
 	plan2d.plan(width, height, CUFFT_R2C);
 	cufftExecR2C(plan2d, a, tmp_a);
 	cufftExecR2C(plan2d, b, tmp_b);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
-	cudaStreamSynchronize(0);
+	cudaCheckError();
 
 	plan2d.plan(width, height, CUFFT_C2R);
+	cudaCheckError();
 
 	Array<cuComplex> complex_buffer(size);
 

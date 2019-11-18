@@ -87,7 +87,7 @@ void filter2D_BandPass(cuComplex				*input,
 	uint size = desc.width * desc.height;
 
 	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 
 	if (!zone.area() || !subzone.area())
 		return;
@@ -136,7 +136,7 @@ void filter2D(cuComplex				*input,
 	uint size = desc.width * desc.height;
 
 	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 
 	if (!r.area())
 		return;

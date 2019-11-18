@@ -77,11 +77,9 @@ void RemoveJitter::extract_and_fft(int slice_index, float* buffer)
 	const int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
 	cufftExecC2C(plan1d, in, tmp_array.get(), CUFFT_FORWARD);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	complex_to_modulus(tmp_array, buffer, nullptr, 0, 0, slice_size());
-	cudaStreamSynchronize(0);
 
 	normalize_frame(buffer, slice_size());
 
@@ -109,7 +107,6 @@ int RemoveJitter::maximum_y(float* frame)
 {
 	Array<float> line_averages(slice_depth_);
 	average_lines(frame, line_averages, dimensions_.width(), slice_depth_);
-	cudaStreamSynchronize(0);
 
 	float tmp[1024];
 	cudaMemcpy(tmp, line_averages.get(), slice_depth_ * sizeof(float), cudaMemcpyDeviceToHost);

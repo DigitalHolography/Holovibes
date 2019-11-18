@@ -104,20 +104,18 @@ void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 		cudaMemcpyAsync(tmp_complex_buffer.get() + i * chunk_width(), input, chunk_width() * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
 		input += fd_.width;
 	}
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	CufftHandle plan2d(chunk_width(), chunk_height(), CUFFT_C2C);
 	cufftExecC2C(plan2d, tmp_complex_buffer, tmp_complex_buffer, CUFFT_FORWARD);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	complex_to_modulus(tmp_complex_buffer, buffer, nullptr, 0, 0, chunk_area());
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	normalize_frame(buffer, chunk_area());
 	remove_borders(buffer, 2);
+	cudaStreamSynchronize(0);
 }
 
 void Aberration::remove_borders(float* buffer, const uint pixels_removed)

@@ -87,8 +87,6 @@ void zernike_lens(cuComplex*	lens,
 	kernel_compute_all_binomial_coeff << <1, 1, 0, stream >> > (binomial_coeffs, nb_coef);
 	cudaCheckError();
 
-	cudaStreamSynchronize(stream);
-
 	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, std::abs(zernike_m), zernike_n, zernike_m >= 0, binomial_coeffs, nb_coef);
 	cudaCheckError();
 }

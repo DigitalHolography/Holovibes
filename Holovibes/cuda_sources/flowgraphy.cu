@@ -69,12 +69,12 @@ void convolution_flowgraphy(cuComplex	*input,
 	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_resolution, threads);
 
-	cudaStreamSynchronize(stream);
 
 	if (gpu_special_queue_start_index == 0)
 		gpu_special_queue_start_index = gpu_special_queue_max_index - 1;
 	else
 		--gpu_special_queue_start_index;
+	cudaStreamSynchronize(0);
 	cudaMemcpy(
 		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,

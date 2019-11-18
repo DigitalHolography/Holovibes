@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				// Normal recording
 				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
-				cudaStreamSynchronize(0);
+				cudaStreamSynchronize(queue_.get_stream());
 				file_.write(buffer, size);
 				written_bytes = size;
 			}

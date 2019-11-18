@@ -85,7 +85,6 @@ float DetectIntensity::get_current_intensity()
 	buffer_ptr += nb_pixels * 3 / 8;
 	auto res = average_operator(buffer_ptr, nb_pixels / 4);
 
-	cudaStreamSynchronize(0);
 	return res;
 }
 

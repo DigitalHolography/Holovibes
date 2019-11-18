@@ -245,7 +245,6 @@ void postcolor_normalize(float *output,
 		zone,
 		sums_per_line);
 	cudaCheckError();
-	cudaStreamSynchronize(0);
 
 	blocks = map_blocks_to_problem(pixel_depth, threads);
 	kernel_average_float_array << <blocks, threads, 0, 0 >> > (sums_per_line,
@@ -254,18 +253,16 @@ void postcolor_normalize(float *output,
 		pixel_depth,
 		averages);
 	cudaCheckError();
-	cudaStreamSynchronize(0);
 
 	blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
 	kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
 	cudaCheckError();
-	cudaStreamSynchronize(0);
 	kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,
 		frame_res,
 		pixel_depth,
 		averages);
-	cudaCheckError();
 	cudaStreamSynchronize(0);
+	cudaCheckError();
 	cudaFree(averages);
 	cudaFree(sums_per_line);
 }

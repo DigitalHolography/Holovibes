@@ -259,16 +259,15 @@ void gpu_extremums(float			*input,
 		local_extr,
 		block_size,
 		size);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 	global_extremums << <1, 1, 0, 0 >> > (local_extr,
 		global_extr,
 		nb_blocks);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	struct extr_index extremum[2];
 	cudaMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
+	cudaCheckError();
 
 	cudaFree(local_extr);
 	cudaFree(global_extr);
@@ -340,7 +339,6 @@ void normalize_frame(float* frame, uint frame_res)
 	get_minimum_maximum_in_image(frame, frame_res, &min, &max);
 
 	gpu_substract_const(frame, frame_res, min);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 	gpu_multiply_const(frame, frame_res, 1 / (max - min));
 	cudaStreamSynchronize(0);

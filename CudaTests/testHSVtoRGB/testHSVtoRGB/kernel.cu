@@ -442,7 +442,6 @@ void normalize_frame(float* frame, uint frame_res)
 
 
 	gpu_substract_const(frame, frame_res, min);
-	cudaStreamSynchronize(0);
 	gpu_multiply_const(frame, frame_res, 1 / (max - min)); // need to be below 1 for some reason
 	cudaStreamSynchronize(0);
 }
@@ -506,15 +505,12 @@ void hsv(const cuComplex *input,
 		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, nb_img, step,
 			negative_origin, omega_arr_data);
 		kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (nb_img, omega_arr_data);
-		cudaStreamSynchronize(0);
 	}
 
 	kernel_compute_and_fill_hsv << <blocks, threads, 0, 0 >> > (input, output, frame_res,
 		index_min, index_max, index_max - index_min + 1, omega_arr_size, omega_arr_data);
-	cudaStreamSynchronize(0);
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (output, tmp_hsv_arr, frame_res);
-	cudaStreamSynchronize(0);
 
 
 	normalize_frame(tmp_hsv_arr, frame_res); // h
@@ -533,7 +529,6 @@ void hsv(const cuComplex *input,
 	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
-	cudaStreamSynchronize(0);
 	/*
 	gpu_multiply_const(output, frame_res * 3, 255);
 	cudaCheckError();
@@ -553,7 +548,6 @@ void hsv(const cuComplex *input,
 	*/
 
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
-	cudaStreamSynchronize(0);
 
 	gpu_multiply_const(output, frame_res * 3, 255 * 255);
 	cudaStreamSynchronize(0);
@@ -610,10 +604,6 @@ void open_image_to_test()
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (d_arr, d_arr2, frame_res);
 
 
-
-
-	cudaStreamSynchronize(0);
-
 	float min, max;
 	/*get_minimum_maximum_in_image(d_arr2, frame_res, &min, &max);
 	std::cout << "min is : " << min << "max is : " << max << std::endl;*/
@@ -634,7 +624,6 @@ void open_image_to_test()
 
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (d_arr2, d_arr, frame_res);
-	cudaStreamSynchronize(0);
 
 
 

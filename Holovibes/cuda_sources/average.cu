@@ -116,7 +116,6 @@ void zone_sum(const float *input,
 
 	// Average each line
 	kernel_zone_sum << <blocks, threads, 0, stream >> > (input, width, output_buf, zone.topLeft().x(), zone.topLeft().y(), zone.width(), zone.height());
-	cudaStreamSynchronize(stream);
 	cudaCheckError();
 	// Average of lines
 	kernel_compute_average_line << < 1, 1, 0, stream>> > (output_buf, 1, output);

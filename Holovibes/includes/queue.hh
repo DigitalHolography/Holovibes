@@ -74,6 +74,9 @@ namespace holovibes
 		/*! \return the size of one frame (i-e element) of the Queue in pixels. */
 		int get_pixels();
 
+		/*! \return the cuda stream associated */
+		cudaStream_t get_stream() const;
+
 		/*! \return the number of elements the Queue currently contains.
 		**  As this is the most used method, it is inlined here.
 		*/

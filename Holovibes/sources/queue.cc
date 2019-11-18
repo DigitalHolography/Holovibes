@@ -107,6 +107,11 @@ namespace holovibes
 		return frame_resolution_;
 	}
 
+	cudaStream_t Queue::get_stream() const
+	{
+		return stream_;
+	}
+
 	unsigned int Queue::get_max_elts() const
 	{
 		return max_elts_;
