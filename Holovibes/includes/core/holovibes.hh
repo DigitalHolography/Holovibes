@@ -143,8 +143,8 @@ namespace holovibes
 		}
 
 
-		/*! \brief Reset values related to convolution matrix */
-		void reset_convolution_matrix();
+		/*! \brief Clear values related to convolution matrix */
+		void clear_convolution_matrix();
 
 		/*! \brief Set ComputeDescriptor options
 		 *

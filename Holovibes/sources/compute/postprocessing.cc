@@ -66,7 +66,7 @@ namespace holovibes
 								 sizeof(float), sizeof(float),
 								 frame_res,
 								 cudaMemcpyHostToDevice);
-					//We compute the FFT of the kernel, once, here instead of every time the convolution subprocess is called
+					//We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
 					shift_corners(gpu_kernel_buffer_.get(), width, height);
 					cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD);
 
@@ -80,7 +80,7 @@ namespace holovibes
 					gpu_kernel_buffer_.reset();
 					hsv_arr_.reset();
 				}
-				cd_.convolution_enabled_changed = false;
+				cd_.convolution_enabled_changed = false; //Aknowledge signal from gui
 			}
 		}
 

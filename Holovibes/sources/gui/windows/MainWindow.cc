@@ -2877,7 +2877,7 @@ namespace holovibes
 			std::vector<float> matrix;
 			set_convolution_mode(false);
 			ui.ConvoCheckBox->setChecked(false);
-			holovibes_.reset_convolution_matrix();
+			holovibes_.clear_convolution_matrix();
 
 			try
 			{
@@ -2955,7 +2955,7 @@ namespace holovibes
 			}
 			catch (std::exception& e)
 			{
-				holovibes_.reset_convolution_matrix();
+				holovibes_.clear_convolution_matrix();
 				display_error("Couldn't load file\n" + std::string(e.what()));
 			}
 			notify();

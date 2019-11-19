@@ -151,13 +151,11 @@ namespace holovibes
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
 
-		Recorder* recorder = new Recorder(
-			*((tcompute_) ? output_ : input_),
+		Recorder recorder = Recorder(*((tcompute_) ? output_ : input_),
 			filepath);
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder->record(rec_n_images, HoloFile::get_json_settings(compute_desc_, get_output_queue()->get_frame_desc()));
-		delete recorder;
+		recorder.record(rec_n_images, HoloFile::get_json_settings(compute_desc_, get_output_queue()->get_frame_desc()));
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}
 
@@ -205,7 +203,7 @@ namespace holovibes
 		output_.reset(nullptr);
 	}
 
-	void Holovibes::reset_convolution_matrix()
+	void Holovibes::clear_convolution_matrix()
 	{
 		compute_desc_.convo_matrix_width = 0;
 		compute_desc_.convo_matrix_height = 0;
