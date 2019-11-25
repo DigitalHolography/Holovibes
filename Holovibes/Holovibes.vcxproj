@@ -491,6 +491,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\compute\remove_jitter.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\filter2d_subzone_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\rainbow_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\reticle_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc" />

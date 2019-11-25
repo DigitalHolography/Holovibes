@@ -383,6 +383,9 @@
     <ClCompile Include="sources\tools\cuda_tools\nppi_data.cc">
       <Filter>c++ sources\tools\cuda_tools</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\filter2d_subzone_overlay.cc">
+      <Filter>c++ sources\gui\selections\Overlays</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">

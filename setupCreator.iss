@@ -4,7 +4,7 @@
 ; CMake: build/Generator      VisualStudio: x64
 #define BuildDir "x64"
 ; Subdirectory to differenciate between CMake or VisualStudio install
-#define DestVersionDir "visualstudio"
+#define DestVersionDir "visual_studio"
 
 #define MyAppName "Holovibes"
 #define MyAppVersion "7.6.2"
@@ -133,6 +133,10 @@ Source: "{#QtPath}\Qt5Charts.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_101.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppc64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppial64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppif64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppist64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.4-0.3 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.2 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
