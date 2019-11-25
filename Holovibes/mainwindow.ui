@@ -4064,7 +4064,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -4152,6 +4152,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>PIKE F421</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionPixelfly">
    <property name="checkable">
@@ -4159,6 +4162,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>PCO Pixelfly</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionXIQ">
@@ -4296,10 +4302,16 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>ANDOR iXon + 885</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionEdge">
    <property name="text">
     <string>PCO Edge 4.2 LT</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionImport">
@@ -4373,6 +4385,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionPhotonFocus">
    <property name="text">
     <string>PHOTON FOCUS MV1-D1312IE-100-G2-12</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionMotionFocus">
