@@ -103,6 +103,8 @@ target_link_libraries("${PROJECT_NAME}"
     nppial
     nppif
     nppist
+    cublas
+    cusolver
 
     holocuda
 )

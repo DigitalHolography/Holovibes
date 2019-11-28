@@ -61,7 +61,9 @@ target_sources(Holovibes PRIVATE
     thread/thread_reader.cc
     thread/thread_recorder.cc
 
+    tools/cuda_tools/cublas_handle.cc
     tools/cuda_tools/cufft_handle.cc
+    tools/cuda_tools/cusolver_handle.cc
     tools/cuda_tools/nppi_data.cc
     tools/hardware_limits.cc
     tools/info_manager.cc
