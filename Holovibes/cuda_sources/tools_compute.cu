@@ -143,6 +143,33 @@ void substract_ref(cuComplex	*input,
 	cudaCheckError();
 }
 
+static __global__
+void kernel_subtract_frame_complex(cuComplex* img1,
+	cuComplex* img2,
+	cuComplex* out,
+	size_t frame_res)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index >= frame_res)
+		return;
+
+	out[index].x = img1[index].x - img2[index].x;
+	out[index].y = img1[index].y - img2[index].y;
+}
+
+void subtract_frame_complex(cuComplex* img1,
+	cuComplex* img2,
+	cuComplex* out,
+	size_t frame_res,
+	cudaStream_t stream)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_res, threads);
+	kernel_subtract_frame_complex <<<blocks, threads, 0, stream>>>(img1, img2, out, frame_res);
+	cudaCheckError();
+	cudaStreamSynchronize(stream);
+}
+
 __global__
 void kernel_mean_images(cuComplex	*input,
 						cuComplex	*output,

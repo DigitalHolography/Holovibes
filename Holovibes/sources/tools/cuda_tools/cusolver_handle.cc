@@ -2,19 +2,22 @@
 
 #include <cassert>
 
-namespace cuda_tools
+namespace holovibes
 {
-	bool CusolverHandle::initialized_ = false;
-	cusolverDnHandle_t CusolverHandle::handle_;
-
-	cusolverDnHandle_t& CusolverHandle::instance()
+	namespace cuda_tools
 	{
-		if (!initialized_)
+		bool CusolverHandle::initialized_ = false;
+		cusolverDnHandle_t CusolverHandle::handle_;
+
+		cusolverDnHandle_t& CusolverHandle::instance()
 		{
-			auto status = cusolverDnCreate(&handle_);
-			assert(status == CUSOLVER_STATUS_SUCCESS && "Could not create cusolver handle");
-			initialized_ = true;
+			if (!initialized_)
+			{
+				auto status = cusolverDnCreate(&handle_);
+				assert(status == CUSOLVER_STATUS_SUCCESS && "Could not create cusolver handle");
+				initialized_ = true;
+			}
+			return handle_;
 		}
-		return handle_;
 	}
 }

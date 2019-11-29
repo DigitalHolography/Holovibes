@@ -386,6 +386,12 @@
     <ClCompile Include="sources\gui\selections\overlays\filter2d_subzone_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
+    <ClCompile Include="sources\tools\cuda_tools\cublas_handle.cc">
+      <Filter>c++ sources\tools\cuda_tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\tools\cuda_tools\cusolver_handle.cc">
+      <Filter>c++ sources\tools\cuda_tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -678,6 +684,12 @@
     </ClInclude>
     <ClInclude Include="includes\tools\chrono.hh">
       <Filter>c++ includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\cublas_handle.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\cusolver_handle.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

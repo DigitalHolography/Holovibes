@@ -2,17 +2,20 @@
 
 #include <cublas_v2.h>
 
-namespace cuda_tools
+namespace holovibes
 {
-	class CublasHandle
+	namespace cuda_tools
 	{
-	public:
-		static cublasHandle_t& instance();
+		class CublasHandle
+		{
+		public:
+			static cublasHandle_t& instance();
 
-	private:
-		CublasHandle() = delete;
+		private:
+			CublasHandle() = delete;
 
-		static bool initialized_;
-		static cublasHandle_t handle_;
-	};
+			static bool initialized_;
+			static cublasHandle_t handle_;
+		};
+	}
 }

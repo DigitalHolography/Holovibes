@@ -2,19 +2,22 @@
 
 #include <cassert>
 
-namespace cuda_tools
+namespace holovibes
 {
-	bool CublasHandle::initialized_ = false;
-	cublasHandle_t CublasHandle::handle_;
-
-	cublasHandle_t& CublasHandle::instance()
+	namespace cuda_tools
 	{
-		if (!initialized_)
+		bool CublasHandle::initialized_ = false;
+		cublasHandle_t CublasHandle::handle_;
+
+		cublasHandle_t& CublasHandle::instance()
 		{
-			auto status = cublasCreate_v2(&handle_);
-			assert(status == CUBLAS_STATUS_SUCCESS && "Could not create cublas handle");
-			initialized_ = true;
+			if (!initialized_)
+			{
+				auto status = cublasCreate_v2(&handle_);
+				assert(status == CUBLAS_STATUS_SUCCESS && "Could not create cublas handle");
+				initialized_ = true;
+			}
+			return handle_;
 		}
-		return handle_;
 	}
 }

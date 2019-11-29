@@ -216,7 +216,8 @@ namespace holovibes
 		preprocess_->insert_ref();
 
 		fourier_transforms_->insert_fft();
-		fourier_transforms_->insert_stft();
+		// fourier_transforms_->insert_stft();
+		fourier_transforms_->insert_eigenvalue_filter();
 
 		aberration_->enqueue(fn_vect_);
 

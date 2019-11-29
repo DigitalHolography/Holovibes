@@ -2,17 +2,20 @@
 
 #include "cusolverDn.h"
 
-namespace cuda_tools
+namespace holovibes
 {
-	class CusolverHandle
+	namespace cuda_tools
 	{
-	public:
-		static cusolverDnHandle_t& instance();
+		class CusolverHandle
+		{
+		public:
+			static cusolverDnHandle_t& instance();
 
-	private:
-		CusolverHandle() = delete;
+		private:
+			CusolverHandle() = delete;
 
-		static bool initialized_;
-		static cusolverDnHandle_t handle_;
-	};
+			static bool initialized_;
+			static cusolverDnHandle_t handle_;
+		};
+	}
 }
