@@ -80,22 +80,24 @@
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionLibDir)\pco\SC2_Cam.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ixon\atmcd64d.dll" "$(TargetDir)"
-copy /Y "$(SolutionLibDir)\avt\FGCamera.dll" "$(TargetDir)"copy /Y "$(SolutionLibDir)\pixelink\lib\x64\PxLAPI40.lib" "$(TargetDir)"
+copy /Y "$(SolutionLibDir)\avt\FGCamera.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ximea\xiapi64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\hamamatsu\dcamapi.dll" "$(TargetDir)"
+copy /Y "$(SolutionLibDir)\pixelink\PxLAPI40.lib" "$(TargetDir)"
 
 copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
-copy /Y "$(ProjectDir)\pixelink.ini" "$(TargetDir)"copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\xib.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\photonfocus.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\hamamatsu.ini" "$(TargetDir)"
+copy /Y "$(ProjectDir)\pixelink.ini" "$(TargetDir)"
 
 copy /Y "$(ProjectDir)\Holovibes.ico" "$(TargetDir)"
 copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
@@ -139,6 +141,7 @@ copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ximea\xiapi64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 copy /Y "$(SolutionLibDir)\hamamatsu\dcamapi.dll" "$(TargetDir)"
+copy /Y "$(SolutionLibDir)\pixelink\PxLAPI40.lib" "$(TargetDir)"
 
 copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
@@ -150,6 +153,7 @@ copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\photonfocus.ini" "$(TargetDir)"
 copy /Y "$(ProjectDir)\hamamatsu.ini" "$(TargetDir)"
+copy /Y "$(ProjectDir)\pixelink.ini" "$(TargetDir)"
 
 copy /Y "$(ProjectDir)\Holovibes.ico" "$(TargetDir)"
 copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
