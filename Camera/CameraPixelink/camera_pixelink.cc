@@ -96,7 +96,7 @@ namespace camera
 
     void CameraPixelink::allocate_data_buffer()
     {
-        auto size = desc_.width * desc_.height * desc_.depth;
+        auto size = desc_.width * desc_.height * desc_.depth * 12;
         buffer_size_ = size;
         std::cout << "Allocation :" << std::endl
                   << "Width: " << desc_.width << std::endl
@@ -149,6 +149,8 @@ namespace camera
 
     void* CameraPixelink::get_frame()
     {
+        static int count = 0;
+        std::cout << "Count: " << count << std::endl;
         std::cout << "MARKER 1" << std::endl;
         std::cout << "buffer_size_ = " << buffer_size_ << std::endl;
         auto err_code = PxLGetNextFrame(device_, buffer_size_, static_cast<void*>(data_buffer_.get()), &PxL_fd_);
