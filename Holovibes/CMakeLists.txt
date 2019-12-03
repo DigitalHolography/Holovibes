@@ -149,6 +149,9 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/hamamatsu/dcamapi.dll"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/dcamapi.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${LIB_DIR}/pixelink/lib/x64/PxLAPI40.lib"
+        "${CMAKE_BINARY_DIR}/$<CONFIG>/PxLAPI40.lib"
 
     # Copy camera .ini configs
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -172,6 +175,9 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         "${HOLO_DIR}/pike.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/pike.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${HOLO_DIR}/pixelink.ini"
+        "${CMAKE_BINARY_DIR}/$<CONFIG>/pixelink.ini"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${HOLO_DIR}/ixon.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/ixon.ini"

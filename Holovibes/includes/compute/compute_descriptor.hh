@@ -41,6 +41,7 @@ namespace holovibes
 		Hamamatsu,
 		Pike,
 		Pixelfly,
+		Pixelink,
 		xiQ,
 		xiB,
 		PhotonFocus

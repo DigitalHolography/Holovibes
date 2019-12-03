@@ -66,6 +66,7 @@ Source: "{#BuildDir}\Release\CameraIds.dll"; DestDir: "{app}\{#MyAppVersion}\{#D
 Source: "{#BuildDir}\Release\CameraIxon.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\CameraPCOEdge.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\CameraPCOPixelfly.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#BuildDir}\Release\CameraPixelink.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\CameraPike.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\CameraPhotonFocus.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
@@ -86,6 +87,7 @@ Source: "{#BuildDir}\Release\ixon.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVe
 Source: "{#BuildDir}\Release\photonfocus.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#BuildDir}\Release\pixelink.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\xib.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\hamamatsu.ini"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion

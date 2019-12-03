@@ -62,6 +62,8 @@ namespace holovibes
 				camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
 			else if (c == CameraKind::Pixelfly)
 				camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
+			else if (c == CameraKind::Pixelink)
+				camera_ = camera::CameraDLL::load_camera("CameraPixelink.dll");
 			else if (c == CameraKind::xiQ)
 				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
 			else if (c == CameraKind::xiB)

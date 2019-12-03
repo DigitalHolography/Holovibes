@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include <windows.h>
+#include <iostream>
 
 #include "thread_capture.hh"
 #include "info_manager.hh"
@@ -55,7 +56,11 @@ namespace holovibes
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 		while (!stop_requested_)
 		{
-			queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
+            std::cout << "request frame" << std::endl;
+            auto frame = camera_.get_frame();
+            std::cout << "got frame" << std::endl;
+			queue_.enqueue(frame, cudaMemcpyHostToDevice);
+            std::cout << "enqueued frame" << std::endl;
 		}
 	}
 

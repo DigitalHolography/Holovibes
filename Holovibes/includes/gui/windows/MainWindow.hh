@@ -101,6 +101,7 @@ namespace holovibes
 			void camera_hamamatsu();
 			void camera_pike();
 			void camera_pixelfly();
+			void camera_pixelink();
 			void camera_xiq();
 			void camera_xib();
 			void camera_photon_focus();

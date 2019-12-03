@@ -1146,6 +1146,11 @@ namespace holovibes
 			change_camera(CameraKind::Pixelfly);
 		}
 
+		void MainWindow::camera_pixelink()
+		{
+			change_camera(CameraKind::Pixelink);
+		}
+
 		void MainWindow::camera_xiq()
 		{
 			change_camera(CameraKind::xiQ);

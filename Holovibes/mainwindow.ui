@@ -4064,7 +4064,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -4096,6 +4096,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
+     <addaction name="actionPixelink"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -4407,6 +4408,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionHamamatsu">
    <property name="text">
     <string>Hamamatsu C11440</string>
+   </property>
+  </action>
+  <action name="actionPixelink">
+   <property name="text">
+    <string>Pixelink</string>
    </property>
   </action>
  </widget>
@@ -7137,6 +7143,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPixelink</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pixelink()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
