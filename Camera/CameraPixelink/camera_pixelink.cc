@@ -87,6 +87,8 @@ namespace camera
 
             std::cout << "Connected to camera " << name_ << std::endl;
 
+            bind_params();
+
             return;
         }
 
@@ -96,13 +98,8 @@ namespace camera
 
     void CameraPixelink::allocate_data_buffer()
     {
-        auto size = desc_.width * desc_.height * desc_.depth * 12;
+        U32 size = desc_.width * desc_.height * desc_.depth;
         buffer_size_ = size;
-        std::cout << "Allocation :" << std::endl
-                  << "Width: " << desc_.width << std::endl
-                  << "Height: " << desc_.height << std::endl
-                  << "Depth: " << desc_.depth << std::endl
-                  << "Size: " << size << std::endl;
         data_buffer_.reset(new unsigned short[size]);
     }
 
@@ -149,24 +146,15 @@ namespace camera
 
     void* CameraPixelink::get_frame()
     {
-        static int count = 0;
-        std::cout << "Count: " << count++ << std::endl;
-        std::cout << "MARKER 1" << std::endl;
-        std::cout << "buffer_size_ = " << buffer_size_ << std::endl;
         auto err_code = PxLGetNextFrame(device_, buffer_size_, static_cast<void*>(data_buffer_.get()), &PxL_fd_);
         while (err_code == 0x9000000c)//Timeout
         {
-            std::cout << "Timed out" << std::endl;
             err_code = PxLGetNextFrame(device_, buffer_size_, static_cast<void*>(data_buffer_.get()), &PxL_fd_);
         }
-        std::cout << "MARKER 2" << std::endl;
         if (!API_SUCCESS(err_code))
         {
-            std::cout << "MARKER 2.5" << std::endl;
-            std::cout << "err: 0x" << std::hex << err_code << std::endl;
             throw CameraException(CameraException::CANT_GET_FRAME);
         }
-        std::cout << "MARKER 3" << std::endl;
 
         return static_cast<void *>(data_buffer_.get());
     }
