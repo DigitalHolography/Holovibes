@@ -135,7 +135,7 @@ namespace camera
     {
         try
         {
-            shutdown_camera();
+            stop_acquisition();
         }
         catch (CameraException&)
         {}
@@ -150,7 +150,7 @@ namespace camera
     void* CameraPixelink::get_frame()
     {
         static int count = 0;
-        std::cout << "Count: " << count << std::endl;
+        std::cout << "Count: " << count++ << std::endl;
         std::cout << "MARKER 1" << std::endl;
         std::cout << "buffer_size_ = " << buffer_size_ << std::endl;
         auto err_code = PxLGetNextFrame(device_, buffer_size_, static_cast<void*>(data_buffer_.get()), &PxL_fd_);
