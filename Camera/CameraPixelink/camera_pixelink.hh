@@ -60,10 +60,8 @@ namespace camera
         //https://support.pixelink.com/support/solutions/articles/3000044618-features
         float f_roi[4];
         float f_brightness;
-        float f_frame_rate;
         float f_pixel_addressing[2];
         float f_pixel_format;
         float f_shutter;
-        float f_trigger;
     };
 }

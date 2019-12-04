@@ -178,8 +178,6 @@ namespace camera
 
         f_brightness = 0.5f;//A percentage
 
-        f_frame_rate = 24.f;//Frame per second
-
         f_pixel_addressing[0] = 1.f;//"Scale"
         f_pixel_addressing[1] = 2.f;//Binning
 
@@ -200,8 +198,6 @@ namespace camera
         f_roi[1] = static_cast<float>(pt.get<long>("pixelink.roi_starty", 0));
         f_roi[2] = static_cast<float>(desc_.width);
         f_roi[3] = static_cast<float>(desc_.height);
-
-        f_brightness = pt.get<float>("pixelink.brightness", 0.5f);
 
         f_frame_rate = pt.get<float>("pixelink.frame_rate", 24.0);
 
@@ -249,17 +245,10 @@ namespace camera
             std::cout << "Failed to set camera feature FEATURE_ROI" << std::endl;
         }
 
-        err_code = PxLSetFeature(device_, FEATURE_BRIGHTNESS, FEATURE_FLAG_MANUAL, 1, &f_brightness);
-        if (!API_SUCCESS(err_code))
-        {
-            std::cout << "Failed to set camera feature FEATURE_BRIGHTNESS with value " << f_brightness << std::endl;
-        }
-
-        f_frame_rate = 200.f;
         err_code = PxLSetFeature(device_, FEATURE_FRAME_RATE, FEATURE_FLAG_MANUAL, 1, &f_frame_rate);
         if (!API_SUCCESS(err_code))
         {
-            std::cout << "Failed to set camera feature FEATURE_FRAME_RATE_ with value " << f_frame_rate << std::endl;
+            std::cout << "Failed to set camera feature FEATURE_FRAME_RATE_ with value " << f_frame_rate << " and error code 0x" << std::hex << err_code << std::endl;
         }
 
         err_code = PxLSetFeature(device_, FEATURE_PIXEL_ADDRESSING, FEATURE_FLAG_MANUAL, 2, f_pixel_addressing);
@@ -278,12 +267,6 @@ namespace camera
         if (!API_SUCCESS(err_code))
         {
             std::cout << "Failed to set camera feature FEATURE_SHUTTER" << std::endl;
-        }
-
-        err_code = PxLSetFeature(device_, FEATURE_TRIGGER, FEATURE_FLAG_MANUAL, 1, &f_trigger);
-        if (!API_SUCCESS(err_code))
-        {
-            std::cout << "Failed to set camera feature FEATURE_TRIGGER with value " << f_trigger << std::endl;
         }
     }
 
