@@ -200,6 +200,11 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v7.7
+
+* Camera PixelLink
+* Some camera debug
+
 ### v7.6.2
 
 * Stabilization: improve stabiliztaion algorithm (cross correlation)
