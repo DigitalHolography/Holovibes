@@ -176,7 +176,7 @@ namespace camera
         f_roi[2] = static_cast<float>(desc_.width);//Width of auto roi in pixels (must be integer)
         f_roi[3] = static_cast<float>(desc_.height);//Height of auto roi in pixels (must be integer)
 
-        f_brightness = 0.5f;//A percentage
+        f_frame_rate = 24.0;//Image per second
 
         f_pixel_addressing[0] = 1.f;//"Scale"
         f_pixel_addressing[1] = 2.f;//Binning
@@ -184,8 +184,6 @@ namespace camera
         f_pixel_format = static_cast<float>(PIXEL_FORMAT_BAYER16);
 
         f_shutter = exposure_time_ / 1000000.f;
-
-        f_trigger = 0.f;
     }
 
     void CameraPixelink::load_ini_params()
@@ -230,8 +228,6 @@ namespace camera
 
         exposure_time_ = static_cast<float>(pt.get<long>("pixelink.exposure_time", 50000));
         f_shutter = exposure_time_ / 1000000;
-
-        f_trigger = static_cast<float>(pt.get<int>("pixeling.trigger", 0));
     }
 
     void CameraPixelink::bind_params()
