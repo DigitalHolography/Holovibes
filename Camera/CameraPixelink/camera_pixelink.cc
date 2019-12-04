@@ -259,7 +259,7 @@ namespace camera
         err_code = PxLSetFeature(device_, FEATURE_FRAME_RATE, FEATURE_FLAG_MANUAL, 1, &f_frame_rate);
         if (!API_SUCCESS(err_code))
         {
-            std::cout << "Failed to set camera feature FEATURE_FRAME_RATE" << std::endl;
+            std::cout << "Failed to set camera feature FEATURE_FRAME_RATE_ with value " << f_frame_rate << std::endl;
         }
 
         err_code = PxLSetFeature(device_, FEATURE_PIXEL_ADDRESSING, FEATURE_FLAG_MANUAL, 2, f_pixel_addressing);
@@ -283,7 +283,7 @@ namespace camera
         err_code = PxLSetFeature(device_, FEATURE_TRIGGER, FEATURE_FLAG_MANUAL, 1, &f_trigger);
         if (!API_SUCCESS(err_code))
         {
-            std::cout << "Failed to set camera feature FEATURE_TRIGGER" << std::endl;
+            std::cout << "Failed to set camera feature FEATURE_TRIGGER with value " << f_trigger << std::endl;
         }
     }
 
