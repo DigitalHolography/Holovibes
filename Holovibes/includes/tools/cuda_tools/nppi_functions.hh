@@ -302,6 +302,12 @@ namespace holovibes
 			{
 				return nppiDivC_32f_C1IR(constant, image, nppi_data.get_step<float>(), nppi_data.get_size());
 			}
+
+			template<>
+			NppStatus nppi_divide_by_constant_<cuComplex>(cuComplex* image, NppiData& nppi_data, cuComplex constant)
+			{
+				return nppiDivC_32fc_C1IR(*((Npp32fc*)&constant), (Npp32fc*)image, nppi_data.get_step<cuComplex>(), nppi_data.get_size());
+			}
 #pragma endregion NPPI_DIVIDE_BY_CONSTANT
 
 			// nppi_divide

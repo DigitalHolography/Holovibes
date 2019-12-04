@@ -235,6 +235,18 @@ float average_operator_from_complex(const cufftComplex *input,
 					const uint		size,
 					cudaStream_t	stream = 0);
 
+/*! \brief Computes the average of every images in ``in`` and stores it in ``out``
+ *
+ * \param in Array of ``nb_frames`` images of size ``frame_res`` 
+ * \param out Image of size ``frame_res``
+ * \param frame_res Size of one image
+ * \param nb_frames Number of frames in ``in``
+ */
+void average_complex_images(const cuComplex* in,
+						    cuComplex* out,
+						    size_t frame_res,
+						    size_t nb_frames);
+
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.

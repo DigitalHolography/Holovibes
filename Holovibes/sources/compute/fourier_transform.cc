@@ -27,6 +27,7 @@
 
 #include "cublas_handle.hh"
 #include "cusolver_handle.hh"
+#include "nppi_functions.hh"
 
 using holovibes::compute::FourierTransform;
 using holovibes::compute::Autofocus;
@@ -271,22 +272,48 @@ void FourierTransform::compute_zernike(const float z)
 			cd_.zernike_factor);
 }
 
+void print_matrix(const char* name, cuComplex* matrix, unsigned rows, unsigned columns, bool column_major)
+{
+	std::cout << name << ": " << std::endl;
+	cuComplex* tmp = new cuComplex[rows * columns];
+	cudaMemcpy(tmp, matrix, rows * columns * sizeof(cuComplex), cudaMemcpyDeviceToHost);
+	for (unsigned y = 0; y < rows; ++y)
+	{
+		for (unsigned x = 0; x < columns; ++x)
+		{
+			if (column_major)
+			{
+				const cuComplex& val = tmp[x * rows + y];
+				std::printf("%f+%fi ", val.x, val.y);
+			}
+			else
+			{
+				const cuComplex& val = tmp[y * columns + x];
+				std::printf("%f+%fi ", val.x, val.y);
+			}
+		}
+		std::cout << ";" << std::endl;
+	}
+	std::cout << std::endl;
+	delete[] tmp;
+}
+
 void FourierTransform::insert_eigenvalue_filter()
 {
 	fn_vect_.push_back([=]() { 
-		cuComplex c;
-		c.x = 8000;
-		c.y = -700;
-
+		cuComplex val;
+		val.x = 8000;
+		val.y = -700;
 		for (unsigned i = 0; i < fd_.frame_res(); ++i)
 		{
-			cudaMemcpy(buffers_.gpu_input_buffer_.get() + i, &c, sizeof(cuComplex), cudaMemcpyHostToDevice);
+			cudaMemcpy(buffers_.gpu_input_buffer_.get() + i, &val, sizeof(cuComplex), cudaMemcpyHostToDevice);
 		}
 
-		queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
+		queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get());
+	});
 
 	fn_vect_.push_back([=]() { 
-	
+		cudaError_t cuda_status;
 		cublasStatus_t cublas_status;
 		cusolverStatus_t cusolver_status;
 
@@ -309,7 +336,8 @@ void FourierTransform::insert_eigenvalue_filter()
 				fd_.height,
 				stft_env_.gpu_stft_buffer_.get() + i * fd_.frame_res(),
 				fd_.height);
-			cudaDeviceSynchronize();
+			cuda_status = cudaDeviceSynchronize();
+			assert(cuda_status == cudaSuccess);
 			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose an image of gpu_stft_queue_");
 		}
 
@@ -331,23 +359,11 @@ void FourierTransform::insert_eigenvalue_filter()
 			&beta,
 			cov.get(),
 			cd_.nSize);
-		cudaDeviceSynchronize();
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
 		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "cov = H' * H failed");
 
-		std::cout << "cov: " << std::endl;;
-		cuComplex* print_cov = new cuComplex[cd_.nSize * cd_.nSize];
-		cudaMemcpy(print_cov, cov.get(), cd_.nSize * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToHost);
-		for (unsigned y = 0; y < cd_.nSize; ++y)
-		{
-			for (unsigned x = 0; x < cd_.nSize; ++x)
-			{
-				const cuComplex& val = print_cov[x * cd_.nSize + y];
-				std::printf("{%f,%f} ", val.x, val.y);
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-		delete[] print_cov;
+		print_matrix("cov", cov.get(), cd_.nSize, cd_.nSize, true);
 
 		// Setup eigen values parameters
 		cuda_tools::UniquePtr<float> W(cd_.nSize);
@@ -370,54 +386,56 @@ void FourierTransform::insert_eigenvalue_filter()
 			work.get(),
 			lwork,
 			dev_info.get());
-		cudaDeviceSynchronize();
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
 		assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not find eigen values / vectors of cov");
 
-		int info;
-		cudaMemcpy(&info, dev_info.get(), sizeof(int), cudaMemcpyDeviceToHost);
-		std::cout << "info: " << info << std::endl;
-
-		std::cout << "eigen values: ";
+		std::cout << "W: " << std::endl;
 		float* print_eigenvalues = new float[cd_.nSize];
 		cudaMemcpy(print_eigenvalues, W.get(), cd_.nSize * sizeof(float), cudaMemcpyDeviceToHost);
-		for (unsigned x = 0; x < cd_.nSize; ++x)
-		{
-			const float& val = print_eigenvalues[x];
-			std::printf("W{%.30f} ", val);
-		}
-		std::cout << std::endl;
-		delete[] print_eigenvalues;
-
-		std::cout << "eigen vectors: " << std::endl;
-		cuComplex* print_eigenvectors = new cuComplex[cd_.nSize * cd_.nSize];
-		cudaMemcpy(print_eigenvectors, cov.get(), cd_.nSize * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToHost);
 		for (unsigned y = 0; y < cd_.nSize; ++y)
 		{
 			for (unsigned x = 0; x < cd_.nSize; ++x)
 			{
-				const cuComplex& val = print_eigenvectors[x * cd_.nSize + y];
-				std::printf("{%f,%f} ", val.x, val.y);
+				if (x == y)
+				{
+					const float& val = print_eigenvalues[x];
+					std::printf("%.30f ", val);
+				}
+				else
+				{
+					std::printf("0.000 ");
+				}
 			}
-			std::cout << std::endl;
+			std::cout << ";" << std::endl;
 		}
 		std::cout << std::endl;
-		delete[] print_eigenvectors;
+		delete[] print_eigenvalues;
 
 		// eigen vectors
 		cuComplex* V = cov.get();
 
-		cudaMemset(V, 0, (cd_.nSize * cd_.pindex + cd_.pindex) * sizeof(cuComplex));
+		// Filtering the eigenvector matrix according to p and p_acc
+		/* cudaMemset(V, 0, (cd_.nSize * cd_.pindex + cd_.pindex) * sizeof(cuComplex));
 		cuComplex* ptr = V + (cd_.nSize * cd_.pindex + cd_.pindex);
 		for (unsigned i = 0; i < cd_.p_acc_level - 1; ++i)
 		{
 			cudaMemset(ptr + cd_.p_acc_level, 0, (cd_.nSize - cd_.p_acc_level) * sizeof(cuComplex));
 			ptr += cd_.nSize;
 		}
-		cudaMemset(ptr + cd_.p_acc_level, 0, (cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) + cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex));
+		cudaMemset(ptr + cd_.p_acc_level, 0, (cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) + cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex)); */
 
+		print_matrix("V", V, cd_.nSize, cd_.nSize, true);
 		
+		cudaMemset(V, 0, cd_.pindex * cd_.nSize * sizeof(cuComplex));
+		cudaMemset(V + cd_.pindex * cd_.nSize + cd_.p_acc_level * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex));
+
+		print_matrix("V filtered", V, cd_.nSize, cd_.nSize, true);
+
 		cuda_tools::UniquePtr<cuComplex> tmp(cd_.nSize * cd_.nSize);
 		
+		print_matrix("H", H, fd_.frame_res(), cd_.nSize, true);
+
 		// tmp = V * V'
 		cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
 			CUBLAS_OP_N,
@@ -433,8 +451,11 @@ void FourierTransform::insert_eigenvalue_filter()
 			&beta,
 			tmp.get(),
 			cd_.nSize);
-		cudaDeviceSynchronize();
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
 		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "tmp = V * V' failed");
+
+		print_matrix("tmp", tmp.get(), cd_.nSize, cd_.nSize, true);
 
 		cuda_tools::UniquePtr<cuComplex> H_noise(cd_.nSize * fd_.frame_res());
 
@@ -453,12 +474,22 @@ void FourierTransform::insert_eigenvalue_filter()
 			&beta,
 			H_noise.get(),
 			fd_.frame_res());
-		cudaDeviceSynchronize();
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
 		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H_noise = H * tmp failed");
 
+		print_matrix("H_noise", H_noise.get(), fd_.frame_res(), cd_.nSize, true);
+
 		subtract_frame_complex(H, H_noise.get(), H, fd_.frame_res() * cd_.nSize);
-		
-		cublas_status = cublasCgeam(cuda_tools::CublasHandle::instance(),
+
+		average_complex_images(H, buffers_.gpu_input_buffer_.get(), fd_.frame_res(), cd_.nSize);
+		cudaDeviceSynchronize();
+		auto nppi_data = cuda_tools::NppiData(fd_.height, fd_.width);
+		cuComplex constant = { static_cast<float>(cd_.nSize), 0 };
+		cuda_tools::nppi_divide_by_constant(buffers_.gpu_input_buffer_.get(), nppi_data, constant);
+		cudaDeviceSynchronize();
+
+		/* cublas_status = cublasCgeam(cuda_tools::CublasHandle::instance(),
 			CUBLAS_OP_T,
 			CUBLAS_OP_N,
 			fd_.height,
@@ -471,33 +502,32 @@ void FourierTransform::insert_eigenvalue_filter()
 			fd_.height,
 			buffers_.gpu_input_buffer_.get(),
 			fd_.height);
-		cudaDeviceSynchronize();
-		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose final image");
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
+		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose final image"); */
+		/* cublas_status = cublasCgeam(cuda_tools::CublasHandle::instance(),
+			CUBLAS_OP_T,
+			CUBLAS_OP_N,
+			fd_.width,
+			fd_.height,
+			&alpha,
+			buffers_.gpu_input_buffer_.get(),
+			fd_.width,
+			&beta,
+			H,
+			fd_.width,
+			buffers_.gpu_input_buffer_.get(),
+			fd_.height);
+		cuda_status = cudaDeviceSynchronize();
+		assert(cuda_status == cudaSuccess);
+		std::cout << "status: " << (unsigned)cublas_status << std::endl;
+		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose final image"); */
+
+		// print_matrix("OUTPUT", buffers_.gpu_input_buffer_.get(), fd_.height, fd_.width, false);
 
 		 /*cudaMemcpy(buffers_.gpu_input_buffer_.get(),
 			H + cd_.pindex * fd_.frame_size(),
 			fd_.frame_size() * sizeof(cuComplex),
 			cudaMemcpyDeviceToDevice); */
-
-		/* cuComplex* tmp = new cuComplex[cd_.nSize * cd_.nSize];
-		cudaMemcpy(tmp, cov.get(), cd_.nSize * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToHost);
-		for (unsigned y = 0; y < cd_.nSize; ++y)
-		{
-			for (unsigned x = 0; x < cd_.nSize; ++x)
-			{
-				const cuComplex& val = tmp[x * cd_.nSize + y];
-				if (val.x != 0 || val.y != 0)
-				{
-					std::printf("X ");
-				}
-				else
-				{
-					std::printf("O ");
-				}
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl; */
-	
 	});
 }

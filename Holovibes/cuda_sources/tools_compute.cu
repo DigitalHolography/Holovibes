@@ -153,8 +153,11 @@ void kernel_subtract_frame_complex(cuComplex* img1,
 	if (index >= frame_res)
 		return;
 
-	out[index].x = img1[index].x - img2[index].x;
-	out[index].y = img1[index].y - img2[index].y;
+	float x = img1[index].x - img2[index].x;
+	float y = img1[index].y - img2[index].y;
+
+	out[index].x = x;
+	out[index].y = y;
 }
 
 void subtract_frame_complex(cuComplex* img1,

@@ -503,6 +503,40 @@ float average_operator_from_complex(const cufftComplex *input,
 	return cpu_sum /= static_cast<float>(size);
 }
 
+static __global__
+void kernel_average_complex_images(const cuComplex* in,
+								   cuComplex* out,
+								   size_t frame_res,
+								   size_t nb_frames)
+{
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index >= frame_res)
+		return;
+
+	out[index].x = 0;
+	out[index].y = 0;
+	for (size_t i = 0; i < nb_frames; ++i)
+	{
+		cuComplex val = in[i * frame_res + index];
+		out[index].x += val.x;
+		out[index].y += val.y;
+	}
+}
+
+void average_complex_images(const cuComplex* in,
+							cuComplex* out,
+							size_t frame_res,
+							size_t nb_frames)
+{
+	size_t threads = get_max_threads_1d();
+	size_t blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_average_complex_images<<<blocks, threads>>>(in, out, frame_res, nb_frames);
+	cudaCheckError();
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+}
+
 void phase_increase(const cuComplex			*cur,
 					UnwrappingResources		*resources,
 					const size_t			image_size)
