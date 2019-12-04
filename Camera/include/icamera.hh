@@ -35,7 +35,7 @@ namespace camera
    */
 
   /*! Timeout value in ms for a camera to get a frame. */
-  static int FRAME_TIMEOUT = 10000;
+  static int FRAME_TIMEOUT = 100000;
 
   //! Abstract interface for all cameras.
   /*! # Interface
