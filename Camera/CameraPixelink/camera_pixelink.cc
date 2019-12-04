@@ -153,6 +153,7 @@ namespace camera
         }
         if (!API_SUCCESS(err_code))
         {
+            std::cout << "Failed to get frame with error : 0x" << std::hex << err_code << std::endl;
             throw CameraException(CameraException::CANT_GET_FRAME);
         }
 
@@ -164,7 +165,7 @@ namespace camera
         desc_.width = 1280;
         desc_.height = 1024;
         desc_.depth = 2;
-        desc_.byteEndian = Endianness::LittleEndian;
+        desc_.byteEndian = Endianness::BigEndian;
 
         pixel_size_ = 6.5f;
 
@@ -205,15 +206,12 @@ namespace camera
         f_frame_rate = pt.get<float>("pixelink.frame_rate", 24.0);
 
         f_pixel_addressing[0] = static_cast<float>(pt.get<int>("pixelink.pixel_addressing_value", 1));
+        desc_.width /= f_pixel_addressing[0];
+        desc_.height /= f_pixel_addressing[0];
         f_pixel_addressing[1] = static_cast<float>(pt.get<int>("pixelink.pixel_addressing_mode", 2));
 
         std::string pixel_format = pt.get<std::string>("pixelink.pixel_format");
-        if (pixel_format == "YUV422")
-        {
-            f_pixel_format = PIXEL_FORMAT_YUV422;
-            desc_.depth = 1;
-        }
-        else if (pixel_format == "BAYER8")
+        if (pixel_format == "BAYER8")
         {
             f_pixel_format = PIXEL_FORMAT_BAYER8;
             desc_.depth = 1;
@@ -223,9 +221,15 @@ namespace camera
             f_pixel_format = PIXEL_FORMAT_BAYER16;
             desc_.depth = 2;
         }
+        else if (pixel_format == "YUV422")
+        {
+            f_pixel_format = PIXEL_FORMAT_YUV422;
+            desc_.depth = 2;
+        }
         else
         {
             std::cout << "Unsupported pixel format " << pixel_format << std::endl;
+            std::cout << "Defaulting to BAYER16" << std::endl;
         }
 
         exposure_time_ = static_cast<float>(pt.get<long>("pixelink.exposure_time", 50000));
@@ -248,7 +252,7 @@ namespace camera
         err_code = PxLSetFeature(device_, FEATURE_BRIGHTNESS, FEATURE_FLAG_MANUAL, 1, &f_brightness);
         if (!API_SUCCESS(err_code))
         {
-            std::cout << "Failed to set camera feature FEATURE_BRIGHTNESS" << std::endl;
+            std::cout << "Failed to set camera feature FEATURE_BRIGHTNESS with value " << f_brightness << std::endl;
         }
 
         f_frame_rate = 200.f;
