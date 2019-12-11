@@ -82,7 +82,7 @@ target_include_directories("${PROJECT_NAME}"
 if(COMMAND target_precompile_headers)
     target_precompile_headers("${PROJECT_NAME}"
         PUBLIC
-        "stdafx.hh"
+        "includes/stdafx.hh"
     )
 endif()
 
