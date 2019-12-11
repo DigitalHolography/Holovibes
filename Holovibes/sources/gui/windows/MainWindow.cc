@@ -1078,6 +1078,7 @@ namespace holovibes
 			close_windows();
 			close_critical_compute();
 			remove_infos();
+
 			if (c != CameraKind::NONE)
 			{
 				try
@@ -1086,7 +1087,9 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
-					
+
+					set_camera_timeout(); 
+
 					//Needed for correct read of SquareInputMode during allocation of buffers
 					set_computation_mode();
 					set_correct_square_input_mode();
@@ -1334,6 +1337,11 @@ namespace holovibes
 			{
 				compute_desc_.square_input_mode = get_square_input_mode_from_string(ui.SquareInputModeComboBox->currentText().toStdString());
 			}
+		}
+
+		void MainWindow::set_camera_timeout()
+		{
+			camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 		}
 
 		void MainWindow::set_square_input_mode(const QString &name)
