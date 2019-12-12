@@ -46,12 +46,19 @@ namespace holovibes
 		PhotonFocus
 	};
 
-	/*! \brief	Rendering mode for Hologram */
+	/*! \brief	Rendering mode for Hologram (Space filter) */
 	enum Algorithm
 	{
 		None, /**< Nothing Applied */
 		FFT1, /**< Fresnel Transform */
 		FFT2  /**< Angular spectrum propagation */
+	};
+
+	/*! \brief	Time filtering algorithm to apply */
+	enum TimeFilter
+	{
+		STFT,
+		SVD
 	};
 
 	/*! \bried	Input processes */
@@ -233,6 +240,8 @@ namespace holovibes
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;
+		//! Time filter to apply in hologram mode
+		std::atomic<TimeFilter>		time_filter;
 		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode;
 		//! Square conversion mode of the input

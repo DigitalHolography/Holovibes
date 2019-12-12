@@ -216,8 +216,15 @@ namespace holovibes
 		preprocess_->insert_ref();
 
 		fourier_transforms_->insert_fft();
-		// fourier_transforms_->insert_stft();
-		fourier_transforms_->insert_eigenvalue_filter();
+		if (compute_desc_.time_filter == TimeFilter::STFT)
+		{
+			fourier_transforms_->insert_stft();
+		}
+		else if (compute_desc_.time_filter == TimeFilter::SVD)
+		{
+			LOG_WARN("The SVD time filter is still work in progress and does not currently work");
+			fourier_transforms_->insert_eigenvalue_filter();
+		}
 
 		aberration_->enqueue(fn_vect_);
 
@@ -225,7 +232,6 @@ namespace holovibes
 
 		postprocess_->insert_convolution();
 		postprocess_->insert_renormalize();
-		//TODO : apply convolution to XZ YZ cuts
 
 		stabilization_->insert_post_img_type();
 

@@ -395,6 +395,7 @@ namespace holovibes
 			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
+			ui.TimeAlgorithmComboBox->setEnabled(!is_direct);
 			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.nSizeSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
 			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
@@ -2201,6 +2202,18 @@ namespace holovibes
 					compute_desc_.algorithm = Algorithm::None;
 					LOG_ERROR("Unknown algorithm: " + value.toStdString() + ", falling back to None");
 				}
+				set_holographic_mode();
+			}
+		}
+
+		void MainWindow::set_time_filter(QString value)
+		{
+			if (!is_direct_mode())
+			{
+				if (value == "STFT")
+					compute_desc_.time_filter = TimeFilter::STFT;
+				else if (value == "SVD")
+					compute_desc_.time_filter = TimeFilter::SVD;
 				set_holographic_mode();
 			}
 		}

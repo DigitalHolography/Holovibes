@@ -18,6 +18,7 @@ namespace holovibes
 
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
 		algorithm(Algorithm::None),
+		time_filter(TimeFilter::STFT),
 		compute_mode(Computation::Stop),
 		nSize(1),
 		pindex(0),
@@ -99,6 +100,7 @@ namespace holovibes
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
 		algorithm = cd.algorithm.load();
+		time_filter = cd.time_filter.load();
 		compute_mode = cd.compute_mode.load();
 		nSize = cd.nSize.load();
 		pindex = cd.pindex.load();
