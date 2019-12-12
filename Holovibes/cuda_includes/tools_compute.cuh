@@ -115,15 +115,24 @@ void kernel_substract_ref(cuComplex				*input,
 
 /*! \brief  substract the pixels value of a reference image to another
 *
-* The images to multiply should have the same size.
-* The result is given in output.
-* Output should have the same size of inputs.
+* The images to subtract should have the same size.
+* The result is given in input.
 */
 void substract_ref(cuComplex	*input,
 				cuComplex		*reference,
 				const uint		frame_resolution,
 				const uint		nframes,
 				cudaStream_t	stream = 0);
+
+/*! \brief Subtract a complex img from another one
+*
+* out = img1 - img2
+*/
+void subtract_frame_complex(cuComplex* img1,
+				   	  cuComplex* img2,
+					  cuComplex* out,
+					  size_t frame_res,
+					  cudaStream_t	stream = 0);
 
 /* \brief  Compute the mean of several images from output. The result image is put into output*/
 void mean_images(cuComplex		*input,

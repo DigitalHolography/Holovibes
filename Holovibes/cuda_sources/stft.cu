@@ -11,6 +11,9 @@
 /* **************************************************************************** */
 
 #include "stft.cuh"
+
+#include <cassert>
+
 #include "remove_jitter.hh"
 
 using holovibes::ImgType;
@@ -189,6 +192,7 @@ void stft(cuComplex			*input,
 
 	if (p != q)
 	{
+		assert(!"If this happens remove this assert, the code seems broken and useless");
 		cudaMemcpy(	input + frame_size,
 					stft_buf + q * frame_size,
 					complex_frame_size,

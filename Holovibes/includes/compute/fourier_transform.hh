@@ -66,6 +66,11 @@ namespace holovibes
 			
 			*/
 			std::unique_ptr<Queue>& get_lens_queue();
+			
+			/*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
+					   This should eventually replace stft
+			*/
+			void insert_eigenvalue_filter();
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
 			

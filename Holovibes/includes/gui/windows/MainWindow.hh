@@ -184,6 +184,7 @@ namespace holovibes
 			void decrement_z();
 			void set_z_step(double value);
 			void set_algorithm(QString value);
+			void set_time_filter(QString value);
 			void set_crop_stft(bool b);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
