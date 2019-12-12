@@ -720,6 +720,8 @@ namespace holovibes
 
 				compute_desc_.direct_bitshift = ptree.get<ushort>("image_rendering.direct_bitshift", compute_desc_.direct_bitshift);
 
+				compute_desc_.stft_steps = ptree.get<int>("image_rendering.stft_steps", compute_desc_.stft_steps);
+
 				// View
 				view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
 
@@ -868,6 +870,7 @@ namespace holovibes
 			ptree.put<double>("image_rendering.z_step", z_step_);
 			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", compute_desc_.algorithm);
 			ptree.put<ushort>("image_rendering.direct_bitshift", compute_desc_.direct_bitshift);
+			ptree.put<ushort>("image_rendering.stft_steps", compute_desc_.stft_steps);
 
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
