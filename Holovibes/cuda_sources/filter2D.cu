@@ -96,16 +96,16 @@ void filter2D_BandPass(cuComplex				*input,
 	
 	kernel_filter2D_BandPass << <blocks, threads, 0, stream >> >(
 		input,
-		zone.x(),
-		zone.y(),
+		zone.topLeft().x(),
+		zone.topLeft().y(),
 		zone.bottomRight().x(),
 		zone.bottomRight().y(),
-		subzone.x(),
-		subzone.y(),
+		subzone.topLeft().x(),
+		subzone.topLeft().y(),
 		subzone.bottomRight().x(),
 		subzone.bottomRight().y(),
 		desc.width,
-		desc.width * desc.height);
+		size);
 	cudaCheckError();
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
@@ -145,12 +145,12 @@ void filter2D(cuComplex				*input,
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
-		r.x(),
-		r.y(),
+		r.topLeft().x(),
+		r.topLeft().y(),
 		r.bottomRight().x(),
 		r.bottomRight().y(),
 		desc.width,
-		desc.width * desc.height,
+		size,
 		exclude_roi);
 	cudaCheckError();
 
