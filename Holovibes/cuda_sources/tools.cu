@@ -521,6 +521,8 @@ void kernel_average_complex_images(const cuComplex* in,
 		out[index].x += val.x;
 		out[index].y += val.y;
 	}
+	out[index].x /= nb_frames;
+	out[index].y /= nb_frames;
 }
 
 void average_complex_images(const cuComplex* in,
