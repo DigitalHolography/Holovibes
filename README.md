@@ -26,12 +26,13 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 ### Developpers Setup ###
 
 * Make sure the following software is installed:
-    * Visual Studio 2017
-    * CUDA 10 or 10.1 (AFTER installing visual Studio)
+    * CUDA 10 or 10.1
     * Qt 5.9
-    * QT VS TOOLS (Usefull Visual studio add-on)
     * Boost 1.71.0 (if building with CMake ; fetched from NuGet in VS)
     * Doxywizard (optionnal, usefull to manipulate 'doxygen_config' file)
+    * CMake 3.16.1
+    * (old) Visual Studio 2017
+    * (old) QT VS TOOLS (Usefull Visual studio add-on)
 * Make sure the following environment variables are set:
     * `QTDIR` pointing to something like `C:\Qt\Qt5.x.x\5.x.x\msvc2017_64\`
 * Make sure your path contains:
@@ -44,7 +45,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### IDE ###
 
-* Visual Studio 2017 Community 15.6.7 OR Visual Studio 2019
+* Visual Studio 2017 Community 15.6.7 OR Visual Studio 2017 / 2019
 
 ### CUDA ###
 
@@ -199,6 +200,13 @@ To let the versioning tool consistent, you have to respect these rules.
 * Git names conventions
 
 ## Changelog ##
+
+### 7.8
+
+* (WIP) Add SVD as a time filter mode
+* stft_steps is now in holovibes.ini
+* Camera now use FRAME_TIMEOUT from holovibes.ini
+* Change CMakeLists.txt to make it compatible with CMake 3.16.1
 
 ### v7.7
 
