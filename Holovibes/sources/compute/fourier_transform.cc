@@ -390,8 +390,8 @@ void FourierTransform::insert_eigenvalue_filter()
 		cuComplex* V = cov.get();
 
 		// Filtering the eigenvector matrix according to p and p_acc
-		// cudaMemset(V, 0, cd_.pindex * cd_.nSize * sizeof(cuComplex));
-		// cudaMemset(V + cd_.pindex * cd_.nSize + cd_.p_acc_level * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex));
+		cudaMemset(V, 0, cd_.pindex * cd_.nSize * sizeof(cuComplex));
+		cudaMemset(V + cd_.pindex * cd_.nSize + cd_.p_acc_level * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex));
 
 		cuda_tools::UniquePtr<cuComplex> tmp(cd_.nSize * cd_.nSize);
 		

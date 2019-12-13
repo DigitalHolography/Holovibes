@@ -21,6 +21,7 @@
 #include "composite.cuh"
 #include "hsv.cuh"
 #include "debug_img.cuh"
+#include "tools_compute.cuh"
 #include "logger.hh"
 
 namespace holovibes
@@ -60,6 +61,14 @@ namespace holovibes
 				insert_to_argument(unwrap_2d_requested);
 			else if (cd_.img_type == PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
+
+			if (cd_.time_filter == TimeFilter::SVD)
+			{
+				fn_vect_.push_back([=]() {
+					// Multiply frame by (2 ^ 16) - 1 in case of SVD
+					gpu_multiply_const(buffers_.gpu_float_buffer_, fd_.frame_res(), (2 << 16) - 1);
+				});
+			}
 		}
 
 		void Converts::insert_to_ushort()
