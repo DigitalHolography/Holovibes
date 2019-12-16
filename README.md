@@ -83,6 +83,18 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## For developpers
 
+### Building and running the code ###
+
+* Have cmake 3.16.1 installed
+* Run `./build.py [OPTIONS]` in the main directory
+    * `./build.py` or `./build.py D`: debug mode
+    * `./build.py R`: release mode
+    * `./build.py [Gen]`: uses `Gen` as a generator (Ninja by default)
+* Run `./run.py [OPTIONS]` to run the code
+    * `./run.py` or `./run.py D`: run in debug mode
+    * `./run.py R`: run in release mode
+* Alternatively you can use Visual Studio 2019's CMake feature by selecting the right CMake version
+
 ### Coding style ###
 
 * use Allman coding style
@@ -200,6 +212,11 @@ To let the versioning tool consistent, you have to respect these rules.
 * Git names conventions
 
 ## Changelog ##
+
+### 7.8.1
+
+* Fix SVD, it actually displays images now
+* Remove useless filename informations when recording
 
 ### 7.8
 
