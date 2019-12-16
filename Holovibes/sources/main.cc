@@ -44,56 +44,6 @@ void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context
 
 int main(int argc, char* argv[])
 {
-	 /* float A[] = { 1, 3, 2, 4 };
-	float B[] = { 0, 0, 2, 0 };
-	float C[] = { 0, 0, 0, 0 };
-
-	float* A_dev;
-	cudaMalloc(&A_dev, 4 * sizeof(float));
-	cudaMemcpy(A_dev, A, 4 * sizeof(float), cudaMemcpyHostToDevice);
-	float* B_dev;
-	cudaMalloc(&B_dev, 4 * sizeof(float));
-	cudaMemcpy(B_dev, B, 4 * sizeof(float), cudaMemcpyHostToDevice);
-	float* C_dev;
-	cudaMalloc(&C_dev, 4 * sizeof(float));
-	cudaMemcpy(C_dev, C, 4 * sizeof(float), cudaMemcpyHostToDevice);
-
-	float alpha = 1;
-	float* alpha_dev;
-	cudaMalloc(&alpha_dev, sizeof(float));
-	cudaMemcpy(alpha_dev, &alpha, sizeof(float), cudaMemcpyHostToDevice);
-	float beta = 1;
-	float* beta_dev;
-	cudaMalloc(&beta_dev, sizeof(float));
-	cudaMemcpy(beta_dev, &beta, sizeof(float), cudaMemcpyHostToDevice);
-
-	cublasSgemm_v2(cuda_tools::CublasHandle::instance(), CUBLAS_OP_T, CUBLAS_OP_T, 2, 2, 2, &alpha, A_dev, 2, B_dev, 2, &beta, C_dev, 2);
-	
-	cudaDeviceSynchronize();
-	cudaStreamSynchronize(0);
-
-	cudaMemcpy(A, A_dev, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-	cudaMemcpy(B, B_dev, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-	cudaMemcpy(C, C_dev, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-
-	for (unsigned i = 0; i < 4; ++i)
-	{
-		std::cout << A[i] << " ";
-	}
-	std::cout << "\n";
-	for (unsigned i = 0; i < 4; ++i)
-	{
-		std::cout << B[i] << " ";
-	}
-	std::cout << "\n";
-	for (unsigned i = 0; i < 4; ++i)
-	{
-		std::cout << C[i] << " ";
-	}
-	std::cout << "\n"; */
-
-	// return 0;
-
 	// Custom Qt message handler
 	qInstallMessageHandler(qt_output_message_handler);
 
