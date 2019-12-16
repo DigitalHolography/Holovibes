@@ -32,7 +32,7 @@ namespace holovibes
 		log_scale_slice_xy_enabled(false),
 		log_scale_slice_xz_enabled(false),
 		log_scale_slice_yz_enabled(false),
-		shift_corners_enabled(false),
+		fft_shift_enabled(false),
 		contrast_enabled(false),
 		convolution_enabled(false),
 		divide_convolution_enabled(false),
@@ -112,7 +112,7 @@ namespace holovibes
 		log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
 		log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
 		log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
-		shift_corners_enabled = cd.shift_corners_enabled.load();
+		fft_shift_enabled = cd.fft_shift_enabled.load();
 		contrast_enabled = cd.contrast_enabled.load();
 		convolution_enabled = cd.convolution_enabled.load();
 		filter_2d_enabled = cd.filter_2d_enabled.load();

@@ -19,7 +19,7 @@ namespace holovibes
 	namespace gui
 	{
 		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
-			: SquareOverlay(KindOfOverlay::Filter2D, parent)
+			: RectOverlay(KindOfOverlay::Filter2D, parent)
 		{
 			color_ = { 0.f, 0.62f, 1.f };
 		}

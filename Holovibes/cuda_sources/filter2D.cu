@@ -93,20 +93,24 @@ void filter2D_BandPass(cuComplex				*input,
 		return;
 	//int center_x = (r.x + r.bottom_right.x) >> 1;
 	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
+
+	shift_corners(input, desc.width, desc.height);
 	
 	kernel_filter2D_BandPass << <blocks, threads, 0, stream >> >(
 		input,
-		zone.x(),
-		zone.y(),
+		zone.topLeft().x(),
+		zone.topLeft().y(),
 		zone.bottomRight().x(),
 		zone.bottomRight().y(),
-		subzone.x(),
-		subzone.y(),
+		subzone.topLeft().x(),
+		subzone.topLeft().y(),
 		subzone.bottomRight().x(),
 		subzone.bottomRight().y(),
 		desc.width,
-		desc.width * desc.height);
+		size);
 	cudaCheckError();
+
+	shift_corners(input, desc.width, desc.height);
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
@@ -142,17 +146,21 @@ void filter2D(cuComplex				*input,
 		return;
 	//int center_x = (r.x + r.bottom_right.x) >> 1;
 	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
+
+	shift_corners(input, desc.width, desc.height);
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
-		r.x(),
-		r.y(),
+		r.topLeft().x(),
+		r.topLeft().y(),
 		r.bottomRight().x(),
 		r.bottomRight().y(),
 		desc.width,
-		desc.width * desc.height,
+		size,
 		exclude_roi);
 	cudaCheckError();
+
+	shift_corners(input, desc.width, desc.height);
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 

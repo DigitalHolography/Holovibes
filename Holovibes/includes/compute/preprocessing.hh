@@ -67,6 +67,7 @@ namespace holovibes
 			
 			*/
 			void insert_ref();
+
 			/*
 				\brief Compute the intensity of an image.
 			*/

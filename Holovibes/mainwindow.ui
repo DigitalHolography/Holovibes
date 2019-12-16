@@ -1224,16 +1224,6 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QCheckBox" name="FFTShiftCheckBox">
-             <property name="toolTip">
-              <string>shifts zero-frequency components to the center of the spectrum</string>
-             </property>
-             <property name="text">
-              <string>FFT shift</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="1">
             <widget class="QCheckBox" name="squarePixel_checkBox">
              <property name="text">
@@ -1241,17 +1231,27 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QCheckBox" name="RawDisplayingCheckBox">
              <property name="text">
               <string>Raw view</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QCheckBox" name="LensViewCheckBox">
              <property name="text">
               <string>Lens view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="FFTShiftCheckBox">
+             <property name="toolTip">
+              <string>shifts zero-frequency components to the center of the spectrum</string>
+             </property>
+             <property name="text">
+              <string>FFT shift</string>
              </property>
             </widget>
            </item>
@@ -4480,7 +4480,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>PhaseUnwrap2DCheckBox</tabstop>
   <tabstop>STFTCutsCheckBox</tabstop>
-  <tabstop>FFTShiftCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
@@ -5929,7 +5928,7 @@ p, li { white-space: pre-wrap; }
    <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_shifted_corners(bool)</slot>
+   <slot>set_fft_shift(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -7215,7 +7214,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_max(double)</slot>
   <slot>invert_contrast(bool)</slot>
   <slot>set_log_scale(bool)</slot>
-  <slot>set_shifted_corners(bool)</slot>
+  <slot>set_fft_shift(bool)</slot>
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
   <slot>set_record_frame_step(int)</slot>

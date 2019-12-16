@@ -43,7 +43,7 @@ namespace holovibes
 
 		void Rendering::insert_fft_shift()
 		{
-			if (cd_.shift_corners_enabled)
+			if (cd_.fft_shift_enabled)
 			{
 				fn_vect_.push_back([=]() {
 					shift_corners(
