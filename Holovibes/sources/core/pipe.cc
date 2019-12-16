@@ -215,8 +215,6 @@ namespace holovibes
 		preprocess_->insert_interpolation();
 		preprocess_->insert_ref();
 
-		preprocess_->insert_pre_fft_shift();
-
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 

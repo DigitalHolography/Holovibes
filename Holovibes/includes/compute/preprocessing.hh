@@ -68,11 +68,6 @@ namespace holovibes
 			*/
 			void insert_ref();
 
-			/** \brief Shifts the corners of the image
-
-			 */
-			void insert_pre_fft_shift();
-
 			/*
 				\brief Compute the intensity of an image.
 			*/

@@ -106,7 +106,8 @@ void FourierTransform::insert_filter2d()
 				plan2d_,
 				filter2d_zone_,
 				filter2d_subzone_,
-				fd_
+				fd_,
+				cd_.pre_fft_shift_enabled
 			);
 		});
 	}
@@ -120,7 +121,8 @@ void FourierTransform::insert_filter2d()
 				plan2d_,
 				filter2d_zone_,
 				fd_,
-				exclude_roi);
+				exclude_roi,
+				cd_.pre_fft_shift_enabled);
 		});
 	}
 	
