@@ -98,6 +98,20 @@ namespace holovibes
 				fn_vect_.push_back([=]() {handle_sliding_reference(); });
 		}
 
+		void Preprocessing::insert_pre_fft_shift()
+		{
+			if (cd_.pre_fft_shift_enabled)
+			{
+				fn_vect_.push_back([=](){
+					shift_corners(
+						buffers_.gpu_input_buffer_,
+						fd_.width,
+						fd_.height
+					);
+				});
+			}
+		}
+
 		void Preprocessing::handle_reference()
 		{
 			if (ref_diff_state_ == ENQUEUE)

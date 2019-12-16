@@ -316,8 +316,10 @@ namespace holovibes
 		std::atomic<bool>			log_scale_slice_xz_enabled;
 		//! is log scale in slice YZ enabled
 		std::atomic<bool>			log_scale_slice_yz_enabled;
+		//!is pre shift fft enabled
+		std::atomic<bool>			pre_fft_shift_enabled;
 		//! is shift fft enabled (switching representation diagram)
-		std::atomic<bool>			shift_corners_enabled;
+		std::atomic<bool>			post_fft_shift_enabled;
 		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
 		//! enable the limitation of the stft to the zoomed area.
