@@ -316,11 +316,8 @@ namespace holovibes
 			ui.ContrastCheckBox->setEnabled(true);
 
 			// FFT shift
-			ui.PreFFTShiftCheckBox->setChecked(compute_desc_.pre_fft_shift_enabled);
-			ui.PreFFTShiftCheckBox->setEnabled(true);
-
-			ui.PostFFTShiftCheckBox->setChecked(compute_desc_.post_fft_shift_enabled);
-			ui.PostFFTShiftCheckBox->setEnabled(true);
+			ui.FFTShiftCheckBox->setChecked(compute_desc_.fft_shift_enabled);
+			ui.FFTShiftCheckBox->setEnabled(true);
 
 			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
@@ -734,8 +731,7 @@ namespace holovibes
 				compute_desc_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
 				compute_desc_.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled);
 
-				compute_desc_.pre_fft_shift_enabled = ptree.get<bool>("view.pre_fft_shift_enabled", compute_desc_.pre_fft_shift_enabled);
-				compute_desc_.post_fft_shift_enabled = ptree.get<bool>("view.post_fft_shift_enabled", compute_desc_.post_fft_shift_enabled);
+				compute_desc_.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", compute_desc_.fft_shift_enabled);
 
 				compute_desc_.contrast_enabled = ptree.get<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
 				compute_desc_.contrast_threshold_low_percentile = ptree.get<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
@@ -879,8 +875,7 @@ namespace holovibes
 			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled);
 			ptree.put<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
 			ptree.put<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled);
-			ptree.put<bool>("view.pre_fft_shift_enabled", compute_desc_.pre_fft_shift_enabled);
-			ptree.put<bool>("view.post_fft_shift_enabled", compute_desc_.post_fft_shift_enabled);
+			ptree.put<bool>("view.fft_shift_enabled", compute_desc_.fft_shift_enabled);
 			ptree.put<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
 			ptree.put<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
 			ptree.put<float>("view.contrast_threshold_high_percentile", compute_desc_.contrast_threshold_high_percentile);
@@ -1704,8 +1699,7 @@ namespace holovibes
 				mainDisplay->getOverlayManager().create_overlay<Filter2D>();
 				ui.Filter2DPushButton->setStyleSheet("QPushButton {color: #009FFF;}");
 				compute_desc_.log_scale_slice_xy_enabled = true;
-				//compute_desc_.pre_fft_shift_enabled = false;
-				//compute_desc_.post_fft_shift_enabled = false;
+				compute_desc_.fft_shift_enabled = true;
 				compute_desc_.filter_2d_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
 					pipe->autocontrast_end_pipe(XYview);
@@ -1755,20 +1749,11 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_pre_fft_shift(const bool value)
+		void MainWindow::set_fft_shift(const bool value)
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.pre_fft_shift_enabled = value;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_post_fft_shift(const bool value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.post_fft_shift_enabled = value;
+				compute_desc_.fft_shift_enabled = value;
 				pipe_refresh();
 			}
 		}

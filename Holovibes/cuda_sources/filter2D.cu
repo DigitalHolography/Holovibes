@@ -80,7 +80,6 @@ void filter2D_BandPass(cuComplex				*input,
 					   const holovibes::units::RectFd&	zone,
 					   const holovibes::units::RectFd& subzone,
 					   const FrameDescriptor&	desc,
-					   const bool 				shift_enabled,
 					   cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
@@ -95,10 +94,7 @@ void filter2D_BandPass(cuComplex				*input,
 	//int center_x = (r.x + r.bottom_right.x) >> 1;
 	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 
-	if (shift_enabled)
-	{
-		shift_corners(input, desc.width, desc.height);
-	}
+	shift_corners(input, desc.width, desc.height);
 	
 	kernel_filter2D_BandPass << <blocks, threads, 0, stream >> >(
 		input,
@@ -114,10 +110,7 @@ void filter2D_BandPass(cuComplex				*input,
 		size);
 	cudaCheckError();
 
-	if (shift_enabled)
-	{
-		shift_corners(input, desc.width, desc.height);
-	}
+	shift_corners(input, desc.width, desc.height);
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
@@ -140,7 +133,6 @@ void filter2D(cuComplex				*input,
 			const holovibes::units::RectFd&	r,
 			const FrameDescriptor&	desc,
 			const bool              exclude_roi,
-			const bool 				shift_enabled,
 			cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
@@ -155,10 +147,7 @@ void filter2D(cuComplex				*input,
 	//int center_x = (r.x + r.bottom_right.x) >> 1;
 	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 
-	if (shift_enabled)
-	{
-		shift_corners(input, desc.width, desc.height);
-	}
+	shift_corners(input, desc.width, desc.height);
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
@@ -171,10 +160,7 @@ void filter2D(cuComplex				*input,
 		exclude_roi);
 	cudaCheckError();
 
-	if (shift_enabled)
-	{
-		shift_corners(input, desc.width, desc.height);
-	}
+	shift_corners(input, desc.width, desc.height);
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 

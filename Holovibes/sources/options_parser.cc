@@ -487,8 +487,7 @@ namespace holovibes
 
 		opts_.compute_desc.log_scale_slice_xy_enabled = vm_.count("log") > 0;
 
-		opts_.compute_desc.pre_fft_shift_enabled = vm_.count("nofftshift");
-		opts_.compute_desc.post_fft_shift_enabled = opts_.compute_desc.pre_fft_shift_enabled.load();
+		opts_.compute_desc.fft_shift_enabled = vm_.count("nofftshift");
 
 		if (vm_.count("contrastmin"))
 		{

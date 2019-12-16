@@ -243,7 +243,7 @@ namespace holovibes
 				compute_desc_.img_acc_slice_xz_level,
 				input_fd.width * compute_desc_.nSize);
 
-		rendering_->insert_post_fft_shift();
+		rendering_->insert_fft_shift();
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();

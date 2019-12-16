@@ -52,7 +52,7 @@ namespace holovibes
 			/** \brief insert the functions relative to the fft shift.
 
 			*/
-			void insert_post_fft_shift();
+			void insert_fft_shift();
 			/** \brief insert the functions relative to noise and signal average.
 
 			 */

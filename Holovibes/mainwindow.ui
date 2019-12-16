@@ -1219,19 +1219,12 @@
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QCheckBox" name="PreFFTShiftCheckBox">
-             <property name="text">
-              <string>Pre fft shift</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QCheckBox" name="PostFFTShiftCheckBox">
+            <widget class="QCheckBox" name="FFTShiftCheckBox">
              <property name="toolTip">
               <string>shifts zero-frequency components to the center of the spectrum</string>
              </property>
              <property name="text">
-              <string>Post fft shift</string>
+              <string>FFT shift</string>
              </property>
             </widget>
            </item>
@@ -5905,10 +5898,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PostFFTShiftCheckBox</sender>
+   <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_post_fft_shift(bool)</slot>
+   <slot>set_fft_shift(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -7168,22 +7161,6 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>PreFFTShiftCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_pre_fft_shift(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>307</x>
-     <y>137</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7197,8 +7174,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_max(double)</slot>
   <slot>invert_contrast(bool)</slot>
   <slot>set_log_scale(bool)</slot>
-  <slot>set_pre_fft_shift(bool)</slot>
-  <slot>set_post_fft_shift(bool)</slot>
+  <slot>set_fft_shift(bool)</slot>
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
   <slot>set_record_frame_step(int)</slot>
