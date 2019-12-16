@@ -121,6 +121,7 @@ namespace holovibes
 			{
 				auto pos = getMousePos(e->pos());
 				zone_.setDst(pos);
+				checkCorners();
 				setBuffer();
 				display_ = true;
 			}
@@ -132,6 +133,29 @@ namespace holovibes
 			setBuffer();
 			display_ = true;
 			release(frameside);
+		}
+
+		void RectOverlay::checkCorners()
+		{
+			auto parent_fd = parent_->getFd();
+			
+			if (zone_.dst().x() < 0)
+			{
+				zone_.dstRef().x().set(0);
+			}
+			else if (zone_.dst().x() > parent_fd.width)
+			{
+				zone_.dstRef().x().set(parent_fd.width);
+			}
+
+			if (zone_.dst().y() < 0)
+			{
+				zone_.dstRef().y().set(0);
+			}
+			else if (zone_.dst().y() > parent_fd.height)
+			{
+				zone_.dstRef().y().set(parent_fd.height);
+			}
 		}
 	}
 }

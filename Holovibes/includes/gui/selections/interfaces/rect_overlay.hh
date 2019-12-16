@@ -34,6 +34,7 @@ namespace holovibes
 
 			virtual void move(QMouseEvent *e) override;
 			virtual void setZone(units::RectFd rect, ushort frameside) override;
+			virtual void checkCorners();
 		protected:
 			void setBuffer() override;
 		};

@@ -23,7 +23,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		class Filter2DSubZoneOverlay : public SquareOverlay
+		class Filter2DSubZoneOverlay : public RectOverlay
 		{
 		public:
 			Filter2DSubZoneOverlay(BasicOpenGLWindow* parent);
