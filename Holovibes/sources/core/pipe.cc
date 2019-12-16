@@ -216,13 +216,13 @@ namespace holovibes
 		preprocess_->insert_ref();
 
 		fourier_transforms_->insert_fft();
+
 		if (compute_desc_.time_filter == TimeFilter::STFT)
 		{
 			fourier_transforms_->insert_stft();
 		}
 		else if (compute_desc_.time_filter == TimeFilter::SVD)
 		{
-			LOG_WARN("The SVD time filter is still work in progress and does not currently work");
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
