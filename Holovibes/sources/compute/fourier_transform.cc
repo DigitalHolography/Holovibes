@@ -303,7 +303,7 @@ void FourierTransform::insert_eigenvalue_filter()
 {
 	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
 
-	fn_vect_.push_back([=]() { 
+	fn_vect_.push_back([=]() {
 		stft_env_.stft_frame_counter_--;
 		if (stft_env_.stft_frame_counter_ != 0)
 		{
@@ -364,7 +364,7 @@ void FourierTransform::insert_eigenvalue_filter()
 		// Setup eigen values parameters
 		cuda_tools::UniquePtr<float> W(cd_.nSize);
 		int lwork = 0;
-		cusolver_status = cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(), CUSOLVER_EIG_MODE_VECTOR, CUBLAS_FILL_MODE_LOWER, cd_.nSize, cov.get(), cd_.nSize, W.get() , &lwork);
+		cusolver_status = cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(), CUSOLVER_EIG_MODE_VECTOR, CUBLAS_FILL_MODE_LOWER, cd_.nSize, cov.get(), cd_.nSize, W.get(), &lwork);
 		assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not allocate work buffer");
 		cuda_tools::UniquePtr<cuComplex> work(lwork);
 		cuda_tools::UniquePtr<int> dev_info(1);
@@ -389,12 +389,29 @@ void FourierTransform::insert_eigenvalue_filter()
 		// eigen vectors
 		cuComplex* V = cov.get();
 
-		// Filtering the eigenvector matrix according to p and p_acc
-		// cudaMemset(V, 0, cd_.pindex * cd_.nSize * sizeof(cuComplex));
-		// cudaMemset(V + cd_.pindex * cd_.nSize + cd_.p_acc_level * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (cd_.pindex + cd_.p_acc_level)) * sizeof(cuComplex));
+		/* Filtering the eigenvector matrix according to p and p_acc
+		   The matrix should look like this:
+
+		     0  ... p-1  p ... p_acc p_acc+1 ... nSize
+		   ------------------------------------------
+		   | 0  ...  0   X ...   X     0     ...  0 |
+		   | 0  ...  0   X ...   X     0     ...  0 |
+		   | 0  ...  0   X ...   X     0     ...  0 |
+		   | 0  ...  0   X ...   X     0     ...  0 |
+		   | 0  ...  0   X ...   X     0     ...  0 |
+		   ------------------------------------------ */
+
+		unsigned short p_acc = cd_.p_acc_level;
+		unsigned short p = cd_.pindex;
+		if (p + p_acc > cd_.nSize)
+		{
+			p_acc = cd_.nSize - p;
+		}
+		cudaMemset(V, 0, p * cd_.nSize * sizeof(cuComplex));
+		cudaMemset(V + p * cd_.nSize + p_acc * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
 
 		cuda_tools::UniquePtr<cuComplex> tmp(cd_.nSize * cd_.nSize);
-		
+
 		// tmp = V * V'
 		cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
 			CUBLAS_OP_N,
