@@ -3002,33 +3002,37 @@ namespace holovibes
 			path_line_edit->insert(filename);
 		}
 
-		std::string MainWindow::set_record_filename_properties(FrameDescriptor fd, std::string filename)
+		std::string MainWindow::set_record_filename_properties(FrameDescriptor fd, std::string filename, bool add_info)
 		{
-			std::string slice;
-			switch (compute_desc_.current_window)
+			std::string sub_str = "";
+
+			if (add_info)
 			{
-			case SliceXZ:
-				slice = "XZ";
-				break;
-			case SliceYZ:
-				slice = "YZ";
-				break;
-			default:
-				slice = "XY";
-				break;
+				std::string slice;
+				switch (compute_desc_.current_window)
+				{
+				case SliceXZ:
+					slice = "XZ";
+					break;
+				case SliceYZ:
+					slice = "YZ";
+					break;
+				default:
+					slice = "XY";
+					break;
+				}
+				std::string mode = (is_direct_mode() || compute_desc_.record_raw) ? "D" : "H";
+
+				int depth = fd.depth;
+				if (depth == 6)
+					depth = 3;
+
+				sub_str = "_" + slice +
+						  "_" + mode +
+						  "_" + std::to_string(fd.width) +
+						  "_" + std::to_string(fd.height) +
+						  "_" + std::to_string(depth << 3) + "bit_e";
 			}
-			std::string mode = (is_direct_mode() || compute_desc_.record_raw) ? "D" : "H";
-
-			int depth = fd.depth;
-			if (depth == 6)
-				depth = 3;
-
-			std::string sub_str = 
-				  "_" + slice +
-				  "_" + mode +
-				  "_" + std::to_string(fd.width) +
-				  "_" + std::to_string(fd.height) +
-			      "_" + std::to_string(depth << 3) + "bit_e";
 
 			// Insert sub_str before extension (or at the end if no extension)
 			size_t dot_index = filename.find_last_of('.');
@@ -3139,7 +3143,7 @@ namespace holovibes
 
 				if (queue)
 				{
-					path = set_record_filename_properties(queue->get_frame_desc(), path);
+					path = set_record_filename_properties(queue->get_frame_desc(), path, false);
 					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(queue), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
