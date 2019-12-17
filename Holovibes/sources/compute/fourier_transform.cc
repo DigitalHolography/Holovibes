@@ -304,102 +304,162 @@ void FourierTransform::insert_eigenvalue_filter()
 	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
 
 	fn_vect_.push_back([=]() {
+		bool b = false;
 		stft_env_.stft_frame_counter_--;
-		if (stft_env_.stft_frame_counter_ != 0)
+		if (stft_env_.stft_frame_counter_ == 0)
 		{
-			return;
+			b = true;
+			stft_env_.stft_frame_counter_ = cd_.stft_steps;
 		}
-		stft_env_.stft_frame_counter_ = cd_.stft_steps;
 
-		cudaError_t cuda_status;
-		cublasStatus_t cublas_status;
-		cusolverStatus_t cusolver_status;
-
-		cuComplex alpha{ 1, 0 };
-		cuComplex beta{ 0, 0 };
-
-		// Transpose each image in gpu_stft_queue_ to have the right format for the multiplication
-		for (unsigned i = 0; i < cd_.nSize; ++i)
+		if (b)
 		{
-			cublas_status = cublasCgeam(cuda_tools::CublasHandle::instance(),
-				CUBLAS_OP_T,
+			cudaError_t cuda_status;
+			cublasStatus_t cublas_status;
+			cusolverStatus_t cusolver_status;
+
+			cuComplex alpha{ 1, 0 };
+			cuComplex beta{ 0, 0 };
+
+			// Transpose each image in gpu_stft_queue_ to have the right format for the multiplication
+			/* for (unsigned i = 0; i < cd_.nSize; ++i)
+			{
+				cublas_status = cublasCgeam(cuda_tools::CublasHandle::instance(),
+					CUBLAS_OP_T,
+					CUBLAS_OP_N,
+					fd_.height,
+					fd_.width,
+					&alpha,
+					(const cuComplex*)stft_env_.gpu_stft_queue_->get_buffer() + i * fd_.frame_res(),
+					fd_.height,
+					&beta,
+					stft_env_.gpu_stft_buffer_.get() + i * fd_.frame_res(),
+					fd_.height,
+					stft_env_.gpu_stft_buffer_.get() + i * fd_.frame_res(),
+					fd_.height);
+				cuda_status = cudaDeviceSynchronize();
+				assert(cuda_status == cudaSuccess);
+				assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose an image of gpu_stft_queue_");
+			} */
+
+			cudaMemcpy(stft_env_.gpu_stft_buffer_.get(), stft_env_.gpu_stft_queue_->get_buffer(), fd_.frame_res() * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToDevice);
+
+			cuComplex* H = stft_env_.gpu_stft_buffer_.get();
+			cuda_tools::UniquePtr<cuComplex> cov(cd_.nSize * cd_.nSize);
+
+			// cov = H' * H
+			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
+				CUBLAS_OP_C,
 				CUBLAS_OP_N,
-				fd_.height,
-				fd_.width,
+				cd_.nSize,
+				cd_.nSize,
+				fd_.frame_res(),
 				&alpha,
-				(const cuComplex*)stft_env_.gpu_stft_queue_->get_buffer() + i * fd_.frame_res(),
-				fd_.height,
+				H,
+				fd_.frame_res(),
+				H,
+				fd_.frame_res(),
 				&beta,
-				stft_env_.gpu_stft_buffer_.get() + i * fd_.frame_res(),
-				fd_.height,
-				stft_env_.gpu_stft_buffer_.get() + i * fd_.frame_res(),
-				fd_.height);
+				cov.get(),
+				cd_.nSize);
 			cuda_status = cudaDeviceSynchronize();
 			assert(cuda_status == cudaSuccess);
-			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "Could not transpose an image of gpu_stft_queue_");
+			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "cov = H' * H failed");
+
+			// Setup eigen values parameters
+			cuda_tools::UniquePtr<float> W(cd_.nSize);
+			int lwork = 0;
+			cusolver_status = cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(), CUSOLVER_EIG_MODE_VECTOR, CUBLAS_FILL_MODE_LOWER, cd_.nSize, cov.get(), cd_.nSize, W.get(), &lwork);
+			assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not allocate work buffer");
+			cuda_tools::UniquePtr<cuComplex> work(lwork);
+			cuda_tools::UniquePtr<int> dev_info(1);
+
+			// Find eigen values and eigen vectors of cov
+			// W will contain sorted eigen values
+			// cov will contain eigen vectors
+			cusolver_status = cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
+				CUSOLVER_EIG_MODE_VECTOR,
+				CUBLAS_FILL_MODE_LOWER,
+				cd_.nSize,
+				cov.get(),
+				cd_.nSize,
+				W.get(),
+				work.get(),
+				lwork,
+				dev_info.get());
+			cuda_status = cudaDeviceSynchronize();
+			assert(cuda_status == cudaSuccess);
+			assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not find eigen values / vectors of cov");
+
+			// eigen vectors
+			cuComplex* V = cov.get();
+
+			/* Filtering the eigenvector matrix according to p and p_acc
+			   The matrix should look like this:
+
+				 0  ... p-1  p ... p_acc p_acc+1 ... nSize
+			   ------------------------------------------
+			   | 0  ...  0   X ...   X     0     ...  0 |
+			   | 0  ...  0   X ...   X     0     ...  0 |
+			   | 0  ...  0   X ...   X     0     ...  0 |
+			   | 0  ...  0   X ...   X     0     ...  0 |
+			   | 0  ...  0   X ...   X     0     ...  0 |
+			   ------------------------------------------ */
+
+			unsigned short p_acc = cd_.p_acc_level;
+			unsigned short p = cd_.pindex;
+			if (p + p_acc > cd_.nSize)
+			{
+				p_acc = cd_.nSize - p;
+			}
+			cudaMemset(V, 0, p * cd_.nSize * sizeof(cuComplex));
+			cudaMemset(V + p * cd_.nSize + p_acc * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
+
+			cuda_tools::UniquePtr<cuComplex> tmp(cd_.nSize * cd_.nSize);
+
+			// tmp = V * V'
+			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
+				CUBLAS_OP_N,
+				CUBLAS_OP_C,
+				cd_.nSize,
+				cd_.nSize,
+				cd_.nSize,
+				&alpha,
+				V,
+				cd_.nSize,
+				V,
+				cd_.nSize,
+				&beta,
+				tmp.get(),
+				cd_.nSize);
+			cuda_status = cudaDeviceSynchronize();
+			assert(cuda_status == cudaSuccess);
+			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "tmp = V * V' failed");
+
+			cuda_tools::UniquePtr<cuComplex> H_noise(cd_.nSize * fd_.frame_res());
+
+			// H_noise = H * tmp
+			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
+				CUBLAS_OP_N,
+				CUBLAS_OP_N,
+				fd_.frame_res(),
+				cd_.nSize,
+				cd_.nSize,
+				&alpha,
+				H,
+				fd_.frame_res(),
+				tmp.get(),
+				cd_.nSize,
+				&beta,
+				H_noise.get(),
+				fd_.frame_res());
+			cuda_status = cudaDeviceSynchronize();
+			assert(cuda_status == cudaSuccess);
+			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H_noise = H * tmp failed");
+
+			subtract_frame_complex(H, H_noise.get(), H, fd_.frame_res() * cd_.nSize);
+			average_complex_images(H + p * fd_.frame_res(), buffers_.gpu_input_buffer_.get(), fd_.frame_res(), p_acc);
 		}
-
-		cuComplex* H = stft_env_.gpu_stft_buffer_.get();
-		cuda_tools::UniquePtr<cuComplex> cov(cd_.nSize * cd_.nSize);
-
-		// cov = H' * H
-		cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-			CUBLAS_OP_C,
-			CUBLAS_OP_N,
-			cd_.nSize,
-			cd_.nSize,
-			fd_.frame_res(),
-			&alpha,
-			H,
-			fd_.frame_res(),
-			H,
-			fd_.frame_res(),
-			&beta,
-			cov.get(),
-			cd_.nSize);
-		cuda_status = cudaDeviceSynchronize();
-		assert(cuda_status == cudaSuccess);
-		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "cov = H' * H failed");
-
-		// Setup eigen values parameters
-		cuda_tools::UniquePtr<float> W(cd_.nSize);
-		int lwork = 0;
-		cusolver_status = cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(), CUSOLVER_EIG_MODE_VECTOR, CUBLAS_FILL_MODE_LOWER, cd_.nSize, cov.get(), cd_.nSize, W.get(), &lwork);
-		assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not allocate work buffer");
-		cuda_tools::UniquePtr<cuComplex> work(lwork);
-		cuda_tools::UniquePtr<int> dev_info(1);
-
-		// Find eigen values and eigen vectors of cov
-		// W will contain sorted eigen values
-		// cov will contain eigen vectors
-		cusolver_status = cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
-			CUSOLVER_EIG_MODE_VECTOR,
-			CUBLAS_FILL_MODE_LOWER,
-			cd_.nSize,
-			cov.get(),
-			cd_.nSize,
-			W.get(),
-			work.get(),
-			lwork,
-			dev_info.get());
-		cuda_status = cudaDeviceSynchronize();
-		assert(cuda_status == cudaSuccess);
-		assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not find eigen values / vectors of cov");
-
-		// eigen vectors
-		cuComplex* V = cov.get();
-
-		/* Filtering the eigenvector matrix according to p and p_acc
-		   The matrix should look like this:
-
-		     0  ... p-1  p ... p_acc p_acc+1 ... nSize
-		   ------------------------------------------
-		   | 0  ...  0   X ...   X     0     ...  0 |
-		   | 0  ...  0   X ...   X     0     ...  0 |
-		   | 0  ...  0   X ...   X     0     ...  0 |
-		   | 0  ...  0   X ...   X     0     ...  0 |
-		   | 0  ...  0   X ...   X     0     ...  0 |
-		   ------------------------------------------ */
 
 		unsigned short p_acc = cd_.p_acc_level;
 		unsigned short p = cd_.pindex;
@@ -407,53 +467,6 @@ void FourierTransform::insert_eigenvalue_filter()
 		{
 			p_acc = cd_.nSize - p;
 		}
-		cudaMemset(V, 0, p * cd_.nSize * sizeof(cuComplex));
-		cudaMemset(V + p * cd_.nSize + p_acc * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
-
-		cuda_tools::UniquePtr<cuComplex> tmp(cd_.nSize * cd_.nSize);
-
-		// tmp = V * V'
-		cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-			CUBLAS_OP_N,
-			CUBLAS_OP_C,
-			cd_.nSize,
-			cd_.nSize,
-			cd_.nSize,
-			&alpha,
-			V,
-			cd_.nSize,
-			V,
-			cd_.nSize,
-			&beta,
-			tmp.get(),
-			cd_.nSize);
-		cuda_status = cudaDeviceSynchronize();
-		assert(cuda_status == cudaSuccess);
-		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "tmp = V * V' failed");
-
-		cuda_tools::UniquePtr<cuComplex> H_noise(cd_.nSize * fd_.frame_res());
-
-		// H_noise = H * tmp
-		cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-			CUBLAS_OP_N,
-			CUBLAS_OP_N,
-			fd_.frame_res(),
-			cd_.nSize,
-			cd_.nSize,
-			&alpha,
-			H,
-			fd_.frame_res(),
-			tmp.get(),
-			cd_.nSize,
-			&beta,
-			H_noise.get(),
-			fd_.frame_res());
-		cuda_status = cudaDeviceSynchronize();
-		assert(cuda_status == cudaSuccess);
-		assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H_noise = H * tmp failed");
-
-		subtract_frame_complex(H, H_noise.get(), H, fd_.frame_res() * cd_.nSize);
-		average_complex_images(H, buffers_.gpu_input_buffer_.get(), fd_.frame_res(), cd_.nSize);
-		cudaDeviceSynchronize();
+		average_complex_images(stft_env_.gpu_stft_buffer_.get() + p * fd_.frame_res(), buffers_.gpu_input_buffer_.get(), fd_.frame_res(), p_acc);
 	});
 }
