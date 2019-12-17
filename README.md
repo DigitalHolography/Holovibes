@@ -213,6 +213,10 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### 7.8.2
+
+* Fix filter2D
+
 ### 7.8.1
 
 * Fix SVD, it actually displays images now

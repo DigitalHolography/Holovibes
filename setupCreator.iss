@@ -7,7 +7,7 @@
 #define DestVersionDir "cmake"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.8.1"
+#define MyAppVersion "7.8.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -135,6 +135,9 @@ Source: "{#QtPath}\Qt5Charts.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_101.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cublas64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cublasLt64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cusolver64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppc64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppial64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppif64_10.dll"; DestDir: "{app}\{#MyAppVersion}\{#DestVersionDir}";Components: program; Flags: ignoreversion
