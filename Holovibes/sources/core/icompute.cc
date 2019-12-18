@@ -377,7 +377,7 @@ namespace holovibes
 		stft_update_roi_requested_ = false;
 		request_update_n(compute_desc_.nSize);
 		compute_desc_.log_scale_slice_xy_enabled = false;
-		compute_desc_.fft_shift_enabled = false;
+		//compute_desc_.fft_shift_enabled = false;
 		notify_observers();
 
 		if (auto pipe = dynamic_cast<Pipe*>(this))

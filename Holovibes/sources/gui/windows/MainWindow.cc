@@ -1741,7 +1741,9 @@ namespace holovibes
 				InfoManager::get_manager()->remove_info("Filter2D");
 				compute_desc_.filter_2d_enabled = false;
 				compute_desc_.log_scale_slice_xy_enabled = false;
-				compute_desc_.setStftZone(units::RectFd());
+				auto zone = units::RectFd({0, 0}, {0, 0});
+				compute_desc_.setStftZone(zone);
+				compute_desc_.setFilter2DSubZone(zone);
 				if (mainDisplay)
 				{
 					mainDisplay->getOverlayManager().disable_all(Filter2D);
