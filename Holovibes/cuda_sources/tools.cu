@@ -518,8 +518,9 @@ void kernel_average_complex_images(const cuComplex* in,
 	for (size_t i = 0; i < nb_frames; ++i)
 	{
 		cuComplex val = in[i * frame_res + index];
-		out[index].x += val.x;
-		out[index].y += val.y;
+		out[index].x += hypotf(val.x, val.y);
+		// out[index].x += val.x;
+		// out[index].y += val.y;
 	}
 	out[index].x /= nb_frames;
 	out[index].y /= nb_frames;

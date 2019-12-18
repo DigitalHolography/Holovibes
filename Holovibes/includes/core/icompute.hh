@@ -93,6 +93,15 @@ namespace holovibes
 		bool								stft_handle_ = false;
 		/** Frame Counter. Counter before the next STFT perform. */
 		unsigned int						stft_frame_counter_ = 1;
+
+
+		// The following are used for the SVD time filter
+
+		cuda_tools::UniquePtr<cuComplex> svd_cov = nullptr;
+		cuda_tools::UniquePtr<cuComplex> svd_tmp_buffer = nullptr;
+		cuda_tools::UniquePtr<cuComplex> svd_noise = nullptr;
+		cuda_tools::UniquePtr<float> svd_eigen_values = nullptr;
+		cuda_tools::UniquePtr<int> svd_dev_info = nullptr;
 	};
 
 	/** \brief Structure containing variables related to the average computation and recording. */
