@@ -6,7 +6,7 @@
 ; Subdirectory to differenciate between CMake or VisualStudio install
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.8.2"
+#define MyAppVersion "7.8.3"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -102,27 +102,16 @@ Source: "Holovibes\shaders\vertex.overlay.glsl"; DestDir: "{app}\{#MyAppVersion}
 Source: "InstructionFiles\BatchInstructions.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithBurst.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithSweep.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_edge_detect_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gradient_x-_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gradient_x+_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_laplacien_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_prewitt_sobel_2.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_prewitt_sobel_edge_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_sobel_xy_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gradient_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_256_256.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_128_128.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_64_64.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_64_8.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_32_32.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_16_16.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_8_8.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\GaussianKernel_4_4.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-
+Source: "ConvolutionKernels\kernel_gaussian_4_4_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_8_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_16_16_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_32_32_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_64_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_64_64_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_128_128_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_gaussian_256_256_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 
 Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

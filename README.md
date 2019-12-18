@@ -213,6 +213,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### 7.8.3
+
+* Remove some convolution kernels
+* Pre allocate SVD buffers
+* Remove _cmake from installer path
+
 ### 7.8.2
 
 * Fix filter2D
