@@ -6,7 +6,7 @@
 ; Subdirectory to differenciate between CMake or VisualStudio install
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.8.2"
+#define MyAppVersion "7.8.3"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
