@@ -3267,7 +3267,7 @@ namespace holovibes
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
 				formatted_path = format_batch_output(path, file_index_);
-				formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
+				formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path, false);
 
 				//is_enabled_camera_ = false;
 
@@ -3364,7 +3364,7 @@ namespace holovibes
 				q = holovibes_.get_pipe()->get_stft_slice_queue(1).get();
 
 			std::string output_filename = format_batch_output(path, file_index_);
-			output_filename = set_record_filename_properties(q->get_frame_desc(), output_filename);
+			output_filename = set_record_filename_properties(q->get_frame_desc(), output_filename, false);
 			const uint frame_nb = frame_nb_spin_box->value();
 			if (is_batch_img_)
 			{
