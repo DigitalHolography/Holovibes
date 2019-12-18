@@ -213,6 +213,12 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### 7.9
+
+* Fix SVD
+* Fix Filter2D
+* Remove filename info when batch recording
+
 ### 7.8.3
 
 * Remove some convolution kernels
