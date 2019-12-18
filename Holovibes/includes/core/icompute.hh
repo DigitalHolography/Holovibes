@@ -99,7 +99,6 @@ namespace holovibes
 
 		cuda_tools::UniquePtr<cuComplex> svd_cov = nullptr;
 		cuda_tools::UniquePtr<cuComplex> svd_tmp_buffer = nullptr;
-		cuda_tools::UniquePtr<cuComplex> svd_noise = nullptr;
 		cuda_tools::UniquePtr<float> svd_eigen_values = nullptr;
 		cuda_tools::UniquePtr<int> svd_dev_info = nullptr;
 	};

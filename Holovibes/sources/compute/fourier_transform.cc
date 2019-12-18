@@ -386,8 +386,6 @@ void FourierTransform::insert_eigenvalue_filter()
 			// eigen vectors
 			cuComplex* V = cov;
 
-
-
 			/* Filtering the eigenvector matrix according to p and p_acc
 			   The matrix should look like this:
 
@@ -424,9 +422,7 @@ void FourierTransform::insert_eigenvalue_filter()
 			assert(cuda_status == cudaSuccess);
 			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "tmp = V * V' failed");
 
-			cuComplex* H_noise = stft_env_.svd_noise.get();
-
-			// H_noise = H * tmp
+			// H = H * tmp
 			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
 				CUBLAS_OP_N,
 				CUBLAS_OP_N,
@@ -439,14 +435,11 @@ void FourierTransform::insert_eigenvalue_filter()
 				tmp,
 				cd_.nSize,
 				&beta,
-				H_noise,
+				H,
 				fd_.frame_res());
 			cuda_status = cudaDeviceSynchronize();
 			assert(cuda_status == cudaSuccess);
 			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H_noise = H * tmp failed");
-
-			subtract_frame_complex(H, H_noise, H, fd_.frame_res() * cd_.nSize);
-			// cudaMemcpy(H, H_noise.get(), fd_.frame_res() * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToDevice);
 		}
 		average_complex_images(stft_env_.gpu_stft_buffer_.get(), buffers_.gpu_input_buffer_.get(), fd_.frame_res(), cd_.nSize);
 	});

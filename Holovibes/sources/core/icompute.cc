@@ -168,13 +168,11 @@ namespace holovibes
 			// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
 			stft_env_.svd_cov.reset();
 			stft_env_.svd_tmp_buffer.reset();
-			stft_env_.svd_noise.reset();
 			stft_env_.svd_eigen_values.reset();
 			stft_env_.svd_dev_info.reset();
 
 			stft_env_.svd_cov.resize(n * n);
 			stft_env_.svd_tmp_buffer.resize(n * n);
-			stft_env_.svd_noise.resize(input_.get_frame_res() * n);
 			stft_env_.svd_eigen_values.resize(n);
 			stft_env_.svd_dev_info.resize(1);
 		}
