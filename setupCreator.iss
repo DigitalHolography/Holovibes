@@ -3,10 +3,9 @@
 
 ; CMake: build/Generator      VisualStudio: x64
 #define BuildDir "build/Ninja"
-; Subdirectory to differenciate between CMake or VisualStudio install
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "7.9"
+#define MyAppVersion "7.9.1"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"

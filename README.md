@@ -213,6 +213,11 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### 7.9.1
+
+* Add constant for renormalization
+* Some more Filter2D fixes
+
 ### 7.9
 
 * Fix SVD
