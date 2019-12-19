@@ -1751,6 +1751,7 @@ namespace holovibes
 					mainDisplay->resetTransform();
 				}
 				set_auto_contrast();
+				pipe_refresh();
 				notify();
 			}
 		}
