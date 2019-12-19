@@ -112,6 +112,7 @@ namespace holovibes
 
 		std::string json_str = json_settings.dump();
 		file_.write(json_str.data(), json_str.size());
+		file_.close();
 
 		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");

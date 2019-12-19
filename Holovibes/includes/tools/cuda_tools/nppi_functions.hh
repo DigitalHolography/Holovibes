@@ -805,8 +805,7 @@ namespace holovibes
 			double mean = 0;
 			nppi_mean(src, nppi_data, &mean);
 			nppi_divide_by_constant(src, nppi_data, static_cast<float>(mean));
-			// Made up constant because it gave good resutls
-			nppi_multiply_by_constant(src, nppi_data, (1 << 14) - (1 << 12) * 1.75f);
+			nppi_multiply_by_constant(src, nppi_data, static_cast<float>(1 << 15));
 		}
 	} // namespace cuda_tools
 } // namespace holovibes

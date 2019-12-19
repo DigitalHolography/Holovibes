@@ -311,6 +311,7 @@ void FourierTransform::insert_eigenvalue_filter()
 			b = true;
 			stft_env_.stft_frame_counter_ = cd_.stft_steps;
 		}
+		std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
 		unsigned short p_acc = cd_.p_acc_level + 1;
 		unsigned short p = cd_.pindex;
@@ -439,8 +440,9 @@ void FourierTransform::insert_eigenvalue_filter()
 				fd_.frame_res());
 			cuda_status = cudaDeviceSynchronize();
 			assert(cuda_status == cudaSuccess);
-			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H_noise = H * tmp failed");
+			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H = H * tmp failed");
 		}
 		average_complex_images(stft_env_.gpu_stft_buffer_.get(), buffers_.gpu_input_buffer_.get(), fd_.frame_res(), cd_.nSize);
+		stft_env_.stft_handle_ = true;
 	});
 }
