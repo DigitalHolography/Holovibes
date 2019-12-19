@@ -45,6 +45,8 @@ namespace holovibes
 				}
 			}
 
+			parent_->getCd()->fft_shift_enabled = false;
+
 			active_ = false;
 		}
 	}

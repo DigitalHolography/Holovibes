@@ -40,6 +40,8 @@ namespace holovibes
 				window->getPipe()->request_filter2D_roi_end();
 			}
 
+			parent_->getCd()->fft_shift_enabled = false;
+
             filter2d_overlay_->disable();
 
 			active_ = false;
