@@ -56,11 +56,14 @@ namespace holovibes
 			progress_bar->setMaximum(nb_frames_);
 			holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
 
-			while (deque_.size() < nb_frames_ && record_)
+			// Temporary hack
+			// The changes made here avoid lag during the recording
+			// Can still go wrong and crash for some reason
+			size_t size = 0;
+			while ((size = deque_.size()) < nb_frames_ && record_)
 			{
-				if (deque_.size() <= nb_frames_)
-					emit value_change(static_cast<int>(deque_.size()));
-				continue;
+				emit value_change(static_cast<int>(size));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			emit value_change(nb_frames_);
 			std::cout << path_ << std::endl;
