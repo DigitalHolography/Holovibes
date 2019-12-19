@@ -55,6 +55,30 @@ void shift_corners(cuComplex *input,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
 
+/*! \brief Shifts in-place the corners of an image.
+ *
+ * This function shifts zero-frequency components to the center
+ * of the spectrum (and vice-versa), as explained in the matlab documentation
+ * (http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+ *
+ * \param input The image to shift.
+ * \param output The destination image
+ * \param size_x The width of data, in pixels.
+ * \param size_y The height of data, in pixels.
+ * \param stream The CUDA stream on which to launch the operation.
+ */
+void shift_corners(const float*		input,
+				   float*			output,
+				   const uint		size_x,
+				   const uint		size_y,
+				   cudaStream_t	stream = 0);
+				
+void shift_corners(const cuComplex *input,
+				   cuComplex *output,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream = 0);
+
 /*! \brief Compute the log base-10 of every element of the input.
 *
 * \param input The image to modify in-place.

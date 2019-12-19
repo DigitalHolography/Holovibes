@@ -48,9 +48,10 @@ namespace
 {
 	template<typename T>				
 	__global__
-	void kernel_shift_corners(T		*input,
-							const uint	size_x,
-							const uint	size_y)
+	void kernel_shift_corners(const T *input,
+							  T *output,
+							  const uint	size_x,
+							  const uint	size_y)
 	{
 		const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
 		const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -72,11 +73,27 @@ namespace
 			nj = j + size_y2;
 			nindex = nj * size_x + ni;
 
+			//allows output = input
 			T tmp = input[nindex];
-			input[nindex] = input[index];
-			input[index] = tmp;
+			output[nindex] = input[index];
+			output[index] = tmp;
 		}
 	}
+
+	template<typename T>
+	void shift_corners_caller(const T *input,
+							  T *output,
+							  const uint size_x,
+							  const uint size_y,
+							  cudaStream_t stream)
+	{
+		uint threads_2d = get_max_threads_2d();
+		dim3 lthreads(threads_2d, threads_2d);
+		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
+
+		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, output, size_x, size_y);
+		cudaCheckError();
+	}						  
 
 	template<typename T>
 	void shift_corners_caller(T*		input,
@@ -88,7 +105,7 @@ namespace
 		dim3 lthreads(threads_2d, threads_2d);
 		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
 
-		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
+		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, input, size_x, size_y);
 		cudaCheckError();
 	}
 }
@@ -101,12 +118,30 @@ void shift_corners(float *input,
 	shift_corners_caller<float>(input, size_x, size_y, stream);
 }
 
+void shift_corners(const float *input,
+				   float *output,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
+{
+	shift_corners_caller<float>(input, output, size_x, size_y, stream);
+}
+
 void shift_corners(cuComplex *input,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
 	shift_corners_caller<cuComplex>(input, size_x, size_y, stream);
+}
+
+void shift_corners(const cuComplex *input,
+				   cuComplex *output,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
+{
+	shift_corners_caller<cuComplex>(input, output, size_x, size_y, stream);
 }
 
 /* Kernel used in apply_log10 */

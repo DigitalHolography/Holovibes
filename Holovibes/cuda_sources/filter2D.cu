@@ -110,9 +110,8 @@ void filter2D_BandPass(cuComplex				*input,
 		size);
 	cudaCheckError();
 
-	shift_corners(input, desc.width, desc.height);
-
-	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
+	shift_corners(input, tmp_buffer, desc.width, desc.height);
+	//cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,
@@ -160,9 +159,8 @@ void filter2D(cuComplex				*input,
 		exclude_roi);
 	cudaCheckError();
 
-	shift_corners(input, desc.width, desc.height);
-
-	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
+	shift_corners(input, tmp_buffer, desc.width, desc.height);
+	//cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,
