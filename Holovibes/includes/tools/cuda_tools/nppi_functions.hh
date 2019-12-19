@@ -800,12 +800,12 @@ namespace holovibes
 		}
 
 		template<typename T>
-		void nppi_normalize(T* src, NppiData& nppi_data)
+		void nppi_normalize(T* src, NppiData& nppi_data, unsigned mult_constant)
 		{
 			double mean = 0;
 			nppi_mean(src, nppi_data, &mean);
 			nppi_divide_by_constant(src, nppi_data, static_cast<float>(mean));
-			nppi_multiply_by_constant(src, nppi_data, static_cast<float>(1 << 15));
+			nppi_multiply_by_constant(src, nppi_data, static_cast<float>(1 << mult_constant));
 		}
 	} // namespace cuda_tools
 } // namespace holovibes

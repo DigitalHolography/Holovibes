@@ -1661,6 +1661,11 @@ namespace holovibes
 			notify();
 		}
 
+		void MainWindow::set_renormalize_constant(int value)
+		{
+			compute_desc_.renorm_constant = value;
+		}
+
 		void MainWindow::take_reference()
 		{
 			if (!is_direct_mode())

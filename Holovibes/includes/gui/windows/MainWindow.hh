@@ -135,6 +135,7 @@ namespace holovibes
 			void set_convolution_mode(const bool enable);
 			void set_divide_convolution_mode(const bool value);
 			void toggle_renormalize(bool value);
+			void set_renormalize_constant(int value);
 			bool is_direct_mode();
 			void reset();
 			void take_reference();

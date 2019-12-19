@@ -3114,6 +3114,13 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
+            <widget class="QSpinBox" name="RenormalizeSpinBox">
+             <property name="value">
+              <number>15</number>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="RenormalizeCheckBox">
              <property name="text">
               <string>Renormalize</string>
@@ -4091,7 +4098,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -7182,6 +7189,10 @@ p, li { white-space: pre-wrap; }
      <x>-1</x>
      <y>-1</y>
     </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
    </hints>
   </connection>
   <connection>
@@ -7193,6 +7204,22 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>159</x>
      <y>301</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RenormalizeSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_renormalize_constant(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1012</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -7270,6 +7297,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
+  <slot>set_renormalize_constant(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
   <slot>set_z_min(double)</slot>
   <slot>set_z_max(double)</slot>

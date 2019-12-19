@@ -165,7 +165,7 @@ namespace holovibes
 
 			fn_vect_.push_back([=]() {
 				cuda_tools::NppiData nppi_data(fd_.width, fd_.height);
-				cuda_tools::nppi_normalize(buffers_.gpu_float_buffer_.get(), nppi_data);
+				cuda_tools::nppi_normalize(buffers_.gpu_float_buffer_.get(), nppi_data, cd_.renorm_constant);
 			});
 		}
 	}

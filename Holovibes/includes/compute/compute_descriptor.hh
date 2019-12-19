@@ -319,6 +319,8 @@ namespace holovibes
 		std::atomic<bool>			divide_convolution_enabled;
 		//! postprocessing renorm enabled
 		std::atomic<bool>			renorm_enabled;
+		//! postprocessing remormalize multiplication constant
+		std::atomic<unsigned>		renorm_constant;
 		//! is log scale in slice XY enabled
 		std::atomic<bool>			log_scale_slice_xy_enabled;
 		//! is log scale in slice XZ enabled

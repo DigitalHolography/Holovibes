@@ -37,6 +37,7 @@ namespace holovibes
 		convolution_enabled(false),
 		divide_convolution_enabled(false),
 		renorm_enabled(false),
+		renorm_constant(15),
 		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
