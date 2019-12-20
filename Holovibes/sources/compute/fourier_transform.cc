@@ -312,7 +312,7 @@ void FourierTransform::insert_eigenvalue_filter()
 			stft_env_.stft_frame_counter_ = cd_.stft_steps;
 		}
 
-		unsigned short p_acc = cd_.p_acc_level + 1;
+		unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
 		unsigned short p = cd_.pindex;
 		if (p + p_acc > cd_.nSize)
 		{
