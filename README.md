@@ -231,6 +231,11 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### 8.0
+
+* Enable p_acc for svd
+* Reduce timeout when csv recording (seems to avoid crashes)
+
 ### 7.9.1
 
 * Add constant for renormalization
