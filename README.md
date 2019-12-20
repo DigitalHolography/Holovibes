@@ -94,6 +94,24 @@ This mode is useful to do batch computation (call holovibes from a script).
     * `./run.py` or `./run.py D`: run in debug mode
     * `./run.py R`: run in release mode
 * Alternatively you can use Visual Studio 2019's CMake feature by selecting the right CMake version
+* You could also build from the command line
+    * `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release` to build with Visual Studio
+    * `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build` to build with Ninja (it is faster)
+
+### Making a new release ###
+
+* Pull / merge / rebase all the features that need to be included on master
+* Change the version number in `compute_descriptor.hh`
+* Make a clean in build in release mode `rm -rf build && ./build.py R`
+* Make sure everything works as intended
+* Change the version number in `README.md` and write a short changelog
+* Change the version number in `setupCreator.iss`
+* Add any missing dll in `setupCreator.iss` (just like the lines 115 to 135)
+* Commit your changes `git add -u && git commit -m "vX.X"`
+* Tag your commit `git tag -a "vX.X" -m "vX.X" && git push --tags origin master`
+* Run the `setupCreator.iss` script using ino setup
+* Use the installer located in the `Output` directory and make sure everything still works as intended
+* Upload the installer on `ftp.espci.fr` in the `incoming/Atlan/holovibes/installer/Holovibes_vX.X.X`
 
 ### Coding style ###
 
