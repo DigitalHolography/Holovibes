@@ -313,7 +313,7 @@ void FourierTransform::insert_eigenvalue_filter()
 		}
 		std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
-		unsigned short p_acc = cd_.p_acc_level + 1;
+		unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
 		unsigned short p = cd_.pindex;
 		if (p + p_acc > cd_.nSize)
 		{
