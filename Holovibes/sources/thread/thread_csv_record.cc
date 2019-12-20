@@ -63,7 +63,7 @@ namespace holovibes
 			while ((size = deque_.size()) < nb_frames_ && record_)
 			{
 				emit value_change(static_cast<int>(size));
-				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			emit value_change(nb_frames_);
 			std::cout << path_ << std::endl;
