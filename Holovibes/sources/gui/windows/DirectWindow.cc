@@ -170,7 +170,7 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
-			
+
 			setTransform();
 
 			Program->release();
@@ -178,7 +178,7 @@ namespace holovibes
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / cd_->display_rate);
 		}
-		
+
 
 		/* This part of code makes a resizing of the window displaying image to
 		   a rectangle format. It also avoids the window to move when resizing.
@@ -192,7 +192,7 @@ namespace holovibes
 			int tmp_height = old_height;
 
 			auto point = this->position();
-			
+
 			if ((cd_->compute_mode == Computation::Hologram && cd_->algorithm == Algorithm::None)
 				|| cd_->compute_mode == Computation::Direct)
 			{
@@ -251,7 +251,7 @@ namespace holovibes
 
 		void	DirectWindow::paintGL()
 		{
-			glViewport(0, 0, width(), height()); 
+			glViewport(0, 0, width(), height());
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -357,7 +357,7 @@ namespace holovibes
 			const float yRatio = zone.unsigned_height();
 			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
 			//setScale(getScale() * 2.f / xRatio);
-			
+
 			setTransform();
 		}
 

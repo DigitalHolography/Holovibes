@@ -3513,10 +3513,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportPushButton</sender>
+   <sender>ImportStartPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>import_file()</slot>
+   <slot>import_start()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>803</x>
@@ -3529,10 +3529,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ClosePushButton</sender>
+   <sender>ImportStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>import_file_stop()</slot>
+   <slot>import_stop()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>893</x>
@@ -4249,22 +4249,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TitleDetectPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>title_detect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>803</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1109</x>
-     <y>124</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AverageSignalPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4619,8 +4603,8 @@ p, li { white-space: pre-wrap; }
   <slot>stop_image_record()</slot>
   <slot>stop_csv_record()</slot>
   <slot>import_browse_file()</slot>
-  <slot>import_file()</slot>
-  <slot>import_file_stop()</slot>
+  <slot>import_start()</slot>
+  <slot>import_stop()</slot>
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
@@ -4666,7 +4650,6 @@ p, li { white-space: pre-wrap; }
   <slot>stft_signal_trig(bool)</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
-  <slot>title_detect()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>

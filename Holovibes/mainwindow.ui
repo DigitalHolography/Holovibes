@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1841</width>
-    <height>758</height>
+    <width>1364</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2945,6 +2945,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_17">
            <item>
             <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="acceptDrops">
               <bool>true</bool>
              </property>
@@ -2952,6 +2955,9 @@
               <string/>
              </property>
              <property name="dragEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
               <bool>true</bool>
              </property>
              <property name="placeholderText">
@@ -2972,71 +2978,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="ImportPushButton">
-             <property name="text">
-              <string>Import</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="TitleDetectPushButton">
-             <property name="text">
-              <string>Title Detect</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="ClosePushButton">
-             <property name="text">
-              <string>Close</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="CineFileCheckBox">
-             <property name="toolTip">
-              <string>allow to read a cine file</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Cine file</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QPushButton" name="ToHoloFilePushButton">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>To HoloFile</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="UpdateHoloPushButton">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Update Holo</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QGridLayout" name="gridLayout_4"/>
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
@@ -3046,115 +2988,10 @@
            <property name="verticalSpacing">
             <number>4</number>
            </property>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="ImportWidthSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>256</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="PixelSizeDoubleSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>pixel size of the camera</string>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>5.420000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QComboBox" name="ImportDepthComboBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>bit depth for a pixel</string>
-             </property>
-             <property name="currentText">
-              <string>8</string>
-             </property>
-             <property name="frame">
-              <bool>true</bool>
-             </property>
-             <item>
-              <property name="text">
-               <string>8</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>16</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>32 (float)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>64 (complex)</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="ImportDepthLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>83</width>
-               <height>0</height>
-              </size>
-             </property>
+           <item row="2" column="0">
+            <widget class="QLabel" name="ImportEndIndexLabel">
              <property name="text">
-              <string>Depth (bit)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="PixelSizeLabel">
-             <property name="text">
-              <string>Px size (µm)</string>
+              <string>End Index</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3162,46 +2999,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QSpinBox" name="ImportHeightSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>256</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="ImportFpsLabel">
-             <property name="text">
-              <string>FPS</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="ImportWidthLabel">
-             <property name="text">
-              <string>Width</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="ImportStartSpinBox">
+            <widget class="QSpinBox" name="ImportEndIndexSpinBox">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -3218,22 +3016,25 @@
               <number>2100000000</number>
              </property>
              <property name="value">
-              <number>1</number>
+              <number>2100000000</number>
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ImportStartLabel">
+           <item row="0" column="0">
+            <widget class="QLabel" name="ImportFpsLabel">
              <property name="text">
-              <string>Start</string>
+              <string>Input FPS</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="ImportFpsSpinBox">
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="ImportInputFpsSpinBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3254,64 +3055,18 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="ImportEndiannessLabel">
+           <item row="1" column="0">
+            <widget class="QLabel" name="ImportStartIndexLabel">
              <property name="text">
-              <string>Endianness</string>
+              <string>Start Index</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="ImportHeightLabel">
-             <property name="text">
-              <string>Height</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QComboBox" name="ImportEndiannessComboBox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="currentText">
-              <string>Little Endian</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>Little Endian</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Big Endian</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="ImportEndLabel_2">
-             <property name="text">
-              <string>End</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QSpinBox" name="ImportEndSpinBox">
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="ImportStartIndexSpinBox">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -3328,7 +3083,27 @@
               <number>2100000000</number>
              </property>
              <property name="value">
-              <number>2100000000</number>
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPushButton" name="ImportStartPushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>START</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="ImportStopPushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>STOP</string>
              </property>
             </widget>
            </item>
@@ -3477,7 +3252,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1841</width>
+     <width>1364</width>
      <height>21</height>
     </rect>
    </property>
@@ -3899,17 +3674,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>BatchInputBrowseToolButton</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
   <tabstop>InputBrowseToolButton</tabstop>
-  <tabstop>ImportPushButton</tabstop>
-  <tabstop>ClosePushButton</tabstop>
-  <tabstop>TitleDetectPushButton</tabstop>
-  <tabstop>PixelSizeDoubleSpinBox</tabstop>
-  <tabstop>ImportWidthSpinBox</tabstop>
-  <tabstop>ImportHeightSpinBox</tabstop>
-  <tabstop>ImportFpsSpinBox</tabstop>
-  <tabstop>ImportDepthComboBox</tabstop>
-  <tabstop>ImportEndiannessComboBox</tabstop>
-  <tabstop>ImportStartSpinBox</tabstop>
-  <tabstop>ImportEndSpinBox</tabstop>
+  <tabstop>ImportInputFpsSpinBox</tabstop>
+  <tabstop>ImportStartIndexSpinBox</tabstop>
+  <tabstop>ImportEndIndexSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -4298,7 +4065,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportStartSpinBox</sender>
+   <sender>ImportStartIndexSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>import_start_spinbox_update()</slot>
@@ -4314,7 +4081,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportEndSpinBox</sender>
+   <sender>ImportEndIndexSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>import_end_spinbox_update()</slot>
@@ -4682,10 +4449,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportPushButton</sender>
+   <sender>ImportStartPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>import_file()</slot>
+   <slot>import_start()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1306</x>
@@ -4698,10 +4465,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ClosePushButton</sender>
+   <sender>ImportStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>import_file_stop()</slot>
+   <slot>import_stop()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1396</x>
@@ -4922,22 +4689,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>CineFileCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_import_cine_file(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1396</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1109</x>
-     <y>55</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImgAccuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -5062,22 +4813,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>448</x>
      <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TitleDetectPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>title_detect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1306</x>
-     <y>133</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1109</x>
-     <y>124</y>
     </hint>
    </hints>
   </connection>
@@ -5930,22 +5665,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PixelSizeDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>pixel_size_import()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1524</x>
-     <y>151</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>DisplayReticleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -5958,38 +5677,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ToHoloFilePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>to_holo_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1439</x>
-     <y>133</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>UpdateHoloPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>holo_file_update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1530</x>
-     <y>133</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
     </hint>
    </hints>
   </connection>
@@ -6220,8 +5907,8 @@ p, li { white-space: pre-wrap; }
   <slot>stop_image_record()</slot>
   <slot>stop_csv_record()</slot>
   <slot>import_browse_file()</slot>
-  <slot>import_file()</slot>
-  <slot>import_file_stop()</slot>
+  <slot>import_start()</slot>
+  <slot>import_stop()</slot>
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
@@ -6265,7 +5952,6 @@ p, li { white-space: pre-wrap; }
   <slot>stft_signal_trig(bool)</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
-  <slot>title_detect()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>
@@ -6305,7 +5991,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
-  <slot>to_holo_file()</slot>
   <slot>holo_file_update()</slot>
   <slot>display_cross(bool)</slot>
   <slot>reticle_scale(double)</slot>

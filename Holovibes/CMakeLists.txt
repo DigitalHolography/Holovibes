@@ -36,6 +36,7 @@ target_include_directories(holocuda
     cuda_includes/
     includes/
     includes/compute/
+    includes/io_files/
     includes/thread/
     includes/tools/
     includes/tools/cuda_tools/

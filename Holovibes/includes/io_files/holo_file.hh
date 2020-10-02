@@ -56,7 +56,8 @@ namespace holovibes
 		/*! Packed 64 bytes .holo header to read the right amount bytes into it at once
 		*
 		* Only contains the necessarys information to retrieve the size of the binary images
-		* data to skip directly to the meta data part at the end */
+		* data to skip directly to the meta data part at the end
+		*/
 		#pragma pack(2)
 		struct Header
 		{
@@ -81,57 +82,66 @@ namespace holovibes
 			char padding_[35];
 		};
 
-		static HoloFile& new_instance(const std::string& file_path);
-		static HoloFile& get_instance();
+		/*! Creates the singleton instance
+		*
+		* \param file_path Path to the .holo file
+		*
+		* \return A pointer to the newly created instance, or nullptr if an error occured
+		*/
+		static HoloFile* new_instance(const std::string& file_path);
+
+		/*! Retrieves the singleton instance
+		*
+		* \return A pointer to the singleton instance
+		*/
+		static HoloFile* get_instance();
+
+		/*! Deletes the singleton instance */
+		static void delete_instance();
 
 		/*! Returns the current file's header */
 		const Header& get_header() const;
+
 		/*! Returns the current file's meta data */
 		const json& get_meta_data() const;
-		/*! Sets the current file's meta data */
-		void set_meta_data(const json& meta_data);
-
-		/*! Returns true if the file is a .holo file */
-		operator bool() const;
 
 		/*! Creates a HoloFile::Header with the given arguments */
 		static Header create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb = 0);
-
-		/*! Updates a .holo file by replacing the meta data part
-		*
-		* \param meta_data_str Json meta data as a string */
-		bool update(const std::string& meta_data_str);
 
 		/*! Creates a .holo file
 		*
 		* \param header Header of the new .holo file, the img_nb field will be set according to the image and file sizes
 		* \param meta_data_str Json meta data as a string
-		* \param raw_file_path Path to the raw file to convert */
+		* \param raw_file_path Path to the raw file to convert
+		*/
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
 		/*! Returns a json object containing the settings from a compute descriptor
-		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* If you edit this method you might want to edit the  ``holo_file_update_cd``
 		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
-		* \param cd Current compute descriptor */
+		* \param cd Current compute descriptor
+		*/
 		static json get_json_settings(const ComputeDescriptor& cd);
 
 		/*! Returns a json object containing the settings from a frame descriptor and a compute descriptor
-		* If you edit this method you might want to edit the ``holo_file_update_ui`` and ``holo_file_update_cd``
+		* If you edit this method you might want to edit ``holo_file_update_cd``
 		* methods in MainWindow.cc as well to apply the new saved parameters when loading a holo file.
 		*
 		* \param fd Current frame descriptor
-		* \param cd Current compute descriptor */
+		* \param cd Current compute descriptor
+		*/
 		static json get_json_settings(const ComputeDescriptor& cd, const camera::FrameDescriptor& fd);
 
 	private:
 		/*! Creates a HoloFile object from an existing file path and reads all of the required data
 		*
-		* \param file_path Path of the .holo file to process */
+		* \param file_path Path of the .holo file to process
+		*/
 		HoloFile(const std::string& file_path);
 
 		/*! Path of the .holo file */
-		std::string holo_file_path_;
+		const std::string holo_file_path_;
 
 		/*! Header of the .holo file */
 		Header header_;
@@ -139,8 +149,9 @@ namespace holovibes
 		/*! Meta data offset in the file */
 		uintmax_t meta_data_offset_;
 
-		/*! True if header_.HOLO == "HOLO" */
-		bool is_holo_file_ = false;
+		/*! True if there was no error while creating the instance */
+		/*! If false, new_instance method deletes the instance and returns nullptr */
+		bool is_valid_instance_ = false;
 
 		/*! The json meta data as a std::string */
 		std::string meta_data_str_;
@@ -155,7 +166,8 @@ namespace holovibes
 		* \param data_file_path Path to the file containing image data (could be .raw or .holo)
 		* \param output_path Path of the generated output file
 		* \param begin_offset Offset to the beginning of the image data
-		* \param end_offset Offset to the end of the image data */
+		* \param end_offset Offset to the end of the image data
+		*/
 		static bool write_holo_data(Header& header, const std::string& meta_data_str, const std::string& data_file_path, const std::string& output_path, fpos_t begin_offset, fpos_t end_offset);
 
 		/*! Singleton instance */

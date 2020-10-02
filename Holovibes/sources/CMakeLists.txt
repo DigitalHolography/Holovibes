@@ -2,7 +2,6 @@ target_sources(Holovibes PRIVATE
     camera_dll.cc
     config.cc
     gpib_dll.cc
-    holo_file.cc
     main.cc
     options_parser.cc
     queue.cc
@@ -46,6 +45,9 @@ target_sources(Holovibes PRIVATE
     gui/windows/MainWindow.cc
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
+
+    io_files/cine_file.cc
+    io_files/holo_file.cc
 
     thread/ithread_input.cc
     thread/thread_capture.cc

@@ -199,7 +199,7 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
-			
+
 			setTransform();
 
 			Program->release();
@@ -264,7 +264,7 @@ namespace holovibes
 					main_display->resetTransform();
 			}
 		}
-	
+
 		void	SliceWindow::focusInEvent(QFocusEvent* e)
 		{
 			QWindow::focusInEvent(e);

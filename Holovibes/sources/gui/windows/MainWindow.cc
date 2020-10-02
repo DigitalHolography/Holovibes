@@ -32,6 +32,7 @@
 #include "pipe.hh"
 #include "logger.hh"
 #include "holo_file.hh"
+#include "cine_file.hh"
 
 #define MIN_IMG_NB_STFT_CUTS 8
 
@@ -148,9 +149,6 @@ namespace holovibes
 			p_right_shortcut_->setContext(Qt::ApplicationShortcut);
 			connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
-			QComboBox *depth_cbox = ui.ImportDepthComboBox;
-			connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
-
 			QComboBox *window_cbox = ui.WindowSelectionComboBox;
 			connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
@@ -165,7 +163,6 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(ui.WaveLengthDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ZDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ZStepDoubleSpinBox);
-			spinBoxDecimalPointReplacement(ui.PixelSizeDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMaxDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
 
@@ -236,7 +233,6 @@ namespace holovibes
 				ui.RecordGroupBox->setEnabled(false);
 				ui.ImportGroupBox->setEnabled(true);
 				ui.InfoGroupBox->setEnabled(true);
-				ui.PixelSizeDoubleSpinBox->setValue(cd_.pixel_size);
 				return;
 			}
 			else if (cd_.compute_mode == Computation::Direct && is_enabled_camera_)
@@ -366,6 +362,8 @@ namespace holovibes
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(cd_.algorithm);
 			ui.TimeAlgorithmComboBox->setEnabled(!is_direct);
+			ui.TimeAlgorithmComboBox->setCurrentIndex(cd_.time_filter);
+
 			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.nSizeSpinBox->setEnabled(!is_direct && !cd_.stft_view_enabled);
 			ui.nSizeSpinBox->setValue(cd_.nSize);
@@ -383,17 +381,6 @@ namespace holovibes
 			filter_button->setEnabled(!is_direct && !cd_.filter_2d_enabled);
 			filter_button->setStyleSheet((!is_direct && cd_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && cd_.filter_2d_enabled);
-
-			// Import
-			ui.CineFileCheckBox->setChecked(cd_.is_cine_file);
-			ui.PixelSizeDoubleSpinBox->setEnabled(!cd_.is_cine_file);
-			ui.PixelSizeDoubleSpinBox->setValue(cd_.pixel_size);
-			ui.ImportWidthSpinBox->setEnabled(!cd_.is_cine_file);
-			ui.ImportHeightSpinBox->setEnabled(!cd_.is_cine_file);
-			ui.ImportDepthComboBox->setEnabled(!cd_.is_cine_file);
-			QString depth_value = ui.ImportDepthComboBox->currentText();
-			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !cd_.is_cine_file);
-
 
 			// Composite
 			int nsize_max = cd_.nSize - 1;
@@ -595,7 +582,7 @@ namespace holovibes
 
 		void MainWindow::reload_ini()
 		{
-			import_file_stop();
+			import_stop();
 			try
 			{
 				load_ini(GLOBAL_INI_PATH);
@@ -606,7 +593,7 @@ namespace holovibes
 			}
 			if (import_type_ == ImportType::File)
 			{
-				import_file();
+				import_start();
 			}
 			else if (import_type_ == ImportType::Camera)
 			{
@@ -617,10 +604,10 @@ namespace holovibes
 
 		void MainWindow::reset_input()
 		{
-			import_file_stop();
+			import_stop();
 			if (import_type_ == ImportType::File)
 			{
-				import_file();
+				import_start();
 			}
 			else if (import_type_ == ImportType::Camera)
 			{
@@ -739,7 +726,7 @@ namespace holovibes
 				// Import
 				import_action->setChecked(!ptree.get<bool>("import.hidden", import_group_box->isHidden()));
 				cd_.pixel_size = ptree.get<float>("import.pixel_size", cd_.pixel_size);
-				ui.ImportFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
+				ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
 				info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
@@ -1235,7 +1222,7 @@ namespace holovibes
 				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
 				/* ---------- */
 				cd_.contrast_enabled = true;
-				if (!cd_.is_holo_file)
+				if (cd_.file_type != FileType::HOLO)
 				{
 					set_auto_contrast();
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
@@ -2152,11 +2139,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::pixel_size_import()
-		{
-			cd_.pixel_size = ui.PixelSizeDoubleSpinBox->value();
-		}
-
 		void MainWindow::pipe_refresh()
 		{
 			if (!is_direct_mode())
@@ -2308,21 +2290,6 @@ namespace holovibes
 			spinBox->blockSignals(true);
 			spinBox->setValue(value);
 			spinBox->blockSignals(false);
-		}
-
-		void MainWindow::dropEvent(QDropEvent * e)
-		{
-			/*auto url = e->mimeData()->urls()[0];
-			auto path = url.path();
-			if (path.at(0) == '/')
-				path.remove(0, 1);
-			ui.ImportPathLineEdit->setText(path);*/
-		}
-
-		void MainWindow::dragEnterEvent(QDragEnterEvent * e)
-		{
-			//if (e->mimeData()->urls()[0].fileName().endsWith(".raw"))
-				//e->accept();
 		}
 
 		void MainWindow::set_auto_contrast()
@@ -3207,34 +3174,42 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Import
+		void MainWindow::set_start_stop_buttons(bool value)
+		{
+			ui.ImportStartPushButton->setEnabled(value);
+			ui.ImportStopPushButton->setEnabled(value);
+		}
+
 		void MainWindow::import_browse_file()
 		{
 			static QString tmp_path = "";
 			QString filename = "";
 
 			filename = QFileDialog::getOpenFileName(this,
-				tr("import file"), ((tmp_path == "") ? ("C://") : (tmp_path)), tr("All files (*)"));
+				tr("import file"), ((tmp_path == "") ? ("C://") : (tmp_path)), tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files (*.cine)"));
 
 			QLineEdit* import_line_edit = ui.ImportPathLineEdit;
+			import_line_edit->clear();
+			import_line_edit->insert(filename);
 
-			if (filename != "" && filename != tmp_path)
+			if (filename.endsWith(".holo"))
 			{
-				import_line_edit->clear();
-				import_line_edit->insert(filename);
-				tmp_path = filename;
+				HoloFile* holo_file = HoloFile::new_instance(filename.toStdString());
+				cd_.file_type = FileType::HOLO;
 
-				auto holo_file = HoloFile::new_instance(filename.toStdString());
-				cd_.is_holo_file = holo_file;
-				holo_file_update_ui();
+				set_start_stop_buttons(holo_file != nullptr);
+			}
 
-				if (!holo_file)
-				{
-					title_detect();
-				}
+			else if (filename.endsWith(".cine"))
+			{
+				CineFile* cine_file = CineFile::new_instance(filename.toStdString());
+				cd_.file_type = FileType::CINE;
+
+				set_start_stop_buttons(cine_file != nullptr);
 			}
 		}
 
-		void MainWindow::import_file_stop(void)
+		void MainWindow::import_stop()
 		{
 			close_windows();
 			close_critical_compute();
@@ -3244,61 +3219,33 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::import_file()
+		void MainWindow::import_start()
 		{
-			holo_file_update_ui();
-			holo_file_update_cd();
-			import_file_stop();
-			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
-			QSpinBox *width_spinbox = ui.ImportWidthSpinBox;
-			QSpinBox *height_spinbox = ui.ImportHeightSpinBox;
-			QSpinBox *fps_spinbox = ui.ImportFpsSpinBox;
-			QSpinBox *start_spinbox = ui.ImportStartSpinBox;
-			QSpinBox *end_spinbox = ui.ImportEndSpinBox;
-			QComboBox *depth_spinbox = ui.ImportDepthComboBox;
-			QComboBox *big_endian_checkbox = ui.ImportEndiannessComboBox;
-			QCheckBox *cine = ui.CineFileCheckBox;
-			QDoubleSpinBox *pixel_size_spinbox = ui.PixelSizeDoubleSpinBox;
+			if (cd_.file_type == FileType::HOLO)
+				holo_file_update_cd();
 
-			width = static_cast<ushort>(width_spinbox->value());
-			height = static_cast<ushort>(height_spinbox->value());
-			//modify the third parameter to change the width and the height of the Holowindow
-			get_good_size(width, height, 512);
+			import_stop();
+
+			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
+			QSpinBox *fps_spinbox = ui.ImportInputFpsSpinBox;
+			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
+			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			//the convolution is disabled to avoid problem with iamge size
 			ui.ConvoCheckBox->setChecked(false);
 			set_convolution_mode(false);
 
-			ui.ToHoloFilePushButton->setEnabled(!HoloFile::get_instance());
-			ui.UpdateHoloPushButton->setEnabled(HoloFile::get_instance());
-
 			cd_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-			cd_.pixel_size = pixel_size_spinbox->value();
-			int	depth_multi = 1;
+
 			std::string file_src = import_line_edit->text().toUtf8();
 
+			FrameDescriptor fd;
 
-			try
-			{
-				if (cine->isChecked() == true)
-					seek_cine_header_data(file_src, holovibes_);
-				if (file_src == "")
-					throw std::exception("[IMPORT] No input file");
-			}
-			catch (std::exception& e)
-			{
-				display_error(e.what());
-				return;
-			}
+			if (cd_.file_type == FileType::CINE)
+				fd = get_cine_file_frame_descriptor();
+			else
+				fd = get_holo_file_frame_descriptor();
 
-
-			depth_multi = pow(2, depth_spinbox->currentIndex());
-			FrameDescriptor fd = {
-				static_cast<ushort>(width_spinbox->value()),
-				static_cast<ushort>(height_spinbox->value()),
-				static_cast<unsigned int>(depth_multi),
-				(big_endian_checkbox->currentText() == QString("Big Endian") ?
-					Endianness::BigEndian : Endianness::LittleEndian) };
 			is_enabled_camera_ = false;
 			try
 			{
@@ -3337,9 +3284,6 @@ namespace holovibes
 			is_enabled_camera_ = true;
 			set_image_mode();
 
-
-			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
-				big_endian_checkbox->setEnabled(true);
 			QAction *settings = ui.actionSettings;
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
@@ -3354,17 +3298,56 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			}
 
-			holo_file_update_ui();
-			holo_file_update_cd();
-
+			if (cd_.file_type == FileType::HOLO)
+				holo_file_update_cd();
 
 			notify();
 		}
 
+		FrameDescriptor MainWindow::get_holo_file_frame_descriptor()
+		{
+			HoloFile* holo_file = HoloFile::get_instance();
+			const HoloFile::Header& header = holo_file->get_header();
+
+			cd_.pixel_size = holo_file->get_meta_data().value("pixel_size", 1.0f);
+
+			width = header.img_width;
+			height = header.img_height;
+			get_good_size(width, height, 512);
+
+			FrameDescriptor fd = {
+				static_cast<ushort>(header.img_width),
+				static_cast<ushort>(header.img_height),
+				header.pixel_bits / 8,
+				header.endianess ? Endianness::BigEndian : Endianness::LittleEndian };
+
+			return fd;
+		}
+
+		FrameDescriptor MainWindow::get_cine_file_frame_descriptor()
+		{
+			CineFile* cine_file = CineFile::get_instance();
+			const CineFile::ImageInfo& image_info = cine_file->get_image_info();
+
+			cd_.pixel_size = image_info.pixel_size;
+
+			width = image_info.img_width;
+			height = image_info.img_height;
+			get_good_size(width, height, 512);
+
+			FrameDescriptor fd = {
+				static_cast<ushort>(image_info.img_width),
+				static_cast<ushort>(image_info.img_height),
+				image_info.pixel_bits / 8,
+				Endianness::LittleEndian };
+
+			return fd;
+		}
+
 		void MainWindow::import_start_spinbox_update()
 		{
-			QSpinBox *start_spinbox = ui.ImportStartSpinBox;
-			QSpinBox *end_spinbox = ui.ImportEndSpinBox;
+			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
+			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			if (start_spinbox->value() > end_spinbox->value())
 				end_spinbox->setValue(start_spinbox->value());
@@ -3372,180 +3355,20 @@ namespace holovibes
 
 		void MainWindow::import_end_spinbox_update()
 		{
-			QSpinBox *start_spinbox = ui.ImportStartSpinBox;
-			QSpinBox *end_spinbox = ui.ImportEndSpinBox;
+			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
+			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			if (end_spinbox->value() < start_spinbox->value())
 				start_spinbox->setValue(end_spinbox->value());
-		}
-
-		void MainWindow::set_import_cine_file(bool value)
-		{
-			cd_.is_cine_file = value;
-			notify();
-		}
-
-		void MainWindow::seek_cine_header_data(std::string &file_src_, Holovibes& holovibes_)
-		{
-			QComboBox		*depth_spinbox = ui.ImportDepthComboBox;
-			int				read_width = 0, read_height = 0;
-			ushort			read_depth = 0;
-			uint			read_pixelpermeter_x = 0, offset_to_ptr = 0;
-			FILE*			file = nullptr;
-			fpos_t			pos = 0;
-			char			buffer[45];
-			buffer[44] = 0;
-
-			try
-			{
-				/*Opening file and checking if it exists*/
-				fopen_s(&file, file_src_.c_str(), "rb");
-				if (!file)
-					throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-				std::fsetpos(file, &pos);
-				/*Reading the whole cine file header*/
-				if (std::fread(buffer, 1, 44, file) != 44)
-					throw std::runtime_error("[READER] unable to read file: " + file_src_);
-				/*Checking if the file is actually a .cine file*/
-				if (std::strstr(buffer, "CI") == NULL)
-					throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
-				/*Reading OffImageHeader for offset to BITMAPINFOHEADER*/
-				std::memcpy(&offset_to_ptr, (buffer + 24), sizeof(int));
-				/*Reading value biWidth*/
-				pos = offset_to_ptr + 4;
-				std::fsetpos(file, &pos);
-				if (std::fread(&read_width, 1, sizeof(int), file) != sizeof(int))
-					throw std::runtime_error("[READER] unable to read file: " + file_src_);
-				/*Reading value biHeigth*/
-				pos = offset_to_ptr + 8;
-				std::fsetpos(file, &pos);
-				if (std::fread(&read_height, 1, sizeof(int), file) != sizeof(int))
-					throw std::runtime_error("[READER] unable to read file: " + file_src_);
-				/*Reading value biBitCount*/
-				pos = offset_to_ptr + 14;
-				std::fsetpos(file, &pos);
-				if (std::fread(&read_depth, 1, sizeof(short), file) != sizeof(short))
-					throw std::runtime_error("[READER] unable to read file: " + file_src_);
-				/*Reading value biXpelsPerMetter*/
-				pos = offset_to_ptr + 24;
-				std::fsetpos(file, &pos);
-				if (std::fread(&read_pixelpermeter_x, 1, sizeof(int), file) != sizeof(int))
-					throw std::runtime_error("[READER] unable to read file: " + file_src_);
-
-				/*Setting value in Qt interface*/
-				depth_spinbox->setCurrentIndex((read_depth != 8));
-
-				ui.ImportWidthSpinBox->setValue(read_width);
-				read_height = std::abs(read_height);
-				ui.ImportHeightSpinBox->setValue(read_height);
-				cd_.pixel_size = (1 / static_cast<double>(read_pixelpermeter_x)) * 1e6;
-				ui.ImportEndiannessComboBox->setCurrentIndex(0); // Little Endian
-
-				/*Unused fonction ready to read framerate in exposure*/
-				//get_framerate_cinefile(file, file_src_);
-				//get_exposure_cinefile(file, file_src_);
-				notify();
-			}
-			catch (std::runtime_error& e)
-			{
-				std::cout << e.what() << std::endl;
-				throw std::runtime_error(e.what());
-			}
-		}
-
-		void MainWindow::hide_endianess()
-		{
-			QComboBox* depth_cbox = ui.ImportDepthComboBox;
-			QString curr_value = depth_cbox->currentText();
-			QComboBox* imp_cbox = ui.ImportEndiannessComboBox;
-
-			// Changing the endianess when depth = 8 makes no sense
-			imp_cbox->setEnabled(curr_value == "16");
-		}
-
-		void MainWindow::title_detect(void)
-		{
-			QLineEdit					*import_line_edit = ui.ImportPathLineEdit;
-			QSpinBox					*import_width_box = ui.ImportWidthSpinBox;
-			QSpinBox					*import_height_box = ui.ImportHeightSpinBox;
-			QComboBox					*import_depth_box = ui.ImportDepthComboBox;
-			QComboBox					*import_endian_box = ui.ImportEndiannessComboBox;
-			const std::string			file_src = import_line_edit->text().toUtf8();
-			std::vector<std::string>	strings;
-
-			uint				width = 0;
-			uint				height = 0;
-			uint				depth = 0;
-			bool				mode;
-			bool				endian;
-
-			boost::split(strings, file_src, boost::is_any_of("_"));
-			auto size = strings.size();
-			if (size < 5)
-				return display_error("Title detect expect at least 5 fields separated by '_'.");
-
-			// Mode (Direct or Hologram), unused
-			auto mode_str = strings[size - 5];
-			if (mode_str != "D" && mode_str != "H")
-				return display_error(mode_str + " is not a supported mode.");
-			mode = mode_str == "H";
-			// Width
-			width = std::atoi(strings[size - 4].c_str());
-			// Height
-			height = std::atoi(strings[size - 3].c_str());
-			// Depth
-			depth = std::atoi(strings[size - 2].c_str());
-			if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
-				return display_error("The depth " + strings[size - 2] + " is not supported.");
-			//Endianness
-			auto endian_char = strings[size - 1][0];
-			if (endian_char != 'E' && endian_char != 'e')
-				return display_error("The last field must be either 'E'or 'e'.");
-			endian = endian_char == 'E';
-
-			import_width_box->setValue(width);
-			import_height_box->setValue(height);
-			import_depth_box->setCurrentIndex(log2(depth) - 3);
-			import_endian_box->setCurrentIndex(endian);
-		}
-
-		void MainWindow::to_holo_file()
-		{
-			unsigned width = ui.ImportWidthSpinBox->value();
-			unsigned height = ui.ImportHeightSpinBox->value();
-			unsigned pixel_bits = std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3);
-			auto header = HoloFile::create_header(pixel_bits, width, height);
-			HoloFile::create(header, holo_file_get_json_settings(holovibes_.get_current_window_output_queue().get()).dump(), ui.ImportPathLineEdit->text().toStdString());
-		}
-
-		void MainWindow::holo_file_update_ui()
-		{
-			auto holo_file = HoloFile::get_instance();
-
-			ui.ToHoloFilePushButton->setEnabled(!holo_file && cd_.compute_mode != Computation::Stop);
-			ui.UpdateHoloPushButton->setEnabled(holo_file && cd_.compute_mode != Computation::Stop);
-
-			if (!holo_file)
-				return;
-
-			const HoloFile::Header& header = holo_file.get_header();
-			const json& json_settings = holo_file.get_meta_data();
-			ui.ImportWidthSpinBox->setValue(header.img_width);
-			ui.ImportHeightSpinBox->setValue(header.img_height);
-			ui.ImportDepthComboBox->setCurrentIndex(log2(header.pixel_bits) - 3);
-			ui.ImportEndiannessComboBox->setCurrentIndex(header.endianess);
-			ui.PixelSizeDoubleSpinBox->setValue(json_settings.value("pixel_size", 12.0));
 		}
 
 		void MainWindow::holo_file_update_cd()
 		{
 			auto holo_file = HoloFile::get_instance();
 
-			if (!holo_file)
-				return;
-
-			const json& json_settings = holo_file.get_meta_data();
+			const json& json_settings = holo_file->get_meta_data();
 			cd_.algorithm = static_cast<Algorithm>(json_settings.value("algorithm", 0));
+			cd_.time_filter = static_cast<TimeFilter>(json_settings.value("time_filter", 0));
 			cd_.nSize = json_settings.value("#img", 1);
 			cd_.pindex = json_settings.value("p", 0);
 			cd_.lambda = json_settings.value("lambda", 0.0f);
@@ -3554,6 +3377,19 @@ namespace holovibes
 			cd_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
 			cd_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
 			cd_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
+			cd_.fft_shift_enabled = json_settings.value("fft_shift_enabled", true);
+			cd_.x_accu_enabled = json_settings.value("x_acc_enabled", false);
+			cd_.x_acc_level = json_settings.value("x_acc_level", 1);
+			cd_.y_accu_enabled = json_settings.value("y_acc_enabled", false);
+			cd_.y_acc_level = json_settings.value("y_acc_level", 1);
+			cd_.p_accu_enabled = json_settings.value("p_acc_enabled", false);
+			cd_.p_acc_level = json_settings.value("p_acc_level", 1);
+			cd_.img_acc_slice_xy_enabled = json_settings.value("img_acc_slice_xy_enabled", false);
+			cd_.img_acc_slice_xz_enabled = json_settings.value("img_acc_slice_xz_enabled", false);
+			cd_.img_acc_slice_yz_enabled = json_settings.value("img_acc_slice_yz_enabled", false);
+			cd_.img_acc_slice_xy_level = json_settings.value("img_acc_slice_xy_level", 1);
+			cd_.img_acc_slice_xz_level = json_settings.value("img_acc_slice_xz_level", 1);
+			cd_.img_acc_slice_yz_level = json_settings.value("img_acc_slice_yz_level", 1);
 		}
 
 		json MainWindow::holo_file_get_json_settings(const Queue* q)
@@ -3569,9 +3405,9 @@ namespace holovibes
 				{
 					// This code shouldn't run but it's here to avoid a segfault in case something weird happens
 					json_settings = HoloFile::get_json_settings(cd_);
-					json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
-					json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
-					json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));
+					json_settings.emplace("img_width", 512);
+					json_settings.emplace("img_height", 512);
+					json_settings.emplace("pixel_bits", 16);
 				}
 				return json_settings;
 			}
@@ -3581,12 +3417,6 @@ namespace holovibes
 				return json();
 			}
 		}
-
-		void MainWindow::holo_file_update()
-		{
-			HoloFile::get_instance().update(holo_file_get_json_settings(holovibes_.get_current_window_output_queue().get()).dump());
-		}
-
 
 #pragma endregion
 

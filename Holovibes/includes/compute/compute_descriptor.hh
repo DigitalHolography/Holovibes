@@ -115,6 +115,13 @@ namespace holovibes
 		HSV
 	};
 
+	enum class FileType
+	{
+		NONE,
+		HOLO,
+		CINE
+	};
+
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.
@@ -331,13 +338,10 @@ namespace holovibes
 		std::atomic<bool>			average_enabled;
 
 		//! is file a .cine
-		std::atomic<bool>			is_cine_file;
-		//! is file a .holo
-		std::atomic<bool>			is_holo_file;
+		std::atomic<FileType>		file_type;
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;
-		
 
 		//! Enables the normalization for each of the frames.
 		std::atomic<bool>			normalize_enabled{ false };

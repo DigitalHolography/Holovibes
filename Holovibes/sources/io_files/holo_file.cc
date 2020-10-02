@@ -23,29 +23,38 @@
 namespace holovibes
 {
 	HoloFile* HoloFile::instance = nullptr;
-	const uint16_t HoloFile::current_version = 1;
+	const uint16_t HoloFile::current_version = 2;
 
-	HoloFile& HoloFile::new_instance(const std::string& file_path)
+	HoloFile* HoloFile::new_instance(const std::string& file_path)
 	{
 		if (instance != nullptr)
 			delete instance;
+
 		instance = new HoloFile(file_path);
-		return *instance;
+
+		if (!instance->is_valid_instance_)
+			delete_instance();
+
+		return instance;
 	}
 
-	HoloFile& HoloFile::get_instance()
+	HoloFile* HoloFile::get_instance()
 	{
 		if (instance == nullptr)
-			return new_instance("");
-		return *instance;
+			LOG_WARN("HoloFile instance is null (get_instance)");
+
+		return instance;
+	}
+
+	void HoloFile::delete_instance()
+	{
+		delete instance;
+		instance = nullptr;
 	}
 
 	HoloFile::HoloFile(const std::string& file_path)
 		: holo_file_path_(file_path)
 	{
-		if (file_path == "")
-			return;
-
 		std::ifstream file(file_path, std::ios::in | std::ios::binary);
 
 		if (!file)
@@ -54,43 +63,59 @@ namespace holovibes
 			return;
 		}
 
+		// read the file header
 		file.read(reinterpret_cast<char*>(&header_), sizeof(Header));
-		if (file.gcount() != sizeof(Header))
+		if (file.gcount() != sizeof(Header) || std::strncmp("HOLO", header_.HOLO, 4) != 0)
 		{
+			LOG_ERROR("Invalid HOLO file");
 			return;
 		}
 
-		is_holo_file_ = std::strncmp("HOLO", header_.HOLO, 4) == 0;
-		if (!is_holo_file_)
-		{
-			return;
-		}
-
+		// compute the offset to retrieve the meta data
 		meta_data_offset_ = sizeof(Header) + header_.total_data_size;
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset_;
 
-		meta_data_str_.resize(meta_data_size + 1);
-		meta_data_str_[meta_data_size] = 0;
-
-		file.seekg(meta_data_offset_, std::ios::beg);
-		file.read(meta_data_str_.data(), meta_data_size);
-
-		try
+		// retrieve the meta data
+		if (meta_data_size > 0)
 		{
-			if (meta_data_size == 0)
+			// handle crash if meta_data_size is greater than max_size()
+			try
 			{
-				meta_data_str_ = "{}";
+				meta_data_str_.resize(meta_data_size + 1);
 			}
-			meta_data_ = json::parse(meta_data_str_);
-			LOG_INFO("Loaded holo file: " + file_path + ", detected version: " + std::to_string(header_.version));
+			catch (std::length_error)
+			{
+				LOG_ERROR("An error was encountered while reading the file");
+				return;
+			}
+
+			meta_data_str_[meta_data_size] = 0;
+
+			file.seekg(meta_data_offset_, std::ios::beg);
+			file.read(meta_data_str_.data(), meta_data_size);
+
+			if (file.bad() || file.fail())
+			{
+				LOG_ERROR("An error was encountered while reading the file");
+				return;
+			}
+
+			try
+			{
+				if (meta_data_size == 0)
+					meta_data_str_ = "{}";
+
+				meta_data_ = json::parse(meta_data_str_);
+			}
+			catch (const json::exception&)
+			{
+				LOG_WARN("Could not parse .holo file json meta data, settings are not imported");
+			}
 		}
-		catch (const json::exception&)
-		{
-			LOG_WARN("Could not parse .holo file json meta data, treating the file as a regular .raw file");
-			is_holo_file_ = false;
-			return;
-		}
+
+		is_valid_instance_ = true;
+		LOG_INFO("Loaded holo file: " + file_path + ", detected version: " + std::to_string(header_.version));
 	}
 
 	const HoloFile::Header& HoloFile::get_header() const
@@ -101,16 +126,6 @@ namespace holovibes
 	const json& HoloFile::get_meta_data() const
 	{
 		return meta_data_;
-	}
-
-	void HoloFile::set_meta_data(const json& meta_data)
-	{
-		meta_data_ = meta_data;
-	}
-
-	HoloFile::operator bool() const
-	{
-		return is_holo_file_;
 	}
 
 	HoloFile::Header HoloFile::create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb)
@@ -134,50 +149,6 @@ namespace holovibes
 		header.total_data_size *= img_nb;
 
 		return header;
-	}
-
-
-	bool HoloFile::update(const std::string& meta_data_str)
-	{
-		try
-		{
-			if (!is_holo_file_)
-			{
-				LOG_WARN(holo_file_path_ + " is not a .holo file, it cannot be updated");
-				return false;
-			}
-
-			json meta_data = json::parse(meta_data_str);
-
-			LOG_INFO("Copying and updating file: " + holo_file_path_);
-
-			size_t last_dir = holo_file_path_.find_last_of('/');
-			std::string new_file_path;
-			if (last_dir == holo_file_path_.npos)
-			{
-				new_file_path = "copy_" + holo_file_path_;
-			}
-			else
-			{
-				std::string dir = holo_file_path_.substr(0, last_dir + 1);
-				std::string file = holo_file_path_.substr(last_dir + 1, holo_file_path_.size() - last_dir);
-				new_file_path = dir + "copy_" + file;
-			}
-
-			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, new_file_path, sizeof(Header), meta_data_offset_);
-
-			if (ret)
-			{
-				LOG_INFO("Done.");
-			}
-
-			return true;
-		}
-		catch (const std::exception& e)
-		{
-			LOG_ERROR(e.what());
-			return false;
-		}
 	}
 
 	bool HoloFile::create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path)
@@ -247,7 +218,7 @@ namespace holovibes
 			percent = w * 100 / data_size;
 			if (percent - old_percent >= 10 || percent == 100)
 			{
-				std::cout << "Creating " << output_path << ": " << percent << "%" << std::endl;
+				LOG_INFO("Creating " + output_path + ": " + std::to_string(percent) + "%");
 				old_percent = percent;
 			}
 		}
@@ -267,14 +238,33 @@ namespace holovibes
 			return json
 			{
 				{"algorithm", cd.algorithm.load()},
+				{"time_filter", cd.time_filter.load()},
+
 				{"#img", cd.nSize.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
 				{"pixel_size", cd.pixel_size.load()},
 				{"z", cd.zdistance.load()},
+
+				{"fft_shift_enabled", cd.fft_shift_enabled.load()},
+
+				{"x_acc_enabled", cd.x_accu_enabled.load()},
+				{"x_acc_level" , cd.x_acc_level.load()},
+				{"y_acc_enabled", cd.y_accu_enabled.load()},
+				{"y_acc_level" , cd.y_acc_level.load()},
+				{"p_acc_enabled", cd.p_accu_enabled.load()},
+				{"p_acc_level" , cd.p_acc_level.load()},
+
 				{"log_scale", cd.log_scale_slice_xy_enabled.load()},
 				{"contrast_min", cd.contrast_min_slice_xy.load()},
-				{"contrast_max", cd.contrast_max_slice_xy.load()}
+				{"contrast_max", cd.contrast_max_slice_xy.load()},
+
+				{"img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load()},
+				{"img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load()},
+				{"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
+				{"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
+				{"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
+				{"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()}
 			};
 		}
 		catch (const std::exception& e)

@@ -35,8 +35,7 @@ namespace holovibes
 		unsigned int spanStart,
 		unsigned int spanEnd,
 		Queue& input,
-		bool is_cine_file,
-		bool is_holo_file,
+		FileType file_type,
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
@@ -49,8 +48,7 @@ namespace holovibes
 		, spanStart_(spanStart)
 		, spanEnd_(spanEnd)
 		, queue_(input)
-		, is_cine_file_(is_cine_file)
-		, is_holo_file_(is_holo_file)
+		, file_type_(file_type)
 		, holovibes_(holovibes)
 		, act_frame_(0)
 		, reader_progress_bar_(reader_progress_bar)
@@ -85,14 +83,14 @@ namespace holovibes
 			fopen_s(&file, file_src_.c_str(), "rb");
 			if (file == nullptr)
 				throw std::runtime_error("[READER] unable to open file: " + file_src_);
-			if (is_cine_file_)
+			if (file_type_ == FileType::CINE)
 			{
 				// we look were the data is.
 				offset = offset_cine_first_image(file);
 				// Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
 			}
-			else if (is_holo_file_)
+			else if (file_type_ == FileType::HOLO)
 			{
 				offset = sizeof(HoloFile::Header);
 			}
@@ -149,7 +147,7 @@ namespace holovibes
 		fpos_t pos)
 	{
 		unsigned int cine_offset = 0;
-		if (is_cine_file_)
+		if (file_type_ == FileType::CINE)
 			cine_offset = 8;
 
 		if (std::feof(file) || frameId_ > spanEnd_)

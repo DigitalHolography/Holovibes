@@ -27,6 +27,7 @@
 /* Forward declaration. */
 namespace holovibes
 {
+  enum class FileType;
   class Queue;
   class Holovibes;
 }
@@ -59,8 +60,7 @@ namespace holovibes
       , unsigned int spanStart
       , unsigned int spanEnd
       , Queue& input
-	    , bool is_cine_file
-	    , bool is_holo_file
+	    , FileType file_type
 	    , Holovibes& holovibes
 	    , QProgressBar *reader_progress_bar
 	    , gui::MainWindow *main_window);
@@ -105,10 +105,8 @@ namespace holovibes
     unsigned int spanEnd_;
     /*! \brief The destination Queue. */
     Queue& queue_;
-	/*! \brief Reading a cine file */
-	bool is_cine_file_;
-	/*! \brief Reading a holo file */
-	bool is_holo_file_;
+    /*! \brief The type of the file to read */
+    FileType file_type_;
 	/*! \brief Holovibes class */
 	Holovibes& holovibes_;
 	/*\ current buffer frame to be read */
@@ -117,7 +115,7 @@ namespace holovibes
 	QProgressBar *reader_progress_bar_;
 	/*! \brief Pointer to main window, used to update the progress bar asyncronously */
 	gui::MainWindow *main_window_;
-	
+
 	/*\ current number of frames effectively stacked in the buffer (not always elts_max_nbr whenever eof is reached)*/
 	unsigned int nbr_stored_;
 

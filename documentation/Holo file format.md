@@ -51,7 +51,7 @@ they are already present in the header
 
 The implementation for the holo file format can be found in:
 
-* Holovibes/sources/holo_file.cc
-* Holovibes/includes/holo_file.hh
+* Holovibes/sources/io_files/holo_file.cc
+* Holovibes/includes/io_files/holo_file.hh
 
 Last updated: 11/10/2019

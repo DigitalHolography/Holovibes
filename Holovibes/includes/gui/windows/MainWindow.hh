@@ -190,7 +190,6 @@ namespace holovibes
 			void set_unwrapping_2d(const bool value);
 			void set_accumulation(bool value);
 			void set_accumulation_level(int value);
-			void pixel_size_import();
 			void set_contrast_mode(bool value);
 			void set_auto_contrast();
 			void set_contrast_min(double value);
@@ -226,19 +225,17 @@ namespace holovibes
 			void finished_image_record();
 			void finished_average_record();
 			void stop_csv_record();
+			void set_start_stop_buttons(bool value);
 			void import_browse_file();
-			void import_file();
-			void import_file_stop();
+			void import_start();
+			void import_stop();
 			void import_start_spinbox_update();
 			void import_end_spinbox_update();
-			void hide_endianess();
 			void change_window();
-			void set_import_cine_file(bool value);
 			void reload_ini();
 			void write_ini();
 			void set_classic();
 			void set_night();
-			void title_detect();
 			void rotateTexture();
 			void flipTexture();
 			void set_scale_bar(bool value);
@@ -246,12 +243,14 @@ namespace holovibes
 			void set_square_pixel(bool value);
 			void set_synchronized_record(bool value);
 			void normalize(bool value);
-			void to_holo_file();
-			void holo_file_update();
 			void display_cross(bool value);
 			void reticle_scale(double value);
 			//! Used to start the record at the same time than file reader.
 			void start_recording();
+
+			camera::FrameDescriptor get_holo_file_frame_descriptor();
+			camera::FrameDescriptor get_cine_file_frame_descriptor();
+
 			#pragma endregion
 			/* ---------- */
 		signals:
@@ -278,7 +277,6 @@ namespace holovibes
 			void		createPipe();
 			void		createHoloWindow();
 			void		close_windows();
-			void		seek_cine_header_data(std::string &file_src, Holovibes& holovibes);
 			void		close_critical_compute();
 			void		remove_infos();
 			void		pipe_refresh();
@@ -290,8 +288,6 @@ namespace holovibes
 			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
 			// HoloFile related
-			/*! Updates the import ui with the holo file settings */
-			void holo_file_update_ui();
 			/*! Updates the compute descriptor with the holo file settings */
 			void holo_file_update_cd();
 			/*! Creates a json object containing the compute descriptor settings */
@@ -356,9 +352,6 @@ namespace holovibes
 			QShortcut	*gl_full_screen_;
 			QShortcut	*gl_normal_screen_;
 
-		protected:
-			void dropEvent(QDropEvent* e);
-			void dragEnterEvent(QDragEnterEvent* e);
 			#pragma endregion
 		};
 	}

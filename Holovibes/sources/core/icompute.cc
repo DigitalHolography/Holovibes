@@ -92,7 +92,7 @@ namespace holovibes
 
 		int inembed[1];
 		int zone_size = input_.get_frame_res();
-			
+
 		inembed[0] = cd_.nSize;
 
 		stft_env_.plan1d_stft_.planMany(1, inembed,
@@ -124,7 +124,7 @@ namespace holovibes
 			buffers_.gpu_float_buffer_size_ *= 3;
 		if (!buffers_.gpu_float_buffer_.resize(buffers_.gpu_float_buffer_size_))
 			err++;
-		
+
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
@@ -282,7 +282,7 @@ namespace holovibes
 	void ICompute::update_acc_parameter(
 		std::unique_ptr<Queue>& queue,
 		std::atomic<bool>& enabled,
-		std::atomic<uint>& queue_length, 
+		std::atomic<uint>& queue_length,
 		FrameDescriptor new_fd)
 	{
 		if (enabled && queue && queue->get_max_elts() == queue_length)

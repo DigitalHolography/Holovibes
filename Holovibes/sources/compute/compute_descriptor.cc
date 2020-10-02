@@ -49,18 +49,7 @@ namespace holovibes
 		convo_matrix_width(0),
 		convo_matrix_height(0),
 		convo_matrix_z(0),
-		is_cine_file(false),
-		is_holo_file(false),
-		pixel_size(5.42f),
-		img_acc_slice_xy_enabled(false),
-		img_acc_slice_xz_enabled(false),
-		img_acc_slice_yz_enabled(false),
-		img_acc_slice_xy_level(1),
-		img_acc_slice_xz_level(1),
-		img_acc_slice_yz_level(1),
-		p_accu_enabled(false),
 		p_acc_level(1),
-		x_accu_enabled(false),
 		x_acc_level(1),
 		y_accu_enabled(false),
 		y_acc_level(1),
@@ -86,7 +75,7 @@ namespace holovibes
 	{
 
 	}
-	
+
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
 		algorithm = cd.algorithm.load();
@@ -117,8 +106,7 @@ namespace holovibes
 		convo_matrix_width = cd.convo_matrix_width.load();
 		convo_matrix_height = cd.convo_matrix_height.load();
 		convo_matrix_z = cd.convo_matrix_z.load();
-		is_cine_file = cd.is_cine_file.load();
-		is_holo_file = cd.is_holo_file.load();
+		file_type = cd.file_type.load();
 		pixel_size = cd.pixel_size.load();
 		img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();
 		img_acc_slice_xz_enabled = cd.img_acc_slice_xz_enabled.load();

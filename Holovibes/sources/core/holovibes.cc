@@ -92,7 +92,7 @@ namespace holovibes
 				//Set values to the min of the two
 				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
-			
+
 			input_.reset(new Queue(queue_fd, global::global_config.input_queue_max_size, "InputQueue", camera_fd.width, camera_fd.height, camera_fd.depth));
 
 			LOG_INFO("(Holovibes) Starting initialization...");
@@ -268,8 +268,7 @@ namespace holovibes
 					spanStart,
 					spanEnd,
 					*input_,
-					cd_.is_cine_file,
-					cd_.is_holo_file,
+					cd_.file_type,
 					holovibes,
 					reader_progress_bar,
 					main_window));
