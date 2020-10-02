@@ -300,6 +300,12 @@ namespace holovibes
 			template<>
 			NppStatus nppi_divide_by_constant_<float>(float* image, NppiData& nppi_data, float constant)
 			{
+				if (nppi_data.get_num_channels() == 3)
+				{
+					Npp32f constants[3] = { constant, constant, constant };
+					return nppiDivC_32f_C3IR(constants, image, 3 * nppi_data.get_step<float>(), nppi_data.get_size());
+				}
+				
 				return nppiDivC_32f_C1IR(constant, image, nppi_data.get_step<float>(), nppi_data.get_size());
 			}
 
@@ -354,7 +360,12 @@ namespace holovibes
 			template<>
 			NppStatus nppi_multiply_by_constant_<float>(float* image, NppiData& nppi_data, float constant)
 			{
-
+				if (nppi_data.get_num_channels() == 3)
+				{
+					Npp32f constants[3] = { constant, constant, constant };
+					return nppiMulC_32f_C3IR(constants, image, 3 * nppi_data.get_step<float>(), nppi_data.get_size());
+				}
+				
 				return nppiMulC_32f_C1IR(constant, image, nppi_data.get_step<float>(), nppi_data.get_size());
 			}
 
@@ -412,6 +423,13 @@ namespace holovibes
 			template<>
 			NppStatus nppi_mean_<float>(float* image, NppiData& nppi_data, double* mean)
 			{
+				if (nppi_data.get_num_channels() == 3)
+					return nppiMean_32f_C3R(image,
+						3 * nppi_data.get_step<float>(),
+						nppi_data.get_size(),
+						nppi_data.get_scratch_buffer(&nppiMeanGetBufferHostSize_32f_C3R),
+						mean);
+
 				return nppiMean_32f_C1R(image,
 					nppi_data.get_step<float>(),
 					nppi_data.get_size(),

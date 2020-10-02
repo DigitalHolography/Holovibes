@@ -28,15 +28,20 @@ namespace holovibes
 
 	using MutexGuard = std::lock_guard<std::mutex>;
 
-	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name, unsigned int input_width, unsigned int input_height, unsigned int elm_size)
-		: frame_desc_(frame_desc)
-		, frame_size_(frame_desc_.frame_size())
-		, frame_resolution_(frame_desc_.frame_res())
+	Queue::Queue(const camera::FrameDescriptor& fd,
+				 const unsigned int elts,
+				 std::string name,
+				 unsigned int input_width,
+				 unsigned int input_height,
+				 unsigned int elm_size)
+		: fd_(fd)
+		, frame_size_(fd_.frame_size())
+		, frame_resolution_(fd_.frame_res())
 		, max_elts_(elts)
 		, curr_elts_(0)
 		, start_index_(0)
-		, is_big_endian_(frame_desc.depth >= 2 &&
-			frame_desc.byteEndian == Endianness::BigEndian)
+		, is_big_endian_(fd.depth >= 2 &&
+			fd.byteEndian == Endianness::BigEndian)
 		, name_(name)
 		, data_buffer_()
 		, stream_()
@@ -57,7 +62,7 @@ namespace holovibes
 
 		cudaCheckError();
 
-		frame_desc_.byteEndian = Endianness::LittleEndian;
+		fd_.byteEndian = Endianness::LittleEndian;
 		cudaStreamCreate(&stream_);
 	}
 
@@ -97,9 +102,9 @@ namespace holovibes
 		return data_buffer_;
 	}
 
-	const camera::FrameDescriptor& Queue::get_frame_desc() const
+	const camera::FrameDescriptor& Queue::get_fd() const
 	{
-		return frame_desc_;
+		return fd_;
 	}
 
 	int Queue::get_frame_res()
@@ -198,7 +203,7 @@ namespace holovibes
 			endianness_conversion(
 				reinterpret_cast<ushort *>(new_elt_adress),
 				reinterpret_cast<ushort *>(new_elt_adress),
-				frame_desc_.frame_res(), stream_);
+				fd_.frame_res(), stream_);
 
 		if (curr_elts_ < max_elts_)
 			++curr_elts_;

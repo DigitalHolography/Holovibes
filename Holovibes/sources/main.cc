@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	opts_parser.parse(argc, argv);
 
 	holovibes::Holovibes h;
-	h.set_compute_desc(opts.compute_desc);
+	h.set_cd(opts.cd);
 	if (opts.is_gui_enabled)
 	{
 		/* --- GUI mode --- */
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 		holovibes::gui::MainWindow w(h);
 		w.show();
 		splash.finish(&w);
-		h.get_compute_desc().register_observer(w);
+		h.get_cd().register_observer(w);
 
 		// Resizing horizontally the window before starting
 		w.layout_toggled();

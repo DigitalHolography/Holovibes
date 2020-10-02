@@ -543,36 +543,36 @@ void complex_to_complex(const cuComplex	*input,
 __global__
 void kernel_buffer_size_conversion(char			*real_buffer,
 								const char		*buffer,
-								const size_t	frame_desc_width,
-								const size_t	frame_desc_height,
-								const size_t	real_frame_desc_width,
+								const size_t	fd_width,
+								const size_t	fd_height,
+								const size_t	real_fd_width,
 								const size_t	area)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < area)
 	{
-		uint x = index % real_frame_desc_width;
-		uint y = index / real_frame_desc_width;
-		if (y < frame_desc_height && x < frame_desc_width)
-			real_buffer[index] = buffer[y * frame_desc_width + x];
+		uint x = index % real_fd_width;
+		uint y = index / real_fd_width;
+		if (y < fd_height && x < fd_width)
+			real_buffer[index] = buffer[y * fd_width + x];
 	}
 }
 
 void buffer_size_conversion(char*					real_buffer,
 							const char*				buffer,
-							const FrameDescriptor	real_frame_desc,
-							const FrameDescriptor	frame_desc)
+							const FrameDescriptor	real_fd,
+							const FrameDescriptor	fd)
 {
 	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
+	const uint blocks = map_blocks_to_problem((fd.height * real_fd.width * static_cast<size_t>(fd.depth)), threads);
 
 	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(	real_buffer,
 																buffer,
-																frame_desc.width * frame_desc.depth,
-																frame_desc.height * frame_desc.depth,
-																real_frame_desc.width * frame_desc.depth,
-																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
+																fd.width * fd.depth,
+																fd.height * fd.depth,
+																real_fd.width * fd.depth,
+																fd.height * real_fd.width * static_cast<size_t>(fd.depth));
 	cudaCheckError();
 }
 

@@ -12,7 +12,6 @@
 
 #include "converts.hh"
 #include "frame_desc.hh"
-#include "pipeline_utils.hh"
 #include "compute_descriptor.hh"
 #include "icompute.hh"
 #include "compute_bundles.hh"
@@ -62,7 +61,7 @@ namespace holovibes
 			else if (cd_.img_type == PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
 
-			if (cd_.time_filter == TimeFilter::SVD)
+			if (cd_.time_filter == TimeFilter::SVD && cd_.img_type != ImgType::Composite)
 			{
 				fn_vect_.push_back([=]() {
 					// Multiply frame by (2 ^ 16) - 1 in case of SVD
@@ -90,7 +89,7 @@ namespace holovibes
 		}
 
 		//we use gpu_input_buffer because when nsize = 1, gpu_stft_buffer is not used.
-		void Converts::insert_to_modulus() 
+		void Converts::insert_to_modulus()
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
@@ -125,14 +124,14 @@ namespace holovibes
 
 				if(cd_.composite_kind == CompositeKind::RGB)
 					rgb(stft_env_.gpu_stft_buffer_.get(),
-					buffers_.gpu_float_buffer_,
-					fd_.frame_res(),
-					cd_.composite_auto_weights_,
-					cd_.composite_p_red,
-					cd_.composite_p_blue,
-					cd_.weight_r,
-					cd_.weight_g,
-					cd_.weight_b);
+						buffers_.gpu_float_buffer_,
+						fd_.frame_res(),
+						cd_.composite_auto_weights_,
+						cd_.composite_p_red,
+						cd_.composite_p_blue,
+						cd_.weight_r,
+						cd_.weight_g,
+						cd_.weight_b);
 				else
 					hsv(stft_env_.gpu_stft_buffer_.get(),
 						buffers_.gpu_float_buffer_,
@@ -263,14 +262,14 @@ namespace holovibes
 				float_to_ushort(
 					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 					buffers_.gpu_ushort_cut_xz_,
-					stft_env_.gpu_stft_slice_queue_xz->get_frame_desc().frame_res(),
+					stft_env_.gpu_stft_slice_queue_xz->get_fd().frame_res(),
 					2.f);
 			});
 			fn_vect_.push_back([=]() {
 				float_to_ushort(
 					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 					buffers_.gpu_ushort_cut_yz_,
-					stft_env_.gpu_stft_slice_queue_yz->get_frame_desc().frame_res(),
+					stft_env_.gpu_stft_slice_queue_yz->get_fd().frame_res(),
 					2.f);
 			});
 		}

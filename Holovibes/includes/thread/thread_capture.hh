@@ -42,8 +42,8 @@ namespace holovibes
 
     ~ThreadCapture();
 
-    const camera::FrameDescriptor& get_input_frame_descriptor() const override;
-    const camera::FrameDescriptor& get_queue_frame_descriptor() const override;
+    const camera::FrameDescriptor& get_input_fd() const override;
+    const camera::FrameDescriptor& get_queue_fd() const override;
   private:
     /*! While the thread is running, the get_frame() function (see ICamera
      * interface) is called with the current camera. Images sent are enqueued. */

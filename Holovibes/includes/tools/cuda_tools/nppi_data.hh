@@ -36,6 +36,11 @@ namespace holovibes
 			/*! Creates a new NppiData object with
 			* size_.width = width
 			* size_.height = height */
+			NppiData(int width, int height, unsigned int num_channels);
+
+			/*! Creates a new NppiData object with
+			* size_.width = width
+			* size_.height = height */
 			NppiData(int width, int height);
 
 			/*! Returns the NppiSize field of the object */
@@ -64,9 +69,14 @@ namespace holovibes
 			* \param size Required size of the scratch buffer */
 			static Npp8u* get_scratch_buffer(int size);
 
+			unsigned int get_num_channels() const;
+
 		private:
 			/*! Size of the image associated with this NppiData object */
 			NppiSize size_;
+
+			/*! Number of channels composing the image (3 for RGB and HSV) */
+			unsigned int num_channels_;
 
 			/*! Current size of the scratch buffer */
 			static int scratch_buffer_size_;

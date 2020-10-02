@@ -70,7 +70,7 @@ namespace camera
     }
 
     /*! \brief Get the frame descriptor (frame format) */
-    virtual const FrameDescriptor& get_frame_descriptor() const = 0;
+    virtual const FrameDescriptor& get_fd() const = 0;
 
     /*! \brief Get the pixel size */
     virtual const float get_pixel_size() const = 0;

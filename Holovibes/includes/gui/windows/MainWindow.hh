@@ -175,18 +175,12 @@ namespace holovibes
 			void increment_p();
 			void decrement_p();
 			void set_wavelength(double value);
-			void set_interp_lambda1(double value);
-			void set_interp_lambda2(double value);
-			void set_interp_sensitivity(double value);
-			void set_interp_shift(int value);
-			void set_interpolation(bool value);
 			void set_z(double value);
 			void increment_z();
 			void decrement_z();
 			void set_z_step(double value);
 			void set_algorithm(QString value);
 			void set_time_filter(QString value);
-			void set_crop_stft(bool b);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
 			void update_stft_steps(int value);
@@ -196,14 +190,6 @@ namespace holovibes
 			void set_unwrapping_2d(const bool value);
 			void set_accumulation(bool value);
 			void set_accumulation_level(int value);
-			void set_xy_stabilization_enable(bool value);
-			void set_xy_stabilization_show_convolution(bool value);
-			void set_z_min(const double value);
-			void set_z_max(const double value);
-			void set_z_iter(const int value);
-			void set_z_div(const int value);
-			void set_autofocus_mode();
-			void request_autofocus_stop();
 			void pixel_size_import();
 			void set_contrast_mode(bool value);
 			void set_auto_contrast();
@@ -213,7 +199,6 @@ namespace holovibes
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
 			void set_average_mode(bool value);
-			void set_stabilization_area();
 			void set_composite_area();
 			void activeSignalZone();
 			void activeNoiseZone();
@@ -258,18 +243,7 @@ namespace holovibes
 			void flipTexture();
 			void set_scale_bar(bool value);
 			void set_scale_bar_correction_factor(double value);
-			void set_jitter_enabled(bool value);
-			void set_jitter_factor(double value);
-			void set_jitter_slices(int value);
-			void set_zernike_enable(bool val);
-			void set_zernike_m(int m);
-			void set_zernike_n(int n);
-			void set_zernike_factor(double value);
-			void set_aberration_enabled(bool value);
-			void set_aberration_factor(double value);
-			void set_aberration_slices(int value);
 			void set_square_pixel(bool value);
-			void set_locked_zoom(bool value);
 			void set_synchronized_record(bool value);
 			void normalize(bool value);
 			void to_holo_file();
@@ -309,7 +283,6 @@ namespace holovibes
 			void		remove_infos();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
-			void		zernike_refresh();
 
 			// Change the value without triggering any signals
 			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
@@ -337,7 +310,7 @@ namespace holovibes
 
 			Ui::MainWindow		ui;
 			Holovibes&			holovibes_;
-			ComputeDescriptor&	compute_desc_;
+			ComputeDescriptor&	cd_;
 
 			std::unique_ptr<DirectWindow>	mainDisplay;
 			std::unique_ptr<SliceWindow>	sliceXZ;
@@ -382,7 +355,6 @@ namespace holovibes
 			QShortcut	*p_right_shortcut_;
 			QShortcut	*gl_full_screen_;
 			QShortcut	*gl_normal_screen_;
-			QShortcut	*autofocus_ctrl_c_shortcut_;
 
 		protected:
 			void dropEvent(QDropEvent* e);

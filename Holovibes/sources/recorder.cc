@@ -84,7 +84,7 @@ namespace holovibes
 				gui::InfoManager::get_manager()->remove_info("Recording");
 
 
-			if (queue_.get_frame_desc().depth == 6)
+			if (queue_.get_fd().depth == 6)
 			{
 				// Record 48-bit color image into 24-bit color
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);

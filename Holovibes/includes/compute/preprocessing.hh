@@ -24,6 +24,7 @@
 
 namespace holovibes
 {
+	class Queue;
 	class ComputeDescriptor;
 	struct CoreBuffers;
 
@@ -41,7 +42,7 @@ namespace holovibes
 			};
 
 			/** \brief Constructor.
-			
+
 			*/
 			Preprocessing(FnVector& fn_vect,
 				const CoreBuffers& buffers,
@@ -49,22 +50,17 @@ namespace holovibes
 				holovibes::ComputeDescriptor& cd);
 
 			/** \brief Allocates the ref queue.
-			
+
 			*/
 			void allocate_ref(std::atomic<bool>& update_request);
 
-			/** \brief Add normalization to all of the frames 
-			
+			/** \brief Add normalization to all of the frames
+
 			*/
 			void insert_frame_normalization();
 
-			/** \brief Insert the interpolation function.
-			
-			*/
-			void insert_interpolation();
-
 			/** \brief Insert the functions relative to the Ref algorithm.
-			
+
 			*/
 			void insert_ref();
 
@@ -74,11 +70,11 @@ namespace holovibes
 			float compute_current_intensity(cufftComplex* buffer_ptr, size_t res);
 		private:
 			/** \brief Insert the Ref diff function.
-			
+
 			*/
 			void handle_reference();
 			/** \brief Insert the Ref sliding function.
-			
+
 			*/
 			void handle_sliding_reference();
 

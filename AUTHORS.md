@@ -1,0 +1,30 @@
+## Authors
+
+* Anthony Strazzella
+* Ilan Guenet
+* Nicolas Blin
+* Quentin Kaci
+* Theo Lepage
+* Loïc Bellonnet-Mottet
+* Antoine Martin
+* François Te
+* Ellena Davoine
+* Clement Fang
+* Danae Marmai
+* Hugo Verjus
+* Eloi Charpentier
+* Julien Gautier
+* Florian Lapeyre
+* Thomas Jarrossay
+* Alexandre Bartz
+* Cyril Cetre
+* Clement Ledant
+* Eric Delanghe
+* Arnaud Gaillard
+* Geoffrey Le Gourrierec
+* Jeffrey Bencteux
+* Thomas Kostas
+* Pierre Pagnoux
+* Antoine Dillée
+* Romain Cancillière
+* Michael Atlan

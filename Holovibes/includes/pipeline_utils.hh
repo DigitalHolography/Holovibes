@@ -15,8 +15,7 @@
  * Utility functions and types used in ICompute-based classes. */
 #pragma once
 
-# include "queue.hh"
-# include <deque>
+#include <vector>
 
 namespace holovibes
 {
@@ -27,5 +26,3 @@ namespace holovibes
   //!< A procedure deque.
   using FnDeque = std::deque<FnType>;
 }
-
-bool queue_enqueue(void* input, holovibes::Queue* queue);

@@ -14,7 +14,6 @@
 #include "icompute.hh"
 #include "compute_descriptor.hh"
 #include "tools_compute.cuh"
-#include "interpolation.cuh"
 
 namespace holovibes
 {
@@ -72,20 +71,11 @@ namespace holovibes
 			fn_vect_.push_back([&]() {
 				if (cd_.normalize_enabled) {
 					float intensity = compute_current_intensity(buffers_.gpu_input_buffer_, fd_.width * fd_.height);
-					
+
 					//std::cout << "image division is enabled and  intensity is = " << intensity << std::endl;
 					gpu_real_part_divide(buffers_.gpu_input_buffer_, fd_.width * fd_.height, intensity);
 					}
 			});
-		}
-
-
-		void Preprocessing::insert_interpolation()
-		{
-			if (cd_.interpolation_enabled)
-				fn_vect_.push_back([=]() {
-					const float ratio = cd_.interp_lambda > 0 ? cd_.lambda / cd_.interp_lambda : 1;
-					tex_interpolation(buffers_.gpu_input_buffer_, fd_.width, fd_.height, ratio); });
 		}
 
 		void Preprocessing::insert_ref()
@@ -102,7 +92,7 @@ namespace holovibes
 		{
 			if (ref_diff_state_ == ENQUEUE)
 			{
-				queue_enqueue(buffers_.gpu_input_buffer_, gpu_ref_diff_queue_.get());
+				gpu_ref_diff_queue_->enqueue(buffers_.gpu_input_buffer_);
 				ref_diff_counter_--;
 				if (ref_diff_counter_ == 0)
 				{
@@ -120,7 +110,7 @@ namespace holovibes
 
 		void Preprocessing::handle_sliding_reference()
 		{
-			queue_enqueue(buffers_.gpu_input_buffer_, gpu_ref_diff_queue_.get());
+			gpu_ref_diff_queue_->enqueue(buffers_.gpu_input_buffer_);
 			if (ref_diff_state_ == ENQUEUE)
 			{
 				ref_diff_counter_--;

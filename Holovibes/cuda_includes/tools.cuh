@@ -55,6 +55,11 @@ void shift_corners(cuComplex *input,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
 
+void shift_corners(float3 *input,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream = 0);
+
 /*! \brief Shifts in-place the corners of an image.
  *
  * This function shifts zero-frequency components to the center
@@ -67,6 +72,12 @@ void shift_corners(cuComplex *input,
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
+void shift_corners(const float3 *input,
+				   float3 *output,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream = 0);
+
 void shift_corners(const float*		input,
 				   float*			output,
 				   const uint		size_x,

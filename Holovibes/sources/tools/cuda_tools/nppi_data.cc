@@ -23,6 +23,14 @@ namespace holovibes
 		{
 			size_.width = width;
 			size_.height = height;
+			num_channels_ = 1;
+		}
+
+		NppiData::NppiData(int width, int height, unsigned int num_channels)
+		{
+			size_.width = width;
+			size_.height = height;
+			num_channels_ = num_channels;
 		}
 
 		const NppiSize& NppiData::get_size() const
@@ -57,6 +65,11 @@ namespace holovibes
 				scratch_buffer_.resize(size);
 			}
 			return scratch_buffer_.get();
+		}
+
+		unsigned int NppiData::get_num_channels() const
+		{
+			return num_channels_;
 		}
 
 	} // namepsace cuda_tools

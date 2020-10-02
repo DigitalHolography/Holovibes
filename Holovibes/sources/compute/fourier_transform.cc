@@ -14,6 +14,12 @@
 
 #include "fourier_transform.hh"
 #include "compute_descriptor.hh"
+#include "cublas_handle.hh"
+#include "cusolver_handle.hh"
+#include "nppi_functions.hh"
+#include "info_manager.hh"
+#include "icompute.hh"
+
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "filter2d.cuh"
@@ -21,22 +27,15 @@
 #include "fft2.cuh"
 #include "transforms.cuh"
 #include "stft.cuh"
-#include "icompute.hh"
-#include "info_manager.hh"
 #include "debug_img.cuh"
 
-#include "cublas_handle.hh"
-#include "cusolver_handle.hh"
-#include "nppi_functions.hh"
 
 using holovibes::compute::FourierTransform;
-using holovibes::compute::Autofocus;
 using holovibes::Queue;
 using holovibes::FnVector;
 
 FourierTransform::FourierTransform(FnVector& fn_vect,
 	const holovibes::CoreBuffers& buffers,
-	const std::unique_ptr<Autofocus>& autofocus,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
@@ -44,10 +43,8 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	: gpu_lens_()
 	, gpu_lens_queue_()
 	, gpu_filter2d_buffer_()
-	, gpu_cropped_stft_buf_()
 	, fn_vect_(fn_vect)
 	, buffers_(buffers)
-	, autofocus_(autofocus)
 	, fd_(fd)
 	, cd_(cd)
 	, plan2d_(plan2d)
@@ -57,26 +54,9 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	gpu_filter2d_buffer_.resize(fd_.frame_res());
 
 	std::stringstream ss;
-	ss << "(X1,Y1,X2,Y2) = (";
-	if (cd_.croped_stft)
-	{
-		auto zone = cd_.getZoomedZone();
-		gpu_cropped_stft_buf_.resize(zone.area() * cd_.nSize);
-		ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-	}
-	else
-		ss << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
+	ss << "(X1,Y1,X2,Y2) = (" << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
 
 	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::STFT_ZONE, "STFT Zone", ss.str());
-}
-
-
-void FourierTransform::allocate_filter2d(unsigned int n)
-{
-	if (cd_.croped_stft)
-		gpu_cropped_stft_buf_.resize(cd_.getZoomedZone().area() * n);
-	else
-		gpu_cropped_stft_buf_.reset();
 }
 
 void FourierTransform::insert_fft()
@@ -128,19 +108,18 @@ void FourierTransform::insert_filter2d()
 				exclude_roi);
 		});
 	}
-	
+
 }
 
 void FourierTransform::insert_fft1()
 {
-	const float z = autofocus_->get_zvalue();
+	const float z = cd_.zdistance;
+
 	fft1_lens(gpu_lens_,
 		fd_,
 		cd_.lambda,
 		z,
 		cd_.pixel_size);
-
-	compute_zernike(z);
 
 	fn_vect_.push_back([=]() {
 		fft_1(
@@ -153,14 +132,13 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-	const float z = autofocus_->get_zvalue();
+	const float z = cd_.zdistance;
+
 	fft2_lens(gpu_lens_,
 		fd_,
 		cd_.lambda,
 		z,
 		cd_.pixel_size);
-
-	compute_zernike(z);
 
 	fn_vect_.push_back([=]() {
 		fft_2(
@@ -173,7 +151,7 @@ void FourierTransform::insert_fft2()
 
 void FourierTransform::insert_stft()
 {
-	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
+	fn_vect_.push_back([=]() { stft_env_.gpu_stft_queue_->enqueue(buffers_.gpu_input_buffer_); });
 
 	fn_vect_.push_back([=]() { stft_handler(); });
 }
@@ -225,7 +203,6 @@ void FourierTransform::stft_handler()
 		fd_.height,
 		b,
 		cd_,
-		gpu_cropped_stft_buf_,
 		false);
 
 	if (cd_.stft_view_enabled && b)
@@ -259,19 +236,6 @@ void FourierTransform::stft_handler()
 	stft_env_.stft_handle_ = true;
 }
 
-void FourierTransform::compute_zernike(const float z)
-{
-	if (cd_.zernike_enabled && cd_.zernike_m <= cd_.zernike_n)
-		zernike_lens(gpu_lens_,
-			fd_,
-			cd_.lambda,
-			z,
-			cd_.pixel_size,
-			cd_.zernike_m,
-			cd_.zernike_n,
-			cd_.zernike_factor);
-}
-
 // Useful to debug ``insert_eigenvalue_filter()``
 static void print_matrix(const char* name, cuComplex* matrix, unsigned rows, unsigned columns, bool column_major)
 {
@@ -301,7 +265,7 @@ static void print_matrix(const char* name, cuComplex* matrix, unsigned rows, uns
 
 void FourierTransform::insert_eigenvalue_filter()
 {
-	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
+	fn_vect_.push_back([=]() { stft_env_.gpu_stft_queue_->enqueue(buffers_.gpu_input_buffer_); });
 
 	fn_vect_.push_back([=]() {
 		bool b = false;

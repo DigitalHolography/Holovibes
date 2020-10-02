@@ -73,12 +73,6 @@ namespace holovibes
 			pipe_->request_refresh();
 		}
 
-		/*! request pipe autofocus */
-		void request_autofocus()
-		{
-			pipe_->request_autofocus();
-		}
-
 		/*! request pipe autocontrast */
 		void request_autocontrast(WindowKind kind)
 		{
@@ -90,7 +84,7 @@ namespace holovibes
 		void thread_proc();
 
 		/*! ComputeDescriptor used by the ICompute object.  */
-		ComputeDescriptor& compute_desc_;
+		ComputeDescriptor& cd_;
 
 		Queue& input_;
 		Queue& output_;

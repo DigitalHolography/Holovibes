@@ -426,7 +426,7 @@ namespace holovibes
 		if (vm_.count("1fft"))
 		{
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm = Algorithm::FFT1;
+			opts_.cd.algorithm = Algorithm::FFT1;
 		}
 
 		if (vm_.count("2fft"))
@@ -435,7 +435,7 @@ namespace holovibes
 				throw std::runtime_error("1fft method already selected");
 
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm = Algorithm::FFT2;
+			opts_.cd.algorithm = Algorithm::FFT2;
 		}
 
 		if (vm_.count("nSize"))
@@ -444,18 +444,18 @@ namespace holovibes
 			if (nSize <= 0)
 				throw std::runtime_error("--nSize parameter must be strictly positive");
 
-			opts_.compute_desc.nSize = nSize;
+			opts_.cd.nSize = nSize;
 
-			if (opts_.compute_desc.nSize >= global::global_config.input_queue_max_size)
+			if (opts_.cd.nSize >= global::global_config.input_queue_max_size)
 				throw std::runtime_error("--nSize can not be greater than the input_max_queue_size");
 		}
 
 		if (vm_.count("pindex"))
 		{
 			const unsigned short pindex = vm_["pindex"].as<unsigned short>();
-			if (pindex < 0 || pindex >= opts_.compute_desc.nSize)
+			if (pindex < 0 || pindex >= opts_.cd.nSize)
 				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nSize - 1}.");
-			opts_.compute_desc.pindex = pindex;
+			opts_.cd.pindex = pindex;
 		}
 
 		if (vm_.count("lambda"))
@@ -463,31 +463,31 @@ namespace holovibes
 			const float lambda = vm_["lambda"].as<float>();
 			if (lambda <= 0.0000f)
 				throw std::runtime_error("--lambda parameter must be strictly positive");
-			opts_.compute_desc.lambda = lambda;
+			opts_.cd.lambda = lambda;
 		}
 
 		if (vm_.count("zdistance"))
 		{
 			const float zdistance = vm_["zdistance"].as<float>();
-			opts_.compute_desc.zdistance = zdistance;
+			opts_.cd.zdistance = zdistance;
 		}
 
 		if (vm_.count("viewmode"))
 		{
 			const std::string viewmode = vm_["viewmode"].as<std::string>();
 			if (boost::iequals(viewmode, "magnitude"))
-				opts_.compute_desc.img_type = ImgType::Modulus;
+				opts_.cd.img_type = ImgType::Modulus;
 			else if (boost::iequals(viewmode, "squaredmagnitude"))
-				opts_.compute_desc.img_type = ImgType::SquaredModulus;
+				opts_.cd.img_type = ImgType::SquaredModulus;
 			else if (boost::iequals(viewmode, "argument"))
-				opts_.compute_desc.img_type = ImgType::Argument;
+				opts_.cd.img_type = ImgType::Argument;
 			else
 				throw std::runtime_error("unknown view mode");
 		}
 
-		opts_.compute_desc.log_scale_slice_xy_enabled = vm_.count("log") > 0;
+		opts_.cd.log_scale_slice_xy_enabled = vm_.count("log") > 0;
 
-		opts_.compute_desc.fft_shift_enabled = vm_.count("nofftshift");
+		opts_.cd.fft_shift_enabled = vm_.count("nofftshift");
 
 		if (vm_.count("contrastmin"))
 		{
@@ -496,11 +496,11 @@ namespace holovibes
 			if (log_min < -100.0f || log_min > 100.0f)
 				throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
-			if (opts_.compute_desc.log_scale_slice_xy_enabled)
-				opts_.compute_desc.contrast_min_slice_xy = static_cast<float>(log_min);
+			if (opts_.cd.log_scale_slice_xy_enabled)
+				opts_.cd.contrast_min_slice_xy = static_cast<float>(log_min);
 			else
-				opts_.compute_desc.contrast_min_slice_xy = static_cast<float>(pow(10.0, log_min));
-			opts_.compute_desc.contrast_enabled = true;
+				opts_.cd.contrast_min_slice_xy = static_cast<float>(pow(10.0, log_min));
+			opts_.cd.contrast_enabled = true;
 		}
 
 		if (vm_.count("contrastmax"))
@@ -510,11 +510,11 @@ namespace holovibes
 			if (log_max < -100.0f || log_max > 100.0f)
 				throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
 
-			if (opts_.compute_desc.log_scale_slice_xy_enabled)
-				opts_.compute_desc.contrast_max_slice_xy = log_max;
+			if (opts_.cd.log_scale_slice_xy_enabled)
+				opts_.cd.contrast_max_slice_xy = log_max;
 			else
-				opts_.compute_desc.contrast_max_slice_xy = static_cast<float>(pow(10.0, log_max));
-			opts_.compute_desc.contrast_enabled = true;
+				opts_.cd.contrast_max_slice_xy = static_cast<float>(pow(10.0, log_max));
+			opts_.cd.contrast_enabled = true;
 		}
 	}
 

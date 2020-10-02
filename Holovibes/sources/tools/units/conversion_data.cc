@@ -76,10 +76,7 @@ namespace holovibes
 			}
 			else
 			{
-				if (cd->interpolation_enabled)
-					pix_size = cd->interp_lambda1 * cd->interp_lambda2 / (std::abs(cd->interp_lambda1 - cd->interp_lambda2));
-				else
-					pix_size = std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
+				pix_size = std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
 			}
 			
 			return val * pix_size;

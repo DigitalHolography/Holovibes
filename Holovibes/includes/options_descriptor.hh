@@ -38,7 +38,7 @@ namespace holovibes
     , is_recorder_enabled(false)
     , is_compute_enabled(false)
     , is_float_output_enabled(false)
-    , compute_desc()
+    , cd()
     {
     }
 
@@ -84,6 +84,6 @@ namespace holovibes
     bool is_float_output_enabled;
     /*! \} */ // End of group Enabled
 
-    ComputeDescriptor compute_desc;
+    ComputeDescriptor cd;
   };
 }

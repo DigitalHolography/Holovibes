@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v8.0"; /*!< Current version of this project. */
+	const static std::string version = "v8.1"; /*!< Current version of this project. */
 
 	using	Tuple4f = std::tuple<float, float, float, float>;
 
@@ -148,16 +148,12 @@ namespace holovibes
 		units::RectFd		signal_zone;
 		/*! \brief	The zone to average the noise */
 		units::RectFd		noise_zone;
-		/*! \brief	The zone used to compute automatically the z-value */
-		units::RectFd		autofocus_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		units::RectFd		stft_roi_zone;
 		/*! \brief	The subzone of the filter2D area in band-pass mode */
 		units::RectFd		filter2D_sub_zone;
 		/*! \brief	The area on which we'll normalize the colors*/
 		units::RectFd		composite_zone;
-		/*! \brief	The area on which we'll run the convolution to stabilize*/
-		units::RectFd		stabilization_zone;
 		/*! \brief  The area used to limit the stft computations. */
 		units::RectFd		zoomed_zone;
 
@@ -187,7 +183,6 @@ namespace holovibes
 
 		void signalZone(units::RectFd& rect, AccessMode m);
 		void noiseZone(units::RectFd& rect, AccessMode m);
-		void autofocusZone(units::RectFd& rect, AccessMode m);
 		//! @}
 
 		/*!
@@ -200,7 +195,6 @@ namespace holovibes
 		units::RectFd getStftZone() const;
 		units::RectFd getFilter2DSubZone() const;
 		units::RectFd getCompositeZone() const;
-		units::RectFd getStabilizationZone() const;
 		units::RectFd getZoomedZone() const;
 		units::PointFd getStftCursor() const;
 		//! @}
@@ -214,7 +208,6 @@ namespace holovibes
 		void setStftZone(const units::RectFd& rect);
 		void setFilter2DSubZone(const units::RectFd& rect);
 		void setCompositeZone(const units::RectFd& rect);
-		void setStabilizationZone(const units::RectFd& rect);
 		void setZoomedZone(const units::RectFd& rect);
 		void setStftCursor(const units::PointFd& rect);
 		//! @}
@@ -283,11 +276,6 @@ namespace holovibes
 
 		std::atomic<float> contrast_threshold_high_percentile{ 99.5f };
 
-		//! minimum autofocus value in xy view
-		std::atomic<float>			autofocus_z_min;
-		//! maximum constrast value in xy view
-		std::atomic<float>			autofocus_z_max;
-
 		std::atomic<ushort>			cuts_contrast_p_offset;
 		//! Size of a pixel in micron
 		std::atomic<float>			pixel_size;
@@ -299,11 +287,6 @@ namespace holovibes
 		std::atomic<uint>			convo_matrix_height;
 		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z;
-		std::atomic<uint>			autofocus_size;
-		/*! Number of divison of zmax - zmin used by the autofocus algorithm */
-		std::atomic<uint>			autofocus_z_div;
-		/*! Number of loops done by the autofocus algorithm */
-		std::atomic<uint>			autofocus_z_iter;
 		//! Size of the stft_queue.
 		std::atomic<int>			stft_level;
 		//! Number of pipe iterations between two temporal demodulation.
@@ -331,8 +314,6 @@ namespace holovibes
 		std::atomic<bool>			fft_shift_enabled;
 		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
-		//! enable the limitation of the stft to the zoomed area.
-		std::atomic<bool>			croped_stft;
 		//! Enables the difference with the selected frame.
 		std::atomic<bool>			ref_diff_enabled;
 		//! Enabled the difference with the ref_diff_level previous frame
@@ -356,26 +337,10 @@ namespace holovibes
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;
-
-		//! Enables the XY stabilization.
-		std::atomic<bool>			xy_stabilization_enabled;
-		//! Pause the stabilization, in order to select the stabilization area
-		std::atomic<bool>			xy_stabilization_paused;
-		//! Displays the convolution matrix.
-		std::atomic<bool>			xy_stabilization_show_convolution;
+		
 
 		//! Enables the normalization for each of the frames.
 		std::atomic<bool>			normalize_enabled{ false };
-		//! Enables the interpolation, to match the real pixel size according to the laser wavelength.
-		std::atomic<bool>			interpolation_enabled;
-		//! Current wavelength of the laser
-		std::atomic<float>			interp_lambda;
-		//! Initial wavelength of the laser
-		std::atomic<float>			interp_lambda1;
-		//! Final wavelength of the laser
-		std::atomic<float>			interp_lambda2;
-		std::atomic<float>			interp_sensitivity;
-		std::atomic<int>			interp_shift;
 
 		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
 		std::atomic<bool>			img_acc_slice_xy_enabled;
@@ -408,16 +373,6 @@ namespace holovibes
 		//! Enables the resizing of slice windows to have square pixels (according to their real size)
 		std::atomic<bool>			square_pixel{ false };
 
-		//! Use Zernike polynomials instead of paraboloid for the lens
-		std::atomic<bool>			zernike_enabled{ false };
-		//! m-order of zernike polynomial
-		std::atomic<int>			zernike_m;
-		//! n-order of zernike polynomial
-		std::atomic<int>			zernike_n;
-		//! Factor of the zernike polynomial
-		std::atomic<double>			zernike_factor{ 1.f };
-
-
 		//! Display the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			raw_view{ false };
 		//! Enables the recording of the raw interferogram when we are in hologram mode.
@@ -426,8 +381,6 @@ namespace holovibes
 		//! Wait the beginning of the file to start the recording.
 		std::atomic<bool>			synchronized_record{ false };
 
-		//! Lock the zoom.
-		std::atomic<bool>			locked_zoom{ false };
 
 		//! Middle cross.
 		std::atomic<bool>			display_cross{ false };
@@ -479,14 +432,6 @@ namespace holovibes
 
 		std::atomic<bool>			composite_auto_weights_;
 		//! \}
-
-		std::atomic<bool>			jitter_enabled_{ false };
-		std::atomic<int>			jitter_slices_{ 7 };
-		std::atomic<double>			jitter_factor_{ 1. };
-
-		std::atomic<bool>			aberration_enabled_{ false };
-		std::atomic<int>			aberration_slices_{ 8 };
-		std::atomic<double>			aberration_factor_{ 1. };
 
 #pragma endregion
 	};

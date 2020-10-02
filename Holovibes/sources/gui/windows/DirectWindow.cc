@@ -44,25 +44,25 @@ namespace holovibes
 		units::RectFd	DirectWindow::getSignalZone() const
 		{
 			units::RectFd rect;
-			Cd->signalZone(rect, Get);
+			cd_->signalZone(rect, Get);
 			return rect;
 		}
 
 		units::RectFd	DirectWindow::getNoiseZone() const
 		{
 			units::RectFd rect;
-			Cd->noiseZone(rect, Get);
+			cd_->noiseZone(rect, Get);
 			return rect;
 		}
 
 		void	DirectWindow::setSignalZone(units::RectFd signal)
 		{
-			overlay_manager_.set_zone(Fd.width, signal, Signal);
+			overlay_manager_.set_zone(fd_.width, signal, Signal);
 		}
 
 		void	DirectWindow::setNoiseZone(units::RectFd noise)
 		{
-			overlay_manager_.set_zone(Fd.width, noise, Noise);
+			overlay_manager_.set_zone(fd_.width, noise, Noise);
 		}
 
 		void	DirectWindow::initShaders()
@@ -92,10 +92,10 @@ namespace holovibes
 			#pragma region Texture
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
+			const uint size = fd_.frame_size() / ((fd_.depth == 4 || fd_.depth == 8) ? 2 : 1);
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STATIC_DRAW);	//GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
-				(Fd.byteEndian == Endianness::BigEndian) ?
+				(fd_.byteEndian == Endianness::BigEndian) ?
 				GL_TRUE : GL_FALSE);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 			cudaGraphicsGLRegisterBuffer(&cuResource, Pbo,
@@ -103,11 +103,11 @@ namespace holovibes
 			/* -------------------------------------------------- */
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
-			texDepth = (Fd.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-			texType = (Fd.depth == 8) ? GL_RG : GL_RED;
-			if (Fd.depth == 6)
+			texDepth = (fd_.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+			texType = (fd_.depth == 8) ? GL_RG : GL_RED;
+			if (fd_.depth == 6)
 				texType = GL_RGB;
-			glTexImage2D(GL_TEXTURE_2D, 0, texType, Fd.width, Fd.height, 0, texType, texDepth, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, nullptr);
 
 			Program->setUniformValue(Program->uniformLocation("tex"), 0);
 
@@ -116,12 +116,12 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	// GL_NEAREST ~ GL_LINEAR
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			if (Fd.depth == 8)
+			if (fd_.depth == 8)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
 			}
-			else if (Fd.depth != 6)
+			else if (fd_.depth != 6)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
@@ -176,7 +176,7 @@ namespace holovibes
 			Program->release();
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / Cd->display_rate);
+			startTimer(1000 / cd_->display_rate);
 		}
 		
 
@@ -193,8 +193,8 @@ namespace holovibes
 
 			auto point = this->position();
 			
-			if ((Cd->compute_mode == Computation::Hologram && Cd->algorithm == Algorithm::None)
-				|| Cd->compute_mode == Computation::Direct)
+			if ((cd_->compute_mode == Computation::Hologram && cd_->algorithm == Algorithm::None)
+				|| cd_->compute_mode == Computation::Direct)
 			{
 				if (w != old_width)
 				{
@@ -262,13 +262,13 @@ namespace holovibes
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 			void* frame = Qu->get_last_images(1);
 
-			if (Cd->img_type == ImgType::Composite)
+			if (cd_->img_type == ImgType::Composite)
 			{
 				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
 			}
 			else
 			{
-				convert_frame_for_display(frame, cuPtrToPbo, Fd.frame_res(), Fd.depth, Cd->compute_mode == Computation::Direct ? Cd->direct_bitshift.load() : 0);
+				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, cd_->compute_mode == Computation::Direct ? cd_->direct_bitshift.load() : 0);
 			}
 
 			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
@@ -276,7 +276,7 @@ namespace holovibes
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, texType, texDepth, nullptr);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fd_.width, fd_.height, texType, texDepth, nullptr);
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
@@ -308,8 +308,8 @@ namespace holovibes
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
-				overlay_manager_.release(Fd.width);
-			else if (e->button() == Qt::RightButton && Cd &&!Cd->locked_zoom)
+				overlay_manager_.release(fd_.width);
+			else if (e->button() == Qt::RightButton)
 				resetTransform();
 		}
 
@@ -376,12 +376,8 @@ namespace holovibes
 			is_resize = b;
 		}
 
-
-
-		void	DirectWindow::wheelEvent(QWheelEvent *e)
+		void DirectWindow::wheelEvent(QWheelEvent *e)
 		{
-			if (Cd && Cd->locked_zoom)
-				return;
 			if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
 				return;
 			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;

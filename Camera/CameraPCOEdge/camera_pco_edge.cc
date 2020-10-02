@@ -62,7 +62,6 @@ namespace camera
 
 	void CameraPCOEdge::load_default_params()
 	{
-		//FrameDescriptor fd = get_frame_descriptor();
 		/* Various camera parameters. */
 		exposure_time_ = 0.024f;
 
@@ -103,7 +102,6 @@ namespace camera
 
 	void CameraPCOEdge::load_ini_params()
 	{
-		//FrameDescriptor fd = get_frame_descriptor();
 		const boost::property_tree::ptree& pt = get_ini_pt();
 
 		exposure_time_ = pt.get<float>("pco-edge.exposure_time", exposure_time_);

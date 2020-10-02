@@ -34,8 +34,8 @@ namespace holovibes
 			winState(Qt::WindowNoState),
 			winPos(p),
 			Qu(q),
-			Cd(nullptr),
-			Fd(Qu->get_frame_desc()),
+			cd_(nullptr),
+			fd_(Qu->get_fd()),
 			kView(k),
 			translate_(0.f, 0.f, 0.f, 0.f),
 			scale_(1.f),
@@ -91,17 +91,17 @@ namespace holovibes
 
 		ComputeDescriptor* BasicOpenGLWindow::getCd()
 		{
-			return Cd;
+			return cd_;
 		}
 
 		const ComputeDescriptor * BasicOpenGLWindow::getCd() const
 		{
-			return Cd;
+			return cd_;
 		}
 
 		const FrameDescriptor& BasicOpenGLWindow::getFd() const
 		{
-			return Fd;
+			return fd_;
 		}
 
 		OverlayManager& BasicOpenGLWindow::getOverlayManager()
@@ -186,8 +186,6 @@ namespace holovibes
 		
 		void BasicOpenGLWindow::resetTransform()
 		{
-			if (Cd && Cd->locked_zoom)
-				return;
 			translate_ = { 0.f, 0.f, 0.f, 0.f };
 			scale_ = 1.f;
 			flip_ = false;
@@ -255,7 +253,7 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::setCd(ComputeDescriptor* cd)
 		{
-			Cd = cd;
+			cd_ = cd;
 		}
 	}
 }

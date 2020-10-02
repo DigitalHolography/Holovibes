@@ -70,10 +70,10 @@ namespace holovibes
 			std::ofstream of(path_);
 
 			// Header displaying
-			of << "[Phase number : " << holo_.get_compute_desc().nSize
-				<< ", p : " << holo_.get_compute_desc().pindex
-				<< ", lambda : " << holo_.get_compute_desc().lambda
-				<< ", z : " << holo_.get_compute_desc().zdistance
+			of << "[Phase number : " << holo_.get_cd().nSize
+				<< ", p : " << holo_.get_cd().pindex
+				<< ", lambda : " << holo_.get_cd().lambda
+				<< ", z : " << holo_.get_cd().zdistance
 				<< "]" << std::endl;
 
 			of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;

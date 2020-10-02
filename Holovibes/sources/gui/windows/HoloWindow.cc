@@ -49,8 +49,8 @@ namespace holovibes
 		void	HoloWindow::focusInEvent(QFocusEvent *e)
 		{
 			QOpenGLWindow::focusInEvent(e);
-			Cd->current_window = WindowKind::XYview;
-			Cd->notify_observers();
+			cd_->current_window = WindowKind::XYview;
+			cd_->notify_observers();
 		}
 
 		void	HoloWindow::update_slice_transforms()
@@ -67,33 +67,8 @@ namespace holovibes
 			}
 		}
 
-		void	HoloWindow::update_stft_zoom_buffer(units::RectFd zone)
-		{
-			auto pipe = dynamic_cast<Pipe *>(Ic.get());
-			if (pipe)
-			{
-				pipe->run_end_pipe([=]() {
-					Cd->setZoomedZone(zone);
-					if (Cd->croped_stft)
-					{
-						std::stringstream ss;
-						ss << "(X1,Y1,X2,Y2) = (" << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-						InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-						Ic->request_update_n(Cd->nSize);
-					}
-				});
-			}
-		}
-
 		void	HoloWindow::resetTransform()
 		{
-			if (Cd && Cd->locked_zoom)
-				return;
-			if (Fd.frame_res() != Cd->getZoomedZone().area())
-			{
-				units::ConversionData convert(this);
-				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width, Fd.height));
-			}
 			BasicOpenGLWindow::resetTransform();
 		}
 

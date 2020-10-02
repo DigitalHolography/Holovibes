@@ -23,8 +23,6 @@ namespace holovibes
 		nSize(1),
 		pindex(0),
 		lambda(532e-9f),
-		interpolation_enabled(false),
-		interp_lambda(532e-9f),
 		zdistance(1.50f),
 		img_type(ImgType::Modulus),
 		unwrap_history_size(1),
@@ -38,7 +36,6 @@ namespace holovibes
 		divide_convolution_enabled(false),
 		renorm_enabled(false),
 		renorm_constant(15),
-		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
 		contrast_min_slice_xy(1.f),
@@ -49,14 +46,9 @@ namespace holovibes
 		contrast_max_slice_yz(65535.f),
 		contrast_invert(false),
 		scale_bar_correction_factor(1),
-		autofocus_size(10),
 		convo_matrix_width(0),
 		convo_matrix_height(0),
 		convo_matrix_z(0),
-		autofocus_z_min(0.f),
-		autofocus_z_max(1.f),
-		autofocus_z_div(10),
-		autofocus_z_iter(5),
 		is_cine_file(false),
 		is_holo_file(false),
 		pixel_size(5.42f),
@@ -81,9 +73,6 @@ namespace holovibes
 		current_window(WindowKind::XYview),
 		cuts_contrast_p_offset(2),
 		display_rate(30),
-		xy_stabilization_enabled(false),
-		xy_stabilization_paused(false),
-		xy_stabilization_show_convolution(false),
 		composite_p_red(0),
 		composite_p_blue(0),
 		weight_r(1),
@@ -125,14 +114,9 @@ namespace holovibes
 		contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
 		contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
 		contrast_invert = cd.contrast_invert.load();
-		autofocus_size = cd.autofocus_size.load();
 		convo_matrix_width = cd.convo_matrix_width.load();
 		convo_matrix_height = cd.convo_matrix_height.load();
 		convo_matrix_z = cd.convo_matrix_z.load();
-		autofocus_z_min = cd.autofocus_z_min.load();
-		autofocus_z_max = cd.autofocus_z_max.load();
-		autofocus_z_div = cd.autofocus_z_div.load();
-		autofocus_z_iter = cd.autofocus_z_iter.load();
 		is_cine_file = cd.is_cine_file.load();
 		is_holo_file = cd.is_holo_file.load();
 		pixel_size = cd.pixel_size.load();
@@ -156,7 +140,6 @@ namespace holovibes
 		stft_slice_cursor = cd.stft_slice_cursor;
 		signal_zone = cd.signal_zone;
 		noise_zone = cd.noise_zone;
-		autofocus_zone = cd.autofocus_zone;
 		stft_roi_zone = cd.stft_roi_zone;
 		filter2D_sub_zone = cd.filter2D_sub_zone;
 		return *this;
@@ -200,19 +183,6 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::autofocusZone(units::RectFd& rect, AccessMode m)
-	{
-		LockGuard g(mutex_);
-		if (m == Get)
-		{
-			rect = autofocus_zone;
-		}
-		else if (m == Set)
-		{
-			autofocus_zone = rect;
-		}
-	}
-
 	units::RectFd ComputeDescriptor::getStftZone() const
 	{
 		LockGuard g(mutex_);
@@ -247,18 +217,6 @@ namespace holovibes
 	{
 		LockGuard g(mutex_);
 		composite_zone = rect;
-	}
-
-	units::RectFd ComputeDescriptor::getStabilizationZone() const
-	{
-		LockGuard g(mutex_);
-		return stabilization_zone;
-	}
-
-	void ComputeDescriptor::setStabilizationZone(const units::RectFd& rect)
-	{
-		LockGuard g(mutex_);
-		stabilization_zone = rect;
 	}
 
 	units::RectFd ComputeDescriptor::getZoomedZone() const

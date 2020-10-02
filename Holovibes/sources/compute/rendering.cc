@@ -12,7 +12,6 @@
 
 #include "rendering.hh"
 #include "frame_desc.hh"
-#include "pipeline_utils.hh"
 #include "icompute.hh"
 #include "compute_descriptor.hh"
 #include "concurrent_deque.hh"
@@ -45,12 +44,20 @@ namespace holovibes
 		{
 			if (cd_.fft_shift_enabled)
 			{
-				fn_vect_.push_back([=]() {
-					shift_corners(
-						buffers_.gpu_float_buffer_,
-						fd_.width,
-						fd_.height);
-				});
+				if (cd_.img_type == ImgType::Composite)
+					fn_vect_.push_back([=]() {
+						shift_corners(
+							reinterpret_cast<float3 *>(buffers_.gpu_float_buffer_.get()),
+							fd_.width,
+							fd_.height);
+					});
+				else
+					fn_vect_.push_back([=]() {
+						shift_corners(
+							buffers_.gpu_float_buffer_,
+							fd_.width,
+							fd_.height);
+					});
 			}
 		}
 
@@ -214,7 +221,7 @@ namespace holovibes
 
 				cd_.contrast_min_slice_xz = contrast_min;
 				cd_.contrast_max_slice_xz = contrast_max;
-				
+
 				*/
 				break;
 			case XZview:

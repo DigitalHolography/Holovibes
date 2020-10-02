@@ -29,19 +29,6 @@ void kernel_quadratic_lens(cuComplex			*output,
 						const float				dist,
 						const float				pixel_size);
 
-/*! \brief Compute a lens to apply to an image using the zernike polynomials.
-
-*/
-void zernike_lens(cuComplex*	lens,
-	const camera::FrameDescriptor&	fd,
-	const float				lambda,
-	const float				z,
-	const float				pixel_size,
-	const int				zernike_m,
-	const uint				zernike_n,
-	const double			zernike_factor,
-	cudaStream_t			stream = 0);
-
 /*! \brief Compute a lens to apply to an image used by the fft2
 *
 * \param output The lens computed by the function.

@@ -22,10 +22,10 @@
 #include "rect.hh"
 #include "cuda_tools\unique_ptr.hh"
 #include "cuda_tools\array.hh"
-#include "autofocus.hh"
 
 namespace holovibes
 {
+	class Queue;
 	class ComputeDescriptor;
 	struct Stft_env;
 	struct CoreBuffers;
@@ -36,57 +36,50 @@ namespace holovibes
 		{
 		public:
 			/*! \brief Constructor.
-			
+
 			*/
 			FourierTransform(FnVector& fn_vect,
 				const CoreBuffers& buffers,
-				const std::unique_ptr<Autofocus>& autofocus,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
 				const cufftHandle& plan2d,
 				Stft_env& stft_env);
 
-
-			/*! \brief allocate filter2d buffer.
-			
-			*/
-			void allocate_filter2d(unsigned int n);
-
 			/*! \brief enqueue functions relative to spatial fourier transforms.
-			
+
 			*/
 			void insert_fft();
 
 			/*! \brief enqueue functions relative to temporal fourier transforms.
-			
+
 			*/
 			void insert_stft();
 
 			/*! \brief Get Lens Queue used to display the Fresnel lens.
-			
+
 			*/
 			std::unique_ptr<Queue>& get_lens_queue();
-			
+
 			/*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
 					   This should eventually replace stft
 			*/
 			void insert_eigenvalue_filter();
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
-			
+
 			*/
 			void insert_filter2d();
 
 			/*! \brief Compute lens and enqueue the call to fft1 cuda function.
-			
+
 			*/
 			void insert_fft1();
 
 			/*! \brief Compute lens and enqueue the call to fft2 cuda function.
-			
+
 			*/
 			void insert_fft2();
-			
+
 			/*! \brief Apply the STFT algorithm.
 
 			 * 1 : Check if the STFT must be performed acording to stft_steps \n
@@ -97,15 +90,10 @@ namespace holovibes
 			void stft_handler();
 
 			/*! \brief Enqueue the Fresnel lens into the Lens Queue.
-			
+
 				It will enqueue the lens, and normalize it, in order to display it correctly later.
 			*/
 			void enqueue_lens();
-
-			/*! \brief add the zernike polynomials to the current lens.
-			
-			*/
-			void compute_zernike(const float z);
 
 			//! Roi zone of Filter 2D
 			units::RectFd					filter2d_zone_;
@@ -117,15 +105,11 @@ namespace holovibes
 			std::unique_ptr<Queue>				gpu_lens_queue_;
 			//! Filter 2D buffer. Contains one frame.
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
-			//! Crop STFT buffer. Contains nSize frames. Used to apply STFT on smaller areas than the whole window.
-			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			//! Main buffers
 			const CoreBuffers&				buffers_;
-			//! Autofocus feature. Used to retrieve the correct zindex to compute.
-			const std::unique_ptr<Autofocus>& autofocus_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			//! Compute Descriptor

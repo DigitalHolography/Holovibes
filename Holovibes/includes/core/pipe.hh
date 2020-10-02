@@ -18,15 +18,12 @@
 
 # include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
-# include "stabilization.hh"
+# include "image_accumulation.hh"
 # include "fourier_transform.hh"
-# include "autofocus.hh"
 # include "rendering.hh"
 # include "converts.hh"
-# include "detect_intensity.hh"
 # include "preprocessing.hh"
 # include "postprocessing.hh"
-# include "aberration.hh"
 
 namespace holovibes
 {
@@ -56,7 +53,7 @@ namespace holovibes
 	 * a request system. When the compute descriptor is modified the GUI will
 	 * request the pipe to refresh with updated parameters.
 	 *
-	 * Also, some events such as autofocus or autoconstrast will be executed only
+	 * Also, some events such as autoconstrast will be executed only
 	 * for one iteration. For example, request_autocontrast will add the autocontrast
 	 * algorithm in the pipe and will automatically set a pipe refresh so
 	 * that the autocontrast algorithm will be done only once.
@@ -72,12 +69,12 @@ namespace holovibes
 		virtual ~Pipe();
 
 		/*! \brief Get the lens queue to display it.
-		
+
 		*/
 		std::unique_ptr<Queue>&			get_lens_queue() override;
 
 		/*! \brief Get the raw queue to display. It allocates the queue if it isn't already done.
-		
+
 		*/
 		std::unique_ptr<Queue>&			get_raw_queue() override;
 
@@ -91,7 +88,7 @@ namespace holovibes
 		void autocontrast_end_pipe(WindowKind kind);
 
 		/*! \brief Returns the class containing every functions relative to the FF1, FF2 and STFT algorithm.
-		
+
 		*/
 		compute::FourierTransform * get_fourier_transforms();
 
@@ -117,9 +114,16 @@ namespace holovibes
 		virtual void	exec();
 
 		/*! \brief Enqueue the main FnVector according to the requests.
-		
+
 		*/
 		virtual void	refresh();
+
+		/*! \brief Make requests at the beginning of the refresh.
+		* Make the allocation of buffers when it is requested.
+		* \return return false if an allocation failed.
+		*/
+		virtual bool make_requests();
+
 		void			*get_enqueue_buffer();
 
 	private:
@@ -133,16 +137,12 @@ namespace holovibes
 		*/
 		std::mutex		functions_mutex_;
 
-		std::unique_ptr<compute::Stabilization> stabilization_;
-		std::unique_ptr<compute::Autofocus> autofocus_;
+		std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
 		std::unique_ptr<compute::Rendering> rendering_;
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
-		std::unique_ptr<compute::Aberration> aberration_;
-
-		compute::DetectIntensity detect_intensity_;
 
 		std::unique_ptr<Queue> gpu_raw_queue_;
 
@@ -150,7 +150,7 @@ namespace holovibes
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
 
 		/*! \brief Iterates and executes function of the pipe.
-		
+
 		  It will first iterate over fn_vect_, then over function_end_pipe_. */
 		void run_all();
 	};

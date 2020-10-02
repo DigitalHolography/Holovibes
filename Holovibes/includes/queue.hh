@@ -49,11 +49,11 @@ namespace holovibes
 		** Please note that when you allocate a Queue, its element number elts should be at least greater
 		** by 2 that what you need (e-g: 10 elements Queue should be allocated with a elts of 12).
 		**
-		** \param frame_desc Either the FrameDescriptor of the camera that provides
+		** \param fd Either the FrameDescriptor of the camera that provides
 		** images or a FrameDescriptor used for computations.
 		** \param elts Max number of elements that the queue can contain.
 		**/
-		Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name, unsigned int input_width = 0, unsigned int input_height = 0, unsigned int elm_size = 1);
+		Queue(const camera::FrameDescriptor& fd, const unsigned int elts, std::string name, unsigned int input_width = 0, unsigned int input_height = 0, unsigned int elm_size = 1);
 		~Queue();
 
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
@@ -69,7 +69,7 @@ namespace holovibes
 		void* get_buffer();
 
 		/*! \return FrameDescriptor of the Queue */
-		const camera::FrameDescriptor& get_frame_desc() const;
+		const camera::FrameDescriptor& get_fd() const;
 
 		/*! \return the size of one frame (i-e element) of the Queue in pixels. */
 		int get_frame_res();
@@ -161,7 +161,7 @@ namespace holovibes
 
 		std::mutex				mutex_;
 		std::string				name_;
-		camera::FrameDescriptor	frame_desc_;
+		camera::FrameDescriptor	fd_;
 		const size_t			frame_size_;
 		const int				frame_resolution_;
 		unsigned int		    max_elts_;

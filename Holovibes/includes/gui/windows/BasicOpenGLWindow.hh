@@ -78,8 +78,8 @@ namespace holovibes
 			Qt::WindowState			winState;
 			QPoint					winPos;
 			std::unique_ptr<Queue>&					Qu;
-			ComputeDescriptor		*Cd;
-			const camera::FrameDescriptor&	Fd;
+			ComputeDescriptor		*cd_;
+			const camera::FrameDescriptor&	fd_;
 			const KindOfView		kView;
 
 			OverlayManager	overlay_manager_;

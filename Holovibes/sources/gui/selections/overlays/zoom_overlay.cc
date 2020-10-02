@@ -27,7 +27,7 @@ namespace holovibes
 
 		void ZoomOverlay::release(ushort frameSide)
 		{
-			if (zone_.topLeft() == zone_.bottomRight() || parent_->getCd()->locked_zoom)
+			if (zone_.topLeft() == zone_.bottomRight())
 			{
 				disable();
 				return;
@@ -38,13 +38,6 @@ namespace holovibes
 			if (window)
 			{
 				window->zoomInRect(zone_);
-				// Setting zone for the croped stft
-				HoloWindow* holowindow = dynamic_cast<HoloWindow *>(window);
-				if (holowindow)
-				{
-					checkCorners();
-					holowindow->update_stft_zoom_buffer(zone_);
-				}
 			}
 			disable();
 		}

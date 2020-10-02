@@ -26,13 +26,11 @@
 #include "convolution.cuh"
 #include "composite.cuh"
 #include "tools.cuh"
-#include "autofocus.cuh"
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "tools.hh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
-#include "interpolation.cuh"
 
 namespace holovibes
 {
@@ -44,16 +42,13 @@ namespace holovibes
 		ComputeDescriptor& desc)
 		: ICompute(input, output, desc)
 		, fn_vect_()
-		, detect_intensity_(fn_vect_, buffers_, input.get_frame_desc(), desc)
 	{
-		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_, input.get_frame_desc(), desc);
-		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_, input_, desc, this);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_);
-		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
-		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
-		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
-		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, fourier_transforms_->get_lens_queue().get());
+		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, buffers_, input.get_fd(), desc);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
+		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_fd(), output.get_fd(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_fd(), output.get_fd());
+		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
+		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 
 		update_n_requested_ = true;
 
@@ -86,80 +81,27 @@ namespace holovibes
 	{
 	}
 
-
-	// This functions appears to be useless
-	// because the conversions short -> complex -> float -> short are unnecessary
-	// and should be optimized a lot.
-	// But if it's removed, direct data recording drops frames, and the integrity of the frame is lost
-	/*void Pipe::direct_refresh()
+	bool Pipe::make_requests()
 	{
-		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
-
-		if (abort_construct_requested_)
-		{
-			refresh_requested_.exchange(false);
-			return;
-		}
-		fn_vect_.push_back([=]() {
-			make_contiguous_complex(
-				input_,
-				buffers_.gpu_input_buffer_);
-		});
-		fn_vect_.push_back([=]() {
-			complex_to_modulus(
-				buffers_.gpu_input_buffer_,
-				buffers_.gpu_float_buffer_,
-				nullptr,
-				0,
-				0,
-				input_fd.frame_res());
-		});
-		fn_vect_.push_back([=]() {
-			float_to_ushort(
-				buffers_.gpu_float_buffer_,
-				buffers_.gpu_output_buffer_,
-				input_fd.frame_res(),
-				output_fd.depth);
-		});
-	} */
-
-	void Pipe::refresh()
-	{
-		if (compute_desc_.compute_mode == Computation::Direct)
-		{
-			fn_vect_.clear();
-			// Useless function, that has no incidence on output, but maybe fixes a displaying bug of direct hologram
-			//direct_refresh();
-			update_n_requested_ = false;
-			refresh_requested_ = false;
-			return;
-		}
-
+		bool success_allocation = true;
 		if (resize_requested_)
 		{
 			output_.resize(requested_output_size_);
 			resize_requested_ = false;
 			if (kill_raw_queue_)
-			{
 				gpu_raw_queue_.reset(nullptr);
-			}
 		}
 
 		postprocess_->allocate_buffers();
 
-		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-
-		/* Clean current vector. */
-		fn_vect_.clear();
-
 		// Updating number of images
 		if (update_n_requested_)
 		{
-			if (!update_n_parameter(compute_desc_.nSize))
+			if (!update_n_parameter(cd_.nSize))
 			{
-				compute_desc_.pindex = 0;
-				compute_desc_.nSize = 1;
+				success_allocation = false;
+				cd_.pindex = 0;
+				cd_.nSize = 1;
 				update_n_parameter(1);
 				LOG_WARN("Updating #img failed, #img updated to 1");
 			}
@@ -171,91 +113,92 @@ namespace holovibes
 		// Allocating accumulation queues/buffers
 		if (update_acc_requested_)
 		{
-			FrameDescriptor new_fd_xz = input_.get_frame_desc();
-			FrameDescriptor new_fd_yz = input_.get_frame_desc();
-			new_fd_xz.height = compute_desc_.nSize;
-			new_fd_yz.width = compute_desc_.nSize;
-			update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
-			update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
+			FrameDescriptor new_fd_xz = input_.get_fd();
+			FrameDescriptor new_fd_yz = input_.get_fd();
+			new_fd_xz.height = cd_.nSize;
+			new_fd_yz.width = cd_.nSize;
+			update_acc_parameter(gpu_img_acc_yz_, cd_.img_acc_slice_yz_enabled, cd_.img_acc_slice_yz_level, new_fd_yz);
+			update_acc_parameter(gpu_img_acc_xz_, cd_.img_acc_slice_xz_enabled, cd_.img_acc_slice_xz_level, new_fd_xz);
 			update_acc_requested_ = false;
 		}
 
 		preprocess_->allocate_ref(update_ref_diff_requested_);
 
+		return success_allocation;
+	}
+
+	void Pipe::refresh()
+	{
+		if (cd_.compute_mode == Computation::Direct)
+		{
+			fn_vect_.clear();
+			// Useless function, that has no incidence on output, but maybe fixes a displaying bug of direct hologram
+			//direct_refresh();
+			update_n_requested_ = false;
+			refresh_requested_ = false;
+			return;
+		}
+		// else computation mode is hologram
+
 		// Aborting if allocation failed
-		if (abort_construct_requested_)
+		if (!make_requests())
 		{
 			refresh_requested_ = false;
 			return;
 		}
 
-		if (autofocus_requested_ && autofocus_->get_state() == compute::af_state::STOPPED)
-		{
-			autofocus_->insert_init();
-			autofocus_requested_ = false;
-			return;
-		}
+		const camera::FrameDescriptor& input_fd = input_.get_fd();
 
-		// Converting input_ to complex.
-		if (autofocus_->get_state() == compute::af_state::STOPPED)
-		{
-			fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
-		}
-		else if (autofocus_->get_state() == compute::af_state::COPYING)
-		{
-			autofocus_->insert_copy();
-			return;
-		}
+		/* Clean current vector. */
+		fn_vect_.clear();
 
-		detect_intensity_.insert_post_contiguous_complex();
-
-		autofocus_->insert_restore();
+		/* Build step by step the vector of function to compute */
+		fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
 
 		preprocess_->insert_frame_normalization();
-		preprocess_->insert_interpolation();
 		preprocess_->insert_ref();
 
+		// spatial transform
 		fourier_transforms_->insert_fft();
 
-		if (compute_desc_.time_filter == TimeFilter::STFT)
+		// time transform
+		if (cd_.time_filter == TimeFilter::STFT)
 		{
 			fourier_transforms_->insert_stft();
 		}
-		else if (compute_desc_.time_filter == TimeFilter::SVD)
+		else if (cd_.time_filter == TimeFilter::SVD)
 		{
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
-		aberration_->enqueue(fn_vect_);
-
+		// make computation between the p and the p + pAcc frames
 		converts_->insert_to_float(unwrap_2d_requested_);
 
 		postprocess_->insert_convolution();
 		postprocess_->insert_renormalize();
 
-		stabilization_->insert_post_img_type();
+		image_accumulation_->insert_image_accumulation();
 
 		// Inserts the output buffers into the accumulation queues
 		// and rewrite the average into the output buffer
-		// For the XY view, this happens in stabilization.cc,
+		// For the XY view, this happens in image_accumulation.cc,
 		// as the average is used in the intermediate computations
-		if (compute_desc_.img_acc_slice_yz_enabled)
+		if (cd_.img_acc_slice_yz_enabled)
 			enqueue_buffer(gpu_img_acc_yz_.get(),
 				static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-				compute_desc_.img_acc_slice_yz_level,
-				input_fd.height * compute_desc_.nSize);
-		if (compute_desc_.img_acc_slice_xz_enabled)
+				cd_.img_acc_slice_yz_level,
+				input_fd.height * cd_.nSize);
+		if (cd_.img_acc_slice_xz_enabled)
 			enqueue_buffer(gpu_img_acc_xz_.get(),
 				static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-				compute_desc_.img_acc_slice_xz_level,
-				input_fd.width * compute_desc_.nSize);
+				cd_.img_acc_slice_xz_level,
+				input_fd.width * cd_.nSize);
 
 		rendering_->insert_fft_shift();
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
 		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
-		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });
 
@@ -281,9 +224,9 @@ namespace holovibes
 				{
 					stft_env_.stft_handle_ = false;
 					run_all();
-					if (compute_desc_.compute_mode == Hologram)
+					if (cd_.compute_mode == Hologram)
 					{
-						bool act = stft_env_.stft_frame_counter_ == compute_desc_.stft_steps;
+						bool act = stft_env_.stft_frame_counter_ == cd_.stft_steps;
 						if (act)
 						{
 							if (!output_.enqueue(get_enqueue_buffer()))
@@ -291,10 +234,10 @@ namespace holovibes
 								input_.dequeue();
 								break;
 							}
-							if (compute_desc_.stft_view_enabled)
+							if (cd_.stft_view_enabled)
 							{
-								queue_enqueue(buffers_.gpu_ushort_cut_xz_.get(), stft_env_.gpu_stft_slice_queue_xz.get());
-								queue_enqueue(buffers_.gpu_ushort_cut_yz_.get(), stft_env_.gpu_stft_slice_queue_yz.get());
+								stft_env_.gpu_stft_slice_queue_xz->enqueue(buffers_.gpu_ushort_cut_xz_.get());
+								stft_env_.gpu_stft_slice_queue_yz->enqueue(buffers_.gpu_ushort_cut_yz_.get());
 							}
 						}
 					}
@@ -304,7 +247,7 @@ namespace holovibes
 						break;
 					}
 
-					if (compute_desc_.compute_mode == Hologram && compute_desc_.raw_view || compute_desc_.record_raw)
+					if (cd_.compute_mode == Hologram && cd_.raw_view || cd_.record_raw)
 					{
 						if (!get_raw_queue()->enqueue(input_.get_start()))
 						{
@@ -333,7 +276,7 @@ namespace holovibes
 		}
 		/*Add image to phase accumulation buffer*/
 
-		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); });
+		fn_vect_.push_back([=]() { queue->enqueue(buffer); });
 		fn_vect_.push_back([=]() {
 			accumulate_images(
 				static_cast<float *>(queue->get_buffer()),
@@ -372,7 +315,7 @@ namespace holovibes
 		for (FnType& f : fn_vect_)
 		{
 			f();
-			if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
+			if (stft_env_.stft_frame_counter_ != cd_.stft_steps && stft_env_.stft_handle_)
 				break;
 		}
 		{
@@ -385,9 +328,9 @@ namespace holovibes
 
 	std::unique_ptr<Queue>& Pipe::get_raw_queue()
 	{
-		if (!gpu_raw_queue_ && (compute_desc_.raw_view || compute_desc_.record_raw))
+		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
 		{
-			auto fd = input_.get_frame_desc();
+			auto fd = input_.get_fd();
 			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_elts(), "RawOutputQueue");
 		}
 		return gpu_raw_queue_;

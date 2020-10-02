@@ -46,11 +46,11 @@ namespace holovibes
   public:
     virtual ~IThreadInput();
 
-    virtual const camera::FrameDescriptor& get_input_frame_descriptor() const = 0;
+    virtual const camera::FrameDescriptor& get_input_fd() const = 0;
 
     //If the input is not square, it might need to be croped or embedded into one
     //This would be the effective frame descriptor for the rest of the program
-    virtual const camera::FrameDescriptor& get_queue_frame_descriptor() const = 0;
+    virtual const camera::FrameDescriptor& get_queue_fd() const = 0;
   public:
     /*! \brief Stop thread and join it */
     bool stop_requested_;

@@ -19,9 +19,7 @@
 #include "tools.cuh"
 #include "contrast_correction.cuh"
 #include "preprocessing.cuh"
-#include "autofocus.cuh"
 #include "average.cuh"
-#include "interpolation.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
 #include "compute_descriptor.hh"
@@ -43,14 +41,13 @@ namespace holovibes
 	ICompute::ICompute(
 		Queue& input,
 		Queue& output,
-		ComputeDescriptor& desc)
-		: compute_desc_(desc),
+		ComputeDescriptor& cd)
+		: cd_(cd),
 		input_(input),
 		output_(output),
 		requested_output_size_(global::global_config.output_queue_max_size),
 		unwrap_1d_requested_(false),
 		unwrap_2d_requested_(false),
-		autofocus_requested_(false),
 		autocontrast_requested_(false),
 		autocontrast_slice_xz_requested_(false),
 		autocontrast_slice_yz_requested_(false),
@@ -59,7 +56,6 @@ namespace holovibes
 		stft_update_roi_requested_(false),
 		average_requested_(false),
 		average_record_requested_(false),
-		abort_construct_requested_(false),
 		resize_requested_(false),
 		termination_requested_(false),
 		update_acc_requested_(false),
@@ -71,25 +67,25 @@ namespace holovibes
 		int err = 0;
 
 		plan2d_.plan(
-			input_.get_frame_desc().height,
-			input_.get_frame_desc().width,
+			input_.get_fd().height,
+			input_.get_fd().width,
 			CUFFT_C2C);
 
-		camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		camera::FrameDescriptor new_fd = input_.get_fd();
 		new_fd.depth = 4;
-		if (compute_desc_.img_acc_slice_yz_enabled)
+		if (cd_.img_acc_slice_yz_enabled)
 		{
 			auto fd_yz = new_fd;
-			fd_yz.width = compute_desc_.nSize;
-			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
+			fd_yz.width = cd_.nSize;
+			gpu_img_acc_yz_.reset(new Queue(fd_yz, cd_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
 			if (!gpu_img_acc_yz_)
 				LOG_ERROR("Can't allocate queue");
 		}
-		if (compute_desc_.img_acc_slice_xz_enabled)
+		if (cd_.img_acc_slice_xz_enabled)
 		{
 			auto fd_xz = new_fd;
-			fd_xz.height = compute_desc_.nSize;
-			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
+			fd_xz.height = cd_.nSize;
+			gpu_img_acc_xz_.reset(new Queue(fd_xz, cd_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
 			if (!gpu_img_acc_xz_)
 				LOG_ERROR("Can't allocate queue");
 		}
@@ -97,36 +93,34 @@ namespace holovibes
 		int inembed[1];
 		int zone_size = input_.get_frame_res();
 			
-		inembed[0] = compute_desc_.nSize;
-		if (compute_desc_.croped_stft)
-			zone_size = compute_desc_.getZoomedZone().area();
+		inembed[0] = cd_.nSize;
 
 		stft_env_.plan1d_stft_.planMany(1, inembed,
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
 
-		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
+		camera::FrameDescriptor new_fd2 = input_.get_fd();
 		new_fd2.depth = 8;
-		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
+		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, cd_.stft_level, "STFTQueue"));
 
-		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
+		if (cd_.ref_diff_enabled || cd_.ref_sliding_enabled)
 		{
-			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
+			camera::FrameDescriptor new_fd3 = input_.get_fd();
 			new_fd3.depth = 8;
 			/* Useless line. Maybe forgot gpu_ref_queue_ ?
-			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
+			new Queue(new_fd3, cd_.stft_level, "TakeRefQueue");
 			*/
 		}
 		if (!buffers_.gpu_input_buffer_.resize(input_.get_frame_res()))
 			err++;
 		int output_buffer_size = input_.get_frame_res();
-		if (compute_desc_.img_type == Composite)
+		if (cd_.img_type == Composite)
 			output_buffer_size *= 3;
 		if (!buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_frame_res();
-		if (compute_desc_.img_type == ImgType::Composite)
+		if (cd_.img_type == ImgType::Composite)
 			buffers_.gpu_float_buffer_size_ *= 3;
 		if (!buffers_.gpu_float_buffer_.resize(buffers_.gpu_float_buffer_size_))
 			err++;
@@ -147,7 +141,6 @@ namespace holovibes
 	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
-		abort_construct_requested_ = false;
 		{
 			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 			stft_env_.gpu_stft_buffer_.reset();
@@ -156,8 +149,6 @@ namespace holovibes
 			int inembed_stft[1] = { n };
 
 			int zone_size = input_.get_frame_res();
-			if (compute_desc_.croped_stft)
-				zone_size = compute_desc_.getZoomedZone().area();
 
 			stft_env_.plan1d_stft_.planMany(1, inembed_stft,
 				inembed_stft, zone_size, 1,
@@ -180,18 +171,16 @@ namespace holovibes
 		stft_env_.gpu_stft_queue_.reset();
 
 
-		camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		camera::FrameDescriptor new_fd = input_.get_fd();
 		// gpu_stft_queue is a complex queue
 		new_fd.depth = 8;
 		try
 		{
 			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work.
 
-			if (compute_desc_.stft_view_enabled)
+			if (cd_.stft_view_enabled)
 				request_stft_cuts_ = true; */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
-			if (auto pipe = dynamic_cast<Pipe *>(this))
-				pipe->get_fourier_transforms()->allocate_filter2d(n);
 		}
 		catch (std::exception&)
 		{
@@ -204,7 +193,6 @@ namespace holovibes
 
 		if (err_count != 0)
 		{
-			abort_construct_requested_ = true;
 			allocation_failed(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
 			return false;
 		}
@@ -219,13 +207,13 @@ namespace holovibes
 	{
 		if (request_stft_cuts_)
 		{
-			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
+			camera::FrameDescriptor fd_xz = output_.get_fd();
 
 			fd_xz.depth = sizeof(ushort);
 			uint buffer_depth = sizeof(float);
 			auto fd_yz = fd_xz;
-			fd_xz.height = compute_desc_.nSize;
-			fd_yz.width = compute_desc_.nSize;
+			fd_xz.height = cd_.nSize;
+			fd_yz.width = cd_.nSize;
 			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
 			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
@@ -367,31 +355,18 @@ namespace holovibes
 	void ICompute::request_filter2D_roi_update()
 	{
 		stft_update_roi_requested_ = true;
-		request_update_n(compute_desc_.nSize);
+		request_update_n(cd_.nSize);
 	}
 
 	void ICompute::request_filter2D_roi_end()
 	{
 		stft_update_roi_requested_ = false;
-		request_update_n(compute_desc_.nSize);
-		compute_desc_.log_scale_slice_xy_enabled = false;
-		//compute_desc_.fft_shift_enabled = false;
+		request_update_n(cd_.nSize);
+		cd_.log_scale_slice_xy_enabled = false;
 		notify_observers();
 
 		if (auto pipe = dynamic_cast<Pipe*>(this))
 			pipe->autocontrast_end_pipe(XYview);
-	}
-
-	void ICompute::request_autofocus()
-	{
-		autofocus_requested_ = true;
-		autofocus_stop_requested_ = false;
-		request_refresh();
-	}
-
-	void ICompute::request_autofocus_stop()
-	{
-		autofocus_stop_requested_ = true;
 	}
 
 	void ICompute::request_update_n(const unsigned short n)
@@ -402,7 +377,7 @@ namespace holovibes
 
 	void ICompute::request_update_unwrap_size(const unsigned size)
 	{
-		compute_desc_.unwrap_history_size = size;
+		cd_.unwrap_history_size = size;
 		request_refresh();
 	}
 
@@ -421,7 +396,7 @@ namespace holovibes
 	{
 		assert(output != nullptr);
 
-		output->resize(compute_desc_.nSize);
+		output->resize(cd_.nSize);
 		average_env_.average_output_ = output;
 
 		average_requested_ = true;
@@ -456,16 +431,16 @@ namespace holovibes
 			auto time = std::chrono::high_resolution_clock::now();
 			long long diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
 			InfoManager *manager = gui::InfoManager::get_manager();
-			const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
+			const camera::FrameDescriptor& output_fd = output_.get_fd();
 
 			if (diff)
 			{
 				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + " fps");
-				long long voxelPerSecond = fps * output_fd.frame_res() * compute_desc_.nSize;
+				long long voxelPerSecond = fps * output_fd.frame_res() * cd_.nSize;
 				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
-				long long bytePerSecond = fps * input_.get_frame_desc().frame_size() * compute_desc_.stft_steps;
+				long long bytePerSecond = fps * input_.get_fd().frame_size() * cd_.stft_steps;
 				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
 					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
 			}

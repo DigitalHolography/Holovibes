@@ -118,7 +118,7 @@ namespace holovibes
 
 		/*! \brief Fetch all the necessary information before importing a file. */
 		void init_import_mode(std::string &file_src,
-			camera::FrameDescriptor frame_desc,
+			camera::FrameDescriptor fd,
 			bool loop,
 			unsigned int fps,
 			unsigned int spanStart,
@@ -137,23 +137,22 @@ namespace holovibes
 		}
 
 		/*! \return Common ComputeDescriptor */
-		ComputeDescriptor& get_compute_desc()
+		ComputeDescriptor& get_cd()
 		{
-			return compute_desc_;
+			return cd_;
 		}
-
 
 		/*! \brief Clear values related to convolution matrix */
 		void clear_convolution_matrix();
 
 		/*! \brief Set ComputeDescriptor options
 		 *
-		 * \param compute_desc ComputeDescriptor to load
+		 * \param cd ComputeDescriptor to load
 		 *
 		 * Used when options are loaded from an INI file. */
-		void set_compute_desc(const ComputeDescriptor& compute_desc)
+		void set_cd(const ComputeDescriptor& cd)
 		{
-			compute_desc_ = compute_desc;
+			cd_ = cd;
 		}
 
 		/*! \return Corresponding Camera INI file path */
@@ -171,7 +170,7 @@ namespace holovibes
 		}
 		/*! \} */
 
-		const camera::FrameDescriptor& get_capture_frame_desc();
+		const camera::FrameDescriptor& get_capture_fd();
 
 		/* \brief Get zb = N d^2 / lambda
 		  Is updated everytime the camera changes or lamdba changes
@@ -205,7 +204,7 @@ namespace holovibes
 
 		/*! \brief Common compute descriptor shared between CLI/GUI and the
 		 * Pipe. */
-		ComputeDescriptor compute_desc_;
+		ComputeDescriptor cd_;
 
 		/*! \brief Store average of zone signal/noise
 		 *

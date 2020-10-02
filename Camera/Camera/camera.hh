@@ -42,7 +42,7 @@ namespace camera
     {
     }
 
-    const FrameDescriptor& get_frame_descriptor() const override
+    const FrameDescriptor& get_fd() const override
     {
       return desc_;
     }

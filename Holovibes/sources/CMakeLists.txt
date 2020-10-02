@@ -5,23 +5,18 @@ target_sources(Holovibes PRIVATE
     holo_file.cc
     main.cc
     options_parser.cc
-    pipeline_utils.cc
     queue.cc
     recorder.cc
 
-    compute/aberration.cc
-    compute/autofocus.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/compute_descriptor.cc
     compute/converts.cc
-    compute/detect_intensity.cc
     compute/fourier_transform.cc
     compute/postprocessing.cc
     compute/preprocessing.cc
-    compute/remove_jitter.cc
     compute/rendering.cc
-    compute/stabilization.cc
+    compute/image_accumulation.cc
 
     core/holovibes.cc
     core/icompute.cc
@@ -33,7 +28,6 @@ target_sources(Holovibes PRIVATE
     gui/selections/interfaces/Overlay.cc
     gui/selections/interfaces/rect_overlay.cc
     gui/selections/interfaces/square_overlay.cc
-    gui/selections/overlays/autofocus_overlay.cc
     gui/selections/overlays/composite_area_overlay.cc
     gui/selections/overlays/cross_overlay.cc
     gui/selections/overlays/filter2d_overlay.cc
@@ -44,7 +38,6 @@ target_sources(Holovibes PRIVATE
     gui/selections/overlays/scale_overlay.cc
     gui/selections/overlays/signal_overlay.cc
     gui/selections/overlays/slice_cross_overlay.cc
-    gui/selections/overlays/stabilization_overlay.cc
     gui/selections/overlays/zoom_overlay.cc
     gui/selections/overlay_manager.cc
     gui/windows/BasicOpenGLWindow.cc

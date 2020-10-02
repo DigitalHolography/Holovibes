@@ -28,7 +28,7 @@ using TimePoint = std::chrono::time_point<Clock>;
 namespace holovibes
 {
 	ThreadReader::ThreadReader(std::string file_src,
-		camera::FrameDescriptor& frame_desc,
+		camera::FrameDescriptor& fd,
 		SquareInputMode mode,
 		bool loop,
 		unsigned int fps,
@@ -42,7 +42,7 @@ namespace holovibes
 		gui::MainWindow *main_window)
 		: IThreadInput()
 		, file_src_(file_src)
-		, frame_desc_(frame_desc)
+		, fd_(fd)
 		, loop_(loop)
 		, fps_(fps)
 		, frameId_(spanStart)
@@ -60,12 +60,11 @@ namespace holovibes
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
 		queue_.set_square_input_mode(mode);
-		auto fd = get_input_frame_descriptor();
-		std::string input_descriptor_info = std::to_string(fd.width)
+		std::string input_descriptor_info = std::to_string(fd_.width)
 			+ std::string("x")
-			+ std::to_string(fd.height)
+			+ std::to_string(fd_.height)
 			+ std::string(" - ")
-			+ std::to_string(static_cast<int>(fd.depth * 8))
+			+ std::to_string(static_cast<int>(fd_.depth * 8))
 			+ std::string("bit");
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
 		reader_progress_bar->setMaximum(spanEnd);
@@ -75,7 +74,7 @@ namespace holovibes
 	void ThreadReader::thread_proc()
 	{
 		unsigned int refresh_fps = fps_;
-		unsigned int frame_size = get_input_frame_descriptor().frame_size();
+		unsigned int frame_size = get_input_fd().frame_size();
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 		char* buffer = nullptr;
 		FILE*   file = nullptr;
@@ -195,14 +194,14 @@ namespace holovibes
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "none");
 	}
 
-	const camera::FrameDescriptor& ThreadReader::get_input_frame_descriptor() const
+	const camera::FrameDescriptor& ThreadReader::get_input_fd() const
 	{
-		return frame_desc_;
+		return fd_;
 	}
 
-	const camera::FrameDescriptor& ThreadReader::get_queue_frame_descriptor() const
+	const camera::FrameDescriptor& ThreadReader::get_queue_fd() const
 	{
-		return queue_.get_frame_desc();
+		return queue_.get_fd();
 	}
 
 	long int ThreadReader::offset_cine_first_image(FILE *file)

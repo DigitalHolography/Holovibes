@@ -96,13 +96,13 @@ namespace holovibes
 			if (!locked_)
 			{
 				auto kView = parent_->getKindOfView();
-				auto Cd = parent_->getCd();
+				auto cd_ = parent_->getCd();
 
 				pIndex_ = getMousePos(e->pos());
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
-				Cd->pindex = p;
-				Cd->notify_observers();
+				cd_->pindex = p;
+				cd_->notify_observers();
 			}
 		}
 

@@ -95,7 +95,7 @@ namespace holovibes
 			file_index_(1),
 			theme_index_(0),
 			import_type_(ImportType::None),
-			compute_desc_(holovibes_.get_compute_desc())
+			cd_(holovibes_.get_cd())
 		{
 			ui.setupUi(this);
 
@@ -116,7 +116,6 @@ namespace holovibes
 			// Hide non default tab
 			ui.CompositeGroupBox->setHidden(true);
 			ui.actionSpecial->setChecked(false);
-			ui.actionMotionFocus->setChecked(false);
 
 			try
 			{
@@ -149,10 +148,6 @@ namespace holovibes
 			p_right_shortcut_->setContext(Qt::ApplicationShortcut);
 			connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
-			autofocus_ctrl_c_shortcut_ = new QShortcut(tr("Ctrl+C"), this);
-			autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
-			connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
-
 			QComboBox *depth_cbox = ui.ImportDepthComboBox;
 			connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
 
@@ -160,9 +155,9 @@ namespace holovibes
 			connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
 			// Display default values
-			compute_desc_.compute_mode = Computation::Direct;
+			cd_.compute_mode = Computation::Direct;
 			notify();
-			compute_desc_.compute_mode = Computation::Stop;
+			cd_.compute_mode = Computation::Stop;
 			notify();
 			setFocusPolicy(Qt::StrongFocus);
 
@@ -173,8 +168,6 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(ui.PixelSizeDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMaxDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
-			spinBoxDecimalPointReplacement(ui.AutofocusZMinDoubleSpinBox);
-			spinBoxDecimalPointReplacement(ui.AutofocusZMaxDoubleSpinBox);
 
 			ui.FileReaderProgressBar->hide();
 			ui.RecordProgressBar;
@@ -200,7 +193,6 @@ namespace holovibes
 			delete z_down_shortcut_;
 			delete p_left_shortcut_;
 			delete p_right_shortcut_;
-			delete autofocus_ctrl_c_shortcut_;
 
 			close_windows();
 			close_critical_compute();
@@ -236,30 +228,28 @@ namespace holovibes
 			const bool is_direct = is_direct_mode();
 
 			// Tabs
-			if (compute_desc_.compute_mode == Computation::Stop)
+			if (cd_.compute_mode == Computation::Stop)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(false);
 				ui.ViewGroupBox->setEnabled(false);
-				ui.MotionFocusGroupBox->setEnabled(false);
 				ui.PostProcessingGroupBox->setEnabled(false);
 				ui.RecordGroupBox->setEnabled(false);
 				ui.ImportGroupBox->setEnabled(true);
 				ui.InfoGroupBox->setEnabled(true);
-				ui.PixelSizeDoubleSpinBox->setValue(compute_desc_.pixel_size);
+				ui.PixelSizeDoubleSpinBox->setValue(cd_.pixel_size);
 				return;
 			}
-			else if (compute_desc_.compute_mode == Computation::Direct && is_enabled_camera_)
+			else if (cd_.compute_mode == Computation::Direct && is_enabled_camera_)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(true);
 				ui.RecordGroupBox->setEnabled(true);
 			}
-			else if (compute_desc_.compute_mode == Computation::Hologram && is_enabled_camera_)
+			else if (cd_.compute_mode == Computation::Hologram && is_enabled_camera_)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(true);
 				ui.ViewGroupBox->setEnabled(true);
 				ui.PostProcessingGroupBox->setEnabled(true);
 				ui.RecordGroupBox->setEnabled(true);
-				ui.MotionFocusGroupBox->setEnabled(true);
 			}
 
 			// Record
@@ -267,10 +257,10 @@ namespace holovibes
 			ui.SynchronizedRecordCheckBox->setEnabled(import_type_ == File);
 
 			// Average ROI recording
-			ui.RoiOutputGroupBox->setEnabled(compute_desc_.average_enabled);
+			ui.RoiOutputGroupBox->setEnabled(cd_.average_enabled);
 
 			// Average
-			ui.AverageGroupBox->setChecked(!is_direct && compute_desc_.average_enabled);
+			ui.AverageGroupBox->setChecked(!is_direct && cd_.average_enabled);
 
 			QPushButton* signalBtn = ui.AverageSignalPushButton;
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
@@ -280,153 +270,133 @@ namespace holovibes
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
-			// Autofocus
-			ui.AutofocusGroupBox->setEnabled(compute_desc_.algorithm != Algorithm::None);
-			QPushButton* autofocusBtn = ui.AutofocusRunPushButton;
-			if (autofocusBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
-			{
-				autofocusBtn->setStyleSheet("QPushButton {color: #FFCC00;}");
-				autofocusBtn->setText("Cancel Autofocus");
-			}
-			else
-			{
-				autofocusBtn->setStyleSheet("");
-				autofocusBtn->setText("Run Autofocus");
-			}
-			ui.AutofocusZMinDoubleSpinBox->setValue(compute_desc_.autofocus_z_min);
-			ui.AutofocusZMaxDoubleSpinBox->setValue(compute_desc_.autofocus_z_max);
-
-			// Jitter correction
-
-			ui.JitterCheckBox->setEnabled(compute_desc_.croped_stft);
-
 			// Displaying mode
-			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
+			ui.ViewModeComboBox->setCurrentIndex(cd_.img_type);
 
 			ui.PhaseUnwrap2DCheckBox->
-				setEnabled(compute_desc_.img_type == ImgType::PhaseIncrease ||
-					compute_desc_.img_type == ImgType::Argument);
+				setEnabled(cd_.img_type == ImgType::PhaseIncrease ||
+					cd_.img_type == ImgType::Argument);
 
 			// STFT cuts
 			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
-			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
+			ui.STFTCutsCheckBox->setChecked(!is_direct && cd_.stft_view_enabled);
 
 			// Contrast
-			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled);
+			ui.ContrastCheckBox->setChecked(!is_direct && cd_.contrast_enabled);
 			ui.ContrastCheckBox->setEnabled(true);
 
 			// FFT shift
-			ui.FFTShiftCheckBox->setChecked(compute_desc_.fft_shift_enabled);
+			ui.FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
 			ui.FFTShiftCheckBox->setEnabled(true);
 
 			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
-			window_selection->setEnabled(compute_desc_.stft_view_enabled);
-			window_selection->setCurrentIndex(window_selection->isEnabled() ? compute_desc_.current_window : 0);
+			window_selection->setEnabled(cd_.stft_view_enabled);
+			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd_.current_window : 0);
 
-			ui.ContrastMinDoubleSpinBox->setValue(compute_desc_.get_contrast_min(compute_desc_.current_window));
-			ui.ContrastMaxDoubleSpinBox->setValue(compute_desc_.get_contrast_max(compute_desc_.current_window));
+			ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min(cd_.current_window));
+			ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max(cd_.current_window));
 			ui.LogScaleCheckBox->setEnabled(true);
-			ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.get_img_log_scale_slice_enabled(compute_desc_.current_window));
+			ui.LogScaleCheckBox->setChecked(!is_direct && cd_.get_img_log_scale_slice_enabled(cd_.current_window));
 			ui.ImgAccuCheckBox->setEnabled(true);
-			ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.get_img_acc_slice_enabled(compute_desc_.current_window));
-			ui.ImgAccuSpinBox->setValue(compute_desc_.get_img_acc_slice_level(compute_desc_.current_window));
-			if (compute_desc_.current_window == WindowKind::XYview)
+			ui.ImgAccuCheckBox->setChecked(!is_direct && cd_.get_img_acc_slice_enabled(cd_.current_window));
+			ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window));
+			if (cd_.current_window == WindowKind::XYview)
 			{
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
-			else if (compute_desc_.current_window == WindowKind::XZview)
+			else if (cd_.current_window == WindowKind::XZview)
 			{
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
 			}
-			else if (compute_desc_.current_window == WindowKind::YZview)
+			else if (cd_.current_window == WindowKind::YZview)
 			{
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
 
 			// p accu
-			ui.PAccuCheckBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
-			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
-			ui.PAccSpinBox->setMaximum(compute_desc_.nSize - 1);
-			if (compute_desc_.p_acc_level > compute_desc_.nSize - 1)
-				compute_desc_.p_acc_level = compute_desc_.nSize - 1;
-			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
-			ui.PAccSpinBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
-			if (compute_desc_.p_accu_enabled)
+			ui.PAccuCheckBox->setEnabled(cd_.img_type != PhaseIncrease);
+			ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
+			ui.PAccSpinBox->setMaximum(cd_.nSize - 1);
+			if (cd_.p_acc_level > cd_.nSize - 1)
+				cd_.p_acc_level = cd_.nSize - 1;
+			ui.PAccSpinBox->setValue(cd_.p_acc_level);
+			ui.PAccSpinBox->setEnabled(cd_.img_type != PhaseIncrease);
+			if (cd_.p_accu_enabled)
 			{
-				ui.PSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.p_acc_level - 1);
-				if (compute_desc_.pindex > compute_desc_.nSize - compute_desc_.p_acc_level - 1)
-					compute_desc_.pindex = compute_desc_.nSize - compute_desc_.p_acc_level - 1;
-				ui.PSpinBox->setValue(compute_desc_.pindex);
-				ui.PAccSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.pindex - 1);
+				ui.PSpinBox->setMaximum(cd_.nSize - cd_.p_acc_level - 1);
+				if (cd_.pindex > cd_.nSize - cd_.p_acc_level - 1)
+					cd_.pindex = cd_.nSize - cd_.p_acc_level - 1;
+				ui.PSpinBox->setValue(cd_.pindex);
+				ui.PAccSpinBox->setMaximum(cd_.nSize - cd_.pindex - 1);
 			}
 			else
 			{
-				ui.PSpinBox->setMaximum(compute_desc_.nSize - 1);
-				if (compute_desc_.pindex > compute_desc_.nSize - 1)
-					compute_desc_.pindex = compute_desc_.nSize - 1;
-				ui.PSpinBox->setValue(compute_desc_.pindex);
+				ui.PSpinBox->setMaximum(cd_.nSize - 1);
+				if (cd_.pindex > cd_.nSize - 1)
+					cd_.pindex = cd_.nSize - 1;
+				ui.PSpinBox->setValue(cd_.pindex);
 			}
 
 			// XY accu
-			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
-			ui.XAccSpinBox->setValue(compute_desc_.x_acc_level);
-			ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled);
-			ui.YAccSpinBox->setValue(compute_desc_.y_acc_level);
+			ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
+			ui.XAccSpinBox->setValue(cd_.x_acc_level);
+			ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
+			ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
 			// Convolution buffer
-			ui.KernelBufferSizeSpinBox->setValue(compute_desc_.special_buffer_size);
+			ui.KernelBufferSizeSpinBox->setValue(cd_.special_buffer_size);
 
 			// Convolution
-			ui.ConvoCheckBox->setEnabled(compute_desc_.convo_matrix.size() != 0);
+			ui.ConvoCheckBox->setEnabled(cd_.convo_matrix.size() != 0);
 
 			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
-			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
+			ui.STFTStepsSpinBox->setValue(cd_.stft_steps);
 
 			// Ref
-			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
-			ui.SlidingRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_diff_enabled && !compute_desc_.ref_sliding_enabled);
-			ui.CancelRefPushButton->setEnabled(!is_direct && (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled));
+			ui.TakeRefPushButton->setEnabled(!is_direct && !cd_.ref_sliding_enabled);
+			ui.SlidingRefPushButton->setEnabled(!is_direct && !cd_.ref_diff_enabled && !cd_.ref_sliding_enabled);
+			ui.CancelRefPushButton->setEnabled(!is_direct && (cd_.ref_diff_enabled || cd_.ref_sliding_enabled));
 
 			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
-			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
+			ui.AlgorithmComboBox->setCurrentIndex(cd_.algorithm);
 			ui.TimeAlgorithmComboBox->setEnabled(!is_direct);
 			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
-			ui.nSizeSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
-			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
+			ui.nSizeSpinBox->setEnabled(!is_direct && !cd_.stft_view_enabled);
+			ui.nSizeSpinBox->setValue(cd_.nSize);
 			ui.STFTCutsCheckBox->setEnabled(ui.nSizeSpinBox->value() >= MIN_IMG_NB_STFT_CUTS);
 
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_direct);
-			ui.WaveLengthDoubleSpinBox->setValue(compute_desc_.lambda * 1.0e9f);
+			ui.WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
 			ui.ZDoubleSpinBox->setEnabled(!is_direct);
-			ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
+			ui.ZDoubleSpinBox->setValue(cd_.zdistance);
 			ui.ZStepDoubleSpinBox->setEnabled(!is_direct);
 			ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
 			// Filter2d
 			QPushButton *filter_button = ui.Filter2DPushButton;
-			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
-			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
-			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled);
+			filter_button->setEnabled(!is_direct && !cd_.filter_2d_enabled);
+			filter_button->setStyleSheet((!is_direct && cd_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
+			ui.CancelFilter2DPushButton->setEnabled(!is_direct && cd_.filter_2d_enabled);
 
 			// Import
-			ui.CineFileCheckBox->setChecked(compute_desc_.is_cine_file);
-			ui.PixelSizeDoubleSpinBox->setEnabled(!compute_desc_.is_cine_file);
-			ui.PixelSizeDoubleSpinBox->setValue(compute_desc_.pixel_size);
-			ui.ImportWidthSpinBox->setEnabled(!compute_desc_.is_cine_file);
-			ui.ImportHeightSpinBox->setEnabled(!compute_desc_.is_cine_file);
-			ui.ImportDepthComboBox->setEnabled(!compute_desc_.is_cine_file);
+			ui.CineFileCheckBox->setChecked(cd_.is_cine_file);
+			ui.PixelSizeDoubleSpinBox->setEnabled(!cd_.is_cine_file);
+			ui.PixelSizeDoubleSpinBox->setValue(cd_.pixel_size);
+			ui.ImportWidthSpinBox->setEnabled(!cd_.is_cine_file);
+			ui.ImportHeightSpinBox->setEnabled(!cd_.is_cine_file);
+			ui.ImportDepthComboBox->setEnabled(!cd_.is_cine_file);
 			QString depth_value = ui.ImportDepthComboBox->currentText();
-			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file);
+			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !cd_.is_cine_file);
 
 
 			// Composite
-			int nsize_max = compute_desc_.nSize - 1;
+			int nsize_max = cd_.nSize - 1;
 			ui.PRedSpinBox_Composite->setMaximum(nsize_max);
 			ui.PBlueSpinBox_Composite->setMaximum(nsize_max);
 			ui.SpinBox_hue_freq_min->setMaximum(nsize_max);
@@ -436,38 +406,38 @@ namespace holovibes
 			ui.SpinBox_value_freq_min->setMaximum(nsize_max);
 			ui.SpinBox_value_freq_max->setMaximum(nsize_max);
 
-			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
+			ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights_);
 
-			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
-			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);
-			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
-			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
-			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
+			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, cd_.composite_p_red);
+			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, cd_.composite_p_blue);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, cd_.weight_r);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, cd_.weight_g);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, cd_.weight_b);
 			actualize_frequency_channel_v();
 
-			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, compute_desc_.composite_p_min_h);
-			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, compute_desc_.composite_p_max_h);
-			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(compute_desc_.slider_h_threshold_min * 1000));
+			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.composite_p_min_h);
+			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, cd_.composite_p_max_h);
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.slider_h_threshold_min * 1000));
 			slide_update_threshold_h_min();
-			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(compute_desc_.slider_h_threshold_max * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(cd_.slider_h_threshold_max * 1000));
 			slide_update_threshold_h_max();
 
-			QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, compute_desc_.composite_p_min_s);
-			QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, compute_desc_.composite_p_max_s);
-			QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min, (int)(compute_desc_.slider_s_threshold_min * 1000));
+			QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, cd_.composite_p_min_s);
+			QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, cd_.composite_p_max_s);
+			QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min, (int)(cd_.slider_s_threshold_min * 1000));
 			slide_update_threshold_s_min();
-			QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max, (int)(compute_desc_.slider_s_threshold_max * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max, (int)(cd_.slider_s_threshold_max * 1000));
 			slide_update_threshold_s_max();
 
-			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, compute_desc_.composite_p_min_v);
-			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, compute_desc_.composite_p_max_v);
-			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(compute_desc_.slider_v_threshold_min * 1000));
+			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, cd_.composite_p_min_v);
+			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, cd_.composite_p_max_v);
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.slider_v_threshold_min * 1000));
 			slide_update_threshold_v_min();
-			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(compute_desc_.slider_v_threshold_max * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(cd_.slider_v_threshold_max * 1000));
 			slide_update_threshold_v_max();
 
 
-			ui.CompositeGroupBox->setHidden(is_direct_mode() || (compute_desc_.img_type != ImgType::Composite));
+			ui.CompositeGroupBox->setHidden(is_direct_mode() || (cd_.img_type != ImgType::Composite));
 
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
@@ -475,13 +445,6 @@ namespace holovibes
 			ui.groupBox_hue->setHidden(rgbMode);
 			ui.groupBox_saturation->setHidden(rgbMode);
 			ui.groupBox_value->setHidden(rgbMode);
-
-			// Interpolation
-			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);
-			ui.InterpolationLambda1->setValue(compute_desc_.interp_lambda1 * 1.0e9f);
-			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
-			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
-			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
 
 			// Reticle
 			if (ui.DisplayReticleCheckBox->isChecked()
@@ -503,12 +466,12 @@ namespace holovibes
 					auto lambda = [this]
 					{
 						// notify will be in close_critical_compute
-						compute_desc_.pindex = 0;
-						compute_desc_.nSize = 1;
-						if (compute_desc_.convolution_enabled)
+						cd_.pindex = 0;
+						cd_.nSize = 1;
+						if (cd_.convolution_enabled)
 						{
-							compute_desc_.convolution_enabled = false;
-							compute_desc_.special_buffer_size = 3;
+							cd_.convolution_enabled = false;
+							cd_.special_buffer_size = 3;
 						}
 						close_windows();
 						close_critical_compute();
@@ -521,8 +484,8 @@ namespace holovibes
 				{
 					if (accu)
 					{
-						compute_desc_.img_acc_slice_xy_enabled = false;
-						compute_desc_.img_acc_slice_xy_level = 1;
+						cd_.img_acc_slice_xy_enabled = false;
+						cd_.img_acc_slice_xy_level = 1;
 					}
 					close_critical_compute();
 
@@ -566,6 +529,12 @@ namespace holovibes
 				"Holovibes " + version + "\n\n"
 
 				"Developers:\n\n"
+
+				"Anthony Strazzella\n"
+				"Ilan Guenet\n"
+				"Nicolas Blin\n"
+				"Quentin Kaci\n"
+				"Theo Lepage\n"
 
 				"Loïc Bellonnet-Mottet\n"
 				"Antoine Martin\n"
@@ -643,7 +612,7 @@ namespace holovibes
 			{
 				change_camera(kCamera);
 			}
-			notify(); 
+			notify();
 		}
 
 		void MainWindow::reset_input()
@@ -669,7 +638,6 @@ namespace holovibes
 			GroupBox *record_group_box = ui.RecordGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
-			GroupBox *motion_focus_group_box = ui.MotionFocusGroupBox;
 
 			QAction	*image_rendering_action = ui.actionImage_rendering;
 			QAction	*view_action = ui.actionView;
@@ -677,7 +645,6 @@ namespace holovibes
 			QAction	*record_action = ui.actionRecord;
 			QAction	*import_action = ui.actionImport;
 			QAction	*info_action = ui.actionInfo;
-			QAction *motion_focus_action = ui.actionMotionFocus;
 
 			boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -691,64 +658,64 @@ namespace holovibes
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
-				compute_desc_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size);
-				compute_desc_.stft_level = ptree.get<uint>("config.stft_queue_size", compute_desc_.stft_level);
-				compute_desc_.ref_diff_level = ptree.get<uint>("config.reference_buffer_size", compute_desc_.ref_diff_level);
-				compute_desc_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
-				compute_desc_.display_rate = ptree.get<float>("config.display_rate", compute_desc_.display_rate);
+				cd_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", cd_.special_buffer_size);
+				cd_.stft_level = ptree.get<uint>("config.stft_queue_size", cd_.stft_level);
+				cd_.ref_diff_level = ptree.get<uint>("config.reference_buffer_size", cd_.ref_diff_level);
+				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
+				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
 
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
-				const ushort p_nSize = ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
+				const ushort p_nSize = ptree.get<ushort>("image_rendering.phase_number", cd_.nSize);
 				if (p_nSize < 1)
-					compute_desc_.nSize = 1;
+					cd_.nSize = 1;
 				else
-					compute_desc_.nSize = p_nSize;
-				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", compute_desc_.pindex);
-				if (p_index >= 0 && p_index < compute_desc_.nSize)
-					compute_desc_.pindex = p_index;
+					cd_.nSize = p_nSize;
+				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd_.pindex);
+				if (p_index >= 0 && p_index < cd_.nSize)
+					cd_.pindex = p_index;
 
-				compute_desc_.lambda = ptree.get<float>("image_rendering.lambda", compute_desc_.lambda);
+				cd_.lambda = ptree.get<float>("image_rendering.lambda", cd_.lambda);
 
-				compute_desc_.zdistance = ptree.get<float>("image_rendering.z_distance", compute_desc_.zdistance);
+				cd_.zdistance = ptree.get<float>("image_rendering.z_distance", cd_.zdistance);
 
 				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
 				if (z_step > 0.0f)
 					set_z_step(z_step);
 
-				compute_desc_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", compute_desc_.algorithm));
+				cd_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", cd_.algorithm));
 
-				compute_desc_.direct_bitshift = ptree.get<ushort>("image_rendering.direct_bitshift", compute_desc_.direct_bitshift);
+				cd_.direct_bitshift = ptree.get<ushort>("image_rendering.direct_bitshift", cd_.direct_bitshift);
 
-				compute_desc_.stft_steps = ptree.get<int>("image_rendering.stft_steps", compute_desc_.stft_steps);
+				cd_.stft_steps = ptree.get<int>("image_rendering.stft_steps", cd_.stft_steps);
 
 				// View
 				view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
 
-				compute_desc_.img_type.exchange(static_cast<ImgType>(
-					ptree.get<int>("view.view_mode", compute_desc_.img_type)));
-				last_img_type_ = compute_desc_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
+				cd_.img_type.exchange(static_cast<ImgType>(
+					ptree.get<int>("view.view_mode", cd_.img_type)));
+				last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
-				compute_desc_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled);
-				compute_desc_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
-				compute_desc_.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled);
+				cd_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
+				cd_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", cd_.log_scale_slice_xz_enabled);
+				cd_.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", cd_.log_scale_slice_yz_enabled);
 
-				compute_desc_.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", compute_desc_.fft_shift_enabled);
+				cd_.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd_.fft_shift_enabled);
 
-				compute_desc_.contrast_enabled = ptree.get<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
-				compute_desc_.contrast_threshold_low_percentile = ptree.get<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
-				compute_desc_.contrast_threshold_high_percentile = ptree.get<float>("view.contrast_threshold_high_percentile", compute_desc_.contrast_threshold_high_percentile);
+				cd_.contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd_.contrast_enabled);
+				cd_.contrast_threshold_low_percentile = ptree.get<float>("view.contrast_threshold_low_percentile", cd_.contrast_threshold_low_percentile);
+				cd_.contrast_threshold_high_percentile = ptree.get<float>("view.contrast_threshold_high_percentile", cd_.contrast_threshold_high_percentile);
 
-				compute_desc_.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy);
-				compute_desc_.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy);
-				compute_desc_.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset);
-				if (compute_desc_.cuts_contrast_p_offset < 0)
-					compute_desc_.cuts_contrast_p_offset = 0;
-				else if (compute_desc_.cuts_contrast_p_offset > compute_desc_.nSize - 1)
-					compute_desc_.cuts_contrast_p_offset = compute_desc_.nSize - 1;
+				cd_.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", cd_.contrast_min_slice_xy);
+				cd_.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", cd_.contrast_max_slice_xy);
+				cd_.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd_.cuts_contrast_p_offset);
+				if (cd_.cuts_contrast_p_offset < 0)
+					cd_.cuts_contrast_p_offset = 0;
+				else if (cd_.cuts_contrast_p_offset > cd_.nSize - 1)
+					cd_.cuts_contrast_p_offset = cd_.nSize - 1;
 
-				compute_desc_.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", compute_desc_.img_acc_slice_xy_enabled);
+				cd_.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", cd_.img_acc_slice_xy_enabled);
 
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
 				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
@@ -756,12 +723,12 @@ namespace holovibes
 				displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
 				xzFlip = ptree.get("view.xCut_flip", xzFlip);
 				yzFlip = ptree.get("view.yCut_flip", yzFlip);
-				compute_desc_.reticle_scale = ptree.get("view.reticle_scale", 0.5f);
+				cd_.reticle_scale = ptree.get("view.reticle_scale", 0.5f);
 
 				// Post Processing
 				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", special_group_box->isHidden()));
 				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
-				compute_desc_.average_enabled = is_enabled_average_;
+				cd_.average_enabled = is_enabled_average_;
 
 				// Record
 				record_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
@@ -769,24 +736,14 @@ namespace holovibes
 				const float record_frame_step = ptree.get<float>("record.record_frame_step", record_frame_step_);
 				set_record_frame_step(record_frame_step);
 
-				// Motion Focus
-				motion_focus_action->setChecked(!ptree.get<bool>("motion_focus.hidden", motion_focus_group_box->isHidden()));
-
 				// Import
 				import_action->setChecked(!ptree.get<bool>("import.hidden", import_group_box->isHidden()));
-				compute_desc_.pixel_size = ptree.get<float>("import.pixel_size", compute_desc_.pixel_size);
+				cd_.pixel_size = ptree.get<float>("import.pixel_size", cd_.pixel_size);
 				ui.ImportFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
 				info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
 				theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
-
-				// Autofocus
-				compute_desc_.autofocus_size = ptree.get<int>("autofocus.size", compute_desc_.autofocus_size);
-				compute_desc_.autofocus_z_min = ptree.get<float>("autofocus.z_min", compute_desc_.autofocus_z_min);
-				compute_desc_.autofocus_z_max = ptree.get<float>("autofocus.z_max", compute_desc_.autofocus_z_max);
-				compute_desc_.autofocus_z_div = ptree.get<uint>("autofocus.steps", compute_desc_.autofocus_z_div);
-				compute_desc_.autofocus_z_iter = ptree.get<uint>("autofocus.loops", compute_desc_.autofocus_z_iter);
 
 				// Reset button
 				config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
@@ -794,43 +751,36 @@ namespace holovibes
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
 				// Composite
-				compute_desc_.composite_p_red = ptree.get<ushort>("composite.p_red", 1);
-				compute_desc_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 1);
-				compute_desc_.weight_r = ptree.get<float>("composite.weight_r", 1);
-				compute_desc_.weight_g = ptree.get<float>("composite.weight_g", 1);
-				compute_desc_.weight_b = ptree.get<float>("composite.weight_b", 1);
+				cd_.composite_p_red = ptree.get<ushort>("composite.p_red", 1);
+				cd_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 1);
+				cd_.weight_r = ptree.get<float>("composite.weight_r", 1);
+				cd_.weight_g = ptree.get<float>("composite.weight_g", 1);
+				cd_.weight_b = ptree.get<float>("composite.weight_b", 1);
 
-				compute_desc_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 1);
-				compute_desc_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 1);
-				compute_desc_.slider_h_threshold_min = ptree.get<float>("composite.slider_h_threshold_min", 0);
-				compute_desc_.slider_h_threshold_max = ptree.get<float>("composite.slider_h_threshold_max", 1.0f);
-				compute_desc_.composite_low_h_threshold = ptree.get<float>("composite.low_h_threshold", 0.2f);
-				compute_desc_.composite_high_h_threshold = ptree.get<float>("composite.high_h_threshold", 99.8f);
+				cd_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 1);
+				cd_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 1);
+				cd_.slider_h_threshold_min = ptree.get<float>("composite.slider_h_threshold_min", 0);
+				cd_.slider_h_threshold_max = ptree.get<float>("composite.slider_h_threshold_max", 1.0f);
+				cd_.composite_low_h_threshold = ptree.get<float>("composite.low_h_threshold", 0.2f);
+				cd_.composite_high_h_threshold = ptree.get<float>("composite.high_h_threshold", 99.8f);
 
-				compute_desc_.composite_p_activated_s = ptree.get<bool>("composite.p_activated_s", false);
-				compute_desc_.composite_p_min_s = ptree.get<ushort>("composite.p_min_s", 1);
-				compute_desc_.composite_p_max_s = ptree.get<ushort>("composite.p_max_s", 1);
-				compute_desc_.slider_s_threshold_min = ptree.get<float>("composite.slider_s_threshold_min", 0);
-				compute_desc_.slider_s_threshold_max = ptree.get<float>("composite.slider_s_threshold_max", 1.0f);
-				compute_desc_.composite_low_s_threshold = ptree.get<float>("composite.low_s_threshold", 0.2f);
-				compute_desc_.composite_high_s_threshold = ptree.get<float>("composite.high_s_threshold", 99.8f);
+				cd_.composite_p_activated_s = ptree.get<bool>("composite.p_activated_s", false);
+				cd_.composite_p_min_s = ptree.get<ushort>("composite.p_min_s", 1);
+				cd_.composite_p_max_s = ptree.get<ushort>("composite.p_max_s", 1);
+				cd_.slider_s_threshold_min = ptree.get<float>("composite.slider_s_threshold_min", 0);
+				cd_.slider_s_threshold_max = ptree.get<float>("composite.slider_s_threshold_max", 1.0f);
+				cd_.composite_low_s_threshold = ptree.get<float>("composite.low_s_threshold", 0.2f);
+				cd_.composite_high_s_threshold = ptree.get<float>("composite.high_s_threshold", 99.8f);
 
-				compute_desc_.composite_p_activated_v = ptree.get<bool>("composite.p_activated_v", false);
-				compute_desc_.composite_p_min_v = ptree.get<ushort>("composite.p_min_v", 1);
-				compute_desc_.composite_p_max_v = ptree.get<ushort>("composite.p_max_v", 1);
-				compute_desc_.slider_v_threshold_min = ptree.get<float>("composite.slider_v_threshold_min", 0);
-				compute_desc_.slider_v_threshold_max = ptree.get<float>("composite.slider_v_threshold_max", 1.0f);
-				compute_desc_.composite_low_v_threshold = ptree.get<float>("composite.low_v_threshold", 0.2f);
-				compute_desc_.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 99.8f);
+				cd_.composite_p_activated_v = ptree.get<bool>("composite.p_activated_v", false);
+				cd_.composite_p_min_v = ptree.get<ushort>("composite.p_min_v", 1);
+				cd_.composite_p_max_v = ptree.get<ushort>("composite.p_max_v", 1);
+				cd_.slider_v_threshold_min = ptree.get<float>("composite.slider_v_threshold_min", 0);
+				cd_.slider_v_threshold_max = ptree.get<float>("composite.slider_v_threshold_max", 1.0f);
+				cd_.composite_low_v_threshold = ptree.get<float>("composite.low_v_threshold", 0.2f);
+				cd_.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 99.8f);
 
-				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
-
-				// Interpolation
-				compute_desc_.interpolation_enabled = ptree.get<bool>("interpolation.enabled", false);
-				compute_desc_.interp_lambda1 = ptree.get<float>("interpolation.lambda1", 870) * 1.0e-9f;
-				compute_desc_.interp_lambda2 = ptree.get<float>("interpolation.lambda2", 820) * 1.0e-9f;
-				compute_desc_.interp_sensitivity = ptree.get<float>("interpolation.sensitivity", 0.9f);
-				compute_desc_.interp_shift = ptree.get<int>("interpolation.shift", 0);
+				cd_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
 				notify();
 			}
@@ -845,7 +795,6 @@ namespace holovibes
 			GroupBox *record_group_box = ui.RecordGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
-			GroupBox *motion_focus_group_box = ui.MotionFocusGroupBox;
 			Config& config = global::global_config;
 
 			// Config
@@ -853,48 +802,48 @@ namespace holovibes
 			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
 			ptree.put<uint>("config.input_file_buffer_size", config.reader_buf_max_size);
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
-			ptree.put<int>("config.stft_queue_size", compute_desc_.stft_level);
-			ptree.put<int>("config.reference_buffer_size", compute_desc_.ref_diff_level);
-			ptree.put<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
-			ptree.put<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size);
+			ptree.put<int>("config.stft_queue_size", cd_.stft_level);
+			ptree.put<int>("config.reference_buffer_size", cd_.ref_diff_level);
+			ptree.put<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
+			ptree.put<int>("config.convolution_buffer_size", cd_.special_buffer_size);
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
-			ptree.put<ushort>("config.display_rate", static_cast<ushort>(compute_desc_.display_rate));
+			ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd_.display_rate));
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
 			ptree.put("image_rendering.camera", kCamera);
-			ptree.put<ushort>("image_rendering.phase_number", compute_desc_.nSize);
-			ptree.put<ushort>("image_rendering.p_index", compute_desc_.pindex);
-			ptree.put<float>("image_rendering.lambda", compute_desc_.lambda);
-			ptree.put<float>("image_rendering.z_distance", compute_desc_.zdistance);
+			ptree.put<ushort>("image_rendering.phase_number", cd_.nSize);
+			ptree.put<ushort>("image_rendering.p_index", cd_.pindex);
+			ptree.put<float>("image_rendering.lambda", cd_.lambda);
+			ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
-			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", compute_desc_.algorithm);
-			ptree.put<ushort>("image_rendering.direct_bitshift", compute_desc_.direct_bitshift);
-			ptree.put<ushort>("image_rendering.stft_steps", compute_desc_.stft_steps);
+			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", cd_.algorithm);
+			ptree.put<ushort>("image_rendering.direct_bitshift", cd_.direct_bitshift);
+			ptree.put<ushort>("image_rendering.stft_steps", cd_.stft_steps);
 
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
-			ptree.put<holovibes::ImgType>("view.view_mode", compute_desc_.img_type);
-			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled);
-			ptree.put<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
-			ptree.put<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled);
-			ptree.put<bool>("view.fft_shift_enabled", compute_desc_.fft_shift_enabled);
-			ptree.put<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
-			ptree.put<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
-			ptree.put<float>("view.contrast_threshold_high_percentile", compute_desc_.contrast_threshold_high_percentile);
+			ptree.put<holovibes::ImgType>("view.view_mode", cd_.img_type);
+			ptree.put<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
+			ptree.put<bool>("view.log_scale_enabled_cut_xz", cd_.log_scale_slice_xz_enabled);
+			ptree.put<bool>("view.log_scale_enabled_cut_yz", cd_.log_scale_slice_yz_enabled);
+			ptree.put<bool>("view.fft_shift_enabled", cd_.fft_shift_enabled);
+			ptree.put<bool>("view.contrast_enabled", cd_.contrast_enabled);
+			ptree.put<float>("view.contrast_threshold_low_percentile", cd_.contrast_threshold_low_percentile);
+			ptree.put<float>("view.contrast_threshold_high_percentile", cd_.contrast_threshold_high_percentile);
 
-			ptree.put<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy);
-			ptree.put<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy);
-			ptree.put<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset);
-			ptree.put<bool>("view.accumulation_enabled", compute_desc_.img_acc_slice_xy_enabled);
+			ptree.put<float>("view.contrast_min", cd_.contrast_min_slice_xy);
+			ptree.put<float>("view.contrast_max", cd_.contrast_max_slice_xy);
+			ptree.put<ushort>("view.cuts_contrast_p_offset", cd_.cuts_contrast_p_offset);
+			ptree.put<bool>("view.accumulation_enabled", cd_.img_acc_slice_xy_enabled);
 			ptree.put<float>("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
 			ptree.put<float>("view.yCut_rotate", yzAngle);
 			ptree.put<int>("view.mainWindow_flip", displayFlip);
 			ptree.put<int>("view.xCut_flip", xzFlip);
 			ptree.put<int>("view.yCut_flip", yzFlip);
-			ptree.put<float>("view.reticle_scale", compute_desc_.reticle_scale);
+			ptree.put<float>("view.reticle_scale", cd_.reticle_scale);
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
@@ -903,66 +852,49 @@ namespace holovibes
 			// Record
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
 
-			// Motion Focus
-			ptree.put<bool>("motion_focus.hidden", motion_focus_group_box->isHidden());
-
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
-			ptree.put<float>("import.pixel_size", compute_desc_.pixel_size);
+			ptree.put<float>("import.pixel_size", cd_.pixel_size);
 
 			// Info
 			ptree.put<bool>("info.hidden", info_group_box->isHidden());
 			ptree.put<ushort>("info.theme_type", theme_index_);
 
-			// Autofocus
-			ptree.put<uint>("autofocus.size", compute_desc_.autofocus_size);
-			ptree.put<float>("autofocus.z_min", compute_desc_.autofocus_z_min);
-			ptree.put<float>("autofocus.z_max", compute_desc_.autofocus_z_max);
-			ptree.put<uint>("autofocus.steps", compute_desc_.autofocus_z_div);
-			ptree.put<uint>("autofocus.loops", compute_desc_.autofocus_z_iter);
-
 			// Composite
-			ptree.put<ushort>("composite.p_red", compute_desc_.composite_p_red);
-			ptree.put<ushort>("composite.p_blue", compute_desc_.composite_p_blue);
-			ptree.put<float>("composite.weight_r", compute_desc_.weight_r);
-			ptree.put<float>("composite.weight_g", compute_desc_.weight_g);
-			ptree.put<float>("composite.weight_b", compute_desc_.weight_b);
+			ptree.put<ushort>("composite.p_red", cd_.composite_p_red);
+			ptree.put<ushort>("composite.p_blue", cd_.composite_p_blue);
+			ptree.put<float>("composite.weight_r", cd_.weight_r);
+			ptree.put<float>("composite.weight_g", cd_.weight_g);
+			ptree.put<float>("composite.weight_b", cd_.weight_b);
 
-			ptree.put<ushort>("composite.p_min_h", compute_desc_.composite_p_min_h);
-			ptree.put<ushort>("composite.p_max_h", compute_desc_.composite_p_max_h);
-			ptree.put<float>("composite.slider_h_threshold_min", compute_desc_.slider_h_threshold_min);
-			ptree.put<float>("composite.slider_h_threshold_max", compute_desc_.slider_h_threshold_max);
-			ptree.put<float>("composite.low_h_threshold", compute_desc_.composite_low_h_threshold);
-			ptree.put<float>("composite.high_h_threshold", compute_desc_.composite_high_h_threshold);
+			ptree.put<ushort>("composite.p_min_h", cd_.composite_p_min_h);
+			ptree.put<ushort>("composite.p_max_h", cd_.composite_p_max_h);
+			ptree.put<float>("composite.slider_h_threshold_min", cd_.slider_h_threshold_min);
+			ptree.put<float>("composite.slider_h_threshold_max", cd_.slider_h_threshold_max);
+			ptree.put<float>("composite.low_h_threshold", cd_.composite_low_h_threshold);
+			ptree.put<float>("composite.high_h_threshold", cd_.composite_high_h_threshold);
 
-			ptree.put<bool>("composite.p_activated_s", compute_desc_.composite_p_activated_s);
-			ptree.put<ushort>("composite.p_min_s", compute_desc_.composite_p_min_s);
-			ptree.put<ushort>("composite.p_max_s", compute_desc_.composite_p_max_s);
-			ptree.put<float>("composite.slider_s_threshold_min", compute_desc_.slider_s_threshold_min);
-			ptree.put<float>("composite.slider_s_threshold_max", compute_desc_.slider_s_threshold_max);
-			ptree.put<float>("composite.low_s_threshold", compute_desc_.composite_low_s_threshold);
-			ptree.put<float>("composite.high_s_threshold", compute_desc_.composite_high_s_threshold);
+			ptree.put<bool>("composite.p_activated_s", cd_.composite_p_activated_s);
+			ptree.put<ushort>("composite.p_min_s", cd_.composite_p_min_s);
+			ptree.put<ushort>("composite.p_max_s", cd_.composite_p_max_s);
+			ptree.put<float>("composite.slider_s_threshold_min", cd_.slider_s_threshold_min);
+			ptree.put<float>("composite.slider_s_threshold_max", cd_.slider_s_threshold_max);
+			ptree.put<float>("composite.low_s_threshold", cd_.composite_low_s_threshold);
+			ptree.put<float>("composite.high_s_threshold", cd_.composite_high_s_threshold);
 
-			ptree.put<bool>("composite.p_activated_v", compute_desc_.composite_p_activated_v);
-			ptree.put<ushort>("composite.p_min_v", compute_desc_.composite_p_min_v);
-			ptree.put<ushort>("composite.p_max_v", compute_desc_.composite_p_max_v);
-			ptree.put<float>("composite.slider_v_threshold_min", compute_desc_.slider_v_threshold_min);
-			ptree.put<float>("composite.slider_v_threshold_max", compute_desc_.slider_v_threshold_max);
-			ptree.put<float>("composite.low_v_threshold", compute_desc_.composite_low_v_threshold);
-			ptree.put<float>("composite.high_v_threshold", compute_desc_.composite_high_v_threshold);
-			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
+			ptree.put<bool>("composite.p_activated_v", cd_.composite_p_activated_v);
+			ptree.put<ushort>("composite.p_min_v", cd_.composite_p_min_v);
+			ptree.put<ushort>("composite.p_max_v", cd_.composite_p_max_v);
+			ptree.put<float>("composite.slider_v_threshold_min", cd_.slider_v_threshold_min);
+			ptree.put<float>("composite.slider_v_threshold_max", cd_.slider_v_threshold_max);
+			ptree.put<float>("composite.low_v_threshold", cd_.composite_low_v_threshold);
+			ptree.put<float>("composite.high_v_threshold", cd_.composite_high_v_threshold);
+			ptree.put<bool>("composite.auto_weights", cd_.composite_auto_weights_);
 
 			//Reset
 			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
 			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
 			ptree.put<uint>("reset.device_number", config.device_number);
-
-			// Interpolation
-			ptree.put<bool>("interpolation.enabled", compute_desc_.interpolation_enabled);
-			ptree.put<float>("interpolation.lambda1", compute_desc_.interp_lambda1 * 1.0e9);
-			ptree.put<float>("interpolation.lambda2", compute_desc_.interp_lambda2 * 1.0e9);
-			ptree.put<float>("interpolation.sensitivity", compute_desc_.interp_sensitivity);
-			ptree.put<int>("interpolation.shift", compute_desc_.interp_shift);
 
 
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
@@ -977,12 +909,12 @@ namespace holovibes
 #pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{
-			if (compute_desc_.average_enabled)
+			if (cd_.average_enabled)
 				set_average_mode(false);
-			cancel_stft_view(compute_desc_);
-			if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
+			cancel_stft_view(cd_);
+			if (cd_.ref_diff_enabled || cd_.ref_sliding_enabled)
 				cancel_take_reference();
-			if (compute_desc_.filter_2d_enabled)
+			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
 			holovibes_.dispose_compute();
 		}
@@ -997,7 +929,7 @@ namespace holovibes
 			remove_infos();
 			ui.actionSettings->setEnabled(false);
 			is_enabled_camera_ = false;
-			compute_desc_.compute_mode = Computation::Stop;
+			cd_.compute_mode = Computation::Stop;
 			notify();
 		}
 
@@ -1036,8 +968,8 @@ namespace holovibes
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
-			compute_desc_.pindex = 0;
-			compute_desc_.nSize = 1;
+			cd_.pindex = 0;
+			cd_.nSize = 1;
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device)
 			{
@@ -1068,7 +1000,7 @@ namespace holovibes
 		void MainWindow::closeEvent(QCloseEvent*)
 		{
 			close_windows();
-			if (compute_desc_.compute_mode != Computation::Stop)
+			if (cd_.compute_mode != Computation::Stop)
 				close_critical_compute();
 			camera_none();
 			remove_infos();
@@ -1092,7 +1024,7 @@ namespace holovibes
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
 
-					set_camera_timeout(); 
+					set_camera_timeout();
 
 					//Needed for correct read of SquareInputMode during allocation of buffers
 					set_computation_mode();
@@ -1196,25 +1128,25 @@ namespace holovibes
 			close_critical_compute();
 			ui.SquareInputModeComboBox->setEnabled(false);
 			InfoManager::get_manager()->remove_info("Throughput");
-			compute_desc_.compute_mode = Computation::Stop;
+			cd_.compute_mode = Computation::Stop;
 			notify();
 			if (is_enabled_camera_)
 			{
 				QPoint pos(0, 0);
-				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_fd();
 				width = fd.width;
 				height = fd.height;
 				get_good_size(width, height, 512);
 				QSize size(width, height);
 				init_image_mode(pos, size);
-				compute_desc_.compute_mode = Computation::Direct;
+				cd_.compute_mode = Computation::Direct;
 				createPipe();
 				mainDisplay.reset(
 					new DirectWindow(
 						pos, size,
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
-				mainDisplay->setCd(&compute_desc_);
+				mainDisplay->setCd(&cd_);
 				mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
 				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::INPUT_SOURCE, "Input Format");
 				set_convolution_mode(false);
@@ -1227,12 +1159,12 @@ namespace holovibes
 		void MainWindow::createPipe()
 		{
 
-			unsigned int depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
+			unsigned int depth = holovibes_.get_capture_queue()->get_fd().depth;
 
-			if (compute_desc_.compute_mode == Computation::Hologram)
+			if (cd_.compute_mode == Computation::Hologram)
 			{
 				depth = 2;
-				if (compute_desc_.img_type == ImgType::Composite)
+				if (cd_.img_type == ImgType::Composite)
 					depth = 6;
 			}
 			/* ---------- */
@@ -1251,7 +1183,7 @@ namespace holovibes
 		void MainWindow::createHoloWindow()
 		{
 			QPoint pos(0, 0);
-			const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+			const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_fd();
 			width = fd.width;
 			height = fd.height;
 			get_good_size(width, height, 512);
@@ -1270,7 +1202,7 @@ namespace holovibes
 						this));
 				mainDisplay->set_is_resize(false);
 				mainDisplay->setTitle(QString("XY view"));
-				mainDisplay->setCd(&compute_desc_);
+				mainDisplay->setCd(&cd_);
 				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
@@ -1294,16 +1226,16 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				compute_desc_.compute_mode = Computation::Hologram;
+				cd_.compute_mode = Computation::Hologram;
 				/* ---------- */
 				createPipe();
 				createHoloWindow();
 				/* ---------- */
-				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_fd();
 				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
 				/* ---------- */
-				compute_desc_.contrast_enabled = true;
-				if (!compute_desc_.is_holo_file)
+				cd_.contrast_enabled = true;
+				if (!cd_.is_holo_file)
 				{
 					set_auto_contrast();
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
@@ -1323,23 +1255,23 @@ namespace holovibes
 		{
 			if (ui.DirectRadioButton->isChecked())
 			{
-				compute_desc_.compute_mode = Computation::Direct;
+				cd_.compute_mode = Computation::Direct;
 			}
 			else if (ui.HologramRadioButton->isChecked())
 			{
-				compute_desc_.compute_mode = Computation::Hologram;
+				cd_.compute_mode = Computation::Hologram;
 			}
 		}
 
 		void MainWindow::set_correct_square_input_mode()
 		{
-			if (compute_desc_.compute_mode == Computation::Direct)
+			if (cd_.compute_mode == Computation::Direct)
 			{
-				compute_desc_.square_input_mode = SquareInputMode::NO_MODIFICATION;
+				cd_.square_input_mode = SquareInputMode::NO_MODIFICATION;
 			}
-			else if (compute_desc_.compute_mode == Computation::Hologram)
+			else if (cd_.compute_mode == Computation::Hologram)
 			{
-				compute_desc_.square_input_mode = get_square_input_mode_from_string(ui.SquareInputModeComboBox->currentText().toStdString());
+				cd_.square_input_mode = get_square_input_mode_from_string(ui.SquareInputModeComboBox->currentText().toStdString());
 			}
 		}
 
@@ -1351,7 +1283,7 @@ namespace holovibes
 		void MainWindow::set_square_input_mode(const QString &name)
 		{
 			auto mode = get_square_input_mode_from_string(name.toStdString());
-			compute_desc_.square_input_mode = mode;
+			cd_.square_input_mode = mode;
 			//Need to reset the whole computation process since we change the size of the different buffers
 			reset_input();
 		}
@@ -1403,12 +1335,12 @@ namespace holovibes
 				if (need_refresh(last_img_type_, value))
 				{
 				// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
-					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
+					cd_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
-					if (compute_desc_.img_type == ImgType::Composite)
+					if (cd_.img_type == ImgType::Composite)
 					{
-						const unsigned min_val_composite = compute_desc_.nSize == 1 ? 0 : 1;
-						const unsigned max_val_composite = compute_desc_.nSize - 1;
+						const unsigned min_val_composite = cd_.nSize == 1 ? 0 : 1;
+						const unsigned max_val_composite = cd_.nSize - 1;
 
 						ui.PRedSpinBox_Composite->setValue(min_val_composite);
 						ui.SpinBox_hue_freq_min->setValue(min_val_composite);
@@ -1426,14 +1358,14 @@ namespace holovibes
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 
 				pipe->run_end_pipe([=]() {
-					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
+					cd_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					notify();
 					layout_toggled();
 				});
 				pipe_refresh();
 
 				pipe->autocontrast_end_pipe(XYview);
-				if (compute_desc_.stft_view_enabled)
+				if (cd_.stft_view_enabled)
 					set_auto_contrast_cuts();
 				while (pipe->get_refresh_request());
 			}
@@ -1441,14 +1373,14 @@ namespace holovibes
 
 		bool MainWindow::is_direct_mode()
 		{
-			return compute_desc_.compute_mode == Computation::Direct;
+			return cd_.compute_mode == Computation::Direct;
 		}
 
 		void MainWindow::set_image_mode()
 		{
-			if (compute_desc_.compute_mode == Computation::Direct)
+			if (cd_.compute_mode == Computation::Direct)
 				set_direct_mode();
-			else if (compute_desc_.compute_mode == Computation::Hologram)
+			else if (cd_.compute_mode == Computation::Hologram)
 				set_holographic_mode();
 			else
 			{
@@ -1467,12 +1399,12 @@ namespace holovibes
 
 			manager->remove_info("STFT Slice Cursor");
 
-			compute_desc_.contrast_max_slice_xz = false;
-			compute_desc_.contrast_max_slice_yz = false;
-			compute_desc_.log_scale_slice_xz_enabled = false;
-			compute_desc_.log_scale_slice_yz_enabled = false;
-			compute_desc_.img_acc_slice_xz_enabled = false;
-			compute_desc_.img_acc_slice_yz_enabled = false;
+			cd_.contrast_max_slice_xz = false;
+			cd_.contrast_max_slice_yz = false;
+			cd_.log_scale_slice_xz_enabled = false;
+			cd_.log_scale_slice_yz_enabled = false;
+			cd_.img_acc_slice_xz_enabled = false;
+			cd_.img_acc_slice_yz_enabled = false;
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
 
@@ -1484,7 +1416,7 @@ namespace holovibes
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
 				pipe->run_end_pipe([=]() {
-					compute_desc_.stft_view_enabled = false;
+					cd_.stft_view_enabled = false;
 					pipe->delete_stft_slice_queue();
 
 					ui.STFTCutsCheckBox->setChecked(false);
@@ -1494,37 +1426,11 @@ namespace holovibes
 
 		}
 
-		void MainWindow::set_crop_stft(bool b)
-		{
-			if (!is_direct_mode())
-			{
-				auto lambda = [=]() {
-					std::stringstream ss;
-					ss << "(X1,X2,X3,X4) = (";
-					if (b)
-					{
-						auto zone = compute_desc_.getZoomedZone();
-						ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-					}
-					else
-					{
-						auto fd = holovibes_.get_capture_frame_desc();
-						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
-					}
-					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-					holovibes_.get_pipe()->request_update_n(compute_desc_.nSize);
-					compute_desc_.croped_stft = b;
-				};
-				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-				pipe->run_end_pipe(lambda);
-			}
-		}
-
 		void MainWindow::update_stft_steps(int value)
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.stft_steps = value;
+				cd_.stft_steps = value;
 				notify();
 			}
 		}
@@ -1534,7 +1440,7 @@ namespace holovibes
 			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
 
-			compute_desc_.square_pixel = checked && ui.squarePixel_checkBox->isChecked();
+			cd_.square_pixel = checked && ui.squarePixel_checkBox->isChecked();
 
 			QComboBox* winSelection = ui.WindowSelectionComboBox;
 			winSelection->setEnabled(checked);
@@ -1543,13 +1449,13 @@ namespace holovibes
 			{
 				try
 				{
-					if (compute_desc_.filter_2d_enabled)
+					if (cd_.filter_2d_enabled)
 						cancel_filter2D();
 					holovibes_.get_pipe()->create_stft_slice_queue();
 					// set positions of new windows according to the position of the main GL window
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
-					const ushort	nImg = compute_desc_.nSize;
+					const ushort	nImg = cd_.nSize;
 					const uint		nSize = std::max(128u, std::min(256u, (uint)nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
@@ -1563,7 +1469,7 @@ namespace holovibes
 					sliceXZ->setTitle("XZ view");
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
-					sliceXZ->setCd(&compute_desc_);
+					sliceXZ->setCd(&cd_);
 
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
@@ -1574,11 +1480,11 @@ namespace holovibes
 					sliceYZ->setTitle("YZ view");
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
-					sliceYZ->setCd(&compute_desc_);
+					sliceYZ->setCd(&cd_);
 
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
-					compute_desc_.stft_view_enabled = true;
-					compute_desc_.average_enabled = false;
+					cd_.stft_view_enabled = true;
+					cd_.average_enabled = false;
 					set_auto_contrast_cuts();
 					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
 					if (holo)
@@ -1599,7 +1505,7 @@ namespace holovibes
 
 		void MainWindow::cancel_stft_view(ComputeDescriptor& cd)
 		{
-			if (compute_desc_.stft_view_enabled)
+			if (cd_.stft_view_enabled)
 				cancel_stft_slice_view();
 			try {
 				while (holovibes_.get_pipe()->get_refresh_request());
@@ -1607,9 +1513,9 @@ namespace holovibes
 			catch (std::exception&)
 			{
 			}
-			if (compute_desc_.p_accu_enabled)
-				compute_desc_.p_accu_enabled = false;
-			compute_desc_.stft_view_enabled = false;
+			if (cd_.p_accu_enabled)
+				cd_.p_accu_enabled = false;
+			cd_.stft_view_enabled = false;
 			notify();
 		}
 
@@ -1621,26 +1527,26 @@ namespace holovibes
 			QComboBox *window_cbox = ui.WindowSelectionComboBox;
 
 			if (window_cbox->currentIndex() == 0)
-				compute_desc_.current_window = WindowKind::XYview;
+				cd_.current_window = WindowKind::XYview;
 			else if (window_cbox->currentIndex() == 1)
-				compute_desc_.current_window = WindowKind::XZview;
+				cd_.current_window = WindowKind::XZview;
 			else if (window_cbox->currentIndex() == 2)
-				compute_desc_.current_window = WindowKind::YZview;
+				cd_.current_window = WindowKind::YZview;
 			notify();
 		}
 
 		void MainWindow::set_convolution_mode(const bool value)
 		{
-			if (value == false && compute_desc_.convolution_enabled == true)
+			if (value == false && cd_.convolution_enabled == true)
 			{
 				ui.DivideConvoCheckBox->setChecked(false);
 				set_divide_convolution_mode(false);
 			}
 
-			compute_desc_.convolution_enabled_changed = compute_desc_.convolution_enabled != value;
+			cd_.convolution_enabled_changed = cd_.convolution_enabled != value;
 
 			ui.DivideConvoCheckBox->setEnabled(value);
-			compute_desc_.convolution_enabled = value;
+			cd_.convolution_enabled = value;
 			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
 
@@ -1649,28 +1555,28 @@ namespace holovibes
 
 		void MainWindow::set_divide_convolution_mode(const bool value)
 		{
-			compute_desc_.divide_convolution_enabled = value;
+			cd_.divide_convolution_enabled = value;
 			set_auto_contrast();
 			notify();
 		}
 
 		void MainWindow::toggle_renormalize(bool value)
 		{
-			compute_desc_.renorm_enabled = value;
+			cd_.renorm_enabled = value;
 			pipe_refresh();
 			notify();
 		}
 
 		void MainWindow::set_renormalize_constant(int value)
 		{
-			compute_desc_.renorm_constant = value;
+			cd_.renorm_constant = value;
 		}
 
 		void MainWindow::take_reference()
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.ref_diff_enabled = true;
+				cd_.ref_diff_enabled = true;
 				holovibes_.get_pipe()->request_ref_diff_refresh();
 				InfoManager::get_manager()->update_info("Reference", "Processing... ");
 				notify();
@@ -1681,7 +1587,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.ref_sliding_enabled = true;
+				cd_.ref_sliding_enabled = true;
 				holovibes_.get_pipe()->request_ref_diff_refresh();
 				InfoManager::get_manager()->update_info("Reference", "Processing...");
 				notify();
@@ -1692,8 +1598,8 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.ref_diff_enabled = false;
-				compute_desc_.ref_sliding_enabled = false;
+				cd_.ref_diff_enabled = false;
+				cd_.ref_sliding_enabled = false;
 				holovibes_.get_pipe()->request_ref_diff_refresh();
 				InfoManager::get_manager()->remove_info("Reference");
 				notify();
@@ -1707,9 +1613,9 @@ namespace holovibes
 				mainDisplay->resetTransform();
 				mainDisplay->getOverlayManager().create_overlay<Filter2D>();
 				ui.Filter2DPushButton->setStyleSheet("QPushButton {color: #009FFF;}");
-				compute_desc_.log_scale_slice_xy_enabled = true;
-				compute_desc_.fft_shift_enabled = true;
-				compute_desc_.filter_2d_enabled = true;
+				cd_.log_scale_slice_xy_enabled = true;
+				cd_.fft_shift_enabled = true;
+				cd_.filter_2d_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
 					pipe->autocontrast_end_pipe(XYview);
 				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
@@ -1734,7 +1640,7 @@ namespace holovibes
 				type = Filter2DType::BandPass;
 			}
 
-			compute_desc_.filter_2d_type = type;
+			cd_.filter_2d_type = type;
 
 			notify();
 		}
@@ -1744,11 +1650,11 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				InfoManager::get_manager()->remove_info("Filter2D");
-				compute_desc_.filter_2d_enabled = false;
-				compute_desc_.log_scale_slice_xy_enabled = false;
+				cd_.filter_2d_enabled = false;
+				cd_.log_scale_slice_xy_enabled = false;
 				auto zone = units::RectFd({0, 0}, {0, 0});
-				compute_desc_.setStftZone(zone);
-				compute_desc_.setFilter2DSubZone(zone);
+				cd_.setStftZone(zone);
+				cd_.setFilter2DSubZone(zone);
 				if (mainDisplay)
 				{
 					mainDisplay->getOverlayManager().disable_all(Filter2D);
@@ -1765,7 +1671,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.fft_shift_enabled = value;
+				cd_.fft_shift_enabled = value;
 				pipe_refresh();
 			}
 		}
@@ -1777,7 +1683,7 @@ namespace holovibes
 				int nSize = ui.nSizeSpinBox->value();
 				nSize = std::max(1, nSize);
 
-				if (nSize == compute_desc_.nSize)
+				if (nSize == cd_.nSize)
 					return;
 				notify();
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
@@ -1785,10 +1691,10 @@ namespace holovibes
 				{
 					pipe->run_end_pipe([=]() {
 						holovibes_.get_pipe()->request_update_n(nSize);
-						compute_desc_.nSize = nSize;
+						cd_.nSize = nSize;
 						set_p_accu();
 						// This will not do anything until SliceWindow::changeTexture() isn't coded.
-						if (compute_desc_.stft_view_enabled)
+						if (cd_.stft_view_enabled)
 						{
 							sliceXZ->adapt();
 							sliceYZ->adapt();
@@ -1802,7 +1708,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.special_buffer_size = value;
+				cd_.special_buffer_size = value;
 				set_auto_contrast();
 				notify();
 			}
@@ -1825,7 +1731,7 @@ namespace holovibes
 							pipe->get_lens_queue()));
 					}
 					lens_window->setTitle("Lens view");
-					lens_window->setCd(&compute_desc_);
+					lens_window->setCd(&cd_);
 				}
 				catch (std::exception& e)
 				{
@@ -1836,16 +1742,16 @@ namespace holovibes
 			{
 				lens_window = nullptr;
 			}
-			compute_desc_.gpu_lens_display_enabled = value;
+			cd_.gpu_lens_display_enabled = value;
 			pipe_refresh();
 		}
 
 		void MainWindow::update_raw_view(bool value)
 		{
-			compute_desc_.raw_view = value;
+			cd_.raw_view = value;
 			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 			if (pipe)
-				pipe->get_raw_queue()->set_display(compute_desc_.record_raw || value);
+				pipe->get_raw_queue()->set_display(cd_.record_raw || value);
 			if (value)
 			{
 				try
@@ -1860,7 +1766,7 @@ namespace holovibes
 							pipe->get_raw_queue()));
 					}
 					raw_window->setTitle("Raw view");
-					raw_window->setCd(&compute_desc_);
+					raw_window->setCd(&cd_);
 				}
 				catch (std::exception& e)
 				{
@@ -1870,7 +1776,7 @@ namespace holovibes
 			else
 			{
 				raw_window = nullptr;
-				if (!compute_desc_.record_raw)
+				if (!cd_.record_raw)
 					gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
 			}
 			pipe_refresh();
@@ -1880,10 +1786,10 @@ namespace holovibes
 		{
 			auto spinbox = ui.PAccSpinBox;
 			auto checkBox = ui.PAccuCheckBox;
-			if (compute_desc_.p_accu_enabled != checkBox->isChecked())
+			if (cd_.p_accu_enabled != checkBox->isChecked())
 				pipe_refresh();
-			compute_desc_.p_accu_enabled = checkBox->isChecked();
-			compute_desc_.p_acc_level = spinbox->value();
+			cd_.p_accu_enabled = checkBox->isChecked();
+			cd_.p_acc_level = spinbox->value();
 
 			notify();
 		}
@@ -1892,8 +1798,8 @@ namespace holovibes
 		{
 			auto box = ui.XAccSpinBox;
 			auto checkBox = ui.XAccuCheckBox;
-			compute_desc_.x_accu_enabled = checkBox->isChecked();
-			compute_desc_.x_acc_level = box->value();
+			cd_.x_accu_enabled = checkBox->isChecked();
+			cd_.x_acc_level = box->value();
 			notify();
 		}
 
@@ -1901,8 +1807,8 @@ namespace holovibes
 		{
 			auto box = ui.YAccSpinBox;
 			auto checkBox = ui.YAccuCheckBox;
-			compute_desc_.y_accu_enabled = checkBox->isChecked();
-			compute_desc_.y_acc_level = box->value();
+			cd_.y_accu_enabled = checkBox->isChecked();
+			cd_.y_acc_level = box->value();
 			notify();
 		}
 
@@ -1910,9 +1816,9 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (value < static_cast<int>(compute_desc_.nSize))
+				if (value < static_cast<int>(cd_.nSize))
 				{
-					compute_desc_.pindex = value;
+					cd_.pindex = value;
 					notify();
 				}
 				else
@@ -1923,58 +1829,58 @@ namespace holovibes
 		void MainWindow::set_composite_intervals()
 		{
 			ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
-			compute_desc_.composite_p_red = ui.PRedSpinBox_Composite->value();
-			compute_desc_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
+			cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
+			cd_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
 			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_h_min()
 		{
-			compute_desc_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
+			cd_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_h_max()
 		{
-			compute_desc_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
+			cd_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_s_min()
 		{
-			compute_desc_.composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
+			cd_.composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_s_max()
 		{
-			compute_desc_.composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
+			cd_.composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_min()
 		{
-			compute_desc_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
+			cd_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_max()
 		{
-			compute_desc_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
+			cd_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
 		}
 
 		void MainWindow::set_composite_weights()
 		{
-			compute_desc_.weight_r = ui.WeightSpinBox_R->value();
-			compute_desc_.weight_g = ui.WeightSpinBox_G->value();
-			compute_desc_.weight_b = ui.WeightSpinBox_B->value();
+			cd_.weight_r = ui.WeightSpinBox_R->value();
+			cd_.weight_g = ui.WeightSpinBox_G->value();
+			cd_.weight_b = ui.WeightSpinBox_B->value();
 		}
 
 
 		void MainWindow::set_composite_auto_weights(bool value)
 		{
-			compute_desc_.composite_auto_weights_ = value;
+			cd_.composite_auto_weights_ = value;
 			set_auto_contrast();
 		}
 
 		void MainWindow::click_composite_rgb_or_hsv()
 		{
-			compute_desc_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
+			cd_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
 			if (ui.radioButton_rgb->isChecked())
 			{
 				ui.PRedSpinBox_Composite->setValue(ui.SpinBox_hue_freq_min->value());
@@ -1994,27 +1900,27 @@ namespace holovibes
 
 		void MainWindow::actualize_frequency_channel_s()
 		{
-			compute_desc_.composite_p_activated_s = ui.checkBox_saturation_freq->isChecked();
+			cd_.composite_p_activated_s = ui.checkBox_saturation_freq->isChecked();
 			ui.SpinBox_saturation_freq_min->setDisabled(!ui.checkBox_saturation_freq->isChecked());
 			ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
 		}
 
 		void MainWindow::actualize_frequency_channel_v()
 		{
-			compute_desc_.composite_p_activated_v = ui.checkBox_value_freq->isChecked();
+			cd_.composite_p_activated_v = ui.checkBox_value_freq->isChecked();
 			ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
 			ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 		}
 
 		void MainWindow::actualize_checkbox_h_gaussian_blur()
 		{
-			compute_desc_.h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
+			cd_.h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
 			ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 		}
 
 		void MainWindow::actualize_kernel_size_blur()
 		{
-			compute_desc_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value();
+			cd_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value();
 		}
 
 		void fancy_Qslide_text_percent(char* str)
@@ -2052,44 +1958,44 @@ namespace holovibes
 
 		void  MainWindow::slide_update_threshold_h_min()
 		{
-			slide_update_threshold(*ui.horizontalSlider_hue_threshold_min, compute_desc_.slider_h_threshold_min,
-				compute_desc_.slider_h_threshold_max, *ui.horizontalSlider_hue_threshold_max,
-				*ui.label_hue_threshold_min, compute_desc_.slider_h_threshold_min, compute_desc_.slider_h_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_min, cd_.slider_h_threshold_min,
+				cd_.slider_h_threshold_max, *ui.horizontalSlider_hue_threshold_max,
+				*ui.label_hue_threshold_min, cd_.slider_h_threshold_min, cd_.slider_h_threshold_max);
 		}
 
 		void  MainWindow::slide_update_threshold_h_max()
 		{
-			slide_update_threshold(*ui.horizontalSlider_hue_threshold_max, compute_desc_.slider_h_threshold_max,
-				compute_desc_.slider_h_threshold_min, *ui.horizontalSlider_hue_threshold_min,
-				*ui.label_hue_threshold_max, compute_desc_.slider_h_threshold_min, compute_desc_.slider_h_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_max, cd_.slider_h_threshold_max,
+				cd_.slider_h_threshold_min, *ui.horizontalSlider_hue_threshold_min,
+				*ui.label_hue_threshold_max, cd_.slider_h_threshold_min, cd_.slider_h_threshold_max);
 		}
 
 		void MainWindow::slide_update_threshold_s_min()
 		{
-			slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min, compute_desc_.slider_s_threshold_min,
-				compute_desc_.slider_s_threshold_max, *ui.horizontalSlider_saturation_threshold_max,
-				*ui.label_saturation_threshold_min, compute_desc_.slider_s_threshold_min, compute_desc_.slider_s_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min, cd_.slider_s_threshold_min,
+				cd_.slider_s_threshold_max, *ui.horizontalSlider_saturation_threshold_max,
+				*ui.label_saturation_threshold_min, cd_.slider_s_threshold_min, cd_.slider_s_threshold_max);
 		}
 
 		void MainWindow::slide_update_threshold_s_max()
 		{
-			slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max, compute_desc_.slider_s_threshold_max,
-				compute_desc_.slider_s_threshold_min, *ui.horizontalSlider_saturation_threshold_min,
-				*ui.label_saturation_threshold_max, compute_desc_.slider_s_threshold_min, compute_desc_.slider_s_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max, cd_.slider_s_threshold_max,
+				cd_.slider_s_threshold_min, *ui.horizontalSlider_saturation_threshold_min,
+				*ui.label_saturation_threshold_max, cd_.slider_s_threshold_min, cd_.slider_s_threshold_max);
 		}
 
 		void MainWindow::slide_update_threshold_v_min()
 		{
-			slide_update_threshold(*ui.horizontalSlider_value_threshold_min, compute_desc_.slider_v_threshold_min,
-				compute_desc_.slider_v_threshold_max, *ui.horizontalSlider_value_threshold_max,
-				*ui.label_value_threshold_min, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_min, cd_.slider_v_threshold_min,
+				cd_.slider_v_threshold_max, *ui.horizontalSlider_value_threshold_max,
+				*ui.label_value_threshold_min, cd_.slider_v_threshold_min, cd_.slider_v_threshold_max);
 		}
 
 		void MainWindow::slide_update_threshold_v_max()
 		{
-			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.slider_v_threshold_max,
-				compute_desc_.slider_v_threshold_min, *ui.horizontalSlider_value_threshold_min,
-				*ui.label_value_threshold_max, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, cd_.slider_v_threshold_max,
+				cd_.slider_v_threshold_min, *ui.horizontalSlider_value_threshold_min,
+				*ui.label_value_threshold_max, cd_.slider_v_threshold_min, cd_.slider_v_threshold_max);
 		}
 
 		void MainWindow::increment_p()
@@ -2097,9 +2003,9 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 
-				if (compute_desc_.pindex < compute_desc_.nSize)
+				if (cd_.pindex < cd_.nSize)
 				{
-					compute_desc_.pindex = compute_desc_.pindex + 1;
+					cd_.pindex = cd_.pindex + 1;
 					set_auto_contrast();
 					notify();
 				}
@@ -2112,9 +2018,9 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.pindex > 0)
+				if (cd_.pindex > 0)
 				{
-					compute_desc_.pindex = compute_desc_.pindex - 1;
+					cd_.pindex = cd_.pindex - 1;
 					set_auto_contrast();
 					notify();
 				}
@@ -2127,52 +2033,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.lambda = static_cast<float>(value) * 1.0e-9f;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_interp_lambda1(const double value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.interp_lambda1 = static_cast<float>(value) * 1.0e-9f;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_interp_lambda2(const double value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.interp_lambda2 = static_cast<float>(value) * 1.0e-9f;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_interp_sensitivity(const double value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.interp_sensitivity = value;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_interp_shift(const int value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.interp_shift = value;
-				pipe_refresh();
-			}
-		}
-
-		void MainWindow::set_interpolation(bool value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.interpolation_enabled = value;
+				cd_.lambda = static_cast<float>(value) * 1.0e-9f;
 				pipe_refresh();
 			}
 		}
@@ -2181,7 +2042,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.zdistance = static_cast<float>(value);
+				cd_.zdistance = static_cast<float>(value);
 				pipe_refresh();
 			}
 		}
@@ -2190,8 +2051,8 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				set_z(compute_desc_.zdistance + z_step_);
-				ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
+				set_z(cd_.zdistance + z_step_);
+				ui.ZDoubleSpinBox->setValue(cd_.zdistance);
 			}
 		}
 
@@ -2199,8 +2060,8 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				set_z(compute_desc_.zdistance - z_step_);
-				ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
+				set_z(cd_.zdistance - z_step_);
+				ui.ZDoubleSpinBox->setValue(cd_.zdistance);
 			}
 		}
 
@@ -2215,15 +2076,15 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				if (value == "None")
-					compute_desc_.algorithm = Algorithm::None;
+					cd_.algorithm = Algorithm::None;
 				else if (value == "1FFT")
-					compute_desc_.algorithm = Algorithm::FFT1;
+					cd_.algorithm = Algorithm::FFT1;
 				else if (value == "2FFT")
-					compute_desc_.algorithm = Algorithm::FFT2;
+					cd_.algorithm = Algorithm::FFT2;
 				else
 				{
 					// Shouldn't happen
-					compute_desc_.algorithm = Algorithm::None;
+					cd_.algorithm = Algorithm::None;
 					LOG_ERROR("Unknown algorithm: " + value.toStdString() + ", falling back to None");
 				}
 				set_holographic_mode();
@@ -2235,9 +2096,9 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				if (value == "STFT")
-					compute_desc_.time_filter = TimeFilter::STFT;
+					cd_.time_filter = TimeFilter::STFT;
 				else if (value == "SVD")
-					compute_desc_.time_filter = TimeFilter::SVD;
+					cd_.time_filter = TimeFilter::SVD;
 				set_holographic_mode();
 			}
 		}
@@ -2246,7 +2107,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.unwrap_history_size = value;
+				cd_.unwrap_history_size = value;
 				holovibes_.get_pipe()->request_update_unwrap_size(value);
 				notify();
 			}
@@ -2276,7 +2137,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.set_accumulation(compute_desc_.current_window, value);
+				cd_.set_accumulation(cd_.current_window, value);
 				holovibes_.get_pipe()->request_acc_refresh();
 				notify();
 			}
@@ -2286,35 +2147,14 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.set_accumulation_level(compute_desc_.current_window, value);
+				cd_.set_accumulation_level(cd_.current_window, value);
 				holovibes_.get_pipe()->request_acc_refresh();
 			}
 		}
 
-		void MainWindow::set_xy_stabilization_enable(bool value)
-		{
-			compute_desc_.xy_stabilization_enabled = value;
-			pipe_refresh();
-		}
-
-
 		void MainWindow::pixel_size_import()
 		{
-			compute_desc_.pixel_size = ui.PixelSizeDoubleSpinBox->value();
-		}
-
-		void MainWindow::set_z_iter(const int value)
-		{
-			if (!is_direct_mode())
-				compute_desc_.autofocus_z_iter = value;
-			notify();
-		}
-
-		void MainWindow::set_z_div(const int value)
-		{
-			if (!is_direct_mode())
-				compute_desc_.autofocus_z_div = value;
-			notify();
+			cd_.pixel_size = ui.PixelSizeDoubleSpinBox->value();
 		}
 
 		void MainWindow::pipe_refresh()
@@ -2333,43 +2173,9 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_stabilization_area()
-		{
-			mainDisplay->getOverlayManager().create_overlay<Stabilization>();
-		}
-
 		void MainWindow::set_composite_area()
 		{
 			mainDisplay->getOverlayManager().create_overlay<CompositeArea>();
-		}
-
-
-		void MainWindow::set_aberration_enabled(bool value)
-		{
-			compute_desc_.aberration_enabled_ = value;
-			pipe_refresh();
-		}
-		void MainWindow::set_aberration_factor(double value)
-		{
-			compute_desc_.aberration_factor_ = value;
-		}
-		void MainWindow::set_aberration_slices(int value)
-		{
-			compute_desc_.aberration_slices_ = value;
-			pipe_refresh();
-		}
-
-		void MainWindow::set_jitter_enabled(bool value)
-		{
-			compute_desc_.jitter_enabled_ = value;
-		}
-		void MainWindow::set_jitter_factor(double value)
-		{
-			compute_desc_.jitter_factor_ = value;
-		}
-		void MainWindow::set_jitter_slices(int value)
-		{
-			compute_desc_.jitter_slices_ = value;
 		}
 
 #pragma endregion
@@ -2377,7 +2183,7 @@ namespace holovibes
 #pragma region Texture
 		void MainWindow::rotateTexture()
 		{
-			WindowKind curWin = compute_desc_.current_window;
+			WindowKind curWin = cd_.current_window;
 
 			if (curWin == WindowKind::XYview)
 			{
@@ -2399,7 +2205,7 @@ namespace holovibes
 
 		void MainWindow::flipTexture()
 		{
-			WindowKind curWin = compute_desc_.current_window;
+			WindowKind curWin = cd_.current_window;
 
 			if (curWin == WindowKind::XYview)
 			{
@@ -2444,101 +2250,15 @@ namespace holovibes
 
 		void MainWindow::set_scale_bar_correction_factor(double value)
 		{
-			compute_desc_.scale_bar_correction_factor = value;
+			cd_.scale_bar_correction_factor = value;
 		}
 
 		void MainWindow::set_square_pixel(bool enable)
 		{
-			compute_desc_.square_pixel = enable;
+			cd_.square_pixel = enable;
 			for (auto slice : { sliceXZ.get(), sliceYZ.get() })
 				if (slice)
 					slice->make_pixel_square();
-		}
-
-		void MainWindow::set_locked_zoom(bool value)
-		{
-			compute_desc_.locked_zoom = value;
-		}
-
-		void MainWindow::zernike_refresh()
-		{
-			if (std::abs(compute_desc_.zernike_m) > compute_desc_.zernike_n) {
-				display_error("n has to be greater or equal to |m|");
-				return;
-			}
-			pipe_refresh();
-		}
-
-		void MainWindow::set_zernike_enable(bool val)
-		{
-			compute_desc_.zernike_enabled = val;
-			zernike_refresh();
-		}
-		void MainWindow::set_zernike_m(int m)
-		{
-			compute_desc_.zernike_m = m;
-			zernike_refresh();
-		}
-		void MainWindow::set_zernike_n(int n)
-		{
-			compute_desc_.zernike_n = n;
-			zernike_refresh();
-		}
-
-		void MainWindow::set_zernike_factor(double value)
-		{
-			compute_desc_.zernike_factor = value;
-			zernike_refresh();
-		}
-#pragma endregion
-		/* ------------ */
-#pragma region Autofocus
-		void MainWindow::set_autofocus_mode()
-		{
-			// If current overlay is Autofocus, disable it
-			if (mainDisplay->getKindOfOverlay() == Autofocus)
-			{
-				mainDisplay->getOverlayManager().create_default();
-				mainDisplay->getOverlayManager().disable_all(Autofocus);
-				notify();
-			}
-			else
-			{
-				mainDisplay->getOverlayManager().create_overlay<Autofocus>();
-				notify();
-			}
-		}
-
-		void MainWindow::set_xy_stabilization_show_convolution(bool value)
-		{
-			compute_desc_.xy_stabilization_show_convolution = value;
-			pipe_refresh();
-			set_auto_contrast();
-		}
-
-		void MainWindow::set_z_min(const double value)
-		{
-			if (!is_direct_mode())
-				compute_desc_.autofocus_z_min = value;
-		}
-
-		void MainWindow::set_z_max(const double value)
-		{
-			if (!is_direct_mode())
-				compute_desc_.autofocus_z_max = value;
-		}
-
-		void MainWindow::request_autofocus_stop()
-		{
-			// Ctrl + C shortcut
-			try
-			{
-				holovibes_.get_pipe()->request_autofocus_stop();
-			}
-			catch (std::runtime_error& e)
-			{
-				std::cerr << e.what() << std::endl;
-			}
 		}
 #pragma endregion
 		/* ------------ */
@@ -2548,7 +2268,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				change_window();
-				compute_desc_.contrast_enabled = value;
+				cd_.contrast_enabled = value;
 				set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
 				set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 				pipe_refresh();
@@ -2616,7 +2336,7 @@ namespace holovibes
 					while (holovibes_.get_pipe()->get_request_refresh())
 						continue;
 
-					holovibes_.get_pipe()->request_autocontrast(compute_desc_.current_window);
+					holovibes_.get_pipe()->request_autocontrast(cd_.current_window);
 				}
 				catch (std::runtime_error& e)
 				{
@@ -2629,9 +2349,9 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.contrast_enabled)
+				if (cd_.contrast_enabled)
 				{
-					compute_desc_.set_contrast_min(compute_desc_.current_window, value);
+					cd_.set_contrast_min(cd_.current_window, value);
 					pipe_refresh();
 				}
 			}
@@ -2641,9 +2361,9 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.contrast_enabled)
+				if (cd_.contrast_enabled)
 				{
-					compute_desc_.set_contrast_max(compute_desc_.current_window, value);
+					cd_.set_contrast_max(cd_.current_window, value);
 					pipe_refresh();
 				}
 			}
@@ -2653,9 +2373,9 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.contrast_enabled)
+				if (cd_.contrast_enabled)
 				{
-					compute_desc_.contrast_invert = value;
+					cd_.contrast_invert = value;
 					pipe_refresh();
 				}
 			}
@@ -2665,8 +2385,8 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.set_log_scale_slice_enabled(compute_desc_.current_window, value);
-				if (compute_desc_.contrast_enabled)
+				cd_.set_log_scale_slice_enabled(cd_.current_window, value);
+				if (cd_.contrast_enabled)
 				{
 					set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
 					set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
@@ -2684,7 +2404,7 @@ namespace holovibes
 		{
 			if (mainDisplay)
 			{
-				compute_desc_.average_enabled = value;
+				cd_.average_enabled = value;
 				mainDisplay->resetTransform();
 				if (value)
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
@@ -2964,8 +2684,8 @@ namespace holovibes
 
 				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
 				uint c = 0;
-				uint nx = holovibes_.get_output_queue()->get_frame_desc().width;
-				uint ny = holovibes_.get_output_queue()->get_frame_desc().height;
+				uint nx = holovibes_.get_output_queue()->get_fd().width;
+				uint ny = holovibes_.get_output_queue()->get_fd().height;
 				uint size = nx * ny;
 
 				const uint minw = (nx / 2) - (matrix_width / 2);
@@ -2985,10 +2705,10 @@ namespace holovibes
 				}
 
 				//on met les largeurs et hauteurs a la taille de nx et de ny
-				compute_desc_.convo_matrix_width = nx;
-				compute_desc_.convo_matrix_height = ny;
-				compute_desc_.convo_matrix_z = matrix_z;
-				compute_desc_.convo_matrix = convo_matrix;
+				cd_.convo_matrix_width = nx;
+				cd_.convo_matrix_height = ny;
+				cd_.convo_matrix_z = matrix_z;
+				cd_.convo_matrix = convo_matrix;
 			}
 			catch (std::exception& e)
 			{
@@ -3017,7 +2737,7 @@ namespace holovibes
 			if (add_info)
 			{
 				std::string slice;
-				switch (compute_desc_.current_window)
+				switch (cd_.current_window)
 				{
 				case SliceXZ:
 					slice = "XZ";
@@ -3029,7 +2749,7 @@ namespace holovibes
 					slice = "XY";
 					break;
 				}
-				std::string mode = (is_direct_mode() || compute_desc_.record_raw) ? "D" : "H";
+				std::string mode = (is_direct_mode() || cd_.record_raw) ? "D" : "H";
 
 				int depth = fd.depth;
 				if (depth == 6)
@@ -3068,7 +2788,7 @@ namespace holovibes
 
 		void MainWindow::set_raw_recording(bool value)
 		{
-			compute_desc_.record_raw = value;
+			cd_.record_raw = value;
 
 			// When switching to raw recording, we no longer care about
 			// having a big Pipe::output_ buffer for the processed output,
@@ -3088,12 +2808,12 @@ namespace holovibes
 
 		void MainWindow::set_synchronized_record(bool value)
 		{
-			compute_desc_.synchronized_record = value;
+			cd_.synchronized_record = value;
 		}
 
 		void MainWindow::normalize(bool value)
 		{
-			compute_desc_.normalize_enabled = value;
+			cd_.normalize_enabled = value;
 		}
 
 		void MainWindow::display_cross(bool value)
@@ -3114,7 +2834,7 @@ namespace holovibes
 		{
 			if (0 > value || value > 1)
 				return;
-			compute_desc_.reticle_scale = value;
+			cd_.reticle_scale = value;
 		}
 
 		void MainWindow::start_recording()
@@ -3141,7 +2861,7 @@ namespace holovibes
 			try
 			{
 				Queue *queue;
-				if (compute_desc_.record_raw)
+				if (cd_.record_raw)
 				{
 					queue = holovibes_.get_pipe()->get_raw_queue().get();
 					queue->set_display(true);
@@ -3151,11 +2871,11 @@ namespace holovibes
 
 				if (queue)
 				{
-					path = set_record_filename_properties(queue->get_frame_desc(), path, false);
+					path = set_record_filename_properties(queue->get_fd(), path, false);
 					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(queue), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
-					if (compute_desc_.synchronized_record)
+					if (cd_.synchronized_record)
 					{
 						auto reader = dynamic_cast<ThreadReader *>(holovibes_.get_tcapture().get());
 						if (reader)
@@ -3191,7 +2911,7 @@ namespace holovibes
 
 			ui.ImageOutputStopPushButton->setDisabled(true);
 
-			if (compute_desc_.record_raw && !compute_desc_.raw_view)
+			if (cd_.record_raw && !cd_.raw_view)
 			{
 				holovibes_.get_pipe()->get_raw_queue()->set_display(false);
 				gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
@@ -3263,9 +2983,9 @@ namespace holovibes
 			{
 				Queue* q = nullptr;
 
-				if (compute_desc_.current_window == WindowKind::XYview)
+				if (cd_.current_window == WindowKind::XYview)
 					q = holovibes_.get_output_queue().get();
-				else if (compute_desc_.current_window == WindowKind::XZview)
+				else if (cd_.current_window == WindowKind::XZview)
 					q = holovibes_.get_pipe()->get_stft_slice_queue(0).get();
 				else
 					q = holovibes_.get_pipe()->get_stft_slice_queue(1).get();
@@ -3273,7 +2993,7 @@ namespace holovibes
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
 				formatted_path = format_batch_output(path, file_index_);
-				formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path, false);
+				formatted_path = set_record_filename_properties(q->get_fd(), formatted_path, false);
 
 				//is_enabled_camera_ = false;
 
@@ -3362,15 +3082,15 @@ namespace holovibes
 
 			Queue *q = nullptr;
 
-			if (compute_desc_.current_window == WindowKind::XYview)
+			if (cd_.current_window == WindowKind::XYview)
 				q = holovibes_.get_output_queue().get();
-			else if (compute_desc_.current_window == WindowKind::XZview)
+			else if (cd_.current_window == WindowKind::XZview)
 				q = holovibes_.get_pipe()->get_stft_slice_queue(0).get();
 			else
 				q = holovibes_.get_pipe()->get_stft_slice_queue(1).get();
 
 			std::string output_filename = format_batch_output(path, file_index_);
-			output_filename = set_record_filename_properties(q->get_frame_desc(), output_filename, false);
+			output_filename = set_record_filename_properties(q->get_fd(), output_filename, false);
 			const uint frame_nb = frame_nb_spin_box->value();
 			if (is_batch_img_)
 			{
@@ -3504,7 +3224,7 @@ namespace holovibes
 				tmp_path = filename;
 
 				auto holo_file = HoloFile::new_instance(filename.toStdString());
-				compute_desc_.is_holo_file = holo_file;
+				cd_.is_holo_file = holo_file;
 				holo_file_update_ui();
 
 				if (!holo_file)
@@ -3520,7 +3240,7 @@ namespace holovibes
 			close_critical_compute();
 			camera_none();
 			remove_infos();
-			compute_desc_.compute_mode = Computation::Stop;
+			cd_.compute_mode = Computation::Stop;
 			notify();
 		}
 
@@ -3552,8 +3272,8 @@ namespace holovibes
 			ui.ToHoloFilePushButton->setEnabled(!HoloFile::get_instance());
 			ui.UpdateHoloPushButton->setEnabled(HoloFile::get_instance());
 
-			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-			compute_desc_.pixel_size = pixel_size_spinbox->value();
+			cd_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
+			cd_.pixel_size = pixel_size_spinbox->value();
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
@@ -3573,7 +3293,7 @@ namespace holovibes
 
 
 			depth_multi = pow(2, depth_spinbox->currentIndex());
-			FrameDescriptor frame_desc = {
+			FrameDescriptor fd = {
 				static_cast<ushort>(width_spinbox->value()),
 				static_cast<ushort>(height_spinbox->value()),
 				static_cast<unsigned int>(depth_multi),
@@ -3583,17 +3303,17 @@ namespace holovibes
 			try
 			{
 				auto file_end = std::filesystem::file_size(file_src)
-					/ frame_desc.frame_size();
+					/ fd.frame_size();
 				if (file_end > end_spinbox->value())
 					file_end = end_spinbox->value();
-				
+
 				//Needed for correct read of SquareInputMode during the allocation of buffers
 				set_computation_mode();
 				set_correct_square_input_mode();
 
 				holovibes_.init_import_mode(
 					file_src,
-					frame_desc,
+					fd,
 					true,
 					fps_spinbox->value(),
 					start_spinbox->value(),
@@ -3661,7 +3381,7 @@ namespace holovibes
 
 		void MainWindow::set_import_cine_file(bool value)
 		{
-			compute_desc_.is_cine_file = value;
+			cd_.is_cine_file = value;
 			notify();
 		}
 
@@ -3718,7 +3438,7 @@ namespace holovibes
 				ui.ImportWidthSpinBox->setValue(read_width);
 				read_height = std::abs(read_height);
 				ui.ImportHeightSpinBox->setValue(read_height);
-				compute_desc_.pixel_size = (1 / static_cast<double>(read_pixelpermeter_x)) * 1e6;
+				cd_.pixel_size = (1 / static_cast<double>(read_pixelpermeter_x)) * 1e6;
 				ui.ImportEndiannessComboBox->setCurrentIndex(0); // Little Endian
 
 				/*Unused fonction ready to read framerate in exposure*/
@@ -3802,8 +3522,8 @@ namespace holovibes
 		{
 			auto holo_file = HoloFile::get_instance();
 
-			ui.ToHoloFilePushButton->setEnabled(!holo_file && compute_desc_.compute_mode != Computation::Stop);
-			ui.UpdateHoloPushButton->setEnabled(holo_file && compute_desc_.compute_mode != Computation::Stop);
+			ui.ToHoloFilePushButton->setEnabled(!holo_file && cd_.compute_mode != Computation::Stop);
+			ui.UpdateHoloPushButton->setEnabled(holo_file && cd_.compute_mode != Computation::Stop);
 
 			if (!holo_file)
 				return;
@@ -3825,15 +3545,15 @@ namespace holovibes
 				return;
 
 			const json& json_settings = holo_file.get_meta_data();
-			compute_desc_.algorithm = static_cast<Algorithm>(json_settings.value("algorithm", 0));
-			compute_desc_.nSize = json_settings.value("#img", 1);
-			compute_desc_.pindex = json_settings.value("p", 0);
-			compute_desc_.lambda = json_settings.value("lambda", 0.0f);
-			compute_desc_.pixel_size = json_settings.value("pixel_size", 12.0);
-			compute_desc_.zdistance = json_settings.value("z", 0.0f);
-			compute_desc_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
-			compute_desc_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
-			compute_desc_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
+			cd_.algorithm = static_cast<Algorithm>(json_settings.value("algorithm", 0));
+			cd_.nSize = json_settings.value("#img", 1);
+			cd_.pindex = json_settings.value("p", 0);
+			cd_.lambda = json_settings.value("lambda", 0.0f);
+			cd_.pixel_size = json_settings.value("pixel_size", 12.0);
+			cd_.zdistance = json_settings.value("z", 0.0f);
+			cd_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
+			cd_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
+			cd_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
 		}
 
 		json MainWindow::holo_file_get_json_settings(const Queue* q)
@@ -3843,12 +3563,12 @@ namespace holovibes
 				json json_settings;
 				if (q != nullptr)
 				{
-					json_settings = HoloFile::get_json_settings(compute_desc_, q->get_frame_desc());
+					json_settings = HoloFile::get_json_settings(cd_, q->get_fd());
 				}
 				else
 				{
 					// This code shouldn't run but it's here to avoid a segfault in case something weird happens
-					json_settings = HoloFile::get_json_settings(compute_desc_);
+					json_settings = HoloFile::get_json_settings(cd_);
 					json_settings.emplace("img_width", ui.ImportWidthSpinBox->value());
 					json_settings.emplace("img_height", ui.ImportHeightSpinBox->value());
 					json_settings.emplace("pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3));

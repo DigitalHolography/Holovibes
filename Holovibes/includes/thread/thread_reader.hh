@@ -52,7 +52,7 @@ namespace holovibes
 
     /*! \brief Create a preconfigured ThreadReader. */
     ThreadReader(std::string file_src
-      , camera::FrameDescriptor& frame_desc
+      , camera::FrameDescriptor& fd
       , SquareInputMode mode
       , bool loop
       , unsigned int fps
@@ -67,9 +67,9 @@ namespace holovibes
 
     virtual ~ThreadReader();
 
-    const camera::FrameDescriptor& get_input_frame_descriptor() const override;
+    const camera::FrameDescriptor& get_input_fd() const override;
 
-    const camera::FrameDescriptor& get_queue_frame_descriptor() const override;
+    const camera::FrameDescriptor& get_queue_fd() const override;
 
 	signals:
 		void at_begin();
@@ -96,7 +96,7 @@ namespace holovibes
     /*! \brief Frames Per Second to be displayed. */
     unsigned int fps_;
     /*! \brief Describes the image format asked by the user. */
-    camera::FrameDescriptor frame_desc_;
+    camera::FrameDescriptor fd_;
     /*! \brief Current frame id in file. */
     unsigned int frameId_;
     /*! \brief Id of the first frame to read. */

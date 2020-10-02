@@ -20,7 +20,7 @@ namespace holovibes
 		Queue& input,
 		Queue& output,
 		const PipeType pipetype)
-		: compute_desc_(desc)
+		: cd_(desc)
 		, input_(input)
 		, output_(output)
 		, pipetype_(pipetype)
@@ -42,7 +42,7 @@ namespace holovibes
 	{
 		try
 		{
-			pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
+			pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, cd_));
 		}
 		catch (std::exception& e)
 		{

@@ -66,7 +66,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
       <property name="spacing">
        <number>1</number>
       </property>
@@ -211,24 +211,6 @@
              </property>
              <property name="maximum">
               <number>2147483647</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_29">
-           <item>
-            <widget class="QCheckBox" name="CropStftCheckBox">
-             <property name="text">
-              <string>Crop STFT</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="ZoomLockCheckBox">
-             <property name="text">
-              <string>Zoom Lock</string>
              </property>
             </widget>
            </item>
@@ -2201,608 +2183,6 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="MotionFocusGroupBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>205</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>205</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>205</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Motion + Focus</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,0,0,0,0,0,0">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="AutofocusGroupBox">
-           <property name="title">
-            <string>Focus</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_17">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <widget class="QPushButton" name="AutofocusRunPushButton">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="text">
-               <string>Run Autofocus</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QLabel" name="AutofocusZMinLabel">
-                <property name="text">
-                 <string>z range:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QDoubleSpinBox" name="AutofocusZMinDoubleSpinBox">
-                <property name="toolTip">
-                 <string/>
-                </property>
-                <property name="decimals">
-                 <number>4</number>
-                </property>
-                <property name="minimum">
-                 <double>-100.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>100.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-                <property name="value">
-                 <double>0.200000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QDoubleSpinBox" name="AutofocusZMaxDoubleSpinBox">
-                <property name="decimals">
-                 <number>4</number>
-                </property>
-                <property name="minimum">
-                 <double>-100.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>100.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-                <property name="value">
-                 <double>2.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="ZernikeGroupBox">
-           <property name="title">
-            <string>Zernike polynomial</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_30">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>m</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="ZernikeMSpinBox">
-              <property name="minimum">
-               <number>-99</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>n</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="ZernikeNSpinBox"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>amp.</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="ZernikeFactorDoubleSpinBox">
-              <property name="minimum">
-               <double>-100000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>100000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="MotionCorrectionCheckBox">
-           <property name="title">
-            <string>XY Stabilization</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
-            <property name="leftMargin">
-             <number>1</number>
-            </property>
-            <property name="topMargin">
-             <number>1</number>
-            </property>
-            <property name="rightMargin">
-             <number>1</number>
-            </property>
-            <property name="bottomMargin">
-             <number>1</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="1,0">
-              <item>
-               <widget class="QCheckBox" name="ShowConvoMatrixCheckBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Conv. matrix</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="StabilizationAreaButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Set area</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="InterpolationCheckbox">
-           <property name="title">
-            <string>Interferogram interpolation</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_11">
-            <property name="leftMargin">
-             <number>1</number>
-            </property>
-            <property name="topMargin">
-             <number>1</number>
-            </property>
-            <property name="rightMargin">
-             <number>1</number>
-            </property>
-            <property name="bottomMargin">
-             <number>1</number>
-            </property>
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_8">
-              <property name="horizontalSpacing">
-               <number>0</number>
-              </property>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_12">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Thresh.</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QDoubleSpinBox" name="InterpolationLambda1">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="decimals">
-                 <number>4</number>
-                </property>
-                <property name="minimum">
-                 <double>-1.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>3000.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.010000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_10">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>λ1</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QDoubleSpinBox" name="InterpolationSensitivity">
-                <property name="decimals">
-                 <number>4</number>
-                </property>
-                <property name="maximum">
-                 <double>1.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.010000000000000</double>
-                </property>
-                <property name="value">
-                 <double>0.900000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_11">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>λ2</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QDoubleSpinBox" name="InterpolationLambda2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="decimals">
-                 <number>4</number>
-                </property>
-                <property name="minimum">
-                 <double>-1.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>3000.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.010000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QLabel" name="label_13">
-                <property name="text">
-                 <string>Shift</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3">
-               <widget class="QSpinBox" name="InterpolationShift"/>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="JitterCheckBox">
-           <property name="title">
-            <string>Phase noise correction</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_16">
-            <property name="leftMargin">
-             <number>1</number>
-            </property>
-            <property name="topMargin">
-             <number>1</number>
-            </property>
-            <property name="rightMargin">
-             <number>1</number>
-            </property>
-            <property name="bottomMargin">
-             <number>1</number>
-            </property>
-            <item>
-             <layout class="QGridLayout" name="gridLayout_10">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>chunks</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QSpinBox" name="JitterNbChunks">
-                <property name="minimum">
-                 <number>3</number>
-                </property>
-                <property name="singleStep">
-                 <number>2</number>
-                </property>
-                <property name="value">
-                 <number>7</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>factor</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QDoubleSpinBox" name="JitterFactor">
-                <property name="decimals">
-                 <number>5</number>
-                </property>
-                <property name="minimum">
-                 <double>-10000.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>10000.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-                <property name="value">
-                 <double>1.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="AberrationCheckBox">
-           <property name="title">
-            <string>Aberration correction</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_32">
-            <property name="leftMargin">
-             <number>1</number>
-            </property>
-            <property name="topMargin">
-             <number>1</number>
-            </property>
-            <property name="rightMargin">
-             <number>1</number>
-            </property>
-            <property name="bottomMargin">
-             <number>1</number>
-            </property>
-            <item>
-             <layout class="QGridLayout" name="gridLayout_12">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_16">
-                <property name="text">
-                 <string>chunks</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QSpinBox" name="AberrationNbChunks">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="singleStep">
-                 <number>1</number>
-                </property>
-                <property name="value">
-                 <number>8</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_17">
-                <property name="text">
-                 <string>factor</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QDoubleSpinBox" name="AberrationFactor">
-                <property name="decimals">
-                 <number>5</number>
-                </property>
-                <property name="minimum">
-                 <double>-10000.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>10000.000000000000000</double>
-                </property>
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-                <property name="value">
-                 <double>1.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_7">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="holovibes::gui::GroupBox" name="PostProcessingGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -4148,7 +3528,6 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
-    <addaction name="actionMotionFocus"/>
     <addaction name="actionSpecial"/>
     <addaction name="actionRecord"/>
     <addaction name="actionImport"/>
@@ -4425,20 +3804,6 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
   </action>
-  <action name="actionMotionFocus">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Motion + Focus</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+M</string>
-   </property>
-  </action>
   <action name="actionHamamatsu">
    <property name="text">
     <string>Hamamatsu C11440</string>
@@ -4503,13 +3868,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>AutoContrastPushButton</tabstop>
   <tabstop>ContrastMinDoubleSpinBox</tabstop>
   <tabstop>ContrastMaxDoubleSpinBox</tabstop>
-  <tabstop>AutofocusRunPushButton</tabstop>
-  <tabstop>AutofocusZMinDoubleSpinBox</tabstop>
-  <tabstop>AutofocusZMaxDoubleSpinBox</tabstop>
-  <tabstop>MotionCorrectionCheckBox</tabstop>
-  <tabstop>InterpolationCheckbox</tabstop>
-  <tabstop>InterpolationLambda1</tabstop>
-  <tabstop>InterpolationSensitivity</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
@@ -5260,22 +4618,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AutofocusRunPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_autofocus_mode()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>377</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImageOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -5576,38 +4918,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>102</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AutofocusZMinDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_z_min(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>755</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>384</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AutofocusZMaxDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_z_max(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>825</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>431</y>
     </hint>
    </hints>
   </connection>
@@ -6108,38 +5418,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>MotionCorrectionCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_xy_stabilization_enable(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>830</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>774</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ShowConvoMatrixCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_xy_stabilization_show_convolution(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>728</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>774</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionPhotonFocus</sender>
    <signal>triggered(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -6152,166 +5430,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>644</x>
      <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>StabilizationAreaButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_stabilization_area()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>234</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>573</x>
-     <y>513</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionMotionFocus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>784</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionMotionFocus</sender>
-   <signal>changed()</signal>
-   <receiver>MotionFocusGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>834</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CropStftCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_crop_stft(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>95</x>
-     <y>122</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationLambda1</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interp_lambda1(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>740</x>
-     <y>287</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationCheckbox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interpolation(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>830</x>
-     <y>320</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationLambda1</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interp_lambda1(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>740</x>
-     <y>287</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>484</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationLambda2</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interp_lambda2(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>825</x>
-     <y>287</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationSensitivity</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interp_sensitivity(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>740</x>
-     <y>316</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>298</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InterpolationShift</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_interp_shift(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>825</x>
-     <y>316</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>356</y>
     </hint>
    </hints>
   </connection>
@@ -6380,70 +5498,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AberrationCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_aberration_enabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>830</x>
-     <y>426</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>439</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AberrationNbChunks</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_aberration_slices(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>727</x>
-     <y>422</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>402</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>JitterCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_jitter_enabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>830</x>
-     <y>373</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>439</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>JitterNbChunks</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_jitter_slices(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>727</x>
-     <y>369</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>402</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>squarePixel_checkBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -6492,38 +5546,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AberrationFactor</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_aberration_factor(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>787</x>
-     <y>420</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>101</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>JitterFactor</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_jitter_factor(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>369</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>101</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AverageGroupBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -6536,86 +5558,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>809</x>
      <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZoomLockCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_locked_zoom(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>144</x>
-     <y>112</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZernikeMSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_zernike_m(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>692</x>
-     <y>175</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1255</x>
-     <y>-6</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZernikeNSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_zernike_n(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>743</x>
-     <y>175</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1090</x>
-     <y>-14</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZernikeGroupBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_zernike_enable(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>659</x>
-     <y>141</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1373</x>
-     <y>-2</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZernikeFactorDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_zernike_factor(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>799</x>
-     <y>164</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -7273,8 +6215,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_average_graphic()</slot>
   <slot>browse_batch_input()</slot>
   <slot>batch_record()</slot>
-  <slot>set_autofocus()</slot>
-  <slot>set_autofocus_mode()</slot>
   <slot>csv_batch_record()</slot>
   <slot>image_batch_record()</slot>
   <slot>stop_image_record()</slot>
@@ -7299,10 +6239,6 @@ p, li { white-space: pre-wrap; }
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_renormalize_constant(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
-  <slot>set_z_min(double)</slot>
-  <slot>set_z_max(double)</slot>
-  <slot>set_z_div(int)</slot>
-  <slot>set_z_iter(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
   <slot>pixel_size_import()</slot>
   <slot>set_night()</slot>
@@ -7342,13 +6278,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_weights_hsv_s()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
-  <slot>set_stabilization_area()</slot>
-  <slot>set_crop_stft(bool)</slot>
-  <slot>set_interpolation(bool)</slot>
-  <slot>set_interp_lambda1(double)</slot>
-  <slot>set_interp_lambda2(double)</slot>
-  <slot>set_interp_sensitivity(double)</slot>
-  <slot>set_interp_shift(int)</slot>
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
@@ -7370,17 +6299,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
-  <slot>set_jitter_slices(int)</slot>
-  <slot>set_jitter_enabled(bool)</slot>
-  <slot>set_jitter_factor(double)</slot>
   <slot>set_square_pixel(bool)</slot>
   <slot>update_raw_view(bool)</slot>
   <slot>set_raw_recording(bool)</slot>
-  <slot>set_zernike_m(int)</slot>
-  <slot>set_zernike_n(int)</slot>
-  <slot>set_zernike_enable(bool)</slot>
-  <slot>set_locked_zoom(bool)</slot>
-  <slot>set_zernike_factor(double)</slot>
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>

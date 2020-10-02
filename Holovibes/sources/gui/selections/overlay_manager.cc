@@ -13,12 +13,10 @@
 #pragma once
 
 #include "overlay_manager.hh"
-#include "autofocus_overlay.hh"
 #include "zoom_overlay.hh"
 #include "noise_overlay.hh"
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
-#include "stabilization_overlay.hh"
 #include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
 #include "filter2d_subzone_overlay.hh"
@@ -72,13 +70,6 @@ namespace holovibes
 		}
 
 		template <>
-		void OverlayManager::create_overlay<Autofocus>()
-		{
-			if (!set_current(Autofocus))
-				create_overlay(std::make_shared<AutofocusOverlay>(parent_));
-		}
-
-		template <>
 		void OverlayManager::create_overlay<Noise>()
 		{
 			if (!set_current(Noise))
@@ -98,13 +89,6 @@ namespace holovibes
 			if (!set_current(Cross))
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
 			create_overlay<Zoom>();
-		}
-
-		template <>
-		void OverlayManager::create_overlay<Stabilization>()
-		{
-			if (!set_current(Stabilization))
-				create_overlay(std::make_shared<StabilizationOverlay>(parent_));
 		}
 
 		template <>
@@ -224,8 +208,6 @@ namespace holovibes
 					create_overlay<Noise>();
 				else if (current_overlay_->getKind() == Filter2D && parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
 					create_overlay<Filter2DSubZone>();
-				else if (current_overlay_->getKind() == Stabilization)
-					create_default();
 			}
 		}
 

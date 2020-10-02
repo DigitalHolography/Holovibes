@@ -33,7 +33,7 @@ namespace holovibes
 		tcompute_(),
 		input_(),
 		output_(),
-		compute_desc_(),
+		cd_(),
 		average_queue_(),
 		launch_path(std::filesystem::current_path().generic_string())
 	{
@@ -75,13 +75,13 @@ namespace holovibes
 
 			LOG_INFO("(Holovibes) Initializing camera...");
 			camera_->init_camera();
-			compute_desc_.pixel_size = camera_->get_pixel_size();
+			cd_.pixel_size = camera_->get_pixel_size();
 			LOG_INFO("(Holovibes) Resetting queues...");
 
-			auto camera_fd = camera_->get_frame_descriptor();
+			auto camera_fd = camera_->get_fd();
 			auto queue_fd = camera_fd;
-			SquareInputMode mode = compute_desc_.square_input_mode;
-			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
+			SquareInputMode mode = cd_.square_input_mode;
+			//unsigned short	size = upper_window_size(fd.width, fd.height);
 			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
@@ -140,9 +140,9 @@ namespace holovibes
 
 	std::unique_ptr<Queue>& Holovibes::get_current_window_output_queue()
 	{
-		if (compute_desc_.current_window == WindowKind::XYview)
+		if (cd_.current_window == WindowKind::XYview)
 			return output_;
-		else if (compute_desc_.current_window == WindowKind::XZview)
+		else if (cd_.current_window == WindowKind::XZview)
 			return get_pipe()->get_stft_slice_queue(0);
 		return get_pipe()->get_stft_slice_queue(1);
 	}
@@ -157,7 +157,7 @@ namespace holovibes
 			filepath);
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder.record(rec_n_images, HoloFile::get_json_settings(compute_desc_, get_output_queue()->get_frame_desc()));
+		recorder.record(rec_n_images, HoloFile::get_json_settings(cd_, get_output_queue()->get_fd()));
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}
 
@@ -167,7 +167,7 @@ namespace holovibes
 		assert(tcapture_ && "Capture thread not initialized");
 		assert(input_ && "Input queue not initialized");
 
-		camera::FrameDescriptor output_fd = input_->get_frame_desc();
+		camera::FrameDescriptor output_fd = input_->get_fd();
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
 		output_fd.depth = depth;
 		try
@@ -182,7 +182,7 @@ namespace holovibes
 			input_.reset(nullptr);
 			return;
 		}
-		tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
+		tcompute_.reset(new ThreadCompute(cd_, *input_, *output_, pipetype));
 		LOG_INFO("[CUDA] Compute thread started");
 
 		// A wait_for is necessary here in order for the pipe to finish
@@ -207,31 +207,31 @@ namespace holovibes
 
 	void Holovibes::clear_convolution_matrix()
 	{
-		compute_desc_.convo_matrix_width = 0;
-		compute_desc_.convo_matrix_height = 0;
-		compute_desc_.convo_matrix_z = 0;
-		compute_desc_.convo_matrix.clear();
+		cd_.convo_matrix_width = 0;
+		cd_.convo_matrix_height = 0;
+		cd_.convo_matrix_z = 0;
+		cd_.convo_matrix.clear();
 	}
 
-	const camera::FrameDescriptor& Holovibes::get_capture_frame_desc()
+	const camera::FrameDescriptor& Holovibes::get_capture_fd()
 	{
-		return tcapture_->get_queue_frame_descriptor();
+		return tcapture_->get_queue_fd();
 	}
 
 	const float Holovibes::get_boundary()
 	{
 		if (tcapture_)
 		{
-			FrameDescriptor fd = get_capture_frame_desc();
+			FrameDescriptor fd = get_capture_fd();
 			const float n = static_cast<float>(fd.height);
-			const float d = compute_desc_.pixel_size * 0.000001f;
-			return (n * d * d) / compute_desc_.lambda;
+			const float d = cd_.pixel_size * 0.000001f;
+			return (n * d * d) / cd_.lambda;
 		}
 		return 0.f;
 	}
 
 	void Holovibes::init_import_mode(std::string &file_src,
-		camera::FrameDescriptor frame_desc,
+		camera::FrameDescriptor fd,
 		bool loop,
 		unsigned int fps,
 		unsigned int spanStart,
@@ -245,8 +245,8 @@ namespace holovibes
 
 		try
 		{
-			SquareInputMode mode = compute_desc_.square_input_mode;
-			camera::FrameDescriptor queue_fd = frame_desc;
+			SquareInputMode mode = cd_.square_input_mode;
+			camera::FrameDescriptor queue_fd = fd;
 			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two
@@ -258,18 +258,18 @@ namespace holovibes
 				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
 
-			input_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", frame_desc.width, frame_desc.height, frame_desc.depth));
+			input_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", fd.width, fd.height, fd.depth));
 			tcapture_.reset(
 				new ThreadReader(file_src,
-					frame_desc,
+					fd,
 					mode,
 					loop,
 					fps,
 					spanStart,
 					spanEnd,
 					*input_,
-					compute_desc_.is_cine_file,
-					compute_desc_.is_holo_file,
+					cd_.is_cine_file,
+					cd_.is_holo_file,
 					holovibes,
 					reader_progress_bar,
 					main_window));

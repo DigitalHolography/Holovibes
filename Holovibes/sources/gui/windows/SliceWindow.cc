@@ -42,9 +42,9 @@ namespace holovibes
 
 		void SliceWindow::make_pixel_square() {
 			auto old_pos = position();
-			if (Cd && !Cd->square_pixel)
+			if (cd_ && !cd_->square_pixel)
 			{
-				const ushort nImg = Cd->nSize;
+				const ushort nImg = cd_->nSize;
 				const uint nSize = std::min(128u , std::max((unsigned)nImg, 256u)) * 2;
 				if (kView == SliceXZ)
 					resize(QSize(width(), nSize));
@@ -89,7 +89,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
 			//overlay_manager_.create_overlay<Scale>();
-			if (Cd->img_type == ImgType::Composite)
+			if (cd_->img_type == ImgType::Composite)
 				overlay_manager_.create_overlay<Rainbow>();
 			else
 				overlay_manager_.create_default();
@@ -121,13 +121,13 @@ namespace holovibes
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
 
-			uint	size = Fd.frame_size();
+			uint	size = fd_.frame_size();
 			ushort	*mTexture = new ushort[size];
 			std::memset(mTexture, 0, size * sizeof(ushort));
 
 			glTexImage2D(GL_TEXTURE_2D, 0,
 				GL_RGBA,
-				Fd.width, Fd.height, 0,
+				fd_.width, fd_.height, 0,
 				GL_RG, GL_UNSIGNED_SHORT, mTexture);
 
 			Program->setUniformValue(Program->uniformLocation("tex"), 0);
@@ -136,7 +136,7 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	// GL_NEAREST ~ GL_LINEAR
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			if (Fd.depth == 8)
+			if (fd_.depth == 8)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
@@ -206,7 +206,7 @@ namespace holovibes
 			Vao.release();
 
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / Cd->display_rate);
+			startTimer(1000 / cd_->display_rate);
 		}
 
 		void	SliceWindow::paintGL()
@@ -223,7 +223,7 @@ namespace holovibes
 
 			textureUpdate(cuSurface,
 				Qu->get_last_images(1),
-				Qu->get_frame_desc(),
+				Qu->get_fd(),
 				cuStream);
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
@@ -256,8 +256,8 @@ namespace holovibes
 
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
-			overlay_manager_.release(Fd.width);
-			if (e->button() == Qt::RightButton && Cd &&!Cd->locked_zoom)
+			overlay_manager_.release(fd_.width);
+			if (e->button() == Qt::RightButton)
 			{
 				resetTransform();
 				if (auto main_display = main_window_->get_main_display())
@@ -268,10 +268,10 @@ namespace holovibes
 		void	SliceWindow::focusInEvent(QFocusEvent* e)
 		{
 			QWindow::focusInEvent(e);
-			if (Cd)
+			if (cd_)
 			{
-				Cd->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
-				Cd->notify_observers();
+				cd_->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
+				cd_->notify_observers();
 			}
 		}
 	}

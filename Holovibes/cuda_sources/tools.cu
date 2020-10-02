@@ -55,14 +55,15 @@ namespace
 	{
 		const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
 		const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
-		const uint	index = j * blockDim.x * gridDim.x + i;
+		const uint	index = j * (size_x) + i;
 		uint	ni = 0;
 		uint	nj = 0;
 		uint	nindex = 0;
 
-		// Superior half of the matrix
 		const uint size_x2 = size_x / 2;
 		const uint size_y2 = size_y / 2;
+
+		// Superior half of the matrix
 		if (j < size_y2)
 		{
 			// Left superior quarter of the matrix
@@ -108,6 +109,23 @@ namespace
 		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, input, size_x, size_y);
 		cudaCheckError();
 	}
+}
+
+void shift_corners(float3 *input,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
+{
+	shift_corners_caller<float3>(input, size_x, size_y, stream);
+}
+
+void shift_corners(const float3 *input,
+				   float3 *output,
+				   const uint size_x,
+				   const uint size_y,
+				   cudaStream_t stream)
+{
+	shift_corners_caller<float3>(input, output, size_x, size_y, stream);
 }
 
 void shift_corners(float *input,

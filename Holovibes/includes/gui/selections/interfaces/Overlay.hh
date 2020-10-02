@@ -42,10 +42,8 @@ namespace holovibes
 			Cross,
 			SliceCross,
 			// -------
-			Autofocus,
 			Filter2D,
 			Filter2DSubZone,
-			Stabilization,
 			// scale bar
 			Scale,
 			// Composite overlays

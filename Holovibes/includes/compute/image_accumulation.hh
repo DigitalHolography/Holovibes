@@ -10,13 +10,15 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
- *
- * Contains functions to detect intensity jumps. */
+/*!
+** \brief Contains functions relative to image accumulation.
+*/
+
 #pragma once
 
 # include "cuda_tools/unique_ptr.hh"
 # include "cuda_tools/array.hh"
+# include "cuda_tools/nppi_data.hh"
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
 # include "queue.hh"
@@ -24,76 +26,62 @@
 
 namespace holovibes
 {
+	class Queue;
 	class ComputeDescriptor;
 	struct CoreBuffers;
+
+	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
-
-		/*! \class DetectIntensity
+		/*! \class ImageAccumulation
 		**
+		** Class that manages the image accumulation
+		** It manages its own buffer, initialized when needed
+		** It should be a member of the Pipe class
 		*/
-		class DetectIntensity
+		class ImageAccumulation
 		{
 		public:
-
-			/** \brief Contructor.
-			
+			/*!
+			** \brief Constructor.
 			*/
-			DetectIntensity(FnVector & fn_vect,
+			ImageAccumulation(FnVector& fn_vect,
 				const CoreBuffers& buffers,
-				const camera::FrameDescriptor & fd,
-				ComputeDescriptor & cd);
+				const camera::FrameDescriptor& fd,
+				const holovibes::ComputeDescriptor& cd);
 
-			/*! \brief Enqueue the appropriate functions
-			**
-			** Should be called at the beginning of the pipe
+			/*!
+			** \brief Enqueue the image accumulation.
+			** Should be called just after gpu_float_buffer is computed
 			*/
-			void insert_post_contiguous_complex();
+			void insert_image_accumulation();
 
 		private:
-
-			/** \brief Check if there is a jump of intensity.
-			 *
-			 */
-			void check_jump();
-			/** \brief Check if we have to detect a jump of intensity.
-			
+			/*!
+			** \brief Insert the computation of the average of the float frame.
 			*/
-			bool can_skip_detection();
-			/** \brief Check if there is a jump between two intensity, according to the interpolation sensitivity.
-			
+			void insert_average_compute();
+
+			/*!
+			** \brief Insert the copy of the corrected buffer into the float buffer.
 			*/
+			void insert_float_buffer_overwrite();
 
-			bool is_jump(float current, float last);
-			/** \brief Computes the intensity of the current frame.
+			/// Buffer used to temporaly store the average, to compare it with current frame
+			cuda_tools::UniquePtr<float>	float_buffer_average_;
 
-			*/
-			float get_current_intensity();
-			void update_shift();
-			void on_jump(bool delayed = false);
-
-			/** \brief Update the current interpolation wave length.
-			
-			*/
-			void update_lambda();
-
-			//! Intensity of the previous frame
-			float last_intensity_;
-
-			unsigned int current_shift_;
-			bool is_delaying_shift_;
-
-			//! Number of frame passed since last jump.
-			unsigned int frames_since_jump_;
+			/// Queue accumulating XY frames.
+			std::unique_ptr<Queue>			accumulation_queue_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
-			//! Main buffers.
+			/// Main buffers
 			const CoreBuffers&				buffers_;
+
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Compute Descriptor
-			ComputeDescriptor&				cd_;
+			const ComputeDescriptor&		cd_;
 		};
 	}
 }

@@ -19,7 +19,6 @@
 #include <memory>
 
 # include "config.hh"
-# include "pipeline_utils.hh"
 # include "rect.hh"
 # include "observable.hh"
 # include "gpib_controller.hh"
@@ -124,15 +123,13 @@ namespace holovibes
 		ICompute(
 			Queue& input,
 			Queue& output,
-			ComputeDescriptor& desc);
+			ComputeDescriptor& cd);
 		virtual ~ICompute();
 
 		void request_refresh();
 		void request_resize(unsigned int new_output_size, bool kill_raw_queue);
 		void request_acc_refresh();
 		void request_ref_diff_refresh();
-		void request_autofocus();
-		void request_autofocus_stop();
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
@@ -176,8 +173,6 @@ namespace holovibes
 
 		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_; }
 		bool get_unwrap_2d_request()		const { return unwrap_2d_requested_; }
-		bool get_autofocus_request()		const { return autofocus_requested_; }
-		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_; }
 		bool get_autocontrast_request()		const { return autocontrast_requested_; }
 		bool get_autocontrast_slice_xz_request()		const { return autocontrast_slice_xz_requested_; }
 		bool get_autocontrast_slice_yz_request()		const { return autocontrast_slice_yz_requested_; }
@@ -186,7 +181,6 @@ namespace holovibes
 		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
 		bool get_average_request()			const { return average_requested_; }
 		bool get_average_record_request()	const { return average_record_requested_; }
-		bool get_abort_construct_request()	const { return abort_construct_requested_; }
 		bool get_termination_request()		const { return termination_requested_; }
 		bool get_update_acc_request()		const { return update_acc_requested_; }
 		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
@@ -215,7 +209,7 @@ namespace holovibes
 
 	protected:
 		/** Compute Descriptor. */
-		ComputeDescriptor&	compute_desc_;
+		ComputeDescriptor&	cd_;
 
 		/** Reference on the input queue, owned by MainWindow. */
 		Queue&	input_;
@@ -249,8 +243,6 @@ namespace holovibes
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;
-		std::atomic<bool>	autofocus_requested_;
-		std::atomic<bool>	autofocus_stop_requested_;
 		std::atomic<bool>	autocontrast_requested_;
 		std::atomic<bool>	autocontrast_slice_xz_requested_;
 		std::atomic<bool>	autocontrast_slice_yz_requested_;
@@ -259,7 +251,6 @@ namespace holovibes
 		std::atomic<bool>	stft_update_roi_requested_;
 		std::atomic<bool>	average_requested_;
 		std::atomic<bool>	average_record_requested_;
-		std::atomic<bool>	abort_construct_requested_;
 		std::atomic<bool>   resize_requested_;
 		std::atomic<bool>   kill_raw_queue_;
 		std::atomic<bool>	termination_requested_;

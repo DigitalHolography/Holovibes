@@ -31,7 +31,7 @@ namespace holovibes
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
 		queue_.set_square_input_mode(mode);
-		auto fd = get_input_frame_descriptor();
+		auto fd = get_input_fd();
 		std::string input_descriptor_info = std::to_string(fd.width)
 			+ std::string("x")
 			+ std::to_string(fd.height)
@@ -61,13 +61,13 @@ namespace holovibes
 		}
 	}
 
-	const camera::FrameDescriptor& ThreadCapture::get_input_frame_descriptor() const
+	const camera::FrameDescriptor& ThreadCapture::get_input_fd() const
 	{
-		return camera_.get_frame_descriptor();
+		return camera_.get_fd();
 	}
 
-	const camera::FrameDescriptor& ThreadCapture::get_queue_frame_descriptor() const
+	const camera::FrameDescriptor& ThreadCapture::get_queue_fd() const
 	{
-		return queue_.get_frame_desc();
+		return queue_.get_fd();
 	}
 }
