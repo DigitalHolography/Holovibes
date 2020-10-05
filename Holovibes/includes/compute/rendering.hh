@@ -85,18 +85,17 @@ namespace holovibes
 			*/
 			void insert_slice_log();
 
-			/** \brief insert the autocontrast
+			/** \brief insert the autocontrast computation
 
 			*/
-			void insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
-			/** \brief insert the constrast on the XY window
+			void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
+				std::atomic<bool>& autocontrast_slice_xz_request,
+				std::atomic<bool>& autocontrast_slice_yz_request);
+
+			/** \brief insert the constrast on a view
 
 			*/
-			void insert_main_contrast();
-			/** \brief insert the contrast on the slices
-
-			*/
-			void insert_slice_contrast();
+			void Rendering::insert_apply_contrast(WindowKind view);
 
 			/** \brief Calls autocontrast and set the correct contrast variables
 			

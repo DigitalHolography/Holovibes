@@ -81,14 +81,24 @@ namespace holovibes
 				insert_slice_log();
 		}
 
-		void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
+		void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
+									    std::atomic<bool>& autocontrast_slice_xz_request,
+										std::atomic<bool>& autocontrast_slice_yz_request)
 		{
-			insert_autocontrast(autocontrast_request, autocontrast_slice_xz_request, autocontrast_slice_yz_request);
-			if (cd_.contrast_enabled)
-				insert_main_contrast();
+			// Compute min and max pixel values if requested
+			insert_compute_autocontrast(autocontrast_request,
+				autocontrast_slice_xz_request, autocontrast_slice_yz_request);
 
+			// If the contrast is enabled apply it to the main view
+			if (cd_.contrast_enabled)
+				insert_apply_contrast(WindowKind::XYview);
+
+			// Aplly contrast on cuts if needed
 			if (cd_.stft_view_enabled)
-				insert_slice_contrast();
+			{
+				insert_apply_contrast(WindowKind::XZview);
+				insert_apply_contrast(WindowKind::YZview);
+			}
 		}
 
 		//----------
@@ -133,43 +143,48 @@ namespace holovibes
 				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_yz_.get()), size); });
 		}
 
-		void Rendering::insert_main_contrast()
+		void Rendering::insert_apply_contrast(WindowKind view)
 		{
-			uint size = buffers_.gpu_float_buffer_size_;
-			fn_vect_.push_back([=]() {
-				manual_contrast_correction(
-					buffers_.gpu_float_buffer_,
-					size,
-					65535,
-					cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy,
-					cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy);
+			// Set parameters
+			float* input;
+			uint size;
+			ushort dynamic_range = 65535;
+			float min;
+			float max;
+
+			switch (view)
+			{
+			case XYview:
+				input = buffers_.gpu_float_buffer_;
+				size = buffers_.gpu_float_buffer_size_;
+				min = cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy;
+				max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
+				break;
+			case YZview:
+				input = static_cast<float *>(buffers_.gpu_float_cut_yz_.get());
+				size = fd_.width * cd_.nSize;
+				min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
+				max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
+				break;
+			case XZview:
+				input = static_cast<float *>(buffers_.gpu_float_cut_xz_.get());
+				size = fd_.width * cd_.nSize;
+				min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
+				max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
+				break;
+			}
+
+			fn_vect_.push_back([=](){
+				apply_contrast_correction(input, size, dynamic_range, min, max);
 			});
 		}
 
-		void Rendering::insert_slice_contrast()
+		void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
+													std::atomic<bool>& autocontrast_slice_xz_request,
+													std::atomic<bool>& autocontrast_slice_yz_request)
 		{
-			uint size = fd_.width * cd_.nSize;
-			fn_vect_.push_back([=]() {
-				manual_contrast_correction(
-					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-					size,
-					65535,
-					cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz,
-					cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz);
-			});
-			fn_vect_.push_back([=]() {
-				manual_contrast_correction(
-					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-					size,
-					65535,
-					cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz,
-					cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz);
-			});
-		}
-
-		void Rendering::insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
-		{
-			// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
+			// requested check are inside the lambda so that we don't need to
+			// refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
 				if (autocontrast_request)
 					autocontrast_caller(
@@ -193,6 +208,7 @@ namespace holovibes
 				autocontrast_slice_xz_request = false;
 				autocontrast_slice_yz_request = false;
 			};
+
 			fn_vect_.push_back(lambda_autocontrast);
 		}
 
@@ -204,8 +220,11 @@ namespace holovibes
 		{
 			float contrast_min = 0.f;
 			float contrast_max = 0.f;
-			auto_contrast_correction(input, size, offset, &contrast_min, &contrast_max,
+			// Compute min and max
+			compute_autocontrast(input, size, offset, &contrast_min, &contrast_max,
 				cd_.contrast_threshold_low_percentile, cd_.contrast_threshold_high_percentile);
+
+			// Update attributes
 			switch (view)
 			{
 			case XYview:

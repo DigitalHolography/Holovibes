@@ -20,32 +20,35 @@
 * The algortihm used is a contrast stretching, the
 * values min and max can be found thanks to the previous functions
 * or can be set by the user in case of a particular use.
-* This image should be stored in device VideoRAM.
-* \param input The image to correct correct contrast.
+* \param input The image in gpu to correct contrast.
 * \param size Size of the image in number of pixels.
+* \param dynamic_range Range of pixel values
 * \param min Minimum pixel value of the input image.
 * \param max Maximum pixel value of the input image.
 *
 */
-void manual_contrast_correction(float			*input,
+void apply_contrast_correction(float			*input,
 								const uint		size,
 								const ushort	dynamic_range,
 								const float		min,
-								const float		max,
-								cudaStream_t	stream = 0);
+								const float		max);
 
-/*! \brief Find the minimum pixel value of an image and the maximum one.
+/*! \brief Compute the minimum pixel value of an image and the maximum one
+*	according to a low and a high percentile.
 *
 * \param input The image to correct correct contrast.
 * \param size Size of the image in number of pixels.
-* \param min Minimum pixel value found.
-* \param max Maximum pixel value found.
-*
+* \param min Minimum pixel value computed.
+* \param max Maximum pixel value computed.
+* \param contrast_threshold_low_percentile
+* low percentil used to get the minimum pixel value.
+* \param contrast_threshold_high_percentil
+* high percentil used to get the maximum pixel value.
 */
-void auto_contrast_correction(float			*input,
-							const uint		size,
-							const uint		width,
-							float			*min,
-							float			*max,
-							float			contrast_threshold_low_percentile,
-							float			contrast_threshold_high_percentile);
+void compute_autocontrast(float			*input,
+						  const uint	size,
+						  const uint	width,
+						  float			*min,
+						  float			*max,
+						  float			contrast_threshold_low_percentile,
+						  float			contrast_threshold_high_percentile);

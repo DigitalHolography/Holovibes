@@ -1224,8 +1224,9 @@ namespace holovibes
 				cd_.contrast_enabled = true;
 				if (cd_.file_type != FileType::HOLO)
 				{
-					set_auto_contrast();
+					set_auto_contrast(); // Set auto contrast on the current window
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					// Set auto contrast on the XY view even if it is not the current window
 					if (pipe)
 						pipe->autocontrast_end_pipe(XYview);
 				}
@@ -1351,10 +1352,11 @@ namespace holovibes
 				});
 				pipe_refresh();
 
+				// Force XYview autocontrast
 				pipe->autocontrast_end_pipe(XYview);
+				// Force cuts views autocontrast if needed
 				if (cd_.stft_view_enabled)
 					set_auto_contrast_cuts();
-				while (pipe->get_refresh_request());
 			}
 		}
 
@@ -2260,14 +2262,10 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast_cuts()
 		{
-			holovibes_.get_pipe()->request_autocontrast(XZview);
-			holovibes_.get_pipe()->request_autocontrast(YZview);
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
-				pipe->run_end_pipe([=]() {
-					pipe->request_autocontrast(XZview);
-					pipe->request_autocontrast(YZview);
-				});
+				pipe->autocontrast_end_pipe(XZview);
+				pipe->autocontrast_end_pipe(YZview);
 			}
 		}
 
@@ -2298,12 +2296,8 @@ namespace holovibes
 			{
 				try
 				{
-					// We need to call autocontrast *after* the pipe is refreshed for it to work
-					// (Does nothing if no refresh is needed)
-					while (holovibes_.get_pipe()->get_request_refresh())
-						continue;
-
-					holovibes_.get_pipe()->request_autocontrast(cd_.current_window);
+					if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
+						pipe->autocontrast_end_pipe(cd_.current_window);
 				}
 				catch (std::runtime_error& e)
 				{

@@ -306,7 +306,6 @@ namespace holovibes
 
 	void Pipe::autocontrast_end_pipe(WindowKind kind)
 	{
-		request_autocontrast(kind);
 		run_end_pipe([this, kind]() {request_autocontrast(kind); });
 	}
 

@@ -17,53 +17,48 @@
 #include "percentile.cuh"
 
 static __global__
-void apply_contrast(float		*input,
-					const uint	size,
-					const float	factor,
-					const float	min)
+void kernel_apply_contrast(float *input,
+					       const uint size,
+						   const float factor,
+						   const float min)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
-	{
 		input[index] = factor * (input[index] - min);
-	}
 }
 
-void manual_contrast_correction(float			*input,
-								const uint		size,
-								const ushort	dynamic_range,
-								const float		min,
-								const float		max,
-								cudaStream_t	stream)
+void apply_contrast_correction(float *input,
+							const uint size,
+							const ushort dynamic_range,
+							const float	min,
+							const float	max)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
-	float test_min = min;
-	float test_max = max;
 
-	const float factor = dynamic_range / (test_max - test_min + FLT_EPSILON);
-	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, test_min);
+	const float factor = dynamic_range / (max - min + FLT_EPSILON);
+	kernel_apply_contrast << <blocks, threads>> > (input, size, factor, min);
 	cudaCheckError();
 }
 
-void auto_contrast_correction(float	*input,
-	const uint		size,
-	const uint		offset,
-	float			*min,
-	float			*max,
-	float			contrast_threshold_low_percentile,
-	float			contrast_threshold_high_percentile)
+void compute_autocontrast(float *input,
+						  const uint size,
+						  const uint offset,
+						  float	*min,
+						  float	*max,
+						  float	contrast_threshold_low_percentile,
+						  float	contrast_threshold_high_percentile)
 {
-	const uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
 	float percent_out[2];
 	const float percent_in_h[2] =
 	{
 		contrast_threshold_low_percentile, contrast_threshold_high_percentile
 	};
 
+	// Compute the min and max
 	percentile_float(input + offset, size - offset, percent_in_h, percent_out, 2);
+
 	*min = percent_out[0];
 	*max = percent_out[1];
 	

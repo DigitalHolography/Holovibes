@@ -35,14 +35,15 @@ void fill_percentile_float_in_case_of_error(float* out_percent, unsigned size_pe
 float *percentile_float(const float *gpu_input, unsigned frame_res, const float* h_percent, float* h_out_percent, unsigned size_percent)
 {
 	try {
-		thrust::device_vector<float> d_tmp_memory(frame_res);
-		thrust::copy(gpu_input, gpu_input + frame_res, d_tmp_memory.begin());
-		thrust::sort(d_tmp_memory.begin(), d_tmp_memory.end());
+		thrust::device_vector<float> gpu_input_copy(frame_res);
+		thrust::copy(gpu_input, gpu_input + frame_res, gpu_input_copy.begin());
+		thrust::sort(gpu_input_copy.begin(), gpu_input_copy.end());
 
 		for (unsigned i = 0; i < size_percent; ++i)
 		{
 			unsigned index = h_percent[i] / 100 * frame_res;
-			thrust::copy(d_tmp_memory.begin() + index, d_tmp_memory.begin() + index + 1, h_out_percent + i);
+			// copy gpu_input_copy[index] in h_out_percent[i]
+			thrust::copy(gpu_input_copy.begin() + index, gpu_input_copy.begin() + index + 1, h_out_percent + i);
 			cudaCheckError();
 		}
 	}
@@ -51,7 +52,6 @@ float *percentile_float(const float *gpu_input, unsigned frame_res, const float*
 		LOG_ERROR("Something went wrong, you should decrease the number of images to free some GPU memory");
 		fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
 	}
-
 
 	return h_out_percent;
 }
