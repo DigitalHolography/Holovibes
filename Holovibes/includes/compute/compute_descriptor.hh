@@ -343,9 +343,6 @@ namespace holovibes
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;
 
-		//! Enables the normalization for each of the frames.
-		std::atomic<bool>			normalize_enabled{ false };
-
 		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
 		std::atomic<bool>			img_acc_slice_xy_enabled;
 		//! is img average in view XZ enabled

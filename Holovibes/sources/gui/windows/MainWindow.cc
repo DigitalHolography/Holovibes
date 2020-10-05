@@ -2772,11 +2772,6 @@ namespace holovibes
 			cd_.synchronized_record = value;
 		}
 
-		void MainWindow::normalize(bool value)
-		{
-			cd_.normalize_enabled = value;
-		}
-
 		void MainWindow::display_cross(bool value)
 		{
 			ui.ReticleScaleDoubleSpinBox->setEnabled(value);

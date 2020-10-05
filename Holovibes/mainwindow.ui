@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1364</width>
-    <height>658</height>
+    <height>748</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -215,13 +215,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="NormalizeBox">
-           <property name="text">
-            <string>Normalize direct images</string>
-           </property>
-          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_27">
@@ -3253,7 +3246,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1364</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5321,22 +5314,6 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>NormalizeBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>normalize(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>99</x>
-     <y>139</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>

@@ -242,7 +242,6 @@ namespace holovibes
 			void set_scale_bar_correction_factor(double value);
 			void set_square_pixel(bool value);
 			void set_synchronized_record(bool value);
-			void normalize(bool value);
 			void display_cross(bool value);
 			void reticle_scale(double value);
 			//! Used to start the record at the same time than file reader.

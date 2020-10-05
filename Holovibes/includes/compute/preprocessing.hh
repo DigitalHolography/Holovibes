@@ -54,20 +54,11 @@ namespace holovibes
 			*/
 			void allocate_ref(std::atomic<bool>& update_request);
 
-			/** \brief Add normalization to all of the frames
-
-			*/
-			void insert_frame_normalization();
-
 			/** \brief Insert the functions relative to the Ref algorithm.
 
 			*/
 			void insert_ref();
 
-			/*
-				\brief Compute the intensity of an image.
-			*/
-			float compute_current_intensity(cufftComplex* buffer_ptr, size_t res);
 		private:
 			/** \brief Insert the Ref diff function.
 

@@ -155,7 +155,6 @@ namespace holovibes
 		/* Build step by step the vector of function to compute */
 		fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
 
-		preprocess_->insert_frame_normalization();
 		preprocess_->insert_ref();
 
 		// spatial transform

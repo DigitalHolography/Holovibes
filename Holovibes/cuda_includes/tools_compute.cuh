@@ -25,28 +25,6 @@ void kernel_complex_divide(cuComplex	*image,
 						const uint		size,
 						const float		divider);
 
-/*! \brief  Divide all the real part pixels of input image(s) by the float divider.
-*
-* \param image The image(s) to process. Should be contiguous memory.
-* \param size Number of elements to process.
-* \param divider Divider value for all elements.
-*/
-__global__
-void kernel_real_part_divide(cuComplex	*image,
-	const uint		size,
-	const float	divider);
-
-/*! \brief  Call a function to divide all real part of pixels of input image(s).
-*
-* \param image The image(s) to process. Should be contiguous memory.
-* \param size Number of elements to process.
-* \param divider Divider value for all elements.
-*/
-void gpu_real_part_divide(cuComplex	*image,
-	const uint	size,
-	const float	divider);
-
-
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
 * \param image The image(s) to process. Should be contiguous memory.

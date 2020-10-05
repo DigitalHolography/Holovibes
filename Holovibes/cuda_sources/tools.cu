@@ -473,33 +473,6 @@ void kernel_sum(const float* input, float* sum, const size_t size)
 	}
 }
 
-/*
-* Kernel helper used in average.
- *
- * Sums up the *size* real parts of first elements of input and stores the result in sum.
- *
- * SpanSize is the number of elements processed by a single thread.
- * This way of doing things comes from the empirical fact that (at the point
- * of this writing) loop unrolling in CUDA kernels may prove more efficient,
- * when the operation is really small.
-*/
-template <uint SpanSize>
-
-static __global__
-void kernel_sum_of_real_parts(const cufftComplex* input, float* sum, const size_t size)
-{
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	if ((index + SpanSize - 1) < size && (index % SpanSize) == 0)
-	{
-		float tmp_reduce = 0.0f;
-		for (uint i = 0; i < SpanSize; ++i)
-			tmp_reduce += input[index + i].x;
-		// Atomic operation is needed here to guarantee a correct value.
-		atomicAdd(sum, tmp_reduce);
-	}
-}
-
 float average_operator(const float	*input,
 	const uint		size,
 	cudaStream_t	stream)
@@ -522,34 +495,6 @@ float average_operator(const float	*input,
 	cudaCheckError();
 	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 	cudaStreamSynchronize(stream);
-
-	cudaFree(gpu_sum);
-
-	return cpu_sum /= static_cast<float>(size);
-}
-
-
-float average_operator_from_complex(const cufftComplex *input,
-					const uint		size,
-					cudaStream_t	stream)
-{
-	const uint	threads = THREADS_128;
-	uint		blocks = map_blocks_to_problem(size, threads);
-	float		*gpu_sum;
-	float		cpu_sum = 0.0f;
-
-	if (cudaMalloc<float>(&gpu_sum, sizeof(float)) == cudaSuccess)
-		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
-	else
-		return 0.f;
-
-	// A SpanSize of 4 has been determined to be an optimal choice here.
-	kernel_sum_of_real_parts <4> << <blocks, threads, 0, stream >> >(
-		input,
-		gpu_sum,
-		size);
-	cudaCheckError();
-	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
 	cudaFree(gpu_sum);
 

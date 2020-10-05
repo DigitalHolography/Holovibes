@@ -59,25 +59,6 @@ namespace holovibes
 			}
 		}
 
-
-		float Preprocessing::compute_current_intensity(cufftComplex* buffer_ptr, size_t nb_pixels)
-		{
-			float res = average_operator_from_complex(buffer_ptr, static_cast<uint>(nb_pixels));
-			return res;
-		}
-
-		void Preprocessing::insert_frame_normalization()
-		{
-			fn_vect_.push_back([&]() {
-				if (cd_.normalize_enabled) {
-					float intensity = compute_current_intensity(buffers_.gpu_input_buffer_, fd_.width * fd_.height);
-
-					//std::cout << "image division is enabled and  intensity is = " << intensity << std::endl;
-					gpu_real_part_divide(buffers_.gpu_input_buffer_, fd_.width * fd_.height, intensity);
-					}
-			});
-		}
-
 		void Preprocessing::insert_ref()
 		{
 			if (cd_.ref_diff_enabled)

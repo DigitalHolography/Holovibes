@@ -61,10 +61,6 @@ void convolution_kernel(float				*gpu_input,
 {
 	size_t size = frame_width * frame_height;
 
-	/* float norm_input = 0;
-	if (normalize_enabled)
-		norm_input = get_norm(gpu_input, size); */
-
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
 
@@ -91,10 +87,4 @@ void convolution_kernel(float				*gpu_input,
 	{
 		cudaMemcpy(gpu_input, gpu_convolved_buffer, size * sizeof(float), cudaMemcpyDeviceToDevice);
 	}
-
-	/* if (normalize_enabled)
-	{
-		float norm_output = get_norm(gpu_input, size);
-		gpu_multiply_const(gpu_input, static_cast<uint>(size), (norm_input / norm_output));
-	} */
 }

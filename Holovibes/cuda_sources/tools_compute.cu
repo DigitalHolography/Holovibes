@@ -32,30 +32,6 @@ void kernel_complex_divide(cuComplex	*image,
   }
 }
 
-
-__global__
-void kernel_real_part_divide(cuComplex	*image,
-	const uint		size,
-	const float	divider)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size)
-		image[index].x = image[index].x / divider * AUTO_CONTRAST_COMPENSATOR;
-}
-
-void gpu_real_part_divide(cuComplex	*image,
-	const uint	size,
-	const float	divider)
-{
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
-
-	kernel_real_part_divide <<< blocks, threads >>>(image, size, divider);
-	cudaCheckError();
-}
-
-
-
 __global__
 void kernel_float_divide(float		*input,
 						const uint	size,
