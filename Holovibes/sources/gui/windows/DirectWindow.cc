@@ -316,24 +316,24 @@ namespace holovibes
 		void DirectWindow::keyPressEvent(QKeyEvent * e)
 		{
 			BasicOpenGLWindow::keyPressEvent(e);
+			
+			float translation = translation_step_ / scale_;
+
 			switch (e->key()) {
 			case Qt::Key::Key_8:
-				translate_[1] -= 0.1f / scale_;
-				setTransform();
+				translate_[1] -= translation;
 				break;
 			case Qt::Key::Key_2:
-				translate_[1] += 0.1f / scale_;
-				setTransform();
+				translate_[1] += translation;
 				break;
 			case Qt::Key::Key_6:
-				translate_[0] += 0.1f / scale_;
-				setTransform();
+				translate_[0] += translation;
 				break;
 			case Qt::Key::Key_4:
-				translate_[0] -= 0.1f / scale_;
-				setTransform();
+				translate_[0] -= translation;
 				break;
 			}
+			setTransform();
 		}
 
 		void	DirectWindow::zoomInRect(units::RectOpengl zone)

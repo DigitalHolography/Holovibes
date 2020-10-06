@@ -50,6 +50,8 @@ namespace holovibes
 			// bool represent if we are resizing the window or creating one
 			bool is_resize = true;
 
+			const float translation_step_ = 0.05f;
+
 			virtual void	initShaders() override;
 			virtual void	initializeGL() override;
 			virtual void	resizeGL(int width, int height) override;
