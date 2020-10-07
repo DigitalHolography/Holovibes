@@ -227,6 +227,7 @@ namespace holovibes
 			void stop_csv_record();
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
+			void init_holovibes_import_mode();
 			void import_start();
 			void import_stop();
 			void import_start_spinbox_update();

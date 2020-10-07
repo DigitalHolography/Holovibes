@@ -235,8 +235,15 @@ namespace holovibes
 	{
 		try
 		{
+			Computation mode = Computation::Direct;
+
+			if (cd.record_raw.load() && cd.compute_mode.load() == Computation::Hologram)
+				mode = Computation::Hologram;
+
 			return json
 			{
+				{"mode", mode},
+
 				{"algorithm", cd.algorithm.load()},
 				{"time_filter", cd.time_filter.load()},
 
@@ -264,7 +271,10 @@ namespace holovibes
 				{"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
 				{"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
 				{"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
-				{"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()}
+				{"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
+
+				{"renorm_enabled", cd.renorm_enabled.load()},
+				{"renorm_constant", cd.renorm_constant.load()}
 			};
 		}
 		catch (const std::exception& e)

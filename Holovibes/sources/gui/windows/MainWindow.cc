@@ -441,6 +441,10 @@ namespace holovibes
 				ui.DisplayReticleCheckBox->setChecked(false);
 				display_cross(false);
 			}
+
+			// Renormalize
+			ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
+			ui.RenormalizeSpinBox->setValue(cd_.renorm_constant);
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -605,14 +609,15 @@ namespace holovibes
 		void MainWindow::reset_input()
 		{
 			import_stop();
+
 			if (import_type_ == ImportType::File)
 			{
-				import_start();
+				set_computation_mode();
+				init_holovibes_import_mode();
 			}
 			else if (import_type_ == ImportType::Camera)
-			{
 				change_camera(kCamera);
-			}
+
 			notify();
 		}
 
@@ -1502,8 +1507,6 @@ namespace holovibes
 			catch (std::exception&)
 			{
 			}
-			if (cd_.p_accu_enabled)
-				cd_.p_accu_enabled = false;
 			cd_.stft_view_enabled = false;
 			notify();
 		}
@@ -2136,8 +2139,14 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				cd_.set_accumulation_level(cd_.current_window, value);
-				holovibes_.get_pipe()->request_acc_refresh();
+				try
+				{
+					cd_.set_accumulation_level(cd_.current_window, value);
+					holovibes_.get_pipe()->request_acc_refresh();
+				}
+				catch(const std::exception& e)
+				{
+				}
 			}
 		}
 
@@ -3210,23 +3219,26 @@ namespace holovibes
 
 		void MainWindow::import_start()
 		{
+			import_stop();
+
 			if (cd_.file_type == FileType::HOLO)
 				holo_file_update_cd();
 
-			import_stop();
+			init_holovibes_import_mode();
 
+			bool is_direct = is_direct_mode();
+			ui.DirectRadioButton->setChecked(is_direct);
+			ui.HologramRadioButton->setChecked(!is_direct);
+		}
+
+		void MainWindow::init_holovibes_import_mode()
+		{
 			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
 			QSpinBox *fps_spinbox = ui.ImportInputFpsSpinBox;
 			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
 			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
-			//the convolution is disabled to avoid problem with iamge size
-			ui.ConvoCheckBox->setChecked(false);
-			set_convolution_mode(false);
-
 			cd_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-
-			std::string file_src = import_line_edit->text().toUtf8();
 
 			FrameDescriptor fd;
 
@@ -3238,13 +3250,13 @@ namespace holovibes
 			is_enabled_camera_ = false;
 			try
 			{
+				std::string file_src = import_line_edit->text().toUtf8();
+
 				auto file_end = std::filesystem::file_size(file_src)
 					/ fd.frame_size();
 				if (file_end > end_spinbox->value())
 					file_end = end_spinbox->value();
 
-				//Needed for correct read of SquareInputMode during the allocation of buffers
-				set_computation_mode();
 				set_correct_square_input_mode();
 
 				holovibes_.init_import_mode(
@@ -3269,14 +3281,12 @@ namespace holovibes
 				return;
 			}
 
-
 			is_enabled_camera_ = true;
 			set_image_mode();
 
 			QAction *settings = ui.actionSettings;
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
-
 
 			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
@@ -3286,9 +3296,6 @@ namespace holovibes
 				holovibes_.dispose_compute();
 				holovibes_.dispose_capture();
 			}
-
-			if (cd_.file_type == FileType::HOLO)
-				holo_file_update_cd();
 
 			notify();
 		}
@@ -3354,10 +3361,11 @@ namespace holovibes
 		void MainWindow::holo_file_update_cd()
 		{
 			auto holo_file = HoloFile::get_instance();
-
 			const json& json_settings = holo_file->get_meta_data();
-			cd_.algorithm = static_cast<Algorithm>(json_settings.value("algorithm", 0));
-			cd_.time_filter = static_cast<TimeFilter>(json_settings.value("time_filter", 0));
+
+			cd_.compute_mode = json_settings.value("mode", Computation::Direct);
+			cd_.algorithm = json_settings.value("algorithm", Algorithm::None);
+			cd_.time_filter = json_settings.value("time_filter", TimeFilter::STFT);
 			cd_.nSize = json_settings.value("#img", 1);
 			cd_.pindex = json_settings.value("p", 0);
 			cd_.lambda = json_settings.value("lambda", 0.0f);
@@ -3379,6 +3387,8 @@ namespace holovibes
 			cd_.img_acc_slice_xy_level = json_settings.value("img_acc_slice_xy_level", 1);
 			cd_.img_acc_slice_xz_level = json_settings.value("img_acc_slice_xz_level", 1);
 			cd_.img_acc_slice_yz_level = json_settings.value("img_acc_slice_yz_level", 1);
+			cd_.renorm_enabled = json_settings.value("renorm_enabled", false);
+			cd_.renorm_constant = json_settings.value("renorm_constant", 15);
 		}
 
 		json MainWindow::holo_file_get_json_settings(const Queue* q)

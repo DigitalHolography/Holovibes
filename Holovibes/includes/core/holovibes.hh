@@ -31,7 +31,7 @@ namespace holovibes
 		class MainWindow;
 	}
 	class Queue;
-	
+
 	/*! \brief Core class to use HoloVibes
 	 *
 	 * This class does not depends on the user interface (classes under the
@@ -50,7 +50,7 @@ namespace holovibes
 		 *
 		 * The non hardcoded-way would be to search for DLL and build a list of
 		 * available cameras. */
-		
+
 		/*! \brief Construct the holovibes object. */
 		Holovibes();
 
@@ -162,7 +162,7 @@ namespace holovibes
 		}
 
 		/*! \brief Getter onto average_queue
-		 * 
+		 *
 		 * Used when computing the average of the noise or signal in a given area */
 		ConcurrentDeque<Tuple4f>& get_average_queue()
 		{
