@@ -1,5 +1,5 @@
 # The headers that result in a moc_*.cpp are the only ones required in ths list
-target_sources(Holovibes PRIVATE
+target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_curve_plot.hh
     gui/other/gui_drag_drop_lineedit.hh
     gui/other/gui_group_box.hh

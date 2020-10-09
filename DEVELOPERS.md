@@ -9,11 +9,6 @@
 * [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/) (if building with CMake ; fetched from NuGet in VS)
 
-#### Optional
-
-* [Doxywizard]() (to manipulate 'doxygen_config' file)
-* QT VS TOOLS (Visual studio add-on to create QT windows)
-
 #### Environment variables
 
 Make sure the following environment variables are set:
@@ -24,6 +19,11 @@ Make sure the following environment variables are set:
     * $(CUDA_PATH_V10_1)\libnvvp
     * $(QTDIR)\bin
 
+#### Common issues
+
+* After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
+* Verify that it builds with the correct dll. If not, your path contain something wrong.
+* If asked to set Qt5_DIR var (by Cmake), only set QTDIR (as asked), delete holovibes folder and clone again
 
 ### Compilation
 
@@ -39,6 +39,17 @@ Make sure the following environment variables are set:
 * You could also build from the command line
     * `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release` to build with Visual Studio
     * `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build` to build with Ninja (it is faster)
+
+### Unit tests
+
+#### Install GTest
+
+1. Download [GTest 1.8.1](https://github.com/google/googletest/releases/tag/release-1.8.1) and extract it in `C:/gtest`.
+2. Open `googletest/msvc/2010/gtest-md.sln` with Visual Studio and build the solution in **x64** and in **Debug** mode.
+
+#### Usage
+
+Build the project in debug mode and run all unit tests with `./run_tests.py`.
 
 ### Making a new release
 
@@ -66,16 +77,3 @@ Make sure the following environment variables are set:
 * Make sure "CAMERA_EXPORTS" is set (properties -> C/C++ -> preprocessor -> Preprocessor definitions)
 * right click on Holovibes -> Build Events -> Post-Build Events -> add the copy of your SDk dll and your ini file
 * Do not forget updating setupCreator.iss to copy your newly created Dll and .ini file
-
-### Common issues
-
-* After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
-* Verify that it builds with the correct dll. If not, your path contain something wrong.
-* If asked to set Qt5_DIR var (by Cmake), only set QTDIR (as asked), delete holovibes folder and clone again
-
-#### Linker Errors
-
-Cuda functions
-
-* Go to: Project>Holovibes property>Linker>Input : Add the missing .lib (example: "nppc.lib" )
-* Go to: Project>Holovibes property>C/C++>Command Line>Additionnal options : Add missing "-l*" (example: "-lnppi_static")

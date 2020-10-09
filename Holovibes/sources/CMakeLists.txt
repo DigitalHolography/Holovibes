@@ -1,8 +1,7 @@
-target_sources(Holovibes PRIVATE
+target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
     config.cc
     gpib_dll.cc
-    main.cc
     options_parser.cc
     queue.cc
     recorder.cc

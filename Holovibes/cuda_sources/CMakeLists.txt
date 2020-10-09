@@ -1,4 +1,4 @@
-target_sources(holocuda PRIVATE
+target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     average.cu
     composite.cu
     contrast_correction.cu
