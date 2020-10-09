@@ -48,12 +48,10 @@ namespace holovibes
 		/** Size in components (size in byte / sizeof(float)) of the gpu_float_buffer_.
 		 Could be removed by changing gpu_float_buffer_ type to cuda_tools::Array. */
 		unsigned int							gpu_float_buffer_size_ = 0;
-		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame.
-		 It is of void type because it is also used for complex slices.
-		 Could be better to have an other buffer used only for complex slices. */
-		cuda_tools::UniquePtr<void>				gpu_float_cut_xz_ = nullptr;
+		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame. */
+		cuda_tools::UniquePtr<float>				gpu_float_cut_xz_ = nullptr;
 		/** Float YZ buffer. Contains only one frame. We fill it with the correct computed p YZ frame. */
-		cuda_tools::UniquePtr<void>				gpu_float_cut_yz_ = nullptr;
+		cuda_tools::UniquePtr<float>				gpu_float_cut_yz_ = nullptr;
 
 		/** Unsigned Short output buffer. Contains only one frame, inserted after all postprocessing on float_buffer */
 		cuda_tools::UniquePtr<unsigned short>	gpu_output_buffer_ = nullptr;
@@ -109,6 +107,27 @@ namespace holovibes
 		unsigned int	average_n_ = 0;
 	};
 
+
+	struct ImageAccEnv
+	{
+			/// Frame to temporaly store the average on XY view
+			cuda_tools::UniquePtr<float>	gpu_float_average_xy_frame = nullptr;
+			/// Queue accumulating the XY computed frames.
+			std::unique_ptr<Queue>			gpu_accumulation_xy_queue = nullptr;
+
+			/// Frame to temporaly store the average on XZ view
+			cuda_tools::UniquePtr<float>	gpu_float_average_xz_frame = nullptr;
+			/// Queue accumulating the XZ computed frames.
+			std::unique_ptr<Queue>			gpu_accumulation_xz_queue = nullptr;
+
+			/// Frame to temporaly store the average on YZ axis
+			cuda_tools::UniquePtr<float>	gpu_float_average_yz_frame = nullptr;
+			/// Queue accumulating the YZ computed frames.
+			std::unique_ptr<Queue>			gpu_accumulation_yz_queue = nullptr;
+
+
+	};
+
 	/* \brief Stores functions helping the editing of the images.
 	 *
 	 * Stores all the functions that will be used before doing
@@ -128,7 +147,6 @@ namespace holovibes
 
 		void request_refresh();
 		void request_resize(unsigned int new_output_size, bool kill_raw_queue);
-		void request_acc_refresh();
 		void request_ref_diff_refresh();
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
@@ -182,7 +200,6 @@ namespace holovibes
 		bool get_average_request()			const { return average_requested_; }
 		bool get_average_record_request()	const { return average_record_requested_; }
 		bool get_termination_request()		const { return termination_requested_; }
-		bool get_update_acc_request()		const { return update_acc_requested_; }
 		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
@@ -220,11 +237,17 @@ namespace holovibes
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		/** Main buffers. */
-		CoreBuffers			buffers_;
+		CoreBuffers	buffers_;
+
 		/** STFT environment. */
-		Stft_env			stft_env_;
+		Stft_env stft_env_;
+
 		/** Average environment. */
-		Average_env			average_env_;
+		Average_env	average_env_;
+
+		/** Image accumulation environment */
+		ImageAccEnv	image_acc_env_;
+
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	plan2d_;
 
@@ -254,7 +277,6 @@ namespace holovibes
 		std::atomic<bool>   resize_requested_;
 		std::atomic<bool>   kill_raw_queue_;
 		std::atomic<bool>	termination_requested_;
-		std::atomic<bool>	update_acc_requested_;
 		std::atomic<bool>	update_ref_diff_requested_;
 		std::atomic<bool>	request_stft_cuts_;
 		std::atomic<bool>	request_delete_stft_cuts_;

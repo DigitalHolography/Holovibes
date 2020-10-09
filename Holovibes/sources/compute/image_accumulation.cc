@@ -23,82 +23,167 @@
 #include "logger.hh"
 
 
-using holovibes::compute::ImageAccumulation;
-using holovibes::FnVector;
-using holovibes::cuda_tools::CufftHandle;
-using holovibes::cuda_tools::UniquePtr;
-using holovibes::CoreBuffers;
-
-
-ImageAccumulation::ImageAccumulation(FnVector& fn_vect,
-	const CoreBuffers& buffers,
-	const camera::FrameDescriptor& fd,
-	const holovibes::ComputeDescriptor& cd)
-	: fn_vect_(fn_vect)
-	, buffers_(buffers)
-	, fd_(fd)
-	, cd_(cd)
-{}
-
-void ImageAccumulation::insert_image_accumulation()
+namespace holovibes
 {
-	insert_average_compute();
-	insert_float_buffer_overwrite();
-}
-
-void ImageAccumulation::insert_average_compute()
-{
-	bool queue_needed = cd_.img_acc_slice_xy_enabled;
-	if (queue_needed)
+	using cuda_tools::CufftHandle;
+	using cuda_tools::UniquePtr;
+	namespace compute
 	{
-		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_max_elts())
+		ImageAccumulation::ImageAccumulation(FnVector& fn_vect,
+			ImageAccEnv& image_acc_env,
+			const CoreBuffers& buffers,
+			const camera::FrameDescriptor& fd,
+			const holovibes::ComputeDescriptor& cd)
+			: fn_vect_(fn_vect)
+			, image_acc_env_(image_acc_env)
+			, buffers_(buffers)
+			, fd_(fd)
+			, cd_(cd)
+		{}
+
+		void ImageAccumulation::insert_image_accumulation()
 		{
-			auto new_fd = fd_;
-			new_fd.depth = cd_.img_type == ImgType::Composite ? 12 : 4;
-			try
-			{
-				accumulation_queue_.reset(new Queue(new_fd, cd_.img_acc_slice_xy_level, "AccumulationQueueXY"));
-			}
-			catch (std::logic_error&)
-			{
-				accumulation_queue_.reset(nullptr);
-			}
-			if (!accumulation_queue_)
-				LOG_ERROR("Can't allocate queue");
+			insert_compute_average();
+			insert_copy_accumulation_result();
 		}
-	}
-	else if (!queue_needed)
-		accumulation_queue_.reset(nullptr);
-	if (accumulation_queue_)
-	{
-		fn_vect_.push_back([=]() {
-			if (!float_buffer_average_)
-			{
-				float *tmp = nullptr;
-				cudaMalloc<float>(&tmp, accumulation_queue_->get_fd().frame_size());
-				float_buffer_average_.reset(tmp);
-			}
-			accumulate_images(
-				static_cast<float *>(accumulation_queue_->get_buffer()),
-				float_buffer_average_.get(),
-				accumulation_queue_->get_start_index(),
-				accumulation_queue_->get_max_elts(),
-				cd_.img_acc_slice_xy_level,
-				accumulation_queue_->get_fd().frame_size() / sizeof(float),
-				0);
-		});
-	}
-}
 
-void ImageAccumulation::insert_float_buffer_overwrite()
-{
-	if (accumulation_queue_)
-	{
-		fn_vect_.push_back([=]()
+		void ImageAccumulation::allocate_accumulation_queue(
+			std::unique_ptr<Queue>& gpu_accumulation_queue,
+			cuda_tools::UniquePtr<float>& gpu_average_frame,
+			const unsigned int accumulation_level,
+			const camera::FrameDescriptor fd)
 		{
-			accumulation_queue_->enqueue(buffers_.gpu_float_buffer_);
+			// If the queue is null or the level has changed
+			if (!gpu_accumulation_queue
+				|| accumulation_level != gpu_accumulation_queue->get_max_elts())
+			{
+				gpu_accumulation_queue.reset(
+					new Queue(fd, accumulation_level, "AccumulationQueue@allocate_accumalation_queue"));
+					
+				// accumulation queue successfully allocated
+				if (!gpu_average_frame)
+				{
+					auto frame_size = gpu_accumulation_queue->get_fd().frame_size();
+					gpu_average_frame.resize(frame_size);
+				}
+			}
+		}
+
+		void ImageAccumulation::allocate_accumulation_queues()
+		{
+			// XY view
 			if (cd_.img_acc_slice_xy_enabled)
-				cudaMemcpy(buffers_.gpu_float_buffer_, float_buffer_average_, accumulation_queue_->get_fd().frame_size(), cudaMemcpyDeviceToDevice);
-		});
+			{
+				auto new_fd = fd_;
+				new_fd.depth = cd_.img_type == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
+				allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
+					image_acc_env_.gpu_float_average_xy_frame,
+					cd_.img_acc_slice_xy_level,
+					new_fd);
+			}
+			else
+				image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
+
+			// XZ view
+			if (cd_.img_acc_slice_xz_enabled)
+			{
+				auto new_fd = fd_;
+				new_fd.depth = sizeof(float);
+				new_fd.height = cd_.nSize;
+				allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
+					image_acc_env_.gpu_float_average_xz_frame,
+					cd_.img_acc_slice_xz_level,
+					new_fd);
+			}
+
+			// YZ view
+			if (cd_.img_acc_slice_yz_enabled)
+			{
+				auto new_fd = fd_;
+				new_fd.depth = sizeof(float);
+				new_fd.width = cd_.nSize;
+				allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
+					image_acc_env_.gpu_float_average_yz_frame,
+					cd_.img_acc_slice_yz_level,
+					new_fd);
+			}
+		}
+
+		void ImageAccumulation::compute_average(
+			std::unique_ptr<Queue>& gpu_accumulation_queue,
+			float* gpu_input_frame,
+			float* gpu_ouput_average_frame,
+			unsigned int image_acc_level)
+		{
+			if (gpu_accumulation_queue)
+			{
+				// Enqueue the computed frame in the accumulation queue
+				gpu_accumulation_queue->enqueue(gpu_input_frame);
+
+				// Compute the average and store it in the output frame
+				accumulate_images(
+					static_cast<float *>(gpu_accumulation_queue->get_buffer()),
+					gpu_ouput_average_frame,
+					gpu_accumulation_queue->get_current_elts(),
+					gpu_accumulation_queue->get_max_elts(),
+					image_acc_level,
+					gpu_accumulation_queue->get_fd().frame_res());
+			}
+		}
+
+		void ImageAccumulation::insert_compute_average()
+		{
+			auto compute_average_lambda = [&]()
+			{
+				// XY view
+				compute_average(image_acc_env_.gpu_accumulation_xy_queue,
+					buffers_.gpu_float_buffer_.get(),
+					image_acc_env_.gpu_float_average_xy_frame.get(),
+					cd_.img_acc_slice_xy_level);
+
+				// XZ view
+				compute_average(image_acc_env_.gpu_accumulation_xz_queue,
+					buffers_.gpu_float_cut_xz_.get(),
+					image_acc_env_.gpu_float_average_xz_frame,
+					cd_.img_acc_slice_xz_level);
+
+				// YZ view
+				compute_average(image_acc_env_.gpu_accumulation_yz_queue,
+					buffers_.gpu_float_cut_yz_.get(),
+					image_acc_env_.gpu_float_average_yz_frame,
+					cd_.img_acc_slice_yz_level);
+			};
+
+			fn_vect_.emplace_back(compute_average_lambda);
+		}
+
+		void ImageAccumulation::insert_copy_accumulation_result()
+		{
+			auto copy_accumulation_result = [&]()
+			{
+				// XY view
+				if (image_acc_env_.gpu_accumulation_xy_queue && cd_.img_acc_slice_xy_enabled)
+					cudaMemcpy(buffers_.gpu_float_buffer_,
+								image_acc_env_.gpu_float_average_xy_frame,
+								image_acc_env_.gpu_accumulation_xy_queue->get_fd().frame_size(),
+								cudaMemcpyDeviceToDevice);
+				
+				// XZ view
+				if (image_acc_env_.gpu_accumulation_xz_queue && cd_.img_acc_slice_xz_enabled)
+					cudaMemcpy(buffers_.gpu_float_cut_xz_,
+								image_acc_env_.gpu_float_average_xz_frame,
+								image_acc_env_.gpu_accumulation_xz_queue->get_fd().frame_size(),
+								cudaMemcpyDeviceToDevice);
+
+				// YZ view
+				if (image_acc_env_.gpu_accumulation_yz_queue && cd_.img_acc_slice_yz_enabled)
+					cudaMemcpy(buffers_.gpu_float_cut_yz_,
+								image_acc_env_.gpu_float_average_yz_frame,
+								image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_size(),
+								cudaMemcpyDeviceToDevice);
+			};
+
+			fn_vect_.emplace_back(copy_accumulation_result);
+		}
 	}
 }

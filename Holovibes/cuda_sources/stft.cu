@@ -141,8 +141,8 @@ static void	fill_32bit_slices(const cuComplex	*input,
 }
 
 void stft_view_begin(const cuComplex	*input,
-					void				*output_xz,
-					void				*output_yz,
+					float				*output_xz,
+					float				*output_yz,
 					const ushort		xmin,
 					const ushort		ymin,
 					const ushort		xmax,
@@ -163,8 +163,8 @@ void stft_view_begin(const cuComplex	*input,
 
 	fill_32bit_slices <<<blocks, threads, 0, stream>>>(
 		input,
-		static_cast<float *>(output_xz),
-		static_cast<float *>(output_yz),
+		output_xz,
+		output_yz,
 		xmin, ymin, xmax, ymax,
 		frame_size,
 		output_size,

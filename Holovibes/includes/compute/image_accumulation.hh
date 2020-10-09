@@ -16,19 +16,20 @@
 
 #pragma once
 
-# include "cuda_tools/unique_ptr.hh"
-# include "cuda_tools/array.hh"
-# include "cuda_tools/nppi_data.hh"
-# include "pipeline_utils.hh"
-# include "frame_desc.hh"
-# include "queue.hh"
-# include "rect.hh"
+#include "cuda_tools/unique_ptr.hh"
+#include "cuda_tools/array.hh"
+#include "cuda_tools/nppi_data.hh"
+#include "pipeline_utils.hh"
+#include "frame_desc.hh"
+#include "queue.hh"
+#include "rect.hh"
 
 namespace holovibes
 {
 	class Queue;
 	class ComputeDescriptor;
 	struct CoreBuffers;
+	struct ImageAccEnv;
 
 	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
@@ -46,6 +47,7 @@ namespace holovibes
 			** \brief Constructor.
 			*/
 			ImageAccumulation(FnVector& fn_vect,
+				ImageAccEnv& image_acc_env,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
@@ -56,25 +58,47 @@ namespace holovibes
 			*/
 			void insert_image_accumulation();
 
+			/*!
+			** \brief Handle the allocation of the accumulation queues and average frames
+			*/
+			void allocate_accumulation_queues();
+
 		private:
 			/*!
-			** \brief Insert the computation of the average of the float frame.
+			** \brief Compute average on one view
 			*/
-			void insert_average_compute();
+			void compute_average(
+				std::unique_ptr<Queue>& gpu_accumulation_queue,
+				float* gpu_input_frame,
+				float* gpu_ouput_average_frame,
+				unsigned int image_acc_level);
+
+			/*!
+			** \brief Insert the average computation of the float frame.
+			*/
+			void insert_compute_average();
 
 			/*!
 			** \brief Insert the copy of the corrected buffer into the float buffer.
 			*/
-			void insert_float_buffer_overwrite();
+			void insert_copy_accumulation_result();
 
-			/// Buffer used to temporaly store the average, to compare it with current frame
-			cuda_tools::UniquePtr<float>	float_buffer_average_;
+			/*!
+			** \brief Handle the allocation of a accumulation queue and average frame
+			*/
+			void allocate_accumulation_queue(
+				std::unique_ptr<Queue>& gpu_accumulation_queue,
+				cuda_tools::UniquePtr<float>& gpu_average_frame,
+				const unsigned int accumulation_level,
+				const camera::FrameDescriptor fd);
 
-			/// Queue accumulating XY frames.
-			std::unique_ptr<Queue>			accumulation_queue_;
+		private: /* Attributes */
+			/// Image Accumulation environment
+			ImageAccEnv& image_acc_env_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
+
 			/// Main buffers
 			const CoreBuffers&				buffers_;
 

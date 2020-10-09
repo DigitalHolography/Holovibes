@@ -138,9 +138,9 @@ namespace holovibes
 		{
 			uint size = fd_.width * cd_.nSize;
 			if (cd_.log_scale_slice_xz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_xz_.get()), size); });
+				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_xz_.get(), size); });
 			if (cd_.log_scale_slice_yz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_yz_.get()), size); });
+				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_yz_.get(), size); });
 		}
 
 		void Rendering::insert_apply_contrast(WindowKind view)
@@ -161,13 +161,13 @@ namespace holovibes
 				max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
 				break;
 			case YZview:
-				input = static_cast<float *>(buffers_.gpu_float_cut_yz_.get());
+				input = buffers_.gpu_float_cut_yz_.get();
 				size = fd_.width * cd_.nSize;
 				min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
 				max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
 				break;
 			case XZview:
-				input = static_cast<float *>(buffers_.gpu_float_cut_xz_.get());
+				input = buffers_.gpu_float_cut_xz_.get();
 				size = fd_.width * cd_.nSize;
 				min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
 				max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
@@ -194,13 +194,13 @@ namespace holovibes
 						XYview);
 				if (autocontrast_slice_xz_request)
 					autocontrast_caller(
-						static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
+						buffers_.gpu_float_cut_xz_.get(),
 						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						XZview);
 				if (autocontrast_slice_yz_request)
 					autocontrast_caller(
-						static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
+						buffers_.gpu_float_cut_yz_.get(),
 						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						YZview);

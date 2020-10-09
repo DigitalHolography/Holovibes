@@ -58,7 +58,6 @@ namespace holovibes
 		average_record_requested_(false),
 		resize_requested_(false),
 		termination_requested_(false),
-		update_acc_requested_(false),
 		update_ref_diff_requested_(false),
 		request_stft_cuts_(false),
 		request_delete_stft_cuts_(false),
@@ -70,25 +69,6 @@ namespace holovibes
 			input_.get_fd().height,
 			input_.get_fd().width,
 			CUFFT_C2C);
-
-		camera::FrameDescriptor new_fd = input_.get_fd();
-		new_fd.depth = 4;
-		if (cd_.img_acc_slice_yz_enabled)
-		{
-			auto fd_yz = new_fd;
-			fd_yz.width = cd_.nSize;
-			gpu_img_acc_yz_.reset(new Queue(fd_yz, cd_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
-			if (!gpu_img_acc_yz_)
-				LOG_ERROR("Can't allocate queue");
-		}
-		if (cd_.img_acc_slice_xz_enabled)
-		{
-			auto fd_xz = new_fd;
-			fd_xz.height = cd_.nSize;
-			gpu_img_acc_xz_.reset(new Queue(fd_xz, cd_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
-			if (!gpu_img_acc_xz_)
-				LOG_ERROR("Can't allocate queue");
-		}
 
 		int inembed[1];
 		int zone_size = input_.get_frame_res();
@@ -216,8 +196,8 @@ namespace holovibes
 			fd_yz.width = cd_.nSize;
 			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
-			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
+			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res());
+			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res());
 
 			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_res());
 			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_res());
@@ -279,6 +259,7 @@ namespace holovibes
 		notify_error_observers(e);
 	}
 
+	/*
 	void ICompute::update_acc_parameter(
 		std::unique_ptr<Queue>& queue,
 		std::atomic<bool>& enabled,
@@ -305,7 +286,7 @@ namespace holovibes
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
-	}
+	}*/
 
 	bool ICompute::get_request_refresh()
 	{
@@ -315,12 +296,6 @@ namespace holovibes
 	void ICompute::request_refresh()
 	{
 		refresh_requested_ = true;
-	}
-
-	void ICompute::request_acc_refresh()
-	{
-		update_acc_requested_ = true;
-		request_refresh();
 	}
 
 	void ICompute::request_ref_diff_refresh()

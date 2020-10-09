@@ -579,25 +579,28 @@ void buffer_size_conversion(char*					real_buffer,
 __global__
 void kernel_accumulate_images(const float	*input,
 							float			*output,
-							const size_t	start,
+							const size_t	end,
 							const size_t	max_elmt,
 							const size_t	nb_elmt,
 							const size_t	nb_pixel)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
-	size_t	i = 0;
-	long int pos = start;
+	long int pos = end; // end is excluded
 
 	if (index < nb_pixel)
 	{
-		output[index] = 0;
-		while (i++ < nb_elmt)
+		float val = 0;
+		for (size_t i = 0; i < nb_elmt; i++)
 		{
-			output[index] += input[index + pos * nb_pixel];
-			if (--pos < 0)
+			// get last index when pos is out of range
+			// reminder: the given input is from ciruclar queue
+			pos--;
+			if (pos < 0)
 				pos = max_elmt - 1;
+
+			val += input[index + pos * nb_pixel];
 		}
-		output[index] /= nb_elmt;
+		output[index] = val / nb_elmt;
 	}
 }
 

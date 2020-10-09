@@ -147,8 +147,6 @@ namespace holovibes
 		std::unique_ptr<Queue> gpu_raw_queue_;
 
 
-		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
-
 		/*! \brief Iterates and executes function of the pipe.
 
 		  It will first iterate over fn_vect_, then over function_end_pipe_. */

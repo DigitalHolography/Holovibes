@@ -2130,7 +2130,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				cd_.set_accumulation(cd_.current_window, value);
-				holovibes_.get_pipe()->request_acc_refresh();
+				pipe_refresh();
 				notify();
 			}
 		}
@@ -2139,14 +2139,8 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				try
-				{
-					cd_.set_accumulation_level(cd_.current_window, value);
-					holovibes_.get_pipe()->request_acc_refresh();
-				}
-				catch(const std::exception& e)
-				{
-				}
+				cd_.set_accumulation_level(cd_.current_window, value);
+				pipe_refresh();
 			}
 		}
 

@@ -219,8 +219,8 @@ void FourierTransform::stft_handler()
 		}
 		// -----------------------------------------------------
 		stft_view_begin(stft_env_.gpu_stft_buffer_,
-			buffers_.gpu_float_cut_xz_,
-			buffers_.gpu_float_cut_yz_,
+			buffers_.gpu_float_cut_xz_.get(),
+			buffers_.gpu_float_cut_yz_.get(),
 			mouse_posx,
 			mouse_posy,
 			mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),

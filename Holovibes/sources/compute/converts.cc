@@ -260,14 +260,14 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				float_to_ushort(
-					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
+					buffers_.gpu_float_cut_xz_.get(),
 					buffers_.gpu_ushort_cut_xz_,
 					stft_env_.gpu_stft_slice_queue_xz->get_fd().frame_res(),
 					2.f);
 			});
 			fn_vect_.push_back([=]() {
 				float_to_ushort(
-					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
+					buffers_.gpu_float_cut_yz_.get(),
 					buffers_.gpu_ushort_cut_yz_,
 					stft_env_.gpu_stft_slice_queue_yz->get_fd().frame_res(),
 					2.f);

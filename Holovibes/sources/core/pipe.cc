@@ -43,7 +43,7 @@ namespace holovibes
 		: ICompute(input, output, desc)
 		, fn_vect_()
 	{
-		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, buffers_, input.get_fd(), desc);
+		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_fd(), output.get_fd(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_fd(), output.get_fd());
@@ -111,18 +111,10 @@ namespace holovibes
 		request_queues();
 
 		// Allocating accumulation queues/buffers
-		if (update_acc_requested_)
-		{
-			FrameDescriptor new_fd_xz = input_.get_fd();
-			FrameDescriptor new_fd_yz = input_.get_fd();
-			new_fd_xz.height = cd_.nSize;
-			new_fd_yz.width = cd_.nSize;
-			update_acc_parameter(gpu_img_acc_yz_, cd_.img_acc_slice_yz_enabled, cd_.img_acc_slice_yz_level, new_fd_yz);
-			update_acc_parameter(gpu_img_acc_xz_, cd_.img_acc_slice_xz_enabled, cd_.img_acc_slice_xz_level, new_fd_xz);
-			update_acc_requested_ = false;
-		}
+		image_accumulation_->allocate_accumulation_queues();
 
 		preprocess_->allocate_ref(update_ref_diff_requested_);
+
 
 		return success_allocation;
 	}
@@ -132,8 +124,6 @@ namespace holovibes
 		if (cd_.compute_mode == Computation::Direct)
 		{
 			fn_vect_.clear();
-			// Useless function, that has no incidence on output, but maybe fixes a displaying bug of direct hologram
-			//direct_refresh();
 			update_n_requested_ = false;
 			refresh_requested_ = false;
 			return;
@@ -177,21 +167,6 @@ namespace holovibes
 		postprocess_->insert_renormalize();
 
 		image_accumulation_->insert_image_accumulation();
-
-		// Inserts the output buffers into the accumulation queues
-		// and rewrite the average into the output buffer
-		// For the XY view, this happens in image_accumulation.cc,
-		// as the average is used in the intermediate computations
-		if (cd_.img_acc_slice_yz_enabled)
-			enqueue_buffer(gpu_img_acc_yz_.get(),
-				static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-				cd_.img_acc_slice_yz_level,
-				input_fd.height * cd_.nSize);
-		if (cd_.img_acc_slice_xz_enabled)
-			enqueue_buffer(gpu_img_acc_xz_.get(),
-				static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-				cd_.img_acc_slice_xz_level,
-				input_fd.width * cd_.nSize);
 
 		rendering_->insert_fft_shift();
 		if (average_requested_)
@@ -264,27 +239,6 @@ namespace holovibes
 				allocation_failed(1, e);
 			}
 		}
-	}
-
-	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
-	{
-		if (!queue)
-		{
-			LOG_ERROR("Error: queue is null");
-			return;
-		}
-		/*Add image to phase accumulation buffer*/
-
-		fn_vect_.push_back([=]() { queue->enqueue(buffer); });
-		fn_vect_.push_back([=]() {
-			accumulate_images(
-				static_cast<float *>(queue->get_buffer()),
-				buffer,
-				queue->get_start_index(),
-				queue->get_max_elts(),
-				nb_images,
-				nb_pixels);
-		});
 	}
 
 	std::unique_ptr<Queue>& Pipe::get_lens_queue()

@@ -211,7 +211,7 @@ void	kernel_buffer_size_conversion(char			*real_buffer,
 *
 * \param input Input data should be contiguous.
 * \param output Where to store the output.
-* \param start Number of starting elmt.
+* \param end End of the queue. The most recent element in the queue
 * \param max_elmt Total number of elmt.
 * \param nb_elmt Number of elmt that should be added.
 * \param nb_pixel Number of pixel per image.
@@ -219,7 +219,7 @@ void	kernel_buffer_size_conversion(char			*real_buffer,
 */
 void accumulate_images(const float	*input,
 					float			*output,
-					const size_t	start,
+					const size_t	end,
 					const size_t	max_elmt,
 					const size_t	nb_elmt,
 					const size_t	nb_pixel,

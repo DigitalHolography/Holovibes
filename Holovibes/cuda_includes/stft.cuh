@@ -63,8 +63,8 @@ void stft(cuComplex			*input,
 		cudaStream_t		stream = 0);
 
 void stft_view_begin(const cuComplex	*input,
-					void				*output_xz,
-					void				*output_yz,
+					float				*output_xz,
+					float				*output_yz,
 					const ushort		xmin,
 					const ushort		ymin,
 					const ushort		xmax,
