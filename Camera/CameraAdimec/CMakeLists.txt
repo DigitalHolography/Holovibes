@@ -4,7 +4,7 @@ add_library("${PROJECT_NAME}" SHARED
     camera_adimec.cc
 )
 
-set(BITFLOW_SDK "C:/BitFlow SDK 6.30/")
+set(BITFLOW_SDK "C:/BitFlow SDK 6.40/")
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"

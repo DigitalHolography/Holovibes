@@ -6,7 +6,7 @@
 * [CUDA 11.1](https://developer.nvidia.com/cuda-downloads)
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
 * [Bitflow SDK 6.30](http://www.bitflow.com/downloads/bfsdk630.zip)
-* [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1)
+* [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1) (serial code 2944-8538-8655-8474)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/) (if building with CMake ; fetched from NuGet in VS)
 
 #### Environment variables
@@ -15,15 +15,29 @@ Make sure the following environment variables are set:
     * `QTDIR` pointing to something like `C:\Qt\Qt5.x.x\5.x.x\msvc2017_64\`
 
 * Make sure your path contains:
-    * $(CUDA_PATH_V10_1)\bin
-    * $(CUDA_PATH_V10_1)\libnvvp
+    * $(CUDA_PATH_V11_1)\bin
+    * $(CUDA_PATH_V11_1)\libnvvp
     * $(QTDIR)\bin
 
 #### Common issues
 
-* After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
-* Verify that it builds with the correct dll. If not, your path contain something wrong.
-* If asked to set Qt5_DIR var (by Cmake), only set QTDIR (as asked), delete holovibes folder and clone again
+* Bitflow SDK issues
+    * When installing you MUST write the serial code or you will be missing critical dlls.
+
+* QT issues
+    * After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
+    * Verify that it builds with the correct dll. If not, your path contain something wrong.
+    * If asked to set Qt5_DIR var (by Cmake), only set QTDIR (as asked), delete holovibes folder, reset Cmake cache (in cmake gui) and clone again.
+
+* Boost issues
+    * If you get a problem linked to "boost program_options" you can try running this command : (name might not be b2.exe but bjam.exe)
+    * `b2.exe install --prefix="YOUR_PATH\boost\boost_1_7X_X" --with-system --with-date_time --with-random link=static runtime-link=shared threading=multi`
+    * This command will install program_options which may not be included with boost itself.
+
+* General issues
+    * Reload the terminal, visual studio or even your computer.
+    * Clean cmake cache (cmake gui).
+    * Check that you have exactly the same versions as mention.
 
 ### Compilation
 

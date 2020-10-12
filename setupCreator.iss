@@ -10,9 +10,9 @@
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 
-#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
-#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin"
+#define QtPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\plugins\platforms"
+#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.1\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -121,14 +121,14 @@ Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "{#QtPath}\Qt5Charts.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cudart64_101.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cublas64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cublasLt64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cusolver64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\nppc64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\nppial64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\nppif64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\nppist64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cudart64_110.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cublas64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cublasLt64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cusolver64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppc64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppial64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppif64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\nppist64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.4-0.3 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.2 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
