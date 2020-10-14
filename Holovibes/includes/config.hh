@@ -25,7 +25,7 @@ namespace holovibes
 		/*! \brief Construct the config with most commonly used values.*/
 		Config()
 		{
-			this->input_queue_max_size = 128;
+			this->input_queue_max_size = 1024;
 			this->output_queue_max_size = 64;
 			this->stft_cuts_output_buffer_size = 8;
 			this->flush_on_refresh = false;
