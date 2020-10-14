@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "tools_conversion.cuh"
+#include "cuda_memory.cuh"
 
 using camera::FrameDescriptor;
 
@@ -62,8 +63,7 @@ void float_to_complex(cuComplex	*output,
 
 /* Kernel function wrapped by complex_to_modulus. */
 static __global__
-void kernel_complex_to_modulus_in_stft(const cuComplex	*input,
-							float				*output,
+void kernel_complex_to_modulus_in_stft(float				*output,
 							const cuComplex		*stft_buf,
 							const ushort		pmin,
 							const ushort		pmax,
@@ -73,21 +73,22 @@ void kernel_complex_to_modulus_in_stft(const cuComplex	*input,
 
 	if (index < size)
 	{
-		output[index] = hypotf(input[index].x, input[index].y);
-		if (pmax > pmin)
+		// We use a local variable so the global memory isn't read or written everytime.
+		// Only written once at the end.
+		float val = 0.0f;
+		for (int i = pmin; i <= pmax; i++)
 		{
-			for (int i = pmin + 1; i <= pmax; i++)
-			{
-				const cuComplex *current_p_frame = stft_buf + i * size;
-				output[index] += hypotf(current_p_frame[index].x, current_p_frame[index].y);
-			}
+			const cuComplex *current_p_frame = stft_buf + i * size;
+
+			val += hypotf(current_p_frame[index].x, current_p_frame[index].y);
 		}
-		output[index] /= (pmax - pmin + 1);
+
+		output[index] = val / (pmax - pmin + 1);
+
 	}
 }
 
-void complex_to_modulus(const cuComplex	*input,
-						float			*output,
+void complex_to_modulus(float			*output,
 						const cuComplex *stft_buf,
 						const ushort	pmin,
 						const ushort	pmax,
@@ -97,14 +98,14 @@ void complex_to_modulus(const cuComplex	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_modulus_in_stft << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
+	kernel_complex_to_modulus_in_stft << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+	// No sync needed since everything is run on stream 0
 	cudaCheckError();
 }
 
 /* Kernel function wrapped in complex_to_squared_modulus. */
 static __global__
-void kernel_complex_to_squared_modulus(const cuComplex	*input,
-									float				*output,
+void kernel_complex_to_squared_modulus(float				*output,
 									const cuComplex		*stft_buf,
 									const ushort		pmin,
 									const ushort		pmax,
@@ -114,37 +115,129 @@ void kernel_complex_to_squared_modulus(const cuComplex	*input,
 
 	if (index < size)
 	{
-		output[index] = hypotf(input[index].x, input[index].y);
-		output[index] *= output[index];
-		for (int i = pmin + 1; i <= pmax; i++)
+		// We use a local variable so the global memory isn't read or written everytime.
+		// Only written once at the end.
+		float val = 0.0f;
+		for (int i = pmin; i <= pmax; i++)
 		{
 			const cuComplex *current_p_frame = stft_buf + i * size;
+			// square of the square root of the sum of the squares of x and y
 			float tmp = hypotf(current_p_frame[index].x, current_p_frame[index].y);
-			output[index] += tmp * tmp;
+			val += tmp * tmp;
 		}
-		output[index] /= (pmax - pmin + 1);
+		output[index] = val / (pmax - pmin + 1);
 	}
 }
 
-void complex_to_squared_modulus(const cuComplex	*input,
-								float			*output,
+template <typename OTYPE, typename ITYPE, typename FUNC>
+static __global__
+void kernel_input_queue_to_input_buffer(OTYPE* output,
+								const ITYPE* const input,
+								FUNC convert,
+								const uint frame_res,
+								const int batch_size,
+								const uint current_queue_index,
+								const uint queue_size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < frame_res)
+	{
+		uint frame_copied = 0;
+		// j swip through the queue from it's start index to either the end of the queue or all of the batch
+		for (int j = current_queue_index; j < queue_size && frame_copied < batch_size; ++j, ++frame_copied)
+		{
+			const float val = convert(input[index + j * frame_res]);
+			
+			output[index + frame_copied * frame_res].x = val;
+			output[index + frame_copied * frame_res].y = 0.0f;
+		}
+
+		// Copy might reach end of the queue so we copy the missing frames
+		for (int j = 0; frame_copied < batch_size; ++frame_copied, ++j)
+		{
+			float val = convert(input[index + j * frame_res]);
+			
+			output[index + frame_copied * frame_res].x = val;
+			output[index + frame_copied * frame_res].y = 0.0f;
+		}
+	}
+}
+
+void input_queue_to_input_buffer(void* output,
+								void* input,
+								const uint frame_res,
+								const int batch_size,
+								const uint current_queue_index,
+								const uint queue_size,
+								const uint depth)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	/* Best way we found to pass function to kernels
+	*  We can't declare the lambda outside this function for some reason
+	* To pass lambda like that, we need to add the --extended-lambda  flag
+	*/
+	static const auto convert_8_bit = [] __device__ (const uchar input_pixel){ return static_cast<float>(input_pixel * 257); };
+	static const auto convert_16_bit = [] __device__ (const ushort input_pixel){ return static_cast<float>(input_pixel); };
+	static const auto convert_32_bit = [] __device__ (const float input_pixel){ return input_pixel; };
+
+	switch(depth)
+	{
+		case 1:
+			kernel_input_queue_to_input_buffer<cuComplex, uchar>
+												<<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+																reinterpret_cast<uchar*>(input),
+																convert_8_bit,
+																frame_res,
+																batch_size,
+																current_queue_index,
+																queue_size);
+			break;
+		case 2:
+			kernel_input_queue_to_input_buffer<cuComplex, ushort>
+												<<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+																reinterpret_cast<ushort*>(input),
+																convert_16_bit,
+																frame_res,
+																batch_size,
+																current_queue_index,
+																queue_size);
+			break;
+		case 4:
+			kernel_input_queue_to_input_buffer<cuComplex, float>
+												<<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+																reinterpret_cast<float*>(input),
+																convert_32_bit,
+																frame_res,
+																batch_size,
+																current_queue_index,
+																queue_size);
+			break;
+	}
+	// No sync needed since next call (fft1 is called on default main stream (0))
+	cudaCheckError();
+}
+
+void complex_to_squared_modulus(float			*output,
 								const cuComplex	*stft_buf,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size,
 								cudaStream_t	stream)
 {
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(size, threads);
+const uint threads = get_max_threads_1d();
+const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
-	cudaCheckError();
+kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+cudaDeviceSynchronize();
+cudaCheckError();
 }
 
 /* Kernel function wrapped in complex_to_argument. */
 static __global__
-void kernel_complex_to_argument(const cuComplex	*input,
-								float			*output,
+void kernel_complex_to_argument(float			*output,
 								const cuComplex	*stft_buf,
 								const ushort	pmin,
 								const ushort	pmax,
@@ -154,19 +247,21 @@ void kernel_complex_to_argument(const cuComplex	*input,
 
 	if (index < size)
 	{
-		// We use std::atan2 in order to obtain results in [-pi; pi].
-		output[index] = std::atan2(input[index].y, input[index].x);
-		for (int i = pmin + 1; i <= pmax; i++)
+		// We use a local variable so the global memory isn't read or written everytime.
+		// Only written once at the end.
+		float val = 0.0f;
+		for (int i = pmin; i <= pmax; i++)
 		{
 			const cuComplex *current_p_frame = stft_buf + i * size;
-			output[index] += std::atan2(current_p_frame[index].y, current_p_frame[index].x);
+			// Computes the arc tangent of y / x
+			// We use std::atan2 in order to obtain results in [-pi; pi].
+			val += std::atan2(current_p_frame[index].y, current_p_frame[index].x);
 		}
-		output[index] /= (pmax - pmin + 1);
+		output[index] = val / (pmax - pmin + 1);
 	}
 }
 
-void complex_to_argument(const cuComplex	*input,
-						float			*output,
+void complex_to_argument(float			*output,
 						const cuComplex	*stft_buf,
 						const ushort	pmin,
 						const ushort	pmax,
@@ -176,7 +271,8 @@ void complex_to_argument(const cuComplex	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
+	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -249,7 +345,7 @@ void rescale_float(const float	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	// TODO : See if gpu_float_buffer_ could be used directly.
-	cudaMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
+	cudaXMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
 
 	// Computing minimum and maximum values, in order to rescale properly.
 	float* gpu_local_min;
@@ -259,19 +355,20 @@ void rescale_float(const float	*input,
 		return;
 	if (cudaMalloc(&gpu_local_max, float_blocks) != cudaSuccess)
 	{
-		cudaFree(gpu_local_min);
+		cudaXFree(gpu_local_min);
 		return;
 	}
 
 	/* We have to hardcode the template parameter, unfortunately.
 	 * It must be equal to the number of threads per block. */
 	kernel_minmax <128> << <blocks, threads, threads << 1, stream >> > (output, size, gpu_local_min, gpu_local_max);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 
 	float	*cpu_local_min = new float[blocks];
 	float	*cpu_local_max = new float[blocks];
-	cudaMemcpy(cpu_local_min, gpu_local_min, float_blocks, cudaMemcpyDeviceToHost);
-	cudaMemcpy(cpu_local_max, gpu_local_max, float_blocks, cudaMemcpyDeviceToHost);
+	cudaXMemcpy(cpu_local_min, gpu_local_min, float_blocks, cudaMemcpyDeviceToHost);
+	cudaXMemcpy(cpu_local_max, gpu_local_max, float_blocks, cudaMemcpyDeviceToHost);
 
 	const float max_intensity = 65535.f;
 	kernel_rescale << <blocks, threads, 0, stream >> >(	output,
@@ -279,11 +376,12 @@ void rescale_float(const float	*input,
 														*(std::min_element(cpu_local_min, cpu_local_min + threads)),
 														*(std::max_element(cpu_local_max, cpu_local_max + threads)),
 														max_intensity);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 	delete[] cpu_local_max;
 	delete[] cpu_local_min;
-	cudaFree(gpu_local_min);
-	cudaFree(gpu_local_max);
+	cudaXFree(gpu_local_min);
+	cudaXFree(gpu_local_max);
 }
 
 void rescale_float_unwrap2d(float			*input,
@@ -297,18 +395,19 @@ void rescale_float_unwrap2d(float			*input,
 	const uint	threads = THREADS_128;
 	const uint	blocks = map_blocks_to_problem(frame_res, threads);
 	uint float_frame_res = sizeof(float)* frame_res;
-	cudaMemcpy(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost);
+	cudaXMemcpy(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost);
 	auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
 	min = *minmax.first;
 	max = *minmax.second;
 
-	cudaMemcpy(output, input, float_frame_res, cudaMemcpyDeviceToDevice);
+	cudaXMemcpy(output, input, float_frame_res, cudaMemcpyDeviceToDevice);
 
 	kernel_normalize_images <<< blocks, threads, 0, stream >>> (
 		output,
 		max,
 		min,
 		frame_res);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -332,6 +431,7 @@ void rescale_argument(float			*input,
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	kernel_rescale_argument << <blocks, threads, 0, stream >> >(input, frame_res);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -341,25 +441,32 @@ void rescale_argument(float			*input,
 static __global__
 void kernel_endianness_conversion(const ushort	*input,
 								ushort			*output,
+								const uint 		batch_size,
 								const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		output[index] = (input[index] << 8) | (input[index] >> 8);
+		for (uint i = 0; i < batch_size; i++)
+		{
+			const uint batch_index = index + i * size;
+			output[batch_index] = (input[batch_index] << 8) | (input[batch_index] >> 8);
+		}
 	}
 }
 
 void endianness_conversion(const ushort	*input,
 						ushort			*output,
+						const uint 		batch_size,
 						const uint		size,
 						cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
+	kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, batch_size, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -405,6 +512,7 @@ void float_to_ushort(const float	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -439,6 +547,7 @@ void float_to_uint8(const float	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_to_uint8 << <blocks, threads, 0, 0 >> >(input, output, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -463,6 +572,7 @@ void uint8_to_float(const  Npp8u	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_uint8_to_float << <blocks, threads, 0, 0 >> >(input, output, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -486,6 +596,7 @@ void ushort_to_uchar(const ushort	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_ushort_to_uchar << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -528,6 +639,7 @@ void complex_to_ushort(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -537,7 +649,7 @@ void complex_to_complex(const cuComplex	*input,
 						const uint		size,
 						cudaStream_t	stream)
 {
-	cudaMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
+	cudaXMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
 }
 
 __global__
@@ -618,6 +730,7 @@ void accumulate_images(const float	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -659,6 +772,7 @@ void normalize_complex(cuComplex *image,
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(size, threads);
 	kernel_normalize_complex << <blocks, threads, 0, 0 >> > (image, size);
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -704,5 +818,42 @@ void convert_frame_for_display(const void   	*input,
 		kernel_convert_frame_for_display<uchar> << <blocks, threads, 0, 0 >> > (static_cast<const uchar*>(input), output, size, depth, shift);
 	}
 
+	cudaDeviceSynchronize();
+	cudaCheckError();
+}
+
+void frame_to_complex(void *input, cufftComplex *output, const uint frame_res, const uint depth)
+{
+	const uint				threads = get_max_threads_1d();
+	const uint				blocks = map_blocks_to_problem(frame_res, threads);
+
+	switch (depth)
+	{
+	case 1:
+		img8_to_complex <<<blocks, threads>>> (
+			output,
+			static_cast<uchar*>(input),
+			frame_res);
+		break;
+	case 2:
+		img16_to_complex <<<blocks, threads>>> (
+			output,
+			static_cast<ushort*>(input),
+			frame_res);
+		break;
+	case 4:
+		float_to_complex <<<blocks, threads>>> (
+			output,
+			static_cast<float*>(input),
+			frame_res);
+		break;
+	case 8:
+		cudaXMemcpy(output, input, frame_res << 3, cudaMemcpyDeviceToDevice);
+		break;
+	default:
+		break;
+	}
+
+	cudaDeviceSynchronize();
 	cudaCheckError();
 }

@@ -11,9 +11,11 @@
 /* **************************************************************************** */
 
 #include "fft2.cuh"
-#include "preprocessing.cuh"
 #include "transforms.cuh"
 #include "tools_compute.cuh"
+
+#include <cufftXt.h>
+
 
 using camera::FrameDescriptor;
 
@@ -28,29 +30,37 @@ static void kernel_fft2_dc(const cuComplex	*input,
 						cuComplex			*output,
 						const ushort		width,
 						const uint			frame_res,
+						const uint 			batch_size,
 						const bool			mode)
 {
-	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;;
-	if (id < frame_res)
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < frame_res)
 	{
-		const float	pi_pxl = M_PI * (id / width + id % width);
-		if (mode == APPLY_PHASE_FORWARD)
-			output[id] = cuCmulf(input[id], make_cuComplex(cosf(pi_pxl), sinf(pi_pxl)));
-		else if (mode == APPLY_PHASE_INVERSE)
-			output[id] = cuCmulf(input[id], make_cuComplex(cosf(-pi_pxl), sinf(-pi_pxl)));
+		for (uint i = 0; i < batch_size; ++i)
+		{
+			const uint batch_index = index + i * frame_res;
+
+			const float	pi_pxl = M_PI * (index / width + index % width);
+			if (mode == APPLY_PHASE_FORWARD)
+				output[batch_index] = cuCmulf(input[batch_index], make_cuComplex(cosf(pi_pxl), sinf(pi_pxl)));
+			else if (mode == APPLY_PHASE_INVERSE)
+				output[batch_index] = cuCmulf(input[batch_index], make_cuComplex(cosf(-pi_pxl), sinf(-pi_pxl)));
+		}
 	}
 }
 
-void fft_2_dc(	const ushort	width,
+static void fft_2_dc(const ushort	width,
 				const uint		frame_res,
 				cuComplex		*pframe,
 				const bool		mode,
+				const uint 		batch_size,
 				cudaStream_t	stream)
 {
 	const uint	threads = get_max_threads_1d();
 	const uint	blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_fft2_dc << <blocks, threads, 0, stream >> >(pframe, pframe, width, frame_res, mode);
+	kernel_fft2_dc << <blocks, threads, 0, stream >> >(pframe, pframe, width, frame_res, batch_size, mode);
 	cudaCheckError();
 }
 
@@ -70,36 +80,28 @@ void fft2_lens(cuComplex			*lens,
 }
 
 void fft_2(cuComplex			*input,
+		cuComplex 				*output,
+		const uint 				batch_size,
 		const cuComplex			*lens,
 		const cufftHandle		plan2d,
 		const FrameDescriptor&	fd,
 		cudaStream_t			stream)
 {
 	const uint	frame_resolution = fd.frame_res();
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
+	const uint	threads = get_max_threads_1d();
+	const uint	blocks = map_blocks_to_problem(frame_resolution, threads);
 
-	fft_2_dc(fd.width, frame_resolution, input, 0, stream);
-	
-	cudaStreamSynchronize(stream);
+	fft_2_dc(fd.width, frame_resolution, input, 0, batch_size, stream);
 
-	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
-	cudaStreamSynchronize(0);
-
-	kernel_apply_lens << <blocks, threads, 0, stream >> >(input, frame_resolution, lens, frame_resolution);
-
-	cudaStreamSynchronize(stream);
+	kernel_apply_lens << <blocks, threads, 0, stream >> >(input, output, batch_size, frame_resolution, lens, frame_resolution);
 	cudaCheckError();
 
-	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 
-	cudaStreamSynchronize(0);
+	fft_2_dc(fd.width, frame_resolution, input, 1, batch_size, stream);
 
-	fft_2_dc(fd.width, frame_resolution, input, 1, stream);
-
-	kernel_complex_divide << <blocks, threads, 0, stream >> >(input, frame_resolution, static_cast<float>(frame_resolution));
-
-	cudaStreamSynchronize(stream);
+	kernel_complex_divide << <blocks, threads, 0, stream >> >(input, frame_resolution, static_cast<float>(frame_resolution), batch_size);
 	cudaCheckError();
 }

@@ -17,7 +17,7 @@
 
 #include <thread>
 
-# include "ithread_input.hh"
+#include "ithread_input.hh"
 
 /* Forward declarations. */
 namespace holovibes

@@ -17,24 +17,36 @@
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
 * \param image The image(s) to process. Should be contiguous memory.
-* \param size Number of elements to process.
+* \param frame_res Size of the frame
 * \param divider Divider value for all elements.
+* \param batch_size The number of images
 */
 __global__
 void kernel_complex_divide(cuComplex	*image,
-						const uint		size,
-						const float		divider);
+						 const uint		frame_res,
+						 const float	divider,
+						 const uint 	batch_size);
 
-/*! \brief  Divide all the pixels of input image(s) by the float divider.
+/*! \brief  Divide all the real part pixels of input image(s) by the float divider.
 *
 * \param image The image(s) to process. Should be contiguous memory.
 * \param size Number of elements to process.
 * \param divider Divider value for all elements.
 */
 __global__
-void kernel_float_divide(float		*input,
-						const uint	size,
-						const float	divider);
+void kernel_real_part_divide(cuComplex	*image,
+	const uint		size,
+	const float	divider);
+
+/*! \brief  Call a function to divide all real part of pixels of input image(s).
+*
+* \param image The image(s) to process. Should be contiguous memory.
+* \param size Number of elements to process.
+* \param divider Divider value for all elements.
+*/
+void gpu_real_part_divide(cuComplex	*image,
+	const uint	size,
+	const float	divider);
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
@@ -72,18 +84,6 @@ void multiply_frames_complex(const cuComplex	*input1,
 								const uint		size,
 								cudaStream_t	stream = 0);
 
-/*! \brief  Multiply the pixels value of 2 float input images
-*
-* The images to multiply should have the same size.
-* The result is given in output.
-* Output should have the same size of inputs.
-*/
-__global__
-void kernel_multiply_frames_float(const float	*input1,
-								const float		*input2,
-								float			*output,
-								const uint		size);
-
 /*! \brief kernel wich compute the substract of a reference image to another */
 __global__
 void kernel_substract_ref(cuComplex				*input,
@@ -111,13 +111,6 @@ void subtract_frame_complex(cuComplex* img1,
 					  cuComplex* out,
 					  size_t frame_res,
 					  cudaStream_t	stream = 0);
-
-/* \brief  Compute the mean of several images from output. The result image is put into output*/
-void mean_images(cuComplex		*input,
-				cuComplex		*output,
-				uint			n,
-				uint			frame_size,
-				cudaStream_t	stream = 0);
 
 /*! \brief Finds the extremums in input
  *

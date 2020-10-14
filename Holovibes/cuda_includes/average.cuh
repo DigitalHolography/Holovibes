@@ -34,8 +34,7 @@ holovibes::Tuple4f make_average_plot(float*			input,
 * but first it will call the reconstruct roi after having
 * splitted the image for the stft.
 */
-holovibes::Tuple4f make_average_stft_plot(cuComplex*	cbuf,
-							float*			fbuf,
+holovibes::Tuple4f make_average_stft_plot(float*			fbuf,
 							cuComplex*		input,
 							const uint		width,
 							const uint		height,
@@ -46,9 +45,3 @@ holovibes::Tuple4f make_average_stft_plot(cuComplex*	cbuf,
 							const uint		pindex,
 							const uint		nSize,
 							cudaStream_t	stream = 0);
-
-
-void average_lines(float*	input,
-					float*	output,
-					uint	width,
-					uint	height);

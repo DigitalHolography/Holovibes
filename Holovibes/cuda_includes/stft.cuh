@@ -51,14 +51,11 @@ using holovibes::units::RectFd;
  *
  *\endverbatim
  */
-void stft(cuComplex			*input,
-		holovibes::Queue	*gpu_queue,
+void stft(holovibes::Queue	*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
-		const uint			q,
 		const uint			width,
 		const uint			height,
-		const bool			stft_activated,
 		const holovibes::ComputeDescriptor &cd,
 		cudaStream_t		stream = 0);
 

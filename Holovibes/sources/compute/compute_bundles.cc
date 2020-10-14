@@ -15,6 +15,7 @@
 #include <cuda_runtime.h>
 
 #include "compute_bundles.hh"
+#include "cuda_memory.cuh"
 
 namespace holovibes
 {
@@ -50,22 +51,22 @@ namespace holovibes
 		if (err != 0)
 			throw std::exception("Cannot allocate UnwrappingResources");
 		/* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-		cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
+		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
 	}
 
 	UnwrappingResources::~UnwrappingResources()
 	{
-		cudaFree(gpu_unwrap_buffer_);
-		cudaFree(gpu_predecessor_);
-		cudaFree(gpu_angle_predecessor_);
-		cudaFree(gpu_angle_current_);
-		cudaFree(gpu_angle_copy_);
-		cudaFree(gpu_unwrapped_angle_);
+		cudaXFree(gpu_unwrap_buffer_);
+		cudaXFree(gpu_predecessor_);
+		cudaXFree(gpu_angle_predecessor_);
+		cudaXFree(gpu_angle_current_);
+		cudaXFree(gpu_angle_copy_);
+		cudaXFree(gpu_unwrapped_angle_);
 	}
 
 	bool UnwrappingResources::cudaRealloc(void *ptr, const size_t size)
 	{
-		cudaFree(ptr);
+		cudaXFree(ptr);
 		return cudaMalloc(&ptr, size) == cudaSuccess;
 	}
 
@@ -87,7 +88,7 @@ namespace holovibes
 		err |= cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
 		if (err)
 			throw std::exception("Cannot reallocate UnwrappingResources");
-		cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
+		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
 	}
 
 	void UnwrappingResources::reset(const size_t capacity)

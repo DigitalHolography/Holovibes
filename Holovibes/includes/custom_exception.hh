@@ -28,8 +28,8 @@ namespace holovibes
 		fail_update,
 		fail_refresh,
 		fail_accumulation,
-		fail_reference,
-		fail_cudaLaunch
+		fail_cudaLaunch,
+		fail_enqueue
 	};
 	
 	class CustomException : public std::exception

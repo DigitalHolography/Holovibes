@@ -29,8 +29,8 @@
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "tools.hh"
-#include "preprocessing.cuh"
 #include "contrast_correction.cuh"
+#include "custom_exception.hh"
 
 namespace holovibes
 {
@@ -47,7 +47,6 @@ namespace holovibes
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_fd(), output.get_fd(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_fd(), output.get_fd());
-		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 
 		update_n_requested_ = true;
@@ -107,28 +106,52 @@ namespace holovibes
 			}
 			update_n_requested_ = false;
 		}
+
+		const auto& input_fd = input_.get_fd(); 
+
+		if (request_update_stft_steps_)
+		{
+			const uint batch_size = cd_.stft_steps * input_fd.frame_res();
+			// We avoid the depth in the multiplication because the resize already take it into account
+			buffers_.gpu_input_buffer_.resize(batch_size);
+
+			long long int n[] = {input_fd.height, input_fd.width};
+
+			plan2d_.XtplanMany(2,	// 2D
+								n,	// Dimension of inner most & outer most dimension
+								n,	// Storage dimension size
+								1,	// Between two inputs (pixels) of same image distance is one
+								input_fd.frame_res(), // Distance between 2 same index pixels of 2 images
+								CUDA_C_32F, // Input type
+								n, 1, input_fd.frame_res(), // Ouput layout same as input
+								CUDA_C_32F, // Output type
+								cd_.stft_steps, // Batch size
+								CUDA_C_32F); // Computation type
+
+			request_update_stft_steps_ = false;
+		}
+
 		// Allocating cuts queues
 		request_queues();
 
 		// Allocating accumulation queues/buffers
 		image_accumulation_->allocate_accumulation_queues();
 
-		preprocess_->allocate_ref(update_ref_diff_requested_);
-
-
 		return success_allocation;
 	}
 
 	void Pipe::refresh()
 	{
+		fn_vect_.clear();
+
 		if (cd_.compute_mode == Computation::Direct)
 		{
 			fn_vect_.clear();
 			update_n_requested_ = false;
 			refresh_requested_ = false;
+			insert_direct_enqueue_output();
 			return;
 		}
-		// else computation mode is hologram
 
 		// Aborting if allocation failed
 		if (!make_requests())
@@ -139,13 +162,9 @@ namespace holovibes
 
 		const camera::FrameDescriptor& input_fd = input_.get_fd();
 
-		/* Clean current vector. */
-		fn_vect_.clear();
+		/* Begin insertions */
 
-		/* Build step by step the vector of function to compute */
-		fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
-
-		preprocess_->insert_ref();
+		converts_->insert_complex_conversion(input_);
 
 		// spatial transform
 		fourier_transforms_->insert_fft();
@@ -160,7 +179,9 @@ namespace holovibes
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
-		// make computation between the p and the p + pAcc frames
+		// Used for phase increase
+		fourier_transforms_->insert_store_p_frame();
+
 		converts_->insert_to_float(unwrap_2d_requested_);
 
 		postprocess_->insert_convolution();
@@ -178,12 +199,35 @@ namespace holovibes
 
 		converts_->insert_to_ushort();
 
+		insert_hologram_enqueue_output();
+
 		refresh_requested_ = false;
 	}
 
-	void *Pipe::get_enqueue_buffer()
+	void Pipe::insert_direct_enqueue_output()
 	{
-		return buffers_.gpu_output_buffer_;
+		fn_vect_.push_back([&]()
+		{
+			if (!output_.enqueue(input_.get_start()))
+				throw CustomException("Can't enqueue the input frame in output_queue", error_kind::fail_enqueue);
+			input_.dequeue();
+		});
+	}
+
+	void Pipe::insert_hologram_enqueue_output()
+	{
+		fn_vect_.push_back([&](){
+			if (!output_.enqueue(buffers_.gpu_output_buffer_))
+				throw CustomException("Can't enqueue the output frame in output_queue", error_kind::fail_enqueue);
+			
+			if (cd_.stft_view_enabled)
+			{
+				if (!stft_env_.gpu_stft_slice_queue_xz->enqueue(buffers_.gpu_ushort_cut_xz_.get()))
+					throw CustomException("Can't enqueue the output xz frame in output xz queue", error_kind::fail_enqueue);
+				if (!stft_env_.gpu_stft_slice_queue_yz->enqueue(buffers_.gpu_ushort_cut_yz_.get()))
+					throw CustomException("Can't enqueue the output yz frame in output yz queue", error_kind::fail_enqueue);
+			}
+		});
 	}
 
 	void Pipe::exec()
@@ -196,47 +240,24 @@ namespace holovibes
 			{
 				if (input_.get_current_elts() >= 1)
 				{
-					stft_env_.stft_handle_ = false;
+					// Run the entire pipeline of calculation
 					run_all();
-					if (cd_.compute_mode == Hologram)
-					{
-						bool act = stft_env_.stft_frame_counter_ == cd_.stft_steps;
-						if (act)
-						{
-							if (!output_.enqueue(get_enqueue_buffer()))
-							{
-								input_.dequeue();
-								break;
-							}
-							if (cd_.stft_view_enabled)
-							{
-								stft_env_.gpu_stft_slice_queue_xz->enqueue(buffers_.gpu_ushort_cut_xz_.get());
-								stft_env_.gpu_stft_slice_queue_yz->enqueue(buffers_.gpu_ushort_cut_yz_.get());
-							}
-						}
-					}
-					else if (!output_.enqueue(input_.get_start()))
-					{
-						input_.dequeue();
-						break;
-					}
 
-					if (cd_.compute_mode == Hologram && cd_.raw_view || cd_.record_raw)
-					{
-						if (!get_raw_queue()->enqueue(input_.get_start()))
-						{
-							input_.dequeue();
-							break;
-						}
-					}
-					input_.dequeue();
+					// {
+					// 	if (!get_raw_queue()->enqueue(input_.get_start()))
+					// 	{
+					// 		input_.dequeue();
+					// 		break;
+					// 	}
+					// }
+
 					if (refresh_requested_)
 						refresh();
 				}
 			}
 			catch (CustomException& e)
 			{
-				allocation_failed(1, e);
+				pipe_error(1, e);
 			}
 		}
 	}
@@ -265,11 +286,7 @@ namespace holovibes
 	void Pipe::run_all()
 	{
 		for (FnType& f : fn_vect_)
-		{
 			f();
-			if (stft_env_.stft_frame_counter_ != cd_.stft_steps && stft_env_.stft_handle_)
-				break;
-		}
 		{
 			std::lock_guard<std::mutex> lock(functions_mutex_);
 			for (FnType& f : functions_end_pipe_)

@@ -11,9 +11,11 @@
 /* **************************************************************************** */
 
 #include "fft1.cuh"
-#include "preprocessing.cuh"
 #include "transforms.cuh"
 #include "unique_ptr.hh"
+#include "Common.cuh"
+
+#include <cufftXt.h>
 
 using camera::FrameDescriptor;
 
@@ -33,6 +35,8 @@ void fft1_lens(cuComplex*			lens,
 }
 
 void fft_1(cuComplex*			input,
+		cuComplex* 				output,
+		const uint 				batch_size,
 		const cuComplex*		lens,
 		const cufftHandle		plan2D,
 		const uint				frame_resolution,
@@ -40,13 +44,17 @@ void fft_1(cuComplex*			input,
 {
 	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_resolution, threads);
-	
+
 	// Apply lens on multiple frames.
-	kernel_apply_lens <<<blocks, threads, 0, stream>>>(input, frame_resolution, lens, frame_resolution);
-	cudaStreamSynchronize(stream);
+	kernel_apply_lens <<<blocks, threads, 0, stream>>>(input, output, batch_size, frame_resolution, lens, frame_resolution);
+
+	// No sync needed between kernel call and cufft call
 	cudaCheckError();
 	// FFT
-    cufftExecC2C(plan2D, input, input, CUFFT_FORWARD);
+
+	cufftSafeCall(cufftXtExec(plan2D, input, output, CUFFT_FORWARD));
+	// Same, no sync needed since everything is executed on the stream 0
+
 	cudaCheckError();
 }
 

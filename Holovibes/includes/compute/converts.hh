@@ -23,6 +23,7 @@
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
 #include "queue.hh"
+#include "cuda_tools\cufft_handle.hh"
 
 namespace holovibes
 {
@@ -42,7 +43,7 @@ namespace holovibes
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const Stft_env& stft_env,
-				const cufftHandle& plan2d,
+				cuda_tools::CufftHandle& plan2d,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd);
@@ -56,6 +57,11 @@ namespace holovibes
 
 			*/
 			void insert_to_ushort();
+
+			/*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame
+			** 
+			*/
+			void insert_complex_conversion(Queue& input);
 
 		private:
 
@@ -111,7 +117,7 @@ namespace holovibes
 			//! Phase unwrapping 2D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 			//! Plan 2D. Used for unwrapping.
-			const cufftHandle&				plan2d_;
+			cuda_tools::CufftHandle&				plan2d_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor&		fd_;
 			/// Describes the output frame size

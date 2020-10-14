@@ -27,7 +27,8 @@
 #include "fft2.cuh"
 #include "transforms.cuh"
 #include "stft.cuh"
-#include "debug_img.cuh"
+#include "cuda_tools/cufft_handle.hh"
+#include "cuda_memory.cuh"
 
 
 using holovibes::compute::FourierTransform;
@@ -38,7 +39,7 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	const holovibes::CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd,
-	const cufftHandle& plan2d,
+	holovibes::cuda_tools::CufftHandle& plan2d,
 	holovibes::Stft_env& stft_env)
 	: gpu_lens_()
 	, gpu_lens_queue_()
@@ -51,7 +52,7 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	, stft_env_(stft_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
-	gpu_filter2d_buffer_.resize(fd_.frame_res());
+	gpu_filter2d_buffer_.resize(fd_.frame_res() * cd_.stft_steps);
 
 	std::stringstream ss;
 	ss << "(X1,Y1,X2,Y2) = (" << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
@@ -77,6 +78,10 @@ void FourierTransform::insert_fft()
 				enqueue_lens();
 			});
 	}
+
+	fn_vect_.push_back([=]() {
+		stft_env_.gpu_stft_queue_->enqueue_multiple(buffers_.gpu_input_buffer_.get(), cd_.stft_steps);
+	});
 }
 
 void FourierTransform::insert_filter2d()
@@ -88,6 +93,7 @@ void FourierTransform::insert_filter2d()
 			filter2D_BandPass(
 				buffers_.gpu_input_buffer_,
 				gpu_filter2d_buffer_,
+				cd_.stft_steps,
 				plan2d_,
 				filter2d_zone_,
 				filter2d_subzone_,
@@ -95,20 +101,20 @@ void FourierTransform::insert_filter2d()
 			);
 		});
 	}
-	else//Low pass or High pass
+	else //Low pass or High pass
 	{
 		bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
 		fn_vect_.push_back([=]() {
 			filter2D(
 				buffers_.gpu_input_buffer_,
 				gpu_filter2d_buffer_,
+				cd_.stft_steps,
 				plan2d_,
 				filter2d_zone_,
 				fd_,
 				exclude_roi);
 		});
 	}
-
 }
 
 void FourierTransform::insert_fft1()
@@ -124,6 +130,8 @@ void FourierTransform::insert_fft1()
 	fn_vect_.push_back([=]() {
 		fft_1(
 			buffers_.gpu_input_buffer_,
+			buffers_.gpu_input_buffer_,
+			cd_.stft_steps,
 			gpu_lens_.get(),
 			plan2d_,
 			fd_.frame_res());
@@ -143,19 +151,32 @@ void FourierTransform::insert_fft2()
 	fn_vect_.push_back([=]() {
 		fft_2(
 			buffers_.gpu_input_buffer_,
-			gpu_lens_,
+			buffers_.gpu_input_buffer_,
+			cd_.stft_steps,
+			gpu_lens_.get(),
 			plan2d_,
 			fd_);
 	});
 }
 
-void FourierTransform::insert_stft()
+void FourierTransform::insert_store_p_frame()
 {
-	fn_vect_.push_back([=]() { stft_env_.gpu_stft_queue_->enqueue(buffers_.gpu_input_buffer_); });
+	fn_vect_.push_back([=]() {
+		const int frame_res = fd_.frame_res();
 
-	fn_vect_.push_back([=]() { stft_handler(); });
+		/* Copies with DeviceToDevice (which is the case here) are asynchronous with respect to the host
+		* but never overlap with kernel execution*/
+		cudaXMemcpyAsync(stft_env_.gpu_p_frame_,
+				(cuComplex*)stft_env_.gpu_stft_buffer_ + cd_.pindex * frame_res,
+				sizeof(cuComplex) * frame_res,
+				cudaMemcpyDeviceToDevice);
+	});
 }
 
+void FourierTransform::insert_stft()
+{
+	fn_vect_.push_back([=]() { stft_handler(); });
+}
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
@@ -185,27 +206,15 @@ void FourierTransform::stft_handler()
 	static ushort mouse_posx;
 	static ushort mouse_posy;
 
-	stft_env_.stft_frame_counter_--;
-	bool b = false;
-	if (stft_env_.stft_frame_counter_ == 0)
-	{
-		b = true;
-		stft_env_.stft_frame_counter_ = cd_.stft_steps;
-	}
-	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
-
-	stft(buffers_.gpu_input_buffer_,
-		stft_env_.gpu_stft_queue_.get(),
+	stft(stft_env_.gpu_stft_queue_.get(),
 		stft_env_.gpu_stft_buffer_,
 		stft_env_.plan1d_stft_,
-		cd_.pindex,
 		fd_.width,
 		fd_.height,
-		b,
 		cd_,
 		false);
 
-	if (cd_.stft_view_enabled && b)
+	if (cd_.stft_view_enabled)
 	{
 		// Conservation of the coordinates when cursor is outside of the window
 		units::PointFd cursorPos = cd_.getStftCursor();
@@ -233,50 +242,11 @@ void FourierTransform::stft_handler()
 			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
 			cd_.img_type);
 	}
-	stft_env_.stft_handle_ = true;
-}
-
-// Useful to debug ``insert_eigenvalue_filter()``
-static void print_matrix(const char* name, cuComplex* matrix, unsigned rows, unsigned columns, bool column_major)
-{
-	std::cout << name << ": " << std::endl;
-	cuComplex* tmp = new cuComplex[rows * columns];
-	cudaMemcpy(tmp, matrix, rows * columns * sizeof(cuComplex), cudaMemcpyDeviceToHost);
-	for (unsigned y = 0; y < rows; ++y)
-	{
-		for (unsigned x = 0; x < columns; ++x)
-		{
-			if (column_major)
-			{
-				const cuComplex& val = tmp[x * rows + y];
-				std::printf("%f+%fi ", val.x, val.y);
-			}
-			else
-			{
-				const cuComplex& val = tmp[y * columns + x];
-				std::printf("%f+%fi ", val.x, val.y);
-			}
-		}
-		std::cout << ";" << std::endl;
-	}
-	std::cout << std::endl;
-	delete[] tmp;
 }
 
 void FourierTransform::insert_eigenvalue_filter()
 {
-	fn_vect_.push_back([=]() { stft_env_.gpu_stft_queue_->enqueue(buffers_.gpu_input_buffer_); });
-
 	fn_vect_.push_back([=]() {
-		bool b = false;
-		stft_env_.stft_frame_counter_--;
-		if (stft_env_.stft_frame_counter_ == 0)
-		{
-			b = true;
-			stft_env_.stft_frame_counter_ = cd_.stft_steps;
-		}
-		std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
-
 		unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
 		unsigned short p = cd_.pindex;
 		if (p + p_acc > cd_.nSize)
@@ -284,129 +254,95 @@ void FourierTransform::insert_eigenvalue_filter()
 			p_acc = cd_.nSize - p;
 		}
 
-		if (b)
-		{
-			cudaError_t cuda_status;
-			cublasStatus_t cublas_status;
-			cusolverStatus_t cusolver_status;
+		constexpr cuComplex alpha{ 1, 0 };
+		constexpr cuComplex beta{ 0, 0 };
 
-			cuComplex alpha{ 1, 0 };
-			cuComplex beta{ 0, 0 };
+		cudaXMemcpy(stft_env_.gpu_stft_buffer_.get(),
+					stft_env_.gpu_stft_queue_->get_buffer(),
+					fd_.frame_res() * cd_.nSize * sizeof(cuComplex),
+					cudaMemcpyDeviceToDevice);
 
-			cudaMemcpy(stft_env_.gpu_stft_buffer_.get(), stft_env_.gpu_stft_queue_->get_buffer(), fd_.frame_res() * cd_.nSize * sizeof(cuComplex), cudaMemcpyDeviceToDevice);
+		cuComplex* H = stft_env_.gpu_stft_buffer_.get();
+		cuComplex* cov = stft_env_.svd_cov.get();
 
-			cuComplex* H = stft_env_.gpu_stft_buffer_.get();
-			cuComplex* cov = stft_env_.svd_cov.get();
+		// cov = H' * H
+		cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
+			CUBLAS_OP_C,
+			CUBLAS_OP_N,
+			cd_.nSize,
+			cd_.nSize,
+			fd_.frame_res(),
+			&alpha,
+			H,
+			fd_.frame_res(),
+			H,
+			fd_.frame_res(),
+			&beta,
+			cov,
+			cd_.nSize));
 
-			// cov = H' * H
-			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-				CUBLAS_OP_C,
-				CUBLAS_OP_N,
-				cd_.nSize,
-				cd_.nSize,
-				fd_.frame_res(),
-				&alpha,
-				H,
-				fd_.frame_res(),
-				H,
-				fd_.frame_res(),
-				&beta,
-				cov,
-				cd_.nSize);
-			cuda_status = cudaDeviceSynchronize();
-			assert(cuda_status == cudaSuccess);
-			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "cov = H' * H failed");
+		// Setup eigen values parameters
+		float* W = stft_env_.svd_eigen_values.get();
+		int lwork = 0;
+		cusolverSafeCall(cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_LOWER,
+			cd_.nSize,
+			cov,
+			cd_.nSize,
+			W,
+			&lwork));
 
-			// Setup eigen values parameters
-			float* W = stft_env_.svd_eigen_values.get();
-			int lwork = 0;
-			cusolver_status = cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
-				CUSOLVER_EIG_MODE_VECTOR,
-				CUBLAS_FILL_MODE_LOWER,
-				cd_.nSize,
-				cov,
-				cd_.nSize,
-				W,
-				&lwork);
-			assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not allocate work buffer");
-			cuda_tools::UniquePtr<cuComplex> work(lwork);
+		cuda_tools::UniquePtr<cuComplex> work(lwork);
 
-			// Find eigen values and eigen vectors of cov
-			// W will contain sorted eigen values
-			// cov will contain eigen vectors
-			cusolver_status = cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
-				CUSOLVER_EIG_MODE_VECTOR,
-				CUBLAS_FILL_MODE_LOWER,
-				cd_.nSize,
-				cov,
-				cd_.nSize,
-				W,
-				work.get(),
-				lwork,
-				stft_env_.svd_dev_info.get());
-			cuda_status = cudaDeviceSynchronize();
-			assert(cuda_status == cudaSuccess);
-			assert(cusolver_status == CUSOLVER_STATUS_SUCCESS && "Could not find eigen values / vectors of cov");
+		// Find eigen values and eigen vectors of cov
+		// W will contain sorted eigen values
+		// cov will contain eigen vectors
+		cusolverSafeCall(cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
+			CUSOLVER_EIG_MODE_VECTOR,
+			CUBLAS_FILL_MODE_LOWER,
+			cd_.nSize,
+			cov,
+			cd_.nSize,
+			W,
+			work.get(),
+			lwork,
+			stft_env_.svd_dev_info.get()));
 
-			// eigen vectors
-			cuComplex* V = cov;
+		// eigen vectors
+		cuComplex* V = cov;
 
-			/* Filtering the eigenvector matrix according to p and p_acc
-			   The matrix should look like this:
+		/* Filtering the eigenvector matrix according to p and p_acc
+			The matrix should look like this:
 
-				 0  ... p-1  p ... p_acc p+p_acc+1 ... nSize
-			   ------------------------------------------
-			   | 0  ...  0   X ...   X     0     ...  0 |
-			   | 0  ...  0   X ...   X     0     ...  0 |
-			   | 0  ...  0   X ...   X     0     ...  0 |
-			   | 0  ...  0   X ...   X     0     ...  0 |
-			   | 0  ...  0   X ...   X     0     ...  0 |
-			   ------------------------------------------ */
+				0  ... p-1  p ... p_acc p+p_acc+1 ... nSize
+			------------------------------------------
+			| 0  ...  0   X ...   X     0     ...  0 |
+			| 0  ...  0   X ...   X     0     ...  0 |
+			| 0  ...  0   X ...   X     0     ...  0 |
+			| 0  ...  0   X ...   X     0     ...  0 |
+			| 0  ...  0   X ...   X     0     ...  0 |
+			------------------------------------------ */
 
-			cudaMemset(V, 0, p * cd_.nSize * sizeof(cuComplex));
-			cudaMemset(V + p * cd_.nSize + p_acc * cd_.nSize, 0, cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
+		cudaXMemsetAsync(V, 0, p * cd_.nSize * sizeof(cuComplex));
+		cudaXMemsetAsync(V + p * cd_.nSize + p_acc * cd_.nSize,
+								0,
+								cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
 
-			cuComplex* tmp = stft_env_.svd_tmp_buffer.get();
-
-			// tmp = V * V'
-			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-				CUBLAS_OP_N,
-				CUBLAS_OP_C,
-				cd_.nSize,
-				cd_.nSize,
-				cd_.nSize,
-				&alpha,
-				V,
-				cd_.nSize,
-				V,
-				cd_.nSize,
-				&beta,
-				tmp,
-				cd_.nSize);
-			cuda_status = cudaDeviceSynchronize();
-			assert(cuda_status == cudaSuccess);
-			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "tmp = V * V' failed");
-
-			// H = H * tmp
-			cublas_status = cublasCgemm(cuda_tools::CublasHandle::instance(),
-				CUBLAS_OP_N,
-				CUBLAS_OP_N,
-				fd_.frame_res(),
-				cd_.nSize,
-				cd_.nSize,
-				&alpha,
-				H,
-				fd_.frame_res(),
-				tmp,
-				cd_.nSize,
-				&beta,
-				H,
-				fd_.frame_res());
-			cuda_status = cudaDeviceSynchronize();
-			assert(cuda_status == cudaSuccess);
-			assert(cublas_status == CUBLAS_STATUS_SUCCESS && "H = H * tmp failed");
-		}
-		average_complex_images(stft_env_.gpu_stft_buffer_.get(), buffers_.gpu_input_buffer_.get(), fd_.frame_res(), cd_.nSize);
-		stft_env_.stft_handle_ = true;
+		// H = H * V
+		cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
+			CUBLAS_OP_N,
+			CUBLAS_OP_N,
+			fd_.frame_res(),
+			cd_.nSize,
+			cd_.nSize,
+			&alpha,
+			H,
+			fd_.frame_res(),
+			V,
+			cd_.nSize,
+			&beta,
+			H,
+			fd_.frame_res()));
 	});
 }

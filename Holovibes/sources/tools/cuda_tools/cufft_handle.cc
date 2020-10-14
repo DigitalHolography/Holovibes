@@ -12,10 +12,14 @@
 
 #include "cufft_handle.hh"
 
+#include "Common.cuh"
+
 using holovibes::cuda_tools::CufftHandle;
 
+CufftHandle::CufftHandle() : ws_(nullptr)
+{}
 
-CufftHandle::CufftHandle(int x, int y, cufftType type)
+CufftHandle::CufftHandle(int x, int y, cufftType type) : ws_(nullptr)
 {
 	plan(x, y, type);
 }
@@ -28,18 +32,23 @@ CufftHandle::~CufftHandle()
 void CufftHandle::reset()
 {
 	if (val_)
-		cufftDestroy(*val_);
+		cufftSafeCall(cufftDestroy(*val_.get()));
+    if (ws_ != nullptr)
+    {
+        delete ws_;
+        ws_ = nullptr;
+    }
 	val_.reset();
 }
 
-cufftResult CufftHandle::plan(int x, int y, cufftType type)
+void CufftHandle::plan(int x, int y, cufftType type)
 {
 	reset();
 	val_.reset(new cufftHandle);
-	return cufftPlan2d(val_.get(), x, y, type);
+	cufftSafeCall(cufftPlan2d(val_.get(), x, y, type));
 }
 
-cufftResult CufftHandle::planMany(int rank,
+void CufftHandle::planMany(int rank,
 	int *n,
 	int *inembed, int istride, int idist,
 	int *onembed, int ostride, int odist,
@@ -48,7 +57,28 @@ cufftResult CufftHandle::planMany(int rank,
 {
 	reset();
 	val_.reset(new cufftHandle);
-	return cufftPlanMany(val_.get(), rank, n, inembed, istride, idist, onembed, ostride, odist, type, batch);
+    cufftSafeCall(cufftPlanMany(val_.get(), rank, n, inembed, istride, idist, onembed, ostride, odist, type, batch));
+}
+
+void CufftHandle::XtplanMany(int rank,
+    long long *n,
+    long long *inembed, long long istride, long long idist, cudaDataType inputtype,
+    long long *onembed, long long ostride, long long odist, cudaDataType outputtype,
+    long long batch,
+    cudaDataType executionType)
+{
+    reset();
+	val_.reset(new cufftHandle);
+    
+	cufftSafeCall(cufftCreate(val_.get()));
+
+    // Init the work size only once to help cufft
+    if (ws_ == nullptr)
+    {
+        ws_ = new size_t;
+        cufftSafeCall(cufftXtGetSizeMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, ws_, executionType));
+    }
+    cufftSafeCall(cufftXtMakePlanMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, ws_, executionType));
 }
 
 cufftHandle &CufftHandle::get()

@@ -18,7 +18,6 @@
 #include "stft.cuh"
 #include "tools.cuh"
 #include "contrast_correction.cuh"
-#include "preprocessing.cuh"
 #include "average.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
@@ -58,17 +57,25 @@ namespace holovibes
 		average_record_requested_(false),
 		resize_requested_(false),
 		termination_requested_(false),
-		update_ref_diff_requested_(false),
 		request_stft_cuts_(false),
 		request_delete_stft_cuts_(false),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
 
-		plan2d_.plan(
-			input_.get_fd().height,
-			input_.get_fd().width,
-			CUFFT_C2C);
+		const camera::FrameDescriptor& fd = input_.get_fd();
+		long long int n[] = {fd.height, fd.width};
+
+		plan2d_.XtplanMany(2,	// 2D
+							n,	// Dimension of inner most & outer most dimension
+							n,	// Storage dimension size
+							1,	// Between two inputs (pixels) of same image distance is one
+							fd.frame_res(), // Distance between 2 same index pixels of 2 images
+							CUDA_C_32F, // Input type
+							n, 1, fd.frame_res(), // Ouput layout same as input
+							CUDA_C_32F, // Output type
+							cd_.stft_steps, // Batch size
+							CUDA_C_32F); // Computation type
 
 		int inembed[1];
 		int zone_size = input_.get_frame_res();
@@ -84,32 +91,29 @@ namespace holovibes
 		new_fd2.depth = 8;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, cd_.stft_level, "STFTQueue"));
 
-		if (cd_.ref_diff_enabled || cd_.ref_sliding_enabled)
-		{
-			camera::FrameDescriptor new_fd3 = input_.get_fd();
-			new_fd3.depth = 8;
-			/* Useless line. Maybe forgot gpu_ref_queue_ ?
-			new Queue(new_fd3, cd_.stft_level, "TakeRefQueue");
-			*/
-		}
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_frame_res()))
+		const uint batch_size = cd_.stft_steps * input_.get_fd().frame_res();
+		if (!buffers_.gpu_input_buffer_.resize(batch_size))
 			err++;
+
 		int output_buffer_size = input_.get_frame_res();
 		if (cd_.img_type == Composite)
 			output_buffer_size *= 3;
 		if (!buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_frame_res();
+
 		if (cd_.img_type == ImgType::Composite)
 			buffers_.gpu_float_buffer_size_ *= 3;
+
 		if (!buffers_.gpu_float_buffer_.resize(buffers_.gpu_float_buffer_size_))
+			err++;
+
+		// Init the gpu_p_frame_ with the size of input image
+		if (!stft_env_.gpu_p_frame_.resize(buffers_.gpu_float_buffer_size_))
 			err++;
 
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
-
-		// Setting the cufft plans to work on the default stream.
-		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 	}
 
 	ICompute::~ICompute()
@@ -118,11 +122,10 @@ namespace holovibes
 		InfoManager::get_manager()->remove_info("STFT Zone");
 	}
 
-	bool	ICompute::update_n_parameter(unsigned short n)
+	bool ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
 		{
-			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 			stft_env_.gpu_stft_buffer_.reset();
 			stft_env_.plan1d_stft_.reset();
 			/* CUFFT plan1d realloc */
@@ -173,12 +176,10 @@ namespace holovibes
 
 		if (err_count != 0)
 		{
-			allocation_failed(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
+			pipe_error(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
 			return false;
 		}
 
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_frame_res()))
-			return false;
 		notify_observers();
 		return true;
 	}
@@ -249,7 +250,7 @@ namespace holovibes
 		gpib_interface_ = gpib_interface;
 	}
 
-	void ICompute::allocation_failed(const int& err_count, std::exception& e)
+	void ICompute::pipe_error(const int& err_count, std::exception& e)
 	{
 		LOG_ERROR(
 			std::string("Pipe error:\n") +
@@ -283,7 +284,7 @@ namespace holovibes
 				queue = nullptr;
 				enabled = false;
 				queue_length = 1;
-				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
+				pipe_error(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
 	}*/
@@ -296,12 +297,6 @@ namespace holovibes
 	void ICompute::request_refresh()
 	{
 		refresh_requested_ = true;
-	}
-
-	void ICompute::request_ref_diff_refresh()
-	{
-		update_ref_diff_requested_ = true;
-		request_refresh();
 	}
 
 	void ICompute::request_termination()
@@ -396,6 +391,12 @@ namespace holovibes
 
 		average_requested_ = true;
 		average_record_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_update_stft_steps()
+	{
+		request_update_stft_steps_ = true;
 		request_refresh();
 	}
 

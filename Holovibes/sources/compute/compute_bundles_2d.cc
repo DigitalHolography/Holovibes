@@ -15,6 +15,7 @@
 #include <cuda_runtime.h>
 
 #include "compute_bundles_2d.hh"
+#include "cuda_memory.cuh"
 
 namespace holovibes
 {
@@ -56,20 +57,20 @@ namespace holovibes
 
 	UnwrappingResources_2d::~UnwrappingResources_2d()
 	{
-		cudaFree(gpu_fx_);
-		cudaFree(gpu_fy_);
-		cudaFree(gpu_shift_fx_);
-		cudaFree(gpu_shift_fy_);
-		cudaFree(gpu_angle_);
-		cudaFree(gpu_z_);
-		cudaFree(gpu_grad_eq_x_);
-		cudaFree(gpu_grad_eq_y_);
+		cudaXFree(gpu_fx_);
+		cudaXFree(gpu_fy_);
+		cudaXFree(gpu_shift_fx_);
+		cudaXFree(gpu_shift_fy_);
+		cudaXFree(gpu_angle_);
+		cudaXFree(gpu_z_);
+		cudaXFree(gpu_grad_eq_x_);
+		cudaXFree(gpu_grad_eq_y_);
 		delete[] minmax_buffer_;
 	}
 
 	bool UnwrappingResources_2d::cudaRealloc(void *ptr, const size_t size)
 	{
-		cudaFree(ptr);
+		cudaXFree(ptr);
 		return cudaMalloc(&ptr, size) == cudaSuccess;
 	}
 

@@ -32,6 +32,7 @@
 #include "pipe.hh"
 #include "logger.hh"
 #include "holo_file.hh"
+#include "config.hh"
 #include "cine_file.hh"
 
 #define MIN_IMG_NB_STFT_CUTS 8
@@ -351,12 +352,11 @@ namespace holovibes
 
 			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
+			const uint input_queue_capacity = global::global_config.input_queue_max_size;
+			ui.STFTStepsSpinBox->setMaximum(input_queue_capacity);
+			if (cd_.stft_steps > input_queue_capacity)
+				cd_.stft_steps = input_queue_capacity;
 			ui.STFTStepsSpinBox->setValue(cd_.stft_steps);
-
-			// Ref
-			ui.TakeRefPushButton->setEnabled(!is_direct && !cd_.ref_sliding_enabled);
-			ui.SlidingRefPushButton->setEnabled(!is_direct && !cd_.ref_diff_enabled && !cd_.ref_sliding_enabled);
-			ui.CancelRefPushButton->setEnabled(!is_direct && (cd_.ref_diff_enabled || cd_.ref_sliding_enabled));
 
 			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
@@ -652,7 +652,6 @@ namespace holovibes
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
 				cd_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", cd_.special_buffer_size);
 				cd_.stft_level = ptree.get<uint>("config.stft_queue_size", cd_.stft_level);
-				cd_.ref_diff_level = ptree.get<uint>("config.reference_buffer_size", cd_.ref_diff_level);
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
 
@@ -795,7 +794,6 @@ namespace holovibes
 			ptree.put<uint>("config.input_file_buffer_size", config.reader_buf_max_size);
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 			ptree.put<int>("config.stft_queue_size", cd_.stft_level);
-			ptree.put<int>("config.reference_buffer_size", cd_.ref_diff_level);
 			ptree.put<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 			ptree.put<int>("config.convolution_buffer_size", cd_.special_buffer_size);
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
@@ -904,8 +902,6 @@ namespace holovibes
 			if (cd_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(cd_);
-			if (cd_.ref_diff_enabled || cd_.ref_sliding_enabled)
-				cancel_take_reference();
 			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
 			holovibes_.dispose_compute();
@@ -1420,12 +1416,26 @@ namespace holovibes
 
 		}
 
-		void MainWindow::update_stft_steps(int value)
+		void MainWindow::update_stft_steps()
 		{
 			if (!is_direct_mode())
 			{
-				cd_.stft_steps = value;
-				notify();
+				int value = ui.STFTStepsSpinBox->value();
+
+				if (value == cd_.stft_steps)
+					return;
+
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				if (pipe)
+				{
+					pipe->run_end_pipe([=]() {
+						holovibes_.get_pipe()->request_update_stft_steps();
+						cd_.stft_steps = value;
+						notify();
+					});
+				}
+				else
+					std::cout << "COULD NOT GET PIP" << std::endl;
 			}
 		}
 
@@ -1562,40 +1572,6 @@ namespace holovibes
 		void MainWindow::set_renormalize_constant(int value)
 		{
 			cd_.renorm_constant = value;
-		}
-
-		void MainWindow::take_reference()
-		{
-			if (!is_direct_mode())
-			{
-				cd_.ref_diff_enabled = true;
-				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::get_manager()->update_info("Reference", "Processing... ");
-				notify();
-			}
-		}
-
-		void MainWindow::take_sliding_ref()
-		{
-			if (!is_direct_mode())
-			{
-				cd_.ref_sliding_enabled = true;
-				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::get_manager()->update_info("Reference", "Processing...");
-				notify();
-			}
-		}
-
-		void MainWindow::cancel_take_reference()
-		{
-			if (!is_direct_mode())
-			{
-				cd_.ref_diff_enabled = false;
-				cd_.ref_sliding_enabled = false;
-				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::get_manager()->remove_info("Reference");
-				notify();
-			}
 		}
 
 		void MainWindow::set_filter2D()

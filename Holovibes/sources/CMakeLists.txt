@@ -12,7 +12,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/converts.cc
     compute/fourier_transform.cc
     compute/postprocessing.cc
-    compute/preprocessing.cc
     compute/rendering.cc
     compute/image_accumulation.cc
 

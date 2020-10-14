@@ -10,10 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "cuda_memory.cuh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
 #include "composite.cuh"
-
 
 struct rect
 {
@@ -233,8 +233,8 @@ void postcolor_normalize(float *output,
 	float *averages = nullptr;
 	float *sums_per_line = nullptr;
 	const uchar pixel_depth = 3;
-	cudaMalloc(&averages, sizeof(float) * pixel_depth);
-	cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
+	cudaXMalloc((void**)&averages, sizeof(float) * pixel_depth);
+	cudaXMalloc((void**)&sums_per_line, sizeof(float) * lines * pixel_depth);
 
 
 	blocks = map_blocks_to_problem(lines * pixel_depth, threads);
@@ -263,6 +263,6 @@ void postcolor_normalize(float *output,
 		averages);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-	cudaFree(averages);
-	cudaFree(sums_per_line);
+	cudaXFree(averages);
+	cudaXFree(sums_per_line);
 }

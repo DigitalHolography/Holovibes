@@ -22,14 +22,18 @@
  * The input data is multiplied element-wise with each corresponding
  * lens coefficient.
  *
- * \param input The input data to process in-place.
+ * \param input The input data to process.
+ * \param output The output data processed
+ * \param batch_size The number of frames in input
  * \param input_size Total number of elements to process. Should be a multiple
  * of lens_size.
  * \param lens The precomputed lens to apply.
  * \param lens_size The number of elements in the lens matrix.
  */
 __global__
-void kernel_apply_lens(cuComplex*		input,
+void kernel_apply_lens(cuComplex		*input,
+					cuComplex 			*output,
+					const uint 			batch_size,
 					const uint			input_size,
 					const cuComplex*	lens,
 					const uint			lens_size);
@@ -41,21 +45,25 @@ void kernel_apply_lens(cuComplex*		input,
  * (http://fr.mathworks.com/help/matlab/ref/fftshift.html).
  *
  * \param input The image to modify in-place.
+ * \param batch_size Number of images in input
  * \param size_x The width of data, in pixels.
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
 void shift_corners(float*		input,
+				   const uint 	batch_size,
 				   const uint		size_x,
 				   const uint		size_y,
 				   cudaStream_t	stream = 0);
 				
 void shift_corners(cuComplex *input,
+				   const uint 	batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
 
 void shift_corners(float3 *input,
+				   const uint 	batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
@@ -68,24 +76,28 @@ void shift_corners(float3 *input,
  *
  * \param input The image to shift.
  * \param output The destination image
+ * \param batch_size Number of images in input
  * \param size_x The width of data, in pixels.
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
 void shift_corners(const float3 *input,
 				   float3 *output,
+				   const uint 	batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
 
 void shift_corners(const float*		input,
 				   float*			output,
+				   const uint 	batch_size,
 				   const uint		size_x,
 				   const uint		size_y,
 				   cudaStream_t	stream = 0);
-				
+
 void shift_corners(const cuComplex *input,
 				   cuComplex *output,
+				   const uint 	batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream = 0);
@@ -204,6 +216,22 @@ cudaError_t embed_into_square(const char *input,
 					   		  cudaMemcpyKind kind,
 					   		  cudaStream_t stream);
 
+/*! \brief Copies whole input image into output, a square of side max(input_width, input_height), such that the copy is centered
+*
+* \param input The full input image
+* \param input_width The input image's width in elements (number of elements on one row)
+* \param input_height The input image's height in elements (number of elements on one column)
+* \param output The full output image (should be a square of side = max(input_width, input_height))
+* \param batch_size Number of images in the batch
+* \param elm_size The size of one element in bytes
+*/
+void batched_embed_into_square(const char *input,
+							const uint input_width,
+							const uint input_height,
+							char *output,
+							const uint batch_size,
+							const uint elm_size);
+
 /*! \brief Crops input image into whole output image
 *
 * \param input The full input image
@@ -235,6 +263,7 @@ cudaError_t crop_frame(const char *input,
 * \param input_width The full image's width in elements (number of elements in one row)
 * \param input_height The full image's height in element (number of elements in one column)
 * \param output The full output image (should be a square of size = min(input_width, input_height))
+* \param elm_size The size of one element in bytes
 * \param kind The direction of the data transfer (host/device to host/device)
 * \param stream The cuda Stream
 */
@@ -245,6 +274,21 @@ cudaError_t crop_into_square(const char *input,
 					  const uint elm_size,
 					  cudaMemcpyKind kind,
 					  cudaStream_t stream);
+
+/*! \brief Crops input (keeping the center and leaving the borders) as a square and copies the result into output
+* \param input The full image
+* \param input_width The full image's width in elements (number of elements in one row)
+* \param input_height The full image's height in element (number of elements in one column)
+* \param output The full output image (should be a square of size = min(input_width, input_height))
+* \param elm_size The size of one element in bytes
+* \param batch_size Number of images in the batch
+*/
+void batched_crop_into_square(const char *input,
+							  const uint input_width,
+							  const uint input_height,
+							  char *output,
+							  const uint elm_size,
+							  const uint batch_size);
 
 /*! \brief Make the average of every element contained in the input.
  *
@@ -317,6 +361,7 @@ void phi_unwrap_2d(const cufftHandle	plan2d,
 __global__
 void circ_shift(const cuComplex*	input,
 				cuComplex*	output,
+				const uint 	batch_size,
 				const int	i, // shift on x axis
 				const int	j, // shift on y axis
 				const uint	width,
@@ -329,22 +374,12 @@ void circ_shift(const cuComplex*	input,
 __global__
 void circ_shift_float(const float*	input,
 					float*		output,
+					const uint 	batch_size,
 					const int	i, // shift on x axis
 					const int	j, // shift on y axis
 					const uint	width,
 					const uint	height,
 					const uint	size);
-
-/* \brief Translates the image by shift_x and shift_y
- *
- */
-void complex_translation(float		*frame,
-						uint		width,
-						uint		height,
-						int			shift_x,
-						int			shift_y);
-
-void correlation_operator(float* a, float* b, float* out, QPoint dimensions);
 
 __global__
 void kernel_complex_to_modulus(const cuComplex	*input,

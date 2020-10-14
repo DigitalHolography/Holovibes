@@ -17,6 +17,7 @@
 #include "unique_ptr.hh"
 #include "tools_compute.cuh"
 #include "min_max.cuh"
+#include "cuda_memory.cuh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -147,8 +148,7 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
 	kernel_reduce_max<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 	float *h_result_array = new float[blocks];
-	cudaMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
-	cudaCheckError();
+	cudaXMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
 
 	float result = -INFINITY;
 	for (unsigned i = 0; i < blocks; ++i)
@@ -164,8 +164,7 @@ float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
 	kernel_reduce_min<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 	float *result_array = new float[blocks];
-	cudaMemcpy(result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
-	cudaCheckError();
+	cudaXMemcpy(result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
 
 	float result = INFINITY;
 
@@ -181,21 +180,16 @@ void get_minimum_maximum_in_image(const float *frame, const unsigned frame_res, 
 	const uint threads = 512;
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
-
 	float *d_tmp_storage;
-	cudaMalloc(&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
-	cudaCheckError();
+	cudaXMalloc((void**)&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
 
-	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	cudaCheckError();
+	cudaXMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
 
 	*min = get_minimum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
 
-	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	cudaCheckError();
+	cudaXMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
 
 	*max = get_maximum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
 
-	cudaFree(d_tmp_storage);
-	cudaCheckError();
+	cudaXFree(d_tmp_storage);
 }

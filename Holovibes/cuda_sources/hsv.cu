@@ -10,18 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-# include <stdio.h>
-# include <iostream>
-# include <fstream>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
 
-# include "hsv.cuh"
-# include "min_max.cuh"
-# include "convolution.cuh"
-# include "tools_conversion.cuh"
-# include "unique_ptr.hh"
-# include "tools_compute.cuh"
-# include "percentile.cuh"
-# include "debug_img.cuh"
+#include "hsv.cuh"
+#include "min_max.cuh"
+#include "convolution.cuh"
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
+#include "tools_compute.cuh"
+#include "percentile.cuh"
+#include "cuda_memory.cuh"
 
 
 # define SAMPLING_FREQUENCY  1
@@ -50,7 +50,6 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f *src, Npp32f *dst, size_t
 		if (nNormalizedS == 0.0F)
 		{
 			nR = nG = nB = nNormalizedV;
-
 		}
 		else
 		{
@@ -58,7 +57,6 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f *src, Npp32f *dst, size_t
 				nNormalizedH = 0.0F;
 			else
 				nNormalizedH = nNormalizedH * 6.0F; // / 0.1667F
-
 		}
 		Npp32f nI = floorf(nNormalizedH);
 		Npp32f nF = nNormalizedH - nI;
@@ -327,11 +325,9 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	size_t frame_res = height * width;
 
 	float *gpu_convolution_matrix;
-	cudaMalloc(&gpu_convolution_matrix, frame_res * sizeof(float));
-	cudaCheckError();
-	cudaMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
-	cudaCheckError();
-
+	cudaXMalloc((void**)&gpu_convolution_matrix, frame_res * sizeof(float));
+	cudaXMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
+	
 	float *blur_matrix = new float[cd.h_blur_kernel_size];
 	float blur_value = 1.0f / (float)(cd.h_blur_kernel_size * cd.h_blur_kernel_size);
 	unsigned min_pos_kernel = height / 2 - cd.h_blur_kernel_size / 2;
@@ -343,32 +339,30 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	//FIXME Might want to replace that with a cudaMemcpy2D
 	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
 	{
-		cudaMemcpy(gpu_convolution_matrix + min_pos_kernel  + width * (i + min_pos_kernel),
+		cudaXMemcpy(gpu_convolution_matrix + min_pos_kernel  + width * (i + min_pos_kernel),
 			blur_matrix, cd.h_blur_kernel_size * sizeof(float), cudaMemcpyHostToDevice);
-		cudaCheckError();
 	}
 
-	shift_corners(gpu_convolution_matrix, width, height);
+	shift_corners(gpu_convolution_matrix, 1, width, height);
 
 	cuComplex *gpu_kernel;
-	cudaMalloc(&gpu_kernel, frame_res * sizeof(cuComplex));
-	cudaMemset(gpu_kernel, 0, frame_res * sizeof(cuComplex));
-	cudaMemcpy2D(gpu_kernel, sizeof(cuComplex), gpu_convolution_matrix, sizeof(float), sizeof(float), frame_res, cudaMemcpyDeviceToDevice);
+	cudaXMalloc((void**)&gpu_kernel, frame_res * sizeof(cuComplex));
+	cudaXMemset(gpu_kernel, 0, frame_res * sizeof(cuComplex));
+	cudaSafeCall(cudaMemcpy2D(gpu_kernel, sizeof(cuComplex), gpu_convolution_matrix, sizeof(float), sizeof(float), frame_res, cudaMemcpyDeviceToDevice));
 
 	float *gpu_memory_space;
 	cuComplex *gpu_cuComplex_buffer;
-	cudaMalloc(&gpu_memory_space, frame_res * sizeof(float));
-	cudaMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
-	cudaCheckError();
+	cudaXMalloc((void**)&gpu_memory_space, frame_res * sizeof(float));
+	cudaXMalloc((void**)&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
 	CufftHandle handle{ static_cast<int>(width), static_cast<int>(height), CUFFT_C2C };
 	convolution_kernel(gpu_arr, gpu_memory_space, gpu_cuComplex_buffer, &handle, width, height, gpu_kernel, false, false);
 	cudaCheckError();
 
 	delete[] blur_matrix;
-	cudaFree(gpu_memory_space);
-	cudaFree(gpu_cuComplex_buffer);
-	cudaFree(gpu_convolution_matrix);
-	cudaFree(gpu_kernel);
+	cudaXFree(gpu_memory_space);
+	cudaXFree(gpu_cuComplex_buffer);
+	cudaXFree(gpu_convolution_matrix);
+	cudaXFree(gpu_kernel);
 }
 
 void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width)
@@ -426,21 +420,18 @@ void hsv(const cuComplex *gpu_input,
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	float *gpu_omega_arr = nullptr;
-	cudaMalloc(&gpu_omega_arr, sizeof(float) * nsize * 2); // w1[] && w2[]
-	cudaCheckError();
+	cudaXMalloc((void**)&gpu_omega_arr, sizeof(float) * nsize * 2); // w1[] && w2[]
 
 	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res);
 
 	float *tmp_hsv_arr;
-	cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
-	cudaCheckError();
+	cudaXMalloc((void**)&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
 
 	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, nsize);
-
 	
 
 	kernel_from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
-
+	cudaCheckError();
 
 	
 	apply_operations_on_h(cd, tmp_hsv_arr, height, width);
@@ -448,11 +439,12 @@ void hsv(const cuComplex *gpu_input,
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);
 
 	kernel_from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
-
+	cudaCheckError();
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
+	cudaCheckError();
 
 	gpu_multiply_const(gpu_output, frame_res * 3, 65536);
 
-	cudaFree(tmp_hsv_arr);
-	cudaFree(gpu_omega_arr);
+	cudaXFree(tmp_hsv_arr);
+	cudaXFree(gpu_omega_arr);
 }

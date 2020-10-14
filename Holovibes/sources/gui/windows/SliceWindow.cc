@@ -40,7 +40,8 @@ namespace holovibes
 			cudaFreeArray(cuArray);
 		}
 
-		void SliceWindow::make_pixel_square() {
+		void SliceWindow::make_pixel_square()
+		{
 			auto old_pos = position();
 			if (cd_ && !cd_->square_pixel)
 			{
@@ -82,7 +83,7 @@ namespace holovibes
 				make_pixel_square();
 		}
 
-		void	SliceWindow::initShaders()
+		void SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
@@ -100,7 +101,7 @@ namespace holovibes
 			//TODO
 		}
 
-		void	SliceWindow::initializeGL()
+		void SliceWindow::initializeGL()
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
@@ -209,7 +210,7 @@ namespace holovibes
 			startTimer(1000 / cd_->display_rate);
 		}
 
-		void	SliceWindow::paintGL()
+		void SliceWindow::paintGL()
 		{
 			if (changeTexture_)
 			{
@@ -222,8 +223,8 @@ namespace holovibes
 			Program->bind();
 
 			textureUpdate(cuSurface,
-				Qu->get_last_images(1),
-				Qu->get_fd(),
+				output_->get_last_images(1),
+				output_->get_fd(),
 				cuStream);
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
@@ -244,17 +245,17 @@ namespace holovibes
 
 		}
 
-		void	SliceWindow::mousePressEvent(QMouseEvent* e)
+		void SliceWindow::mousePressEvent(QMouseEvent* e)
 		{
 			overlay_manager_.press(e);
 		}
 
-		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
+		void SliceWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			overlay_manager_.move(e);
 		}
 
-		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
+		void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			overlay_manager_.release(fd_.width);
 			if (e->button() == Qt::RightButton)
@@ -265,7 +266,7 @@ namespace holovibes
 			}
 		}
 
-		void	SliceWindow::focusInEvent(QFocusEvent* e)
+		void SliceWindow::focusInEvent(QFocusEvent* e)
 		{
 			QWindow::focusInEvent(e);
 			if (cd_)

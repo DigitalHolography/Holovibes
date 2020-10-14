@@ -16,14 +16,6 @@
 #include "cufft_handle.hh"
 using holovibes::cuda_tools::CufftHandle;
 
-/*! \brief This function normalize the kernel
-
-* \param gpu_kernel_buffer Buffer which is the kernel
-* \param size Size of the frame (height * width)
-*/
-void normalize_kernel(float		*gpu_kernel_buffer_,
-					  size_t	size);
-
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
 
 *

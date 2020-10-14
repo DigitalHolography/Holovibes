@@ -57,11 +57,11 @@ namespace holovibes
 			virtual void	resizeGL(int width, int height) override;
 			virtual void	paintGL() override;
 			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-			void	keyPressEvent(QKeyEvent *e) override;
-			void	wheelEvent(QWheelEvent *e) override;
+			void mousePressEvent(QMouseEvent* e);
+			void mouseMoveEvent(QMouseEvent* e);
+			void mouseReleaseEvent(QMouseEvent* e);
+			void keyPressEvent(QKeyEvent *e) override;
+			void wheelEvent(QWheelEvent *e) override;
 		};
 	}
 }

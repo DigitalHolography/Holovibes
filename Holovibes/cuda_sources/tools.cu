@@ -14,33 +14,38 @@
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
 #include "cuda_tools/unique_ptr.hh"
-#include "cuda_tools/array.hh"
 #include "cuda_tools/cufft_handle.hh"
 #include "logger.hh"
+#include "cuda_memory.cuh"
+#include "Common.cuh"
 
 #include <cassert>
 
 using camera::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::UniquePtr;
-using cuda_tools::Array;
 using cuda_tools::CufftHandle;
 
 __global__
 void kernel_apply_lens(cuComplex		*input,
+					cuComplex 			*output,
+					const uint 			batch_size,
 					const uint			input_size,
 					const cuComplex		*lens,
 					const uint			lens_size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < input_size)
+	if (index < input_size)
 	{
-		uint	index2 = index % lens_size; // necessary if more than one frame
-		float	tmp_x = input[index].x;
-		input[index].x = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
-		input[index].y = input[index].y * lens[index2].x + tmp_x * lens[index2].y;
-		//index += blockDim.x * gridDim.x;
+		for (uint i = 0; i < batch_size; ++i)
+		{
+			const uint batch_index = index + i * input_size;
+			
+			const float	tmp_x = input[batch_index].x;
+			output[batch_index].x = input[batch_index].x * lens[index].x - input[batch_index].y * lens[index].y;
+			output[batch_index].y = input[batch_index].y * lens[index].x + tmp_x * lens[index].y;
+		}
 	}
 }
 
@@ -50,6 +55,7 @@ namespace
 	__global__
 	void kernel_shift_corners(const T *input,
 							  T *output,
+							  const uint batch_size,
 							  const uint	size_x,
 							  const uint	size_y)
 	{
@@ -74,16 +80,23 @@ namespace
 			nj = j + size_y2;
 			nindex = nj * size_x + ni;
 
-			//allows output = input
-			T tmp = input[nindex];
-			output[nindex] = input[index];
-			output[index] = tmp;
+			for (uint i = 0; i < batch_size; ++i)
+			{
+				const uint batch_index = index + i * size_x * size_y;
+				const uint batch_nindex = nindex + i * size_x * size_y;
+
+				// Allows output = input
+				T tmp = input[batch_nindex];
+				output[batch_nindex] = input[batch_index];
+				output[batch_index] = tmp;
+			}
 		}
 	}
 
 	template<typename T>
 	void shift_corners_caller(const T *input,
 							  T *output,
+							  const uint batch_size,
 							  const uint size_x,
 							  const uint size_y,
 							  cudaStream_t stream)
@@ -92,12 +105,13 @@ namespace
 		dim3 lthreads(threads_2d, threads_2d);
 		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
 
-		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, output, size_x, size_y);
+		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, output, batch_size, size_x, size_y);
 		cudaCheckError();
-	}						  
+	}
 
 	template<typename T>
 	void shift_corners_caller(T*		input,
+							  const uint batch_size,
 							  const uint		size_x,
 							  const uint		size_y,
 							  cudaStream_t	stream)
@@ -106,60 +120,66 @@ namespace
 		dim3 lthreads(threads_2d, threads_2d);
 		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
 
-		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, input, size_x, size_y);
+		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, input, batch_size, size_x, size_y);
 		cudaCheckError();
 	}
 }
 
 void shift_corners(float3 *input,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<float3>(input, size_x, size_y, stream);
+	shift_corners_caller<float3>(input, batch_size, size_x, size_y, stream);
 }
 
 void shift_corners(const float3 *input,
 				   float3 *output,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<float3>(input, output, size_x, size_y, stream);
+	shift_corners_caller<float3>(input, output, batch_size, size_x, size_y, stream);
 }
 
 void shift_corners(float *input,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<float>(input, size_x, size_y, stream);
+	shift_corners_caller<float>(input, batch_size, size_x, size_y, stream);
 }
 
 void shift_corners(const float *input,
 				   float *output,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<float>(input, output, size_x, size_y, stream);
+	shift_corners_caller<float>(input, output, batch_size, size_x, size_y, stream);
 }
 
 void shift_corners(cuComplex *input,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<cuComplex>(input, size_x, size_y, stream);
+	shift_corners_caller<cuComplex>(input, batch_size, size_x, size_y, stream);
 }
 
 void shift_corners(const cuComplex *input,
 				   cuComplex *output,
+				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
 				   cudaStream_t stream)
 {
-	shift_corners_caller<cuComplex>(input, output, size_x, size_y, stream);
+	shift_corners_caller<cuComplex>(input, output, batch_size, size_x, size_y, stream);
 }
 
 /* Kernel used in apply_log10 */
@@ -227,13 +247,13 @@ void convolution_float(		const float			*a,
 	if (!tmp_a || !tmp_b)
 		return;
 	
-	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get());
-	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get());
+	cufftSafeCall(cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get()));
+	cufftSafeCall(cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get()));
 	
 	cudaStreamSynchronize(0);
 
-	cudaMemset(tmp_a.get(), 0, sizeof(cuComplex));
-	cudaMemset(tmp_b.get(), 0, sizeof(cuComplex));
+	cudaXMemset(tmp_a.get(), 0, sizeof(cuComplex));
+	cudaXMemset(tmp_b.get(), 0, sizeof(cuComplex));
 
 	kernel_conjugate_complex <<<blocks, threads, 0, stream>>> (tmp_b.get(), size);
 
@@ -244,13 +264,10 @@ void convolution_float(		const float			*a,
 	cudaStreamSynchronize(stream);
 	cudaCheckError();
 
-	cufftExecC2R(plan2d_inverse, tmp_a.get(), out);
+	cufftSafeCall(cufftExecC2R(plan2d_inverse, tmp_a.get(), out));
 
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-
-	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
-	//cudaStreamSynchronize(stream);
 }
 
 
@@ -272,18 +289,8 @@ void convolution_operator(	const cuComplex		*a,
 	if (!tmp_a || !tmp_b)
 		return;
 	
-	cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a.get(), CUFFT_FORWARD);
-	cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b.get(), CUFFT_FORWARD);
-	
-    /*float* abs_a = (float*)malloc(size * sizeof(float));
-	float* abs_b = (float*)malloc(size * sizeof(float));
-	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, abs_a, size);
-	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_b, abs_b, size);
-	cufftExecR2C(plan2d_a, abs_a, tmp_a);
-	cufftExecR2C(plan2d_b, abs_b, tmp_b);
-
-	free(abs_a);
-	free(abs_b);*/
+	cufftSafeCall(cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a.get(), CUFFT_FORWARD));
+	cufftSafeCall(cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b.get(), CUFFT_FORWARD));
 
 	cudaStreamSynchronize(0);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
@@ -291,7 +298,7 @@ void convolution_operator(	const cuComplex		*a,
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_a, tmp_a.get(), tmp_a.get(), CUFFT_INVERSE);
+	cufftSafeCall(cufftExecC2C(plan2d_a, tmp_a.get(), tmp_a.get(), CUFFT_INVERSE));
 
 	cudaStreamSynchronize(0);
 
@@ -384,6 +391,82 @@ cudaError_t embed_into_square(const char *input,
 	  					  	  stream);
 }
 
+static __global__
+void kernel_batched_embed_into_square(const char *input,
+									  const uint input_width,
+									  const uint input_height,
+									  char *output,
+									  const uint output_width,
+									  const uint output_height,
+									  const uint output_startx,
+									  const uint output_starty,
+									  const uint batch_size, 
+									  const uint elm_size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint x = index % output_width;
+	const uint y = index / output_width;
+
+	if (index < output_width * output_height)
+	{
+		for (uint i = 0; i < batch_size; i++)
+		{
+			const uint batch_index = index + i * input_width * input_height * elm_size;
+
+			if (x < output_startx || x >= output_startx + input_width
+				|| y < output_starty || y >= output_starty + input_height)
+				output[batch_index] = 0;
+			else
+			{
+				if (output_startx == 0) // Horizontal black bands (top and bottom)
+					output[batch_index] = input[batch_index - output_starty * input_width * elm_size];
+				else // Vertical black bands (left and right)
+					output[batch_index] = input[batch_index - (2 * y + 1) * output_startx * elm_size];
+			}
+		}
+	}
+}
+
+void batched_embed_into_square(const char *input,
+							const uint input_width,
+							const uint input_height,
+							char *output,
+							const uint batch_size,
+							const uint elm_size)
+{
+	uint output_startx;
+	uint output_starty;
+	uint square_side_len;
+
+	if (input_width >= input_height) //Usually the case
+	{
+		square_side_len = input_width;
+		output_startx = 0;
+		output_starty = (square_side_len - input_height) / 2;
+	}
+	else
+	{
+		square_side_len = input_height;
+		output_startx = (square_side_len - input_width) / 2;
+		output_starty = 0;
+	}
+
+	size_t threads = get_max_threads_1d();
+	size_t blocks = map_blocks_to_problem(square_side_len * square_side_len, threads);
+
+	kernel_batched_embed_into_square<<<blocks, threads>>>(input,
+		input_width,
+		input_height,
+		output,
+		square_side_len,
+		square_side_len,
+		output_startx,
+		output_starty,
+		batch_size,
+		elm_size);
+	cudaCheckError();
+}
+
 cudaError_t crop_frame(const char *input,
 					   const uint input_width,
 					   const uint input_height,
@@ -448,6 +531,76 @@ cudaError_t crop_into_square(const char *input,
 					  stream);
 }
 
+static __global__
+void kernel_batched_crop_into_square(const char *input,
+									 const uint input_width,
+									 const uint input_height,
+									 const uint crop_start_x,
+									 const uint crop_start_y,
+									 const uint crop_width,
+									 const uint crop_height,
+									 char *output,
+									 const uint elm_size,
+									 const uint batch_size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint x = index % crop_width;
+	const uint y = index / crop_width;
+
+	if (index < crop_width * crop_height)
+	{
+		for (uint i = 0; i < batch_size; i++)
+		{
+			const uint batch_index = index + i * input_width * input_height * elm_size;
+
+			if (crop_start_x == 0) // Horizontal black bands (top and bottom)
+				output[batch_index] = input[batch_index + crop_start_y * input_width * elm_size];
+			else // Vertical black bands (left and right)
+				output[batch_index] = input[batch_index + (2 * y + 1) * crop_start_x * elm_size];
+		}
+	}
+}
+
+void batched_crop_into_square(const char *input,
+							  const uint input_width,
+							  const uint input_height,
+							  char *output,
+							  const uint elm_size,
+							  const uint batch_size)
+{
+	uint crop_start_x;
+	uint crop_start_y;
+	uint square_side_len;
+
+	if (input_width >= input_height)
+	{
+		square_side_len = input_height;
+		crop_start_x = (input_width - square_side_len) / 2;
+		crop_start_y = 0;
+	}
+	else
+	{
+		square_side_len = input_width;
+		crop_start_x = 0;
+		crop_start_y = (input_height - square_side_len) / 2;
+	}
+
+	size_t threads = get_max_threads_1d();
+	size_t blocks = map_blocks_to_problem(square_side_len * square_side_len, threads);
+
+	kernel_batched_crop_into_square<<<blocks, threads>>>(input,
+														 input_width,
+														 input_height,
+														 crop_start_x,
+														 crop_start_y,
+														 square_side_len,
+														 square_side_len,
+														 output,
+														 elm_size,
+														 batch_size);
+	cudaCheckError();
+}
+
 /* Kernel helper used in average.
  *
  * Sums up the *size* first elements of input and stores the result in sum.
@@ -483,7 +636,7 @@ float average_operator(const float	*input,
 	float		cpu_sum = 0.0f;
 
 	if (cudaMalloc<float>(&gpu_sum, sizeof(float)) == cudaSuccess)
-		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
+		cudaXMemsetAsync(gpu_sum, 0, sizeof(float), stream);
 	else
 		return 0.f;
 
@@ -493,10 +646,10 @@ float average_operator(const float	*input,
 		gpu_sum,
 		size);
 	cudaCheckError();
-	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
+	cudaXMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 	cudaStreamSynchronize(stream);
 
-	cudaFree(gpu_sum);
+	cudaXFree(gpu_sum);
 
 	return cpu_sum /= static_cast<float>(size);
 }
@@ -547,7 +700,7 @@ void phase_increase(const cuComplex			*cur,
 	static bool first_time = true;
 	if (first_time)
 	{
-		cudaMemcpy(	resources->gpu_predecessor_,
+		cudaXMemcpy(	resources->gpu_predecessor_,
 					cur,
 					sizeof(cuComplex)* image_size,
 					cudaMemcpyDeviceToDevice);
@@ -561,14 +714,14 @@ void phase_increase(const cuComplex			*cur,
 														image_size);
 	cudaCheckError();
 	// Updating predecessor (complex image) for the next iteration
-	cudaMemcpy(	resources->gpu_predecessor_,
+	cudaXMemcpy(resources->gpu_predecessor_,
 				cur,
 				sizeof(cuComplex) * image_size,
 				cudaMemcpyDeviceToDevice);
 
 	/* Copying in order to later enqueue the (not summed up with values
 	 * in gpu_unwrap_buffer_) phase image. */
-	cudaMemcpy(	resources->gpu_angle_copy_,
+	cudaXMemcpy(resources->gpu_angle_copy_,
 				resources->gpu_angle_current_,
 				sizeof(float) * image_size,
 				cudaMemcpyDeviceToDevice);
@@ -583,7 +736,7 @@ void phase_increase(const cuComplex			*cur,
 	/* Store the new phase image in the next buffer position.
 	* The buffer is handled as a circular buffer. */
 	float	*next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-	cudaMemcpy(	next_unwrap,
+	cudaXMemcpy(next_unwrap,
 				resources->gpu_angle_copy_,
 				sizeof(float)* image_size,
 				cudaMemcpyDeviceToDevice);
@@ -617,6 +770,7 @@ void unwrap_2d(	float*						input,
 	ushort middley = fd.height >> 1;
 	circ_shift_float << < blocks, threads, 0, stream >> > (	res->gpu_fx_,
 															res->gpu_shift_fx_,
+															1,
 															middlex,
 															middley,
 															fd.width,
@@ -625,6 +779,7 @@ void unwrap_2d(	float*						input,
 	cudaCheckError();
 	circ_shift_float << < blocks, threads, 0, stream >> > (	res->gpu_fy_,
 															res->gpu_shift_fy_,
+															1,
 															middlex,
 															middley,
 															fd.width,
@@ -713,6 +868,7 @@ void phi_unwrap_2d(	const cufftHandle			plan2d,
 __global__
 void circ_shift(const cuComplex	*input,
 				cuComplex	*output,
+				const uint 	batch_size,
 				const int	i, // shift on x axis
 				const int	j, // shift on y axis
 				const uint	width,
@@ -728,14 +884,22 @@ void circ_shift(const cuComplex	*input,
 		int shift_y = index_y - j;
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
-        auto rhs = input[index];
-		output[(width * shift_y) + shift_x] = rhs;
+
+		for (uint i = 0; i < batch_size; ++i)
+		{
+			const uint batch_index = index + i * size;
+
+			const cuComplex rhs = input[batch_index];
+
+			output[((width * shift_y) + shift_x) + i * size] = rhs;
+		}
 	}
 }
 
 __global__
 void circ_shift_float(const float		*input,
 					float		*output,
+					const uint 	batch_size,
 					const int	i, // shift on x axis
 					const int	j, // shift on y axis
 					const uint	width,
@@ -751,8 +915,15 @@ void circ_shift_float(const float		*input,
 		int shift_y = index_y - j;
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
-        auto rhs = input[index];
-		output[(width * shift_y) + shift_x] = rhs;
+
+        for (uint i = 0; i < batch_size; ++i)
+		{
+			const uint batch_index = index + i * size;
+
+			const float rhs = input[batch_index];
+
+			output[((width * shift_y) + shift_x) + i * size] = rhs;
+		}
 	}
 }
 
@@ -775,60 +946,6 @@ void kernel_translation(float		*input,
 	}
 }
 
-// TODO: change name (array_circshift)
-void complex_translation(float		*frame,
-						uint		width,
-						uint		height,
-						int			shift_x,
-						int			shift_y)
-{
-	// We have to use a temporary buffer to avoid overwriting pixels that haven't moved yet
-	float *tmp_buffer;
-	if (cudaMalloc(&tmp_buffer, width * height * sizeof(float)) != cudaSuccess)
-	{
-		LOG_ERROR("Can't callocate buffer for repositioning");
-		return;
-	}
-
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(width * height, threads);
-
-	kernel_translation<<<blocks, threads, 0, 0>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
-	cudaCheckError();
-	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
-	cudaCheckError();
-	cudaFree(tmp_buffer);
-	cudaCheckError();
-}
-
-void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
-{
-	uint size = dimensions.x() * dimensions.y();
-	Array<cuComplex> tmp_a(size);
-	Array<cuComplex> tmp_b(size);
-	CufftHandle plan2d;
-	const int width = dimensions.x();
-	const int height = dimensions.y();
-
-
-	plan2d.plan(width, height, CUFFT_R2C);
-	cufftExecR2C(plan2d, a, tmp_a);
-	cufftExecR2C(plan2d, b, tmp_b);
-	cudaCheckError();
-
-	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
-	cudaCheckError();
-
-	plan2d.plan(width, height, CUFFT_C2R);
-	cudaCheckError();
-
-	Array<cuComplex> complex_buffer(size);
-
-	cufftExecC2R(plan2d, tmp_a, out);
-	cudaStreamSynchronize(0);
-	cudaCheckError();
-}
-
 float get_norm(const float	*matrix,
 			   size_t		size)
 {
@@ -840,7 +957,7 @@ float get_norm(const float	*matrix,
 
 	float *intermediate_sum_cpu = new float[blocks]; //never more than 4096 threads
 	//need to be on cpu for the sum
-	cudaMemcpy(intermediate_sum_cpu, output, blocks * sizeof(float), cudaMemcpyDeviceToHost); //TODO faire la somme sur GPU
+	cudaXMemcpy(intermediate_sum_cpu, output, blocks * sizeof(float), cudaMemcpyDeviceToHost); //TODO faire la somme sur GPU
 	float sum = 0;
 	for (uint i = 0; i < blocks; i++)
 		sum += intermediate_sum_cpu[i];

@@ -73,8 +73,7 @@ void float_to_complex(cuComplex	*output,
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_modulus(const cuComplex	*input,
-						float			*output,
+void complex_to_modulus(float			*output,
 						const cuComplex *stft_buf,
 						const ushort	pmin,
 						const ushort	pmax,
@@ -88,8 +87,7 @@ void complex_to_modulus(const cuComplex	*input,
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_squared_modulus(const cuComplex	*input,
-								float			*output,
+void complex_to_squared_modulus(float			*output,
 								const cuComplex	*stft_buf,
 								const ushort	pmin,
 								const ushort	pmax,
@@ -103,8 +101,7 @@ void complex_to_squared_modulus(const cuComplex	*input,
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_argument(const cuComplex	*input,
-						float				*output,
+void complex_to_argument(float				*output,
 						const cuComplex		*stft_buf,
 						const ushort		pmin,
 						const ushort		pmax,
@@ -135,6 +132,7 @@ void rescale_float(const float	*input,
  */
 void endianness_conversion(const ushort	*input,
 						ushort			*output,
+						const uint 		batch_size,
 						const uint		size,
 						cudaStream_t	stream = 0);
 
@@ -168,6 +166,27 @@ void ushort_to_uchar(const ushort	*input,
 	uchar			*output,
 	const uint		size,
 	cudaStream_t	stream = 0);
+
+/*! \brief Converts and tranfers data from input_queue to gpu_input_buffer
+*
+* Template call between .cc and .cu(h) almost never works and the data has to be casted anyway (switch depth void* cast)
+* So we chose to use template inside the cu/cuh to factorize code but keep the void* between the cc and cu
+*
+* \param output The gpu input buffer.
+* \param input The input queue.
+* \param frame_res The total size of a frame (width * height).
+* \param batch_size The size of the batch to transfer.
+* \param current_queue_index The current index of the input queue.
+* \param queue_size The total size of the input queue (max number of elements).
+* \param depth The pixel depth (uchar : 1, ushort : 2, float : 4).
+*/
+void input_queue_to_input_buffer(void* output,
+								void* input,
+								const uint frame_res,
+								const int batch_size,
+								const uint current_queue_index,
+								const uint queue_size,
+								const uint depth);
 
 /*! \brief Convert data from complex data to unsigned short (16-bit).
 *
@@ -281,3 +300,8 @@ void convert_frame_for_display(const void   	*input,
 	const uint	size,
 	const uint    depth,
 	const ushort	shift);
+
+/*! \brief Converts frame in complex
+** \param frame_res Size of frame in input
+*/
+void frame_to_complex(void *input, cufftComplex *output, const uint frame_res, const uint depth);

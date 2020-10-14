@@ -138,9 +138,6 @@ namespace holovibes
 			void set_renormalize_constant(int value);
 			bool is_direct_mode();
 			void reset();
-			void take_reference();
-			void take_sliding_ref();
-			void cancel_take_reference();
 			void set_filter2D();
 			void set_filter2D_type(const QString &filter2Dtype);
 			void cancel_filter2D();
@@ -183,7 +180,7 @@ namespace holovibes
 			void set_time_filter(QString value);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
-			void update_stft_steps(int value);
+			void update_stft_steps();
 			void set_view_mode(QString value);
 			void set_unwrap_history_size(int value);
 			void set_unwrapping_1d(const bool value);

@@ -12,19 +12,11 @@
 
 #pragma once
 
-# include "Common.cuh"
+namespace holovibes
+{
+    void device_print(uchar* d_data, size_t offset, size_t nb_elts);
 
-/*! \brief Convert the input queue into complex.
- * This function also compute the sqrt value of each pixel of images.
- *
- * \param input the device queue from where images should be taken
- * to be processed.
- * \param output A bloc made of n contigus images requested
- * to the function.
- * \param sqrt_array Array of the sqrt values form 0 to 65535
- * in case of 16 bit images or from 0 to 255 in case of
- * 8 bit images.
- */
-void make_contiguous_complex(holovibes::Queue&			input,
-							cuComplex		*output,
-							cudaStream_t	stream = 0);
+    void device_print(float* d_data, size_t offset, size_t nb_elts);
+
+    void device_print(cuComplex* d_data, size_t offset, size_t nb_elts);
+}

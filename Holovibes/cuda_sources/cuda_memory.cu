@@ -10,33 +10,37 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <memory>
+#pragma once
 
-void from_gpu_img_to_csv(const float *gpu_img, const size_t frame_res, const std::string output_path, const size_t img_nb)
+#include "cuda_memory.cuh"
+#include "Common.cuh"
+
+void cudaXMalloc(void** devPtr, size_t size)
 {
-	float* local_img = new float[frame_res];
-	
+    cudaSafeCall(cudaMalloc(devPtr, size));
+}
 
-	std::ofstream file;
-	file.open(output_path);
-	
-	
-	for (size_t i = 0; i < img_nb; i++)
-	{
-		cudaMemcpy(local_img, gpu_img + (frame_res * i), frame_res * sizeof(float), cudaMemcpyDeviceToHost);
-		for (size_t j = 0; j < frame_res; j++)
-		{
-			file << local_img[j];
-			if (j < frame_res - 1)
-				file << ',';
-		}
-		file << std::endl;
-	}
+void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
+{
+    cudaSafeCall(cudaMemcpy(dst, src, count, kind));
+}
 
-	file.close();
-	delete[] local_img;
+void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream)
+{
+    cudaSafeCall(cudaMemcpyAsync(dst, src, count, kind, stream));
+}
+
+void cudaXMemset(void* devPtr, int  value, size_t count)
+{
+    cudaSafeCall(cudaMemset(devPtr, value, count));
+}
+
+void cudaXMemsetAsync(void* devPtr, int  value, size_t count, cudaStream_t stream)
+{
+    cudaSafeCall(cudaMemsetAsync(devPtr, value, count, stream));
+}
+
+void cudaXFree(void* devPtr)
+{
+    cudaSafeCall(cudaFree(devPtr));
 }

@@ -20,6 +20,8 @@
 #include "hsv.cuh"
 #include "nppi_data.hh"
 #include "nppi_functions.hh"
+#include "cuda_memory.cuh"
+
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -59,16 +61,16 @@ namespace holovibes
 					cuComplex_buffer_.resize(frame_res);
 
 					gpu_kernel_buffer_.resize(frame_res);
-					cudaMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
-					cudaMemcpy2D(gpu_kernel_buffer_.get(),
+					cudaXMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
+					cudaSafeCall(cudaMemcpy2D(gpu_kernel_buffer_.get(),
 								 sizeof(cuComplex),
 								 cd_.convo_matrix.data(),
 								 sizeof(float), sizeof(float),
 								 frame_res,
-								 cudaMemcpyHostToDevice);
+								 cudaMemcpyHostToDevice));
 					//We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
-					shift_corners(gpu_kernel_buffer_.get(), width, height);
-					cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD);
+					shift_corners(gpu_kernel_buffer_.get(), 1, width, height);
+					cufftSafeCall(cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
 
 					hsv_arr_.resize(frame_res * 3);
 

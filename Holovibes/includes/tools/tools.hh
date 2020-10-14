@@ -99,12 +99,6 @@ namespace holovibes
 	void get_exposure_cinefile(FILE *file, std::string &file_src_);
 	/*! \brief Calculate the nearest upper power of 2 */
 	unsigned short upper_window_size(ushort width, ushort height);
-	/*! \brief Prints a float buffer allocated on gpu*/
-	void print_gpu_buffer(const float* buf, std::size_t nb_elts);
-	/*! \brief Prints a double buffer allocated on gpu*/
-	void print_gpu_buffer(const double* buf, std::size_t nb_elts);
-	/*! \brief Prints a complex buffer allocated on gpu*/
-	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts);
 	/*! \brief return width and height with the same ratio and the max of the two being window_size*/
 	void get_good_size(ushort& width, ushort& height, ushort window_size);
 	/*! \brief Returns the path of the currently used executable file*/

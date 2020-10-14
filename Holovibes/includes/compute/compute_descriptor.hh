@@ -240,42 +240,42 @@ namespace holovibes
 
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
-		std::atomic<Algorithm>		algorithm;
+		std::atomic<Algorithm>		algorithm{ Algorithm::None };
 		//! Time filter to apply in hologram mode
-		std::atomic<TimeFilter>		time_filter;
+		std::atomic<TimeFilter>		time_filter{ TimeFilter::STFT };
 		//! Mode of computation of the image
-		std::atomic<Computation>	compute_mode;
+		std::atomic<Computation>	compute_mode{ Computation::Stop };
 		//! Square conversion mode of the input
 		std::atomic<SquareInputMode> square_input_mode{SquareInputMode::NO_MODIFICATION};
 		//! type of the image displayed
-		std::atomic<ImgType>		img_type;
+		std::atomic<ImgType>		img_type{ ImgType::Modulus };
 
 		//! Last window selected
-		std::atomic<WindowKind>		current_window;
+		std::atomic<WindowKind>		current_window{ WindowKind::XYview };
 		//! Number of images used by SFTF i.e. depth of the SFTF cube
-		std::atomic<ushort>			nSize;
+		std::atomic<ushort>			nSize{ 1 };
 		//! index in the depth axis
-		std::atomic<ushort>			pindex;
+		std::atomic<ushort>			pindex{ 0 };
 
 		//! wave length of the laser
-		std::atomic<float>			lambda;
+		std::atomic<float>			lambda{ 532e-9f };
 		//! Input matrix used for convolution
 		std::vector<float>			convo_matrix;
 		//! z value used by fresnel transform
-		std::atomic<float>			zdistance;
+		std::atomic<float>			zdistance{ 1.50f };
 
 		//! minimum constrast value in xy view
-		std::atomic<float>			contrast_min_slice_xy;
+		std::atomic<float>			contrast_min_slice_xy{ 1.f };
 		//! maximum constrast value in xy view
-		std::atomic<float>			contrast_max_slice_xy;
+		std::atomic<float>			contrast_max_slice_xy{ 65535.f };
 		//! minimum constrast value in xz view
-		std::atomic<float>			contrast_min_slice_xz;
+		std::atomic<float>			contrast_min_slice_xz{ 1.f };
 		//! maximum constrast value in xz view
-		std::atomic<float>			contrast_max_slice_xz;
+		std::atomic<float>			contrast_max_slice_xz{ 65535.f };
 		//! minimum constrast value in yz view
-		std::atomic<float>			contrast_min_slice_yz;
+		std::atomic<float>			contrast_min_slice_yz{ 1.f };
 		//! maximum constrast value in yz view
-		std::atomic<float>			contrast_max_slice_yz;
+		std::atomic<float>			contrast_max_slice_yz{ 65535.f };
 		//! invert contrast
 		std::atomic<bool> contrast_invert { false };
 
@@ -283,93 +283,88 @@ namespace holovibes
 
 		std::atomic<float> contrast_threshold_high_percentile{ 99.5f };
 
-		std::atomic<ushort>			cuts_contrast_p_offset;
+		std::atomic<ushort>			cuts_contrast_p_offset{ 2 };
 		//! Size of a pixel in micron
 		std::atomic<float>			pixel_size;
 		//! Correction factor of the scale bar, used to match the objective of the camera
-		std::atomic<float>			scale_bar_correction_factor;
+		std::atomic<float>			scale_bar_correction_factor{ 1 };
 		//! Width of the matrix used for convolution
-		std::atomic<uint>			convo_matrix_width;
+		std::atomic<uint>			convo_matrix_width{ 0 };
 		//! Height of the matrix used for convolution
-		std::atomic<uint>			convo_matrix_height;
+		std::atomic<uint>			convo_matrix_height{ 0 };
 		//! Z of the matrix used for convolution
-		std::atomic<uint>			convo_matrix_z;
+		std::atomic<uint>			convo_matrix_z{ 0 };
 		//! Size of the stft_queue.
-		std::atomic<int>			stft_level;
+		std::atomic<int>			stft_level{ 16 };
 		//! Number of pipe iterations between two temporal demodulation.
-		std::atomic<int>			stft_steps;
+		std::atomic<int>			stft_steps{ 1 };
 
-		std::atomic<int>			unwrap_history_size;
-		std::atomic<int>			special_buffer_size;
+		std::atomic<int>			unwrap_history_size{ 1 };
+		std::atomic<int>			special_buffer_size{ 10 };
 		//! is convolution enabled
-		std::atomic<bool>			convolution_enabled;
+		std::atomic<bool>			convolution_enabled{ false };
 		//! signal for the post-processing class that the convolution status has changed
 		std::atomic<bool>           convolution_enabled_changed{false};
 		//! is divide by convolution enabled
-		std::atomic<bool>			divide_convolution_enabled;
+		std::atomic<bool>			divide_convolution_enabled{ false };
 		//! postprocessing renorm enabled
-		std::atomic<bool>			renorm_enabled;
+		std::atomic<bool>			renorm_enabled{ false };
 		//! postprocessing remormalize multiplication constant
-		std::atomic<unsigned>		renorm_constant;
+		std::atomic<unsigned>		renorm_constant{ 15 };
 		//! is log scale in slice XY enabled
-		std::atomic<bool>			log_scale_slice_xy_enabled;
+		std::atomic<bool>			log_scale_slice_xy_enabled{ false };
 		//! is log scale in slice XZ enabled
-		std::atomic<bool>			log_scale_slice_xz_enabled;
+		std::atomic<bool>			log_scale_slice_xz_enabled{ false };
 		//! is log scale in slice YZ enabled
-		std::atomic<bool>			log_scale_slice_yz_enabled;
+		std::atomic<bool>			log_scale_slice_yz_enabled{ false };
 		//! is shift fft enabled (switching representation diagram)
-		std::atomic<bool>			fft_shift_enabled;
+		std::atomic<bool>			fft_shift_enabled{ false };
 		//! enables the contract for the slice xy, yz and xz
-		std::atomic<bool>			contrast_enabled;
-		//! Enables the difference with the selected frame.
-		std::atomic<bool>			ref_diff_enabled;
-		//! Enabled the difference with the ref_diff_level previous frame
-		std::atomic<bool>			ref_sliding_enabled;
-		std::atomic<int>			ref_diff_level;
+		std::atomic<bool>			contrast_enabled{ false };
 		//! allows to limit the computations to a selected zone
-		std::atomic<bool>			filter_2d_enabled;
+		std::atomic<bool>			filter_2d_enabled{ false };
 		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};
 
 		//! are slices YZ and XZ enabled
-		std::atomic<bool>			stft_view_enabled;
+		std::atomic<bool>			stft_view_enabled{ false };
 		//! is gpu lens display activated
 		std::atomic<bool>			gpu_lens_display_enabled{ true };
 		//! enables the signal and noise average computation
-		std::atomic<bool>			average_enabled;
+		std::atomic<bool>			average_enabled{ false };
 
 		//! is file a .cine
 		std::atomic<FileType>		file_type;
 
 		//! Number of frame per seconds displayed
-		std::atomic<float>			display_rate;
+		std::atomic<float>			display_rate{ 30 };
 
 		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
-		std::atomic<bool>			img_acc_slice_xy_enabled;
+		std::atomic<bool>			img_acc_slice_xy_enabled{ false };
 		//! is img average in view XZ enabled
-		std::atomic<bool>			img_acc_slice_xz_enabled;
+		std::atomic<bool>			img_acc_slice_xz_enabled{ false };
 		//! is img average in view YZ enabled
-		std::atomic<bool>			img_acc_slice_yz_enabled;
+		std::atomic<bool>			img_acc_slice_yz_enabled{ false };
 		//! number of image in view XY to average
-		std::atomic<uint>			img_acc_slice_xy_level;
+		std::atomic<uint>			img_acc_slice_xy_level{ 1 };
 		//! number of image in view XZ to average
-		std::atomic<uint>			img_acc_slice_xz_level;
+		std::atomic<uint>			img_acc_slice_xz_level{ 1 };
 		//! number of image in view YZ to average
-		std::atomic<uint>			img_acc_slice_yz_level;
+		std::atomic<uint>			img_acc_slice_yz_level{ 1 };
 
 		//! is p average enabled (average image over multiple depth index)
-		std::atomic<bool>			p_accu_enabled;
+		std::atomic<bool>			p_accu_enabled{ false };
 		//! difference between p min and p max
-		std::atomic<short>			p_acc_level;
+		std::atomic<short>			p_acc_level{ 1 };
 
 		//! is x average in view YZ enabled (average of columns between both selected columns)
-		std::atomic<bool>			x_accu_enabled;
+		std::atomic<bool>			x_accu_enabled{ false };
 		//! difference between x min and x max
-		std::atomic<short>			x_acc_level;
+		std::atomic<short>			x_acc_level{ 1 };
 
 		//! is y average in view XZ enabled (average of lines between both selected lines)
-		std::atomic<bool>			y_accu_enabled;
+		std::atomic<bool>			y_accu_enabled{ false };
 		//! difference between y min and y max
-		std::atomic<short>			y_acc_level;
+		std::atomic<short>			y_acc_level{ 1 };
 
 		//! Enables the resizing of slice windows to have square pixels (according to their real size)
 		std::atomic<bool>			square_pixel{ false };
@@ -395,11 +390,11 @@ namespace holovibes
 		//! \{
 
 		//! RGB
-		std::atomic<ushort>		composite_p_red;
-		std::atomic<ushort>		composite_p_blue;
-		std::atomic<float>		weight_r;
-		std::atomic<float>		weight_g;
-		std::atomic<float>		weight_b;
+		std::atomic<ushort>		composite_p_red{ 0 };
+		std::atomic<ushort>		composite_p_blue{ 0 };
+		std::atomic<float>		weight_r{ 1 };
+		std::atomic<float>		weight_g{ 1 };
+		std::atomic<float>		weight_b{ 1 };
 
 
 		//! HSV

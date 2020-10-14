@@ -19,6 +19,7 @@
 */
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
+			const uint 				batch_size,
 			const cufftHandle		plan2d,
 			const holovibes::units::RectFd&	r,
 			const camera::FrameDescriptor&	fd,
@@ -27,6 +28,7 @@ void filter2D(cuComplex				*input,
 
 void filter2D_BandPass(cuComplex				*input,
 					   cuComplex				*tmp_buffer,
+					   const uint 				batch_size,
 					   const cufftHandle		plan2d,
 					   const holovibes::units::RectFd&	zone,
 					   const holovibes::units::RectFd& subzone,

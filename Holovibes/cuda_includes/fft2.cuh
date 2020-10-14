@@ -29,6 +29,8 @@ void fft2_lens(cuComplex			*lens,
  * same as input buffer.
  */
 void fft_2(cuComplex			*input,
+		cuComplex 				*output,
+		const uint 				batch_size,
 		const cuComplex			*lens,
 		const cufftHandle		plan2d,
 		const camera::FrameDescriptor&	fd,

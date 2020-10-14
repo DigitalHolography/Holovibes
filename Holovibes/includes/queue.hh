@@ -17,13 +17,14 @@
  * by the camera, and holograms. */
 #pragma once
 
-# include <iostream>
-# include <mutex>
+#include <iostream>
+#include <mutex>
+#include <cassert>
 
-# include <cuda_runtime.h>
+#include <cuda_runtime.h>
 
-# include "frame_desc.hh"
-# include "unique_ptr.hh"
+#include "frame_desc.hh"
+#include "unique_ptr.hh"
 #include "ithread_input.hh"
 
 namespace holovibes
@@ -85,11 +86,25 @@ namespace holovibes
 			return curr_elts_;
 		}
 
+		/*! \brief reduce number of element in queue by nb_elem
+		*/
+		void decrease_size(const size_t nb_elem)
+		{
+			assert(curr_elts_ >= nb_elem);
+			curr_elts_ -= nb_elem;
+		}
+
 		/*! \return the number of elements the Queue can contains at its maximum. */
 		unsigned int get_max_elts() const;
 
 		/*! \return pointer to first frame. */
 		void* get_start();
+
+		/*! \brief increase index of nb_elem */
+		void increase_start_index(const size_t nb_elem)
+		{
+			start_index_ = (start_index_ + nb_elem) % max_elts_;
+		}
 
 		/*! \return index of first frame (as the Queue is circular, it is not always zero). */
 		unsigned int get_start_index();
@@ -116,6 +131,18 @@ namespace holovibes
 		*/
 		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
+		/*! \brief Enqueue method for multiple elements
+		**
+		**	Loop over the enqueue method
+		**
+		** \param elts List of elements to add in the queue
+		** \param nb_elts Number of elements to add in the queue
+		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		**
+		** \return The success of operation: False if an error occurs
+		*/
+		bool enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+
 		/*! \brief Dequeue method overload
 		**
 		** Copy the first element of the Queue into dest according to cuda_kind
@@ -124,7 +151,7 @@ namespace holovibes
 		** \param dest destination of element copy
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		*/
-		void dequeue(void* dest, cudaMemcpyKind cuda_kind);
+		void dequeue(void* dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
 		/*! \brief Dequeue method overload for composite recording
 		**
@@ -143,6 +170,12 @@ namespace holovibes
 		*/
 		void dequeue();
 
+		/*! \brief Dequeue method without mutex
+		**
+		** Update internal attributes (reduce Queue current elements and change start pointer)
+		*/
+		void dequeue_non_mutex();
+
 		/*! Empties the Queue. */
 		void clear();
 
@@ -159,13 +192,18 @@ namespace holovibes
 	private:
 		void display_queue_to_InfoManager() const;
 
+		void enqueue_multiple_aux(void *out,
+								  void *in,
+								  unsigned int nb_elts,
+								  cudaMemcpyKind cuda_kind);
+
 		std::mutex				mutex_;
 		std::string				name_;
 		camera::FrameDescriptor	fd_;
 		const size_t			frame_size_;
 		const int				frame_resolution_;
 		unsigned int		    max_elts_;
-		size_t					curr_elts_;
+		std::atomic<size_t>		curr_elts_;
 		unsigned int			start_index_;
 		const bool				is_big_endian_;
 		cuda_tools::UniquePtr<char>	data_buffer_;

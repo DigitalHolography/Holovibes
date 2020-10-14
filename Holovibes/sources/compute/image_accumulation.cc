@@ -21,6 +21,7 @@
 #include "tools_conversion.cuh"
 #include "icompute.hh"
 #include "logger.hh"
+#include "cuda_memory.cuh"
 
 
 namespace holovibes
@@ -163,21 +164,21 @@ namespace holovibes
 			{
 				// XY view
 				if (image_acc_env_.gpu_accumulation_xy_queue && cd_.img_acc_slice_xy_enabled)
-					cudaMemcpy(buffers_.gpu_float_buffer_,
+					cudaXMemcpy(buffers_.gpu_float_buffer_,
 								image_acc_env_.gpu_float_average_xy_frame,
 								image_acc_env_.gpu_accumulation_xy_queue->get_fd().frame_size(),
 								cudaMemcpyDeviceToDevice);
 				
 				// XZ view
 				if (image_acc_env_.gpu_accumulation_xz_queue && cd_.img_acc_slice_xz_enabled)
-					cudaMemcpy(buffers_.gpu_float_cut_xz_,
+					cudaXMemcpy(buffers_.gpu_float_cut_xz_,
 								image_acc_env_.gpu_float_average_xz_frame,
 								image_acc_env_.gpu_accumulation_xz_queue->get_fd().frame_size(),
 								cudaMemcpyDeviceToDevice);
 
 				// YZ view
 				if (image_acc_env_.gpu_accumulation_yz_queue && cd_.img_acc_slice_yz_enabled)
-					cudaMemcpy(buffers_.gpu_float_cut_yz_,
+					cudaXMemcpy(buffers_.gpu_float_cut_yz_,
 								image_acc_env_.gpu_float_average_yz_frame,
 								image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_size(),
 								cudaMemcpyDeviceToDevice);

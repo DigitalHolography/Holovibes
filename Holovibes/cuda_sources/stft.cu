@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "stft.cuh"
+#include "Common.cuh"
 
 #include <cassert>
 
@@ -19,14 +20,11 @@ using holovibes::Queue;
 using holovibes::ComputeDescriptor;
 
 // Short-Time Fourier Transform
-void stft(cuComplex			*input,
-		Queue				*gpu_queue,
+void stft(Queue				*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
-		const uint			q,
 		const uint			width,
 		const uint			height,
-		const bool			stft_activated,
 		const ComputeDescriptor &cd,
 		cudaStream_t		stream)
 {
@@ -38,45 +36,9 @@ void stft(cuComplex			*input,
 	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
 
 	// FFT 1D
-	if (stft_activated)
-	{
-		cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD);
-	}
-	cudaStreamSynchronize(0);
-	cudaMemcpy(	input,
-				stft_buf + p * frame_size,
-				complex_frame_size,
-				cudaMemcpyDeviceToDevice);
+	cufftSafeCall(cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD));
 
-	if (p != q)
-	{
-		assert(!"If this happens remove this assert, the code seems broken and useless");
-		cudaMemcpy(	input + frame_size,
-					stft_buf + q * frame_size,
-					complex_frame_size,
-					cudaMemcpyDeviceToDevice);
-	}
-}
-
-__global__
-static void	fill_64bit_slices(const cuComplex	*input,
-							cuComplex			*output_xz,
-							cuComplex			*output_yz,
-							const uint			start_x,
-							const uint			start_y,
-							const uint			frame_size,
-							const uint			output_size,
-							const uint			width,
-							const uint			height,
-							const uint			acc_level_xz,
-							const uint			acc_level_yz)
-{
-	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < output_size)
-	{
-		output_xz[id] = input[start_x * width + (id / width) * frame_size + id % width];
-		output_yz[id] = input[start_x + id * width];
-	}
+	// No sync needed since all the kernels are executed on stream 0
 }
 
 __global__
@@ -172,5 +134,6 @@ void stft_view_begin(const cuComplex	*input,
 		acc_level_xz, acc_level_yz,
 		img_type,
 		nSize);
+
 	cudaCheckError();
 }

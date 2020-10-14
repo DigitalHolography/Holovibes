@@ -3,15 +3,12 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     composite.cu
     contrast_correction.cu
     convolution.cu
-    debug_img.cu
     fft1.cu
     fft2.cu
     filter2D.cu
-    flowgraphy.cu
     hsv.cu
     min_max.cu
     percentile.cu
-    preprocessing.cu
     stft.cu
     texture_update.cu
     tools.cu
@@ -20,4 +17,5 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     tools_unwrap.cu
     transforms.cu
     vibrometry.cu
+    cuda_memory.cu
 )

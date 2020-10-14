@@ -21,7 +21,6 @@ static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 
 	const uint index = y * texDim.x + x;
 
 	surf2Dwrite(static_cast<uchar>(frame[index] >> 8), cuSurface, x << 2, y);
-	//surf2Dwrite(frame[index], cuSurface, x << 2, y);
 }
 
 __global__

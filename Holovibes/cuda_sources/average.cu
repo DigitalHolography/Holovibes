@@ -15,61 +15,10 @@
 #include "units/rect.hh"
 #include "unique_ptr.hh"
 #include "tools.hh"
+#include "cuda_memory.cuh"
 
 using holovibes::units::RectFd;
 using holovibes::Tuple4f;
-
-/*static __global__ 
-void kernel_zone_sum(const float	*input,
-					const uint		width,
-					float			*output,
-					const uint		zTopLeft_x,
-					const uint		zTopLeft_y,
-					const uint		zone_width,
-					const uint		zone_height)
-{
-	const uint				size = zone_width * zone_height;
-	const uint				tid = threadIdx.x;
-	const uint				index = blockIdx.x * blockDim.x + tid;
-	extern __shared__ float	sdata[];
-
-	// INIT
-	sdata[tid] = 0.0f;
-
-	// SUM input in sdata
-	if (index < size)
-	{
-		int x = index % zone_width + zTopLeft_x;
-		int y = index / zone_width + zTopLeft_y;
-		int index2 = y * width + x;
-
-		sdata[tid] += input[index2];
-	}
-
-	// Sum sdata in sdata[0]
-	__syncthreads();
-	for (uint s = blockDim.x >> 1; s > 32; s >>= 1)
-	{
-		if (tid < s)
-			sdata[tid] += sdata[tid + s];
-		__syncthreads();
-	}
-	if (tid < 32)
-	{
-		sdata[tid] += sdata[tid + 32];
-		sdata[tid] += sdata[tid + 16];
-		sdata[tid] += sdata[tid + 8];
-		sdata[tid] += sdata[tid + 4];
-		sdata[tid] += sdata[tid + 2];
-		sdata[tid] += sdata[tid + 1];
-	}
-
-	// Return result
-	__syncthreads();
-	if (tid == 0)
-		*output = sdata[0];
-}*/
-
 
 static __global__
 void kernel_zone_sum(const float	*input,
@@ -130,10 +79,6 @@ Tuple4f make_average_plot(float				*input,
 						const RectFd&		noise,
 						cudaStream_t		stream)
 {
-	//const uint size = width * height;
-	//const uint threads = THREADS_256;
-	//uint blocks = map_blocks_to_problem(size, threads);
-
 	holovibes::cuda_tools::UniquePtr<double> gpu_s;
 	holovibes::cuda_tools::UniquePtr<double> gpu_n;
 
@@ -145,46 +90,18 @@ Tuple4f make_average_plot(float				*input,
 	zone_sum(input, width, gpu_s, signal);
 	zone_sum(input, width, gpu_n, noise);
 
-	/*cudaMemsetAsync(gpu_s, 0, sizeof(float), stream);
-	cudaMemsetAsync(gpu_n, 0, sizeof(float), stream);
-
-	const uint signal_width = signal.width();
-	const uint signal_height = signal.height();
-	const uint noise_width = noise.width();
-	const uint noise_height = noise.height();
-
-	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_s,
-		signal.topLeft().x(), signal.topLeft().y(), signal_width, signal_height);
-	cudaCheckError();
-	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
-		noise.topLeft().x(), noise.topLeft().y(), noise_width, noise_height);
-	cudaCheckError();
-
-	float cpu_s;
-	float cpu_n;
-
-	cudaMemcpyAsync(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost, stream);
-	cudaMemcpyAsync(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost, stream);
-
-	cudaFree(gpu_n);
-	cudaFree(gpu_s);
-
-	cpu_s /= static_cast<float>(signal_width * signal_height);
-	cpu_n /= static_cast<float>(noise_width * noise_height);*/
-
 	double cpu_s;
 	double cpu_n;
 
-	cudaMemcpy(&cpu_s, gpu_s.get(), sizeof(double), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cpu_n, gpu_n.get(), sizeof(double), cudaMemcpyDeviceToHost);
+	cudaXMemcpy(&cpu_s, gpu_s.get(), sizeof(double), cudaMemcpyDeviceToHost);
+	cudaXMemcpy(&cpu_n, gpu_n.get(), sizeof(double), cudaMemcpyDeviceToHost);
 
 	float moy = cpu_s / cpu_n;
 
 	return Tuple4f{ cpu_s, cpu_n, moy, 10 * log10f(moy)};
 }
 
-Tuple4f make_average_stft_plot(cuComplex	*cbuf,
-							float			*fbuf,
+Tuple4f make_average_stft_plot(float			*fbuf,
 							cuComplex		*stft_buffer,
 							const uint		width,
 							const uint		height,
@@ -198,38 +115,7 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 {
 	const uint	size = width * height;
 
-	complex_to_modulus(cbuf, fbuf, stft_buffer, size, pindex, pindex, stream);
+	complex_to_modulus(fbuf, stft_buffer, size, pindex, pindex, stream);
 
 	return make_average_plot(fbuf, width, height, signal_zone, noise_zone, stream);
-}
-
-
-
-__global__
-void kernel_average_lines(float*	input,
-						float*	output,
-						uint	width,
-						uint	height)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < height)
-	{
-		float sum = 0.f;
-		float* line = input + width * index;
-		for (uint i = 0; i < width; i++)
-			sum += line[i];
-		output[index] = sum / width;
-	}
-}
-
-
-void average_lines(float*	input,
-					float*	output,
-					uint	width,
-					uint	height)
-{
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(height, threads);
-	kernel_average_lines << <blocks, threads, 0, 0 >> > (input, output, width, height);
-	cudaCheckError();
 }

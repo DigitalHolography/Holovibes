@@ -16,74 +16,11 @@ namespace holovibes
 {
 	using	LockGuard = std::lock_guard<std::mutex>;
 
-	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		algorithm(Algorithm::None),
-		time_filter(TimeFilter::STFT),
-		compute_mode(Computation::Stop),
-		nSize(1),
-		pindex(0),
-		lambda(532e-9f),
-		zdistance(1.50f),
-		img_type(ImgType::Modulus),
-		unwrap_history_size(1),
-		special_buffer_size(10),
-		log_scale_slice_xy_enabled(false),
-		log_scale_slice_xz_enabled(false),
-		log_scale_slice_yz_enabled(false),
-		fft_shift_enabled(false),
-		contrast_enabled(false),
-		convolution_enabled(false),
-		divide_convolution_enabled(false),
-		renorm_enabled(false),
-		renorm_constant(15),
-		filter_2d_enabled(false),
-		average_enabled(false),
-		contrast_min_slice_xy(1.f),
-		contrast_max_slice_xy(65535.f),
-		contrast_min_slice_xz(1.f),
-		contrast_min_slice_yz(1.f),
-		contrast_max_slice_xz(65535.f),
-		contrast_max_slice_yz(65535.f),
-		contrast_invert(false),
-		scale_bar_correction_factor(1),
-		convo_matrix_width(0),
-		convo_matrix_height(0),
-		convo_matrix_z(0),
-		pixel_size(5.42f),
-		img_acc_slice_xy_enabled(false),
-		img_acc_slice_xz_enabled(false),
-		img_acc_slice_yz_enabled(false),
-		img_acc_slice_xy_level(1),
-		img_acc_slice_xz_level(1),
-		img_acc_slice_yz_level(1),
-		p_accu_enabled(false),
-		p_acc_level(1),
-		x_acc_level(1),
-		x_accu_enabled(false),
-		y_accu_enabled(false),
-		y_acc_level(1),
-		stft_level(16),
-		stft_steps(1),
-		ref_diff_level(15),
-		ref_diff_enabled(false),
-		ref_sliding_enabled(false),
-		stft_view_enabled(false),
-		current_window(WindowKind::XYview),
-		cuts_contrast_p_offset(2),
-		display_rate(30),
-		composite_p_red(0),
-		composite_p_blue(0),
-		weight_r(1),
-		weight_g(1),
-		weight_b(1)
-	{
-
-	}
+	ComputeDescriptor::ComputeDescriptor() : Observable()
+	{}
 
 	ComputeDescriptor::~ComputeDescriptor()
-	{
-
-	}
+	{}
 
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
@@ -125,9 +62,6 @@ namespace holovibes
 		img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
 		stft_level = cd.stft_level.load();
 		stft_steps = cd.stft_steps.load();
-		ref_diff_level = cd.ref_diff_level.load();
-		ref_diff_enabled = cd.ref_diff_enabled.load();
-		ref_sliding_enabled = cd.ref_sliding_enabled.load();
 		stft_view_enabled = cd.stft_view_enabled.load();
 		current_window = cd.current_window.load();
 		cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();

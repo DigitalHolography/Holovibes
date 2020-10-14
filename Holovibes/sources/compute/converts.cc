@@ -19,9 +19,10 @@
 #include "tools_conversion.cuh"
 #include "composite.cuh"
 #include "hsv.cuh"
-#include "debug_img.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
+
+#include <mutex>
 
 namespace holovibes
 {
@@ -30,7 +31,7 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
-			const cufftHandle& plan2d,
+			cuda_tools::CufftHandle& plan2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd)
@@ -93,7 +94,6 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
-					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
 					stft_env_.gpu_stft_buffer_,
 					pmin_,
@@ -106,7 +106,6 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_squared_modulus(
-					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
 					stft_env_.gpu_stft_buffer_,
 					pmin_,
@@ -152,7 +151,7 @@ namespace holovibes
 		void Converts::insert_to_argument(bool unwrap_2d_requested)
 		{
 			fn_vect_.push_back([=]() {
-				complex_to_argument(buffers_.gpu_input_buffer_, buffers_.gpu_float_buffer_,
+				complex_to_argument(buffers_.gpu_float_buffer_,
 					stft_env_.gpu_stft_buffer_, pmin_, pmax_, fd_.frame_res()); });
 
 			if (unwrap_2d_requested)
@@ -199,7 +198,7 @@ namespace holovibes
 				unwrap_res_->reallocate(fd_.frame_res());
 				fn_vect_.push_back([=]() {
 					phase_increase(
-						buffers_.gpu_input_buffer_,
+						stft_env_.gpu_p_frame_,
 						unwrap_res_.get(),
 						fd_.frame_res());
 				});
@@ -271,6 +270,33 @@ namespace holovibes
 					buffers_.gpu_ushort_cut_yz_,
 					stft_env_.gpu_stft_slice_queue_yz->get_fd().frame_res(),
 					2.f);
+			});
+		}
+
+		void Converts::insert_complex_conversion(Queue& input)
+		{
+			fn_vect_.push_back([&]() {
+
+				// Wait while the input queue is enough filled
+				while (input.get_current_elts() < cd_.stft_steps);
+
+				std::lock_guard<std::mutex> m_guard(input.getGuard());
+
+				// Copy the data from the input queue to the input buffer
+				// ALL CALL ARE ASYNCHRONOUS SINCE ALL FFTs AND MEMCPYs ARE CALLED ON STREAM 0
+				input_queue_to_input_buffer(buffers_.gpu_input_buffer_.get(),
+											input.get_buffer(),
+											fd_.frame_res(),
+											cd_.stft_steps,
+											input.get_start_index(),
+											input.get_max_elts(),
+											fd_.depth);		
+
+				// Reduce the size
+				input.decrease_size(cd_.stft_steps);
+
+				// Move start index
+				input.increase_start_index(cd_.stft_steps);
 			});
 		}
 	}

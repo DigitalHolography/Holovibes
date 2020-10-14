@@ -10,6 +10,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
+string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda")
+
 set(HOLO_INCLUDES
     cuda_includes/
     includes/

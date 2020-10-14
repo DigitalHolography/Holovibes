@@ -2,11 +2,11 @@
 
 ### Dependencies
 
-* [Visual Studio 2017 / 2019](https://visualstudio.microsoft.com/fr/) (with `Desktop applications in C++`)
+* [Visual Studio 2019](https://visualstudio.microsoft.com/fr/) (with `Desktop applications in C++`)
 * [CUDA 11.1](https://developer.nvidia.com/cuda-downloads)
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
-* [Bitflow SDK 6.30](http://www.bitflow.com/downloads/bfsdk630.zip)
-* [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1) (serial code 2944-8538-8655-8474)
+* [Bitflow SDK 6.40](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
+* [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/) (if building with CMake ; fetched from NuGet in VS)
 
 #### Environment variables

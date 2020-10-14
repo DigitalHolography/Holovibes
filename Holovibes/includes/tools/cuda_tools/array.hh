@@ -18,6 +18,8 @@
 #include <cuda_runtime_api.h>
 #include <fstream>
 
+#include "cuda_memory.cuh"
+
 namespace holovibes
 {
 	namespace cuda_tools
@@ -96,7 +98,7 @@ namespace holovibes
 			{
 				std::vector<T> cpu_buffer(size_);
 				const size_t byte_size = size_ * sizeof(T);
-				cudaMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
+				cudaXMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
 				return cpu_buffer;
 			}
 

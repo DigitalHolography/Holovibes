@@ -22,7 +22,6 @@
 # include "fourier_transform.hh"
 # include "rendering.hh"
 # include "converts.hh"
-# include "preprocessing.hh"
 # include "postprocessing.hh"
 
 namespace holovibes
@@ -124,7 +123,15 @@ namespace holovibes
 		*/
 		virtual bool make_requests();
 
-		void			*get_enqueue_buffer();
+		/*!
+		** \brief Enqueue the input frame in the output queue in direct mode
+		*/
+		void insert_direct_enqueue_output();
+
+		/*!
+		** \brief Enqueue the output frame in the output queue in hologram mode
+		*/
+		void insert_hologram_enqueue_output();
 
 	private:
 		//! Vector of functions that will be executed in the exec() function.
@@ -141,7 +148,6 @@ namespace holovibes
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
 		std::unique_ptr<compute::Rendering> rendering_;
 		std::unique_ptr<compute::Converts> converts_;
-		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
 
 		std::unique_ptr<Queue> gpu_raw_queue_;

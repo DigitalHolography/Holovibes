@@ -24,6 +24,8 @@
 #include "DirectWindow.hh"
 #include "HoloWindow.hh"
 #include "info_manager.hh"
+#include "cuda_memory.cuh"
+#include "Common.cuh"
 
 namespace holovibes
 {
@@ -41,31 +43,31 @@ namespace holovibes
 		DirectWindow::~DirectWindow()
 		{}
 
-		units::RectFd	DirectWindow::getSignalZone() const
+		units::RectFd DirectWindow::getSignalZone() const
 		{
 			units::RectFd rect;
 			cd_->signalZone(rect, Get);
 			return rect;
 		}
 
-		units::RectFd	DirectWindow::getNoiseZone() const
+		units::RectFd DirectWindow::getNoiseZone() const
 		{
 			units::RectFd rect;
 			cd_->noiseZone(rect, Get);
 			return rect;
 		}
 
-		void	DirectWindow::setSignalZone(units::RectFd signal)
+		void DirectWindow::setSignalZone(units::RectFd signal)
 		{
 			overlay_manager_.set_zone(fd_.width, signal, Signal);
 		}
 
-		void	DirectWindow::setNoiseZone(units::RectFd noise)
+		void DirectWindow::setNoiseZone(units::RectFd noise)
 		{
 			overlay_manager_.set_zone(fd_.width, noise, Noise);
 		}
 
-		void	DirectWindow::initShaders()
+		void DirectWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
@@ -74,7 +76,7 @@ namespace holovibes
 			overlay_manager_.create_default();
 		}
 
-		void	DirectWindow::initializeGL()
+		void DirectWindow::initializeGL()
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
@@ -184,7 +186,7 @@ namespace holovibes
 		   a rectangle format. It also avoids the window to move when resizing.
 		   There is no visible calling function since it's overriding Qt function.
 		**/
-		void	DirectWindow::resizeGL(int w, int h)
+		void DirectWindow::resizeGL(int w, int h)
 		{
 			if (ratio == 0.0f)
 				return;
@@ -247,35 +249,49 @@ namespace holovibes
 			this->setPosition(point);
 		}
 
-
-
-		void	DirectWindow::paintGL()
+		void DirectWindow::paintGL()
 		{
+			// Window translation but none seems to be performed
 			glViewport(0, 0, width(), height());
 
+			// Bind framebuffer to the context, "not necessary to call this function in most cases, because it is called automatically before invoking paintGL()."
 			makeCurrent();
+			
+			// Clear buffer
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			// Binds the vertex array object to the OpenGL binding point
 			Vao.bind();
 			Program->bind();
 
-			cudaGraphicsMapResources(1, &cuResource, cuStream);
-			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
-			void* frame = Qu->get_last_images(1);
+			// Map resources for CUDA
+			cudaSafeCall(cudaGraphicsMapResources(1, &cuResource, cuStream));
+			// Retrive the cuda pointer
+			cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource));
 
+			// Get the last image from the ouput queue
+			void* frame = output_->get_last_images(1);
+
+			// Put the frame inside the cuda ressrouce
 			if (cd_->img_type == ImgType::Composite)
 			{
-				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
+				cudaXMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
 			}
 			else
 			{
 				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, cd_->compute_mode == Computation::Direct ? cd_->direct_bitshift.load() : 0);
 			}
 
-			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
-			cudaStreamSynchronize(cuStream);
+			// Release resources (needs to be done at each call) and sync, sync usefull since memcpy not async and kernel has a cudaDeviceSyncronize ?
+			cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
+			cudaSafeCall(cudaStreamSynchronize(cuStream));
 
+			// Texture creationg
 			glBindTexture(GL_TEXTURE_2D, Tex);
+
+			// Binds buffer to texture data source
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
+
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fd_.width, fd_.height, texType, texDepth, nullptr);
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -292,20 +308,21 @@ namespace holovibes
 
 			Program->release();
 			Vao.release();
+			
 			overlay_manager_.draw();
 		}
 
-		void	DirectWindow::mousePressEvent(QMouseEvent* e)
+		void DirectWindow::mousePressEvent(QMouseEvent* e)
 		{
 			overlay_manager_.press(e);
 		}
 
-		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
+		void DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			overlay_manager_.move(e);
 		}
 
-		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
+		void DirectWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
 				overlay_manager_.release(fd_.width);
@@ -336,7 +353,7 @@ namespace holovibes
 			setTransform();
 		}
 
-		void	DirectWindow::zoomInRect(units::RectOpengl zone)
+		void DirectWindow::zoomInRect(units::RectOpengl zone)
 		{
 			const units::PointOpengl center = zone.center();
 

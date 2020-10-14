@@ -74,10 +74,10 @@ namespace holovibes
 
 		protected:
 			// Fields -------------------
-
 			Qt::WindowState			winState;
 			QPoint					winPos;
-			std::unique_ptr<Queue>&					Qu;
+			//! Output queue filled in the computing pipeline
+			std::unique_ptr<Queue>&	output_;
 			ComputeDescriptor		*cd_;
 			const camera::FrameDescriptor&	fd_;
 			const KindOfView		kView;

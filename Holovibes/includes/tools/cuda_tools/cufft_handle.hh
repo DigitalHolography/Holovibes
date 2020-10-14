@@ -15,6 +15,7 @@
 #include <memory>
 
 #include <cufft.h>
+#include <cufftXt.h>
 
 namespace holovibes
 {
@@ -28,7 +29,7 @@ namespace holovibes
 
 			/*! \brief Default constructor
 			 */
-			CufftHandle() = default;
+			CufftHandle();
 
 			/*! \brief Constructor calling plan2d
 			 */
@@ -46,16 +47,25 @@ namespace holovibes
 			 *
 			 * Could be overloaded for plan1d and plan3d
 			 */
-			cufftResult plan(int x, int y, cufftType type);
+			void plan(int x, int y, cufftType type);
 
 			/*! \brief Calls planMany
 			 */
-			cufftResult planMany(int rank,
+			void planMany(int rank,
 				int *n,
 				int *inembed, int istride, int idist,
 				int *onembed, int ostride, int odist,
 				cufftType type,
 				int batch);
+
+			/*! \brief Calls XtplanMany
+            */
+            void CufftHandle::XtplanMany(int rank,
+                long long *n,
+                long long *inembed, long long istride, long long idist, cudaDataType inputtype,
+                long long *onembed, long long ostride, long long odist, cudaDataType outputtype,
+                long long batch,
+                cudaDataType executiontype);
 
 			/*! \brief Get a reference to the underlying cufftHandle
 			 */
@@ -75,6 +85,13 @@ namespace holovibes
 			 * we chose a unique_ptr to represent an possibly uninitialized one
 			 */
 			std::unique_ptr<cufftHandle> val_;
+
+			/*! \brief The FFT work size
+			 * Calculated once to help cufft know the work size he needs to perform the ffts
+			 * USED ONLY FOR XTPLANMANY
+			 * THIS IS NOT THREAD SAFE, IF YOU WANT TO USE CUFFT_HANDLE BETWEEN TWO THREADS SWITCH TO ATOMICS
+			 */
+			size_t* ws_;
 
 		};
 	}

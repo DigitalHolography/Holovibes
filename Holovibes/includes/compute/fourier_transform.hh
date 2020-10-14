@@ -22,6 +22,7 @@
 #include "rect.hh"
 #include "cuda_tools\unique_ptr.hh"
 #include "cuda_tools\array.hh"
+#include "cuda_tools\cufft_handle.hh"
 
 namespace holovibes
 {
@@ -42,13 +43,19 @@ namespace holovibes
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
-				const cufftHandle& plan2d,
+				cuda_tools::CufftHandle& plan2d,
 				Stft_env& stft_env);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
 
 			*/
 			void insert_fft();
+
+			/*! \brief enqueue functions that store the p frame after the time filter.
+
+			*/
+			void FourierTransform::insert_store_p_frame();
+
 
 			/*! \brief enqueue functions relative to temporal fourier transforms.
 
@@ -114,8 +121,8 @@ namespace holovibes
 			const camera::FrameDescriptor&	fd_;
 			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
-			//! Pland 2D. Used by STFT.
-			const cufftHandle&				plan2d_;
+			//! Pland 2D. Used by FFTs (1, 2, filter2D).
+			cuda_tools::CufftHandle&				plan2d_;
 			//! STFT environment.
 			Stft_env&						stft_env_;
 		};

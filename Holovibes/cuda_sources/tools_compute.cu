@@ -13,6 +13,7 @@
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
 #include "min_max.cuh"
+#include "cuda_memory.cuh"
 
 #include <stdio.h>
 
@@ -20,26 +21,44 @@
 
 __global__
 void kernel_complex_divide(cuComplex	*image,
-						 const uint		size,
-						 const float	divider)
+						 const uint		frame_res,
+						 const float	divider,
+						 const uint 	batch_size)
 {
-  const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-  //while (index < size)
-  {
-    image[index].x = image[index].x / divider;
-    image[index].y = image[index].y / divider;
-    //index += blockDim.x * gridDim.x;
-  }
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < frame_res)
+	{
+		for (uint i = 0; i < batch_size; ++i)
+		{
+			const uint batch_index = index + i * frame_res;
+
+			image[batch_index].x /= divider;
+			image[batch_index].y /= divider;
+		}
+	}
 }
 
+
 __global__
-void kernel_float_divide(float		*input,
-						const uint	size,
-						const float	divider)
+void kernel_real_part_divide(cuComplex	*image,
+	const uint		size,
+	const float	divider)
 {
-  const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-  if (index < size)
-    input[index] /= divider;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < size)
+		image[index].x = image[index].x / divider * AUTO_CONTRAST_COMPENSATOR;
+}
+
+void gpu_real_part_divide(cuComplex	*image,
+	const uint	size,
+	const float	divider)
+{
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_real_part_divide <<< blocks, threads >>>(image, size, divider);
+	cudaCheckError();
 }
 
 __global__
@@ -82,17 +101,6 @@ void multiply_frames_complex(const cuComplex	*input1,
 	uint		blocks = map_blocks_to_problem(size, threads);
 	kernel_multiply_frames_complex << <blocks, threads, 0, stream >> > (input1, input2, output, size);
 	cudaCheckError();
-}
-
-__global__
-void kernel_multiply_frames_float(const float	*input1,
-								const float		*input2,
-								float			*output,
-								const uint		size)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	output[index] = input1[index] * input2[index];
 }
 
 __global__
@@ -148,35 +156,6 @@ void subtract_frame_complex(cuComplex* img1,
 	cudaCheckError();
 	cudaStreamSynchronize(stream);
 }
-
-__global__
-void kernel_mean_images(cuComplex	*input,
-						cuComplex	*output,
-						uint		n,
-						uint		frame_size)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	float tmp = 0;
-	for (int i = 0; i < n; i++)
-		tmp += input[index + i * frame_size].x;
-	tmp /= n;
-	output[index].x = tmp;
-}
-
-void mean_images(cuComplex		*input,
-				cuComplex		*output,
-				uint			n,
-				uint			frame_size,
-				cudaStream_t	stream)
-{
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(frame_size, threads);
-
-	kernel_mean_images << <blocks, threads, 0, stream >> >(input, output, n, frame_size);
-	cudaCheckError();
-}
-
 
 struct extr_index
 {
@@ -257,8 +236,8 @@ void gpu_extremums(float			*input,
 
 	struct extr_index *local_extr = nullptr;
 	struct extr_index *global_extr = nullptr;
-	cudaMalloc(&local_extr, sizeof(struct extr_index) * 2 * nb_blocks);
-	cudaMalloc(&global_extr, sizeof(struct extr_index) * 2);
+	cudaXMalloc((void**)&local_extr, sizeof(struct extr_index) * 2 * nb_blocks);
+	cudaXMalloc((void**)&global_extr, sizeof(struct extr_index) * 2);
 
 	uint blocks = map_blocks_to_problem(nb_blocks, threads);
 	local_extremums << <threads, blocks, 0, 0 >> > (input,
@@ -272,11 +251,9 @@ void gpu_extremums(float			*input,
 	cudaCheckError();
 
 	struct extr_index extremum[2];
-	cudaMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
-	cudaCheckError();
-
-	cudaFree(local_extr);
-	cudaFree(global_extr);
+	cudaXMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
+	cudaXFree(local_extr);
+	cudaXFree(global_extr);
 
 	if (min)
 		*min = extremum[0].extr;

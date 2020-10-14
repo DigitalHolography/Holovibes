@@ -22,7 +22,7 @@ namespace camera
 {
   void CameraPike::init_camera()
   {
-    unsigned long result;
+    unsigned long result = 0;
     FGNODEINFO nodes_info[MAXCAMERAS];
     unsigned long max_nodes = MAXCAMERAS;
     unsigned long copied_nodes = 0;

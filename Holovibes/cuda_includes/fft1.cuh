@@ -30,8 +30,10 @@ void fft1_lens(cuComplex			*lens,
 * \param plan the first paramater of cufftExecC2C that will be called
 * on the image
 */
-void fft_1(cuComplex		*input,
-		const cuComplex		*lens,
-		const cufftHandle	plan2D,
-		const uint			frame_resolution,
-		cudaStream_t		stream = 0);
+void fft_1(cuComplex*			input,
+		cuComplex* 				output,
+		const uint 				batch_size,
+		const cuComplex*		lens,
+		const cufftHandle		plan2D,
+		const uint				frame_resolution,
+		cudaStream_t			stream = 0);

@@ -12,10 +12,13 @@
 
 #include "filter2D.cuh"
 
+#include <cufftXt.h>
+
 using camera::FrameDescriptor;
 
 __global__
-void filter2D_roi(cuComplex	*input,
+static void filter2D_roi(cuComplex	*input,
+				const uint  batch_size,
 				const uint	tl_x,
 				const uint	tl_y,
 				const uint	br_x,
@@ -37,13 +40,19 @@ void filter2D_roi(cuComplex	*input,
 		//If exclude_roi is true, we went the condition to be equivalent to inside_roi
 		if (inside_roi == exclude_roi)
 		{
-			input[index] = make_cuComplex(0, 0);
+			for (uint i = 0; i < batch_size; ++i)
+			{
+				const uint batch_index = index + i * size;
+
+				input[batch_index] = make_cuComplex(0, 0);
+			}
 		}
 	}
 }
 
 __global__
 void kernel_filter2D_BandPass(cuComplex	*input,
+				const uint 	batch_size,
 				const uint	zone_tl_x,
 				const uint	zone_tl_y,
 				const uint	zone_br_x,
@@ -69,13 +78,19 @@ void kernel_filter2D_BandPass(cuComplex	*input,
 		bool outside_selection = !inside_zone || inside_sub_zone;
 		if (outside_selection)
 		{
-			input[index] = make_cuComplex(0, 0);
+			for (uint i = 0; i < batch_size; ++i)
+			{
+				const uint batch_index = index + i * size;
+
+				input[batch_index] = make_cuComplex(0, 0);
+			}
 		}
 	}
 }
 
 void filter2D_BandPass(cuComplex				*input,
 					   cuComplex				*tmp_buffer,
+					   const uint 				batch_size,
 					   const cufftHandle		plan2d,
 					   const holovibes::units::RectFd&	zone,
 					   const holovibes::units::RectFd& subzone,
@@ -86,18 +101,16 @@ void filter2D_BandPass(cuComplex				*input,
 	uint blocks = map_blocks_to_problem(desc.frame_res(), threads);
 	uint size = desc.width * desc.height;
 
-	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-	cudaStreamSynchronize(0);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
 	if (!zone.area() || !subzone.area())
 		return;
-	//int center_x = (r.x + r.bottom_right.x) >> 1;
-	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 
-	shift_corners(input, desc.width, desc.height);
+	shift_corners(input, batch_size, desc.width, desc.height);
 	
 	kernel_filter2D_BandPass << <blocks, threads, 0, stream >> >(
 		input,
+		batch_size,
 		zone.topLeft().x(),
 		zone.topLeft().y(),
 		zone.bottomRight().x(),
@@ -110,12 +123,12 @@ void filter2D_BandPass(cuComplex				*input,
 		size);
 	cudaCheckError();
 
-	shift_corners(input, tmp_buffer, desc.width, desc.height);
-	//cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
+	shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height);
 
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,
 		input,
+		batch_size,
 		zone.center().x(),
 		zone.center().y(),
 		desc.width,
@@ -123,11 +136,12 @@ void filter2D_BandPass(cuComplex				*input,
 		size);
 	cudaCheckError();
 
-	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }
 
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
+			const uint 				batch_size,
 			const cufftHandle		plan2d,
 			const holovibes::units::RectFd&	r,
 			const FrameDescriptor&	desc,
@@ -138,18 +152,16 @@ void filter2D(cuComplex				*input,
 	uint blocks = map_blocks_to_problem(desc.frame_res(), threads);
 	uint size = desc.width * desc.height;
 
-	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-	cudaStreamSynchronize(0);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
 	if (!r.area())
 		return;
-	//int center_x = (r.x + r.bottom_right.x) >> 1;
-	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 
-	shift_corners(input, desc.width, desc.height);
-	
+	shift_corners(input, batch_size, desc.width, desc.height);
+
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
+		batch_size,
 		r.topLeft().x(),
 		r.topLeft().y(),
 		r.bottomRight().x(),
@@ -159,12 +171,12 @@ void filter2D(cuComplex				*input,
 		exclude_roi);
 	cudaCheckError();
 
-	shift_corners(input, tmp_buffer, desc.width, desc.height);
-	//cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
+	shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height);
 
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,
 		input,
+		batch_size,
 		r.center().x(),
 		r.center().y(),
 		desc.width,
@@ -172,5 +184,5 @@ void filter2D(cuComplex				*input,
 		size);
 	cudaCheckError();
 
-	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
+	cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }

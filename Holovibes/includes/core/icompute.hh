@@ -40,7 +40,7 @@ namespace holovibes
 	/*! \brief Struct containing main buffers used by the pipe. */
 	struct CoreBuffers
 	{
-		/** Input buffer. Contains only one frame. We fill it with the input frame, then with the correct computed p frame. */
+		/** Input buffer. Contains only one frame. We fill it with the input frame*/
 		cuda_tools::UniquePtr<cufftComplex>		gpu_input_buffer_ = nullptr;
 
 		/** Float buffer. Contains only one frame. We fill it with the correct computed p frame converted to float. */
@@ -70,10 +70,6 @@ namespace holovibes
 	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */
 	struct Stft_env
 	{
-		/** Mutex used for every temporal fft computation (fft or plan computation).
-		 TODO: Check if it is really usefull (if there is really more than one thread using these variables). */
-		std::mutex							stftGuard_;
-
 		/** STFT Queue. Constains nSize frames. It accumulates input frames after spatial fft,
 		 in order to apply STFT only when the frame counter is equal to STFT steps. */
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
@@ -86,14 +82,10 @@ namespace holovibes
 		/** Plan 1D used for the STFT. */
 		cuda_tools::CufftHandle				plan1d_stft_;
 
-		/** Boolean set if the STFT has been performed during this pipe iteration. Used to not re-compute post-processing between STFT Steps. */
-		bool								stft_handle_ = false;
-		/** Frame Counter. Counter before the next STFT perform. */
-		unsigned int						stft_frame_counter_ = 1;
-
+		/** Hold the P frame after the time filter computation. **/
+		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame_;
 
 		// The following are used for the SVD time filter
-
 		cuda_tools::UniquePtr<cuComplex> svd_cov = nullptr;
 		cuda_tools::UniquePtr<cuComplex> svd_tmp_buffer = nullptr;
 		cuda_tools::UniquePtr<float> svd_eigen_values = nullptr;
@@ -147,7 +139,6 @@ namespace holovibes
 
 		void request_refresh();
 		void request_resize(unsigned int new_output_size, bool kill_raw_queue);
-		void request_ref_diff_refresh();
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
@@ -159,6 +150,8 @@ namespace holovibes
 		void request_average_stop();
 		void request_average_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
 		void request_termination();
+		void request_update_stft_steps();
+
 		/*!
 		 * \brief Updates the queues size
 		 */
@@ -200,22 +193,16 @@ namespace holovibes
 		bool get_average_request()			const { return average_requested_; }
 		bool get_average_record_request()	const { return average_record_requested_; }
 		bool get_termination_request()		const { return termination_requested_; }
-		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
 		bool get_resize_request()           const { return resize_requested_; }
-
-		void set_stft_frame_counter(unsigned int value)
-		{
-			stft_env_.stft_frame_counter_ = value;
-		}
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 		virtual std::unique_ptr<Queue>&	get_raw_queue() = 0;
 	protected:
 
 		virtual void refresh() = 0;
-		virtual void allocation_failed(const int& err_count, std::exception& e);
+		virtual void pipe_error(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
 		void request_queues();
 
@@ -262,6 +249,8 @@ namespace holovibes
 		/** XZ Image Accumulation Queue. */
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
 
+		// Flags for requests
+
 		unsigned int requested_output_size_;
 
 		std::atomic<bool>	unwrap_1d_requested_;
@@ -277,8 +266,8 @@ namespace holovibes
 		std::atomic<bool>   resize_requested_;
 		std::atomic<bool>   kill_raw_queue_;
 		std::atomic<bool>	termination_requested_;
-		std::atomic<bool>	update_ref_diff_requested_;
 		std::atomic<bool>	request_stft_cuts_;
 		std::atomic<bool>	request_delete_stft_cuts_;
+		std::atomic<bool>   request_update_stft_steps_;
 	};
 }

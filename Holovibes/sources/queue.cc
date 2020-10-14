@@ -16,7 +16,7 @@
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
 #include "tools.cuh"
-
+#include "cuda_memory.cuh"
 
 #include "info_manager.hh"
 #include "logger.hh"
@@ -58,9 +58,7 @@ namespace holovibes
 		}
 
 		//Needed if input is embedded into a bigger square
-		cudaMemset(data_buffer_.get(), 0, frame_size_ * elts);
-
-		cudaCheckError();
+		cudaXMemset(data_buffer_.get(), 0, frame_size_ * elts);
 
 		fd_.byteEndian = Endianness::LittleEndian;
 		cudaStreamCreate(&stream_);
@@ -84,9 +82,7 @@ namespace holovibes
 		}
 
 		//Needed if input is embedded into a bigger square
-		cudaMemset(data_buffer_.get(), 0, frame_size_ * max_elts_);
-
-		cudaCheckError();
+		cudaXMemset(data_buffer_.get(), 0, frame_size_ * max_elts_);
 
 		curr_elts_ = 0;
 		start_index_ = 0;
@@ -158,11 +154,11 @@ namespace holovibes
 		switch (square_input_mode_)
 		{
 			case SquareInputMode::NO_MODIFICATION:
-				cuda_status = cudaMemcpyAsync(new_elt_adress,
+				// No async needed for Qt buffer
+				cuda_status = cudaMemcpy(new_elt_adress,
 											  elt,
 											  frame_size_,
-				 							  cuda_kind,
-											  stream_);
+				 							  cuda_kind);
 				break;
 			case SquareInputMode::ZERO_PADDED_SQUARE:
 				//The black bands should have been written at the allocation of the data buffer
@@ -172,7 +168,7 @@ namespace holovibes
 												new_elt_adress,
 												elm_size_,
 												cuda_kind,
-												stream_); 
+												stream_);
 				break;
 			case SquareInputMode::CROPPED_SQUARE:
 				cuda_status = crop_into_square(static_cast<char *>(elt),
@@ -182,6 +178,12 @@ namespace holovibes
 											   elm_size_,
 											   cuda_kind,
 											   stream_);
+				batched_crop_into_square(static_cast<char *>(elt),
+											input_width_,
+											input_height_,
+											new_elt_adress,
+											elm_size_,
+											1);
 				break;
 			default:
 				assert(false);
@@ -193,7 +195,7 @@ namespace holovibes
 
 		if (cuda_status != CUDA_SUCCESS)
 		{
-			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cuda_status)));
+ 			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cuda_status)));
 			if (display_)
 				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 			data_buffer_.reset();
@@ -203,6 +205,7 @@ namespace holovibes
 			endianness_conversion(
 				reinterpret_cast<ushort *>(new_elt_adress),
 				reinterpret_cast<ushort *>(new_elt_adress),
+				1,
 				fd_.frame_res(), stream_);
 
 		if (curr_elts_ < max_elts_)
@@ -211,15 +214,102 @@ namespace holovibes
 			start_index_ = (start_index_ + 1) % max_elts_;
 		if (display_)
 			display_queue_to_InfoManager();
+
+		return true;
+	}
+
+	void Queue::enqueue_multiple_aux(void *out,
+									 void *in,
+									 unsigned int nb_elts,
+									 cudaMemcpyKind cuda_kind)
+	{
+		switch (square_input_mode_)
+		{
+			case SquareInputMode::NO_MODIFICATION:
+				cudaXMemcpyAsync(out, in, nb_elts * fd_.frame_size(), cuda_kind);
+				break;
+			case SquareInputMode::ZERO_PADDED_SQUARE:
+				batched_embed_into_square(static_cast<char *>(in),
+												input_width_,
+												input_height_,
+												static_cast<char *>(out),
+												elm_size_,
+												nb_elts); 
+				break;
+			case SquareInputMode::CROPPED_SQUARE:
+				batched_crop_into_square(static_cast<char *>(in),
+											input_width_,
+											input_height_,
+											static_cast<char *>(out),
+											elm_size_,
+											nb_elts);
+				break;
+			default:
+				assert(false);
+				LOG_ERROR(std::string("Missing switch case for square input mode"));
+				if (display_)
+					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
+		}
+
+		if (is_big_endian_)
+			endianness_conversion(
+				reinterpret_cast<ushort *>(out),
+				reinterpret_cast<ushort *>(out),
+				nb_elts,
+				fd_.frame_res(),
+				stream_);
+	}
+
+	bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind)
+	{
+		// To avoid templating the Queue
+		char* elts_char = static_cast<char *>(elts);
+		if (nb_elts > max_elts_)
+		{
+			elts_char = elts_char + nb_elts * frame_size_ - max_elts_ * frame_size_;
+			nb_elts = max_elts_;
+		}
+
+		const uint begin_to_enqueue_index = (start_index_ + curr_elts_) % max_elts_;
+		void *begin_to_enqueue = data_buffer_.get() + (begin_to_enqueue_index * frame_size_);
+
+		if (begin_to_enqueue_index + nb_elts > max_elts_)
+		{
+			unsigned int nb_elts_to_insert_at_end = max_elts_ - begin_to_enqueue_index;
+			enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts_to_insert_at_end, cuda_kind);
+
+			elts_char += nb_elts_to_insert_at_end * frame_size_;
+
+			unsigned int nb_elts_to_insert_at_beginning = nb_elts - nb_elts_to_insert_at_end;
+			enqueue_multiple_aux(data_buffer_.get(), elts_char, nb_elts_to_insert_at_beginning, cuda_kind);
+		}
+		else
+		{
+			enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts, cuda_kind);
+		}
+
+		curr_elts_ += nb_elts;
+		// Overwrite older elements in the queue -> update start_index
+		if (curr_elts_ > max_elts_)
+		{
+			start_index_ = (start_index_ + curr_elts_ - max_elts_) % max_elts_;
+			curr_elts_ = max_elts_;
+		}
+
+		if (display_)
+			display_queue_to_InfoManager();
+
 		return true;
 	}
 
 	void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
 	{
+		MutexGuard mGuard(mutex_);
+
 		if (curr_elts_ > 0)
 		{
 			void* first_img = data_buffer_.get() + start_index_ * frame_size_;
-			cudaMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream_);
+			cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream_);
 			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
@@ -234,7 +324,7 @@ namespace holovibes
 			void* first_img = data_buffer_.get() + start_index_ * frame_size_;
 			cuda_tools::UniquePtr<uchar> tmp_uchar(frame_size_ / 2);
 			ushort_to_uchar(static_cast<ushort*>(first_img), tmp_uchar, frame_resolution_ * 3);
-			cudaMemcpy(dest, tmp_uchar, frame_resolution_ * 3, cuda_kind);
+			cudaXMemcpy(dest, tmp_uchar, frame_resolution_ * 3, cuda_kind);
 			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
@@ -246,6 +336,11 @@ namespace holovibes
 	{
 		MutexGuard mGuard(mutex_);
 
+		dequeue_non_mutex();
+	}
+
+	void Queue::dequeue_non_mutex()
+	{
 		if (curr_elts_ > 0)
 		{
 			start_index_ = (start_index_ + 1) % max_elts_;

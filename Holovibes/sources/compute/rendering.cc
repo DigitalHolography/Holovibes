@@ -48,6 +48,7 @@ namespace holovibes
 					fn_vect_.push_back([=]() {
 						shift_corners(
 							reinterpret_cast<float3 *>(buffers_.gpu_float_buffer_.get()),
+							1,
 							fd_.width,
 							fd_.height);
 					});
@@ -55,6 +56,7 @@ namespace holovibes
 					fn_vect_.push_back([=]() {
 						shift_corners(
 							buffers_.gpu_float_buffer_,
+							1,
 							fd_.width,
 							fd_.height);
 					});
