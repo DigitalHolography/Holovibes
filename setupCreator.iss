@@ -5,13 +5,13 @@
 #define BuildDir "build/Ninja"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "8.1"
+#define MyAppVersion "8.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 
-#define QtPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\plugins\platforms"
+#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.1\bin"
 
 [Setup]
