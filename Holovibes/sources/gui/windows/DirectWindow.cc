@@ -256,7 +256,7 @@ namespace holovibes
 
 			// Bind framebuffer to the context, "not necessary to call this function in most cases, because it is called automatically before invoking paintGL()."
 			makeCurrent();
-			
+
 			// Clear buffer
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -279,7 +279,7 @@ namespace holovibes
 			}
 			else
 			{
-				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, cd_->compute_mode == Computation::Direct ? cd_->direct_bitshift.load() : 0);
+				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, kView == KindOfView::Direct ? cd_->direct_bitshift.load() : 0);
 			}
 
 			// Release resources (needs to be done at each call) and sync, sync usefull since memcpy not async and kernel has a cudaDeviceSyncronize ?

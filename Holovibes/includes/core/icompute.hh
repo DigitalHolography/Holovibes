@@ -116,8 +116,6 @@ namespace holovibes
 			cuda_tools::UniquePtr<float>	gpu_float_average_yz_frame = nullptr;
 			/// Queue accumulating the YZ computed frames.
 			std::unique_ptr<Queue>			gpu_accumulation_yz_queue = nullptr;
-
-
 	};
 
 	/* \brief Stores functions helping the editing of the images.

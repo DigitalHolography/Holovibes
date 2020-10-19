@@ -276,10 +276,6 @@ namespace holovibes
 		void Converts::insert_complex_conversion(Queue& input)
 		{
 			fn_vect_.push_back([&]() {
-
-				// Wait while the input queue is enough filled
-				while (input.get_current_elts() < cd_.stft_steps);
-
 				std::lock_guard<std::mutex> m_guard(input.getGuard());
 
 				// Copy the data from the input queue to the input buffer

@@ -124,6 +124,16 @@ namespace holovibes
 		virtual bool make_requests();
 
 		/*!
+		** \brief Wait that there are at least a batch of frames in input queue
+		*/
+		void insert_wait_frames();
+
+		/*!
+		** \brief Enqueue a batch of frames of input queue for raw view
+		*/
+		void insert_raw_view_enqueue();
+
+		/*!
 		** \brief Enqueue the input frame in the output queue in direct mode
 		*/
 		void insert_direct_enqueue_output();

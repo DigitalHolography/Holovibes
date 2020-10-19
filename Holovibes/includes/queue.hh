@@ -131,9 +131,19 @@ namespace holovibes
 		*/
 		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
+		/*! \brief Copy method for multiple elements
+		**
+		**	Batch copy method
+		**
+		** \param dest Output queue
+		** \param nb_elts Number of elements to add in the queue
+		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		*/
+		void copy_multiple(std::unique_ptr<Queue>& dest, unsigned int nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+
 		/*! \brief Enqueue method for multiple elements
 		**
-		**	Loop over the enqueue method
+		**	Batch enqueue method
 		**
 		** \param elts List of elements to add in the queue
 		** \param nb_elts Number of elements to add in the queue
@@ -216,5 +226,30 @@ namespace holovibes
 		unsigned int input_height_;
 		unsigned int elm_size_;
 		SquareInputMode square_input_mode_;
+	};
+
+	struct QueueRegion
+	{
+		char *first = nullptr;
+		char *second = nullptr;
+		unsigned int first_size = 0;
+		unsigned int second_size = 0;
+
+		bool overflow(void)
+		{
+			return second != nullptr;
+		}
+
+		void consume_first(unsigned int size, unsigned int frame_size)
+		{
+			first += size * frame_size;
+			first_size -= size;
+		}
+
+		void consume_second(unsigned int size, unsigned int frame_size)
+		{
+			second += size * frame_size;
+			second_size -= size;
+		}
 	};
 }

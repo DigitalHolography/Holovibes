@@ -19,11 +19,20 @@
 
 namespace holovibes
 {
-
     void device_print(uchar* d_data, size_t offset, size_t nb_elts)
     {
         uchar* h_data = (uchar*)malloc(sizeof(uchar) * nb_elts);
         cudaXMemcpy(h_data, d_data + offset, sizeof(uchar) * nb_elts, cudaMemcpyDeviceToHost);
+        for (size_t i = 0; i < nb_elts; ++i)
+            std::cout << static_cast<uint>(h_data[i]) << std::endl;
+
+        free(h_data);
+    }
+
+    void device_print(ushort* d_data, size_t offset, size_t nb_elts)
+    {
+        ushort* h_data = (ushort*)malloc(sizeof(ushort) * nb_elts);
+        cudaXMemcpy(h_data, d_data + offset, sizeof(ushort) * nb_elts, cudaMemcpyDeviceToHost);
         for (size_t i = 0; i < nb_elts; ++i)
             std::cout << static_cast<uint>(h_data[i]) << std::endl;
 

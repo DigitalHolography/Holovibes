@@ -107,7 +107,7 @@ namespace holovibes
 			update_n_requested_ = false;
 		}
 
-		const auto& input_fd = input_.get_fd(); 
+		const auto& input_fd = input_.get_fd();
 
 		if (request_update_stft_steps_)
 		{
@@ -164,6 +164,10 @@ namespace holovibes
 
 		/* Begin insertions */
 
+		insert_wait_frames();
+
+		insert_raw_view_enqueue();
+
 		converts_->insert_complex_conversion(input_);
 
 		// spatial transform
@@ -204,6 +208,24 @@ namespace holovibes
 		refresh_requested_ = false;
 	}
 
+	void Pipe::insert_raw_view_enqueue()
+	{
+		fn_vect_.push_back([&](){
+			if (cd_.raw_view || cd_.record_raw)
+			{
+				input_.copy_multiple(get_raw_queue(), cd_.stft_steps);
+			}
+		});
+	}
+
+	void Pipe::insert_wait_frames()
+	{
+		fn_vect_.push_back([&](){
+			// Wait while the input queue is enough filled
+			while (input_.get_current_elts() < cd_.stft_steps);
+		});
+	}
+
 	void Pipe::insert_direct_enqueue_output()
 	{
 		fn_vect_.push_back([&]()
@@ -242,14 +264,6 @@ namespace holovibes
 				{
 					// Run the entire pipeline of calculation
 					run_all();
-
-					// {
-					// 	if (!get_raw_queue()->enqueue(input_.get_start()))
-					// 	{
-					// 		input_.dequeue();
-					// 		break;
-					// 	}
-					// }
 
 					if (refresh_requested_)
 						refresh();

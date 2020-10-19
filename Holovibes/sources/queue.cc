@@ -260,6 +260,111 @@ namespace holovibes
 				stream_);
 	}
 
+	void Queue::copy_multiple(std::unique_ptr<Queue>& dest, unsigned int nb_elts, cudaMemcpyKind cuda_kind)
+	{
+		if (nb_elts > curr_elts_)
+			nb_elts = curr_elts_;
+
+		// Determine regions info
+		struct QueueRegion src;
+		if (start_index_ + nb_elts > max_elts_)
+		{
+			src.first = static_cast<char *>(get_start());
+			src.first_size = max_elts_ - start_index_;
+			src.second = data_buffer_.get();
+			src.second_size = nb_elts - src.first_size;
+		}
+		else
+		{
+			src.first = static_cast<char *>(get_start());
+			src.first_size = nb_elts;
+		}
+
+		struct QueueRegion dst;
+		const uint begin_to_enqueue_index = (dest->start_index_ + dest->curr_elts_) % dest->max_elts_;
+		void *begin_to_enqueue = dest->data_buffer_.get() + (begin_to_enqueue_index * dest->frame_size_);
+		if (begin_to_enqueue_index + nb_elts > dest->max_elts_)
+		{
+			dst.first = static_cast<char *>(begin_to_enqueue);
+			dst.first_size = dest->max_elts_ - begin_to_enqueue_index;
+			dst.second = dest->data_buffer_.get();
+			dst.second_size = nb_elts - dst.first_size;
+		}
+		else
+		{
+			dst.first = static_cast<char *>(begin_to_enqueue);
+			dst.first_size = nb_elts;
+		}
+
+		// Handle copies depending on regions info
+		if (src.overflow())
+		{
+			if (dst.overflow())
+			{
+				if (src.first_size > dst.first_size)
+				{
+					cudaXMemcpyAsync(dst.first, src.first, dst.first_size * fd_.frame_size(), cuda_kind);
+					src.consume_first(dst.first_size, fd_.frame_size());
+
+					cudaXMemcpyAsync(dst.second, src.first, src.first_size * fd_.frame_size(), cuda_kind);
+					dst.consume_second(src.first_size, fd_.frame_size());
+
+					cudaXMemcpyAsync(dst.second, src.second, src.second_size * fd_.frame_size(), cuda_kind);
+				}
+				else // src.first_size <= dst.first_size
+				{
+					cudaXMemcpyAsync(dst.first, src.first, src.first_size * fd_.frame_size(), cuda_kind);
+					dst.consume_first(src.first_size, fd_.frame_size());
+
+					if (src.second_size > dst.first_size)
+					{
+						cudaXMemcpyAsync(dst.first, src.second, dst.first_size * fd_.frame_size(), cuda_kind);
+						src.consume_second(dst.first_size, fd_.frame_size());
+
+						cudaXMemcpyAsync(dst.second, src.second, src.second_size * fd_.frame_size(), cuda_kind);
+					}
+					else // src.second_size == dst.first_size
+					{
+						cudaXMemcpyAsync(dst.first, src.second, src.second_size * fd_.frame_size(), cuda_kind);
+					}
+				}
+			}
+			else
+			{
+				// In this case: dst.first_size > src.first_size
+
+				cudaXMemcpyAsync(dst.first, src.first, src.first_size * fd_.frame_size(), cuda_kind);
+				dst.consume_first(src.first_size, fd_.frame_size());
+
+				cudaXMemcpyAsync(dst.first, src.second, dst.first_size * fd_.frame_size(), cuda_kind);
+			}
+		}
+		else
+		{
+			if (dst.overflow())
+			{
+				// In this case: src.first_size > dst.first_size
+
+				cudaXMemcpyAsync(dst.first, src.first, dst.first_size * fd_.frame_size(), cuda_kind);
+				src.consume_first(dst.first_size, fd_.frame_size());
+
+				cudaXMemcpyAsync(dst.second, src.first, src.first_size * fd_.frame_size(), cuda_kind);
+			}
+			else
+			{
+				cudaXMemcpyAsync(dst.first, src.first, src.first_size * fd_.frame_size(), cuda_kind);
+			}
+		}
+
+		// Update dest queue parameters
+		dest->curr_elts_ += nb_elts;
+		if (dest->curr_elts_ > dest->max_elts_)
+		{
+			dest->start_index_ = (dest->start_index_ + dest->curr_elts_ - dest->max_elts_) % dest->max_elts_;
+			dest->curr_elts_ = dest->max_elts_;
+		}
+	}
+
 	bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind)
 	{
 		// To avoid templating the Queue

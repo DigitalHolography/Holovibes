@@ -67,4 +67,5 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/units/opengl_position.cc
     tools/units/real_position.cc
     tools/units/window_pixel.cc
+    tools/tools_debug.cc
 )
