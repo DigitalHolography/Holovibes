@@ -65,10 +65,6 @@ namespace holovibes
 		{
 			makeCurrent();
 
-			if (cuResource)
-			{
-				cudaGraphicsUnregisterResource(cuResource);
-			}
 			cudaStreamDestroy(cuStream);
 
 			if (Tex) glDeleteBuffers(1, &Tex);
@@ -108,7 +104,7 @@ namespace holovibes
 		{
 			return overlay_manager_;
 		}
-		
+
 		const glm::mat3x3 & BasicOpenGLWindow::getTransformMatrix() const
 		{
 			return transform_matrix_;
@@ -145,7 +141,7 @@ namespace holovibes
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
-				break;	
+				break;
 			}
 			overlay_manager_.keyPress(e);
 		}
@@ -183,7 +179,7 @@ namespace holovibes
 		{
 			return glm::vec2(translate_[0], translate_[1]);
 		}
-		
+
 		void BasicOpenGLWindow::resetTransform()
 		{
 			translate_ = { 0.f, 0.f, 0.f, 0.f };
@@ -231,7 +227,7 @@ namespace holovibes
 			transform_matrix_[2][1] = translate_[1] * 2 * scale_;
 
 			transform_matrix_[2][2] = 1;
-			
+
 			transform_inverse_matrix_ = glm::inverse(transform_matrix_);
 			if (Program)
 			{
