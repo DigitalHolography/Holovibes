@@ -1,5 +1,31 @@
 ## Changelog
 
+### 8.3
+
+* Improve performances/reliability of thread reader and allow loading the entire input file in GPU for really high FPS
+* Show camera input FPS in Info panel
+* Auto-scale for average signal plot
+* Clean GUI of post-processing (convolution and average signal) and reduce size of main window
+* Remove ROI save/load, record frame step from GUI and square_pixel, scale bar
+* Put main window size and max stft cuts windows size in holovibes.ini
+* Fix STFT cuts work with SVD mode
+* Fix phase unwrap 2d
+* Fix crash in direct mode with raw view enabled
+* Setup installer do not run Holovibes at the end and installs C++ redistribuable 2019 if not already installed
+
+### 8.2.1
+
+* Fix raw view and raw recording
+
+### 8.2
+
+* Batch beginning of pipeline
+* Remove frame normalization
+* Implement unit test suite
+* Change translation step from 1/10 to 1/20
+* Remove useless parameters from import panel (width, height, ...)
+* Refactor of autocontrast and image accumulation code
+
 ### 8.1
 
 * Fix small bugs preventing composite HSV and RGB images to render correctly
