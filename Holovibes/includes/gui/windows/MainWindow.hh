@@ -231,8 +231,6 @@ namespace holovibes
 			void set_night();
 			void rotateTexture();
 			void flipTexture();
-			void set_scale_bar(bool value);
-			void set_scale_bar_correction_factor(double value);
 			void set_synchronized_record(bool value);
 			void display_cross(bool value);
 			void reticle_scale(double value);

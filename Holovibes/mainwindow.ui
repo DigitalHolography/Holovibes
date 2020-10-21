@@ -285,13 +285,13 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ZLabel">
-             <property name="text">
-              <string>z (m)</string>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="PSpinBox">
+             <property name="toolTip">
+              <string>index of the image displayed</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="minimum">
+              <number>0</number>
              </property>
             </widget>
            </item>
@@ -299,16 +299,6 @@
             <widget class="QLabel" name="ZStepLabel">
              <property name="text">
               <string>z step (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="PLabel">
-             <property name="text">
-              <string>p</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -325,14 +315,65 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="PSpinBox">
+           <item row="6" column="0">
+            <widget class="QLabel" name="ZLabel">
+             <property name="text">
+              <string>z (m)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="PLabel">
+             <property name="text">
+              <string>p</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QDoubleSpinBox" name="ZStepDoubleSpinBox">
              <property name="toolTip">
-              <string>index of the image displayed</string>
+              <string>step between each modification of z</string>
              </property>
-             <property name="minimum">
-              <number>0</number>
+             <property name="decimals">
+              <number>5</number>
              </property>
+             <property name="maximum">
+              <double>100.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.005000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="AlgorithmComboBox">
+             <property name="toolTip">
+              <string>select the rendering mode for Hologram</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1FFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2FFT</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="6" column="1">
@@ -376,44 +417,13 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="AlgorithmComboBox">
-             <property name="toolTip">
-              <string>select the rendering mode for Hologram</string>
+           <item row="1" column="0">
+            <widget class="QLabel" name="AlgorithmLabel">
+             <property name="text">
+              <string>Space filter</string>
              </property>
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1FFT</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2FFT</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QDoubleSpinBox" name="ZStepDoubleSpinBox">
-             <property name="toolTip">
-              <string>step between each modification of z</string>
-             </property>
-             <property name="decimals">
-              <number>5</number>
-             </property>
-             <property name="maximum">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.005000000000000</double>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -433,16 +443,6 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="BoundaryLabel">
-             <property name="text">
-              <string>Boundary (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
            <item row="8" column="1">
             <widget class="QLineEdit" name="BoundaryLineEdit">
              <property name="toolTip">
@@ -456,20 +456,20 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="AlgorithmLabel">
+           <item row="2" column="0">
+            <widget class="QLabel" name="TimeAlgorithmLabel">
              <property name="text">
-              <string>Space filter</string>
+              <string>Time filter </string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="TimeAlgorithmLabel">
+           <item row="8" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
              <property name="text">
-              <string>Time filter </string>
+              <string>Boundary (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -556,22 +556,6 @@
          <bool>false</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
-         <item row="9" column="1">
-          <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.500000000000000</double>
-           </property>
-          </widget>
-         </item>
          <item row="6" column="0" colspan="2">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
@@ -830,6 +814,22 @@
            </layout>
           </widget>
          </item>
+         <item row="8" column="1">
+          <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.500000000000000</double>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="sizeConstraint">
@@ -884,52 +884,6 @@
                <string>Composite image</string>
               </property>
              </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="8" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="1,0,0">
-           <item>
-            <widget class="QCheckBox" name="ScaleBarCheckBox">
-             <property name="text">
-              <string>Scale Bar</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="statusTip">
-              <string>Correction factor to calibrate scale bar with the hologram</string>
-             </property>
-             <property name="text">
-              <string>Corr.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="doubleSpinBox">
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="value">
-              <double>1.000000000000000</double>
-             </property>
             </widget>
            </item>
           </layout>
@@ -1107,7 +1061,7 @@
            </item>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="8" column="0">
           <widget class="QCheckBox" name="DisplayReticleCheckBox">
            <property name="enabled">
             <bool>true</bool>
@@ -1183,7 +1137,7 @@
            </item>
           </layout>
          </item>
-         <item row="10" column="0" colspan="2">
+         <item row="9" column="0" colspan="2">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -4706,38 +4660,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ScaleBarCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_scale_bar(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>266</x>
-     <y>410</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_scale_bar_correction_factor(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>412</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>506</x>
-     <y>-12</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>CompositeAreaButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -5476,7 +5398,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>on_notify()</slot>
-  <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
   <slot>set_composite_intervals_hsv_h_min()</slot>
   <slot>set_composite_intervals_hsv_h_max()</slot>
@@ -5493,7 +5414,6 @@ p, li { white-space: pre-wrap; }
   <slot>actualize_kernel_size_blur()</slot>
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
-  <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>update_raw_view(bool)</slot>

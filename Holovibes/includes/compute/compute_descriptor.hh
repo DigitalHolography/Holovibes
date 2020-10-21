@@ -286,8 +286,6 @@ namespace holovibes
 		std::atomic<ushort>			cuts_contrast_p_offset{ 2 };
 		//! Size of a pixel in micron
 		std::atomic<float>			pixel_size;
-		//! Correction factor of the scale bar, used to match the objective of the camera
-		std::atomic<float>			scale_bar_correction_factor{ 1 };
 		//! Width of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_width{ 0 };
 		//! Height of the matrix used for convolution

@@ -44,8 +44,6 @@ namespace holovibes
 			// -------
 			Filter2D,
 			Filter2DSubZone,
-			// scale bar
-			Scale,
 			// Composite overlays
 			CompositeArea,
 			Rainbow,
@@ -63,80 +61,80 @@ namespace holovibes
 			virtual ~Overlay();
 
 			/*! \brief Get the zone selected
-			
+
 			*/
 			const units::RectFd&	getZone()	const;
 
 			/*! \brief Get the kind of overlay
-			
+
 			*/
 			const KindOfOverlay		getKind()		const;
 
 			/*! \brief Return if the overlay should be displayed
-			
+
 			*/
 			const bool				isDisplayed()	const;
 			/*! \brief Return if the overlay have to be deleted
-			
+
 			*/
 			const bool				isActive()		const;
 			/*! \brief Disable this overlay
-			
+
 			*/
 			void					disable();
 
 			/*! \brief Initialize shaders and Vao/Vbo of the overlay
-			
+
 			*/
 			void initProgram();
 
 			//void setZone(int side, Rectangle rect);
 
 			/*! \brief Call opengl function to draw the overlay
-			
+
 			*/
 			virtual void draw() = 0;
 
 			/*! \brief Called when the user press the mouse button
-			
+
 			*/
 			virtual void press(QMouseEvent* e);
 			/*! \brief Called when the user press a key
-			
+
 			*/
 			virtual void keyPress(QKeyEvent* e);
 			/*! \brief Called when the user moves the mouse
-			
+
 			*/
 			virtual void move(QMouseEvent *e) = 0;
 			/*! \brief Called when the user release the mouse button
-			
+
 			*/
 			virtual void release(ushort frameside) = 0;
 
 			/*! \brief Set the zone, buffers, and call release
-			
+
 			*/
 			virtual void setZone(units::RectFd rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose.
-			
+
 			*/
 			void print();
 
 		protected:
 			/*! \brief Initialize Vao/Vbo
-			
+
 			*/
 			virtual void init() = 0;
 
 			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer
-			
+
 			*/
 			virtual void setBuffer() = 0;
 
 			/*! \brief Converts QPoint to a point in the window
-			
+
 			*/
 			units::PointWindow getMousePos(QPoint pos);
 
@@ -162,7 +160,7 @@ namespace holovibes
 			//! Transparency of the overlay, between 0 and 1
 			float alpha_;
 
-			/*! If the overlay is activated or not. 
+			/*! If the overlay is activated or not.
 			 *  Since we don't want the overlay to remove itself from the vector of overlays,
 			 *  We set this boolean, and remove it later by iterating through the vector.
 			 */

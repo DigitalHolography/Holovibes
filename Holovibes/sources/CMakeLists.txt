@@ -32,7 +32,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/selections/overlays/noise_overlay.cc
     gui/selections/overlays/rainbow_overlay.cc
     gui/selections/overlays/reticle_overlay.cc
-    gui/selections/overlays/scale_overlay.cc
     gui/selections/overlays/signal_overlay.cc
     gui/selections/overlays/slice_cross_overlay.cc
     gui/selections/overlays/zoom_overlay.cc

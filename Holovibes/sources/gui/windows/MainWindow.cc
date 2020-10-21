@@ -2271,34 +2271,6 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_scale_bar(bool value)
-		{
-			if (value)
-			{
-				if (mainDisplay)
-					mainDisplay->getOverlayManager().create_overlay<Scale>();
-				if (sliceXZ)
-					sliceXZ->getOverlayManager().create_overlay<Scale>();
-				if (sliceYZ)
-					sliceYZ->getOverlayManager().create_overlay<Scale>();
-			}
-			else
-			{
-				if (mainDisplay)
-					mainDisplay->getOverlayManager().disable_all(Scale);
-				if (sliceXZ)
-					sliceXZ->getOverlayManager().disable_all(Scale);
-				if (sliceYZ)
-					sliceYZ->getOverlayManager().disable_all(Scale);
-			}
-
-		}
-
-		void MainWindow::set_scale_bar_correction_factor(double value)
-		{
-			cd_.scale_bar_correction_factor = value;
-		}
-
 #pragma endregion
 		/* ------------ */
 #pragma region Contrast - Log

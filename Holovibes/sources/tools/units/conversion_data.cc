@@ -67,18 +67,18 @@ namespace holovibes
 			auto fd = window_->getFd();
 			float pix_size;
 			if (window_->getKindOfView() == Hologram)
-				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6) * cd->scale_bar_correction_factor;
+				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
 			else if (window_->getKindOfView() == SliceXZ && axis == Axis::HORIZONTAL) {
-				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6) * cd->scale_bar_correction_factor;
+				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
 			}
 			else if (window_->getKindOfView() == SliceYZ && axis == Axis::VERTICAL) {
-				pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6) * cd->scale_bar_correction_factor;
+				pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
 			}
 			else
 			{
 				pix_size = std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
 			}
-			
+
 			return val * pix_size;
 		}
 

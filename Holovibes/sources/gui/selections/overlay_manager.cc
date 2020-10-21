@@ -20,7 +20,6 @@
 #include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
 #include "filter2d_subzone_overlay.hh"
-#include "scale_overlay.hh"
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
@@ -109,17 +108,6 @@ namespace holovibes
 		{
 			if (!set_current(KindOfOverlay::CompositeArea))
 				create_overlay(std::make_shared<CompositeAreaOverlay>(parent_));
-		}
-
-		template <>
-		void OverlayManager::create_overlay<Scale>()
-		{
-			if (!set_current(Scale))
-			{
-				auto o = std::make_shared<ScaleOverlay>(parent_);
-				o->initProgram();
-				overlays_.push_back(o);
-			}
 		}
 
 		template<>

@@ -51,7 +51,6 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			//overlay_manager_.create_overlay<Scale>();
 			if (cd_->img_type == ImgType::Composite)
 				overlay_manager_.create_overlay<Rainbow>();
 			else
