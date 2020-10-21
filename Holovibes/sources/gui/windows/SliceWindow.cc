@@ -31,7 +31,6 @@ namespace holovibes
 			main_window_(main_window)
 		{
 			setMinimumSize(s);
-			setMaximumSize(s);
 		}
 
 		SliceWindow::~SliceWindow()
