@@ -60,7 +60,7 @@ namespace holovibes
 			{
 				gpu_accumulation_queue.reset(
 					new Queue(fd, accumulation_level, "AccumulationQueue@allocate_accumalation_queue"));
-					
+
 				// accumulation queue successfully allocated
 				if (!gpu_average_frame)
 				{
@@ -128,7 +128,7 @@ namespace holovibes
 					gpu_accumulation_queue->get_current_elts(),
 					gpu_accumulation_queue->get_max_elts(),
 					image_acc_level,
-					gpu_accumulation_queue->get_fd().frame_res());
+					buffers_.gpu_float_buffer_size_);
 			}
 		}
 
@@ -168,7 +168,7 @@ namespace holovibes
 								image_acc_env_.gpu_float_average_xy_frame,
 								image_acc_env_.gpu_accumulation_xy_queue->get_fd().frame_size(),
 								cudaMemcpyDeviceToDevice);
-				
+
 				// XZ view
 				if (image_acc_env_.gpu_accumulation_xz_queue && cd_.img_acc_slice_xz_enabled)
 					cudaXMemcpy(buffers_.gpu_float_cut_xz_,
