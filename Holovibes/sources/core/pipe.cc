@@ -183,6 +183,8 @@ namespace holovibes
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
+		fourier_transforms_->insert_stft_cuts_view();
+
 		// Used for phase increase
 		fourier_transforms_->insert_store_p_frame();
 

@@ -57,7 +57,13 @@ void compute_autocontrast(float *input,
 	};
 
 	// Compute the min and max
-	percentile_float(input + offset, size - offset, percent_in_h, percent_out, 2);
+	percentile_float(
+		input + offset,
+		size - 2 * offset, // 2 * offset to apply offset at beginning and at end
+		percent_in_h,
+		percent_out,
+		2
+	);
 
 	*min = percent_out[0];
 	*max = percent_out[1];

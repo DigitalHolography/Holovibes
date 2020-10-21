@@ -56,21 +56,26 @@ namespace holovibes
 			*/
 			void FourierTransform::insert_store_p_frame();
 
+			/*! \brief Get Lens Queue used to display the Fresnel lens.
+
+			*/
+			std::unique_ptr<Queue>& get_lens_queue();
 
 			/*! \brief enqueue functions relative to temporal fourier transforms.
 
 			*/
 			void insert_stft();
 
-			/*! \brief Get Lens Queue used to display the Fresnel lens.
-
-			*/
-			std::unique_ptr<Queue>& get_lens_queue();
-
 			/*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
 					   This should eventually replace stft
 			*/
 			void insert_eigenvalue_filter();
+
+			/*! \brief Enqueue functions relative to stft cuts display when there are activated
+
+			*/
+			void insert_stft_cuts_view();
+
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
 
@@ -86,15 +91,6 @@ namespace holovibes
 
 			*/
 			void insert_fft2();
-
-			/*! \brief Apply the STFT algorithm.
-
-			 * 1 : Check if the STFT must be performed acording to stft_steps \n
-			 * 2 : Call the STFT cuda function \n
-			 * 3 : If STFT has been performed, compute the slice buffer \n
-			 * 4 : Set stft_handle in order to break the pipe after this call when STFT hasn't been performed.
-			 */
-			void stft_handler();
 
 			/*! \brief Enqueue the Fresnel lens into the Lens Queue.
 

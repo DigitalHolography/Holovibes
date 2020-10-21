@@ -175,7 +175,15 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_stft()
 {
-	fn_vect_.push_back([=]() { stft_handler(); });
+	fn_vect_.push_back([=]() {
+		stft(stft_env_.gpu_stft_queue_.get(),
+		stft_env_.gpu_stft_buffer_,
+		stft_env_.plan1d_stft_,
+		fd_.width,
+		fd_.height,
+		cd_,
+		false);
+	 });
 }
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
@@ -198,49 +206,6 @@ void FourierTransform::enqueue_lens()
 		gpu_lens_queue_->enqueue(gpu_lens_);
 		// Normalizing the newly enqueued element
 		normalize_complex(copied_lens_ptr, fd_.frame_res());
-	}
-}
-
-void FourierTransform::stft_handler()
-{
-	static ushort mouse_posx;
-	static ushort mouse_posy;
-
-	stft(stft_env_.gpu_stft_queue_.get(),
-		stft_env_.gpu_stft_buffer_,
-		stft_env_.plan1d_stft_,
-		fd_.width,
-		fd_.height,
-		cd_,
-		false);
-
-	if (cd_.stft_view_enabled)
-	{
-		// Conservation of the coordinates when cursor is outside of the window
-		units::PointFd cursorPos = cd_.getStftCursor();
-		const ushort width = fd_.width;
-		const ushort height = fd_.height;
-		if (static_cast<ushort>(cursorPos.x()) < width &&
-			static_cast<ushort>(cursorPos.y()) < height)
-		{
-			mouse_posx = cursorPos.x();
-			mouse_posy = cursorPos.y();
-		}
-		// -----------------------------------------------------
-		stft_view_begin(stft_env_.gpu_stft_buffer_,
-			buffers_.gpu_float_cut_xz_.get(),
-			buffers_.gpu_float_cut_yz_.get(),
-			mouse_posx,
-			mouse_posy,
-			mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),
-			mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
-			width,
-			height,
-			cd_.img_type,
-			cd_.nSize,
-			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
-			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
-			cd_.img_type);
 	}
 }
 
@@ -312,23 +277,6 @@ void FourierTransform::insert_eigenvalue_filter()
 		// eigen vectors
 		cuComplex* V = cov;
 
-		/* Filtering the eigenvector matrix according to p and p_acc
-			The matrix should look like this:
-
-				0  ... p-1  p ... p_acc p+p_acc+1 ... nSize
-			------------------------------------------
-			| 0  ...  0   X ...   X     0     ...  0 |
-			| 0  ...  0   X ...   X     0     ...  0 |
-			| 0  ...  0   X ...   X     0     ...  0 |
-			| 0  ...  0   X ...   X     0     ...  0 |
-			| 0  ...  0   X ...   X     0     ...  0 |
-			------------------------------------------ */
-
-		cudaXMemsetAsync(V, 0, p * cd_.nSize * sizeof(cuComplex));
-		cudaXMemsetAsync(V + p * cd_.nSize + p_acc * cd_.nSize,
-								0,
-								cd_.nSize * (cd_.nSize - (p + p_acc)) * sizeof(cuComplex));
-
 		// H = H * V
 		cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
 			CUBLAS_OP_N,
@@ -344,5 +292,42 @@ void FourierTransform::insert_eigenvalue_filter()
 			&beta,
 			H,
 			fd_.frame_res()));
+	});
+}
+
+void FourierTransform::insert_stft_cuts_view()
+{
+	fn_vect_.push_back([=]() {
+		if (cd_.stft_view_enabled)
+		{
+			static ushort mouse_posx;
+			static ushort mouse_posy;
+
+			// Conservation of the coordinates when cursor is outside of the window
+			units::PointFd cursorPos = cd_.getStftCursor();
+			const ushort width = fd_.width;
+			const ushort height = fd_.height;
+			if (static_cast<ushort>(cursorPos.x()) < width &&
+				static_cast<ushort>(cursorPos.y()) < height)
+			{
+				mouse_posx = cursorPos.x();
+				mouse_posy = cursorPos.y();
+			}
+			// -----------------------------------------------------
+			stft_view_begin(stft_env_.gpu_stft_buffer_,
+				buffers_.gpu_float_cut_xz_.get(),
+				buffers_.gpu_float_cut_yz_.get(),
+				mouse_posx,
+				mouse_posy,
+				mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),
+				mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
+				width,
+				height,
+				cd_.img_type,
+				cd_.nSize,
+				cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
+				cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
+				cd_.img_type);
+		}
 	});
 }
