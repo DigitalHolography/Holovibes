@@ -347,9 +347,6 @@ namespace holovibes
 			ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
-			// Convolution
-			ui.ConvoCheckBox->setEnabled(cd_.convo_matrix.size() != 0);
-
 			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			const uint input_queue_capacity = global::global_config.input_queue_max_size;
@@ -1478,7 +1475,7 @@ namespace holovibes
 					uint			nSize = std::max(256u, std::min(512u, (uint)nImg));
 
 					if (nSize > stft_cuts_window_max_size)
-						nSize = stft_cuts_window_max_size; 
+						nSize = stft_cuts_window_max_size;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
