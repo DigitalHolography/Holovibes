@@ -220,6 +220,8 @@ namespace holovibes
 		FpsHandler fps_handler(fps_);
 		fps_handler.begin();
 
+		progress_bar_frame_counter_ = 0;
+
 		if (load_file_in_gpu_)
 			read_file_in_gpu(cpu_buffer, gpu_buffer, buffer_size, file, fps_handler, thread_timer, nb_frames_one_second);
 		else
@@ -305,11 +307,15 @@ namespace holovibes
 			++cur_frame_id_;
 			++frames_enqueued;
 			++nb_frames_one_second;
+			++progress_bar_frame_counter_;
 
 			// Update GUI
 			// Updates aren't always done because it would slow down the program
-			if (cur_frame_id_ % progress_bar_refresh_interval_ == 0 && main_window_)
+			if (progress_bar_frame_counter_ == progress_bar_refresh_interval_ && main_window_)
+			{
 				main_window_->update_file_reader_index(cur_frame_id_ - first_frame_id_);
+				progress_bar_frame_counter_ = 0;
+			}
 		}
 	}
 

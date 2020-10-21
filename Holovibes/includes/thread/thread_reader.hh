@@ -206,6 +206,8 @@ namespace holovibes
     const double progress_bar_refresh_frequency_ = 10.0; // 10 Hz
     /*! \brief Number of frames for an update of the progress bar */
     size_t progress_bar_refresh_interval_;
+    /*! \brief Counter of frames for the progress bar */
+    size_t progress_bar_frame_counter_;
 
     /*! \brief progress bar showing position in the file */
     QProgressBar *reader_progress_bar_;
