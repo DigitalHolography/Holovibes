@@ -25,7 +25,7 @@ namespace holovibes
 			delError(nullptr),
 			flag(ThreadState::Null),
 			ui_(ui),
-			progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar")),
+			progressBar_(ui->findChild<QProgressBar*>("ExportProgressBar")),
 			infoEdit_(ui->findChild<QTextEdit*>("InfoTextEdit")),
 			stop_requested_(false)
 		{
