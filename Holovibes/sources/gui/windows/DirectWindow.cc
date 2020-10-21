@@ -308,7 +308,7 @@ namespace holovibes
 
 			Program->release();
 			Vao.release();
-			
+
 			overlay_manager_.draw();
 		}
 
@@ -333,7 +333,7 @@ namespace holovibes
 		void DirectWindow::keyPressEvent(QKeyEvent * e)
 		{
 			BasicOpenGLWindow::keyPressEvent(e);
-			
+
 			float translation = translation_step_ / scale_;
 
 			switch (e->key()) {

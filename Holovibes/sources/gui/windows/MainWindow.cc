@@ -212,17 +212,19 @@ namespace holovibes
 		void MainWindow::synchronize_thread(std::function<void()> f)
 		{
 			// We can't update gui values from a different thread
-			// so we pass it to the right on using a signal
+			// so we pass it to the right one using a signal
 			// (This whole notify thing needs to be cleaned up / removed)
 			if (QThread::currentThread() != this->thread())
 				emit synchronize_thread_signal(f);
 			else
 				f();
 		}
+
 		void MainWindow::notify()
 		{
 			synchronize_thread([this]() {on_notify(); });
 		}
+
 		void MainWindow::on_notify()
 		{
 			const bool is_direct = is_direct_mode();
@@ -647,12 +649,13 @@ namespace holovibes
 			{
 				Config& config = global::global_config;
 				// Config
+				config.file_buffer_size = ptree.get<int>("config.file_buffer_size", config.file_buffer_size);
 				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
 				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
 				config.stft_cuts_output_buffer_size = ptree.get<int>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
+				
 				cd_.stft_level = ptree.get<uint>("config.stft_queue_size", cd_.stft_level);
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
@@ -794,9 +797,9 @@ namespace holovibes
 			Config& config = global::global_config;
 
 			// Config
+			ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
 			ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
 			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-			ptree.put<uint>("config.input_file_buffer_size", config.reader_buf_max_size);
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 			ptree.put<int>("config.stft_queue_size", cd_.stft_level);
 			ptree.put<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
@@ -3074,6 +3077,7 @@ namespace holovibes
 			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
 			QSpinBox *fps_spinbox = ui.ImportInputFpsSpinBox;
 			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
+			QCheckBox *load_file_gpu = ui.LoadFileInGpuCheckBox;
 			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			cd_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
@@ -3090,6 +3094,8 @@ namespace holovibes
 			{
 				std::string file_src = import_line_edit->text().toUtf8();
 
+				// TODO wrong calcul because header not taken into consideration
+				// Will be useless with the new file system
 				auto file_end = std::filesystem::file_size(file_src)
 					/ fd.frame_size();
 				if (file_end > end_spinbox->value())
@@ -3104,6 +3110,7 @@ namespace holovibes
 					fps_spinbox->value(),
 					start_spinbox->value(),
 					file_end,
+					load_file_gpu->isChecked(),
 					global::global_config.input_queue_max_size,
 					holovibes_,
 					ui.FileReaderProgressBar,
@@ -3300,6 +3307,7 @@ namespace holovibes
 		{
 			return mainDisplay.get();
 		}
+
 		void MainWindow::update_file_reader_index(int n)
 		{
 			auto lambda = [this, n]() {

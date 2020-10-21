@@ -17,6 +17,8 @@
 #include "info_manager.hh"
 #include "icamera.hh"
 #include "queue.hh"
+#include "MainWindow.hh"
+#include "thread_timer.hh"
 
 namespace holovibes
 {
@@ -54,11 +56,19 @@ namespace holovibes
 	void ThreadCapture::thread_proc()
 	{
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+
+		std::atomic<uint> nb_frame_one_second = 0;
+		ThreadTimer thread_timer(std::ref(nb_frame_one_second));
+
 		while (!stop_requested_)
 		{
             auto frame = camera_.get_frame();
 			queue_.enqueue(frame, cudaMemcpyHostToDevice);
+			++nb_frame_one_second;
 		}
+
+		// Tell the thread_time_counter to stop and wait for him (needed, else an abort will pop)
+		thread_timer.stop();
 	}
 
 	const camera::FrameDescriptor& ThreadCapture::get_input_fd() const

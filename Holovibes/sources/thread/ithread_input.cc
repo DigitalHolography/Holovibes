@@ -60,5 +60,4 @@ namespace holovibes
         return std::string("Not implemented");
     }
   }
-
 }

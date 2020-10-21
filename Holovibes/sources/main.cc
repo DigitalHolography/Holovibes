@@ -99,13 +99,16 @@ int main(int argc, char* argv[])
 					(opts.file_is_big_endian ?
 					Endianness::BigEndian : Endianness::LittleEndian)
 				};
+				// TODO wrong calcul because header not taken into consideration
+				// Will be useless with the new file system
 				h.init_import_mode(
 					opts.file_src,
 					fd,
-					false,
+					false, // loop
 					opts.fps,
 					opts.spanStart,
 					opts.spanEnd,
+					false, // load file in gpu
 					global::global_config.input_queue_max_size,
 					h);
 			}

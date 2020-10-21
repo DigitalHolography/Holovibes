@@ -52,6 +52,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     thread/thread_csv_record.cc
     thread/thread_reader.cc
     thread/thread_recorder.cc
+    thread/thread_timer.cc
 
     tools/cuda_tools/cublas_handle.cc
     tools/cuda_tools/cufft_handle.cc

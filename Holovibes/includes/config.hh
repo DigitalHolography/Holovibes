@@ -30,7 +30,7 @@ namespace holovibes
 			this->stft_cuts_output_buffer_size = 8;
 			this->flush_on_refresh = false;
 			this->frame_timeout = 100000;
-			this->reader_buf_max_size = 64;
+			this->file_buffer_size = 32;
 			this->unwrap_history_size = 20;
 			this->set_cuda_device = true;
 			this->auto_device_number = true;
@@ -51,7 +51,7 @@ namespace holovibes
 			this->stft_cuts_output_buffer_size = o.stft_cuts_output_buffer_size;
 			this->flush_on_refresh = o.flush_on_refresh;
 			this->frame_timeout = o.frame_timeout;
-			this->reader_buf_max_size = o.reader_buf_max_size;
+			this->file_buffer_size = o.file_buffer_size;
 			this->unwrap_history_size = o.unwrap_history_size;
 			this->set_cuda_device = o.set_cuda_device;
 			this->auto_device_number = o.auto_device_number;
@@ -69,8 +69,8 @@ namespace holovibes
 		bool          flush_on_refresh;
 		//! Obsolete. Now using the one in the camera ini file.
 		unsigned int  frame_timeout;
-		/*! \brief Max number of images read each time by thread_reader. */
-		unsigned int reader_buf_max_size;
+		/*! \brief Max number of frames read each time by the thread_reader. */
+		unsigned int file_buffer_size;
 		/*! Max size of unwrapping corrections in number of images.
 		 *
 		 * Determines how far, meaning how many iterations back, phase corrections

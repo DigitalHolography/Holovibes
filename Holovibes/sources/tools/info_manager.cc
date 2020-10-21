@@ -35,7 +35,7 @@ namespace holovibes
 
 		InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
 		{
-			static InfoManager* instance;
+			static InfoManager* instance = nullptr;
 			if (instance)
 				return instance;
 			else if (ui)

@@ -236,6 +236,7 @@ namespace holovibes
 		unsigned int fps,
 		unsigned int spanStart,
 		unsigned int spanEnd,
+		bool load_file_in_gpu,
 		unsigned int q_max_size_,
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
@@ -269,7 +270,7 @@ namespace holovibes
 					spanEnd,
 					*input_,
 					cd_.file_type,
-					holovibes,
+					load_file_in_gpu,
 					reader_progress_bar,
 					main_window));
 			LOG_INFO("[CAPTURE] reader thread started");

@@ -123,6 +123,7 @@ namespace holovibes
 			unsigned int fps,
 			unsigned int spanStart,
 			unsigned int spanEnd,
+			bool load_file_in_gpu,
 			unsigned int q_max_size_,
 			Holovibes& holovibes,
 			QProgressBar *reader_progress_bar = nullptr,
