@@ -443,6 +443,10 @@ namespace holovibes
 			ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 			ui.RenormalizeSpinBox->setValue(cd_.renorm_constant);
 
+			// Convolution
+			ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
+			ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
+
 			// Plot the average graphic if zones are set
 			if (mainDisplay
 				&& mainDisplay->getOverlayManager().is_signal_zone_set()
@@ -907,6 +911,8 @@ namespace holovibes
 #pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{
+			if (cd_.convolution_enabled)
+				set_convolution_mode(false);
 			if (cd_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(cd_);
@@ -1245,7 +1251,7 @@ namespace holovibes
 					if (pipe)
 						pipe->autocontrast_end_pipe(XYview);
 				}
-				ui.DivideConvoCheckBox->setEnabled(false);
+
 				notify();
 			}
 			catch (std::runtime_error& e)
@@ -1637,17 +1643,13 @@ namespace holovibes
 		void MainWindow::set_convolution_mode(const bool value)
 		{
 			if (!value && cd_.convolution_enabled)
-			{
-				ui.DivideConvoCheckBox->setChecked(false);
 				set_divide_convolution_mode(false);
-			}
 
 			load_convo_matrix();
 
 			cd_.convolution_changed = cd_.convolution_enabled != value;
-
-			ui.DivideConvoCheckBox->setEnabled(value);
 			cd_.convolution_enabled = value;
+
 			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
 
