@@ -946,9 +946,15 @@ namespace holovibes
 		{
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
+
 			plot_window_.reset(nullptr);
 			mainDisplay.reset(nullptr);
+
 			lens_window.reset(nullptr);
+			ui.LensViewCheckBox->setChecked(false);
+
+			raw_window.reset(nullptr);
+			ui.RawDisplayingCheckBox->setChecked(false);
 		}
 
 		void MainWindow::reset()
