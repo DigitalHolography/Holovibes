@@ -90,7 +90,15 @@ namespace holovibes
 
 			Point<T> size() const
 			{
-				return dst_ - src_;
+				Point<T> res;
+
+				res.x() = dst_.x() > src_.x() ? dst_.x() : src_.x();
+				res.x() -= dst_.x() > src_.x() ? src_.x() : dst_.x();
+
+				res.y() = dst_.y() > src_.y() ? dst_.y() : src_.y();
+				res.y() -= dst_.y() > src_.y() ? src_.y() : dst_.y();
+
+				return res;
 			}
 
 			T x() const

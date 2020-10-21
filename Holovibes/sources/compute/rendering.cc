@@ -107,11 +107,12 @@ namespace holovibes
 
 		void Rendering::insert_main_average()
 		{
-			units::RectFd signalZone;
-			units::RectFd noiseZone;
-			cd_.signalZone(signalZone, AccessMode::Get);
-			cd_.noiseZone(noiseZone, AccessMode::Get);
 			fn_vect_.push_back([=]() {
+				units::RectFd signalZone;
+				units::RectFd noiseZone;
+				cd_.signalZone(signalZone, AccessMode::Get);
+				cd_.noiseZone(noiseZone, AccessMode::Get);
+
 				average_env_.average_output_->push_back(
 					make_average_plot(
 						buffers_.gpu_float_buffer_,
@@ -124,11 +125,14 @@ namespace holovibes
 
 		void Rendering::insert_average_record()
 		{
-			units::RectFd signalZone;
-			units::RectFd noiseZone;
-			cd_.signalZone(signalZone, AccessMode::Get);
-			cd_.noiseZone(noiseZone, AccessMode::Get);
-			fn_vect_.push_back([=]() {average_record_caller(signalZone, noiseZone); });
+			fn_vect_.push_back([=]() {
+				units::RectFd signalZone;
+				units::RectFd noiseZone;
+				cd_.signalZone(signalZone, AccessMode::Get);
+				cd_.noiseZone(noiseZone, AccessMode::Get);
+
+				average_record_caller(signalZone, noiseZone);
+			});
 		}
 
 		void Rendering::insert_main_log()

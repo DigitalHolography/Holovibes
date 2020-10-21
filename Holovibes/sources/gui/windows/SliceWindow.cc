@@ -30,8 +30,8 @@ namespace holovibes
 			cuSurface(0),
 			main_window_(main_window)
 		{
-			// To prevent make_square_pixel to make one slice realy thin and the other 132 pixel due to the title bar buttons
-			setMinimumSize(QSize(132, 132));
+			setMinimumSize(s);
+			setMaximumSize(s);
 		}
 
 		SliceWindow::~SliceWindow()
@@ -40,47 +40,9 @@ namespace holovibes
 			cudaFreeArray(cuArray);
 		}
 
-		void SliceWindow::make_pixel_square()
-		{
-			auto old_pos = position();
-			if (cd_ && !cd_->square_pixel)
-			{
-				const ushort nImg = cd_->nSize;
-				const uint nSize = std::min(128u , std::max((unsigned)nImg, 256u)) * 2;
-				if (kView == SliceXZ)
-					resize(QSize(width(), nSize));
-				else if (kView == SliceYZ)
-					resize(QSize(nSize, height()));
-			}
-			else
-			{
-				units::ConversionData convert(this);
-
-				units::PointReal real_topLeft = units::PointFd(units::PointOpengl(convert, -1, 1));
-				units::PointReal real_bottomLeft = units::PointFd(units::PointOpengl(convert, -1, -1));
-				units::PointReal real_topRight = units::PointFd(units::PointOpengl(convert, 1, 1));
-
-				double size_x = (real_topRight - real_topLeft).distance();
-				double size_y = (real_bottomLeft - real_topLeft).distance();
-				if (kView == SliceXZ)
-					resize(QSize(width(), width() * size_y / size_x).expandedTo(minimumSize()));
-				else if (kView == SliceYZ)
-					resize(QSize(height() * size_x / size_y, height()).expandedTo(minimumSize()));
-			}
-			setPosition(old_pos);
-		}
-
 		void SliceWindow::adapt()
 		{
 			changeTexture_ = true;
-		}
-
-		void SliceWindow::setTransform()
-		{
-			BasicOpenGLWindow::setTransform();
-			auto cd = getCd();
-			if (cd && cd->square_pixel)
-				make_pixel_square();
 		}
 
 		void SliceWindow::initShaders()

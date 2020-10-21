@@ -63,6 +63,11 @@ namespace holovibes
 	{
 		int err = 0;
 
+		plan_unwrap_2d_.plan(
+			input_.get_fd().height,
+			input_.get_fd().width,
+			CUFFT_C2C);
+
 		const camera::FrameDescriptor& fd = input_.get_fd();
 		long long int n[] = {fd.height, fd.width};
 

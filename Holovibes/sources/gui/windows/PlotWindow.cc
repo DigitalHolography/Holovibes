@@ -22,10 +22,11 @@ namespace holovibes
 	namespace gui
 	{
 		PlotWindow::PlotWindow(ConcurrentDeque<Tuple4f>& data_vect,
+			const size_t auto_scale_point_threshold,
 			const QString title,
 			QWidget* parent)
 			: QMainWindow(parent)
-			, curve_plot_(data_vect, title, WIDTH, HEIGHT, this)
+			, curve_plot_(data_vect, auto_scale_point_threshold, title, WIDTH, HEIGHT, this)
 		{
 			ui.setupUi(this);
 			resize(WIDTH, HEIGHT);

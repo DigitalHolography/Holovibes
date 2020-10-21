@@ -46,7 +46,7 @@ namespace holovibes
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_fd(), output.get_fd());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 
 		update_n_requested_ = true;

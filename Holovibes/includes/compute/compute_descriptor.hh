@@ -300,15 +300,14 @@ namespace holovibes
 		std::atomic<int>			stft_steps{ 1 };
 
 		std::atomic<int>			unwrap_history_size{ 1 };
-		std::atomic<int>			special_buffer_size{ 10 };
 		//! is convolution enabled
 		std::atomic<bool>			convolution_enabled{ false };
 		//! signal for the post-processing class that the convolution status has changed
-		std::atomic<bool>           convolution_enabled_changed{false};
+		std::atomic<bool>           convolution_changed{false};
 		//! is divide by convolution enabled
 		std::atomic<bool>			divide_convolution_enabled{ false };
 		//! postprocessing renorm enabled
-		std::atomic<bool>			renorm_enabled{ false };
+		std::atomic<bool>			renorm_enabled{ true };
 		//! postprocessing remormalize multiplication constant
 		std::atomic<unsigned>		renorm_constant{ 15 };
 		//! is log scale in slice XY enabled
@@ -365,9 +364,6 @@ namespace holovibes
 		std::atomic<bool>			y_accu_enabled{ false };
 		//! difference between y min and y max
 		std::atomic<short>			y_acc_level{ 1 };
-
-		//! Enables the resizing of slice windows to have square pixels (according to their real size)
-		std::atomic<bool>			square_pixel{ false };
 
 		//! Display the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			raw_view{ false };

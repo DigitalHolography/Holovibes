@@ -29,7 +29,6 @@ namespace holovibes
 			SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
 			void make_pixel_square();
-			void setTransform() override;
 
 			void adapt();
 			

@@ -34,6 +34,7 @@ namespace holovibes
 	namespace gui
 	{
 		CurvePlot::CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
+			const size_t auto_scale_point_threshold,
 			const QString title,
 			const unsigned int width,
 			const unsigned int height,
@@ -43,6 +44,8 @@ namespace holovibes
 			, points_nb_(POINTS)
 			, timer_(this)
 			, curve_get_(curve_get_0)
+			, auto_scale_point_threshold_(auto_scale_point_threshold)
+			, auto_scale_curr_points_(0)
 		{
 			line_series = new QLineSeries();
 			chart = new QChart();
@@ -123,11 +126,19 @@ namespace holovibes
 				size_t copied_elts_nb = data_vect_.fill_array(average_vector_, points_nb_);
 				new_data.reserve(copied_elts_nb);
 
+				++auto_scale_curr_points_;
+
 				for (size_t i = 0; i < copied_elts_nb; ++i)
 				{
 					float x = i;
 					float y = curve_get_(average_vector_[i]);
 					new_data.push_back(QPointF(x, y));
+				}
+
+				if (auto_scale_curr_points_ > auto_scale_point_threshold_)
+				{
+					auto_scale_curr_points_ -= auto_scale_point_threshold_;
+					auto_scale();
 				}
 			}
 
@@ -137,7 +148,7 @@ namespace holovibes
 		void CurvePlot::auto_scale()
 		{
 			std::vector<Tuple4f> tmp = average_vector_;
-			
+
 			auto minmax = std::minmax_element(tmp.cbegin(),
 				tmp.cend(),
 				[&](const Tuple4f& lhs, const Tuple4f& rhs)

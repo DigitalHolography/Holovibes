@@ -33,7 +33,6 @@ namespace holovibes
 		zdistance = cd.zdistance.load();
 		img_type = cd.img_type.load();
 		unwrap_history_size = cd.unwrap_history_size.load();
-		special_buffer_size = cd.special_buffer_size.load();
 		log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
 		log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
 		log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();

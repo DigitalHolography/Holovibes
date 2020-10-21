@@ -75,6 +75,8 @@ namespace holovibes
 			: QMainWindow(parent),
 			holovibes_(holovibes),
 			mainDisplay(nullptr),
+			window_max_size(768),
+			stft_cuts_window_max_size(512),
 			sliceXZ(nullptr),
 			sliceYZ(nullptr),
 			displayAngle(0.f),
@@ -84,7 +86,6 @@ namespace holovibes
 			xzFlip(0),
 			yzFlip(0),
 			is_enabled_camera_(false),
-			is_enabled_average_(false),
 			is_batch_img_(true),
 			is_batch_interrupted_(false),
 			z_step_(0.005f),
@@ -94,6 +95,7 @@ namespace holovibes
 			plot_window_(nullptr),
 			record_thread_(nullptr),
 			CSV_record_thread_(nullptr),
+			auto_scale_point_threshold_(100),
 			file_index_(1),
 			theme_index_(0),
 			import_type_(ImportType::None),
@@ -168,7 +170,7 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
 
 			ui.FileReaderProgressBar->hide();
-			ui.RecordProgressBar;
+			ui.ExportProgressBar;
 
 			// Fill the quick kernel combo box with files from ConvolutionKernels directory
 			std::filesystem::path convo_matrix_path(get_exe_dir());
@@ -231,7 +233,7 @@ namespace holovibes
 				ui.ImageRenderingGroupBox->setEnabled(false);
 				ui.ViewGroupBox->setEnabled(false);
 				ui.PostProcessingGroupBox->setEnabled(false);
-				ui.RecordGroupBox->setEnabled(false);
+				ui.ExportGroupBox->setEnabled(false);
 				ui.ImportGroupBox->setEnabled(true);
 				ui.InfoGroupBox->setEnabled(true);
 				return;
@@ -239,14 +241,14 @@ namespace holovibes
 			else if (cd_.compute_mode == Computation::Direct && is_enabled_camera_)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(true);
-				ui.RecordGroupBox->setEnabled(true);
+				ui.ExportGroupBox->setEnabled(true);
 			}
 			else if (cd_.compute_mode == Computation::Hologram && is_enabled_camera_)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(true);
 				ui.ViewGroupBox->setEnabled(true);
 				ui.PostProcessingGroupBox->setEnabled(true);
-				ui.RecordGroupBox->setEnabled(true);
+				ui.ExportGroupBox->setEnabled(true);
 			}
 
 			// Record
@@ -275,7 +277,6 @@ namespace holovibes
 					cd_.img_type == ImgType::Argument);
 
 			// STFT cuts
-			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
 			ui.STFTCutsCheckBox->setChecked(!is_direct && cd_.stft_view_enabled);
 
 			// Contrast
@@ -343,9 +344,6 @@ namespace holovibes
 			ui.XAccSpinBox->setValue(cd_.x_acc_level);
 			ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(cd_.y_acc_level);
-
-			// Convolution buffer
-			ui.KernelBufferSizeSpinBox->setValue(cd_.special_buffer_size);
 
 			// Convolution
 			ui.ConvoCheckBox->setEnabled(cd_.convo_matrix.size() != 0);
@@ -445,6 +443,12 @@ namespace holovibes
 			// Renormalize
 			ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 			ui.RenormalizeSpinBox->setValue(cd_.renorm_constant);
+
+			// Plot the average graphic if zones are set
+			if (mainDisplay
+				&& mainDisplay->getOverlayManager().is_signal_zone_set()
+				&& mainDisplay->getOverlayManager().is_noise_zone_set())
+				set_average_graphic();
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -462,7 +466,6 @@ namespace holovibes
 						if (cd_.convolution_enabled)
 						{
 							cd_.convolution_enabled = false;
-							cd_.special_buffer_size = 3;
 						}
 						close_windows();
 						close_critical_compute();
@@ -627,14 +630,14 @@ namespace holovibes
 			GroupBox *image_rendering_group_box = ui.ImageRenderingGroupBox;
 			GroupBox *view_group_box = ui.ViewGroupBox;
 			GroupBox *special_group_box = ui.PostProcessingGroupBox;
-			GroupBox *record_group_box = ui.RecordGroupBox;
+			GroupBox *record_group_box = ui.ExportGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
 
 			QAction	*image_rendering_action = ui.actionImage_rendering;
 			QAction	*view_action = ui.actionView;
 			QAction	*special_action = ui.actionSpecial;
-			QAction	*record_action = ui.actionRecord;
+			QAction	*export_action = ui.actionExport;
 			QAction	*import_action = ui.actionImport;
 			QAction	*info_action = ui.actionInfo;
 
@@ -650,7 +653,6 @@ namespace holovibes
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
-				cd_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", cd_.special_buffer_size);
 				cd_.stft_level = ptree.get<uint>("config.stft_queue_size", cd_.stft_level);
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
@@ -718,13 +720,12 @@ namespace holovibes
 
 				// Post Processing
 				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", special_group_box->isHidden()));
-				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
-				cd_.average_enabled = is_enabled_average_;
+				auto_scale_point_threshold_ = ptree.get<size_t>("post_processing.auto_scale_point_threshold", auto_scale_point_threshold_);
 
 				// Record
-				record_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
+				export_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
 
-				const float record_frame_step = ptree.get<float>("record.record_frame_step", record_frame_step_);
+				const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
 				set_record_frame_step(record_frame_step);
 
 				// Import
@@ -773,6 +774,10 @@ namespace holovibes
 
 				cd_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
+				// Display
+				window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
+				stft_cuts_window_max_size = ptree.get<uint>("display.stft_cuts_window_max_size", 512);
+
 				notify();
 			}
 		}
@@ -783,7 +788,7 @@ namespace holovibes
 			GroupBox *image_rendering_group_box = ui.ImageRenderingGroupBox;
 			GroupBox *view_group_box = ui.ViewGroupBox;
 			GroupBox *special_group_box = ui.PostProcessingGroupBox;
-			GroupBox *record_group_box = ui.RecordGroupBox;
+			GroupBox *record_group_box = ui.ExportGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
 			Config& config = global::global_config;
@@ -795,7 +800,6 @@ namespace holovibes
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 			ptree.put<int>("config.stft_queue_size", cd_.stft_level);
 			ptree.put<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
-			ptree.put<int>("config.convolution_buffer_size", cd_.special_buffer_size);
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
 			ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd_.display_rate));
@@ -837,10 +841,11 @@ namespace holovibes
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
-			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
+			ptree.put<size_t>("post_processing.auto_scale_point_threshold", auto_scale_point_threshold_);
 
 			// Record
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
+			ptree.put<uint>("record.record_frame_step", record_frame_step_);
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
@@ -886,6 +891,9 @@ namespace holovibes
 			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
 			ptree.put<uint>("reset.device_number", config.device_number);
 
+			// Display
+			ptree.put<uint>("display.main_window_max_size", window_max_size);
+			ptree.put<uint>("display.stft_cuts_window_max_size", stft_cuts_window_max_size);
 
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
 		}
@@ -1124,7 +1132,7 @@ namespace holovibes
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_fd();
 				width = fd.width;
 				height = fd.height;
-				get_good_size(width, height, 512);
+				get_good_size(width, height, window_max_size);
 				QSize size(width, height);
 				init_image_mode(pos, size);
 				cd_.compute_mode = Computation::Direct;
@@ -1174,7 +1182,7 @@ namespace holovibes
 			const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_fd();
 			width = fd.width;
 			height = fd.height;
-			get_good_size(width, height, 512);
+			get_good_size(width, height, window_max_size);
 			QSize size(width, height);
 			init_image_mode(pos, size);
 			/* ---------- */
@@ -1444,8 +1452,6 @@ namespace holovibes
 			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
 
-			cd_.square_pixel = checked && ui.squarePixel_checkBox->isChecked();
-
 			QComboBox* winSelection = ui.WindowSelectionComboBox;
 			winSelection->setEnabled(checked);
 			winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
@@ -1460,7 +1466,10 @@ namespace holovibes
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = cd_.nSize;
-					const uint		nSize = std::max(128u, std::min(256u, (uint)nImg)) * 2;
+					uint			nSize = std::max(256u, std::min(512u, (uint)nImg));
+
+					if (nSize > stft_cuts_window_max_size)
+						nSize = stft_cuts_window_max_size; 
 
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
@@ -1537,15 +1546,99 @@ namespace holovibes
 			notify();
 		}
 
+		void MainWindow::load_convo_matrix()
+		{
+			holovibes_.clear_convolution_matrix();
+
+			try
+			{
+				std::filesystem::path dir(get_exe_dir());
+				dir = dir / "ConvolutionKernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
+				std::string path = dir.string();
+
+				std::vector<float> matrix;
+				unsigned matrix_width = 0;
+				unsigned matrix_height = 0;
+				unsigned matrix_z = 1;
+
+				// Doing this the C way cause it's faster
+				FILE* c_file;
+				fopen_s(&c_file, path.c_str(), "r");
+
+				if (c_file == nullptr)
+				{
+					fclose(c_file);
+					throw std::runtime_error("Invalid file path");
+				}
+
+				// Read kernel dimensions
+				if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+				{
+					fclose(c_file);
+					throw std::runtime_error("Invalid kernel dimensions");
+				}
+
+				size_t matrix_size = matrix_width * matrix_height * matrix_z;
+				matrix.resize(matrix_size);
+
+				// Read kernel values
+				for (size_t i = 0; i < matrix_size; ++i)
+				{
+					if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+					{
+						fclose(c_file);
+						throw std::runtime_error("Missing values");
+					}
+				}
+
+				fclose(c_file);
+
+				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
+				uint c = 0;
+				uint nx = holovibes_.get_output_queue()->get_fd().width;
+				uint ny = holovibes_.get_output_queue()->get_fd().height;
+				uint size = nx * ny;
+
+				const uint minw = (nx / 2) - (matrix_width / 2);
+				const uint maxw = (nx / 2) + (matrix_width / 2);
+				const uint minh = (ny / 2) - (matrix_height / 2);
+				const uint maxh = (ny / 2) + (matrix_height / 2);
+
+				std::vector<float> convo_matrix(size, 0.0f);
+
+				for (size_t i = minh; i < maxh; i++)
+				{
+					for (size_t j = minw; j < maxw; j++)
+					{
+						convo_matrix[i * nx + j] = matrix[c];
+						c++;
+					}
+				}
+
+				//on met les largeurs et hauteurs a la taille de nx et de ny
+				cd_.convo_matrix_width = nx;
+				cd_.convo_matrix_height = ny;
+				cd_.convo_matrix_z = matrix_z;
+				cd_.convo_matrix = convo_matrix;
+			}
+			catch (std::exception& e)
+			{
+				holovibes_.clear_convolution_matrix();
+				display_error("Couldn't load file\n" + std::string(e.what()));
+			}
+		}
+
 		void MainWindow::set_convolution_mode(const bool value)
 		{
-			if (value == false && cd_.convolution_enabled == true)
+			if (!value && cd_.convolution_enabled)
 			{
 				ui.DivideConvoCheckBox->setChecked(false);
 				set_divide_convolution_mode(false);
 			}
 
-			cd_.convolution_enabled_changed = cd_.convolution_enabled != value;
+			load_convo_matrix();
+
+			cd_.convolution_changed = cd_.convolution_enabled != value;
 
 			ui.DivideConvoCheckBox->setEnabled(value);
 			cd_.convolution_enabled = value;
@@ -1669,16 +1762,6 @@ namespace holovibes
 						}
 					});
 				}
-			}
-		}
-
-		void MainWindow::set_special_buffer_size(int value)
-		{
-			if (!is_direct_mode())
-			{
-				cd_.special_buffer_size = value;
-				set_auto_contrast();
-				notify();
 			}
 		}
 
@@ -2216,13 +2299,6 @@ namespace holovibes
 			cd_.scale_bar_correction_factor = value;
 		}
 
-		void MainWindow::set_square_pixel(bool enable)
-		{
-			cd_.square_pixel = enable;
-			for (auto slice : { sliceXZ.get(), sliceYZ.get() })
-				if (slice)
-					slice->make_pixel_square();
-		}
 #pragma endregion
 		/* ------------ */
 #pragma region Contrast - Log
@@ -2349,13 +2425,30 @@ namespace holovibes
 				if (value)
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
 				else
-				{
-					mainDisplay->getOverlayManager().disable_all(Signal);
-					mainDisplay->getOverlayManager().disable_all(Noise);
-				}
-				is_enabled_average_ = value;
+					disable_average_mode();
+
 				notify();
 			}
+		}
+
+		void MainWindow::disable_average_mode()
+		{
+			cd_.average_enabled = false;
+
+			mainDisplay->resetTransform();
+
+			mainDisplay->getOverlayManager().disable_all(Signal);
+			mainDisplay->getOverlayManager().disable_all(Noise);
+
+			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+			pipe->request_average_stop();
+
+			holovibes_.get_average_queue().clear();
+			plot_window_.reset(nullptr);
+
+			pipe_refresh();
+
+			notify();
 		}
 
 		void MainWindow::activeSignalZone()
@@ -2372,51 +2465,16 @@ namespace holovibes
 
 		void MainWindow::set_average_graphic()
 		{
-			PlotWindow *plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+			if (plot_window_ != nullptr)
+				return;
 
-			connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
+			PlotWindow *plot_window = new PlotWindow(holovibes_.get_average_queue(), auto_scale_point_threshold_, "ROI Average");
+
+			connect(plot_window, SIGNAL(closed()), this, SLOT(disable_average_mode()), Qt::UniqueConnection);
 			holovibes_.get_pipe()->request_average(&holovibes_.get_average_queue());
+
 			pipe_refresh();
 			plot_window_.reset(plot_window);
-		}
-
-		void MainWindow::dispose_average_graphic()
-		{
-			holovibes_.get_pipe()->request_average_stop();
-			holovibes_.get_average_queue().clear();
-			plot_window_.reset(nullptr);
-			pipe_refresh();
-		}
-
-		void MainWindow::browse_roi_file()
-		{
-			/* This function is used for both opening and saving a ROI file.
-			   The default QFileDialog show "Open" or "Save" as accept button,
-			   thus it would be confusing to the user to click on "Save" if he
-			   wants to load a file.
-			   So a custom QFileDialog is used where the accept button is labeled "Select"
-
-			   The code below is much shorter but show the wrong label:
-			   QString filename = QFileDialog::getSaveFileName(this,
-				  tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
-				*/
-
-			QFileDialog dialog(this);
-			dialog.setFileMode(QFileDialog::AnyFile);
-			dialog.setNameFilter(tr("Ini files (*.ini)"));
-			dialog.setDefaultSuffix(".ini");
-			dialog.setDirectory("C:\\");
-			dialog.setWindowTitle("ROI output file");
-
-			dialog.setLabelText(QFileDialog::Accept, "Select");
-			if (dialog.exec()) {
-				QString filename = dialog.selectedFiles()[0];
-
-				QLineEdit* roi_output_line_edit = ui.ROIFilePathLineEdit;
-				roi_output_line_edit->clear();
-				roi_output_line_edit->insert(filename);
-			}
-
 		}
 
 		void MainWindow::browse_roi_output_file()
@@ -2427,79 +2485,6 @@ namespace holovibes
 			QLineEdit* roi_output_line_edit = ui.ROIOutputPathLineEdit;
 			roi_output_line_edit->clear();
 			roi_output_line_edit->insert(filename);
-		}
-
-		void MainWindow::save_roi()
-		{
-			QLineEdit* path_line_edit = ui.ROIFilePathLineEdit;
-			std::string path = path_line_edit->text().toUtf8();
-			if (!path.empty())
-			{
-				boost::property_tree::ptree ptree;
-				const units::RectFd signal = mainDisplay->getSignalZone();
-				const units::RectFd noise = mainDisplay->getNoiseZone();
-
-				ptree.put("signal.top_left_x", signal.src().x());
-				ptree.put("signal.top_left_y", signal.src().y());
-				ptree.put("signal.bottom_right_x", signal.dst().x());
-				ptree.put("signal.bottom_right_y", signal.dst().y());
-
-				ptree.put("noise.top_left_x", noise.src().x());
-				ptree.put("noise.top_left_y", noise.src().y());
-				ptree.put("noise.bottom_right_x", noise.dst().x());
-				ptree.put("noise.bottom_right_y", noise.dst().y());
-
-				boost::property_tree::write_ini(path, ptree);
-				display_info("Roi saved in " + path);
-			}
-			else
-				display_error("Invalid path");
-		}
-
-		void MainWindow::load_roi()
-		{
-			QLineEdit* path_line_edit = ui.ROIFilePathLineEdit;
-			const std::string path = path_line_edit->text().toUtf8();
-
-			if (!path.empty())
-			{
-				try
-				{
-					boost::property_tree::ptree ptree;
-					boost::property_tree::ini_parser::read_ini(path, ptree);
-
-					units::RectFd signal;
-					units::RectFd noise;
-					units::ConversionData convert(mainDisplay.get());
-
-					signal.setSrc(
-						units::PointFd(convert,
-							ptree.get<int>("signal.top_left_x", 0),
-							ptree.get<int>("signal.top_left_y", 0)));
-					signal.setDst(
-						units::PointFd(convert,
-							ptree.get<int>("signal.bottom_right_x", 0),
-							ptree.get<int>("signal.bottom_right_y", 0)));
-
-					noise.setSrc(
-						units::PointFd(convert,
-							ptree.get<int>("noise.top_left_x", 0),
-							ptree.get<int>("noise.top_left_y", 0)));
-					noise.setDst(
-						units::PointFd(convert,
-							ptree.get<int>("noise.bottom_right_x", 0),
-							ptree.get<int>("noise.bottom_right_y", 0)));
-
-					mainDisplay->setSignalZone(signal);
-					mainDisplay->setNoiseZone(noise);
-
-					mainDisplay->getOverlayManager().create_overlay<Signal>();
-				}
-				catch (std::exception& e)
-				{
-					display_error("Couldn't load ini file\n" + std::string(e.what()));
-				}
-			}
 		}
 
 		void MainWindow::average_record()
@@ -2547,116 +2532,21 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Convolution
-		void MainWindow::browse_convo_matrix_file()
+		void MainWindow::update_convo_kernel(const QString& value)
 		{
-			std::filesystem::path convo_matrix_path(get_exe_dir());
-			convo_matrix_path = convo_matrix_path / "ConvolutionKernels";
-			std::string convo_matrix_path_str = "C://";
-			if (std::filesystem::exists(convo_matrix_path))
+			if (cd_.convolution_enabled)
 			{
-				convo_matrix_path_str = convo_matrix_path.string();
+				load_convo_matrix();
+
+				cd_.convolution_changed = true;
+
+				set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
+				set_auto_contrast();
+
+				notify();
 			}
-
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("Matrix file"),
-				convo_matrix_path_str.c_str(),
-				tr("Txt files (*.txt)"));
-
-			QLineEdit* matrix_output_line_edit = ui.ConvoMatrixPathLineEdit;
-			matrix_output_line_edit->clear();
-			matrix_output_line_edit->insert(filename);
 		}
 
-		void MainWindow::load_convo_matrix()
-		{
-			QLineEdit* path_line_edit = ui.ConvoMatrixPathLineEdit;
-			std::string path = path_line_edit->text().toUtf8();
-			std::vector<float> matrix;
-			set_convolution_mode(false);
-			ui.ConvoCheckBox->setChecked(false);
-			holovibes_.clear_convolution_matrix();
-
-			try
-			{
-				// If no path is given use the text in "kernel quick select" as the kernel path
-				if (path == "")
-				{
-					std::filesystem::path dir(get_exe_dir());
-					dir = dir / "ConvolutionKernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
-					path = dir.string();
-				}
-
-				unsigned matrix_width = 0;
-				unsigned matrix_height = 0;
-				unsigned matrix_z = 1;
-
-				// Doing this the C way cause it's faster
-				FILE* c_file;
-				fopen_s(&c_file, path.c_str(), "r");
-
-				if (c_file == nullptr)
-				{
-					fclose(c_file);
-					throw std::runtime_error("Invalid file path");
-				}
-
-				// Read kernel dimensions
-				if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
-				{
-					fclose(c_file);
-					throw std::runtime_error("Invalid kernel dimensions");
-				}
-
-				size_t matrix_size = matrix_width * matrix_height * matrix_z;
-				matrix.resize(matrix_size);
-
-				// Read kernel values
-				for (size_t i = 0; i < matrix_size; ++i)
-				{
-					if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-					{
-						fclose(c_file);
-						throw std::runtime_error("Missing values");
-					}
-				}
-
-				fclose(c_file);
-
-				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
-				uint c = 0;
-				uint nx = holovibes_.get_output_queue()->get_fd().width;
-				uint ny = holovibes_.get_output_queue()->get_fd().height;
-				uint size = nx * ny;
-
-				const uint minw = (nx / 2) - (matrix_width / 2);
-				const uint maxw = (nx / 2) + (matrix_width / 2);
-				const uint minh = (ny / 2) - (matrix_height / 2);
-				const uint maxh = (ny / 2) + (matrix_height / 2);
-
-				std::vector<float> convo_matrix(size, 0.0f);
-
-				for (size_t i = minh; i < maxh; i++)
-				{
-					for (size_t j = minw; j < maxw; j++)
-					{
-						convo_matrix[i * nx + j] = matrix[c];
-						c++;
-					}
-				}
-
-				//on met les largeurs et hauteurs a la taille de nx et de ny
-				cd_.convo_matrix_width = nx;
-				cd_.convo_matrix_height = ny;
-				cd_.convo_matrix_z = matrix_z;
-				cd_.convo_matrix = convo_matrix;
-			}
-			catch (std::exception& e)
-			{
-				holovibes_.clear_convolution_matrix();
-				display_error("Couldn't load file\n" + std::string(e.what()));
-			}
-			notify();
-		}
 #pragma endregion
 		/* ------------ */
 #pragma region Record
@@ -3106,7 +2996,7 @@ namespace holovibes
 
 		void MainWindow::stop_csv_record()
 		{
-			if (is_enabled_average_)
+			if (cd_.average_enabled)
 			{
 				if (CSV_record_thread_)
 				{
@@ -3279,7 +3169,7 @@ namespace holovibes
 
 			width = header.img_width;
 			height = header.img_height;
-			get_good_size(width, height, 512);
+			get_good_size(width, height, window_max_size);
 
 			FrameDescriptor fd = {
 				static_cast<ushort>(header.img_width),
@@ -3299,7 +3189,7 @@ namespace holovibes
 
 			width = image_info.img_width;
 			height = image_info.img_height;
-			get_good_size(width, height, 512);
+			get_good_size(width, height, window_max_size);
 
 			FrameDescriptor fd = {
 				static_cast<ushort>(image_info.img_width),
@@ -3357,7 +3247,7 @@ namespace holovibes
 			cd_.img_acc_slice_xy_level = json_settings.value("img_acc_slice_xy_level", 1);
 			cd_.img_acc_slice_xz_level = json_settings.value("img_acc_slice_xz_level", 1);
 			cd_.img_acc_slice_yz_level = json_settings.value("img_acc_slice_yz_level", 1);
-			cd_.renorm_enabled = json_settings.value("renorm_enabled", false);
+			cd_.renorm_enabled = json_settings.value("renorm_enabled", true);
 			cd_.renorm_constant = json_settings.value("renorm_constant", 15);
 		}
 
@@ -3374,8 +3264,8 @@ namespace holovibes
 				{
 					// This code shouldn't run but it's here to avoid a segfault in case something weird happens
 					json_settings = HoloFile::get_json_settings(cd_);
-					json_settings.emplace("img_width", 512);
-					json_settings.emplace("img_height", 512);
+					json_settings.emplace("img_width", window_max_size);
+					json_settings.emplace("img_height", window_max_size);
 					json_settings.emplace("pixel_bits", 16);
 				}
 				return json_settings;

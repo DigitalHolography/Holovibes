@@ -50,6 +50,7 @@ namespace holovibes
 			** \param parent Qt parent
 			*/
 			CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
+				const size_t auto_scale_point_threshold,
 				const QString title,
 				const unsigned int width,
 				const unsigned int height,
@@ -139,6 +140,11 @@ namespace holovibes
 			float(*curve_get_)(const Tuple4f&);
 			/*! Local copy of data_vect data */
 			std::vector<Tuple4f> average_vector_;
+
+			/*! Numbers of new points to wait before running auto scale */
+			size_t auto_scale_point_threshold_;
+			/*! Numbers of new points that already arrived since last auto_scale */
+			size_t auto_scale_curr_points_;
 		};
 	}
 }

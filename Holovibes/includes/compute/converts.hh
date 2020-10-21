@@ -117,7 +117,7 @@ namespace holovibes
 			//! Phase unwrapping 2D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 			//! Plan 2D. Used for unwrapping.
-			cuda_tools::CufftHandle&				plan2d_;
+			cuda_tools::CufftHandle&				plan_unwrap_2d_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor&		fd_;
 			/// Describes the output frame size

@@ -236,6 +236,9 @@ namespace holovibes
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	plan2d_;
 
+		/** Pland 2D. Used for unwrap 2D. */
+		cuda_tools::CufftHandle	plan_unwrap_2d_;
+
 		/** Chrono counting time between two iteration (Taking into account steps, since it is executing at the end of pipe). */
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 

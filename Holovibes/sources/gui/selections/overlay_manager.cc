@@ -73,14 +73,20 @@ namespace holovibes
 		void OverlayManager::create_overlay<Noise>()
 		{
 			if (!set_current(Noise))
+			{
 				create_overlay(std::make_shared<NoiseOverlay>(parent_));
+				is_noise_zone_set_ = true;
+			}
 		}
 
 		template <>
 		void OverlayManager::create_overlay<Signal>()
 		{
 			if (!set_current(Signal))
+			{
 				create_overlay(std::make_shared<SignalOverlay>(parent_));
+				is_signal_zone_set_ = true;
+			}
 		}
 
 		template <>
@@ -217,6 +223,11 @@ namespace holovibes
 			for (auto o : overlays_)
 				if (o->getKind() == ko)
 				{
+					if (ko == Signal)
+						is_signal_zone_set_ = false;
+					else if (ko == Noise)
+						is_noise_zone_set_ = false;
+
 					o->disable();
 					found = true;
 				}

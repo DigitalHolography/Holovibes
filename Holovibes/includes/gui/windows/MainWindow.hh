@@ -142,7 +142,6 @@ namespace holovibes
 			void set_filter2D_type(const QString &filter2Dtype);
 			void cancel_filter2D();
 			void setPhase();
-			void set_special_buffer_size(int value);
 			void update_lens_view(bool value);
 			void update_raw_view(bool value);
 			void set_p_accu();
@@ -195,16 +194,12 @@ namespace holovibes
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
 			void set_average_mode(bool value);
+			void disable_average_mode();
 			void set_composite_area();
 			void activeSignalZone();
 			void activeNoiseZone();
 			void set_average_graphic();
-			void dispose_average_graphic();
-			void browse_roi_file();
-			void save_roi();
-			void load_roi();
-			void browse_convo_matrix_file();
-			void load_convo_matrix();
+			void update_convo_kernel(const QString& value);
 			void browse_file();
 			void set_raw_recording(bool value);
 			void set_record();
@@ -238,7 +233,6 @@ namespace holovibes
 			void flipTexture();
 			void set_scale_bar(bool value);
 			void set_scale_bar_correction_factor(double value);
-			void set_square_pixel(bool value);
 			void set_synchronized_record(bool value);
 			void display_cross(bool value);
 			void reticle_scale(double value);
@@ -278,6 +272,7 @@ namespace holovibes
 			void		remove_infos();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
+			void 		load_convo_matrix();
 
 			// Change the value without triggering any signals
 			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
@@ -313,6 +308,8 @@ namespace holovibes
 
 			ushort width;
 			ushort height;
+			uint window_max_size;
+			uint stft_cuts_window_max_size;
 
 			float		displayAngle;
 			float		xzAngle;
@@ -323,7 +320,6 @@ namespace holovibes
 			int			yzFlip;
 
 			bool		is_enabled_camera_;
-			bool		is_enabled_average_;
 			bool		is_batch_img_;
 			bool		is_batch_interrupted_;
 			double		z_step_;
@@ -338,6 +334,7 @@ namespace holovibes
 			std::unique_ptr<ThreadRecorder>			record_thread_;
 			std::unique_ptr<ThreadCSVRecord>		CSV_record_thread_;
 
+			size_t auto_scale_point_threshold_;
 			uint	nb_frames_;
 			uint	file_index_;
 			ushort	theme_index_;

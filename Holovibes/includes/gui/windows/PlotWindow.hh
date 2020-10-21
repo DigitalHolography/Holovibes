@@ -47,6 +47,7 @@ namespace holovibes
 			** \param parent Qt parent
 			*/
 			PlotWindow(ConcurrentDeque<Tuple4f>& data_vect,
+				const size_t auto_scale_point_threshold,
 				const QString title,
 				QWidget* parent = nullptr);
 

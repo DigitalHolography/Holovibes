@@ -31,7 +31,7 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
-			cuda_tools::CufftHandle& plan2d,
+			cuda_tools::CufftHandle& plan_unwrap_2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd)
@@ -42,7 +42,7 @@ namespace holovibes
 			, stft_env_(stft_env)
 			, unwrap_res_()
 			, unwrap_res_2d_()
-			, plan2d_(plan2d)
+			, plan_unwrap_2d_(plan_unwrap_2d)
 			, cd_(cd)
 			, fd_(input_fd)
 			, output_fd_(output_fd)
@@ -166,7 +166,7 @@ namespace holovibes
 					fn_vect_.push_back([=]() {
 						unwrap_2d(
 							buffers_.gpu_float_buffer_,
-							plan2d_,
+							plan_unwrap_2d_,
 							unwrap_res_2d_.get(),
 							fd_,
 							unwrap_res_2d_->gpu_angle_);
@@ -214,7 +214,7 @@ namespace holovibes
 					fn_vect_.push_back([=]() {
 						unwrap_2d(
 							unwrap_res_->gpu_angle_current_,
-							plan2d_,
+							plan_unwrap_2d_,
 							unwrap_res_2d_.get(),
 							fd_,
 							unwrap_res_2d_->gpu_angle_);

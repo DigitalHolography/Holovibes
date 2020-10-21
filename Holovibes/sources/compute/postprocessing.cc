@@ -46,7 +46,7 @@ namespace holovibes
 
 		void Postprocessing::allocate_buffers()
 		{
-			if (cd_.convolution_enabled_changed)
+			if (cd_.convolution_changed)
 			{
 				if (cd_.convolution_enabled)
 				{
@@ -82,7 +82,7 @@ namespace holovibes
 					gpu_kernel_buffer_.reset();
 					hsv_arr_.reset();
 				}
-				cd_.convolution_enabled_changed = false; //Aknowledge signal from gui
+				cd_.convolution_changed = false; //Aknowledge signal from gui
 			}
 		}
 

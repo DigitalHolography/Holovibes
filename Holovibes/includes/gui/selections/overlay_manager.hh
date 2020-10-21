@@ -56,6 +56,16 @@ namespace holovibes
 			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
 
+			bool is_signal_zone_set() const
+			{
+				return is_signal_zone_set_;
+			}
+
+			bool is_noise_zone_set() const
+			{
+				return is_noise_zone_set_;
+			}
+
 			# ifdef _DEBUG
 				/*! \brief Prints every overlay in the vector. Debug purpose. */
 				void printVector();
@@ -72,6 +82,9 @@ namespace holovibes
 
 			/*! \brief Deletes from the vector every disabled overlay. */
 			void clean();
+
+			bool is_signal_zone_set_ = false;
+			bool is_noise_zone_set_ = false;
 
 			//! Containing every created overlay.
 			std::vector<std::shared_ptr<Overlay>> overlays_;
