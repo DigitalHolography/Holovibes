@@ -200,6 +200,7 @@ namespace holovibes
 				LOG_ERROR("[READER] Not enough CPU RAM to read file");
 			else
 				LOG_ERROR("[READER] Not enough CPU RAM to read file (consider disabling \"Load file in GPU\" option)");
+			std::fclose(file);
 			return;
 		}
 
@@ -211,6 +212,8 @@ namespace holovibes
 				LOG_ERROR("[READER] Not enough GPU DRAM to read file");
 			else
 				LOG_ERROR("[READER] Not enough GPU DRAM to read file (consider disabling \"Load file in GPU\" option)");
+			cudaSafeCall(cudaFreeHost(cpu_buffer));
+			std::fclose(file);
 			return;
 		}
 
@@ -230,7 +233,7 @@ namespace holovibes
 		std::fclose(file);
 		// Free memory
 		cudaSafeCall(cudaFreeHost(cpu_buffer));
-		cudaSafeCall(cudaFree(gpu_buffer));
+		cudaXFree(gpu_buffer);
 	}
 
 	void ThreadReader::read_file_in_gpu(char* cpu_buffer,
