@@ -446,6 +446,9 @@ namespace holovibes
 				display_cross(false);
 			}
 
+			// Lens View
+			ui.LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
+
 			// Renormalize
 			ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 			ui.RenormalizeSpinBox->setValue(cd_.renorm_constant);
@@ -964,6 +967,7 @@ namespace holovibes
 			mainDisplay.reset(nullptr);
 
 			lens_window.reset(nullptr);
+			cd_.gpu_lens_display_enabled = false;
 
 			/* Raw view & recording */
 			raw_window.reset(nullptr);
@@ -1785,6 +1789,7 @@ namespace holovibes
 
 		void MainWindow::update_lens_view(bool value)
 		{
+			cd_.gpu_lens_display_enabled = value;
 			if (value)
 			{
 				try
@@ -1809,9 +1814,9 @@ namespace holovibes
 			}
 			else
 			{
-				lens_window = nullptr;
+				lens_window.reset(nullptr);
+				holovibes_.get_pipe()->request_disable_lens_view();
 			}
-			cd_.gpu_lens_display_enabled = value;
 			pipe_refresh();
 		}
 

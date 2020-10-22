@@ -377,6 +377,12 @@ namespace holovibes
 		request_refresh();
 	}
 
+	void ICompute::request_disable_lens_view()
+	{
+		request_disable_lens_view_ = true;
+		request_refresh();
+	}
+
 	void ICompute::fps_count()
 	{
 		if (++frame_count_ >= 100)

@@ -150,6 +150,7 @@ namespace holovibes
 		void request_termination();
 		void request_update_stft_steps();
 		void request_kill_raw_queue();
+		void request_disable_lens_view();
 
 		/*!
 		 * \brief Updates the queues size
@@ -272,5 +273,6 @@ namespace holovibes
 		std::atomic<bool>	request_stft_cuts_{ false };
 		std::atomic<bool>	request_delete_stft_cuts_{ false };
 		std::atomic<bool>   request_update_stft_steps_{ false };
+		std::atomic<bool>   request_disable_lens_view_{ false };
 	};
 }

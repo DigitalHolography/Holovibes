@@ -130,6 +130,12 @@ namespace holovibes
 			request_update_stft_steps_ = false;
 		}
 
+		if (request_disable_lens_view_)
+		{
+			fourier_transforms_->get_lens_queue().reset(nullptr);
+			request_disable_lens_view_ = false;
+		}
+
 		// Allocating cuts queues
 		make_cuts_requests();
 
