@@ -83,12 +83,11 @@ namespace holovibes
 	bool Pipe::make_requests()
 	{
 		bool success_allocation = true;
-		if (resize_requested_)
+
+		if (output_resize_requested_)
 		{
 			output_.resize(requested_output_size_);
-			resize_requested_ = false;
-			if (kill_raw_queue_)
-				gpu_raw_queue_.reset(nullptr);
+			output_resize_requested_ = false;
 		}
 
 		postprocess_->allocate_buffers();
@@ -132,7 +131,13 @@ namespace holovibes
 		}
 
 		// Allocating cuts queues
-		request_queues();
+		make_cuts_requests();
+
+		if (kill_raw_queue_requested_) // Destroy gpu raw queue
+		{
+			gpu_raw_queue_.reset(nullptr);
+			kill_raw_queue_requested_ = false;
+		}
 
 		// Allocating accumulation queues/buffers
 		image_accumulation_->allocate_accumulation_queues();
@@ -146,7 +151,6 @@ namespace holovibes
 
 		if (cd_.compute_mode == Computation::Direct)
 		{
-			fn_vect_.clear();
 			update_n_requested_ = false;
 			refresh_requested_ = false;
 			insert_direct_enqueue_output();
@@ -243,7 +247,7 @@ namespace holovibes
 		fn_vect_.push_back([&](){
 			if (!output_.enqueue(buffers_.gpu_output_buffer_))
 				throw CustomException("Can't enqueue the output frame in output_queue", error_kind::fail_enqueue);
-			
+
 			if (cd_.stft_view_enabled)
 			{
 				if (!stft_env_.gpu_stft_slice_queue_xz->enqueue(buffers_.gpu_ushort_cut_xz_.get()))
@@ -309,15 +313,5 @@ namespace holovibes
 				f();
 			functions_end_pipe_.clear();
 		}
-	}
-
-	std::unique_ptr<Queue>& Pipe::get_raw_queue()
-	{
-		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
-		{
-			auto fd = input_.get_fd();
-			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_elts(), "RawOutputQueue");
-		}
-		return gpu_raw_queue_;
 	}
 }

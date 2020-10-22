@@ -136,7 +136,7 @@ namespace holovibes
 		virtual ~ICompute();
 
 		void request_refresh();
-		void request_resize(unsigned int new_output_size, bool kill_raw_queue);
+		void request_resize(unsigned int new_output_size);
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
@@ -149,6 +149,7 @@ namespace holovibes
 		void request_average_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
 		void request_termination();
 		void request_update_stft_steps();
+		void request_kill_raw_queue();
 
 		/*!
 		 * \brief Updates the queues size
@@ -193,16 +194,20 @@ namespace holovibes
 		bool get_termination_request()		const { return termination_requested_; }
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
-		bool get_resize_request()           const { return resize_requested_; }
+		bool get_output_resize_request()           const { return output_resize_requested_; }
+		bool get_kill_raw_queue_requested() const { return kill_raw_queue_requested_;}
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
-		virtual std::unique_ptr<Queue>&	get_raw_queue() = 0;
+
+		/*! \brief Get the raw queue. Make allocation if needed */
+		virtual std::unique_ptr<Queue>&	get_raw_queue();
 	protected:
 
 		virtual void refresh() = 0;
 		virtual void pipe_error(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
-		void request_queues();
+
+		void make_cuts_requests();
 
 		void fps_count();
 
@@ -233,6 +238,9 @@ namespace holovibes
 		/** Image accumulation environment */
 		ImageAccEnv	image_acc_env_;
 
+		/*! \brief Queue storing raw frames used by raw view and raw recording */
+		std::unique_ptr<Queue> gpu_raw_queue_;
+
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	plan2d_;
 
@@ -245,30 +253,24 @@ namespace holovibes
 		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
 		unsigned int	frame_count_;
 
-		/** YZ Image Accumulation Queue. */
-		std::unique_ptr<Queue>	gpu_img_acc_yz_;
-		/** XZ Image Accumulation Queue. */
-		std::unique_ptr<Queue>	gpu_img_acc_xz_;
-
 		// Flags for requests
-
 		unsigned int requested_output_size_;
 
-		std::atomic<bool>	unwrap_1d_requested_;
-		std::atomic<bool>	unwrap_2d_requested_;
-		std::atomic<bool>	autocontrast_requested_;
-		std::atomic<bool>	autocontrast_slice_xz_requested_;
-		std::atomic<bool>	autocontrast_slice_yz_requested_;
-		std::atomic<bool>	refresh_requested_;
-		std::atomic<bool>	update_n_requested_;
-		std::atomic<bool>	stft_update_roi_requested_;
-		std::atomic<bool>	average_requested_;
-		std::atomic<bool>	average_record_requested_;
-		std::atomic<bool>   resize_requested_;
-		std::atomic<bool>   kill_raw_queue_;
-		std::atomic<bool>	termination_requested_;
-		std::atomic<bool>	request_stft_cuts_;
-		std::atomic<bool>	request_delete_stft_cuts_;
-		std::atomic<bool>   request_update_stft_steps_;
+		std::atomic<bool>	unwrap_1d_requested_{ false };
+		std::atomic<bool>	unwrap_2d_requested_{ false };
+		std::atomic<bool>	autocontrast_requested_{ false };
+		std::atomic<bool>	autocontrast_slice_xz_requested_{ false };
+		std::atomic<bool>	autocontrast_slice_yz_requested_{ false };
+		std::atomic<bool>	refresh_requested_{ false };
+		std::atomic<bool>	update_n_requested_{ false };
+		std::atomic<bool>	stft_update_roi_requested_{ false };
+		std::atomic<bool>	average_requested_{ false };
+		std::atomic<bool>	average_record_requested_{ false };
+		std::atomic<bool>   output_resize_requested_{ false };
+		std::atomic<bool>   kill_raw_queue_requested_{ false };
+		std::atomic<bool>	termination_requested_{ false };
+		std::atomic<bool>	request_stft_cuts_{ false };
+		std::atomic<bool>	request_delete_stft_cuts_{ false };
+		std::atomic<bool>   request_update_stft_steps_{ false };
 	};
 }

@@ -72,11 +72,6 @@ namespace holovibes
 		*/
 		std::unique_ptr<Queue>&			get_lens_queue() override;
 
-		/*! \brief Get the raw queue to display. It allocates the queue if it isn't already done.
-
-		*/
-		std::unique_ptr<Queue>&			get_raw_queue() override;
-
 		/*! \brief Runs a function after the current pipe iteration ends
 
 		 */
@@ -159,9 +154,6 @@ namespace holovibes
 		std::unique_ptr<compute::Rendering> rendering_;
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
-
-		std::unique_ptr<Queue> gpu_raw_queue_;
-
 
 		/*! \brief Iterates and executes function of the pipe.
 

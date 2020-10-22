@@ -45,20 +45,6 @@ namespace holovibes
 		input_(input),
 		output_(output),
 		requested_output_size_(global::global_config.output_queue_max_size),
-		unwrap_1d_requested_(false),
-		unwrap_2d_requested_(false),
-		autocontrast_requested_(false),
-		autocontrast_slice_xz_requested_(false),
-		autocontrast_slice_yz_requested_(false),
-		refresh_requested_(false),
-		update_n_requested_(false),
-		stft_update_roi_requested_(false),
-		average_requested_(false),
-		average_record_requested_(false),
-		resize_requested_(false),
-		termination_requested_(false),
-		request_stft_cuts_(false),
-		request_delete_stft_cuts_(false),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
@@ -175,7 +161,7 @@ namespace holovibes
 			stft_env_.gpu_stft_queue_.reset();
 			request_stft_cuts_ = false;
 			request_delete_stft_cuts_ = true;
-			request_queues();
+			make_cuts_requests();
 			err_count++;
 		}
 
@@ -189,7 +175,7 @@ namespace holovibes
 		return true;
 	}
 
-	void ICompute::request_queues()
+	void ICompute::make_cuts_requests()
 	{
 		if (request_stft_cuts_)
 		{
@@ -221,6 +207,16 @@ namespace holovibes
 			stft_env_.gpu_stft_slice_queue_yz.reset();
 			request_delete_stft_cuts_ = false;
 		}
+	}
+
+	std::unique_ptr<Queue>& ICompute::get_raw_queue()
+	{
+		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
+		{
+			auto fd = input_.get_fd();
+			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_elts(), "RawOutputQueue");
+		}
+		return gpu_raw_queue_;
 	}
 
 	void	ICompute::delete_stft_slice_queue()
@@ -265,35 +261,6 @@ namespace holovibes
 		notify_error_observers(e);
 	}
 
-	/*
-	void ICompute::update_acc_parameter(
-		std::unique_ptr<Queue>& queue,
-		std::atomic<bool>& enabled,
-		std::atomic<uint>& queue_length,
-		FrameDescriptor new_fd)
-	{
-		if (enabled && queue && queue->get_max_elts() == queue_length)
-			return;
-		queue = nullptr;
-		if (enabled)
-		{
-			try
-			{
-				new_fd.depth = 4;
-				queue.reset(new Queue(new_fd, queue_length, "Accumulation"));
-				if (!queue)
-					LOG_ERROR("couldn't allocate queue");
-			}
-			catch (std::exception&)
-			{
-				queue = nullptr;
-				enabled = false;
-				queue_length = 1;
-				pipe_error(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
-			}
-		}
-	}*/
-
 	bool ICompute::get_request_refresh()
 	{
 		return refresh_requested_;
@@ -309,11 +276,16 @@ namespace holovibes
 		termination_requested_ = true;
 	}
 
-	void ICompute::request_resize(unsigned int new_output_size, bool kill_raw_queue)
+	void ICompute::request_resize(unsigned int new_output_size)
 	{
 		requested_output_size_ = new_output_size;
-		resize_requested_ = true;
-		kill_raw_queue_ = kill_raw_queue;
+		output_resize_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_kill_raw_queue()
+	{
+		kill_raw_queue_requested_ = true;
 		request_refresh();
 	}
 

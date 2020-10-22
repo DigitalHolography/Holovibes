@@ -255,7 +255,14 @@ namespace holovibes
 
 			// Record
 			ui.RawRecordingCheckBox->setEnabled(!is_direct);
+			ui.RawRecordingCheckBox->setChecked(!is_direct && cd_.record_raw);
 			ui.SynchronizedRecordCheckBox->setEnabled(import_type_ == File);
+			ui.SynchronizedRecordCheckBox->setChecked(import_type_ == File
+				&& cd_.synchronized_record);
+
+			// Raw view
+			ui.RawDisplayingCheckBox->setEnabled(!is_direct);
+			ui.RawDisplayingCheckBox->setChecked(!is_direct && cd_.raw_view);
 
 			// Average ROI recording
 			ui.RoiOutputGroupBox->setEnabled(cd_.average_enabled);
@@ -656,7 +663,7 @@ namespace holovibes
 				config.stft_cuts_output_buffer_size = ptree.get<int>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-				
+
 				cd_.stft_level = ptree.get<uint>("config.stft_queue_size", cd_.stft_level);
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
@@ -915,7 +922,7 @@ namespace holovibes
 				set_convolution_mode(false);
 			if (cd_.average_enabled)
 				set_average_mode(false);
-			cancel_stft_view(cd_);
+			cancel_stft_view();
 			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
 			holovibes_.dispose_compute();
@@ -957,10 +964,11 @@ namespace holovibes
 			mainDisplay.reset(nullptr);
 
 			lens_window.reset(nullptr);
-			ui.LensViewCheckBox->setChecked(false);
 
+			/* Raw view & recording */
 			raw_window.reset(nullptr);
-			ui.RawDisplayingCheckBox->setChecked(false);
+			cd_.raw_view = false;
+			cd_.record_raw = false;
 		}
 
 		void MainWindow::reset()
@@ -1225,7 +1233,9 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
-			//That function is used to reallocate the buffers since the Square input mode could have changed
+			// That function is used to reallocate the buffers since the Square
+			// input mode could have changed
+			/* Close windows & destory thread compute */
 			close_windows();
 			close_critical_compute();
 
@@ -1235,13 +1245,13 @@ namespace holovibes
 			try
 			{
 				cd_.compute_mode = Computation::Hologram;
-				/* ---------- */
+				/* Pipe & Window */
 				createPipe();
 				createHoloWindow();
-				/* ---------- */
+				/* Info Manager */
 				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_fd();
 				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
-				/* ---------- */
+				/* Contrast */
 				cd_.contrast_enabled = true;
 				if (cd_.file_type != FileType::HOLO)
 				{
@@ -1251,7 +1261,7 @@ namespace holovibes
 					if (pipe)
 						pipe->autocontrast_end_pipe(XYview);
 				}
-
+				/* Notify */
 				notify();
 			}
 			catch (std::runtime_error& e)
@@ -1528,7 +1538,7 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::cancel_stft_view(ComputeDescriptor& cd)
+		void MainWindow::cancel_stft_view()
 		{
 			if (cd_.stft_view_enabled)
 				cancel_stft_slice_view();
@@ -1808,35 +1818,27 @@ namespace holovibes
 		void MainWindow::update_raw_view(bool value)
 		{
 			cd_.raw_view = value;
-			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-			if (pipe)
-				pipe->get_raw_queue()->set_display(cd_.record_raw || value);
-			if (value)
+			ICompute* pipe = holovibes_.get_pipe().get();
+			pipe->get_raw_queue()->set_display(cd_.record_raw);
+			if (cd_.raw_view)
 			{
-				try
-				{
-					// set positions of new windows according to the position of the main GL window and Lens window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 310, 0);
-					if (pipe)
-					{
-						raw_window.reset(new DirectWindow(
-							pos,
+				// set positions of new windows according to the position of the main GL window and Lens window
+				QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 310, 0);
+					raw_window.reset(new DirectWindow(
+						pos,
 							QSize(mainDisplay->width(), mainDisplay->height()),
-							pipe->get_raw_queue()));
-					}
-					raw_window->setTitle("Raw view");
-					raw_window->setCd(&cd_);
-				}
-				catch (std::exception& e)
-				{
-					std::cerr << e.what() << std::endl;
-				}
+						pipe->get_raw_queue()));
+				raw_window->setTitle("Raw view");
+				raw_window->setCd(&cd_);
 			}
 			else
 			{
 				raw_window = nullptr;
 				if (!cd_.record_raw)
+				{
 					gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
+					pipe->request_kill_raw_queue();
+				}
 			}
 			pipe_refresh();
 		}
@@ -2599,6 +2601,7 @@ namespace holovibes
 		void MainWindow::set_raw_recording(bool value)
 		{
 			cd_.record_raw = value;
+			ICompute* pipe = holovibes_.get_pipe().get();
 
 			// When switching to raw recording, we no longer care about
 			// having a big Pipe::output_ buffer for the processed output,
@@ -2607,12 +2610,14 @@ namespace holovibes
 			if (value)
 			{
 				// Use an output Queue of size 4
-				holovibes_.get_pipe()->request_resize(4, false);
+				pipe->request_resize(4);
 			}
 			else
 			{
 				// Restore original size
-				holovibes_.get_pipe()->request_resize(global::global_config.output_queue_max_size, true);
+				pipe->request_resize(global::global_config.output_queue_max_size);
+				if (!cd_.raw_view)
+					pipe->request_kill_raw_queue();
 			}
 		}
 
