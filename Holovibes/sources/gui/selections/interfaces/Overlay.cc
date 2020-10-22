@@ -67,6 +67,7 @@ namespace holovibes
 		void Overlay::disable()
 		{
 			active_ = false;
+			display_ = false;
 		}
 
 		void Overlay::press(QMouseEvent *e)

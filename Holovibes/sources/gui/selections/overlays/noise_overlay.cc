@@ -27,6 +27,7 @@ namespace holovibes
 		{
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
+
 			units::RectFd texZone = zone_;
 
 			// handle Noise

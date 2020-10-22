@@ -458,11 +458,12 @@ namespace holovibes
 			ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
 			ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
 
-			// Plot the average graphic if zones are set
+			// Average Signal
 			if (mainDisplay
 				&& mainDisplay->getOverlayManager().is_signal_zone_set()
 				&& mainDisplay->getOverlayManager().is_noise_zone_set())
 				set_average_graphic();
+			ui.AverageGroupBox->setChecked(cd_.average_enabled);
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -927,7 +928,7 @@ namespace holovibes
 			if (cd_.convolution_enabled)
 				set_convolution_mode(false);
 			if (cd_.average_enabled)
-				set_average_mode(false);
+				disable_average_mode();
 			cancel_stft_view();
 			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
@@ -2414,9 +2415,10 @@ namespace holovibes
 
 		void MainWindow::set_average_mode(const bool value)
 		{
+			cd_.average_enabled = value;
+
 			if (mainDisplay)
 			{
-				cd_.average_enabled = value;
 				mainDisplay->resetTransform();
 				if (value)
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
@@ -2431,10 +2433,13 @@ namespace holovibes
 		{
 			cd_.average_enabled = false;
 
-			mainDisplay->resetTransform();
+			if (mainDisplay)
+			{
+				mainDisplay->resetTransform();
 
-			mainDisplay->getOverlayManager().disable_all(Signal);
-			mainDisplay->getOverlayManager().disable_all(Noise);
+				mainDisplay->getOverlayManager().disable_all(Signal);
+				mainDisplay->getOverlayManager().disable_all(Noise);
+			}
 
 			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 			pipe->request_average_stop();

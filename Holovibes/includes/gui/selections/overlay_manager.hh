@@ -58,12 +58,12 @@ namespace holovibes
 
 			bool is_signal_zone_set() const
 			{
-				return is_signal_zone_set_;
+				return signal_overlay_ && signal_overlay_->isDisplayed();
 			}
 
 			bool is_noise_zone_set() const
 			{
-				return is_noise_zone_set_;
+				return noise_overlay_ && noise_overlay_->isDisplayed();
 			}
 
 			# ifdef _DEBUG
@@ -83,8 +83,8 @@ namespace holovibes
 			/*! \brief Deletes from the vector every disabled overlay. */
 			void clean();
 
-			bool is_signal_zone_set_ = false;
-			bool is_noise_zone_set_ = false;
+			std::shared_ptr<Overlay> signal_overlay_ = nullptr;
+			std::shared_ptr<Overlay> noise_overlay_ = nullptr;
 
 			//! Containing every created overlay.
 			std::vector<std::shared_ptr<Overlay>> overlays_;
