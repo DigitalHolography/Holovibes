@@ -308,6 +308,7 @@ namespace holovibes
 			ushort height;
 			uint window_max_size;
 			uint stft_cuts_window_max_size;
+			uint auxiliary_window_max_size;
 
 			float		displayAngle;
 			float		xzAngle;

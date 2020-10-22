@@ -77,6 +77,7 @@ namespace holovibes
 			mainDisplay(nullptr),
 			window_max_size(768),
 			stft_cuts_window_max_size(512),
+			auxiliary_window_max_size(512),
 			sliceXZ(nullptr),
 			sliceYZ(nullptr),
 			displayAngle(0.f),
@@ -791,6 +792,7 @@ namespace holovibes
 				// Display
 				window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
 				stft_cuts_window_max_size = ptree.get<uint>("display.stft_cuts_window_max_size", 512);
+				auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
 
 				notify();
 			}
@@ -907,7 +909,8 @@ namespace holovibes
 
 			// Display
 			ptree.put<uint>("display.main_window_max_size", window_max_size);
-			ptree.put<uint>("display.stft_cuts_window_max_size", stft_cuts_window_max_size);
+            ptree.put<uint>("display.stft_cuts_window_max_size", stft_cuts_window_max_size);
+			ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
 
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
 		}
@@ -1795,13 +1798,16 @@ namespace holovibes
 				try
 				{
 					// set positions of new windows according to the position of the main GL window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 300, 0);
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					ushort lens_window_width = width;
+					ushort lens_window_height = height;
+					get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 					if (pipe)
 					{
 						lens_window.reset(new DirectWindow(
 							pos,
-							QSize(mainDisplay->width(), mainDisplay->height()),
+							QSize(lens_window_width, lens_window_height),
 							pipe->get_lens_queue()));
 					}
 					lens_window->setTitle("Lens view");
@@ -1827,11 +1833,14 @@ namespace holovibes
 			pipe->get_raw_queue()->set_display(cd_.record_raw);
 			if (cd_.raw_view)
 			{
+				ushort raw_window_width = width;
+				ushort raw_window_height = height;
+				get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
 				// set positions of new windows according to the position of the main GL window and Lens window
-				QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 310, 0);
+				QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
 					raw_window.reset(new DirectWindow(
 						pos,
-							QSize(mainDisplay->width(), mainDisplay->height()),
+						QSize(raw_window_width, raw_window_height),
 						pipe->get_raw_queue()));
 				raw_window->setTitle("Raw view");
 				raw_window->setCd(&cd_);
