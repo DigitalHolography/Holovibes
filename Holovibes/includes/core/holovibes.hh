@@ -132,7 +132,7 @@ namespace holovibes
 		/*! \{ \name Getters/Setters */
 		std::shared_ptr<ICompute> get_pipe()
 		{
-			if (tcompute_)
+			if (tcompute_ != nullptr)
 				return tcompute_->get_pipe();
 			throw std::runtime_error("cannot get pipe, no compute thread");
 		}

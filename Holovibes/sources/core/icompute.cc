@@ -225,18 +225,18 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void	ICompute::create_stft_slice_queue()
+	void ICompute::create_stft_slice_queue()
 	{
 		request_stft_cuts_ = true;
 		request_refresh();
 	}
 
-	bool	ICompute::get_cuts_request()
+	bool ICompute::get_cuts_request()
 	{
 		return request_stft_cuts_;
 	}
 
-	bool	ICompute::get_cuts_delete_request()
+	bool ICompute::get_cuts_delete_request()
 	{
 		return request_delete_stft_cuts_;
 	}

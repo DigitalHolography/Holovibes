@@ -38,7 +38,7 @@ namespace holovibes
     else if (name == "Default")
     {
       return SquareInputMode::NO_MODIFICATION;
-    } 
+    }
     else
     {
       LOG_WARN(std::string("Unsupported square input mode : ") + name);
