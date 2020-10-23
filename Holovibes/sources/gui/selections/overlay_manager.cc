@@ -74,8 +74,8 @@ namespace holovibes
 			if (!set_current(Noise))
 			{
 				std::shared_ptr<Overlay> noise_overlay = std::make_shared<NoiseOverlay>(parent_);
-				noise_overlay_ = noise_overlay;
 				create_overlay(noise_overlay);
+				noise_overlay_ = noise_overlay;
 			}
 		}
 
@@ -85,8 +85,8 @@ namespace holovibes
 			if (!set_current(Signal))
 			{
 				std::shared_ptr<Overlay> signal_overlay = std::make_shared<SignalOverlay>(parent_);
-				signal_overlay_ = signal_overlay;
 				create_overlay(signal_overlay);
+				signal_overlay_ = signal_overlay;
 			}
 		}
 
@@ -149,18 +149,6 @@ namespace holovibes
 		{
 			current_overlay_ = new_overlay;
 			parent_->getCd()->notify_observers();
-		}
-
-		void OverlayManager::set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko)
-		{
-			if (ko == Noise)
-				create_overlay<Noise>();
-			else if (ko == Signal)
-				create_overlay<Signal>();
-			else
-				create_default();
-			current_overlay_->setZone(zone, frameside);
-			create_default();
 		}
 
 		void OverlayManager::press(QMouseEvent *e)

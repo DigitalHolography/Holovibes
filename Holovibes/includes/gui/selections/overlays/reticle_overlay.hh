@@ -36,8 +36,6 @@ namespace holovibes
 			{}
 			virtual void release(ushort frameside) override
 			{}
-			virtual void setZone(units::RectFd rect, ushort frameside) override
-			{}
 
 		protected:
 			void setBuffer() override;

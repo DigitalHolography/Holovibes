@@ -127,14 +127,6 @@ namespace holovibes
 			}
 		}
 
-		void RectOverlay::setZone(units::RectFd rect, ushort frameside)
-		{
-			zone_ = rect;
-			setBuffer();
-			display_ = true;
-			release(frameside);
-		}
-
 		void RectOverlay::checkCorners()
 		{
 			auto parent_fd = parent_->getFd();

@@ -1439,7 +1439,8 @@ namespace holovibes
 			if (mainDisplay)
 			{
 				mainDisplay->setCursor(Qt::ArrowCursor);
-				mainDisplay->resetSelection();
+				mainDisplay->getOverlayManager().disable_all(SliceCross);
+				mainDisplay->getOverlayManager().disable_all(Cross);
 			}
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
@@ -1527,7 +1528,6 @@ namespace holovibes
 
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					cd_.stft_view_enabled = true;
-					cd_.average_enabled = false;
 					set_auto_contrast_cuts();
 					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
 					if (holo)

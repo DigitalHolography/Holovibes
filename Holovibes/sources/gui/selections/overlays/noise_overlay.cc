@@ -25,7 +25,7 @@ namespace holovibes
 
 		void NoiseOverlay::release(ushort frameSide)
 		{
-			if (zone_.topLeft() == zone_.bottomRight())
+			if (zone_.height() == 0 || zone_.width() == 0)
 				return;
 
 			units::RectFd texZone = zone_;

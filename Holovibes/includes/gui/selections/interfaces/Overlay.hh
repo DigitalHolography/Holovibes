@@ -88,8 +88,6 @@ namespace holovibes
 			*/
 			void initProgram();
 
-			//void setZone(int side, Rectangle rect);
-
 			/*! \brief Call opengl function to draw the overlay
 
 			*/
@@ -111,11 +109,6 @@ namespace holovibes
 
 			*/
 			virtual void release(ushort frameside) = 0;
-
-			/*! \brief Set the zone, buffers, and call release
-
-			*/
-			virtual void setZone(units::RectFd rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose.
 

@@ -32,8 +32,6 @@ namespace holovibes
 			void create_overlay();
 			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
 			void create_default();
-			/*! \brief Create an overlay, and set its zone. */
-			void set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko);
 
 			/*! \brief Disable all the overlay of kind ko*/
 			bool disable_all(KindOfOverlay ko);
@@ -58,12 +56,16 @@ namespace holovibes
 
 			bool is_signal_zone_set() const
 			{
-				return signal_overlay_ && signal_overlay_->isDisplayed();
+				return signal_overlay_ && signal_overlay_->isDisplayed()
+						&& signal_overlay_->getZone().height() != 0
+						&& signal_overlay_->getZone().width() != 0;
 			}
-
+ 
 			bool is_noise_zone_set() const
 			{
-				return noise_overlay_ && noise_overlay_->isDisplayed();
+				return noise_overlay_ && noise_overlay_->isDisplayed()
+						&& noise_overlay_->getZone().height() != 0
+						&& noise_overlay_->getZone().width() != 0;
 			}
 
 			# ifdef _DEBUG

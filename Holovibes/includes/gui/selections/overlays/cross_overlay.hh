@@ -48,10 +48,6 @@ namespace holovibes
 			void move(QMouseEvent *e) override;
 			void release(ushort frameSide) override;
 
-			// Not called when using cross
-			void setZone(units::RectFd rect, ushort frameside) override
-			{}
-
 		protected:
 			void setBuffer() override;
 

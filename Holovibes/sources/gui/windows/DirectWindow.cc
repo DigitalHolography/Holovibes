@@ -43,30 +43,6 @@ namespace holovibes
 		DirectWindow::~DirectWindow()
 		{}
 
-		units::RectFd DirectWindow::getSignalZone() const
-		{
-			units::RectFd rect;
-			cd_->signalZone(rect, Get);
-			return rect;
-		}
-
-		units::RectFd DirectWindow::getNoiseZone() const
-		{
-			units::RectFd rect;
-			cd_->noiseZone(rect, Get);
-			return rect;
-		}
-
-		void DirectWindow::setSignalZone(units::RectFd signal)
-		{
-			overlay_manager_.set_zone(fd_.width, signal, Signal);
-		}
-
-		void DirectWindow::setNoiseZone(units::RectFd noise)
-		{
-			overlay_manager_.set_zone(fd_.width, noise, Noise);
-		}
-
 		void DirectWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();

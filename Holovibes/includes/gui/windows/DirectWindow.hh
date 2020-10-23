@@ -28,11 +28,6 @@ namespace holovibes
 			DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Direct);
 			virtual ~DirectWindow();
 
-			units::RectFd getSignalZone() const;
-			units::RectFd getNoiseZone() const;
-			void setSignalZone(units::RectFd signal);
-			void setNoiseZone(units::RectFd noise);
-
 			void zoomInRect(units::RectOpengl zone);
 			void setRatio(float ratio_);
 
