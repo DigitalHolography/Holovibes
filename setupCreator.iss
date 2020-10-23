@@ -10,8 +10,8 @@
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 
-#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
+#define QtPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\plugins\platforms"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.1\bin"
 
 [Setup]
@@ -132,7 +132,7 @@ Source: "{#CudaPath}\nppist64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Componen
 Source: "Camera\CameraAdimec\bfml\Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.4-0.3 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.2 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
-Source: "setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion; Check: VC2019RedistNeedsInstall
+Source: "setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -140,23 +140,7 @@ Type: files; Name: "{app}\{#MyAppVersion}\holovibes.ini"
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
 
 [Run]
-Filename: "{tmp}\vcredist_2019_x64.exe"; Parameters: "/quiet"; Check: VC2019RedistNeedsInstall; Flags: waituntilterminated
-
-[Code]
-function VC2019RedistNeedsInstall: Boolean;
-var 
-  Version: String;
-begin
-  if (RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Version', Version)) then
-  begin
-    Log('VC Redist Version check : found ' + Version);
-    Result := (CompareStr(Version, 'v14.27.29112')<0);
-  end
-  else 
-  begin
-    Result := True;
-  end;
-end;
+Filename: "{tmp}\vcredist_2019_x64.exe"; Parameters: "/install /passive /norestart"; Components: visual; Flags: waituntilterminated
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"
