@@ -4,6 +4,8 @@ project(Holovibes CXX CUDA)
 find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
 
+cmake_policy(SET CMP0100 NEW)
+
 # Qt file generators
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -52,6 +54,8 @@ set(HOLO_INCLUDES
 # ---
 
 add_library("${PROJECT_NAME}_cuda_lib" STATIC)
+
+set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
 
 target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE Qt5::Core)
 

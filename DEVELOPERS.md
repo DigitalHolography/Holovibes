@@ -6,7 +6,7 @@
 * [CUDA 11.1](https://developer.nvidia.com/cuda-downloads)
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
 * [Bitflow SDK 6.40](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
-* [CMake 3.16.1](https://github.com/Kitware/CMake/releases/tag/v3.16.1)
+* [CMake 3.19.0-rc1](https://github.com/Kitware/CMake/releases/tag/v3.19.0-rc1)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/) (if building with CMake ; fetched from NuGet in VS)
 
 #### Environment variables

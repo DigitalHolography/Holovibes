@@ -4,6 +4,8 @@ add_library("${PROJECT_NAME}" SHARED
     utils.cc
 )
 
+set_property(TARGET "${PROJECT_NAME}" PROPERTY CUDA_ARCHITECTURES OFF)
+
 set_source_files_properties(utils.cc PROPERTIES LANGUAGE CUDA)
 
 target_include_directories("${PROJECT_NAME}"
