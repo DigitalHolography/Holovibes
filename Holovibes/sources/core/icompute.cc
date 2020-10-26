@@ -291,6 +291,10 @@ namespace holovibes
 
 	void ICompute::request_autocontrast(WindowKind kind)
 	{
+		// Do not request anything if contrast is not enabled
+		if (!cd_.contrast_enabled)
+			return;
+
 		if (kind == XYview)
 			autocontrast_requested_ = true;
 		else if (kind == XZview)

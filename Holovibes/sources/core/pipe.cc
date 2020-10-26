@@ -45,8 +45,8 @@ namespace holovibes
 	{
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
-		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
+		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, image_acc_env_, stft_env_, desc, input.get_fd(), output.get_fd(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 
 		update_n_requested_ = true;
@@ -209,9 +209,11 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
+
+		insert_request_autocontrast();
 		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 
-		fn_vect_.push_back([=]() {fps_count(); });
+		fn_vect_.push_back([=]() { fps_count(); });
 
 		converts_->insert_to_ushort();
 
@@ -262,6 +264,12 @@ namespace holovibes
 					throw CustomException("Can't enqueue the output yz frame in output yz queue", error_kind::fail_enqueue);
 			}
 		});
+	}
+
+	void Pipe::insert_request_autocontrast()
+	{
+		if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
+			autocontrast_end_pipe(cd_.current_window);
 	}
 
 	void Pipe::exec()

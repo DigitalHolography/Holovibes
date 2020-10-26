@@ -292,6 +292,13 @@ namespace holovibes
 			// Contrast
 			ui.ContrastCheckBox->setChecked(!is_direct && cd_.contrast_enabled);
 			ui.ContrastCheckBox->setEnabled(true);
+			ui.AutoRefreshContrastCheckBox->setChecked(cd_.contrast_auto_refresh);
+
+			// Contrast SpinBox:
+			ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+			ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min(cd_.current_window));
+			ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+			ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max(cd_.current_window));
 
 			// FFT shift
 			ui.FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
@@ -302,8 +309,6 @@ namespace holovibes
 			window_selection->setEnabled(cd_.stft_view_enabled);
 			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd_.current_window : 0);
 
-			ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min(cd_.current_window));
-			ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max(cd_.current_window));
 			ui.LogScaleCheckBox->setEnabled(true);
 			ui.LogScaleCheckBox->setChecked(!is_direct && cd_.get_img_log_scale_slice_enabled(cd_.current_window));
 			ui.ImgAccuCheckBox->setEnabled(true);
@@ -1573,6 +1578,7 @@ namespace holovibes
 				cd_.current_window = WindowKind::XZview;
 			else if (window_cbox->currentIndex() == 2)
 				cd_.current_window = WindowKind::YZview;
+			pipe_refresh();
 			notify();
 		}
 
@@ -1668,16 +1674,15 @@ namespace holovibes
 			cd_.convolution_changed = cd_.convolution_enabled != value;
 			cd_.convolution_enabled = value;
 
-			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
-			set_auto_contrast();
-
+			pipe_refresh();
 			notify();
 		}
 
 		void MainWindow::set_divide_convolution_mode(const bool value)
 		{
 			cd_.divide_convolution_enabled = value;
-			set_auto_contrast();
+
+			pipe_refresh();
 			notify();
 		}
 
@@ -1889,11 +1894,9 @@ namespace holovibes
 		{
 			auto spinbox = ui.PAccSpinBox;
 			auto checkBox = ui.PAccuCheckBox;
-			if (cd_.p_accu_enabled != checkBox->isChecked())
-				pipe_refresh();
 			cd_.p_accu_enabled = checkBox->isChecked();
 			cd_.p_acc_level = spinbox->value();
-
+			pipe_refresh();
 			notify();
 		}
 
@@ -1903,6 +1906,7 @@ namespace holovibes
 			auto checkBox = ui.XAccuCheckBox;
 			cd_.x_accu_enabled = checkBox->isChecked();
 			cd_.x_acc_level = box->value();
+			pipe_refresh();
 			notify();
 		}
 
@@ -1912,6 +1916,7 @@ namespace holovibes
 			auto checkBox = ui.YAccuCheckBox;
 			cd_.y_accu_enabled = checkBox->isChecked();
 			cd_.y_acc_level = box->value();
+			pipe_refresh();
 			notify();
 		}
 
@@ -1922,6 +1927,7 @@ namespace holovibes
 				if (value < static_cast<int>(cd_.nSize))
 				{
 					cd_.pindex = value;
+					pipe_refresh();
 					notify();
 				}
 				else
@@ -1934,37 +1940,50 @@ namespace holovibes
 			ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
 			cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
 			cd_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
+			pipe_refresh();
 			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_h_min()
 		{
 			cd_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_h_max()
 		{
 			cd_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_s_min()
 		{
 			cd_.composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_s_max()
 		{
 			cd_.composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_min()
 		{
 			cd_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_max()
 		{
 			cd_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
+			pipe_refresh();
+			notify();
 		}
 
 		void MainWindow::set_composite_weights()
@@ -1972,6 +1991,8 @@ namespace holovibes
 			cd_.weight_r = ui.WeightSpinBox_R->value();
 			cd_.weight_g = ui.WeightSpinBox_G->value();
 			cd_.weight_b = ui.WeightSpinBox_B->value();
+			pipe_refresh();
+			notify();
 		}
 
 
@@ -2332,8 +2353,7 @@ namespace holovibes
 			{
 				change_window();
 				cd_.contrast_enabled = value;
-				set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
-				set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
+				cd_.contrast_auto_refresh = true;
 				pipe_refresh();
 				notify();
 			}
@@ -2391,8 +2411,17 @@ namespace holovibes
 			{
 				if (cd_.contrast_enabled)
 				{
-					cd_.set_contrast_min(cd_.current_window, value);
-					pipe_refresh();
+					// Get the minimum contrast value rounded for the comparison
+					const float old_val =
+						cd_.get_truncate_contrast_min(cd_.current_window);
+					// Floating number issue: cast to float for the comparison
+					const float val = value;
+					if (old_val != val)
+					{
+						cd_.set_contrast_min(cd_.current_window, value);
+						pipe_refresh();
+						notify();
+					}
 				}
 			}
 		}
@@ -2403,8 +2432,17 @@ namespace holovibes
 			{
 				if (cd_.contrast_enabled)
 				{
-					cd_.set_contrast_max(cd_.current_window, value);
-					pipe_refresh();
+					// Get the maximum contrast value rounded for the comparison
+					const float old_val =
+						cd_.get_truncate_contrast_max(cd_.current_window);
+					 // Floating number issue: cast to float for the comparison
+					const float val = value;
+					if (old_val != val)
+					{
+						cd_.set_contrast_max(cd_.current_window, value);
+						pipe_refresh();
+						notify();
+					}
 				}
 			}
 		}
@@ -2421,18 +2459,19 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::set_auto_refresh_contrast(bool value)
+		{
+			cd_.contrast_auto_refresh = value;
+			pipe_refresh();
+			notify();
+		}
+
 		void MainWindow::set_log_scale(const bool value)
 		{
 			if (!is_direct_mode())
 			{
 				cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-				if (cd_.contrast_enabled)
-				{
-					set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
-					set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
-				}
 				pipe_refresh();
-				set_auto_contrast();
 				notify();
 			}
 		}
@@ -2567,9 +2606,7 @@ namespace holovibes
 
 				cd_.convolution_changed = true;
 
-				set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
-				set_auto_contrast();
-
+				pipe_refresh();
 				notify();
 			}
 		}

@@ -26,6 +26,8 @@ namespace holovibes
 		Rendering::Rendering(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			Average_env& average_env,
+			const ImageAccEnv& image_acc_env,
+			const Stft_env& stft_env,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
@@ -33,6 +35,8 @@ namespace holovibes
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, average_env_(average_env)
+			, image_acc_env_(image_acc_env)
+			, stft_env_(stft_env)
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
@@ -87,15 +91,18 @@ namespace holovibes
 									    std::atomic<bool>& autocontrast_slice_xz_request,
 										std::atomic<bool>& autocontrast_slice_yz_request)
 		{
+			// Do not compute contrast or apply contrast if not enabled
+			if (!cd_.contrast_enabled)
+				return;
+
 			// Compute min and max pixel values if requested
 			insert_compute_autocontrast(autocontrast_request,
 				autocontrast_slice_xz_request, autocontrast_slice_yz_request);
 
-			// If the contrast is enabled apply it to the main view
-			if (cd_.contrast_enabled)
-				insert_apply_contrast(WindowKind::XYview);
+			// Apply contrast on the main view
+			insert_apply_contrast(WindowKind::XYview);
 
-			// Aplly contrast on cuts if needed
+			// Apply contrast on cuts if needed
 			if (cd_.stft_view_enabled)
 			{
 				insert_apply_contrast(WindowKind::XZview);
@@ -151,36 +158,36 @@ namespace holovibes
 
 		void Rendering::insert_apply_contrast(WindowKind view)
 		{
-			// Set parameters
-			float* input;
-			uint size;
-			ushort dynamic_range = 65535;
-			float min;
-			float max;
-
-			switch (view)
-			{
-			case XYview:
-				input = buffers_.gpu_float_buffer_;
-				size = buffers_.gpu_float_buffer_size_;
-				min = cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy;
-				max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
-				break;
-			case YZview:
-				input = buffers_.gpu_float_cut_yz_.get();
-				size = fd_.width * cd_.nSize;
-				min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
-				max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
-				break;
-			case XZview:
-				input = buffers_.gpu_float_cut_xz_.get();
-				size = fd_.width * cd_.nSize;
-				min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
-				max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
-				break;
-			}
-
 			fn_vect_.push_back([=](){
+				// Set parameters
+				float* input;
+				uint size;
+				ushort dynamic_range = 65535;
+				float min;
+				float max;
+
+				switch (view)
+				{
+				case XYview:
+					input = buffers_.gpu_float_buffer_;
+					size = buffers_.gpu_float_buffer_size_;
+					min = cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy;
+					max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
+					break;
+				case YZview:
+					input = buffers_.gpu_float_cut_yz_.get();
+					size = fd_.width * cd_.nSize;
+					min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
+					max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
+					break;
+				case XZview:
+					input = buffers_.gpu_float_cut_xz_.get();
+					size = fd_.width * cd_.nSize;
+					min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
+					max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
+					break;
+				}
+
 				apply_contrast_correction(input, size, dynamic_range, min, max);
 			});
 		}
@@ -192,27 +199,42 @@ namespace holovibes
 			// requested check are inside the lambda so that we don't need to
 			// refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
-				if (autocontrast_request)
+				// Compute autocontrast once the gpu stft queue is full
+				if (!stft_env_.gpu_stft_queue_->is_full())
+					return;
+
+				if (autocontrast_request && (!image_acc_env_.gpu_accumulation_xy_queue ||
+					image_acc_env_.gpu_accumulation_xy_queue->is_full()))
+				{
 					autocontrast_caller(
 						buffers_.gpu_float_buffer_,
 						buffers_.gpu_float_buffer_size_,
 						0,
 						XYview);
-				if (autocontrast_slice_xz_request)
+					autocontrast_request = false;
+				}
+				if (autocontrast_slice_xz_request && (!image_acc_env_.gpu_accumulation_xz_queue ||
+					image_acc_env_.gpu_accumulation_xz_queue->is_full()))
+				{
 					autocontrast_caller(
 						buffers_.gpu_float_cut_xz_.get(),
 						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						XZview);
-				if (autocontrast_slice_yz_request)
+					autocontrast_slice_xz_request = false;
+				}
+				if (autocontrast_slice_yz_request && (!image_acc_env_.gpu_accumulation_yz_queue ||
+					image_acc_env_.gpu_accumulation_yz_queue->is_full()))
+				{
+					// FIXME: use the caller with gpu_float_cut_xz
+					// It might fix the YZ autocontrast computation
 					autocontrast_caller(
 						buffers_.gpu_float_cut_yz_.get(),
 						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						YZview);
-				autocontrast_request = false;
-				autocontrast_slice_xz_request = false;
-				autocontrast_slice_yz_request = false;
+					autocontrast_slice_yz_request = false;
+				}
 			};
 
 			fn_vect_.push_back(lambda_autocontrast);
@@ -228,7 +250,8 @@ namespace holovibes
 			float contrast_max = 0.f;
 			// Compute min and max
 			compute_autocontrast(input, size, offset, &contrast_min, &contrast_max,
-				cd_.contrast_threshold_low_percentile, cd_.contrast_threshold_high_percentile);
+				cd_.contrast_threshold_low_percentile,
+				cd_.contrast_threshold_high_percentile);
 
 			// Update attributes
 			switch (view)

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1364</width>
-    <height>748</height>
+    <height>794</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -556,6 +556,314 @@
          <bool>false</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
+         <item row="8" column="0" colspan="2">
+          <widget class="QFrame" name="frame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="lineWidth">
+            <number>2</number>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <property name="sizeConstraint">
+               <enum>QLayout::SetNoConstraint</enum>
+              </property>
+              <item>
+               <widget class="QPushButton" name="FlipPushButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>1</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>48</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string>Flip</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="RotatePushButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Rotate</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="LogScaleCheckBox">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>set log filter for output</string>
+                </property>
+                <property name="text">
+                 <string>Log</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QCheckBox" name="ImgAccuCheckBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Accumulate n images</string>
+                </property>
+                <property name="text">
+                 <string>Img. Acc.</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="ImgAccuSpinBox">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::DefaultContextMenu</enum>
+                </property>
+                <property name="toolTip">
+                 <string>number of holograms processed (phase mode only)</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>999</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ContrastCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Contrast</string>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>2</number>
+               </property>
+               <item row="2" column="1" rowspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_8">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="ContrastRangeLabel">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="statusTip">
+                    <string>The lower and upper limit of the contrast</string>
+                   </property>
+                   <property name="text">
+                    <string>Range</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimum">
+                    <double>-100.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimum">
+                    <double>-100.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="0" colspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <item>
+                  <widget class="QPushButton" name="AutoContrastPushButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Refresh</string>
+                   </property>
+                   <property name="flat">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
+                   <property name="text">
+                    <string>Auto</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="5" column="1">
+                <widget class="QCheckBox" name="InvertContrastCheckBox">
+                 <property name="text">
+                  <string>Invert</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>I</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
          <item row="3" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
            <property name="sizeConstraint">
@@ -825,303 +1133,18 @@
            </item>
           </layout>
          </item>
-         <item row="8" column="0" colspan="2">
-          <widget class="QFrame" name="frame">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="11" column="0" colspan="2">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="lineWidth">
-            <number>2</number>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="leftMargin">
-             <number>5</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>5</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <property name="spacing">
-               <number>6</number>
-              </property>
-              <property name="sizeConstraint">
-               <enum>QLayout::SetNoConstraint</enum>
-              </property>
-              <item>
-               <widget class="QPushButton" name="FlipPushButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>48</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="text">
-                 <string>Flip</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="RotatePushButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="baseSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Rotate</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="LogScaleCheckBox">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>set log filter for output</string>
-                </property>
-                <property name="text">
-                 <string>Log</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QCheckBox" name="ImgAccuCheckBox">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Accumulate n images</string>
-                </property>
-                <property name="text">
-                 <string>Img. Acc.</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="ImgAccuSpinBox">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::DefaultContextMenu</enum>
-                </property>
-                <property name="toolTip">
-                 <string>number of holograms processed (phase mode only)</string>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>999</number>
-                </property>
-                <property name="value">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="ContrastCheckBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Contrast</string>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <property name="leftMargin">
-                <number>2</number>
-               </property>
-               <property name="topMargin">
-                <number>2</number>
-               </property>
-               <property name="rightMargin">
-                <number>2</number>
-               </property>
-               <property name="bottomMargin">
-                <number>2</number>
-               </property>
-               <property name="horizontalSpacing">
-                <number>0</number>
-               </property>
-               <property name="verticalSpacing">
-                <number>2</number>
-               </property>
-               <item row="1" column="0" colspan="3">
-                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <item>
-                  <widget class="QPushButton" name="AutoContrastPushButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Autocontrast</string>
-                   </property>
-                   <property name="flat">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="InvertContrastCheckBox">
-                   <property name="text">
-                    <string>Invert</string>
-                   </property>
-                   <property name="shortcut">
-                    <string>I</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="4" column="1" rowspan="3">
-                <layout class="QHBoxLayout" name="horizontalLayout_8">
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="ContrastRangeLabel">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="statusTip">
-                    <string>The lower and upper limit of the contrast</string>
-                   </property>
-                   <property name="text">
-                    <string>Range</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimum">
-                    <double>-100.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.100000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimum">
-                    <double>-100.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.100000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
-          </widget>
+          </spacer>
          </item>
          <item row="9" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1170,19 +1193,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="11" column="0" colspan="2">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item row="5" column="0" colspan="2">
           <widget class="QComboBox" name="WindowSelectionComboBox">
@@ -1677,10 +1687,31 @@
               <property name="topMargin">
                <number>0</number>
               </property>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_saturation_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_saturation_freq_min_name">
                 <property name="text">
                  <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_max">
+                <property name="text">
+                 <string>1000</string>
                 </property>
                </widget>
               </item>
@@ -1697,34 +1728,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QLabel" name="label_saturation_freq_max_name">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_saturation_threshold_min_name">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="4">
-               <widget class="QLabel" name="label_saturation_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_saturation_threshold_max_name">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="3" colspan="2">
                <widget class="QSpinBox" name="SpinBox_saturation_freq_max">
                 <property name="enabled">
@@ -1735,6 +1738,13 @@
                   <width>60</width>
                   <height>0</height>
                  </size>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_max_name">
+                <property name="text">
+                 <string>Max</string>
                 </property>
                </widget>
               </item>
@@ -1796,13 +1806,6 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="4">
-               <widget class="QLabel" name="label_saturation_threshold_min">
-                <property name="text">
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="4">
                <widget class="QCheckBox" name="checkBox_saturation_freq">
                 <property name="layoutDirection">
@@ -1813,17 +1816,24 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" colspan="4">
-               <widget class="QLabel" name="label_saturation_freq">
-                <property name="text">
-                 <string>Freq. channels (p) selection </string>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0" colspan="5">
                <widget class="QLabel" name="label_saturation_threshold">
                 <property name="text">
                  <string>Threshold</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QLabel" name="label_saturation_freq">
+                <property name="text">
+                 <string>Freq. channels (p) selection </string>
                 </property>
                </widget>
               </item>
@@ -3035,7 +3045,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1364</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3955,22 +3965,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AutoContrastPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_auto_contrast()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>LogScaleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -3999,38 +3993,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>640</x>
      <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ContrastMinDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_min(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>318</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>375</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ContrastMaxDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_max(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>305</x>
-     <y>310</y>
     </hint>
    </hints>
   </connection>
@@ -4335,22 +4297,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>223</x>
      <y>229</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ContrastCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>381</x>
-     <y>382</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>304</y>
     </hint>
    </hints>
   </connection>
@@ -5091,22 +5037,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>InvertContrastCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>invert_contrast(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>259</x>
-     <y>379</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SquareInputModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
@@ -5378,6 +5308,102 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InvertContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>invert_contrast(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>259</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AutoContrastPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_auto_contrast()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>59</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ContrastMinDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>318</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ContrastMaxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AutoRefreshContrastCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_auto_refresh_contrast(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5503,5 +5529,6 @@ p, li { white-space: pre-wrap; }
   <slot>holo_file_update()</slot>
   <slot>display_cross(bool)</slot>
   <slot>reticle_scale(double)</slot>
+  <slot>set_auto_refresh_contrast(bool)</slot>
  </slots>
 </ui>

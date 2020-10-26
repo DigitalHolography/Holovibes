@@ -72,6 +72,7 @@ namespace holovibes
 		noise_zone = cd.noise_zone;
 		stft_roi_zone = cd.stft_roi_zone;
 		filter2D_sub_zone = cd.filter2D_sub_zone;
+		contrast_auto_refresh = cd.contrast_auto_refresh.load();
 		return *this;
 	}
 
@@ -187,6 +188,22 @@ namespace holovibes
 			return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load() : log10(contrast_max_slice_yz);
 		}
 		return 0;
+	}
+
+	float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
+													   const int precision) const
+	{
+		float value = get_contrast_min(kind);
+		const double multiplier = std::pow(10.0, precision);
+		return std::round(value * multiplier) / multiplier;
+	}
+
+	float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind,
+													   const int precision) const
+	{
+		float value = get_contrast_max(kind);
+		const double multiplier = std::pow(10.0, precision);
+		return std::round(value * multiplier) / multiplier;
 	}
 
 	bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const

@@ -485,6 +485,11 @@ namespace holovibes
 			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
 	}
 
+	bool Queue::is_full() const
+	{
+		return max_elts_ == curr_elts_;
+	}
+
 	std::string Queue::calculate_size(void) const
 	{
 		std::string display_size = std::to_string((get_max_elts() * get_frame_size()) >> 20); // get_size() / (1024 * 1024)

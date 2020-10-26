@@ -227,6 +227,15 @@ namespace holovibes
 		 */
 		float get_contrast_min(WindowKind kind) const;
 		float get_contrast_max(WindowKind kind) const;
+
+		// Qt rounds the value by default.
+		// In order to compare the compute descriptor values
+		// these values also needs to be round.
+		float get_truncate_contrast_min(WindowKind kind,
+										const int precision = 2) const;
+		float get_truncate_contrast_max(WindowKind kind,
+										const int precision = 2) const;
+
 		bool get_img_log_scale_slice_enabled(WindowKind kind) const;
 		bool get_img_acc_slice_enabled(WindowKind kind) const;
 		unsigned get_img_acc_slice_level(WindowKind kind) const;
@@ -316,8 +325,10 @@ namespace holovibes
 		std::atomic<bool>			log_scale_slice_yz_enabled{ false };
 		//! is shift fft enabled (switching representation diagram)
 		std::atomic<bool>			fft_shift_enabled{ false };
-		//! enables the contract for the slice xy, yz and xz
+		//! enables the contrast for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled{ false };
+		//! enables auto refresh of the contrast
+		std::atomic<bool>			contrast_auto_refresh{ true };
 		//! allows to limit the computations to a selected zone
 		std::atomic<bool>			filter_2d_enabled{ false };
 		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};

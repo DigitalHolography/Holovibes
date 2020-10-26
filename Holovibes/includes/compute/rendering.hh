@@ -29,6 +29,7 @@ namespace holovibes
 	struct CoreBuffers;
 	struct Average_env;
 	struct Stft_env;
+	struct ImageAccEnv;
 	enum WindowKind;
 
 	namespace compute
@@ -39,11 +40,13 @@ namespace holovibes
 		{
 		public:
 			/** \brief Constructor.
-			
+
 			*/
 			Rendering(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
+				const ImageAccEnv& image_acc_env,
+				const Stft_env& stft_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
@@ -98,7 +101,7 @@ namespace holovibes
 			void Rendering::insert_apply_contrast(WindowKind view);
 
 			/** \brief Calls autocontrast and set the correct contrast variables
-			
+
 			*/
 			void autocontrast_caller(float *input,
 				const uint			size,
@@ -123,6 +126,10 @@ namespace holovibes
 			const CoreBuffers&				buffers_;
 			/// Average variables
 			Average_env&					average_env_;
+			/// Time filter environment
+			const Stft_env&					stft_env_;
+			/// Image accumulation environment
+			const ImageAccEnv& 				image_acc_env_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor& input_fd_;
 			/// Describes the output frame size

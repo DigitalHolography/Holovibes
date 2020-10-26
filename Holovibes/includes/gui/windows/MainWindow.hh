@@ -193,6 +193,7 @@ namespace holovibes
 			void set_contrast_min(double value);
 			void set_contrast_max(double value);
 			void invert_contrast(bool value);
+			void set_auto_refresh_contrast(bool value);
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
 			void set_average_mode(bool value);

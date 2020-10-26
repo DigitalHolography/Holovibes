@@ -166,7 +166,7 @@ namespace holovibes
 		/*! \brief Dequeue method overload for composite recording
 		**
 		** Copy the first element of the Queue into dest according to cuda_kind
-		** cuda memory type ignoring one byte over two, 
+		** cuda memory type ignoring one byte over two,
 		** then update internal attributes.
 		**
 		** \param dest destination of element copy
@@ -193,6 +193,9 @@ namespace holovibes
 		void set_display(bool value);
 
 		void set_square_input_mode(SquareInputMode mode);
+
+		/*! Check if the queue is full */
+		bool is_full() const;
 
 		/*Create a string containing the buffer size in MB*/
 		std::string calculate_size(void) const;

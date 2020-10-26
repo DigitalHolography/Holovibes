@@ -138,6 +138,12 @@ namespace holovibes
 		*/
 		void insert_hologram_enqueue_output();
 
+		/*!
+		** \brief Request the computation of a autocontrast if the contrast and
+		** the contrast refresh is enabled
+		*/
+		void insert_request_autocontrast();
+
 	private:
 		//! Vector of functions that will be executed in the exec() function.
 		FnVector		fn_vect_;

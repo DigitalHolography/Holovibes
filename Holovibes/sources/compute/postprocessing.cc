@@ -40,9 +40,9 @@ namespace holovibes
 			, fd_(input_fd)
 			, cd_(cd)
 			, plan_(input_fd.width, input_fd.height, CUFFT_C2C)
-		{	
+		{
 			allocate_buffers();
-		} 
+		}
 
 		void Postprocessing::allocate_buffers()
 		{
@@ -101,7 +101,7 @@ namespace holovibes
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
-							   height, 
+							   height,
 							   gpu_kernel_buffer_.get(),
 							   cd_.divide_convolution_enabled,
 							   true);
@@ -111,7 +111,7 @@ namespace holovibes
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
-							   height, 
+							   height,
 							   gpu_kernel_buffer_.get(),
 							   cd_.divide_convolution_enabled,
 							   true);
@@ -121,7 +121,7 @@ namespace holovibes
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
-							   height, 
+							   height,
 							   gpu_kernel_buffer_,
 							   cd_.divide_convolution_enabled,
 							   true);
@@ -136,7 +136,7 @@ namespace holovibes
 		{
 			if (!cd_.convolution_enabled)
 				return;
-			
+
 			if (cd_.img_type != ImgType::Composite)
 			{
 				fn_vect_.push_back([=]() {
