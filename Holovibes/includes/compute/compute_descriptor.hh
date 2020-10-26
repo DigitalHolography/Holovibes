@@ -325,7 +325,7 @@ namespace holovibes
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled{ false };
 		//! is gpu lens display activated
-		std::atomic<bool>			gpu_lens_display_enabled{ true };
+		std::atomic<bool>			gpu_lens_display_enabled{ false };
 		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled{ false };
 

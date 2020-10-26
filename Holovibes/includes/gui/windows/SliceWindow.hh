@@ -28,28 +28,21 @@ namespace holovibes
 		public:
 			SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
-			void make_pixel_square();
 
-			void adapt();
-			
 		protected:
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
 			MainWindow *main_window_;
-			
+
 			virtual void	initShaders() override;
 			virtual void	initializeGL() override;
 			virtual void	paintGL() override;
-
-			void changeTexture();
 
 			void mousePressEvent(QMouseEvent*) override;
 			void mouseMoveEvent(QMouseEvent*) override;
 			void mouseReleaseEvent(QMouseEvent*) override;
 			void focusInEvent(QFocusEvent*) override;
-
-			bool changeTexture_ = false;
 		};
 	}
 }

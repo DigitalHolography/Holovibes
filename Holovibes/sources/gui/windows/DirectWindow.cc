@@ -37,8 +37,7 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
-		{
-		}
+		{}
 
 		DirectWindow::~DirectWindow()
 		{}
@@ -395,6 +394,5 @@ namespace holovibes
 				}
 			}
 		}
-
 	}
 }

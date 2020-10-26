@@ -41,7 +41,7 @@ namespace holovibes
 			int old_height = -1;
 			// it represents width/height of the Direct window
 			float ratio = 0.0f;
-			
+
 			// bool represent if we are resizing the window or creating one
 			bool is_resize = true;
 
@@ -51,7 +51,7 @@ namespace holovibes
 			virtual void	initializeGL() override;
 			virtual void	resizeGL(int width, int height) override;
 			virtual void	paintGL() override;
-			
+
 			void mousePressEvent(QMouseEvent* e);
 			void mouseMoveEvent(QMouseEvent* e);
 			void mouseReleaseEvent(QMouseEvent* e);

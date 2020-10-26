@@ -59,6 +59,8 @@ namespace holovibes
 			setFramePosition(p);
 			setIcon(QIcon("Holovibes.ico"));
 			show();
+
+			this->installEventFilter(this);
 		}
 
 		BasicOpenGLWindow::~BasicOpenGLWindow()
@@ -250,6 +252,16 @@ namespace holovibes
 		void	BasicOpenGLWindow::setCd(ComputeDescriptor* cd)
 		{
 			cd_ = cd;
+		}
+
+		bool BasicOpenGLWindow::eventFilter(QObject *obj, QEvent *event)
+		{
+			if (event->type() == QEvent::Close)
+			{
+				emit destroyed();
+			}
+
+			return QObject::eventFilter(obj, event);
 		}
 	}
 }

@@ -143,7 +143,9 @@ namespace holovibes
 			void cancel_filter2D();
 			void setPhase();
 			void update_lens_view(bool value);
+			void disable_lens_view();
 			void update_raw_view(bool value);
+			void disable_raw_view();
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();

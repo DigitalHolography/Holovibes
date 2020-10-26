@@ -1781,11 +1781,6 @@ namespace holovibes
 						cd_.nSize = nSize;
 						set_p_accu();
 						// This will not do anything until SliceWindow::changeTexture() isn't coded.
-						if (cd_.stft_view_enabled)
-						{
-							sliceXZ->adapt();
-							sliceYZ->adapt();
-						}
 					});
 				}
 			}
@@ -1794,68 +1789,100 @@ namespace holovibes
 		void MainWindow::update_lens_view(bool value)
 		{
 			cd_.gpu_lens_display_enabled = value;
+
 			if (value)
 			{
 				try
 				{
 					// set positions of new windows according to the position of the main GL window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
-					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
+					ICompute* pipe = holovibes_.get_pipe().get();
+
 					ushort lens_window_width = width;
 					ushort lens_window_height = height;
 					get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
-					if (pipe)
-					{
-						lens_window.reset(new DirectWindow(
-							pos,
-							QSize(lens_window_width, lens_window_height),
-							pipe->get_lens_queue()));
-					}
+
+					lens_window.reset(new DirectWindow(pos,
+													QSize(lens_window_width, lens_window_height),
+													pipe->get_lens_queue()));
+
 					lens_window->setTitle("Lens view");
 					lens_window->setCd(&cd_);
+
+					connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 				}
 				catch (std::exception& e)
 				{
 					std::cerr << e.what() << std::endl;
 				}
 			}
+
 			else
 			{
+				disable_lens_view();
 				lens_window.reset(nullptr);
-				holovibes_.get_pipe()->request_disable_lens_view();
 			}
+
 			pipe_refresh();
+		}
+
+		void MainWindow::disable_lens_view()
+		{
+			if (lens_window)
+				disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
+
+			cd_.gpu_lens_display_enabled = false;
+			holovibes_.get_pipe()->request_disable_lens_view();
+			notify();
 		}
 
 		void MainWindow::update_raw_view(bool value)
 		{
 			cd_.raw_view = value;
+
 			ICompute* pipe = holovibes_.get_pipe().get();
 			pipe->get_raw_queue()->set_display(cd_.record_raw);
+
 			if (cd_.raw_view)
 			{
 				ushort raw_window_width = width;
 				ushort raw_window_height = height;
 				get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
+
 				// set positions of new windows according to the position of the main GL window and Lens window
 				QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
 					raw_window.reset(new DirectWindow(
 						pos,
 						QSize(raw_window_width, raw_window_height),
 						pipe->get_raw_queue()));
+
 				raw_window->setTitle("Raw view");
 				raw_window->setCd(&cd_);
+
+				connect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
 			}
 			else
 			{
-				raw_window = nullptr;
-				if (!cd_.record_raw)
-				{
-					gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
-					pipe->request_kill_raw_queue();
-				}
+				disable_raw_view();
+				raw_window.reset(nullptr);
 			}
 			pipe_refresh();
+		}
+
+		void MainWindow::disable_raw_view()
+		{
+			if (raw_window)
+				disconnect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+
+			cd_.raw_view = false;
+
+			if (!cd_.record_raw)
+			{
+				gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
+				holovibes_.get_pipe()->request_kill_raw_queue();
+			}
+
+			notify();
 		}
 
 		void MainWindow::set_p_accu()
@@ -2441,8 +2468,7 @@ namespace holovibes
 				mainDisplay->getOverlayManager().disable_all(Noise);
 			}
 
-			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-			pipe->request_average_stop();
+			holovibes_.get_pipe()->request_average_stop();
 
 			holovibes_.get_average_queue().clear();
 			plot_window_.reset(nullptr);
