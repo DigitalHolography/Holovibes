@@ -22,19 +22,8 @@ using holovibes::ComputeDescriptor;
 // Short-Time Fourier Transform
 void stft(Queue				*gpu_queue,
 		cuComplex			*stft_buf,
-		const cufftHandle	plan1d,
-		const uint			width,
-		const uint			height,
-		const ComputeDescriptor &cd,
-		cudaStream_t		stream)
+		const cufftHandle	plan1d)
 {
-	uint stft_level = cd.nSize;
-	uint p = cd.pindex;
-	uint nSize = cd.nSize;
-
-	const int frame_size = width * height;
-	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
-
 	// FFT 1D
 	cufftSafeCall(cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD));
 

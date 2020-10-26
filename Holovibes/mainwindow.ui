@@ -154,7 +154,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <layout class="QHBoxLayout" name="squareInputModeLayout">
            <item>
             <widget class="QLabel" name="SquareInputModeLabel">
              <property name="text">
@@ -1673,7 +1673,7 @@
              <number>0</number>
             </property>
             <item>
-             <layout class="QGridLayout" name="gridLayout_15">
+             <layout class="QGridLayout" name="saturationLayout">
               <property name="topMargin">
                <number>0</number>
               </property>

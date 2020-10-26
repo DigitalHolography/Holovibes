@@ -18,8 +18,6 @@
 #include <camera.hh>
 #include "camera_exception.hh"
 
-//#pragma comment(lib,"dcamapi.lib")
-#define WIN32
 #include "dcamapi4.h"
 #include "dcamprop.h"
 

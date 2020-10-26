@@ -544,7 +544,6 @@ void kernel_batched_crop_into_square(const char *input,
 									 const uint batch_size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	const uint x = index % crop_width;
 	const uint y = index / crop_width;
 
 	if (index < crop_width * crop_height)

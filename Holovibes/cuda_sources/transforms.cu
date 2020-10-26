@@ -16,18 +16,6 @@
 using camera::FrameDescriptor;
 
 __global__
-static void kernel_compute_all_binomial_coeff(uint* coeffs, uint nb_coef)
-{
-	for (uint n = 0; n < nb_coef; n++) {
-		coeffs[n * nb_coef] = 1;
-		uint last_line = (n - 1) * nb_coef;
-		for (uint k = 1; k <= n; k++) {
-			coeffs[n * nb_coef + k] = coeffs[last_line + k - 1] + coeffs[last_line + k];
-		}
-	}
-}
-
-__global__
 void kernel_quadratic_lens(cuComplex*			output,
 						const FrameDescriptor	fd,
 						const float				lambda,

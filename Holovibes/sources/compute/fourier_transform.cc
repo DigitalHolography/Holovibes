@@ -178,11 +178,7 @@ void FourierTransform::insert_stft()
 	fn_vect_.push_back([=]() {
 		stft(stft_env_.gpu_stft_queue_.get(),
 		stft_env_.gpu_stft_buffer_,
-		stft_env_.plan1d_stft_,
-		fd_.width,
-		fd_.height,
-		cd_,
-		false);
+		stft_env_.plan1d_stft_);
 	 });
 }
 
