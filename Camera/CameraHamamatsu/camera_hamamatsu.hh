@@ -58,14 +58,21 @@ namespace camera
 
 		HDCAM hdcam_; //Camera handle
 		HDCAMWAIT hwait_; //Event waiter handle (will typically wait for the FRAME_READY event)
-		long srcox_, srcoy_;
-		unsigned short binning_;
+		/*! \brief start position x axis of the region of interest */
+		long srcox_;
+		/*! \brief start position y axis of the region of interest */
+		long srcoy_;
+		unsigned short binning_; // 1, 2, 4
 		bool ext_trig_;
 		int32 circ_buffer_frame_count_;
-		_DCAMPROPMODEVALUE trig_mode_;
-		_DCAMPROPMODEVALUE trig_connector_;
-		_DCAMPROPMODEVALUE trig_polarity_;
-		_DCAMPROPMODEVALUE readoutspeed_;
+		_DCAMPROPMODEVALUE trig_mode_; // NORMAL, START
+		_DCAMPROPMODEVALUE trig_connector_; // INTERFACE, BNC
+		_DCAMPROPMODEVALUE trig_polarity_; // POSITIVE, NEGATIVE
+		_DCAMPROPMODEVALUE readoutspeed_; // SLOWEST, FASTEST
+		_DCAMPROPMODEVALUE trig_active_; // EDGE, LEVEL,
+
+		static constexpr unsigned short MAX_WIDTH = 2304;
+		static constexpr unsigned short MAX_HEIGHT = 2304;
 
 		//Structures needed to acquire frames
 		//Will be passed as arguments to the API functions

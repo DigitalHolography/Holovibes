@@ -236,14 +236,14 @@ namespace camera
 
 	void CameraHamamatsu::load_default_params()
 	{
-		desc_.width = 2048;
-		desc_.height = 2048;
+		desc_.width = MAX_WIDTH;
+		desc_.height = MAX_WIDTH;
 		desc_.depth = 2;
 		desc_.byteEndian = Endianness::LittleEndian;
 
 		pixel_size_ = 6.5f;
 
-		exposure_time_ = 50000;
+		exposure_time_ = 1000;
 
 		srcox_ = 0;
 		srcoy_ = 0;
@@ -255,6 +255,7 @@ namespace camera
 		trig_mode_ = DCAMPROP_TRIGGER_MODE__NORMAL;
 		trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__BNC;
 		trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
+		trig_active_ = DCAMPROP_TRIGGERACTIVE__EDGE;
 
 		readoutspeed_ = DCAMPROP_READOUTSPEED__FASTEST;
 	}
@@ -302,13 +303,21 @@ namespace camera
 			readoutspeed_ = DCAMPROP_READOUTSPEED__SLOWEST;
 		else if (readoutspeed == "FASTEST")
 			readoutspeed_ = DCAMPROP_READOUTSPEED__FASTEST;
+
+		std::string trig_active = pt.get<std::string>("hamamatsu.trig_active", "");
+		if (trig_active == "EDGE")
+			trig_active_ = DCAMPROP_TRIGGERACTIVE__EDGE;
+		else if (trig_active == "LEVEL")
+			trig_active_ = DCAMPROP_TRIGGERACTIVE__LEVEL;
+		else if (trig_active == "SYNCREADOUT")
+			trig_active_ = DCAMPROP_TRIGGERACTIVE__SYNCREADOUT;
 	}
 
 	void CameraHamamatsu::bind_params()
 	{
 		//Hardcoded max width and height of the camera
 		//Should change with the model
-		if (desc_.width != 2048 || desc_.height != 2048) // SUBARRAY
+		if (desc_.width != MAX_WIDTH || desc_.height != MAX_HEIGHT) // SUBARRAY
 		{
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYMODE, DCAMPROP_MODE__ON);
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHSIZE, desc_.width);
@@ -332,6 +341,8 @@ namespace camera
 		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_) != DCAMERR_SUCCESS)
+			throw CameraException(CameraException::CANT_SET_CONFIG);
+		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERACTIVE, trig_active_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 	}
 
