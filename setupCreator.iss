@@ -5,7 +5,7 @@
 #define BuildDir "build/Ninja"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "8.3"
+#define MyAppVersion "8.3.1"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -73,7 +73,7 @@ Source: "{#BuildDir}\Release\CameraXib.dll"; DestDir: "{app}\{#MyAppVersion}";Co
 Source: "{#BuildDir}\Release\CameraHamamatsu.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\GPIB.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+; Source: "{#BuildDir}\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\xiapi64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\SC2_Cam.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#BuildDir}\Release\uEye_api_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

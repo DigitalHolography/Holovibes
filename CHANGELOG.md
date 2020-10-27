@@ -1,5 +1,21 @@
 ## Changelog
 
+### 8.3.1
+
+* Apply autocontrast automatically
+* Renormalize enabled by default and moved in view panel in GUI
+* Add more triggers mode for camera Hamamatsu
+* GUI: deactivate lens and raw view buttons when the windows are closed
+* GUI: open documentation page directly in web browser
+* Fix bug when using camera Xiq
+* Fix bug when switching focus between windows too quickly
+* Fix bug with average plot and stft cuts
+* Fix bug with average plot if selected zone is empty
+* Fix bug when modifying space filter with lens view opened
+* Fix bug when modifying compute settings while doing a convolution
+* Fix bug when using image acc in composite mode
+* Prevent setup installer to restart silently
+
 ### 8.3
 
 * Improve performances/reliability of thread reader and allow loading the entire input file in GPU for really high FPS
