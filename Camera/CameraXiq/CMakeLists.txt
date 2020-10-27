@@ -12,7 +12,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/lib/ximea/m3apiX64.lib"
+    "${CMAKE_SOURCE_DIR}/lib/ximea/xiapi64.lib"
 
     Boost::boost
 )

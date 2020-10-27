@@ -234,9 +234,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
         "${LIB_DIR}/avt/FGCamera.dll"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/FGCamera.dll"
     COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/ximea/m3apiX64.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/m3apiX64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/ximea/xiapi64.dll"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/xiapi64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy

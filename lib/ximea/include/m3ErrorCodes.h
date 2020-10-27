@@ -16,7 +16,7 @@ typedef int MM40_RETURN;
 #define MM40_INVALID_HANDLE                1 //!< Invalid handle
 #define MM40_READREG                       2 //!< Register read error
 #define MM40_WRITEREG                      3 //!< Register write error
-#define MM40_FREE_RESOURCES                4 //!< Freeing resiurces error
+#define MM40_FREE_RESOURCES                4 //!< Freeing resources error
 #define MM40_FREE_CHANNEL                  5 //!< Freeing channel error
 #define MM40_FREE_BANDWIDTH                6 //!< Freeing bandwith error
 #define MM40_READBLK                       7 //!< Read block error
@@ -39,11 +39,11 @@ typedef int MM40_RETURN;
 #define MM40_INCOMPLETE_TM                24 //!< Incomplete TM
 #define MM40_BUS_RESET_FAILED             25 //!< Bus reset error
 #define MM40_NOT_IMPLEMENTED              26 //!< Not implemented
-#define MM40_SHADING_TOOBRIGHT            27 //!< Shading too bright
-#define MM40_SHADING_TOODARK              28 //!< Shading too dark
+#define MM40_SHADING_TOOBRIGHT            27 //!< Shading is too bright
+#define MM40_SHADING_TOODARK              28 //!< Shading is too dark
 #define MM40_TOO_LOW_GAIN                 29 //!< Gain is too low
-#define MM40_INVALID_BPL                  30 //!< Invalid bad pixel list
-#define MM40_BPL_REALLOC                  31 //!< Bad pixel list realloc error
+#define MM40_INVALID_BPL                  30 //!< Invalid sensor defect correction list
+#define MM40_BPL_REALLOC                  31 //!< Error while sensor defect correction list reallocation
 #define MM40_INVALID_PIXEL_LIST           32 //!< Invalid pixel list
 #define MM40_INVALID_FFS                  33 //!< Invalid Flash File System
 #define MM40_INVALID_PROFILE              34 //!< Invalid profile
@@ -55,22 +55,23 @@ typedef int MM40_RETURN;
 #define MM40_ACQUISITION_ALREADY_UP       41 //!< Acquisition already started
 #define MM40_OLD_DRIVER_VERSION           42 //!< Old version of device driver installed to the system.
 #define MM40_GET_LAST_ERROR               43 //!< To get error code please call GetLastError function.
-#define MM40_CANT_PROCESS                 44 //!< Data can't be processed
-#define MM40_ACQUISITION_STOPED           45 //!< Acquisition has been stopped. It should be started before GetImage.
-#define MM40_ACQUISITION_STOPED_WERR      46 //!< Acquisition has been stoped with error.
-#define MM40_INVALID_INPUT_ICC_PROFILE    47 //!< Input ICC profile missed or corrupted
-#define MM40_INVALID_OUTPUT_ICC_PROFILE   48 //!< Output ICC profile missed or corrupted
+#define MM40_CANT_PROCESS                 44 //!< Data cannot be processed
+#define MM40_ACQUISITION_STOPED           45 //!< Acquisition is stopped. It needs to be started to perform operation.
+#define MM40_ACQUISITION_STOPED_WERR      46 //!< Acquisition has been stopped with an error.
+#define MM40_INVALID_INPUT_ICC_PROFILE    47 //!< Input ICC profile missing or corrupted
+#define MM40_INVALID_OUTPUT_ICC_PROFILE   48 //!< Output ICC profile missing or corrupted
 #define MM40_DEVICE_NOT_READY             49 //!< Device not ready to operate
-#define MM40_SHADING_TOOCONTRAST          50 //!< Shading too contrast
-#define MM40_ALREADY_INITIALIZED          51 //!< Modile already initialized
-#define MM40_NOT_ENOUGH_PRIVILEGES        52 //!< Application doesn't enough privileges(one or more app
-#define MM40_NOT_COMPATIBLE_DRIVER        53 //!< Installed driver not compatible with current software
+#define MM40_SHADING_TOOCONTRAST          50 //!< Shading is too contrast
+#define MM40_ALREADY_INITIALIZED          51 //!< Module already initialized
+#define MM40_NOT_ENOUGH_PRIVILEGES        52 //!< Application does not have enough privileges (one or more app)
+#define MM40_NOT_COMPATIBLE_DRIVER        53 //!< Installed driver is not compatible with current software
 #define MM40_TM_INVALID_RESOURCE          54 //!< TM file was not loaded successfully from resources
-#define MM40_DEVICE_HAS_BEEN_RESETED      55 //!< Device has been reseted, abnormal initial state
+#define MM40_DEVICE_HAS_BEEN_RESETED      55 //!< Device has been reset, abnormal initial state
 #define MM40_NO_DEVICES_FOUND             56 //!< No Devices Found
-#define MM40_RESOURCE_OR_FUNCTION_LOCKED  57 //!< Resource(device) or function locked by mutex
+#define MM40_RESOURCE_OR_FUNCTION_LOCKED  57 //!< Resource (device) or function locked by mutex
 #define MM40_BUFFER_SIZE_TOO_SMALL        58 //!< Buffer provided by user is too small
-#define MM40_COULDNT_INIT_PROCESSOR       59 //!< Couldn't initialize processor.
+#define MM40_COULDNT_INIT_PROCESSOR       59 //!< Could not initialize processor.
 #define MM40_NOT_INITIALIZED              60 //!< The object/module/procedure/process being referred to has not been started.
+#define MM40_RESOURCE_NOT_FOUND           61 //!< Resource not found(could be processor, file, item...).
 /** @} */
 #endif // _ERROR_CODES_H_
