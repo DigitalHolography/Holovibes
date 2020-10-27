@@ -589,7 +589,7 @@ namespace holovibes
 
 		void MainWindow::documentation()
 		{
-			QMessageBox::about(0, "documentation", "<a href='https://ftp.espci.fr/incoming/Atlan/holovibes/manual/'>documentation</a>");
+			QDesktopServices::openUrl(QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"));
 		}
 
 #pragma endregion
