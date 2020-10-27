@@ -22,7 +22,7 @@ namespace holovibes
 	{
 		Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
 			: QOpenGLFunctions()
-			, zone_(0, 0)
+			, zone_(units::ConversionData(parent))
 			, kOverlay_(overlay)
 			, verticesIndex_(0)
 			, colorIndex_(0)

@@ -36,8 +36,8 @@ namespace holovibes
 		{
 		public:
 			Point()
-				: x_(ConversionData(), Axis::HORIZONTAL, 0)
-				, y_(ConversionData(), Axis::VERTICAL, 0)
+				: x_(ConversionData(nullptr), Axis::HORIZONTAL, 0)
+				, y_(ConversionData(nullptr), Axis::VERTICAL, 0)
 			{}
 
 			Point(T x, T y)

@@ -38,7 +38,7 @@ namespace holovibes
 			/*! \brief Constructs an object with the data needed to convert, to be modified for transforms
 			 */
 			ConversionData(const gui::BasicOpenGLWindow& window);
-			ConversionData(const gui::BasicOpenGLWindow* window = nullptr);
+			ConversionData(const gui::BasicOpenGLWindow* window);
 
 			/* \brief Converts a unit type into another
 			 * {*/
