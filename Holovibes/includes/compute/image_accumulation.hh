@@ -71,7 +71,8 @@ namespace holovibes
 				std::unique_ptr<Queue>& gpu_accumulation_queue,
 				float* gpu_input_frame,
 				float* gpu_ouput_average_frame,
-				unsigned int image_acc_level);
+				const unsigned int image_acc_level,
+				const size_t frame_res);
 
 			/*!
 			** \brief Insert the average computation of the float frame.

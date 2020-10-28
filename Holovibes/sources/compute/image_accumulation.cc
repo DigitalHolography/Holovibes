@@ -114,7 +114,8 @@ namespace holovibes
 			std::unique_ptr<Queue>& gpu_accumulation_queue,
 			float* gpu_input_frame,
 			float* gpu_ouput_average_frame,
-			unsigned int image_acc_level)
+			const unsigned int image_acc_level,
+			const size_t frame_res)
 		{
 			if (gpu_accumulation_queue)
 			{
@@ -128,7 +129,7 @@ namespace holovibes
 					gpu_accumulation_queue->get_current_elts(),
 					gpu_accumulation_queue->get_max_elts(),
 					image_acc_level,
-					buffers_.gpu_float_buffer_size_);
+					frame_res);
 			}
 		}
 
@@ -137,22 +138,28 @@ namespace holovibes
 			auto compute_average_lambda = [&]()
 			{
 				// XY view
-				compute_average(image_acc_env_.gpu_accumulation_xy_queue,
-					buffers_.gpu_float_buffer_.get(),
-					image_acc_env_.gpu_float_average_xy_frame.get(),
-					cd_.img_acc_slice_xy_level);
+				if (image_acc_env_.gpu_accumulation_xy_queue && cd_.img_acc_slice_xy_enabled)
+					compute_average(image_acc_env_.gpu_accumulation_xy_queue,
+						buffers_.gpu_float_buffer_.get(),
+						image_acc_env_.gpu_float_average_xy_frame.get(),
+						cd_.img_acc_slice_xy_level,
+						buffers_.gpu_float_buffer_size_);
 
 				// XZ view
-				compute_average(image_acc_env_.gpu_accumulation_xz_queue,
-					buffers_.gpu_float_cut_xz_.get(),
-					image_acc_env_.gpu_float_average_xz_frame,
-					cd_.img_acc_slice_xz_level);
+				if (image_acc_env_.gpu_accumulation_xz_queue && cd_.img_acc_slice_xz_enabled)
+					compute_average(image_acc_env_.gpu_accumulation_xz_queue,
+						buffers_.gpu_float_cut_xz_.get(),
+						image_acc_env_.gpu_float_average_xz_frame,
+						cd_.img_acc_slice_xz_level,
+						image_acc_env_.gpu_accumulation_xz_queue->get_fd().frame_res());
 
 				// YZ view
-				compute_average(image_acc_env_.gpu_accumulation_yz_queue,
-					buffers_.gpu_float_cut_yz_.get(),
-					image_acc_env_.gpu_float_average_yz_frame,
-					cd_.img_acc_slice_yz_level);
+				if (image_acc_env_.gpu_accumulation_yz_queue && cd_.img_acc_slice_yz_enabled)
+					compute_average(image_acc_env_.gpu_accumulation_yz_queue,
+						buffers_.gpu_float_cut_yz_.get(),
+						image_acc_env_.gpu_float_average_yz_frame,
+						cd_.img_acc_slice_yz_level,
+						image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_res());
 			};
 
 			fn_vect_.emplace_back(compute_average_lambda);
