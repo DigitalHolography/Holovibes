@@ -269,7 +269,7 @@ namespace holovibes
 	void Pipe::insert_request_autocontrast()
 	{
 		if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
-			autocontrast_end_pipe(cd_.current_window);
+			request_autocontrast(cd_.current_window);
 	}
 
 	void Pipe::exec()
