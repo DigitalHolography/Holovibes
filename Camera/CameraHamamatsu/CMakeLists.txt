@@ -7,11 +7,11 @@ add_library("${PROJECT_NAME}" SHARED
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/lib/hamamatsu/include/"
+    "${CMAKE_SOURCE_DIR}/libs/hamamatsu/include/"
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/lib/hamamatsu/dcamapi.lib"
+    "${CMAKE_SOURCE_DIR}/libs/hamamatsu/dcamapi.lib"
 
     Boost::boost
 )

@@ -30,7 +30,7 @@ set(HOLO_INCLUDES
     includes/gui/selections/overlays/
     includes/gui/windows/
 
-    "${CMAKE_SOURCE_DIR}/lib/glm/"
+    "${CMAKE_SOURCE_DIR}/libs/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
@@ -210,54 +210,31 @@ target_link_options("${PROJECT_NAME}" PRIVATE
 # Post build: Copy necessary files to output dir
 # ---
 
-set(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
+set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
+set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy shaders
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HOLO_DIR}/shaders/"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/shaders/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
 
     # Copy convolution kernels
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HOLO_DIR}/convolution_kernels/"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/convolution_kernels/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" "${BUILD_DIR}/convolution_kernels/"
 
     # Copy camera libs
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/ximea/xiapi64.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/xiapi64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/ids/uEye_api_64.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/uEye_api_64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/hamamatsu/dcamapi.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/dcamapi.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "${BUILD_DIR}/uEye_api_64.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
 
     # Copy camera .ini configs
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/adimec.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/adimec.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/ids.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/ids.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/xiq.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/xiq.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/xib.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/xib.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/hamamatsu.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/hamamatsu.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/adimec.ini" "${BUILD_DIR}/adimec.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/ids.ini" "${BUILD_DIR}/ids.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/xiq.ini" "${BUILD_DIR}/xiq.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/xib.ini" "${BUILD_DIR}/xib.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/hamamatsu.ini" "${BUILD_DIR}/hamamatsu.ini"
 
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/Holovibes.ico"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/Holovibes.ico"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/holovibes_logo.png"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/holovibes_logo.png"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "${BUILD_DIR}/holovibes_logo.png"
 )
 
 # Copy holovibes .ini config if it exists,

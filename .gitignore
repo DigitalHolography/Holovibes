@@ -175,15 +175,12 @@ $RECYCLE.BIN/
 # Doxygen
 doc/*
 
-# Do not ignore lib/dll files in lib directory
-!lib/**/*.lib
-!lib/**/*.dll
+# Do not ignore libs/dll files in lib directory
+!libs/**/*.lib
+!libs/**/*.dll
 
 # Raw images
 *.raw
-
-# Avoid conflicts with vcxproj.filters
-Holovibes/Holovibes.vcxproj.filters
 
 Holovibes/GeneratedFiles/
 

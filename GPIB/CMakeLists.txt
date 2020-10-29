@@ -6,12 +6,12 @@ add_library("${PROJECT_NAME}" SHARED
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/"
-    "${CMAKE_SOURCE_DIR}/lib/ni_gpib/include/"
+    "${CMAKE_SOURCE_DIR}/libs/ni_gpib/include/"
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/lib/ni_gpib/nivisa64.lib"
-    "${CMAKE_SOURCE_DIR}/lib/ni_gpib/ni4882.lib"
+    "${CMAKE_SOURCE_DIR}/libs/ni_gpib/nivisa64.lib"
+    "${CMAKE_SOURCE_DIR}/libs/ni_gpib/ni4882.lib"
 
     Boost::boost
 )
