@@ -12,12 +12,6 @@
 
 #pragma once
 
-#ifdef GPIB_EXPORTS
-# define GPIB_API __declspec(dllexport)
-#else
-# define GPIB_API __declspec(dllimport)
-#endif
-
 #include <string>
 
 /*! \brief contains all the functions used in the GPIB project */
@@ -57,6 +51,6 @@ namespace gpib
 	/* \brief See icamera.hh to have more information about this */
 	extern "C"
 	{
-		GPIB_API IVisaInterface* new_gpib_controller(const std::string path);
+		__declspec(dllexport) IVisaInterface* new_gpib_controller(const std::string path);
 	}
 }

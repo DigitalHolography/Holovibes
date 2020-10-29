@@ -215,10 +215,8 @@ set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
-    # Copy shaders
+    # Copy shaders and convolution kernels
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
-
-    # Copy convolution kernels
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" "${BUILD_DIR}/convolution_kernels/"
 
     # Copy camera libs

@@ -15,12 +15,6 @@
  * Interface for all cameras.*/
 #pragma once
 
-#ifdef CAMERA_EXPORTS
-# define CAMERA_API __declspec(dllexport)
-#else
-# define CAMERA_API __declspec(dllimport)
-#endif
-
 /*! \brief Containt all function and structure reference to camera usage */
 namespace camera
 {
@@ -122,7 +116,7 @@ namespace camera
     /*! \brief Ask the DLL to allocate a new camera, and get a handle to it.
      *
      * \return A pointer to the new camera object. */
-    CAMERA_API ICamera* new_camera_device();
+    __declspec(dllexport) ICamera* new_camera_device();
   }
 
   /** \} */ // End of Camera Interface group
