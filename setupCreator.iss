@@ -101,16 +101,16 @@ Source: "Holovibes\shaders\vertex.overlay.glsl"; DestDir: "{app}\{#MyAppVersion}
 Source: "InstructionFiles\BatchInstructions.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithBurst.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithSweep.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_4_4_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_8_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_16_16_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_32_32_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_64_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_64_64_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_128_128_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_gaussian_256_256_1.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_4_4_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_8_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_16_16_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_32_32_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_64_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_64_64_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_128_128_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_gaussian_256_256_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "Holovibes/convolution_kernels\kernel_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
 
 Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

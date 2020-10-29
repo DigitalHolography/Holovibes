@@ -173,9 +173,9 @@ namespace holovibes
 			ui.FileReaderProgressBar->hide();
 			ui.ExportProgressBar;
 
-			// Fill the quick kernel combo box with files from ConvolutionKernels directory
+			// Fill the quick kernel combo box with files from convolution_kernels directory
 			std::filesystem::path convo_matrix_path(get_exe_dir());
-			convo_matrix_path = convo_matrix_path / "ConvolutionKernels";
+			convo_matrix_path = convo_matrix_path / "convolution_kernels";
 			if (std::filesystem::exists(convo_matrix_path))
 			{
 				QVector<QString> files;
@@ -1589,7 +1589,7 @@ namespace holovibes
 			try
 			{
 				std::filesystem::path dir(get_exe_dir());
-				dir = dir / "ConvolutionKernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
+				dir = dir / "convolution_kernels" / ui.KernelQuickSelectComboBox->currentText().toStdString();
 				std::string path = dir.string();
 
 				std::vector<float> matrix;

@@ -220,8 +220,8 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
 
     # Copy convolution kernels
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/ConvolutionKernels/"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/ConvolutionKernels/"
+        "${HOLO_DIR}/convolution_kernels/"
+        "${CMAKE_BINARY_DIR}/$<CONFIG>/convolution_kernels/"
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy

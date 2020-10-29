@@ -1,6 +1,0 @@
-tree 4b943ff38cce5121138e0dac7ceff65f01d50ea2
-parent fae8b78912f34e7fec5a85a40a9bd0498fdfea7f
-author Pierre PAGNOUX <pierre.pagnoux@espci.fr> 1411473401 +0200
-committer Pierre PAGNOUX <pierre.pagnoux@espci.fr> 1411473401 +0200
-
-fix visual studio solution
