@@ -31,6 +31,7 @@ TEST(QueueNotFull, QueueIsFullTest)
     char* new_elt = new char[fd.width * fd.height];
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     ASSERT_FALSE(q.is_full());
+    delete new_elt;
 }
 
 TEST(QueueFull, QueueIsFull)
@@ -43,6 +44,21 @@ TEST(QueueFull, QueueIsFull)
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     ASSERT_TRUE(q.is_full());
+    delete new_elt;
+}
+
+TEST(SimpleQueueResize, QueueResize)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueIsFullTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_max_elts(), 2);
+
+    unsigned int new_size = 10;
+    q.resize(new_size); // Resize here, empty the queue
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_max_elts(), new_size);
 }
 
 int main(int argc, char *argv[])
