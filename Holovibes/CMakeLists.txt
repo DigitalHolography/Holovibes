@@ -212,6 +212,7 @@ target_link_options("${PROJECT_NAME}" PRIVATE
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
+set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy shaders
@@ -226,11 +227,7 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
 
     # Copy camera .ini configs
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/adimec.ini" "${BUILD_DIR}/adimec.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/ids.ini" "${BUILD_DIR}/ids.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/xiq.ini" "${BUILD_DIR}/xiq.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/xib.ini" "${BUILD_DIR}/xib.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/hamamatsu.ini" "${BUILD_DIR}/hamamatsu.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"

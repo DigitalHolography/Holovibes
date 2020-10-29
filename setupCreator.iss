@@ -2,16 +2,16 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 ; CMake: build/Generator      VisualStudio: x64
-#define BuildDir "build/Ninja"
+#define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "8.3.1"
+#define MyAppVersion "8.3.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 
-#define QtPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.8\5.9.8\msvc2017_64\plugins\platforms"
+#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.1\bin"
 
 [Setup]
@@ -38,7 +38,7 @@ DiskSpanning=no
 UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
 UninstallFilesDir={app}\{#MyAppVersion}
-SetupIconFile="{#BuildDir}\Release\Holovibes.ico"
+SetupIconFile="{#BuildDir}\Holovibes.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -57,48 +57,7 @@ Name: "program"; Description: "Holovibes"; Types: full compact custom; Flags: fi
 Name: "visual"; Description: "Run-time components for C++"; Types: full
 
 [Files]
-Source: "{#BuildDir}\Release\Holovibes.exe"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\atmcd64d.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraAdimec.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraIds.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraXiq.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraXib.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\CameraHamamatsu.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\GPIB.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-; Source: "{#BuildDir}\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\xiapi64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\SC2_Cam.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\uEye_api_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\dcamapi.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\adimec.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\ids.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\xib.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\hamamatsu.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\Holovibes.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#BuildDir}\Release\holovibes_logo.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\fragment.color.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\fragment.3d.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\fragment.tex.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\vertex.direct.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\vertex.3d.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\vertex.holo.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "Holovibes\shaders\vertex.overlay.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
-Source: "InstructionFiles\BatchInstructions.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "InstructionFiles\TriggerWithBurst.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "InstructionFiles\TriggerWithSweep.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_4_4_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_8_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_16_16_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_32_32_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_64_8_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_64_64_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_128_128_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_gaussian_256_256_1.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
-Source: "Holovibes/convolution_kernels\kernel_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolution_kernels";Components: program; Flags: ignoreversion
+Source: "{#BuildDir}\*"; DestDir: "{app}\{#MyAppVersion}"; Components: program; Flags: ignoreversion recursesubdirs
 
 Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
@@ -109,22 +68,16 @@ Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "{#QtPath}\Qt5Charts.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-; Source: "{#CudaPath}\cudart64_110.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cublas64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cublasLt64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cusolver64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppc64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppial64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-; Source: "{#CudaPath}\nppif64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\nppist64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "Camera\CameraAdimec\bfml\Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
-Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.4-0.3 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
-Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.2 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
-Source: "setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+Source: "resources\setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 
 [UninstallDelete]
-Type: files; Name: "{app}\{#MyAppVersion}\holovibes.ini"
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
 
 [Run]
