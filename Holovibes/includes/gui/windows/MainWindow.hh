@@ -95,16 +95,10 @@ namespace holovibes
 			void configure_holovibes();
 			void camera_none();
 			void camera_adimec();
-			void camera_edge();
 			void camera_ids();
-			void camera_ixon();
 			void camera_hamamatsu();
-			void camera_pike();
-			void camera_pixelfly();
-			void camera_pixelink();
 			void camera_xiq();
 			void camera_xib();
-			void camera_photon_focus();
 			void configure_camera();
 			void credits();
 			void documentation();

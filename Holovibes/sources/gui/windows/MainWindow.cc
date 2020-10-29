@@ -1084,11 +1084,6 @@ namespace holovibes
 			change_camera(CameraKind::IDS);
 		}
 
-		void MainWindow::camera_ixon()
-		{
-			change_camera(CameraKind::Ixon);
-		}
-
 		void MainWindow::camera_hamamatsu()
 		{
 			change_camera(CameraKind::Hamamatsu);
@@ -1099,26 +1094,6 @@ namespace holovibes
 			change_camera(CameraKind::Adimec);
 		}
 
-		void MainWindow::camera_edge()
-		{
-			change_camera(CameraKind::Edge);
-		}
-
-		void MainWindow::camera_pike()
-		{
-			change_camera(CameraKind::Pike);
-		}
-
-		void MainWindow::camera_pixelfly()
-		{
-			change_camera(CameraKind::Pixelfly);
-		}
-
-		void MainWindow::camera_pixelink()
-		{
-			change_camera(CameraKind::Pixelink);
-		}
-
 		void MainWindow::camera_xiq()
 		{
 			change_camera(CameraKind::xiQ);
@@ -1127,11 +1102,6 @@ namespace holovibes
 		void MainWindow::camera_xib()
 		{
 			change_camera(CameraKind::xiB);
-		}
-
-		void MainWindow::camera_photon_focus()
-		{
-			change_camera(CameraKind::PhotonFocus);
 		}
 
 		void MainWindow::configure_camera()

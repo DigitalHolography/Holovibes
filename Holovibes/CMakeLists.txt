@@ -225,15 +225,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/pco/SC2_Cam.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/SC2_Cam.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/ixon/atmcd64d.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/atmcd64d.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/avt/FGCamera.dll"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/FGCamera.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/ximea/xiapi64.dll"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/xiapi64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -242,9 +233,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         "${LIB_DIR}/hamamatsu/dcamapi.dll"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/dcamapi.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${LIB_DIR}/pixelink/lib/x64/PxLAPI40.lib"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/PxLAPI40.lib"
 
     # Copy camera .ini configs
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -254,29 +242,11 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
         "${HOLO_DIR}/ids.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/ids.ini"
     COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/edge.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/edge.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/pixelfly.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/pixelfly.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
         "${HOLO_DIR}/xiq.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/xiq.ini"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${HOLO_DIR}/xib.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/xib.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/pike.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/pike.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/pixelink.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/pixelink.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/ixon.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/ixon.ini"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HOLO_DIR}/photonfocus.ini"
-        "${CMAKE_BINARY_DIR}/$<CONFIG>/photonfocus.ini"
     COMMAND ${CMAKE_COMMAND} -E copy
         "${HOLO_DIR}/hamamatsu.ini"
         "${CMAKE_BINARY_DIR}/$<CONFIG>/hamamatsu.ini"

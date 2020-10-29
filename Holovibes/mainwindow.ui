@@ -3068,16 +3068,10 @@ p, li { white-space: pre-wrap; }
      </property>
      <addaction name="actionNone"/>
      <addaction name="actionAdimec"/>
-     <addaction name="actionIXon"/>
-     <addaction name="actionEdge"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
-     <addaction name="actionPhotonFocus"/>
-     <addaction name="actionPike"/>
-     <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
-     <addaction name="actionPixelink"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3124,28 +3118,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>IDS CMOSIS CMV 4000</string>
-   </property>
-  </action>
-  <action name="actionPike">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>PIKE F421</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionPixelfly">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>PCO Pixelfly</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
    </property>
   </action>
   <action name="actionXIQ">
@@ -3279,22 +3251,6 @@ p, li { white-space: pre-wrap; }
     <string/>
    </property>
   </action>
-  <action name="actionIXon">
-   <property name="text">
-    <string>ANDOR iXon + 885</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionEdge">
-   <property name="text">
-    <string>PCO Edge 4.2 LT</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
   <action name="actionImport">
    <property name="checkable">
     <bool>true</bool>
@@ -3363,22 +3319,9 @@ p, li { white-space: pre-wrap; }
     <string>Export to .ini</string>
    </property>
   </action>
-  <action name="actionPhotonFocus">
-   <property name="text">
-    <string>PHOTON FOCUS MV1-D1312IE-100-G2-12</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
   <action name="actionHamamatsu">
    <property name="text">
     <string>Hamamatsu C11440</string>
-   </property>
-  </action>
-  <action name="actionPixelink">
-   <property name="text">
-    <string>Pixelink</string>
    </property>
   </action>
  </widget>
@@ -3485,38 +3428,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionPike</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_pike()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>250</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionPixelfly</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_pixelfly()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>360</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionXIB</sender>
    <signal>triggered(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -3592,38 +3503,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionIXon</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_ixon()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionEdge</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_edge()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
      <y>0</y>
     </hint>
    </hints>
@@ -4573,22 +4452,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionPhotonFocus</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_photon_focus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>CompositeAreaButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -5101,22 +4964,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionPixelink</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_pixelink()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>TimeAlgorithmComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
@@ -5425,8 +5272,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
-  <slot>camera_pike()</slot>
-  <slot>camera_pixelfly()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_none()</slot>
@@ -5436,10 +5281,8 @@ p, li { white-space: pre-wrap; }
   <slot>documentation()</slot>
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
-  <slot>camera_ixon()</slot>
   <slot>set_average_mode(bool)</slot>
   <slot>disable_average_mode()</slot>
-  <slot>camera_edge()</slot>
   <slot>configure_holovibes()</slot>
   <slot>browse_roi_output_file()</slot>
   <slot>average_record()</slot>

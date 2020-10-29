@@ -50,26 +50,14 @@ namespace holovibes
 		{
 			if (c == CameraKind::Adimec)
 				camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
-			else if (c == CameraKind::Edge)
-				camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
 			else if (c == CameraKind::IDS)
 				camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-			else if (c == CameraKind::Ixon)
-				camera_ = camera::CameraDLL::load_camera("CameraIxon.dll");
 			else if (c == CameraKind::Hamamatsu)
 				camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
-			else if (c == CameraKind::Pike)
-				camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
-			else if (c == CameraKind::Pixelfly)
-				camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
-			else if (c == CameraKind::Pixelink)
-				camera_ = camera::CameraDLL::load_camera("CameraPixelink.dll");
 			else if (c == CameraKind::xiQ)
 				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
 			else if (c == CameraKind::xiB)
 				camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
-			else if (c == CameraKind::PhotonFocus)
-				camera_ = camera::CameraDLL::load_camera("CameraPhotonFocus.dll");
 			else
 				assert(!"Impossible case");
 

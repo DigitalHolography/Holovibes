@@ -35,16 +35,10 @@ namespace holovibes
 	{
 		NONE,
 		Adimec,
-		Edge,
 		IDS,
-		Ixon,
 		Hamamatsu,
-		Pike,
-		Pixelfly,
-		Pixelink,
 		xiQ,
-		xiB,
-		PhotonFocus
+		xiB
 	};
 
 	/*! \brief	Rendering mode for Hologram (Space filter) */
