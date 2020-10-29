@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <utils.hh>
 #include <camera_exception.hh>
 #include <iostream>
 
@@ -36,9 +35,6 @@ namespace camera
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
-
-    // Load functions from CameraUtils.dll.
-    load_utils();
   }
 
   void CameraXiq::init_camera()

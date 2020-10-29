@@ -172,7 +172,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${GTEST_FOUND} AND ${THREADS_FOUND})
         set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 5)
     endforeach()
 else()
-    message("TESTS: Unit tests disabled in Release mode")
+    message(STATUS "TESTS: Unit tests disabled in Release mode")
 endif()
 
 

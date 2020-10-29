@@ -8,6 +8,5 @@ find_package(Boost REQUIRED
 )
 
 add_subdirectory(Camera)
-add_subdirectory(CameraUtils)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)

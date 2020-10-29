@@ -72,10 +72,6 @@ namespace camera
       , name_("Unknown")
       , exposure_time_(0.0f)
 	    , pixel_size_(0.0f)
-      , dll_instance_(nullptr)
-      , create_logfile_(nullptr)
-      , log_msg_(nullptr)
-      , close_logfile_(nullptr)
       , ini_path_(ini_filepath)
       , ini_file_(ini_filepath, std::ifstream::in)
       , ini_pt_()
@@ -120,33 +116,6 @@ namespace camera
      * Validity checking for any parameter is enclosed in this method. */
     virtual void bind_params() = 0;
 
-    /*! Loading all utilities functions from the CamUtils DLL into function pointers.
-     *
-     * This method may be called at initialization by any camera DLL wishing
-     * to make use of its services. */
-    void load_utils()
-    {
-      dll_instance_ = LoadLibraryW(L"CameraUtils.dll");
-      if (!dll_instance_)
-        throw std::runtime_error("Unable to load CameraUtils DLL.");
-
-      create_logfile_ = reinterpret_cast<void(*)(std::string)>(GetProcAddress(dll_instance_, "create_logfile"));
-      if (!create_logfile_)
-        throw std::runtime_error("Unable to fetch create_log function.");
-      log_msg_ = reinterpret_cast<void(*)(std::string)>(GetProcAddress(dll_instance_, "log_msg"));
-      if (!log_msg_)
-        throw std::runtime_error("Unable to fetch write_log function.");
-      close_logfile_ = reinterpret_cast<void(*)()>(GetProcAddress(dll_instance_, "close_logfile"));
-      if (!close_logfile_)
-        throw std::runtime_error("Unable to fetch close_log function.");
-      allocate_memory_ = reinterpret_cast<void(*)(void**, const std::size_t)>(GetProcAddress(dll_instance_, "allocate_memory"));
-      if (!allocate_memory_)
-        throw std::runtime_error("Unable to fetch allocate_memory function.");
-      free_memory_ = reinterpret_cast<void(*)(void*)>(GetProcAddress(dll_instance_, "free_memory"));
-      if (!free_memory_)
-        throw std::runtime_error("Unable to free allocated memory.");
-    }
-
   protected:
     FrameDescriptor desc_; //!< Frame descriptor updated by cameras.
 
@@ -159,16 +128,6 @@ namespace camera
 	// Exposure time in �s
     float exposure_time_;
 	  float pixel_size_;
-
-    HINSTANCE dll_instance_; //!< Handle to the CamUtils DLL.
-
-    /*! \{ \name CameraUtils pointers */
-    void(*create_logfile_)(std::string);
-    void(*log_msg_)(std::string);
-    void(*close_logfile_)();
-    void(*allocate_memory_)(void** buf, const std::size_t size);
-    void(*free_memory_)(void* buf);
-    /*! \} */
 
 	std::ifstream  ini_file_; //!< INI configuration file data stream.
 
