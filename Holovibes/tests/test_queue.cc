@@ -4,7 +4,39 @@
 
 #include "queue.hh"
 #include "frame_desc.hh"
+#include "cuda_memory.cuh"
 
+namespace // Tools for testing the queue
+{
+    /*! \brief Get the element at a specific position in the queue */
+    char* get_element_from_queue(holovibes::Queue& q, size_t pos)
+    {
+        if (pos >= q.get_max_elts())
+            return nullptr;
+
+        size_t frame_size = q.get_frame_size();
+
+        char* d_buffer = static_cast<char*>(q.get_buffer()); // device buffer
+        char* h_buffer = new char[frame_size]; // host buffer
+        // Copy one frame from device buffer to host buffer
+        cudaXMemcpy(h_buffer, d_buffer + pos * frame_size, frame_size,
+            cudaMemcpyDeviceToHost);
+        return h_buffer;
+    }
+
+    /*! \brief Print a queue (for debug purpose) */
+    std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
+    {
+        os << "Queue's name: " << q.get_name() << std::endl;
+        size_t pos = q.get_start_index();
+        for (size_t i = 0; i != q.get_current_elts(); ++i)
+        {
+            os << std::string(get_element_from_queue(q, pos)) << std::endl;
+            pos = (pos + 1) % q.get_max_elts();
+        }
+        return os;
+    }
+}
 TEST(QueueTest, SimpleInstantiatingTest)
 {
     camera::FrameDescriptor fd = { 64, 64, 1, camera::Endianness::BigEndian };
@@ -14,11 +46,18 @@ TEST(QueueTest, SimpleInstantiatingTest)
     ASSERT_EQ(0.0, 0.0);
 }
 
+TEST(ZeroQueueInstantiation, ZeroQueue)
+{
+    camera::FrameDescriptor fd = { 4, 4, sizeof(char), camera::Endianness::BigEndian };
+    ASSERT_THROW(holovibes::Queue q(fd, 0, "EmptyQueue", fd.width, fd.height, fd.depth), std::logic_error);
+}
+
 TEST(QueueEmpty, QueueIsFullTest)
 {
      camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
     holovibes::Queue q(fd, 5, "TestQueue", fd.width, fd.height, fd.depth);
     q.set_display(false);
+
     ASSERT_FALSE(q.is_full());
 }
 
@@ -27,10 +66,13 @@ TEST(QueueNotFull, QueueIsFullTest)
     camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
     holovibes::Queue q(fd, 2, "QueueIsFullTest", fd.width, fd.height, fd.depth);
     q.set_display(false);
+    char* new_elt = new char[fd.frame_res()];
+
     // Enqueue
-    char* new_elt = new char[fd.width * fd.height];
+    // Warning: enqueue HostToDevice
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     ASSERT_FALSE(q.is_full());
+
     delete new_elt;
 }
 
@@ -39,18 +81,21 @@ TEST(QueueFull, QueueIsFull)
     camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
     holovibes::Queue q(fd, 2, "QueueIsFullTest", fd.width, fd.height, fd.depth);
     q.set_display(false);
+
+    char* new_elt = new char[fd.frame_res()];
+
     // Enqueue
-    char* new_elt = new char[fd.width * fd.height];
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     q.enqueue(new_elt, cudaMemcpyHostToDevice);
     ASSERT_TRUE(q.is_full());
+
     delete new_elt;
 }
 
 TEST(SimpleQueueResize, QueueResize)
 {
     camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
-    holovibes::Queue q(fd, 2, "QueueIsFullTest", fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, "QueueResize", fd.width, fd.height, fd.depth);
     q.set_display(false);
     ASSERT_EQ(q.get_current_elts(), 0);
     ASSERT_EQ(q.get_max_elts(), 2);
@@ -59,6 +104,575 @@ TEST(SimpleQueueResize, QueueResize)
     q.resize(new_size); // Resize here, empty the queue
     ASSERT_EQ(q.get_current_elts(), 0);
     ASSERT_EQ(q.get_max_elts(), new_size);
+}
+
+TEST(EnqueueCheckValues, QueueEnqueue)
+{
+    camera::FrameDescriptor fd = { 1, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char elt1 = 'a';
+    char elt2 = 'b';
+    char elt3 = 'c';
+    char* buffer = nullptr;
+
+    q.enqueue(&elt1, cudaMemcpyHostToDevice);
+    buffer = get_element_from_queue(q, 0);
+    ASSERT_EQ(q.get_current_elts(), 1);
+    ASSERT_EQ(*buffer, elt1);
+
+    q.enqueue(&elt2, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elt1);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elt2);
+
+    q.enqueue(&elt3, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elt3);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elt2);
+}
+
+TEST(SimpleEnqueues, QueueEnqueue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+    ASSERT_EQ(q.get_current_elts(), 0);
+
+    char *new_elt = new char[fd.frame_res()];
+
+    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 1);
+    ASSERT_EQ(q.get_start_index(), 0);
+    // just test onces the return value
+    // We can't easily make the enqueue fail in the test
+    ASSERT_TRUE(res);
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    // Queue full, circular queue, update start index
+    // Reminder: the size of the queue is 2
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    delete new_elt;
+}
+
+TEST(EnqueueNotSquare, QueueEnqueue)
+{
+    camera::FrameDescriptor fd = { 56, 17, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+    ASSERT_EQ(q.get_current_elts(), 0);
+
+    char *new_elt = new char[fd.frame_res()];
+
+    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 1);
+
+    delete new_elt;
+}
+
+TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = { 1, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char elts[] = {'a', 'b', 'c'};
+    unsigned int nb_elts = 3;
+
+    q.enqueue_multiple(elts, 2, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[0]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
+
+    // enqueue 3rd element
+    q.enqueue_multiple(elts + 2, 1, cudaMemcpyHostToDevice);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[2]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    q.resize(2); // reset, same size
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    // Directly enqueue three elements. The first element is going to be skipped
+    q.enqueue_multiple(elts, 3, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 1);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[2]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
+
+    q.enqueue_multiple(elts, 3, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[1]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[2]);
+}
+
+TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    unsigned int nb_elts = 2;
+    char *new_elt = new char[fd.frame_res() * nb_elts];
+
+    bool res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    delete new_elt;
+}
+
+TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    unsigned int nb_elts = 2;
+    char *new_elt = new char[fd.frame_res() * nb_elts];
+
+    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 1);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    // Enqueue multiple of 1 element
+    res = q.enqueue_multiple(new_elt, 1, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    delete new_elt;
+}
+
+TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    unsigned int nb_elts = 3;
+    char *new_elt = new char[fd.frame_res() * nb_elts];
+
+    // Enqueue 3 elements at once but the maximum size of the queue is 2
+    bool res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+}
+
+TEST(FullMultipleEnqueue, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    unsigned int nb_elts = 2;
+    char *new_elt = new char[fd.frame_res() * nb_elts];
+
+    bool res = q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    res = q.enqueue_multiple(new_elt, 1, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(res);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(q.get_start_index(), 1);
+}
+
+TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueMultipleEnqueueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    // 2 frames of a resolution of 3
+    char new_elt[] = "ab\0cd\0";
+
+    q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(q.get_current_elts(), 2);
+    ASSERT_EQ(std::string(get_element_from_queue(q, 0)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q, 1)), std::string(new_elt + fd.frame_size()));
+}
+
+TEST(EmptyDequeue, QueueDequeue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueDequeueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    // empty queue
+    q.dequeue();
+}
+
+TEST(SimpleDequeue, QueueDequeue)
+{
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueDequeueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char* new_elt = new char[fd.frame_res()];
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_current_elts(), 1);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    // dequeue
+    q.dequeue();
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.dequeue();
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    ASSERT_TRUE(q.is_full());
+    ASSERT_EQ(q.get_start_index(), 0);
+    q.dequeue();
+    ASSERT_EQ(q.get_start_index(), 1);
+    q.dequeue();
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    delete new_elt;
+}
+
+TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
+{
+    // TODO
+    camera::FrameDescriptor fd = { 64, 64, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueDequeueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char* buff = new char[fd.frame_res()];
+
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 0);
+    q.dequeue(buff, cudaMemcpyDeviceToHost);
+    // Check if the test crash
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    delete buff;
+}
+
+TEST(SimpleDequeueValue, QueueDequeueValue)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueDequeueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char* res = new char[fd.frame_res()];
+
+    char* buff[] = { "ab\0", "cd\0", "ef\0"};
+    q.enqueue(buff[0], cudaMemcpyHostToDevice);
+
+    // Make one enqueue and dequeue
+    q.dequeue(res, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(std::string(res), std::string(buff[0]));
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 1);
+}
+
+TEST(ComplexDequeueValue, QueueDequeueValue)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q(fd, 2, "QueueDequeueTest", fd.width, fd.height, fd.depth);
+    q.set_display(false);
+
+    char* res = new char[fd.frame_res()];
+
+    char* buff[] = { "ab\0", "cd\0", "ef\0"};
+
+    // Change indexes
+    q.enqueue(buff[0], cudaMemcpyHostToDevice);
+    q.dequeue(res, cudaMemcpyDeviceToHost);
+
+    // Make two enqueues followed by two dequeues
+    q.enqueue(buff[1], cudaMemcpyHostToDevice);
+    q.enqueue(buff[2], cudaMemcpyHostToDevice);
+
+    q.dequeue(res, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(std::string(res), std::string(buff[1]));
+    ASSERT_EQ(q.get_current_elts(), 1);
+    ASSERT_EQ(q.get_start_index(), 0);
+
+    q.dequeue(res, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(std::string(res), std::string(buff[2]));
+    ASSERT_EQ(q.get_current_elts(), 0);
+    ASSERT_EQ(q.get_start_index(), 1);
+
+    delete res;
+}
+
+TEST(EmptyCopyMultiple, QueueCopyMultiple)
+{
+    camera::FrameDescriptor fd = { 4, 4, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 2, "Source", fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 4, "Destination", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    q_dst.set_display(false);
+
+    q_src.copy_multiple(q_dst, 1);
+}
+
+TEST(SimpleCopyMultiple, QueueCopyMultiple)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 2, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 4, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    // 2 frames of a resolution of 3
+    char new_elt[] = "ab\0cd\0";
+
+    q_src.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q_src.get_start_index(), 0);
+    ASSERT_EQ(q_src.get_current_elts(), 2);
+    ASSERT_EQ(std::string(get_element_from_queue(q_src, 0)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q_src, 1)), std::string(new_elt + fd.frame_size()));
+
+    q_src.copy_multiple(q_dst, 2);
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_current_elts(), 2);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.frame_size()));
+
+    q_src.copy_multiple(q_dst, 2);
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_current_elts(), 4);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 3)), std::string(new_elt + fd.frame_size()));
+}
+
+TEST(MoreElementCopyMultiple, QueueCopyMultiple)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 2, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
+
+    // Fill the source queue
+    q_src.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + fd.frame_size(), cudaMemcpyHostToDevice);
+
+    // Fill the destination queue
+    q_dst.enqueue_multiple(new_elt + 2 * fd.frame_size(), 3, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_current_elts(), 3);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.frame_size()));
+
+    // Copy more elements than the source queue size
+    q_src.copy_multiple(q_dst, 3);
+    // Only two elments are supposed to be copied
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.frame_size()));
+    // So the last element remains unchanged
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.frame_size()));
+}
+
+TEST(DstOverflowCopyMultiple, QueueCopyMultiple)
+{
+    // 3 * 1 = 3 is the length of a string of two character + null character
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 4, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    char new_elt[] = "ab\0cd\0ef\0gh\0";
+
+    // Make the source queue full
+    q_src.enqueue_multiple(new_elt, 4, cudaMemcpyHostToDevice);
+
+    // Copy all elements from q_src to q_dst
+    // But the size of q_dst is lower than q_dst
+    // This case needs to be correctly handle
+    q_src.copy_multiple(q_dst, q_src.get_current_elts());
+
+    ASSERT_EQ(q_dst.get_current_elts(), 3); // destination queue max size
+    ASSERT_EQ(q_dst.get_start_index(), 1);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 1 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 2 * fd.frame_size()));
+}
+
+TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
+{
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 3, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    char new_elt[] = "ab\0cd\0ef\0gh\0";
+
+    // Create setup for the source queue
+    q_src.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q_src.dequeue();
+    q_src.enqueue(new_elt + fd.frame_size(), cudaMemcpyHostToDevice);
+    q_src.dequeue();
+    q_src.enqueue(new_elt + 2 * fd.frame_size(), cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + 3 * fd.frame_size(), cudaMemcpyHostToDevice);
+    ASSERT_EQ(q_src.get_current_elts(), 2);
+    ASSERT_EQ(q_src.get_start_index(), 2);
+    ASSERT_EQ(q_src.get_end_index(), 1);
+
+    // copy the number of elements in the queue
+    q_src.copy_multiple(q_dst, 2);
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_current_elts(), 2);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
+
+    // copy more elements than the current size
+    q_src.copy_multiple(q_dst, 3);
+    ASSERT_EQ(q_dst.get_start_index(), 1);
+    ASSERT_EQ(q_dst.get_current_elts(), 3);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 2 * fd.frame_size()));
+}
+
+TEST(CircularDstCopyMultiple, QueueCopyMultiple)
+{
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 3, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    char new_elt[] = "ab\0cd\0ef\0gh\0";
+
+    // Make the source queue full
+    q_src.enqueue_multiple(new_elt, 3, cudaMemcpyHostToDevice);
+
+    // Change index of the destination queue
+    q_dst.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q_dst.dequeue();
+    q_dst.dequeue();
+    ASSERT_EQ(q_dst.get_current_elts(), 0);
+    ASSERT_EQ(q_dst.get_start_index(), 2);
+
+    q_src.copy_multiple(q_dst, 2);
+    ASSERT_EQ(q_dst.get_current_elts(), 2);
+    ASSERT_EQ(q_dst.get_start_index(), 2);
+    ASSERT_EQ(q_dst.get_end_index(), 1);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + fd.frame_size()));
+    // at position 1, there is not any element
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt));
+}
+
+TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
+{
+    camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 4, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
+
+    // Change index of the source queue
+    q_src.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q_src.dequeue();
+    q_src.dequeue();
+    q_src.enqueue_multiple(new_elt, 3, cudaMemcpyHostToDevice);
+
+    // Change index of the destination queue
+    q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(), 2, cudaMemcpyHostToDevice);
+    q_dst.dequeue();
+    q_dst.dequeue();
+    q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(), 2, cudaMemcpyHostToDevice);
+
+    // Copy all elements
+    q_src.copy_multiple(q_dst, q_src.get_current_elts());
+    ASSERT_EQ(q_dst.get_start_index(), 1);
+    ASSERT_EQ(q_dst.get_current_elts(), 3);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
+}
+
+TEST(ManyDstOverflow, QueueCopyMultiple)
+{
+    camera::FrameDescriptor fd = { 2, 1, sizeof(char), camera::Endianness::BigEndian };
+    holovibes::Queue q_src(fd, 11, "Source", fd.width, fd.height, fd.depth);
+    q_src.set_display(false);
+    holovibes::Queue q_dst(fd, 3, "Destination", fd.width, fd.height, fd.depth);
+    q_dst.set_display(false);
+
+    // 11 + 3 = 14 characters
+    unsigned int nb_frames = 14;
+    char* new_elt = "a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0";
+
+    // Make the queue full
+    q_src.enqueue_multiple(new_elt, 11, cudaMemcpyHostToDevice);
+
+    // Change indices
+    q_dst.enqueue_multiple(new_elt + 11 * fd.frame_size(), 2, cudaMemcpyHostToDevice);
+    q_dst.dequeue();
+    q_dst.dequeue();
+    ASSERT_EQ(q_dst.get_start_index(), 2);
+    ASSERT_EQ(q_dst.get_current_elts(), 0);
+    ASSERT_TRUE(q_dst.get_start_index() == q_dst.get_end_index());
+
+    // Copy multiple (10 elements).
+    // The size of the destination queue is only 3
+    q_src.copy_multiple(q_dst, 10);
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_current_elts(), 3);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 7 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 8 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 9 * fd.frame_size()));
+
+    // FIXME: This test does not work (the copy multiple crash)
+    // Source should be equal to:
+    // | a (start index) | b | c | d | e | f | g | h | i | j | k |
+    // Destination should be equal to:
+    // | h (start index) | i | j |
 }
 
 int main(int argc, char *argv[])

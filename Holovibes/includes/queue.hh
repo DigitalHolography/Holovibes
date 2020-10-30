@@ -107,7 +107,7 @@ namespace holovibes
 		}
 
 		/*! \return index of first frame (as the Queue is circular, it is not always zero). */
-		unsigned int get_start_index();
+		unsigned int get_start_index() const;
 
 		/*! \return pointer right after last frame */
 		void* get_end();
@@ -116,7 +116,10 @@ namespace holovibes
 		void* get_last_images(const unsigned n);
 
 		/*! \return index of the frame right after the last one containing data */
-		unsigned int get_end_index();
+		unsigned int get_end_index() const;
+
+		/*! \brief getter to the queue's name */
+		const std::string& get_name() const;
 
 		/*! \brief Enqueue method
 		**
@@ -137,9 +140,8 @@ namespace holovibes
 		**
 		** \param dest Output queue
 		** \param nb_elts Number of elements to add in the queue
-		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		*/
-		void copy_multiple(std::unique_ptr<Queue>& dest, unsigned int nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+		void copy_multiple(Queue& dest, unsigned int nb_elts);
 
 		/*! \brief Enqueue method for multiple elements
 		**

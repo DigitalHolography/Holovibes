@@ -227,7 +227,7 @@ namespace holovibes
 		fn_vect_.push_back([&](){
 			if (cd_.raw_view || cd_.record_raw)
 			{
-				input_.copy_multiple(get_raw_queue(), cd_.stft_steps);
+				input_.copy_multiple(*get_raw_queue(), cd_.stft_steps);
 			}
 		});
 	}

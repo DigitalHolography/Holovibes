@@ -123,9 +123,14 @@ namespace holovibes
 		return data_buffer_.get() + start_index_ * frame_size_;
 	}
 
-	unsigned int Queue::get_start_index()
+	unsigned int Queue::get_start_index() const
 	{
 		return start_index_;
+	}
+
+	const std::string& Queue::get_name() const
+	{
+		return name_;
 	}
 
 	void* Queue::get_end()
@@ -138,7 +143,7 @@ namespace holovibes
 		return data_buffer_.get() + ((start_index_ + curr_elts_ - n) % max_elts_) * frame_size_;
 	}
 
-	unsigned int Queue::get_end_index()
+	unsigned int Queue::get_end_index() const
 	{
 		return (start_index_ + curr_elts_) % max_elts_;
 	}
@@ -234,7 +239,7 @@ namespace holovibes
 												input_height_,
 												static_cast<char *>(out),
 												elm_size_,
-												nb_elts); 
+												nb_elts);
 				break;
 			case SquareInputMode::CROPPED_SQUARE:
 				batched_crop_into_square(static_cast<char *>(in),
@@ -260,8 +265,14 @@ namespace holovibes
 				stream_);
 	}
 
-	void Queue::copy_multiple(std::unique_ptr<Queue>& dest, unsigned int nb_elts, cudaMemcpyKind cuda_kind)
+	void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
 	{
+		MutexGuard m_guard_src(mutex_);
+		MutexGuard m_guard_dst(dest.getGuard());
+
+		// The buffer of the queues is stored in the device memory
+		cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice;
+
 		if (nb_elts > curr_elts_)
 			nb_elts = curr_elts_;
 
@@ -281,13 +292,13 @@ namespace holovibes
 		}
 
 		struct QueueRegion dst;
-		const uint begin_to_enqueue_index = (dest->start_index_ + dest->curr_elts_) % dest->max_elts_;
-		void *begin_to_enqueue = dest->data_buffer_.get() + (begin_to_enqueue_index * dest->frame_size_);
-		if (begin_to_enqueue_index + nb_elts > dest->max_elts_)
+		const uint begin_to_enqueue_index = (dest.start_index_ + dest.curr_elts_) % dest.max_elts_;
+		void *begin_to_enqueue = dest.data_buffer_.get() + (begin_to_enqueue_index * dest.frame_size_);
+		if (begin_to_enqueue_index + nb_elts > dest.max_elts_)
 		{
 			dst.first = static_cast<char *>(begin_to_enqueue);
-			dst.first_size = dest->max_elts_ - begin_to_enqueue_index;
-			dst.second = dest->data_buffer_.get();
+			dst.first_size = dest.max_elts_ - begin_to_enqueue_index;
+			dst.second = dest.data_buffer_.get();
 			dst.second_size = nb_elts - dst.first_size;
 		}
 		else
@@ -357,21 +368,25 @@ namespace holovibes
 		}
 
 		// Update dest queue parameters
-		dest->curr_elts_ += nb_elts;
-		if (dest->curr_elts_ > dest->max_elts_)
+		dest.curr_elts_ += nb_elts;
+		if (dest.curr_elts_ > dest.max_elts_)
 		{
-			dest->start_index_ = (dest->start_index_ + dest->curr_elts_ - dest->max_elts_) % dest->max_elts_;
-			dest->curr_elts_ = dest->max_elts_;
+			dest.start_index_ = (dest.start_index_ + dest.curr_elts_ - dest.max_elts_) % dest.max_elts_;
+			dest.curr_elts_ = dest.max_elts_;
 		}
 	}
 
 	bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind)
 	{
+		MutexGuard mGuard(mutex_);
+
 		// To avoid templating the Queue
 		char* elts_char = static_cast<char *>(elts);
 		if (nb_elts > max_elts_)
 		{
 			elts_char = elts_char + nb_elts * frame_size_ - max_elts_ * frame_size_;
+			// skip overwritten elts
+			start_index_ = (start_index_ + nb_elts - max_elts_) % max_elts_;
 			nb_elts = max_elts_;
 		}
 
