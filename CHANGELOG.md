@@ -1,5 +1,15 @@
 ## Changelog
 
+### 8.4
+
+* Fix enqueue multiple (images in wrong order)
+* Fix image accumulation composite
+* Fix unwrap 2D (bad plan)
+* Fix autocontrast with stft cut
+* Add unit tests for Queue
+* Clean project (remove trash files, move directories, remove unused cameras...)
+* Remove DLL warnings
+
 ### 8.3.1
 
 * Apply autocontrast automatically
