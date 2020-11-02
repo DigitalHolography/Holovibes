@@ -1,30 +1,24 @@
 ## Contributing
 
-### Coding style
-
-* use Allman coding style
-* never do bitshift
-
 ### Git
 
-If you do not know how to use git, please have a look at the following tutorial.
-	* Git - Documentation
-	* Bitbucket Git FAQ
+- Branch `master` must be clean and compile.
+- Never push trash / generated files.
+- Always work on separate branches when developing a new feature of fixing a bug.
+- Use `git pull --rebase` to avoids useless merge commits.
+- Use `git merge --squash` when merging on `develop` or `master`.
+- Use a consistent commit messages convention (e.g. [Angular](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit))
 
-### Clone the repository
+### Create a new release
 
-You can use a GUI tool as SourceTree or use git in command line.
-git clone git@bitbucket.org:micatlan/holovibes.git
-
-### Git rules
-
-To let the versioning tool consistent, you have to respect these rules.
-* master branch must be clean and compile.
-* Never push generated files.
-* Use branch for everything. For example to develop a new feature : new/myfeature.
-*  Prefer use rebase when pulling changes in your own branch (it avoids merge commits).
-* Use merge when pushing your changes to another branch.
-* Never commits on master branch directly (without the acknowledge of your team mates).
-* Commit messages: use keywords as ‘add, fix, rm, up, change’
-* Git rules - Code review
-* Git names conventions
+1. Make sure all features are on branch `develop`.
+2. Change the version number in `compute_descriptor.hh`.
+3. Make a clean build in release mode `rm -rf build && ./build.py R && ./run_tests.py`.
+4. Make sure everything works as intended.
+5. Update `CHANGELOG.md`.
+6. Change the version number in `setupCreator.iss`.
+7. Commit your changes and `git merge develop --squash` on master (with commit message `vX.X`).
+8. Tag your commit and push (`git tag -a "vX.X" -m "vX.X" && git push origin master --tags`).
+9. Create setup installer with Inno Setup (`setupCreator.iss`).
+10. Run the installer (located in `Output/`) and make sure everything still works as intended.
+11. Upload the installer on `ftp.espci.fr` in `incoming/Atlan/holovibes/installer/Holovibes_vX.X.X`.
