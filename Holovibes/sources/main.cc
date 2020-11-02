@@ -63,8 +63,6 @@ int main(int argc, char* argv[])
 		splash.show();
 
 		#ifndef _DEBUG
-		/* Hides the console window. */
-		//ShowWindow(GetConsoleWindow(), SW_HIDE);
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		#endif /* !_DEBUG */
 

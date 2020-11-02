@@ -37,9 +37,6 @@ namespace camera
 		virtual void shutdown_camera() override;
 		virtual void *get_frame() override;
 
-		//long copybits_bw16(WORD* dsttopleft, long dstrowbytes, const BYTE * lut, const WORD * srctopleft, long srcrowbytes, long srcox, long srcoy, long srcwidth, long srcheight);
-
-
 	private:
 		virtual void load_ini_params() override;
 		virtual void load_default_params() override;

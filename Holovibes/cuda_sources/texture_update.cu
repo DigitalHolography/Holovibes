@@ -50,7 +50,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 				const camera::FrameDescriptor&	fd,
 				cudaStream_t			stream)
 {
-	
+
 	const uint fd_width_div_32 = std::max(1u, (unsigned)fd.width / 32u);
 	const uint fd_height_div_32 = std::max(1u, (unsigned)fd.height / 32u);
 	dim3 blocks(fd_width_div_32, fd_height_div_32);
@@ -72,7 +72,6 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 			reinterpret_cast<ushort *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
-		//cudaCheckError();
 	}
 
 	cudaStreamSynchronize(stream);

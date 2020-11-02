@@ -2857,8 +2857,6 @@ namespace holovibes
 				formatted_path = format_batch_output(path, file_index_);
 				formatted_path = set_record_filename_properties(q->get_fd(), formatted_path, false);
 
-				//is_enabled_camera_ = false;
-
 				if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 				{
 					if (is_batch_img_)
@@ -3019,7 +3017,7 @@ namespace holovibes
 			gpib_interface_.reset();
 
 			file_index_ = 1;
-			//is_enabled_camera_ = true;
+
 			if (no_error)
 				display_info("Batch record done");
 

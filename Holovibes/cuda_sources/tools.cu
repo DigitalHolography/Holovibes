@@ -41,7 +41,7 @@ void kernel_apply_lens(cuComplex		*input,
 		for (uint i = 0; i < batch_size; ++i)
 		{
 			const uint batch_index = index + i * input_size;
-			
+
 			const float	tmp_x = input[batch_index].x;
 			output[batch_index].x = input[batch_index].x * lens[index].x - input[batch_index].y * lens[index].y;
 			output[batch_index].y = input[batch_index].y * lens[index].x + tmp_x * lens[index].y;
@@ -51,7 +51,7 @@ void kernel_apply_lens(cuComplex		*input,
 
 namespace
 {
-	template<typename T>				
+	template<typename T>
 	__global__
 	void kernel_shift_corners(const T *input,
 							  T *output,
@@ -246,10 +246,10 @@ void convolution_float(		const float			*a,
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
 		return;
-	
+
 	cufftSafeCall(cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get()));
 	cufftSafeCall(cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get()));
-	
+
 	cudaStreamSynchronize(0);
 
 	cudaXMemset(tmp_a.get(), 0, sizeof(cuComplex));
@@ -288,7 +288,7 @@ void convolution_operator(	const cuComplex		*a,
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
 		return;
-	
+
 	cufftSafeCall(cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a.get(), CUFFT_FORWARD));
 	cufftSafeCall(cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b.get(), CUFFT_FORWARD));
 
@@ -400,7 +400,7 @@ void kernel_batched_embed_into_square(const char *input,
 									  const uint output_height,
 									  const uint output_startx,
 									  const uint output_starty,
-									  const uint batch_size, 
+									  const uint batch_size,
 									  const uint elm_size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -669,8 +669,6 @@ void kernel_average_complex_images(const cuComplex* in,
 	{
 		cuComplex val = in[i * frame_res + index];
 		out[index].x += hypotf(val.x, val.y);
-		// out[index].x += val.x;
-		// out[index].y += val.y;
 	}
 	out[index].x /= nb_frames;
 	out[index].y /= nb_frames;
@@ -855,8 +853,6 @@ void phi_unwrap_2d(	const cufftHandle			plan2d,
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
-	//	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
-	//		res->gpu_grad_eq_y_);
 	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(res->gpu_grad_eq_x_, res->gpu_grad_eq_y_, fd.frame_res());
 	cudaCheckError();
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);

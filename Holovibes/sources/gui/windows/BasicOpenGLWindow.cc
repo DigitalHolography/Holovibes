@@ -135,7 +135,6 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
-				//winPos = QPoint(screen.width() / 2 - screen.height() / 2, 0);
 				winState = winState == Qt::WindowFullScreen ? Qt::WindowNoState : Qt::WindowFullScreen;
 				setWindowState(winState);
 				break;

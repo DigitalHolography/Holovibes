@@ -39,10 +39,7 @@ namespace holovibes
 				window->getPipe()->request_filter2D_roi_update();
 				window->getPipe()->request_filter2D_roi_end();
 				if (parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
-				{
-					//active_ = true;
 					return;
-				}
 			}
 
 			parent_->getCd()->fft_shift_enabled = false;

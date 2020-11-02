@@ -98,10 +98,6 @@ namespace camera
     roi_y_ = 0;
     roi_width_ = real_width_;
     roi_height_ = real_height_;
-    /*/
-    roi_width_ = 1024;
-    roi_height_ = 1024;
-    //*/
 
     desc_.width = static_cast<unsigned short>(roi_width_);
     desc_.height = static_cast<unsigned short>(roi_height_);
@@ -265,9 +261,6 @@ namespace camera
     {
       std::cout << "Failed to set trigger source with err code " << status << std::endl;
     }
-
-    //if (status != XI_OK)
-    //  throw CameraException(CameraException::CANT_SET_CONFIG);
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)

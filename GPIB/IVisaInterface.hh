@@ -34,11 +34,6 @@ namespace gpib
 	class IVisaInterface
 	{
 	public:
-		/*!
-		  I tried to mimic icamera.hh so this will need some improvement
-		  in the futur
-		*/
-
 		IVisaInterface()
 		{}
 

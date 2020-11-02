@@ -16,6 +16,5 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     tools_conversion.cu
     tools_unwrap.cu
     transforms.cu
-    vibrometry.cu
     cuda_memory.cu
 )

@@ -150,10 +150,7 @@ namespace holovibes
 		new_fd.depth = 8;
 		try
 		{
-			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work.
-
-			if (cd_.stft_view_enabled)
-				request_stft_cuts_ = true; */
+			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 		}
 		catch (std::exception&)

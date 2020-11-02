@@ -55,7 +55,6 @@ namespace holovibes
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
-			//glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 			glClearColor(0.f, 0.f, 0.f, 1.0f);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -348,7 +347,6 @@ namespace holovibes
 			// and comment the 2 lines below
 			const float yRatio = zone.unsigned_height();
 			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
-			//setScale(getScale() * 2.f / xRatio);
 
 			setTransform();
 		}

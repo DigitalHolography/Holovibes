@@ -93,10 +93,6 @@ void set_max_of_the_two(T &a, T &b)
 
 namespace holovibes
 {
-	/*! \brief Get framerate from .cine file */
-	void get_framerate_cinefile(FILE *file, std::string &file_src_);
-	/*! \brief Get exposure from .cine file */
-	void get_exposure_cinefile(FILE *file, std::string &file_src_);
 	/*! \brief Calculate the nearest upper power of 2 */
 	unsigned short upper_window_size(ushort width, ushort height);
 	/*! \brief return width and height with the same ratio and the max of the two being window_size*/

@@ -69,7 +69,6 @@ namespace holovibes
 			auto camera_fd = camera_->get_fd();
 			auto queue_fd = camera_fd;
 			SquareInputMode mode = cd_.square_input_mode;
-			//unsigned short	size = upper_window_size(fd.width, fd.height);
 			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
 			{
 				//Set values to the max of the two

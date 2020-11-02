@@ -32,10 +32,6 @@ namespace holovibes
 		, file_()
 		, stop_requested_(false)
 	{
-		// TODO: This seems useless
-		// if (filepath.find('/') != std::string::npos)
-		// 	createFilePath(filepath);
-
 		output_path_ = filepath;
 		file_.open(filepath, std::ios::binary | std::ios::trunc);
 	}
@@ -90,7 +86,7 @@ namespace holovibes
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
 				file_.write(buffer, size/2);
 				written_bytes = size / 2;
-			}	
+			}
 			else
 			{
 				// Normal recording
