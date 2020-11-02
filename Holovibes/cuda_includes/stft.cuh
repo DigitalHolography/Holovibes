@@ -51,8 +51,8 @@ using holovibes::units::RectFd;
  *
  *\endverbatim
  */
-void stft(holovibes::Queue	*gpu_queue,
-		cuComplex			*stft_buf,
+void stft(holovibes::Queue	*gpu_stft_queue,
+		cuComplex			*gpu_stft_buffer,
 		const cufftHandle	plan1d);
 
 void stft_view_begin(const cuComplex	*input,
