@@ -13,7 +13,7 @@
 
 1. Make sure all features are on branch `develop`.
 2. Change the version number in `compute_descriptor.hh`.
-3. Make a clean build in release mode `rm -rf build && ./build.py R && ./run_tests.py`.
+3. Make a clean build in release mode (`rm -rf build && ./build.py R`).
 4. Make sure everything works as intended.
 5. Update `CHANGELOG.md`.
 6. Change the version number in `setupCreator.iss`.
