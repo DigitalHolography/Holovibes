@@ -48,8 +48,8 @@ namespace holovibes
 	{
 		const size_t size = queue_.get_frame_size();
 		char* buffer = new char[size]();
-		size_t cur_size = queue_.get_current_elts();
-		const size_t max_size = queue_.get_max_elts();
+		size_t cur_size = queue_.get_size();
+		const size_t max_size = queue_.get_max_size();
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
@@ -68,10 +68,10 @@ namespace holovibes
 		{
 			auto start_time = std::chrono::steady_clock::now();
 
-			while (queue_.get_current_elts() < 1)
+			while (queue_.get_size() < 1)
 				std::this_thread::yield();
 
-			cur_size = queue_.get_current_elts();
+			cur_size = queue_.get_size();
 			if (cur_size >= max_size - 1)
 				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
 			else if (cur_size > (max_size * 0.8f))
@@ -91,7 +91,6 @@ namespace holovibes
 			{
 				// Normal recording
 				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
-				cudaStreamSynchronize(queue_.get_stream());
 				file_.write(buffer, size);
 				written_bytes = size;
 			}

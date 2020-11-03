@@ -276,23 +276,20 @@ namespace holovibes
 		void Converts::insert_complex_conversion(Queue& input)
 		{
 			fn_vect_.push_back([&]() {
-				std::lock_guard<std::mutex> m_guard(input.getGuard());
+				std::lock_guard<std::mutex> m_guard(input.get_guard());
 
 				// Copy the data from the input queue to the input buffer
 				// ALL CALL ARE ASYNCHRONOUS SINCE ALL FFTs AND MEMCPYs ARE CALLED ON STREAM 0
 				input_queue_to_input_buffer(buffers_.gpu_input_buffer_.get(),
-											input.get_buffer(),
+											input.get_data(),
 											fd_.frame_res(),
 											cd_.stft_steps,
 											input.get_start_index(),
-											input.get_max_elts(),
-											fd_.depth);		
+											input.get_max_size(),
+											fd_.depth);
 
-				// Reduce the size
-				input.decrease_size(cd_.stft_steps);
-
-				// Move start index
-				input.increase_start_index(cd_.stft_steps);
+				// Dequeue stft steps frames
+				input.dequeue_non_mutex(cd_.stft_steps);
 			});
 		}
 	}

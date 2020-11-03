@@ -236,7 +236,7 @@ namespace holovibes
 	{
 		fn_vect_.push_back([&](){
 			// Wait while the input queue is enough filled
-			while (input_.get_current_elts() < cd_.stft_steps);
+			while (input_.get_size() < cd_.stft_steps);
 		});
 	}
 
@@ -280,7 +280,7 @@ namespace holovibes
 		{
 			try
 			{
-				if (input_.get_current_elts() >= 1)
+				if (input_.get_size() >= 1)
 				{
 					// Run the entire pipeline of calculation
 					run_all();

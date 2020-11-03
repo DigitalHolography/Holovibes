@@ -55,7 +55,7 @@ void shift_corners(float*		input,
 				   const uint		size_x,
 				   const uint		size_y,
 				   cudaStream_t	stream = 0);
-				
+
 void shift_corners(cuComplex *input,
 				   const uint 	batch_size,
 				   const uint size_x,
@@ -214,7 +214,7 @@ cudaError_t embed_into_square(const char *input,
 					   		  char *output,
 				 			  const uint elm_size,
 					   		  cudaMemcpyKind kind,
-					   		  cudaStream_t stream);
+					   		  cudaStream_t stream = 0);
 
 /*! \brief Copies whole input image into output, a square of side max(input_width, input_height), such that the copy is centered
 *
@@ -273,7 +273,7 @@ cudaError_t crop_into_square(const char *input,
 					  char *output,
 					  const uint elm_size,
 					  cudaMemcpyKind kind,
-					  cudaStream_t stream);
+					  cudaStream_t stream = 0);
 
 /*! \brief Crops input (keeping the center and leaving the borders) as a square and copies the result into output
 * \param input The full image
@@ -304,7 +304,7 @@ float average_operator(const float*	input,
 
 /*! \brief Computes the average of every images in ``in`` and stores it in ``out``
  *
- * \param in Array of ``nb_frames`` images of size ``frame_res`` 
+ * \param in Array of ``nb_frames`` images of size ``frame_res``
  * \param out Image of size ``frame_res``
  * \param frame_res Size of one image
  * \param nb_frames Number of frames in ``in``

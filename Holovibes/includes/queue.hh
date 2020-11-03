@@ -14,7 +14,9 @@
  *
  * Queue class is a custom circular FIFO data structure. It can handle
  * CPU or GPU data. This class is used to store the raw images, provided
- * by the camera, and holograms. */
+ * by the camera, and holograms.
+ *
+ */
 #pragma once
 
 #include <iostream>
@@ -47,79 +49,73 @@ namespace holovibes
 		** Please note that every size used in internal allocations for the Queue depends
 		** on provided FrameDescriptor, i-e in frame_size() and frame_res() methods.
 		**
-		** Please note that when you allocate a Queue, its element number elts should be at least greater
-		** by 2 that what you need (e-g: 10 elements Queue should be allocated with a elts of 12).
-		**
-		** \param fd Either the FrameDescriptor of the camera that provides
-		** images or a FrameDescriptor used for computations.
-		** \param elts Max number of elements that the queue can contain.
+		** \param fd The frame descriptor representing frames stored in the queue
+		** \param max_size The max size of the queue
+		** \param name The name of the queue
 		**/
-		Queue(const camera::FrameDescriptor& fd, const unsigned int elts, std::string name, unsigned int input_width = 0, unsigned int input_height = 0, unsigned int elm_size = 1);
+		Queue(const camera::FrameDescriptor& fd,
+			  const unsigned int max_size,
+			  std::string name,
+			  unsigned int input_width = 0,
+			  unsigned int input_height = 0,
+			  unsigned int bytes_per_pixel = 1);
+
+		/*! \brief Destructor of the queue */
 		~Queue();
 
+		/* Getters */
 		/*! \return the size of one frame (i-e element) of the Queue in bytes. */
-		size_t get_frame_size() const;
+		inline size_t get_frame_size() const;
 
+		/*! \return pointer to internal buffer that contains data. */
+		inline void* get_data() const;
+
+		/*! \return FrameDescriptor of the Queue */
+		inline const camera::FrameDescriptor& get_fd() const;
+
+		/*! \return the size of one frame (i-e element) of the Queue in pixels. */
+		inline size_t get_frame_res() const;
+
+		/*! \return the number of elements the Queue currently contains. */
+		inline unsigned int get_size() const;
+
+		/*! \return the number of elements the Queue can contains at its maximum. */
+		inline unsigned int get_max_size() const;
+
+		/*! \return pointer to first frame. */
+		inline void* get_start() const;
+
+		/*! \return index of first frame (as the Queue is circular, it is not always zero). */
+		inline unsigned int get_start_index() const;
+
+		/*! \return pointer right after last frame */
+		inline void* get_end() const;
+
+		/*! \return pointer to the last image */
+		inline void* get_last_image() const;
+
+		/*! \return index of the frame right after the last one containing data */
+		inline unsigned int get_end_index() const;
+
+		/*! \return getter to the name of queue */
+		inline const std::string& get_name() const;
+
+		/*! \return getter to the queue mutex */
+		inline std::mutex& get_guard();
+
+		/* Setters */
+		/*! \brief Allow us to choose if we want to display the queue or not */
+		inline void set_display(bool value);
+
+		/*! \brief Set the input mode (cropped, no modification, padding) */
+		inline void set_square_input_mode(SquareInputMode mode);
+
+		/* Methods */
 		/*! \brief Empty the Queue and change its size.
 		**
 		**  \param size the new size of the Queue
 		*/
 		void resize(const unsigned int size);
-
-		/*! \return pointer to internal buffer that contains data. */
-		void* get_buffer();
-
-		/*! \return FrameDescriptor of the Queue */
-		const camera::FrameDescriptor& get_fd() const;
-
-		/*! \return the size of one frame (i-e element) of the Queue in pixels. */
-		int get_frame_res();
-
-		/*! \return the cuda stream associated */
-		cudaStream_t get_stream() const;
-
-		/*! \return the number of elements the Queue currently contains.
-		**  As this is the most used method, it is inlined here.
-		*/
-		size_t get_current_elts() const
-		{
-			return curr_elts_;
-		}
-
-		/*! \brief reduce number of element in queue by nb_elem
-		*/
-		void decrease_size(const size_t nb_elem)
-		{
-			assert(curr_elts_ >= nb_elem);
-			curr_elts_ -= nb_elem;
-		}
-
-		/*! \return the number of elements the Queue can contains at its maximum. */
-		unsigned int get_max_elts() const;
-
-		/*! \return pointer to first frame. */
-		void* get_start();
-
-		/*! \brief increase index of nb_elem */
-		void increase_start_index(const size_t nb_elem)
-		{
-			start_index_ = (start_index_ + nb_elem) % max_elts_;
-		}
-
-		/*! \return index of first frame (as the Queue is circular, it is not always zero). */
-		unsigned int get_start_index() const;
-
-		/*! \return pointer right after last frame */
-		void* get_end();
-
-		/*! \return pointer to end_index - n frame */
-		void* get_last_images(const unsigned n);
-
-		/*! \return index of the frame right after the last one containing data */
-		unsigned int get_end_index() const;
-
-		/*! \brief getter to the queue's name */
-		const std::string& get_name() const;
 
 		/*! \brief Enqueue method
 		**
@@ -128,9 +124,10 @@ namespace holovibes
 		**
 		** If the maximum element number has been reached, the Queue overwrite the first frame.
 		**
+		** The memcpy are synch for Qt
+		**.
 		** \param elt pointer to element to enqueue
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
-		** \param mode Wether elt should be : copied as it is | copied into a bigger square | cropped into a smaller square
 		*/
 		bool enqueue(void* elt, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
@@ -145,15 +142,19 @@ namespace holovibes
 
 		/*! \brief Enqueue method for multiple elements
 		**
-		**	Batch enqueue method
+		** Batch enqueue method
+		**
+		** The memcpy are async
 		**
 		** \param elts List of elements to add in the queue
 		** \param nb_elts Number of elements to add in the queue
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		**
-		** \return The success of operation: False if an error occurs
+		** \return The success of the operation: False if an error occurs
 		*/
-		bool enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+		bool enqueue_multiple(void* elts,
+							  unsigned int nb_elts,
+							  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
 		/*! \brief Dequeue method overload
 		**
@@ -178,61 +179,102 @@ namespace holovibes
 
 		/*! \brief Dequeue method
 		**
-		** Update internal attributes (reduce Queue current elements and change start pointer)
+		** Update internal attributes
+		** Decrease the size of the queue and change start pointer
+		** Lock the queue
+		** \param nb_elt The number of elements to dequeue
 		*/
-		void dequeue();
+		void dequeue(const unsigned int nb_elts = 1);
 
 		/*! \brief Dequeue method without mutex
 		**
-		** Update internal attributes (reduce Queue current elements and change start pointer)
+		** Update internal attributes
+		** Decrease the size of the queue and change start pointer
+		** \param nb_elt The number of elements to dequeue
 		*/
-		void dequeue_non_mutex();
+		void dequeue_non_mutex(const unsigned int nb_elts = 1);
 
-		/*! Empties the Queue. */
+		/*! \brief Empties the Queue. */
 		void clear();
 
-		/* allow us to choose if we want to display the queue or not */
-		void set_display(bool value);
-
-		void set_square_input_mode(SquareInputMode mode);
-
-		/*! Check if the queue is full */
+		/*! \return check if the queue is full */
 		bool is_full() const;
 
-		/*Create a string containing the buffer size in MB*/
+		/*! \return string containing the buffer size in MB*/
 		std::string calculate_size(void) const;
 
-		std::mutex&	getGuard();
-
-	private:
+	private: /* Private Methods */
 		void display_queue_to_InfoManager() const;
 
+		/*! \brief auxiliary method of enqueue multiple.
+		** Mostly make the copy
+		** \param out the output buffer in which the frames are copied
+		** \param in the input buffer from which the frames are copied
+		** \param nb_elts The number of elements to enqueue
+		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		*/
 		void enqueue_multiple_aux(void *out,
 								  void *in,
 								  unsigned int nb_elts,
 								  cudaMemcpyKind cuda_kind);
 
+	private: /* Attributes */
+
+		/*! \brief mutex to lock the queue */
 		std::mutex				mutex_;
+		/*! \brief name of the queue */
 		std::string				name_;
+		/*! \brief frame descriptor of a frame store in the queue */
 		camera::FrameDescriptor	fd_;
+		/*! \brief frame size from the frame descriptor */
 		const size_t			frame_size_;
-		const int				frame_resolution_;
-		unsigned int		    max_elts_;
-		std::atomic<size_t>		curr_elts_;
+		/*! \brief frame resolution from the frame descriptor */
+		const size_t				frame_res_;
+		/*! \brief Maximum size of the queue (capacity) */
+		unsigned int		    max_size_;
+
+		/*! \brief Size of the queue (number of frames currently stored in the
+		** queue)
+		** This attribute is atomic because it is required by the wait frames
+		** function.
+		** A thread is enqueueing a frame, meanwhile the other thread is waiting
+		** for a specific size of the queue. Using an atomic avoid locking the
+		** queue.
+		** This is only used by the concurrent queue. However, it is needed to
+		** be declare in the regular queue.
+		*/
+		std::atomic<unsigned int>		size_;
+
+		/*! \brief The index of the first frame in the queue */
 		unsigned int			start_index_;
 		const bool				is_big_endian_;
-		cuda_tools::UniquePtr<char>	data_buffer_;
-		cudaStream_t			stream_;
+		/*! \brief The actual buffer in which the frames are stored */
+		cuda_tools::UniquePtr<char>	data_;
+		/*! \brief flag to check if the information of the queue must b
+		** displayed
+		*/
 		bool					display_;
-
-		//utils used for square input mode
-		//Original size of the input
+		// Utils used for square input mode
+		/*! \brief Original width of the input */
 		unsigned int input_width_;
+		/*! \brief Original height of the input */
 		unsigned int input_height_;
-		unsigned int elm_size_;
+		/*! \brief number of byte(s) to encode a pixel */
+		unsigned int bytes_per_pixel;
+		/*! \brief Input mode (NO_MODIFICATION, ZERO_PADDED_SQUARE,
+		** CROPPED_SQUARE)
+		*/
 		SquareInputMode square_input_mode_;
 	};
 
+	/*! \brief Struct to represents a region in the queue, or two regions in
+	** case of overflow.
+	** first is the first region
+	** second is the second region if overflow, nulpptr otherwise.
+	** In case of overflow, this struct will look like
+	** |----------------- (start_index_) ---------------|
+	** |		second          |         first         |
+	*/
 	struct QueueRegion
 	{
 		char *first = nullptr;
@@ -258,3 +300,5 @@ namespace holovibes
 		}
 	};
 }
+
+#include "queue.hxx"

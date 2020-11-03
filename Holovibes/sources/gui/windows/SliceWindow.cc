@@ -166,7 +166,7 @@ namespace holovibes
 			Program->bind();
 
 			textureUpdate(cuSurface,
-				output_->get_last_images(1),
+				output_->get_last_image(),
 				output_->get_fd(),
 				cuStream);
 

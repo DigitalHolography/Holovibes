@@ -244,7 +244,7 @@ namespace holovibes
 			cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource));
 
 			// Get the last image from the ouput queue
-			void* frame = output_->get_last_images(1);
+			void* frame = output_->get_last_image();
 
 			// Put the frame inside the cuda ressrouce
 			if (cd_->img_type == ImgType::Composite)

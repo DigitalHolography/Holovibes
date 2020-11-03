@@ -219,7 +219,7 @@ void FourierTransform::insert_eigenvalue_filter()
 		constexpr cuComplex beta{ 0, 0 };
 
 		cudaXMemcpy(stft_env_.gpu_stft_buffer_.get(),
-					stft_env_.gpu_stft_queue_->get_buffer(),
+					stft_env_.gpu_stft_queue_->get_data(),
 					fd_.frame_res() * cd_.nSize * sizeof(cuComplex),
 					cudaMemcpyDeviceToDevice);
 

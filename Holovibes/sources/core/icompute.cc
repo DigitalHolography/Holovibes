@@ -211,7 +211,7 @@ namespace holovibes
 		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
 		{
 			auto fd = input_.get_fd();
-			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_elts(), "RawOutputQueue");
+			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_size(), "RawOutputQueue");
 		}
 		return gpu_raw_queue_;
 	}
