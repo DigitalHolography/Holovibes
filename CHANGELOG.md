@@ -1,5 +1,10 @@
 ## Changelog
 
+### 8.4.1
+
+* Remove dead code and unused functions
+* Update docs: README, CONTRIBUTING and DEVELOPERS
+
 ### 8.4
 
 * Fix enqueue multiple (images in wrong order)
