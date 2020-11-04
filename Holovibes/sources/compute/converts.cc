@@ -28,17 +28,17 @@ namespace holovibes
 {
 	namespace compute
 	{
-		Converts::Converts(FunctionVector& fn_vect,
-			const CoreBuffers& buffers,
+		Converts::Converts(FunctionVector& fn_compute_vect,
+			const CoreBuffersEnv& buffers,
 			const BatchEnv& batch_env,
-			const Stft_env& stft_env,
+			const TimeFilterEnv& stft_env,
 			cuda_tools::CufftHandle& plan_unwrap_2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd)
 			: pmin_(0)
 			, pmax_(0)
-			, fn_vect_(fn_vect)
+			, fn_compute_vect_(fn_compute_vect)
 			, buffers_(buffers)
 			, batch_env_(batch_env)
 			, stft_env_(stft_env)
@@ -64,11 +64,11 @@ namespace holovibes
 			else if (cd_.img_type == PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
 
-			if (cd_.time_filter == TimeFilter::SVD && cd_.img_type != ImgType::Composite)
+			if (cd_.time_filter == TimeFilter::PCA && cd_.img_type != ImgType::Composite)
 			{
-				fn_vect_.conditional_push_back([=]() {
-					// Multiply frame by (2 ^ 16) - 1 in case of SVD
-					gpu_multiply_const(buffers_.gpu_float_buffer_, fd_.frame_res(), (2 << 16) - 1);
+				fn_compute_vect_.conditional_push_back([=]() {
+					// Multiply frame by (2 ^ 16) - 1 in case of PCA
+					gpu_multiply_const(buffers_.gpu_postprocess_frame, fd_.frame_res(), (2 << 16) - 1);
 				});
 			}
 		}
@@ -76,28 +76,28 @@ namespace holovibes
 		void Converts::insert_to_ushort()
 		{
 			insert_main_ushort();
-			if (cd_.stft_view_enabled)
+			if (cd_.time_filter_cuts_enabled)
 				insert_slice_ushort();
 		}
 
 		void Converts::insert_compute_p_accu()
 		{
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				pmin_ = cd_.pindex;
 				if (cd_.p_accu_enabled)
-					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.nSize)));
+					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.time_filter_size)));
 				else
 					pmax_ = cd_.pindex;
 			});
 		}
 
-		//we use gpu_input_buffer because when nsize = 1, gpu_stft_buffer is not used.
+		//we use gpu_input_buffer because when time_filter_size = 1, gpu_stft_buffer is not used.
 		void Converts::insert_to_modulus()
 		{
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				complex_to_modulus(
-					buffers_.gpu_float_buffer_,
-					stft_env_.gpu_stft_buffer_,
+					buffers_.gpu_postprocess_frame,
+					stft_env_.gpu_p_acc_buffer,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
@@ -106,10 +106,10 @@ namespace holovibes
 
 		void Converts::insert_to_squaredmodulus()
 		{
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				complex_to_squared_modulus(
-					buffers_.gpu_float_buffer_,
-					stft_env_.gpu_stft_buffer_,
+					buffers_.gpu_postprocess_frame,
+					stft_env_.gpu_p_acc_buffer,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
@@ -118,14 +118,14 @@ namespace holovibes
 
 		void Converts::insert_to_composite()
 		{
-			fn_vect_.conditional_push_back([=]() {
-				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize) ||
-					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize))
+			fn_compute_vect_.conditional_push_back([=]() {
+				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.time_filter_size) ||
+					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.time_filter_size))
 					return;
 
 				if(cd_.composite_kind == CompositeKind::RGB)
-					rgb(stft_env_.gpu_stft_buffer_.get(),
-						buffers_.gpu_float_buffer_,
+					rgb(stft_env_.gpu_p_acc_buffer.get(),
+						buffers_.gpu_postprocess_frame,
 						fd_.frame_res(),
 						cd_.composite_auto_weights_,
 						cd_.composite_p_red,
@@ -134,14 +134,14 @@ namespace holovibes
 						cd_.weight_g,
 						cd_.weight_b);
 				else
-					hsv(stft_env_.gpu_stft_buffer_.get(),
-						buffers_.gpu_float_buffer_,
+					hsv(stft_env_.gpu_p_acc_buffer.get(),
+						buffers_.gpu_postprocess_frame,
 						fd_.width,
 						fd_.height,
 						cd_);
 
 				if(cd_.composite_auto_weights_)
-					postcolor_normalize(buffers_.gpu_float_buffer_,
+					postcolor_normalize(buffers_.gpu_postprocess_frame,
 						fd_.frame_res(),
 						fd_.width, cd_.getCompositeZone(),
 						cd_.weight_r,
@@ -152,9 +152,9 @@ namespace holovibes
 
 		void Converts::insert_to_argument(bool unwrap_2d_requested)
 		{
-			fn_vect_.conditional_push_back([=]() {
-				complex_to_argument(buffers_.gpu_float_buffer_,
-					stft_env_.gpu_stft_buffer_, pmin_, pmax_, fd_.frame_res()); });
+			fn_compute_vect_.conditional_push_back([=]() {
+				complex_to_argument(buffers_.gpu_postprocess_frame,
+					stft_env_.gpu_p_acc_buffer, pmin_, pmax_, fd_.frame_res()); });
 
 			if (unwrap_2d_requested)
 			{
@@ -165,9 +165,9 @@ namespace holovibes
 					if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
 						unwrap_res_2d_->reallocate(fd_.frame_res());
 
-					fn_vect_.conditional_push_back([=]() {
+					fn_compute_vect_.conditional_push_back([=]() {
 						unwrap_2d(
-							buffers_.gpu_float_buffer_,
+							buffers_.gpu_postprocess_frame,
 							plan_unwrap_2d_,
 							unwrap_res_2d_.get(),
 							fd_,
@@ -175,10 +175,10 @@ namespace holovibes
 					});
 
 					// Converting angle information in floating-point representation.
-					fn_vect_.conditional_push_back([=]() {
+					fn_compute_vect_.conditional_push_back([=]() {
 						rescale_float_unwrap2d(
 							unwrap_res_2d_->gpu_angle_,
-							buffers_.gpu_float_buffer_,
+							buffers_.gpu_postprocess_frame,
 							unwrap_res_2d_->minmax_buffer_,
 							fd_.frame_res());
 					});
@@ -198,9 +198,9 @@ namespace holovibes
 					unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.frame_res()));
 				unwrap_res_->reset(cd_.unwrap_history_size);
 				unwrap_res_->reallocate(fd_.frame_res());
-				fn_vect_.conditional_push_back([=]() {
+				fn_compute_vect_.conditional_push_back([=]() {
 					phase_increase(
-						stft_env_.gpu_p_frame_,
+						stft_env_.gpu_p_frame,
 						unwrap_res_.get(),
 						fd_.frame_res());
 				});
@@ -213,7 +213,7 @@ namespace holovibes
 					if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
 						unwrap_res_2d_->reallocate(fd_.frame_res());
 
-					fn_vect_.conditional_push_back([=]() {
+					fn_compute_vect_.conditional_push_back([=]() {
 						unwrap_2d(
 							unwrap_res_->gpu_angle_current_,
 							plan_unwrap_2d_,
@@ -223,19 +223,19 @@ namespace holovibes
 					});
 
 					// Converting angle information in floating-point representation.
-					fn_vect_.conditional_push_back([=]() {
+					fn_compute_vect_.conditional_push_back([=]() {
 						rescale_float_unwrap2d(
 							unwrap_res_2d_->gpu_angle_,
-							buffers_.gpu_float_buffer_,
+							buffers_.gpu_postprocess_frame,
 							unwrap_res_2d_->minmax_buffer_,
 							fd_.frame_res());
 					});
 				}
 				else
-					fn_vect_.conditional_push_back([=]() {
+					fn_compute_vect_.conditional_push_back([=]() {
 					rescale_float(
 						unwrap_res_->gpu_angle_current_,
-						buffers_.gpu_float_buffer_,
+						buffers_.gpu_postprocess_frame,
 						fd_.frame_res()); });
 			}
 			catch (std::exception& e)
@@ -248,41 +248,41 @@ namespace holovibes
 
 		void Converts::insert_main_ushort()
 		{
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_float_buffer_,
-					buffers_.gpu_output_buffer_,
-					buffers_.gpu_float_buffer_size_,
+					buffers_.gpu_postprocess_frame,
+					buffers_.gpu_output_frame,
+					buffers_.gpu_postprocess_frame_size,
 					output_fd_.depth);
 			});
 		}
 
 		void Converts::insert_slice_ushort()
 		{
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_float_cut_xz_.get(),
-					buffers_.gpu_ushort_cut_xz_,
-					stft_env_.gpu_stft_slice_queue_xz->get_fd().frame_res(),
+					buffers_.gpu_postprocess_frame_xz.get(),
+					buffers_.gpu_output_frame_xz,
+					stft_env_.gpu_output_queue_xz->get_fd().frame_res(),
 					2.f);
 			});
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_float_cut_yz_.get(),
-					buffers_.gpu_ushort_cut_yz_,
-					stft_env_.gpu_stft_slice_queue_yz->get_fd().frame_res(),
+					buffers_.gpu_postprocess_frame_yz.get(),
+					buffers_.gpu_output_frame_yz,
+					stft_env_.gpu_output_queue_yz->get_fd().frame_res(),
 					2.f);
 			});
 		}
 
 		void Converts::insert_complex_conversion(Queue& input)
 		{
-			fn_vect_.push_back([&]() {
+			fn_compute_vect_.push_back([&]() {
 				std::lock_guard<std::mutex> m_guard(input.get_guard());
 
 				// Copy the data from the input queue to the input buffer
 				// ALL CALL ARE ASYNCHRONOUS SINCE ALL FFTs AND MEMCPYs ARE CALLED ON STREAM 0
-				input_queue_to_input_buffer(buffers_.gpu_input_buffer_.get(),
+				input_queue_to_input_buffer(buffers_.gpu_spatial_filter_buffer.get(),
 											input.get_data(),
 											fd_.frame_res(),
 											cd_.batch_size,
@@ -290,7 +290,7 @@ namespace holovibes
 											input.get_max_size(),
 											fd_.depth);
 
-				// Dequeue stft steps frames
+				// Dequeue batch size frames
 				input.dequeue_non_mutex(cd_.batch_size);
 			});
 		}

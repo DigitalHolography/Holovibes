@@ -21,7 +21,7 @@
 #include <QScreen>
 #include <QWheelEvent>
 
-#include "DirectWindow.hh"
+#include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "info_manager.hh"
 #include "cuda_memory.cuh"
@@ -33,25 +33,25 @@ namespace holovibes
 	using camera::Endianness;
 	namespace gui
 	{
-		DirectWindow::DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k) :
+		RawWindow::RawWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k) :
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
 		{}
 
-		DirectWindow::~DirectWindow()
+		RawWindow::~RawWindow()
 		{}
 
-		void DirectWindow::initShaders()
+		void RawWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.raw.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
 			overlay_manager_.create_default();
 		}
 
-		void DirectWindow::initializeGL()
+		void RawWindow::initializeGL()
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
@@ -160,7 +160,7 @@ namespace holovibes
 		   a rectangle format. It also avoids the window to move when resizing.
 		   There is no visible calling function since it's overriding Qt function.
 		**/
-		void DirectWindow::resizeGL(int w, int h)
+		void RawWindow::resizeGL(int w, int h)
 		{
 			if (ratio == 0.0f)
 				return;
@@ -170,7 +170,7 @@ namespace holovibes
 			auto point = this->position();
 
 			if ((cd_->compute_mode == Computation::Hologram && cd_->algorithm == Algorithm::None)
-				|| cd_->compute_mode == Computation::Direct)
+				|| cd_->compute_mode == Computation::Raw)
 			{
 				if (w != old_width)
 				{
@@ -223,7 +223,7 @@ namespace holovibes
 			this->setPosition(point);
 		}
 
-		void DirectWindow::paintGL()
+		void RawWindow::paintGL()
 		{
 			// Window translation but none seems to be performed
 			glViewport(0, 0, width(), height());
@@ -253,7 +253,7 @@ namespace holovibes
 			}
 			else
 			{
-				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, kView == KindOfView::Direct ? cd_->direct_bitshift.load() : 0);
+				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0);
 			}
 
 			// Release resources (needs to be done at each call) and sync, sync usefull since memcpy not async and kernel has a cudaDeviceSyncronize ?
@@ -286,17 +286,17 @@ namespace holovibes
 			overlay_manager_.draw();
 		}
 
-		void DirectWindow::mousePressEvent(QMouseEvent* e)
+		void RawWindow::mousePressEvent(QMouseEvent* e)
 		{
 			overlay_manager_.press(e);
 		}
 
-		void DirectWindow::mouseMoveEvent(QMouseEvent* e)
+		void RawWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			overlay_manager_.move(e);
 		}
 
-		void DirectWindow::mouseReleaseEvent(QMouseEvent* e)
+		void RawWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
 				overlay_manager_.release(fd_.width);
@@ -304,7 +304,7 @@ namespace holovibes
 				resetTransform();
 		}
 
-		void DirectWindow::keyPressEvent(QKeyEvent * e)
+		void RawWindow::keyPressEvent(QKeyEvent * e)
 		{
 			BasicOpenGLWindow::keyPressEvent(e);
 
@@ -327,7 +327,7 @@ namespace holovibes
 			setTransform();
 		}
 
-		void DirectWindow::zoomInRect(units::RectOpengl zone)
+		void RawWindow::zoomInRect(units::RectOpengl zone)
 		{
 			const units::PointOpengl center = zone.center();
 
@@ -351,22 +351,22 @@ namespace holovibes
 			setTransform();
 		}
 
-		void DirectWindow::setRatio(float ratio_)
+		void RawWindow::setRatio(float ratio_)
 		{
 			ratio = ratio_;
 		}
 
-		bool DirectWindow::is_resize_call() const
+		bool RawWindow::is_resize_call() const
 		{
 			return is_resize;
 		}
 
-		void DirectWindow::set_is_resize(bool b)
+		void RawWindow::set_is_resize(bool b)
 		{
 			is_resize = b;
 		}
 
-		void DirectWindow::wheelEvent(QWheelEvent *e)
+		void RawWindow::wheelEvent(QWheelEvent *e)
 		{
 			if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
 				return;

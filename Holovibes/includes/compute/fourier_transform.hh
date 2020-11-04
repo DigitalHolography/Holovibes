@@ -29,8 +29,8 @@ namespace holovibes
 	class Queue;
 	class ComputeDescriptor;
 	struct BatchEnv;
-	struct Stft_env;
-	struct CoreBuffers;
+	struct TimeFilterEnv;
+	struct CoreBuffersEnv;
 
 	namespace compute
 	{
@@ -40,13 +40,13 @@ namespace holovibes
 			/*! \brief Constructor.
 
 			*/
-			FourierTransform(FunctionVector& fn_vect,
-				const CoreBuffers& buffers,
+			FourierTransform(FunctionVector& fn_compute_vect,
+				const CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
 				cuda_tools::CufftHandle& plan2d,
 				const BatchEnv& batch_env,
-				Stft_env& stft_env);
+				TimeFilterEnv& stft_env);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
 
@@ -73,10 +73,10 @@ namespace holovibes
 			*/
 			void insert_eigenvalue_filter();
 
-			/*! \brief Enqueue functions relative to stft cuts display when there are activated
+			/*! \brief Enqueue functions relative to time filter cuts display when there are activated
 
 			*/
-			void insert_stft_cuts_view();
+			void insert_time_filter_cuts_view();
 
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
@@ -112,9 +112,9 @@ namespace holovibes
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
 
 			/// Vector function in which we insert the processing
-			FunctionVector&					fn_vect_;
+			FunctionVector&					fn_compute_vect_;
 			//! Main buffers
-			const CoreBuffers&				buffers_;
+			const CoreBuffersEnv&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			//! Compute Descriptor
@@ -124,7 +124,7 @@ namespace holovibes
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
 			//! STFT environment.
-			Stft_env&					stft_env_;
+			TimeFilterEnv&					stft_env_;
 		};
 	}
 }

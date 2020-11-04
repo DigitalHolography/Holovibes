@@ -58,10 +58,10 @@ namespace holovibes
 		** These slots are divided into several sections:
 		**
 		** * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
-		** * Image rendering: phase number, p, z, lambda ...
+		** * Image rendering: #img, p, z, lambda ...
 		** * View: log scale, shifted corner, contrast ...
-		** * Special: image ratio, average/ROI plot ...
-		** * Record: record of raw frames, average/ROI file ...
+		** * Special: image ratio, Chart/ROI plot ...
+		** * Record: record of raw frames, Chart/ROI file ...
 		** * Import : making a file of raw data the image source
 		** * Info : Various runtime informations on the program's state
 		*/
@@ -82,7 +82,7 @@ namespace holovibes
 			void notify() override;
 			void notify_error(std::exception& e) override;
 
-			DirectWindow *get_main_display();
+			RawWindow *get_main_display();
 			#pragma endregion
 			/* ---------- */
 			#pragma region Public Slots
@@ -114,13 +114,13 @@ namespace holovibes
 			** * Request a pipe refresh
 			** * Set visibility to true
 			*/
-			/*! \brief Set image mode either to direct or hologram mode
+			/*! \brief Set image mode either to raw or hologram mode
 			**
 			** Check if Camera has been enabled, then create a new GuiGLWindow keeping
 			** its old position and size if it was previously opened, set visibility
 			** and call notify().
 			**
-			** \param value true for direct mode, false for hologram mode.
+			** \param value true for raw mode, false for hologram mode.
 			*/
 			void set_image_mode();
 			void reset_input();
@@ -130,12 +130,12 @@ namespace holovibes
 			void set_divide_convolution_mode(const bool value);
 			void toggle_renormalize(bool value);
 			void set_renormalize_constant(int value);
-			bool is_direct_mode();
+			bool is_raw_mode();
 			void reset();
 			void set_filter2D();
 			void set_filter2D_type(const QString &filter2Dtype);
 			void cancel_filter2D();
-			void setPhase();
+			void set_time_filter_size();
 			void update_lens_view(bool value);
 			void disable_lens_view();
 			void update_raw_view(bool value);
@@ -173,10 +173,10 @@ namespace holovibes
 			void set_z_step(double value);
 			void set_algorithm(QString value);
 			void set_time_filter(QString value);
-			void stft_view(bool checked);
+			void toggle_time_filter_cuts(bool checked);
 			void cancel_stft_slice_view();
 			void update_batch_size();
-			void update_stft_steps();
+			void update_time_filter_stride();
 			void set_view_mode(QString value);
 			void set_unwrap_history_size(int value);
 			void set_unwrapping_1d(const bool value);
@@ -191,19 +191,19 @@ namespace holovibes
 			void set_auto_refresh_contrast(bool value);
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
-			void set_average_mode(bool value);
-			void disable_average_mode();
+			void set_chart_mode(bool value);
+			void disable_chart_mode();
 			void set_composite_area();
 			void activeSignalZone();
 			void activeNoiseZone();
-			void set_average_graphic();
+			void set_chart_graphic();
 			void update_convo_kernel(const QString& value);
 			void browse_file();
 			void set_raw_recording(bool value);
 			void set_record();
 			void set_record_frame_step(int value);
 			void browse_roi_output_file();
-			void average_record();
+			void chart_record();
 			void browse_batch_input();
 			void image_batch_record();
 			void csv_batch_record();
@@ -213,7 +213,7 @@ namespace holovibes
 			void batch_finished_record();
 			void stop_image_record();
 			void finished_image_record();
-			void finished_average_record();
+			void finished_chart_record();
 			void stop_csv_record();
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
@@ -247,7 +247,7 @@ namespace holovibes
 			virtual void closeEvent(QCloseEvent* event) override;
 
 		private:
-			void 		set_direct_mode();
+			void 		set_raw_mode();
 			void 		set_holographic_mode();
 			void        set_computation_mode();
 			void        set_correct_square_input_mode();
@@ -258,7 +258,7 @@ namespace holovibes
 			void		open_file(const std::string& path);
 			void		load_ini(const std::string& path);
 			void		save_ini(const std::string& path);
-			void		cancel_stft_view();
+			void		cancel_time_filter_cuts();
 			std::string	format_batch_output(const std::string& path, uint index);
 			std::string	set_record_filename_properties(camera::FrameDescriptor fd, std::string filename, bool add_info = true);
 			void		createPipe();
@@ -296,16 +296,16 @@ namespace holovibes
 			Holovibes&			holovibes_;
 			ComputeDescriptor&	cd_;
 
-			std::unique_ptr<DirectWindow>	mainDisplay;
+			std::unique_ptr<RawWindow>	mainDisplay;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
-			std::unique_ptr<DirectWindow>	lens_window;
-			std::unique_ptr<DirectWindow>	raw_window;
+			std::unique_ptr<RawWindow>	lens_window;
+			std::unique_ptr<RawWindow>	raw_window;
 
 			ushort width;
 			ushort height;
 			uint window_max_size;
-			uint stft_cuts_window_max_size;
+			uint time_filter_cuts_window_max_size;
 			uint auxiliary_window_max_size;
 
 			float		displayAngle;

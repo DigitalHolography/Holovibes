@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Thread class used to record CSV files of ROI/average computations. */
+ * Thread class used to record CSV files of ROI/chart computations. */
 #pragma once
 
 #include <string>
@@ -30,7 +30,7 @@ namespace holovibes
 
 	namespace gui
 	{
-		/*! \brief Thread class used to record CSV files of ROI/average computations.
+		/*! \brief Thread class used to record CSV files of ROI/chart computations.
 		**
 		** It inherits QThread because it is the GUI that needs to launch the record and it has
 		** to know when it is finished (signals/slots system).
@@ -49,7 +49,7 @@ namespace holovibes
 			/*! \brief ThreadCSVRecord constructor
 			**
 			** \param pipe pipe of the program, see holovibes::Holovibes::get_pipe()
-			** \param deque concurrent Deque containing the average values to record
+			** \param deque concurrent Deque containing the chart values to record
 			** \param path string containing output path of record
 			** \param nb_frames number of frames i-e number of values to record
 			** \param parent Qt parent (default is null)

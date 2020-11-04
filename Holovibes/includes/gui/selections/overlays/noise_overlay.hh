@@ -12,7 +12,7 @@
 
 /*! \file
 *
-* Overlay selecting the noise zone to average. */
+* Overlay selecting the noise zone to chart. */
 #pragma once
 
 #include "rect_overlay.hh"

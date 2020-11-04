@@ -26,9 +26,9 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	class ICompute;
-	struct CoreBuffers;
-	struct Average_env;
-	struct Stft_env;
+	struct CoreBuffersEnv;
+	struct ChartEnv;
+	struct TimeFilterEnv;
 	struct ImageAccEnv;
 	enum WindowKind;
 
@@ -42,11 +42,11 @@ namespace holovibes
 			/** \brief Constructor.
 
 			*/
-			Rendering(FunctionVector& fn_vect,
-				const CoreBuffers& buffers,
-				Average_env& average_env,
+			Rendering(FunctionVector& fn_compute_vect,
+				const CoreBuffersEnv& buffers,
+				ChartEnv& chart_env,
 				const ImageAccEnv& image_acc_env,
-				const Stft_env& stft_env,
+				const TimeFilterEnv& stft_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
@@ -56,10 +56,10 @@ namespace holovibes
 
 			*/
 			void insert_fft_shift();
-			/** \brief insert the functions relative to noise and signal average.
+			/** \brief insert the functions relative to noise and signal chart.
 
 			 */
-			void insert_average(std::atomic<bool>& record_request);
+			void insert_chart(std::atomic<bool>& record_request);
 			/** \brief insert the functions relative to the log10.
 
 			*/
@@ -70,14 +70,14 @@ namespace holovibes
 			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 
 		private:
-			/** \brief insert the average computation.
+			/** \brief insert the chart computation.
 
 			*/
-			void insert_main_average();
-			/** \brief insert the average recording.
+			void insert_main_chart();
+			/** \brief insert the chart recording.
 
 			*/
-			void insert_average_record();
+			void insert_chart_record();
 
 			/** \brief insert the log10 on the XY window
 
@@ -109,25 +109,25 @@ namespace holovibes
 				WindowKind			view,
 				cudaStream_t		stream = 0);
 
-			/*! \see request_average_record
-			* \brief Call the average algorithm, store the result and count n
+			/*! \see request_chart_record
+			* \brief Call the chart algorithm, store the result and count n
 			* iterations. Request the ICompute to refresh when record is over.
 			* \param signal Signal zone
 			* \param noise Noise zone */
-			void average_record_caller(
+			void chart_record_caller(
 				const units::RectFd& signal,
 				const units::RectFd& noise,
 				cudaStream_t stream = 0);
 
 
 			/// Vector function in which we insert the processing
-			FunctionVector&					fn_vect_;
+			FunctionVector&					fn_compute_vect_;
 			/// Main buffers
-			const CoreBuffers&				buffers_;
-			/// Average variables
-			Average_env&					average_env_;
+			const CoreBuffersEnv&			buffers_;
+			/// Chart variables
+			ChartEnv&						chart_env_;
 			/// Time filter environment
-			const Stft_env&					stft_env_;
+			const TimeFilterEnv&			stft_env_;
 			/// Image accumulation environment
 			const ImageAccEnv& 				image_acc_env_;
 			/// Describes the input frame size

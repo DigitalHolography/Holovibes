@@ -75,15 +75,15 @@ namespace holovibes
 		/*! \{ \name Queue getters
 		 *
 		 * Used to record frames */
-		std::unique_ptr<Queue>& get_capture_queue()
+		std::unique_ptr<Queue>& get_gpu_input_queue()
 		{
-			return input_;
+			return gpu_input_queue_;
 		}
 
 		/*! Used to display frames */
-		std::unique_ptr<Queue>& get_output_queue()
+		std::unique_ptr<Queue>& get_gpu_output_queue()
 		{
-			return output_;
+			return gpu_output_queue_;
 		}
 
 		std::unique_ptr<Queue>& get_current_window_output_queue();
@@ -99,8 +99,8 @@ namespace holovibes
 		 * stoppable).
 		 * Recorder input queue depends on the mode :
 		 *
-		 * - direct: use input_ queue
-		 * - hologram: use output_ queue. */
+		 * - raw: use gpu_input_queue_ queue
+		 * - hologram: use gpu_output_queue_ queue. */
 		void recorder(const std::string& filepath, const unsigned int rec_n_images);
 
 		/*! \brief Launch the ThreadCompute
@@ -162,12 +162,12 @@ namespace holovibes
 			return camera_->get_ini_path();
 		}
 
-		/*! \brief Getter onto average_queue
+		/*! \brief Getter onto chart_queue
 		 *
-		 * Used when computing the average of the noise or signal in a given area */
-		ConcurrentDeque<Tuple4f>& get_average_queue()
+		 * Used when computing the chart of the noise or signal in a given area */
+		ConcurrentDeque<Tuple4f>& get_chart_queue()
 		{
-			return average_queue_;
+			return chart_queue_;
 		}
 		/*! \} */
 
@@ -199,20 +199,20 @@ namespace holovibes
 		std::unique_ptr<ThreadCompute> tcompute_;
 
 		/*! \{ \name Frames queue (GPU) */
-		std::unique_ptr<Queue> input_;
-		std::unique_ptr<Queue> output_;
+		std::unique_ptr<Queue> gpu_input_queue_;
+		std::unique_ptr<Queue> gpu_output_queue_;
 		/*! \} */
 
 		/*! \brief Common compute descriptor shared between CLI/GUI and the
 		 * Pipe. */
 		ComputeDescriptor cd_;
 
-		/*! \brief Store average of zone signal/noise
+		/*! \brief Store chart of zone signal/noise
 		 *
-		 * Average are computes in ThreadCompute and use in CurvePlot
-		 * \note see void MainWindow::set_average_graphic() for example
+		 * Chart are computes in ThreadCompute and use in CurvePlot
+		 * \note see void MainWindow::set_chart_graphic() for example
 		 */
-		ConcurrentDeque<Tuple4f> average_queue_;
+		ConcurrentDeque<Tuple4f> chart_queue_;
 
 		/* \brief Store the path of holovibes when it is launched.
 		   so that holovibes.ini is saved at the right place. The problem

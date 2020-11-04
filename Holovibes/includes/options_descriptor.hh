@@ -39,8 +39,7 @@ namespace holovibes
     , is_compute_enabled(false)
     , is_float_output_enabled(false)
     , cd()
-    {
-    }
+    {}
 
     /*! \{ \name Parameters */
     /*! \brief Number of images to record. */
@@ -54,7 +53,7 @@ namespace holovibes
     unsigned int  gl_window_height;
     /*! \brief Selected camera */
 	CameraKind camera;
-	
+
     /*! \brief File path to import. */
     std::string		file_src;
     /*! \brief File image width. */

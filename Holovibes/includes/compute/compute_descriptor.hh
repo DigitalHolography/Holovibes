@@ -53,14 +53,14 @@ namespace holovibes
 	enum TimeFilter
 	{
 		STFT,
-		SVD
+		PCA
 	};
 
 	/*! \bried	Input processes */
 	enum Computation
 	{
 		Stop, /**< Input not displayed */
-		Direct, /**< Interferogram recorded */
+		Raw, /**< Interferogram recorded */
 		Hologram /**< Reconstruction of the object */
 	};
 
@@ -145,9 +145,9 @@ namespace holovibes
 		/*! \brief	The position of the point used to obtain XZ and YZ views */
 		units::PointFd		stft_slice_cursor;
 
-		/*! \brief	The zone to average the signal */
+		/*! \brief	The zone for the signal chart*/
 		units::RectFd		signal_zone;
-		/*! \brief	The zone to average the noise */
+		/*! \brief	The zone for the noise chart */
 		units::RectFd		noise_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		units::RectFd		stft_roi_zone;
@@ -257,11 +257,11 @@ namespace holovibes
 		std::atomic<WindowKind>		current_window{ WindowKind::XYview };
 		/*! \brief Number of images dequeued from input to gpu_input_buffer and batch size of space filter
 		**
-		** Stft_step is decorelated from batch size for performances reasons
+		** time_filter_stride is decorelated from batch size for performances reasons
 		*/
 		std::atomic<ushort>			batch_size{ 1 };
 		//! Number of images used by SFTF i.e. depth of the SFTF cube
-		std::atomic<ushort>			nSize{ 1 };
+		std::atomic<ushort>			time_filter_size{ 1 };
 		//! index in the depth axis
 		std::atomic<ushort>			pindex{ 0 };
 
@@ -300,10 +300,8 @@ namespace holovibes
 		std::atomic<uint>			convo_matrix_height{ 0 };
 		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z{ 0 };
-		//! Size of the stft_queue.
-		std::atomic<int>			stft_level{ 16 };
 		//! Number of pipe iterations between two temporal demodulation.
-		std::atomic<int>			stft_steps{ 1 };
+		std::atomic<int>			time_filter_stride{ 1 };
 
 		std::atomic<int>			unwrap_history_size{ 1 };
 		//! is convolution enabled
@@ -333,11 +331,11 @@ namespace holovibes
 		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};
 
 		//! are slices YZ and XZ enabled
-		std::atomic<bool>			stft_view_enabled{ false };
+		std::atomic<bool>			time_filter_cuts_enabled{ false };
 		//! is gpu lens display activated
 		std::atomic<bool>			gpu_lens_display_enabled{ false };
-		//! enables the signal and noise average computation
-		std::atomic<bool>			average_enabled{ false };
+		//! enables the signal and noise chart computation
+		std::atomic<bool>			chart_enabled{ false };
 
 		//! is file a .cine
 		std::atomic<FileType>		file_type;
@@ -387,8 +385,8 @@ namespace holovibes
 		//! Reticle border scale.
 		std::atomic<float>			reticle_scale{ 0.5f };
 
-		//! Number of bits to shift when in direct mode
-		std::atomic<ushort>			direct_bitshift{ 0 };
+		//! Number of bits to shift when in raw mode
+		std::atomic<ushort>			raw_bitshift{ 0 };
 
 		//! Composite images
 		//! \{

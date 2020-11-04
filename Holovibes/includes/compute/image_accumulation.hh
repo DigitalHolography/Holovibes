@@ -28,7 +28,7 @@ namespace holovibes
 {
 	class Queue;
 	class ComputeDescriptor;
-	struct CoreBuffers;
+	struct CoreBuffersEnv;
 	struct ImageAccEnv;
 
 	/*! \brief Contains all functions and structure for computations variables */
@@ -46,9 +46,9 @@ namespace holovibes
 			/*!
 			** \brief Constructor.
 			*/
-			ImageAccumulation(FunctionVector& fn_vect,
+			ImageAccumulation(FunctionVector& fn_compute_vect,
 				ImageAccEnv& image_acc_env,
-				const CoreBuffers& buffers,
+				const CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
@@ -98,10 +98,10 @@ namespace holovibes
 			ImageAccEnv& image_acc_env_;
 
 			/// Vector function in which we insert the processing
-			FunctionVector&					fn_vect_;
+			FunctionVector&					fn_compute_vect_;
 
 			/// Main buffers
-			const CoreBuffers&				buffers_;
+			const CoreBuffersEnv&				buffers_;
 
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;

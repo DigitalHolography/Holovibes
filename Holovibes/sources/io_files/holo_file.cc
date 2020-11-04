@@ -235,7 +235,7 @@ namespace holovibes
 	{
 		try
 		{
-			Computation mode = Computation::Direct;
+			Computation mode = Computation::Raw;
 
 			if (cd.record_raw.load() && cd.compute_mode.load() == Computation::Hologram)
 				mode = Computation::Hologram;
@@ -247,7 +247,7 @@ namespace holovibes
 				{"algorithm", cd.algorithm.load()},
 				{"time_filter", cd.time_filter.load()},
 
-				{"#img", cd.nSize.load()},
+				{"#img", cd.time_filter_size.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
 				{"pixel_size", cd.pixel_size.load()},

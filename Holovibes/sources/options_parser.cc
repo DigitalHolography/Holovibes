@@ -138,7 +138,7 @@ namespace holovibes
 			("2fft",
 			"Enable the 2-FFT method: Angular spectrum propagation approache. Requires n, p, l, z parameters.")
 
-			("nSize,n",
+			("time_filter_size,n",
 			po::value<unsigned short>(),
 			"Number of samples N.")
 
@@ -430,23 +430,23 @@ namespace holovibes
 			opts_.cd.algorithm = Algorithm::FFT2;
 		}
 
-		if (vm_.count("nSize"))
+		if (vm_.count("time_filter_size"))
 		{
-			const unsigned short nSize = vm_["nSize"].as<unsigned short>();
-			if (nSize <= 0)
-				throw std::runtime_error("--nSize parameter must be strictly positive");
+			const unsigned short time_filter_size = vm_["time_filter_size"].as<unsigned short>();
+			if (time_filter_size <= 0)
+				throw std::runtime_error("--time_filter_size parameter must be strictly positive");
 
-			opts_.cd.nSize = nSize;
+			opts_.cd.time_filter_size = time_filter_size;
 
-			if (opts_.cd.nSize >= global::global_config.input_queue_max_size)
-				throw std::runtime_error("--nSize can not be greater than the input_max_queue_size");
+			if (opts_.cd.time_filter_size >= global::global_config.input_queue_max_size)
+				throw std::runtime_error("--time_filter_size can not be greater than the input_max_queue_size");
 		}
 
 		if (vm_.count("pindex"))
 		{
 			const unsigned short pindex = vm_["pindex"].as<unsigned short>();
-			if (pindex < 0 || pindex >= opts_.cd.nSize)
-				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nSize - 1}.");
+			if (pindex < 0 || pindex >= opts_.cd.time_filter_size)
+				throw std::runtime_error("--pindex parameter must be defined in {0, ..., time_filter_size - 1}.");
 			opts_.cd.pindex = pindex;
 		}
 
@@ -512,8 +512,8 @@ namespace holovibes
 
 	void OptionsParser::check_compute_params()
 	{
-		if (!vm_.count("nSize"))
-			throw std::runtime_error("--nSize is required");
+		if (!vm_.count("time_filter_size"))
+			throw std::runtime_error("--time_filter_size is required");
 
 		if (!vm_.count("pindex"))
 			throw std::runtime_error("--pindex is required");

@@ -12,7 +12,7 @@
 
 #include "zoom_overlay.hh"
 #include "BasicOpenGLWindow.hh"
-#include "DirectWindow.hh"
+#include "RawWindow.hh"
 #include "HoloWindow.hh"
 
 namespace holovibes
@@ -34,7 +34,7 @@ namespace holovibes
 			}
 
 			// handle Zoom
-			DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
+			RawWindow* window = dynamic_cast<RawWindow *>(parent_);
 			if (window)
 			{
 				window->zoomInRect(zone_);

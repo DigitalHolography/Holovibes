@@ -30,7 +30,7 @@ namespace holovibes
 			/*! \brief Create an overlay depending on the value passed to the template. */
 			template <KindOfOverlay ko>
 			void create_overlay();
-			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
+			/*! \brief Create the default overlay in the view. Zoom for Raw/Holo, Cross for Slices. */
 			void create_default();
 
 			/*! \brief Disable all the overlay of kind ko*/

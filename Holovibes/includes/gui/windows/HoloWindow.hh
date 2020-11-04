@@ -16,7 +16,7 @@
 #pragma once
 
 #include "icompute.hh"
-#include "DirectWindow.hh"
+#include "RawWindow.hh"
 
 
 namespace holovibes
@@ -26,7 +26,7 @@ namespace holovibes
 		class MainWindow;
 		using SharedPipe = std::shared_ptr<ICompute>;
 
-		class HoloWindow : public DirectWindow
+		class HoloWindow : public RawWindow
 		{
 		public:
 			HoloWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xy, std::unique_ptr<SliceWindow>& yy, MainWindow *main_window = nullptr);

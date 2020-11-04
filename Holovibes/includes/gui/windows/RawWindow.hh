@@ -22,11 +22,11 @@ namespace holovibes
 	namespace gui
 	{
 		class SliceWindow;
-		class DirectWindow : public BasicOpenGLWindow
+		class RawWindow : public BasicOpenGLWindow
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Direct);
-			virtual ~DirectWindow();
+			RawWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Raw);
+			virtual ~RawWindow();
 
 			void zoomInRect(units::RectOpengl zone);
 			void setRatio(float ratio_);
@@ -39,7 +39,7 @@ namespace holovibes
 
 			int old_width = -1;
 			int old_height = -1;
-			// it represents width/height of the Direct window
+			// it represents width/height of the Raw window
 			float ratio = 0.0f;
 
 			// bool represent if we are resizing the window or creating one

@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "average.cuh"
+#include "chart.cuh"
 #include "tools_conversion.cuh"
 #include "units/rect.hh"
 #include "unique_ptr.hh"
@@ -72,7 +72,7 @@ void zone_sum(const float *input,
 	cudaCheckError();
 }
 
-Tuple4f make_average_plot(float				*input,
+Tuple4f make_chart_plot(float				*input,
 						const uint			width,
 						const uint			height,
 						const RectFd&		signal,
@@ -99,23 +99,4 @@ Tuple4f make_average_plot(float				*input,
 	float moy = cpu_s / cpu_n;
 
 	return Tuple4f{ cpu_s, cpu_n, moy, 10 * log10f(moy)};
-}
-
-Tuple4f make_average_stft_plot(float			*fbuf,
-							cuComplex		*stft_buffer,
-							const uint		width,
-							const uint		height,
-							const uint		width_roi,
-							const uint		height_roi,
-							const holovibes::units::RectFd&	signal_zone,
-							const holovibes::units::RectFd&	noise_zone,
-							const uint		pindex,
-							const uint		nSize,
-							cudaStream_t	stream)
-{
-	const uint	size = width * height;
-
-	complex_to_modulus(fbuf, stft_buffer, size, pindex, pindex, stream);
-
-	return make_average_plot(fbuf, width, height, signal_zone, noise_zone, stream);
 }

@@ -26,7 +26,7 @@ using holovibes::units::RectFd;
  * 1 : Aplly lens on the input queue \n
  * 2 : Do a fft2d (fresnel transform) on the input queue \n
  * 3 : Take the ROI (i.e. 512x512px) and store bursting way on a complex queue (stft_buf) \n
- * 4 : Do nSize fft1d on the complex queue (stft_dup_buf) \n
+ * 4 : Do time_filter_size fft1d on the complex queue (stft_dup_buf) \n
  * This complex queue need to be reconstruct in order to get image
  *
  * \param stft_buf the buffer which will be exploded
@@ -55,18 +55,18 @@ void stft(holovibes::Queue	*gpu_stft_queue,
 		cuComplex			*gpu_stft_buffer,
 		const cufftHandle	plan1d);
 
-void stft_view_begin(const cuComplex	*input,
-					float				*output_xz,
-					float				*output_yz,
-					const ushort		xmin,
-					const ushort		ymin,
-					const ushort		xmax,
-					const ushort		ymax,
-					const ushort		width,
-					const ushort		height,
-					const uint			viewmode,
-					const ushort		nSize,
-					const uint			acc_level_xz,
-					const uint			acc_level_yz,
-					const uint			img_type,
-					cudaStream_t		stream = 0);
+void time_filter_cuts_begin(const cuComplex	*input,
+							float				*output_xz,
+							float				*output_yz,
+							const ushort		xmin,
+							const ushort		ymin,
+							const ushort		xmax,
+							const ushort		ymax,
+							const ushort		width,
+							const ushort		height,
+							const uint			viewmode,
+							const ushort		time_filter_size,
+							const uint			acc_level_xz,
+							const uint			acc_level_yz,
+							const uint			img_type,
+							cudaStream_t		stream = 0);

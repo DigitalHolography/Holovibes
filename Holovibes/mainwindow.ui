@@ -66,7 +66,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
       <property name="spacing">
        <number>1</number>
       </property>
@@ -128,7 +128,7 @@
               <string/>
              </property>
              <property name="text">
-              <string>Direct</string>
+              <string>Raw</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -229,7 +229,7 @@
               <enum>Qt::LeftToRight</enum>
              </property>
              <property name="text">
-              <string>STFT steps</string>
+              <string>Time stride</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -326,7 +326,7 @@
             <number>6</number>
            </property>
            <item row="3" column="0">
-            <widget class="QLabel" name="nSizeLabel">
+            <widget class="QLabel" name="timeFilterSizeLabel">
              <property name="text">
               <string># img</string>
              </property>
@@ -478,7 +478,7 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QSpinBox" name="nSizeSpinBox">
+            <widget class="QSpinBox" name="timeFilterSizeSpinBox">
              <property name="minimum">
               <number>1</number>
              </property>
@@ -535,7 +535,7 @@
              </item>
              <item>
               <property name="text">
-               <string>SVD</string>
+               <string>PCA</string>
               </property>
              </item>
             </widget>
@@ -606,6 +606,298 @@
          <bool>false</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
+         <item row="12" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="DisplayReticleCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Display reticle</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0">
+           <property name="horizontalSpacing">
+            <number>6</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>1</number>
+           </property>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="YAccuCheckBox">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QSpinBox" name="XAccSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>90</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QSpinBox" name="PAccSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>90</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777206</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="XAccuCheckBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QSpinBox" name="YAccSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>90</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_20">
+             <property name="text">
+              <string>p Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="PAccuCheckBox">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>x Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_19">
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>y Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="15" column="0" colspan="2">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="ImgTypeLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Img. type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ViewModeComboBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Squared magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Argument</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Phase increase</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Composite image</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QComboBox" name="WindowSelectionComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="currentText">
+            <string>XY view</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>XY view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>XZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>YZ view</string>
+            </property>
+           </item>
+          </widget>
+         </item>
          <item row="9" column="0" colspan="2">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
@@ -879,7 +1171,7 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>Refresh</string>
+                    <string>Apply</string>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -896,117 +1188,23 @@
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="QCheckBox" name="InvertContrastCheckBox">
+                   <property name="text">
+                    <string>Invert</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>I</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
-               </item>
-               <item row="5" column="1">
-                <widget class="QCheckBox" name="InvertContrastCheckBox">
-                 <property name="text">
-                  <string>Invert</string>
-                 </property>
-                 <property name="shortcut">
-                  <string>I</string>
-                 </property>
-                </widget>
                </item>
               </layout>
              </widget>
             </item>
            </layout>
           </widget>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QComboBox" name="WindowSelectionComboBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="currentText">
-            <string>XY view</string>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>XY view</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>XZ view</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>YZ view</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QCheckBox" name="RenormalizeCheckBox">
-             <property name="text">
-              <string>Renormalize</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="RenormalizeSpinBox">
-             <property name="value">
-              <number>15</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="11" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QCheckBox" name="DisplayReticleCheckBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Display reticle</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="ReticleScaleDoubleSpinBox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.050000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.500000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </item>
          <item row="3" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
@@ -1050,7 +1248,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QCheckBox" name="STFTCutsCheckBox">
+            <widget class="QCheckBox" name="TimeFilterCutsCheckBox">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -1058,7 +1256,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>STFT cuts</string>
+              <string>STFT/PCA cuts</string>
              </property>
             </widget>
            </item>
@@ -1074,221 +1272,75 @@
            </item>
           </layout>
          </item>
-         <item row="0" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
-           </property>
+         <item row="11" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QLabel" name="ImgTypeLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+            <widget class="QCheckBox" name="RenormalizeCheckBox">
              <property name="text">
-              <string>Img. type:</string>
+              <string>Renormalize</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="ViewModeComboBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>Magnitude</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Squared magnitude</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Argument</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Phase increase</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Composite image</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0">
-           <property name="horizontalSpacing">
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing">
-            <number>1</number>
-           </property>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="YAccuCheckBox">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QSpinBox" name="XAccSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>90</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
+            <widget class="QSpinBox" name="RenormalizeSpinBox">
              <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QSpinBox" name="PAccSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>90</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777206</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>999999999</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="XAccuCheckBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QSpinBox" name="YAccSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>90</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string>p Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QCheckBox" name="PAccuCheckBox">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>x Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_19">
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>y Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <number>15</number>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         <item row="12" column="0" colspan="2">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
+         <item row="10" column="0" colspan="2">
+          <widget class="QGroupBox" name="ConvoCheckBox">
+           <property name="title">
+            <string>Convolution</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
-          </spacer>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="kernelSelectLayout">
+              <item>
+               <widget class="QLabel" name="KernelQuickSelectLabel">
+                <property name="text">
+                 <string>Kernel</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="KernelQuickSelectComboBox">
+                <property name="currentText">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide by convolved image</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -2180,200 +2232,6 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="PostProcessingGroupBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>185</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>185</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>185</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
-        <property name="title">
-         <string>Post-processing</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>9</number>
-         </property>
-         <property name="topMargin">
-          <number>9</number>
-         </property>
-         <property name="rightMargin">
-          <number>9</number>
-         </property>
-         <property name="bottomMargin">
-          <number>9</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="ConvoCheckBox">
-           <property name="title">
-            <string>Convolution</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_8">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="kernelSelectLayout">
-              <item>
-               <widget class="QLabel" name="KernelQuickSelectLabel">
-                <property name="text">
-                 <string>Kernel select</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="KernelQuickSelectComboBox">
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="DivideConvoCheckBox">
-              <property name="text">
-               <string>Divide by convolved image</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="AverageGroupBox">
-           <property name="title">
-            <string>Average signal</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_19">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_11">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="AverageSignalPushButton">
-                <property name="text">
-                 <string>Signal</string>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-                <property name="default">
-                 <bool>false</bool>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="AverageNoisePushButton">
-                <property name="text">
-                 <string>Noise</string>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -2548,11 +2406,17 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="RoiOutputGroupBox">
+          <widget class="QGroupBox" name="ChartGroupBox">
            <property name="title">
-            <string>Average signal output: </string>
+            <string>Chart</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -2566,15 +2430,33 @@
              <number>2</number>
             </property>
             <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="ChartSignalPushButton">
+                <property name="text">
+                 <string>Signal</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ChartNoisePushButton">
+                <property name="text">
+                 <string>Noise</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_18">
               <property name="spacing">
                <number>0</number>
               </property>
               <item>
                <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIOutputPathLineEdit">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
                 <property name="inputMask">
                  <string/>
                 </property>
@@ -2582,15 +2464,12 @@
                  <string/>
                 </property>
                 <property name="placeholderText">
-                 <string>Select file</string>
+                 <string>Chart output</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QToolButton" name="ROIOutputToolButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -2602,9 +2481,6 @@
              <layout class="QHBoxLayout" name="horizontalLayout_19">
               <item>
                <widget class="QPushButton" name="ROIOutputRecPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
                 <property name="text">
                  <string>Rec.</string>
                 </property>
@@ -2612,9 +2488,6 @@
               </item>
               <item>
                <widget class="QPushButton" name="ROIOutputBatchPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
                 <property name="text">
                  <string>Batch</string>
                 </property>
@@ -2622,9 +2495,6 @@
               </item>
               <item>
                <widget class="QPushButton" name="ROIOutputStopPushButton">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
                 <property name="text">
                  <string>Stop</string>
                 </property>
@@ -2638,7 +2508,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
-            <string>Batch input:</string>
+            <string>Batch file input:</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <property name="spacing">
@@ -3139,7 +3009,6 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
-    <addaction name="actionSpecial"/>
     <addaction name="actionExport"/>
     <addaction name="actionImport"/>
     <addaction name="actionInfo"/>
@@ -3250,20 +3119,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Alt+V</string>
-   </property>
-  </action>
-  <action name="actionSpecial">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Post-processing</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+P</string>
    </property>
   </action>
   <action name="actionExport">
@@ -3399,14 +3254,14 @@ p, li { white-space: pre-wrap; }
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
   <tabstop>AlgorithmComboBox</tabstop>
-  <tabstop>nSizeSpinBox</tabstop>
+  <tabstop>timeFilterSizeSpinBox</tabstop>
   <tabstop>PSpinBox</tabstop>
   <tabstop>WaveLengthDoubleSpinBox</tabstop>
   <tabstop>ZDoubleSpinBox</tabstop>
   <tabstop>ZStepDoubleSpinBox</tabstop>
   <tabstop>BoundaryLineEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
-  <tabstop>STFTCutsCheckBox</tabstop>
+  <tabstop>TimeFilterCutsCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
@@ -3419,8 +3274,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
-  <tabstop>AverageSignalPushButton</tabstop>
-  <tabstop>AverageNoisePushButton</tabstop>
+  <tabstop>ChartSignalPushButton</tabstop>
+  <tabstop>ChartNoisePushButton</tabstop>
   <tabstop>NumberOfFramesSpinBox</tabstop>
   <tabstop>ImageOutputPathLineEdit</tabstop>
   <tabstop>ImageOutputBrowseToolButton</tabstop>
@@ -3635,22 +3490,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionSpecial</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionExport</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -3811,22 +3650,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionSpecial</sender>
-   <signal>changed()</signal>
-   <receiver>PostProcessingGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>794</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -3942,7 +3765,7 @@ p, li { white-space: pre-wrap; }
    <sender>ROIOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>average_record()</slot>
+   <slot>chart_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
@@ -4179,7 +4002,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AverageSignalPushButton</sender>
+   <sender>ChartSignalPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>activeSignalZone()</slot>
@@ -4195,7 +4018,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AverageNoisePushButton</sender>
+   <sender>ChartNoisePushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>activeNoiseZone()</slot>
@@ -4211,10 +4034,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>nSizeSpinBox</sender>
+   <sender>timeFilterSizeSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPhase()</slot>
+   <slot>set_time_filter_size()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4371,10 +4194,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTCutsCheckBox</sender>
+   <sender>TimeFilterCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>stft_view(bool)</slot>
+   <slot>toggle_time_filter_cuts(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -4563,10 +4386,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AverageGroupBox</sender>
+   <sender>ChartGroupBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_average_mode(bool)</slot>
+   <slot>set_chart_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>791</x>
@@ -4902,7 +4725,7 @@ p, li { white-space: pre-wrap; }
    <sender>STFTStepsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_stft_steps()</slot>
+   <slot>update_time_filter_stride()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5317,7 +5140,6 @@ p, li { white-space: pre-wrap; }
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
-  <slot>set_phase_number(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
@@ -5344,12 +5166,12 @@ p, li { white-space: pre-wrap; }
   <slot>documentation()</slot>
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
-  <slot>set_average_mode(bool)</slot>
-  <slot>disable_average_mode()</slot>
+  <slot>set_chart_mode(bool)</slot>
+  <slot>disable_chart_mode()</slot>
   <slot>configure_holovibes()</slot>
   <slot>browse_roi_output_file()</slot>
-  <slot>average_record()</slot>
-  <slot>cancel_average_record()</slot>
+  <slot>chart_record()</slot>
+  <slot>cancel_chart_record()</slot>
   <slot>browse_batch_input()</slot>
   <slot>batch_record()</slot>
   <slot>csv_batch_record()</slot>
@@ -5391,7 +5213,7 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_filter2D()</slot>
   <slot>write_ini()</slot>
   <slot>update_batch_size()</slot>
-  <slot>update_stft_steps()</slot>
+  <slot>update_time_filter_stride()</slot>
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
   <slot>stft_signal_trig(bool)</slot>
@@ -5399,7 +5221,7 @@ p, li { white-space: pre-wrap; }
   <slot>flipTexture()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
-  <slot>setPhase()</slot>
+  <slot>set_time_filter_size()</slot>
   <slot>set_p_accu()</slot>
   <slot>browse_trigger_config_file()</slot>
   <slot>set_integer_visible(bool)</slot>

@@ -26,7 +26,7 @@ using holovibes::cuda_tools::CufftHandle;
 namespace holovibes
 {
 	class ComputeDescriptor;
-	struct CoreBuffers;
+	struct CoreBuffersEnv;
 
 	namespace compute
 	{
@@ -34,20 +34,20 @@ namespace holovibes
 		{
 		public:
 			/** \brief Constructor.
-			
+
 			*/
-			Postprocessing(FunctionVector& fn_vect,
-				CoreBuffers& buffers,
+			Postprocessing(FunctionVector& fn_compute_vect,
+				CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
 			/** \brief Allocates convolution buffers.
-			
+
 			*/
 			void allocate_buffers();
 
 			/** \brief Insert the Convolution function. TODO: Check if it works.
-			
+
 			*/
 			void insert_convolution();
 
@@ -57,7 +57,7 @@ namespace holovibes
 			void insert_renormalize();
 
 		private:
- 
+
 			//! used only when the image is composite convolution to do a convolution on each component
 			void convolution_composite();
 
@@ -66,10 +66,10 @@ namespace holovibes
 			cuda_tools::UniquePtr<float>        hsv_arr_;
 
 			// Vector function in which we insert the processing
-			FunctionVector&				fn_vect_;
+			FunctionVector&				fn_compute_vect_;
 
 			//! Main buffers
-			CoreBuffers&				buffers_;
+			CoreBuffersEnv&				buffers_;
 
 			// Describes the frame size
 			const camera::FrameDescriptor&	fd_;

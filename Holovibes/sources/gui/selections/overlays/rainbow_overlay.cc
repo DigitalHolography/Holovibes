@@ -116,7 +116,7 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 
-			
+
 			int red;
 			int blue;
 			if (cd->composite_kind == CompositeKind::RGB)
@@ -217,7 +217,7 @@ namespace holovibes
 
 		int RainbowOverlay::check_interval(int x)
 		{
-			const int max = parent_->getCd()->nSize - 1;
+			const int max = parent_->getCd()->time_filter_size - 1;
 			return std::min(max, std::max(x, 0));
 		}
 	}

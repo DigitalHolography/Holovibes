@@ -35,7 +35,7 @@ namespace holovibes
 		enum KindOfOverlay
 		{
 			Zoom,
-			// Average
+			// Chart
 			Signal,
 			Noise,
 			// Cross

@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Widget wrapping for a QtChart. Used to display average/ROI computations. */
+ * Widget wrapping for a QtChart. Used to display Chart/ROI computations. */
 #pragma once
 
 #include <memory>
@@ -35,7 +35,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief Widget wrapping for a QtChart. Used to display average/ROI computations. */
+		/*! \brief Widget wrapping for a QtChart. Used to display Chart/ROI computations. */
 		class CurvePlot : public QWidget
 		{
 			Q_OBJECT
@@ -43,7 +43,7 @@ namespace holovibes
 		public:
 			/*! \brief CurvePlot constructor
 			**
-			** \param data_vect ConcurrentDeque containing average values to be display
+			** \param data_vect ConcurrentDeque containing chart values to be display
 			** \param title title of the plot
 			** \param width width of the plot in pixels
 			** \param height height of the plot in pixels
@@ -130,7 +130,7 @@ namespace holovibes
 			/*! QtWidget used to display the chart on a window */
 			QChartView *chart_view;
 
-			/*! Reference to Deque containing average/ROI data */
+			/*! Reference to Deque containing Chart/ROI data */
 			ConcurrentDeque<Tuple4f>& data_vect_;
 			/*! Number of points to draw */
 			unsigned int points_nb_;
@@ -139,7 +139,7 @@ namespace holovibes
 			/*! Ptr to function (curve_get_X) who get value of curve in tuple */
 			float(*curve_get_)(const Tuple4f&);
 			/*! Local copy of data_vect data */
-			std::vector<Tuple4f> average_vector_;
+			std::vector<Tuple4f> chart_vector_;
 
 			/*! Numbers of new points to wait before running auto scale */
 			size_t auto_scale_point_threshold_;

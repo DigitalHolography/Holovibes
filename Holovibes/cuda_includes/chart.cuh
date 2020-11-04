@@ -14,34 +14,18 @@
 
 # include "Common.cuh"
 
-/*! \brief  Make the average plot on the 2 selected zones
+/*! \brief  Make the chart plot on the 2 selected zones
 *
 * \param width The width of the input image.
 * \param height The height of the input image.
 * \param signal Coordinates of the signal zone to use.
 * \param noise Coordinates of the noise zone to use.
-* \return A tuple of 3 floats <sum of signal zones pixels,
-*			sum of noise zone pixels, average>.
+* \return A tuple of 4 floats <sum of signal zones pixels,
+*			sum of noise zone pixels, average, log>.
 */
-holovibes::Tuple4f make_average_plot(float*			input,
+holovibes::Tuple4f make_chart_plot(float*			input,
 						const uint			width,
 						const uint			height,
 						const holovibes::units::RectFd&	signal,
 						const holovibes::units::RectFd&	noise,
 						cudaStream_t		stream = 0);
-
-/*! \brief  Make the average plot on the 2 select zones
-* but first it will call the reconstruct roi after having
-* splitted the image for the stft.
-*/
-holovibes::Tuple4f make_average_stft_plot(float*			fbuf,
-							cuComplex*		input,
-							const uint		width,
-							const uint		height,
-							const uint		width_roi,
-							const uint		height_roi,
-							const holovibes::units::RectFd&	signal,
-							const holovibes::units::RectFd&	noise,
-							const uint		pindex,
-							const uint		nSize,
-							cudaStream_t	stream = 0);

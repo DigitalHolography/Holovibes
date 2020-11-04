@@ -12,7 +12,7 @@
 
 #include "Overlay.hh"
 #include "BasicOpenGLWindow.hh"
-#include "DirectWindow.hh"
+#include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "logger.hh"
 

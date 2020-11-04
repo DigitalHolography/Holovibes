@@ -43,18 +43,18 @@ namespace holovibes
 		ComputeDescriptor& desc)
 		: ICompute(input, output, desc)
 	{
-		ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.stft_steps; };
+		ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_filter_stride; };
 
-		fn_vect_ = FunctionVector(batch_condition);
-		functions_end_pipe_ = FunctionVector(batch_condition);
+		fn_compute_vect_ = FunctionVector(batch_condition);
+		fn_end_vect_ = FunctionVector(batch_condition);
 
-		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, stft_env_);
-		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, image_acc_env_, stft_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, batch_env_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
-		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
+		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, stft_env_);
+		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, stft_env_, desc, input.get_fd(), output.get_fd(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
+		postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc);
 
-		update_n_requested_ = true;
+		update_time_filter_size_requested_ = true;
 
 		try
 		{
@@ -98,33 +98,33 @@ namespace holovibes
 		postprocess_->allocate_buffers();
 
 		// Updating number of images
-		if (update_n_requested_)
+		if (update_time_filter_size_requested_)
 		{
-			if (!update_n_parameter(cd_.nSize))
+			if (!update_time_filter_size(cd_.time_filter_size))
 			{
 				success_allocation = false;
 				cd_.pindex = 0;
-				cd_.nSize = 1;
-				update_n_parameter(1);
+				cd_.time_filter_size = 1;
+				update_time_filter_size(1);
 				LOG_WARN("Updating #img failed, #img updated to 1");
 			}
-			update_n_requested_ = false;
+			update_time_filter_size_requested_ = false;
 		}
 
 		const auto& input_fd = input_.get_fd();
 
-		if (request_update_stft_steps_)
+		if (request_update_time_filter_stride_)
 		{
 			batch_env_.batch_index = 0;
 
-			request_update_stft_steps_ = false;
+			request_update_time_filter_stride_ = false;
 		}
 
 		if (request_update_batch_size_)
 		{
 			batch_env_.batch_index = 0;
 			// We avoid the depth in the multiplication because the resize already take it into account
-			buffers_.gpu_input_buffer_.resize(cd_.batch_size * input_fd.frame_res());
+			buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_fd.frame_res());
 
 			long long int n[] = {input_fd.height, input_fd.width};
 
@@ -165,13 +165,13 @@ namespace holovibes
 
 	void Pipe::refresh()
 	{
-		fn_vect_.clear();
+		fn_compute_vect_.clear();
 
-		if (cd_.compute_mode == Computation::Direct)
+		if (cd_.compute_mode == Computation::Raw)
 		{
-			update_n_requested_ = false;
+			update_time_filter_size_requested_ = false;
 			refresh_requested_ = false;
-			insert_direct_enqueue_output();
+			insert_raw_enqueue_output();
 			return;
 		}
 
@@ -195,7 +195,7 @@ namespace holovibes
 		// spatial transform
 		fourier_transforms_->insert_fft();
 
-		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to stft_step)
+		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to time_filter_stride)
 		insert_transfer_for_time_filter();
 
 		// time transform
@@ -203,12 +203,12 @@ namespace holovibes
 		{
 			fourier_transforms_->insert_stft();
 		}
-		else if (cd_.time_filter == TimeFilter::SVD)
+		else if (cd_.time_filter == TimeFilter::PCA)
 		{
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
-		fourier_transforms_->insert_stft_cuts_view();
+		fourier_transforms_->insert_time_filter_cuts_view();
 
 		// Used for phase increase
 		fourier_transforms_->insert_store_p_frame();
@@ -221,14 +221,14 @@ namespace holovibes
 		image_accumulation_->insert_image_accumulation();
 
 		rendering_->insert_fft_shift();
-		if (average_requested_)
-			rendering_->insert_average(average_record_requested_);
+		if (chart_requested_)
+			rendering_->insert_chart(chart_record_requested_);
 		rendering_->insert_log();
 
 		insert_request_autocontrast();
 		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 
-		fn_vect_.conditional_push_back([=]() { fps_count(); });
+		fn_compute_vect_.conditional_push_back([=]() { fps_count(); });
 
 		converts_->insert_to_ushort();
 
@@ -241,15 +241,15 @@ namespace holovibes
 
 	void Pipe::insert_reset_batch_index()
 	{
-		fn_vect_.push_back([&](){
-			if (batch_env_.batch_index == cd_.stft_steps)
+		fn_compute_vect_.push_back([&](){
+			if (batch_env_.batch_index == cd_.time_filter_stride)
 				batch_env_.batch_index = 0;
 		});
 	}
 
 	void Pipe::insert_raw_view_enqueue()
 	{
-		fn_vect_.push_back([&](){
+		fn_compute_vect_.push_back([&](){
 			if (cd_.raw_view || cd_.record_raw)
 				input_.copy_multiple(*get_raw_queue(), cd_.batch_size);
 		});
@@ -257,24 +257,24 @@ namespace holovibes
 
 	void Pipe::insert_transfer_for_time_filter()
 	{
-		fn_vect_.push_back([&](){
-			stft_env_.gpu_stft_queue_->enqueue_multiple(buffers_.gpu_input_buffer_.get(), cd_.batch_size);
+		fn_compute_vect_.push_back([&](){
+			stft_env_.gpu_time_filter_queue->enqueue_multiple(buffers_.gpu_spatial_filter_buffer.get(), cd_.batch_size);
 			batch_env_.batch_index += cd_.batch_size;
-			assert(batch_env_.batch_index <= cd_.stft_steps);
+			assert(batch_env_.batch_index <= cd_.time_filter_stride);
 		});
 	}
 
 	void Pipe::insert_wait_frames()
 	{
-		fn_vect_.push_back([&](){
+		fn_compute_vect_.push_back([&](){
 			// Wait while the input queue is enough filled
 			while (input_.get_size() < cd_.batch_size);
 		});
 	}
 
-	void Pipe::insert_direct_enqueue_output()
+	void Pipe::insert_raw_enqueue_output()
 	{
-		fn_vect_.push_back([&]()
+		fn_compute_vect_.push_back([&]()
 		{
 			if (!output_.enqueue(input_.get_start()))
 				throw CustomException("Can't enqueue the input frame in output_queue", error_kind::fail_enqueue);
@@ -284,15 +284,15 @@ namespace holovibes
 
 	void Pipe::insert_hologram_enqueue_output()
 	{
-		fn_vect_.conditional_push_back([&](){
-			if (!output_.enqueue(buffers_.gpu_output_buffer_))
+		fn_compute_vect_.conditional_push_back([&](){
+			if (!output_.enqueue(buffers_.gpu_output_frame))
 				throw CustomException("Can't enqueue the output frame in output_queue", error_kind::fail_enqueue);
 
-			if (cd_.stft_view_enabled)
+			if (cd_.time_filter_cuts_enabled)
 			{
-				if (!stft_env_.gpu_stft_slice_queue_xz->enqueue(buffers_.gpu_ushort_cut_xz_.get()))
+				if (!stft_env_.gpu_output_queue_xz->enqueue(buffers_.gpu_output_frame_xz.get()))
 					throw CustomException("Can't enqueue the output xz frame in output xz queue", error_kind::fail_enqueue);
-				if (!stft_env_.gpu_stft_slice_queue_yz->enqueue(buffers_.gpu_ushort_cut_yz_.get()))
+				if (!stft_env_.gpu_output_queue_yz->enqueue(buffers_.gpu_output_frame_yz.get()))
 					throw CustomException("Can't enqueue the output yz frame in output yz queue", error_kind::fail_enqueue);
 			}
 		});
@@ -338,26 +338,26 @@ namespace holovibes
 		return fourier_transforms_.get();
 	}
 
-	void Pipe::run_end_pipe(std::function<void()> function)
+	void Pipe::insert_fn_end_vect(std::function<void()> function)
 	{
-		std::lock_guard<std::mutex> lock(functions_mutex_);
-		functions_end_pipe_.push_back(function);
+		std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
+		fn_end_vect_.push_back(function);
 	}
 
 	void Pipe::autocontrast_end_pipe(WindowKind kind)
 	{
-		run_end_pipe([this, kind]() {request_autocontrast(kind); });
+		insert_fn_end_vect([this, kind]() {request_autocontrast(kind); });
 	}
 
 	void Pipe::run_all()
 	{
-		for (FnType& f : fn_vect_)
+		for (FnType& f : fn_compute_vect_)
 			f();
 		{
-			std::lock_guard<std::mutex> lock(functions_mutex_);
-			for (FnType& f : functions_end_pipe_)
+			std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
+			for (FnType& f : fn_end_vect_)
 				f();
-			functions_end_pipe_.clear();
+			fn_end_vect_.clear();
 		}
 	}
 }

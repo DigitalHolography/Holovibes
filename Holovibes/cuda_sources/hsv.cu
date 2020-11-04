@@ -116,20 +116,20 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 
 void fill_frequencies_arrays(const holovibes::ComputeDescriptor &cd, float *gpu_omega_arr, size_t frame_res)
 {
-	const int nSize = cd.nSize;
+	const int time_filter_size = cd.time_filter_size;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	double step = SAMPLING_FREQUENCY / (double)nSize;
-	size_t after_mid_index = nSize / (double)2.0 + (double)1.0;
+	double step = SAMPLING_FREQUENCY / (double)time_filter_size;
+	size_t after_mid_index = time_filter_size / (double)2.0 + (double)1.0;
 
 	kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, gpu_omega_arr);
 	double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
-	negative_origin += nSize % 2 ? step / (double)2.0 : step;
+	negative_origin += time_filter_size % 2 ? step / (double)2.0 : step;
 
-	kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, nSize, step,
+	kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, time_filter_size, step,
 		negative_origin, gpu_omega_arr);
-	kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (nSize, gpu_omega_arr);
+	kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (time_filter_size, gpu_omega_arr);
 }
 
 
@@ -327,7 +327,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	float *gpu_convolution_matrix;
 	cudaXMalloc((void**)&gpu_convolution_matrix, frame_res * sizeof(float));
 	cudaXMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
-	
+
 	float *blur_matrix = new float[cd.h_blur_kernel_size];
 	float blur_value = 1.0f / (float)(cd.h_blur_kernel_size * cd.h_blur_kernel_size);
 	unsigned min_pos_kernel = height / 2 - cd.h_blur_kernel_size / 2;
@@ -413,27 +413,27 @@ void hsv(const cuComplex *gpu_input,
 	const uint height,
 	const holovibes::ComputeDescriptor& cd)
 {
-	const int nsize = cd.nSize;
+	const int time_filter_size = cd.time_filter_size;
 	const uint frame_res = height * width;
 
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	float *gpu_omega_arr = nullptr;
-	cudaXMalloc((void**)&gpu_omega_arr, sizeof(float) * nsize * 2); // w1[] && w2[]
+	cudaXMalloc((void**)&gpu_omega_arr, sizeof(float) * time_filter_size * 2); // w1[] && w2[]
 
 	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res);
 
 	float *tmp_hsv_arr;
 	cudaXMalloc((void**)&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
 
-	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, nsize);
-	
+	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, time_filter_size);
+
 
 	kernel_from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 	cudaCheckError();
 
-	
+
 	apply_operations_on_h(cd, tmp_hsv_arr, height, width);
 	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);

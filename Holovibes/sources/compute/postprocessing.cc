@@ -28,14 +28,14 @@ namespace holovibes
 {
 	namespace compute
 	{
-		Postprocessing::Postprocessing(FunctionVector& fn_vect,
-			CoreBuffers& buffers,
+		Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
+			CoreBuffersEnv& buffers,
 			const camera::FrameDescriptor& input_fd,
 			ComputeDescriptor& cd)
 			: gpu_kernel_buffer_()
 			, cuComplex_buffer_()
 			, hsv_arr_()
-			, fn_vect_(fn_vect)
+			, fn_compute_vect_(fn_compute_vect)
 			, buffers_(buffers)
 			, fd_(input_fd)
 			, cd_(cd)
@@ -55,7 +55,7 @@ namespace holovibes
 					size_t frame_res = width * height;
 
 					//No need for memset here since it will be completely overwritten by cuComplex values
-					buffers_.gpu_convolution_buffer_.resize(frame_res);
+					buffers_.gpu_convolution_buffer.resize(frame_res);
 
 					//No need for memset here since it will be memset in the actual convolution
 					cuComplex_buffer_.resize(frame_res);
@@ -77,7 +77,7 @@ namespace holovibes
 				}
 				else
 				{
-					buffers_.gpu_convolution_buffer_.reset();
+					buffers_.gpu_convolution_buffer.reset();
 					cuComplex_buffer_.reset();
 					gpu_kernel_buffer_.reset();
 					hsv_arr_.reset();
@@ -92,12 +92,12 @@ namespace holovibes
 			auto height = fd_.height;
 			auto frame_res = width * height;
 
-			from_interweaved_components_to_distinct_components(buffers_.gpu_float_buffer_,
+			from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
 															   hsv_arr_.get(),
 															   frame_res);
 
 			convolution_kernel(hsv_arr_.get(),
-							   buffers_.gpu_convolution_buffer_.get(),
+							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
@@ -107,7 +107,7 @@ namespace holovibes
 							   true);
 
 			convolution_kernel(hsv_arr_.get() + frame_res,
-							   buffers_.gpu_convolution_buffer_.get(),
+							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
@@ -117,7 +117,7 @@ namespace holovibes
 							   true);
 
 			convolution_kernel(hsv_arr_.get() + (frame_res * 2),
-							   buffers_.gpu_convolution_buffer_.get(),
+							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
 							   &plan_,
 							   width,
@@ -127,7 +127,7 @@ namespace holovibes
 							   true);
 
 			from_distinct_components_to_interweaved_components(hsv_arr_.get(),
-															   buffers_.gpu_float_buffer_,
+															   buffers_.gpu_postprocess_frame,
 															   frame_res);
 
 		}
@@ -139,10 +139,10 @@ namespace holovibes
 
 			if (cd_.img_type != ImgType::Composite)
 			{
-				fn_vect_.conditional_push_back([=]() {
+				fn_compute_vect_.conditional_push_back([=]() {
 					convolution_kernel(
-						buffers_.gpu_float_buffer_.get(),
-						buffers_.gpu_convolution_buffer_.get(),
+						buffers_.gpu_postprocess_frame.get(),
+						buffers_.gpu_convolution_buffer.get(),
 						cuComplex_buffer_.get(),
 						&plan_,
 						fd_.width,
@@ -154,7 +154,7 @@ namespace holovibes
 			}
 			else
 			{
-				fn_vect_.conditional_push_back([=]() {
+				fn_compute_vect_.conditional_push_back([=]() {
 					convolution_composite();
 				});
 			}
@@ -165,9 +165,9 @@ namespace holovibes
 			if (!cd_.renorm_enabled)
 				return;
 
-			fn_vect_.conditional_push_back([=]() {
+			fn_compute_vect_.conditional_push_back([=]() {
 				cuda_tools::NppiData nppi_data(fd_.width, fd_.height, cd_.img_type == ImgType::Composite ? 3 : 1);
-				cuda_tools::nppi_normalize(buffers_.gpu_float_buffer_.get(), nppi_data, cd_.renorm_constant);
+				cuda_tools::nppi_normalize(buffers_.gpu_postprocess_frame.get(), nppi_data, cd_.renorm_constant);
 			});
 		}
 	}

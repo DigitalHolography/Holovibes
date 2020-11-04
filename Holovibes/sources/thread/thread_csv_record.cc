@@ -54,7 +54,7 @@ namespace holovibes
 			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 			connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
 			progress_bar->setMaximum(nb_frames_);
-			holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
+			holo_.get_pipe()->request_chart_record(&deque_, nb_frames_);
 
 			// Temporary hack
 			// The changes made here avoid lag during the recording
@@ -70,7 +70,7 @@ namespace holovibes
 			std::ofstream of(path_);
 
 			// Header displaying
-			of << "[Phase number : " << holo_.get_cd().nSize
+			of << "[#img : " << holo_.get_cd().time_filter_size
 				<< ", p : " << holo_.get_cd().pindex
 				<< ", lambda : " << holo_.get_cd().lambda
 				<< ", z : " << holo_.get_cd().zdistance
@@ -90,7 +90,7 @@ namespace holovibes
 				++i;
 			}
 
-			holo_.get_pipe()->request_average_stop();
+			holo_.get_pipe()->request_chart_stop();
 		}
 	}
 }

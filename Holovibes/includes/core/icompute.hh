@@ -38,33 +38,30 @@ namespace holovibes
 namespace holovibes
 {
 	/*! \brief Struct containing main buffers used by the pipe. */
-	struct CoreBuffers
+	struct CoreBuffersEnv
 	{
 		/** Input buffer. Contains only one frame. We fill it with the input frame*/
-		cuda_tools::UniquePtr<cufftComplex>		gpu_input_buffer_ = nullptr;
+		cuda_tools::UniquePtr<cufftComplex>		gpu_spatial_filter_buffer = nullptr;
 
 		/** Float buffer. Contains only one frame. We fill it with the correct computed p frame converted to float. */
-		cuda_tools::UniquePtr<float>			gpu_float_buffer_ = nullptr;
-		/** Size in components (size in byte / sizeof(float)) of the gpu_float_buffer_.
-		 Could be removed by changing gpu_float_buffer_ type to cuda_tools::Array. */
-		unsigned int							gpu_float_buffer_size_ = 0;
+		cuda_tools::UniquePtr<float>			gpu_postprocess_frame = nullptr;
+		/** Size in components (size in byte / sizeof(float)) of the gpu_postprocess_frame.
+		 Could be removed by changing gpu_postprocess_frame type to cuda_tools::Array. */
+		unsigned int							gpu_postprocess_frame_size = 0;
 		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame. */
-		cuda_tools::UniquePtr<float>				gpu_float_cut_xz_ = nullptr;
+		cuda_tools::UniquePtr<float>				gpu_postprocess_frame_xz = nullptr;
 		/** Float YZ buffer. Contains only one frame. We fill it with the correct computed p YZ frame. */
-		cuda_tools::UniquePtr<float>				gpu_float_cut_yz_ = nullptr;
+		cuda_tools::UniquePtr<float>				gpu_postprocess_frame_yz = nullptr;
 
 		/** Unsigned Short output buffer. Contains only one frame, inserted after all postprocessing on float_buffer */
-		cuda_tools::UniquePtr<unsigned short>	gpu_output_buffer_ = nullptr;
+		cuda_tools::UniquePtr<unsigned short>	gpu_output_frame = nullptr;
 		/** Unsigned Short XZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_xz */
-		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_xz_ = nullptr;
+		cuda_tools::UniquePtr<unsigned short>	gpu_output_frame_xz = nullptr;
 		/** Unsigned Short YZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_yz */
-		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_yz_ = nullptr;
-
-		/***/
-		cuda_tools::UniquePtr<void>				gpu_complex_buffer_xy_ = nullptr;
+		cuda_tools::UniquePtr<unsigned short>	gpu_output_frame_yz = nullptr;
 
 		/**contain only one frame used only for convolution*/
-		cuda_tools::UniquePtr<float>			gpu_convolution_buffer_ = nullptr;
+		cuda_tools::UniquePtr<float>			gpu_convolution_buffer = nullptr;
 	};
 
 	/*! \brief Struct containing variables related to the batch in the pipe */
@@ -82,35 +79,35 @@ namespace holovibes
 	};
 
 	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */
-	struct Stft_env
+	struct TimeFilterEnv
 	{
-		/** STFT Queue. Constains nSize frames. It accumulates input frames after spatial fft,
-		 in order to apply STFT only when the frame counter is equal to STFT steps. */
-		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
-		/** STFT buffer. Contains nSize frames. Contains the result of the STFT done on the STFT queue. */
-		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
+		/** STFT Queue. Constains time_filter_size frames. It accumulates input frames after spatial fft,
+		 in order to apply STFT only when the frame counter is equal to time_filter_stride. */
+		std::unique_ptr<Queue>				gpu_time_filter_queue = nullptr;
+		/** STFT buffer. Contains time_filter_size frames. Contains the result of the STFT done on the STFT queue. */
+		cuda_tools::UniquePtr<cufftComplex>	gpu_p_acc_buffer = nullptr;
 		/** STFT XZ Queue. Contains the ouput of the STFT on slice XZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
-		std::unique_ptr<Queue>				gpu_stft_slice_queue_xz = nullptr;
+		std::unique_ptr<Queue>				gpu_output_queue_xz = nullptr;
 		/** STFT YZ Queue. Contains the ouput of the STFT on slice YZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
-		std::unique_ptr<Queue>				gpu_stft_slice_queue_yz = nullptr;
+		std::unique_ptr<Queue>				gpu_output_queue_yz = nullptr;
 		/** Plan 1D used for the STFT. */
-		cuda_tools::CufftHandle				plan1d_stft_;
+		cuda_tools::CufftHandle				plan1d_stft;
 
 		/** Hold the P frame after the time filter computation. **/
-		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame_;
+		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;
 
-		// The following are used for the SVD time filter
-		cuda_tools::UniquePtr<cuComplex> svd_cov = nullptr;
-		cuda_tools::UniquePtr<cuComplex> svd_tmp_buffer = nullptr;
-		cuda_tools::UniquePtr<float> svd_eigen_values = nullptr;
-		cuda_tools::UniquePtr<int> svd_dev_info = nullptr;
+		// The following are used for the PCA time filter
+		cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
+		cuda_tools::UniquePtr<cuComplex> pca_tmp_buffer = nullptr;
+		cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
+		cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
 	};
 
-	/** \brief Structure containing variables related to the average computation and recording. */
-	struct Average_env
+	/** \brief Structure containing variables related to the chart computation and recording. */
+	struct ChartEnv
 	{
-		ConcurrentDeque<Tuple4f>* average_output_ = nullptr;
-		unsigned int	average_n_ = 0;
+		ConcurrentDeque<Tuple4f>* chart_output_ = nullptr;
+		unsigned int	chart_n_ = 0;
 	};
 
 
@@ -154,16 +151,16 @@ namespace holovibes
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
-		void request_update_n(const unsigned short n);
+		void request_update_time_filter_size();
 		void request_update_unwrap_size(const unsigned size);
 		void request_unwrapping_1d(const bool value);
 		void request_unwrapping_2d(const bool value);
-		void request_average(ConcurrentDeque<Tuple4f>* output);
-		void request_average_stop();
-		void request_average_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
+		void request_chart(ConcurrentDeque<Tuple4f>* output);
+		void request_chart_stop();
+		void request_chart_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
 		void request_termination();
 		void request_update_batch_size();
-		void request_update_stft_steps();
+		void request_update_time_filter_stride();
 		void request_kill_raw_queue();
 		void request_disable_lens_view();
 
@@ -179,7 +176,7 @@ namespace holovibes
 		/*! \brief Execute one iteration of the ICompute.
 		*
 		* * Checks the number of frames in input queue that must at least
-		* nSize*.
+		* time_filter_size*.
 		* * Call each function of the ICompute.
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
@@ -197,21 +194,21 @@ namespace holovibes
 		bool			get_request_refresh();
 		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
-		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_; }
-		bool get_unwrap_2d_request()		const { return unwrap_2d_requested_; }
-		bool get_autocontrast_request()		const { return autocontrast_requested_; }
+		bool get_unwrap_1d_request()					const { return unwrap_1d_requested_; }
+		bool get_unwrap_2d_request()					const { return unwrap_2d_requested_; }
+		bool get_autocontrast_request()					const { return autocontrast_requested_; }
 		bool get_autocontrast_slice_xz_request()		const { return autocontrast_slice_xz_requested_; }
 		bool get_autocontrast_slice_yz_request()		const { return autocontrast_slice_yz_requested_; }
-		bool get_refresh_request()			const { return refresh_requested_; }
-		bool get_update_n_request()			const { return update_n_requested_; }
-		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
-		bool get_average_request()			const { return average_requested_; }
-		bool get_average_record_request()	const { return average_record_requested_; }
-		bool get_termination_request()		const { return termination_requested_; }
-		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
-		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
-		bool get_output_resize_request()           const { return output_resize_requested_; }
-		bool get_kill_raw_queue_requested() const { return kill_raw_queue_requested_;}
+		bool get_refresh_request()						const { return refresh_requested_; }
+		bool get_update_time_filter_size_request()		const { return update_time_filter_size_requested_; }
+		bool get_stft_update_roi_request()				const { return stft_update_roi_requested_; }
+		bool get_chart_request()						const { return chart_requested_; }
+		bool get_chart_record_request()					const { return chart_record_requested_; }
+		bool get_termination_request()					const { return termination_requested_; }
+		bool get_request_time_filter_cuts()				const { return request_time_filter_cuts_; }
+		bool get_request_delete_time_filter_cuts() 		const { return request_delete_time_filter_cuts_; }
+		bool get_output_resize_request()    			const { return output_resize_requested_; }
+		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 
@@ -221,7 +218,7 @@ namespace holovibes
 
 		virtual void refresh() = 0;
 		virtual void pipe_error(const int& err_count, std::exception& e);
-		virtual bool update_n_parameter(unsigned short n);
+		virtual bool update_time_filter_size(const unsigned short time_filter_size);
 
 		void make_cuts_requests();
 
@@ -243,16 +240,16 @@ namespace holovibes
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		/** Main buffers. */
-		CoreBuffers	buffers_;
+		CoreBuffersEnv	buffers_;
 
 		/** Batch environment */
 		BatchEnv batch_env_;
 
 		/** STFT environment. */
-		Stft_env stft_env_;
+		TimeFilterEnv stft_env_;
 
-		/** Average environment. */
-		Average_env	average_env_;
+		/** Chart environment. */
+		ChartEnv	chart_env_;
 
 		/** Image accumulation environment */
 		ImageAccEnv	image_acc_env_;
@@ -275,23 +272,23 @@ namespace holovibes
 		// Flags for requests
 		unsigned int requested_output_size_;
 
-		std::atomic<bool>	unwrap_1d_requested_{ false };
-		std::atomic<bool>	unwrap_2d_requested_{ false };
-		std::atomic<bool>	autocontrast_requested_{ false };
-		std::atomic<bool>	autocontrast_slice_xz_requested_{ false };
-		std::atomic<bool>	autocontrast_slice_yz_requested_{ false };
-		std::atomic<bool>	refresh_requested_{ false };
-		std::atomic<bool>	update_n_requested_{ false };
-		std::atomic<bool>	stft_update_roi_requested_{ false };
-		std::atomic<bool>	average_requested_{ false };
-		std::atomic<bool>	average_record_requested_{ false };
-		std::atomic<bool>   output_resize_requested_{ false };
-		std::atomic<bool>   kill_raw_queue_requested_{ false };
-		std::atomic<bool>	termination_requested_{ false };
-		std::atomic<bool>	request_stft_cuts_{ false };
-		std::atomic<bool>	request_delete_stft_cuts_{ false };
-		std::atomic<bool>   request_update_batch_size_{ false };
-		std::atomic<bool>   request_update_stft_steps_{ false };
-		std::atomic<bool>   request_disable_lens_view_{ false };
+		std::atomic<bool> unwrap_1d_requested_{ false };
+		std::atomic<bool> unwrap_2d_requested_{ false };
+		std::atomic<bool> autocontrast_requested_{ false };
+		std::atomic<bool> autocontrast_slice_xz_requested_{ false };
+		std::atomic<bool> autocontrast_slice_yz_requested_{ false };
+		std::atomic<bool> refresh_requested_{ false };
+		std::atomic<bool> update_time_filter_size_requested_{ false };
+		std::atomic<bool> stft_update_roi_requested_{ false };
+		std::atomic<bool> chart_requested_{ false };
+		std::atomic<bool> chart_record_requested_{ false };
+		std::atomic<bool> output_resize_requested_{ false };
+		std::atomic<bool> kill_raw_queue_requested_{ false };
+		std::atomic<bool> termination_requested_{ false };
+		std::atomic<bool> request_time_filter_cuts_{ false };
+		std::atomic<bool> request_delete_time_filter_cuts_{ false };
+		std::atomic<bool> request_update_batch_size_{ false };
+		std::atomic<bool> request_update_time_filter_stride_{ false };
+		std::atomic<bool> request_disable_lens_view_{ false };
 	};
 }

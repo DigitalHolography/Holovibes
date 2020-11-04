@@ -12,7 +12,7 @@
 
 /*! \file
 *
-* Overlay selecting the signal zone to average. */
+* Overlay selecting the signal zone to chart. */
 #pragma once
 
 #include "rect_overlay.hh"

@@ -34,7 +34,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief Thread class used to record images in direct or hologram mode.
+		/*! \brief Thread class used to record images in raw or hologram mode.
 		**
 		** It inherits QThread because it is the GUI that needs to launch the record and it has
 		** to know when it is finished (signals/slots system).

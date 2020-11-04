@@ -4,7 +4,7 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 
 ## Features
 
-- Hologram computation using the FFT1/FFT2/STFT/SVD algorithms
+- Hologram computation using the FFT1/FFT2/STFT/PCA algorithms
 - Graphical user interface (change parameters on the fly, keyboard shortcuts)
 - Support the following cameras:
     - IDS imaging CMOSIS CMV 4000 
@@ -20,7 +20,7 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 - Different view modes: *magnitude*, *squared magnitude*, *argument*, *unwrapped phase*
 - Batch savings (CSV)
 - Batch output as raw images, controlling instruments with GPIB interface
-- Real time average plot
+- Real time chart plot
 - Image stabilization
 - Image coloring
 - Image averaging in the three axis

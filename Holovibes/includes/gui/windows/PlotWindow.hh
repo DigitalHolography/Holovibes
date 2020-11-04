@@ -12,7 +12,7 @@
 
 /*! \file
  * 
- * Qt main window class containing a plot of computed average values  */
+ * Qt main window class containing a plot of computed chart values  */
 #pragma once
 
 # include "ui_plotwindow.h"
@@ -29,7 +29,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief Qt main window class containing a plot of computed average values. */
+		/*! \brief Qt main window class containing a plot of computed chart values. */
 		class PlotWindow : public QMainWindow
 		{
 			Q_OBJECT
@@ -42,7 +42,7 @@ namespace holovibes
 			**
 			** Create a PlotWindow and show it.
 			**
-			** \param data_vect ConcurrentDeque containing average values to be display
+			** \param data_vect ConcurrentDeque containing chart values to be display
 			** \param title title of the window
 			** \param parent Qt parent
 			*/
@@ -76,7 +76,7 @@ namespace holovibes
 			*/
 			void auto_scale();
 
-			/*! \brief Change number of points of average displayed.
+			/*! \brief Change number of points of chart displayed.
 			**
 			** \param n number of points to display
 			*/

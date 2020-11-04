@@ -62,7 +62,7 @@ namespace holovibes
 			chart_view->setRenderHint(QPainter::Antialiasing);
 			chart_view->move(0, TOP_OFFSET);
 
-			average_vector_.resize(points_nb_);
+			chart_vector_.resize(points_nb_);
 			connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 			timer_.start(TIMER_FREQ);
 		}
@@ -108,7 +108,7 @@ namespace holovibes
 		void CurvePlot::resize_plot(const int size)
 		{
 			points_nb_ = size;
-			average_vector_.resize(size);
+			chart_vector_.resize(size);
 			chart->axisX()->setMax(QVariant(points_nb_));
 		}
 
@@ -123,7 +123,7 @@ namespace holovibes
 
 			if (!data_vect_.empty())
 			{
-				size_t copied_elts_nb = data_vect_.fill_array(average_vector_, points_nb_);
+				size_t copied_elts_nb = data_vect_.fill_array(chart_vector_, points_nb_);
 				new_data.reserve(copied_elts_nb);
 
 				++auto_scale_curr_points_;
@@ -131,7 +131,7 @@ namespace holovibes
 				for (size_t i = 0; i < copied_elts_nb; ++i)
 				{
 					float x = i;
-					float y = curve_get_(average_vector_[i]);
+					float y = curve_get_(chart_vector_[i]);
 					new_data.push_back(QPointF(x, y));
 				}
 
@@ -147,7 +147,7 @@ namespace holovibes
 
 		void CurvePlot::auto_scale()
 		{
-			std::vector<Tuple4f> tmp = average_vector_;
+			std::vector<Tuple4f> tmp = chart_vector_;
 
 			auto minmax = std::minmax_element(tmp.cbegin(),
 				tmp.cend(),

@@ -58,7 +58,6 @@ namespace holovibes
 			INPUT_THROUGHPUT,
 			SAVING_THROUGHPUT,
 			STFT_SLICE_CURSOR,
-			STFT_ZONE,
 			STFT_QUEUE,
 			ERR,
 			INFO
@@ -127,7 +126,7 @@ namespace holovibes
 
 		bool stop_requested_;
 
-		/*! To prevent simultaneous access from multiple thread but one thread cant block himself 
+		/*! To prevent simultaneous access from multiple thread but one thread cant block himself
 		Private function don't need to lock the mutex because they are called from a public function */
 		std::recursive_mutex mutex_;
 

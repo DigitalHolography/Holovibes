@@ -27,7 +27,7 @@ namespace holovibes
 		algorithm = cd.algorithm.load();
 		time_filter = cd.time_filter.load();
 		compute_mode = cd.compute_mode.load();
-		nSize = cd.nSize.load();
+		time_filter_size = cd.time_filter_size.load();
 		pindex = cd.pindex.load();
 		lambda = cd.lambda.load();
 		zdistance = cd.zdistance.load();
@@ -40,7 +40,7 @@ namespace holovibes
 		contrast_enabled = cd.contrast_enabled.load();
 		convolution_enabled = cd.convolution_enabled.load();
 		filter_2d_enabled = cd.filter_2d_enabled.load();
-		average_enabled = cd.average_enabled.load();
+		chart_enabled = cd.chart_enabled.load();
 		contrast_min_slice_xy = cd.contrast_min_slice_xy.load();
 		contrast_max_slice_xy = cd.contrast_max_slice_xy.load();
 		contrast_min_slice_xz = cd.contrast_min_slice_xz.load();
@@ -59,9 +59,8 @@ namespace holovibes
 		img_acc_slice_xy_level = cd.img_acc_slice_xy_level.load();
 		img_acc_slice_xz_level = cd.img_acc_slice_xz_level.load();
 		img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
-		stft_level = cd.stft_level.load();
-		stft_steps = cd.stft_steps.load();
-		stft_view_enabled = cd.stft_view_enabled.load();
+		time_filter_stride = cd.time_filter_stride.load();
+		time_filter_cuts_enabled = cd.time_filter_cuts_enabled.load();
 		current_window = cd.current_window.load();
 		cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
 		display_rate = cd.display_rate.load();

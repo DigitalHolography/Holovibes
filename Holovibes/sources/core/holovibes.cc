@@ -31,10 +31,10 @@ namespace holovibes
 		camera_initialized_(false),
 		tcapture_(),
 		tcompute_(),
-		input_(),
-		output_(),
+		gpu_input_queue_(),
+		gpu_output_queue_(),
 		cd_(),
-		average_queue_(),
+		chart_queue_(),
 		launch_path(std::filesystem::current_path().generic_string())
 	{
 	}
@@ -80,11 +80,11 @@ namespace holovibes
 				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
 
-			input_.reset(new Queue(queue_fd, global::global_config.input_queue_max_size, "InputQueue", camera_fd.width, camera_fd.height, camera_fd.depth));
+			gpu_input_queue_.reset(new Queue(queue_fd, global::global_config.input_queue_max_size, "InputQueue", camera_fd.width, camera_fd.height, camera_fd.depth));
 
 			LOG_INFO("(Holovibes) Starting initialization...");
 			camera_->start_acquisition();
-			tcapture_.reset(new ThreadCapture(*camera_, *input_, mode));
+			tcapture_.reset(new ThreadCapture(*camera_, *gpu_input_queue_, mode));
 			LOG_INFO("[CAPTURE] Capture thread started");
 			camera_initialized_ = true;
 		}
@@ -92,7 +92,7 @@ namespace holovibes
 		{
 			std::cout << e.what() << std::endl;
 			tcapture_.reset(nullptr);
-			input_.reset(nullptr);
+			gpu_input_queue_.reset(nullptr);
 
 			throw;
 		}
@@ -107,7 +107,7 @@ namespace holovibes
 			camera_->shutdown_camera();
 		}
 
-		input_.reset(nullptr);
+		gpu_input_queue_.reset(nullptr);
 		camera_.reset();
 		camera_initialized_ = false;
 
@@ -128,7 +128,7 @@ namespace holovibes
 	std::unique_ptr<Queue>& Holovibes::get_current_window_output_queue()
 	{
 		if (cd_.current_window == WindowKind::XYview)
-			return output_;
+			return gpu_output_queue_;
 		else if (cd_.current_window == WindowKind::XZview)
 			return get_pipe()->get_stft_slice_queue(0);
 		return get_pipe()->get_stft_slice_queue(1);
@@ -140,11 +140,11 @@ namespace holovibes
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
 
-		Recorder recorder = Recorder(*((tcompute_) ? output_ : input_),
+		Recorder recorder = Recorder(*((tcompute_) ? gpu_output_queue_ : gpu_input_queue_),
 			filepath);
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder.record(rec_n_images, HoloFile::get_json_settings(cd_, get_output_queue()->get_fd()));
+		recorder.record(rec_n_images, HoloFile::get_json_settings(cd_, get_gpu_output_queue()->get_fd()));
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}
 
@@ -152,24 +152,24 @@ namespace holovibes
 	{
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
-		assert(input_ && "Input queue not initialized");
+		assert(gpu_input_queue_ && "Input queue not initialized");
 
-		camera::FrameDescriptor output_fd = input_->get_fd();
+		camera::FrameDescriptor output_fd = gpu_input_queue_->get_fd();
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
 		output_fd.depth = depth;
 		try
 		{
-			output_.reset(new Queue(
+			gpu_output_queue_.reset(new Queue(
 				output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
 		}
 		catch (std::logic_error& e)
 		{
 			std::cerr << e.what() << std::endl;
 			tcapture_.reset(nullptr);
-			input_.reset(nullptr);
+			gpu_input_queue_.reset(nullptr);
 			return;
 		}
-		tcompute_.reset(new ThreadCompute(cd_, *input_, *output_, pipetype));
+		tcompute_.reset(new ThreadCompute(cd_, *gpu_input_queue_, *gpu_output_queue_, pipetype));
 		LOG_INFO("[CUDA] Compute thread started");
 
 		// A wait_for is necessary here in order for the pipe to finish
@@ -189,7 +189,7 @@ namespace holovibes
 	void Holovibes::dispose_compute()
 	{
 		tcompute_.reset(nullptr);
-		output_.reset(nullptr);
+		gpu_output_queue_.reset(nullptr);
 	}
 
 	void Holovibes::clear_convolution_matrix()
@@ -246,7 +246,7 @@ namespace holovibes
 				set_min_of_the_two(queue_fd.width, queue_fd.height);
 			}
 
-			input_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", fd.width, fd.height, fd.depth));
+			gpu_input_queue_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", fd.width, fd.height, fd.depth));
 			tcapture_.reset(
 				new ThreadReader(file_src,
 					fd,
@@ -255,7 +255,7 @@ namespace holovibes
 					fps,
 					spanStart,
 					spanEnd,
-					*input_,
+					*gpu_input_queue_,
 					cd_.file_type,
 					load_file_in_gpu,
 					reader_progress_bar,
@@ -267,7 +267,7 @@ namespace holovibes
 		{
 			std::cout << e.what() << std::endl;
 			tcapture_.reset(nullptr);
-			input_.reset(nullptr);
+			gpu_input_queue_.reset(nullptr);
 
 			throw;
 		}

@@ -237,7 +237,7 @@ namespace holovibes
 		{
 			switch (parent_->getKindOfView())
 			{
-			case Direct:
+			case Raw:
 			case Hologram:
 				create_overlay<Zoom>();
 				break;

@@ -76,7 +76,7 @@ namespace holovibes
 		/*! \brief Runs a function after the current pipe iteration ends
 
 		 */
-		void run_end_pipe(std::function<void()> function);
+		void insert_fn_end_vect(std::function<void()> function);
 		/*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view
 
 		 */
@@ -104,7 +104,7 @@ namespace holovibes
 		* If Holovibes crash in a cuda function right after updating something on the GUI,
 		* It probably means that the ComputeDescriptor has been updated before the end of the iteration.
 		* The pipe uses the ComputeDescriptor, and is refresh only at the end of the iteration. You
-		* **must** wait until the end of the refresh, or use the run_end_pipe function to update the
+		* **must** wait until the end of the refresh, or use the insert_fn_end_vect function to update the
 		* ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash. */
 		virtual void	exec();
 
@@ -135,9 +135,9 @@ namespace holovibes
 		void insert_raw_view_enqueue();
 
 		/*!
-		** \brief Enqueue the input frame in the output queue in direct mode
+		** \brief Enqueue the input frame in the output queue in raw mode
 		*/
-		void insert_direct_enqueue_output();
+		void insert_raw_enqueue_output();
 
 		/*!
 		** \brief Enqueue the output frame in the output queue in hologram mode
@@ -151,20 +151,20 @@ namespace holovibes
 		void insert_request_autocontrast();
 
 		/*!
-		** \brief Reset the batch index if stft step has been reached
+		** \brief Reset the batch index if time_filter_stride has been reached
 		*/
 		void insert_reset_batch_index();
 
 	private:
 		//! Vector of functions that will be executed in the exec() function.
-		FunctionVector fn_vect_;
+		FunctionVector fn_compute_vect_;
 
-		//! Vecor of functions that will be executed once, after the execution of fn_vect_.
-		FunctionVector functions_end_pipe_;
+		//! Vecor of functions that will be executed once, after the execution of fn_compute_vect_.
+		FunctionVector fn_end_vect_;
 		/*! Mutex that prevents the insertion of a function during its execution.
-		    Since we can insert functions in functions_end_pipe_ from other threads (MainWindow), we need to lock it.
+		    Since we can insert functions in fn_end_vect_ from other threads (MainWindow), we need to lock it.
 		*/
-		std::mutex		functions_mutex_;
+		std::mutex		fn_end_vect_mutex_;
 
 		std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
@@ -174,7 +174,7 @@ namespace holovibes
 
 		/*! \brief Iterates and executes function of the pipe.
 
-		  It will first iterate over fn_vect_, then over function_end_pipe_. */
+		  It will first iterate over fn_compute_vect_, then over function_end_pipe_. */
 		void run_all();
 	};
 }

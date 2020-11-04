@@ -22,7 +22,7 @@ namespace holovibes
 	namespace gui
 	{
 		HoloWindow::HoloWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, MainWindow *main_window)
-			: DirectWindow(p, s, q, KindOfView::Hologram)
+			: RawWindow(p, s, q, KindOfView::Hologram)
 			, Ic(ic)
 			, main_window_(main_window)
 			, xz_slice_(xz)

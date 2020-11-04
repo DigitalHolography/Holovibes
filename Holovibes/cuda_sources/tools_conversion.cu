@@ -1,4 +1,4 @@
-/* **************************************************************************** */  
+/* **************************************************************************** */
 /*                       ,,                     ,,  ,,                          */
 /* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
 /*   MM      MM           MM         `MA     ,V      MM                         */
@@ -148,7 +148,7 @@ void kernel_input_queue_to_input_buffer(OTYPE* output,
 		for (int j = current_queue_index; j < queue_size && frame_copied < batch_size; ++j, ++frame_copied)
 		{
 			const float val = convert(input[index + j * frame_res]);
-			
+
 			output[index + frame_copied * frame_res].x = val;
 			output[index + frame_copied * frame_res].y = 0.0f;
 		}
@@ -157,7 +157,7 @@ void kernel_input_queue_to_input_buffer(OTYPE* output,
 		for (int j = 0; frame_copied < batch_size; ++frame_copied, ++j)
 		{
 			float val = convert(input[index + j * frame_res]);
-			
+
 			output[index + frame_copied * frame_res].x = val;
 			output[index + frame_copied * frame_res].y = 0.0f;
 		}
@@ -344,7 +344,7 @@ void rescale_float(const float	*input,
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	// TODO : See if gpu_float_buffer_ could be used directly.
+	// TODO : See if gpu_postprocess_frame could be used directly.
 	cudaXMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
 
 	// Computing minimum and maximum values, in order to rescale properly.
