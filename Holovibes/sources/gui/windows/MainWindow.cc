@@ -362,11 +362,24 @@ namespace holovibes
 
 			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
+
 			const uint input_queue_capacity = global::global_config.input_queue_max_size;
-			ui.STFTStepsSpinBox->setMaximum(input_queue_capacity);
 			if (cd_.stft_steps > input_queue_capacity)
 				cd_.stft_steps = input_queue_capacity;
+
 			ui.STFTStepsSpinBox->setValue(cd_.stft_steps);
+			ui.STFTStepsSpinBox->setSingleStep(cd_.batch_size);
+			ui.STFTStepsSpinBox->setMinimum(cd_.batch_size);
+			ui.STFTStepsSpinBox->setMaximum(input_queue_capacity);
+
+			// Batch
+			ui.BatchSizeSpinBox->setEnabled(!is_direct);
+
+			if (cd_.batch_size > input_queue_capacity)
+				cd_.batch_size = input_queue_capacity;
+
+			ui.BatchSizeSpinBox->setValue(cd_.batch_size);
+			ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
 			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
@@ -1387,12 +1400,49 @@ namespace holovibes
 				set_holographic_mode();
 			else
 			{
-				if (ui.DirectRadioButton->isChecked())
+			if (ui.DirectRadioButton->isChecked())
 					set_direct_mode();
 				else
 					set_holographic_mode();
 			}
 		}
+#pragma endregion
+
+#pragma region Batch
+
+		static void adapt_stft_step_to_batch_size(ComputeDescriptor& cd)
+		{
+			if (cd.stft_steps < cd.batch_size)
+				cd.stft_steps = cd.batch_size;
+			// Go to lower multiple
+			if (cd.stft_steps % cd.batch_size != 0)
+				cd.stft_steps -= cd.stft_steps % cd.batch_size;
+		}
+
+		void MainWindow::update_batch_size()
+		{
+			if (!is_direct_mode())
+			{
+				int value = ui.BatchSizeSpinBox->value();
+
+				if (value == cd_.batch_size)
+					return;
+
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				if (pipe)
+				{
+					pipe->run_end_pipe([=]() {
+						cd_.batch_size = value;
+						adapt_stft_step_to_batch_size(cd_);
+						holovibes_.get_pipe()->request_update_batch_size();
+						notify();
+					});
+				}
+				else
+					std::cout << "COULD NOT GET PIPE" << std::endl;
+			}
+		}
+
 #pragma endregion
 		/* ------------ */
 #pragma region STFT
@@ -1443,13 +1493,14 @@ namespace holovibes
 				if (pipe)
 				{
 					pipe->run_end_pipe([=]() {
-						holovibes_.get_pipe()->request_update_stft_steps();
 						cd_.stft_steps = value;
+						adapt_stft_step_to_batch_size(cd_);
+						holovibes_.get_pipe()->request_update_stft_steps();
 						notify();
 					});
 				}
 				else
-					std::cout << "COULD NOT GET PIP" << std::endl;
+					std::cout << "COULD NOT GET PIPE" << std::endl;
 			}
 		}
 
@@ -3135,6 +3186,7 @@ namespace holovibes
 			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			cd_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
+			cd_.batch_size = cd_.stft_steps;
 
 			FrameDescriptor fd;
 

@@ -18,7 +18,7 @@
 #include <atomic>
 
 #include "frame_desc.hh"
-#include "pipeline_utils.hh"
+#include "function_vector.hh"
 #include "queue.hh"
 #include "rect.hh"
 
@@ -42,7 +42,7 @@ namespace holovibes
 			/** \brief Constructor.
 
 			*/
-			Rendering(FnVector& fn_vect,
+			Rendering(FunctionVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
 				const ImageAccEnv& image_acc_env,
@@ -121,7 +121,7 @@ namespace holovibes
 
 
 			/// Vector function in which we insert the processing
-			FnVector&						fn_vect_;
+			FunctionVector&					fn_vect_;
 			/// Main buffers
 			const CoreBuffers&				buffers_;
 			/// Average variables

@@ -30,16 +30,16 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
 
-
 using holovibes::compute::FourierTransform;
 using holovibes::Queue;
-using holovibes::FnVector;
+using holovibes::FunctionVector;
 
-FourierTransform::FourierTransform(FnVector& fn_vect,
+FourierTransform::FourierTransform(FunctionVector& fn_vect,
 	const holovibes::CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd,
 	holovibes::cuda_tools::CufftHandle& plan2d,
+	const holovibes::BatchEnv& batch_env,
 	holovibes::Stft_env& stft_env)
 	: gpu_lens_()
 	, gpu_lens_queue_()
@@ -49,10 +49,11 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	, fd_(fd)
 	, cd_(cd)
 	, plan2d_(plan2d)
+	, batch_env_(batch_env)
 	, stft_env_(stft_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
-	gpu_filter2d_buffer_.resize(fd_.frame_res() * cd_.stft_steps);
+	gpu_filter2d_buffer_.resize(fd_.frame_res() * cd_.batch_size);
 
 	std::stringstream ss;
 	ss << "(X1,Y1,X2,Y2) = (" << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
@@ -78,10 +79,6 @@ void FourierTransform::insert_fft()
 				enqueue_lens();
 			});
 	}
-
-	fn_vect_.push_back([=]() {
-		stft_env_.gpu_stft_queue_->enqueue_multiple(buffers_.gpu_input_buffer_.get(), cd_.stft_steps);
-	});
 }
 
 void FourierTransform::insert_filter2d()
@@ -93,7 +90,7 @@ void FourierTransform::insert_filter2d()
 			filter2D_BandPass(
 				buffers_.gpu_input_buffer_,
 				gpu_filter2d_buffer_,
-				cd_.stft_steps,
+				cd_.batch_size,
 				plan2d_,
 				filter2d_zone_,
 				filter2d_subzone_,
@@ -108,7 +105,7 @@ void FourierTransform::insert_filter2d()
 			filter2D(
 				buffers_.gpu_input_buffer_,
 				gpu_filter2d_buffer_,
-				cd_.stft_steps,
+				cd_.batch_size,
 				plan2d_,
 				filter2d_zone_,
 				fd_,
@@ -131,7 +128,7 @@ void FourierTransform::insert_fft1()
 		fft_1(
 			buffers_.gpu_input_buffer_,
 			buffers_.gpu_input_buffer_,
-			cd_.stft_steps,
+			cd_.batch_size,
 			gpu_lens_.get(),
 			plan2d_,
 			fd_.frame_res());
@@ -152,7 +149,7 @@ void FourierTransform::insert_fft2()
 		fft_2(
 			buffers_.gpu_input_buffer_,
 			buffers_.gpu_input_buffer_,
-			cd_.stft_steps,
+			cd_.batch_size,
 			gpu_lens_.get(),
 			plan2d_,
 			fd_);
@@ -161,7 +158,7 @@ void FourierTransform::insert_fft2()
 
 void FourierTransform::insert_store_p_frame()
 {
-	fn_vect_.push_back([=]() {
+	fn_vect_.conditional_push_back([=]() {
 		const int frame_res = fd_.frame_res();
 
 		/* Copies with DeviceToDevice (which is the case here) are asynchronous with respect to the host
@@ -175,7 +172,7 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_stft()
 {
-	fn_vect_.push_back([=]() {
+	fn_vect_.conditional_push_back([=]() {
 		stft(stft_env_.gpu_stft_queue_.get(),
 		stft_env_.gpu_stft_buffer_,
 		stft_env_.plan1d_stft_);
@@ -207,7 +204,7 @@ void FourierTransform::enqueue_lens()
 
 void FourierTransform::insert_eigenvalue_filter()
 {
-	fn_vect_.push_back([=]() {
+	fn_vect_.conditional_push_back([=]() {
 		unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
 		unsigned short p = cd_.pindex;
 		if (p + p_acc > cd_.nSize)
@@ -293,7 +290,7 @@ void FourierTransform::insert_eigenvalue_filter()
 
 void FourierTransform::insert_stft_cuts_view()
 {
-	fn_vect_.push_back([=]() {
+	fn_vect_.conditional_push_back([=]() {
 		if (cd_.stft_view_enabled)
 		{
 			static ushort mouse_posx;

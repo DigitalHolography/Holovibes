@@ -19,7 +19,7 @@
 #include "cuda_tools/unique_ptr.hh"
 #include "cuda_tools/array.hh"
 #include "cuda_tools/nppi_data.hh"
-#include "pipeline_utils.hh"
+#include "function_vector.hh"
 #include "frame_desc.hh"
 #include "queue.hh"
 #include "rect.hh"
@@ -46,7 +46,7 @@ namespace holovibes
 			/*!
 			** \brief Constructor.
 			*/
-			ImageAccumulation(FnVector& fn_vect,
+			ImageAccumulation(FunctionVector& fn_vect,
 				ImageAccEnv& image_acc_env,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
@@ -98,7 +98,7 @@ namespace holovibes
 			ImageAccEnv& image_acc_env_;
 
 			/// Vector function in which we insert the processing
-			FnVector&						fn_vect_;
+			FunctionVector&					fn_vect_;
 
 			/// Main buffers
 			const CoreBuffers&				buffers_;

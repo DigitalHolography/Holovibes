@@ -17,7 +17,7 @@
 
 #include <vector>
 
-#include "pipeline_utils.hh"
+#include "function_vector.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
@@ -36,7 +36,7 @@ namespace holovibes
 			/** \brief Constructor.
 			
 			*/
-			Postprocessing(FnVector& fn_vect,
+			Postprocessing(FunctionVector& fn_vect,
 				CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
@@ -66,7 +66,7 @@ namespace holovibes
 			cuda_tools::UniquePtr<float>        hsv_arr_;
 
 			// Vector function in which we insert the processing
-			FnVector&						fn_vect_;
+			FunctionVector&				fn_vect_;
 
 			//! Main buffers
 			CoreBuffers&				buffers_;

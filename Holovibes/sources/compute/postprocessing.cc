@@ -28,7 +28,7 @@ namespace holovibes
 {
 	namespace compute
 	{
-		Postprocessing::Postprocessing(FnVector& fn_vect,
+		Postprocessing::Postprocessing(FunctionVector& fn_vect,
 			CoreBuffers& buffers,
 			const camera::FrameDescriptor& input_fd,
 			ComputeDescriptor& cd)
@@ -139,7 +139,7 @@ namespace holovibes
 
 			if (cd_.img_type != ImgType::Composite)
 			{
-				fn_vect_.push_back([=]() {
+				fn_vect_.conditional_push_back([=]() {
 					convolution_kernel(
 						buffers_.gpu_float_buffer_.get(),
 						buffers_.gpu_convolution_buffer_.get(),
@@ -154,7 +154,7 @@ namespace holovibes
 			}
 			else
 			{
-				fn_vect_.push_back([=]() {
+				fn_vect_.conditional_push_back([=]() {
 					convolution_composite();
 				});
 			}
@@ -165,7 +165,7 @@ namespace holovibes
 			if (!cd_.renorm_enabled)
 				return;
 
-			fn_vect_.push_back([=]() {
+			fn_vect_.conditional_push_back([=]() {
 				cuda_tools::NppiData nppi_data(fd_.width, fd_.height, cd_.img_type == ImgType::Composite ? 3 : 1);
 				cuda_tools::nppi_normalize(buffers_.gpu_float_buffer_.get(), nppi_data, cd_.renorm_constant);
 			});

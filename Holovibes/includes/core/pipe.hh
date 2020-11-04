@@ -16,13 +16,14 @@
  * in a single container. */
 #pragma once
 
-# include "cuda_tools/unique_ptr.hh"
-# include "icompute.hh"
-# include "image_accumulation.hh"
-# include "fourier_transform.hh"
-# include "rendering.hh"
-# include "converts.hh"
-# include "postprocessing.hh"
+#include "cuda_tools/unique_ptr.hh"
+#include "icompute.hh"
+#include "image_accumulation.hh"
+#include "fourier_transform.hh"
+#include "rendering.hh"
+#include "converts.hh"
+#include "postprocessing.hh"
+#include "function_vector.hh"
 
 namespace holovibes
 {
@@ -92,8 +93,8 @@ namespace holovibes
 		*
 		* * Checks the number of frames in input queue, that must at least
 		* be 1.
-		* * Call each function stored in the FnVector.
-		* * Call each function stored in the end FnVector, then clears it
+		* * Call each function stored in the FunctionVector.
+		* * Call each function stored in the end FunctionVector, then clears it
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
 		* * Check if a ICompute refresh has been requested.
@@ -107,7 +108,7 @@ namespace holovibes
 		* ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash. */
 		virtual void	exec();
 
-		/*! \brief Enqueue the main FnVector according to the requests.
+		/*! \brief Enqueue the main FunctionVector according to the requests.
 
 		*/
 		virtual void	refresh();
@@ -117,6 +118,11 @@ namespace holovibes
 		* \return return false if an allocation failed.
 		*/
 		virtual bool make_requests();
+
+		/*!
+		** \brief Transfer from gpu_input_buffer to gpu_stft_queue fro time filtering
+		*/
+		void insert_transfer_for_time_filter();
 
 		/*!
 		** \brief Wait that there are at least a batch of frames in input queue
@@ -144,12 +150,17 @@ namespace holovibes
 		*/
 		void insert_request_autocontrast();
 
+		/*!
+		** \brief Reset the batch index if stft step has been reached
+		*/
+		void insert_reset_batch_index();
+
 	private:
 		//! Vector of functions that will be executed in the exec() function.
-		FnVector		fn_vect_;
+		FunctionVector fn_vect_;
 
 		//! Vecor of functions that will be executed once, after the execution of fn_vect_.
-		FnVector		functions_end_pipe_;
+		FunctionVector functions_end_pipe_;
 		/*! Mutex that prevents the insertion of a function during its execution.
 		    Since we can insert functions in functions_end_pipe_ from other threads (MainWindow), we need to lock it.
 		*/

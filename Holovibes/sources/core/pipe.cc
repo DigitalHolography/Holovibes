@@ -31,6 +31,7 @@
 #include "tools.hh"
 #include "contrast_correction.cuh"
 #include "custom_exception.hh"
+#include "pipeline_utils.hh"
 
 namespace holovibes
 {
@@ -41,12 +42,16 @@ namespace holovibes
 		Queue& output,
 		ComputeDescriptor& desc)
 		: ICompute(input, output, desc)
-		, fn_vect_()
 	{
+		ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.stft_steps; };
+
+		fn_vect_ = FunctionVector(batch_condition);
+		functions_end_pipe_ = FunctionVector(batch_condition);
+
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, stft_env_);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, stft_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, image_acc_env_, stft_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, batch_env_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_fd(), desc);
 
 		update_n_requested_ = true;
@@ -110,9 +115,16 @@ namespace holovibes
 
 		if (request_update_stft_steps_)
 		{
-			const uint batch_size = cd_.stft_steps * input_fd.frame_res();
+			batch_env_.batch_index = 0;
+
+			request_update_stft_steps_ = false;
+		}
+
+		if (request_update_batch_size_)
+		{
+			batch_env_.batch_index = 0;
 			// We avoid the depth in the multiplication because the resize already take it into account
-			buffers_.gpu_input_buffer_.resize(batch_size);
+			buffers_.gpu_input_buffer_.resize(cd_.batch_size * input_fd.frame_res());
 
 			long long int n[] = {input_fd.height, input_fd.width};
 
@@ -124,10 +136,10 @@ namespace holovibes
 								CUDA_C_32F, // Input type
 								n, 1, input_fd.frame_res(), // Ouput layout same as input
 								CUDA_C_32F, // Output type
-								cd_.stft_steps, // Batch size
+								cd_.batch_size, // Batch size
 								CUDA_C_32F); // Computation type
 
-			request_update_stft_steps_ = false;
+			request_update_batch_size_ = false;
 		}
 
 		if (request_disable_lens_view_)
@@ -183,6 +195,9 @@ namespace holovibes
 		// spatial transform
 		fourier_transforms_->insert_fft();
 
+		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to stft_step)
+		insert_transfer_for_time_filter();
+
 		// time transform
 		if (cd_.time_filter == TimeFilter::STFT)
 		{
@@ -213,22 +228,39 @@ namespace holovibes
 		insert_request_autocontrast();
 		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 
-		fn_vect_.push_back([=]() { fps_count(); });
+		fn_vect_.conditional_push_back([=]() { fps_count(); });
 
 		converts_->insert_to_ushort();
 
 		insert_hologram_enqueue_output();
 
+		insert_reset_batch_index();
+
 		refresh_requested_ = false;
+	}
+
+	void Pipe::insert_reset_batch_index()
+	{
+		fn_vect_.push_back([&](){
+			if (batch_env_.batch_index == cd_.stft_steps)
+				batch_env_.batch_index = 0;
+		});
 	}
 
 	void Pipe::insert_raw_view_enqueue()
 	{
 		fn_vect_.push_back([&](){
 			if (cd_.raw_view || cd_.record_raw)
-			{
-				input_.copy_multiple(*get_raw_queue(), cd_.stft_steps);
-			}
+				input_.copy_multiple(*get_raw_queue(), cd_.batch_size);
+		});
+	}
+
+	void Pipe::insert_transfer_for_time_filter()
+	{
+		fn_vect_.push_back([&](){
+			stft_env_.gpu_stft_queue_->enqueue_multiple(buffers_.gpu_input_buffer_.get(), cd_.batch_size);
+			batch_env_.batch_index += cd_.batch_size;
+			assert(batch_env_.batch_index <= cd_.stft_steps);
 		});
 	}
 
@@ -236,7 +268,7 @@ namespace holovibes
 	{
 		fn_vect_.push_back([&](){
 			// Wait while the input queue is enough filled
-			while (input_.get_size() < cd_.stft_steps);
+			while (input_.get_size() < cd_.batch_size);
 		});
 	}
 
@@ -252,7 +284,7 @@ namespace holovibes
 
 	void Pipe::insert_hologram_enqueue_output()
 	{
-		fn_vect_.push_back([&](){
+		fn_vect_.conditional_push_back([&](){
 			if (!output_.enqueue(buffers_.gpu_output_buffer_))
 				throw CustomException("Can't enqueue the output frame in output_queue", error_kind::fail_enqueue);
 

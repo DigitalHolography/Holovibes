@@ -23,7 +23,7 @@ namespace holovibes
 {
 	namespace compute
 	{
-		Rendering::Rendering(FnVector& fn_vect,
+		Rendering::Rendering(FunctionVector& fn_vect,
 			const CoreBuffers& buffers,
 			Average_env& average_env,
 			const ImageAccEnv& image_acc_env,
@@ -49,7 +49,7 @@ namespace holovibes
 			if (cd_.fft_shift_enabled)
 			{
 				if (cd_.img_type == ImgType::Composite)
-					fn_vect_.push_back([=]() {
+					fn_vect_.conditional_push_back([=]() {
 						shift_corners(
 							reinterpret_cast<float3 *>(buffers_.gpu_float_buffer_.get()),
 							1,
@@ -57,7 +57,7 @@ namespace holovibes
 							fd_.height);
 					});
 				else
-					fn_vect_.push_back([=]() {
+					fn_vect_.conditional_push_back([=]() {
 						shift_corners(
 							buffers_.gpu_float_buffer_,
 							1,
@@ -114,7 +114,7 @@ namespace holovibes
 
 		void Rendering::insert_main_average()
 		{
-			fn_vect_.push_back([=]() {
+			fn_vect_.conditional_push_back([=]() {
 				units::RectFd signalZone;
 				units::RectFd noiseZone;
 				cd_.signalZone(signalZone, AccessMode::Get);
@@ -132,7 +132,7 @@ namespace holovibes
 
 		void Rendering::insert_average_record()
 		{
-			fn_vect_.push_back([=]() {
+			fn_vect_.conditional_push_back([=]() {
 				units::RectFd signalZone;
 				units::RectFd noiseZone;
 				cd_.signalZone(signalZone, AccessMode::Get);
@@ -144,27 +144,27 @@ namespace holovibes
 
 		void Rendering::insert_main_log()
 		{
-			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_); });
+			fn_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_); });
 		}
 
 		void Rendering::insert_slice_log()
 		{
 			uint size = fd_.width * cd_.nSize;
 			if (cd_.log_scale_slice_xz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_xz_.get(), size); });
+				fn_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_float_cut_xz_.get(), size); });
 			if (cd_.log_scale_slice_yz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_yz_.get(), size); });
+				fn_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_float_cut_yz_.get(), size); });
 		}
 
 		void Rendering::insert_apply_contrast(WindowKind view)
 		{
-			fn_vect_.push_back([=](){
+			fn_vect_.conditional_push_back([=](){
 				// Set parameters
-				float* input;
-				uint size;
-				ushort dynamic_range = 65535;
-				float min;
-				float max;
+				float* input = nullptr;
+				uint size = 0;
+				constexpr ushort dynamic_range = 65535;
+				float min = 0;
+				float max = 0;
 
 				switch (view)
 				{
@@ -237,7 +237,7 @@ namespace holovibes
 				}
 			};
 
-			fn_vect_.push_back(lambda_autocontrast);
+			fn_vect_.conditional_push_back(lambda_autocontrast);
 		}
 
 		void Rendering::autocontrast_caller(float*			input,

@@ -187,9 +187,47 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_26">
-           <item>
-            <widget class="QLabel" name="label">
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
+           <property name="verticalSpacing">
+            <number>1</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="BatchSizeSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="BatchSizeLabel">
+             <property name="text">
+              <string>Batch size</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="STFTStepsLabel">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
              <property name="text">
               <string>STFT steps</string>
              </property>
@@ -198,8 +236,20 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="1" column="1">
             <widget class="QSpinBox" name="STFTStepsSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string># of images picked at each iteration</string>
              </property>
@@ -2984,7 +3034,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3045,7 +3095,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1364</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3346,7 +3396,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>InfoTextEdit</tabstop>
   <tabstop>DirectRadioButton</tabstop>
   <tabstop>HologramRadioButton</tabstop>
-  <tabstop>STFTStepsSpinBox</tabstop>
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
   <tabstop>AlgorithmComboBox</tabstop>
@@ -5249,6 +5298,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>BatchSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_batch_size()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5325,6 +5390,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2D_type(Qstring)</slot>
   <slot>cancel_filter2D()</slot>
   <slot>write_ini()</slot>
+  <slot>update_batch_size()</slot>
   <slot>update_stft_steps()</slot>
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>

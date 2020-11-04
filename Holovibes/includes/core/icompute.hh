@@ -67,6 +67,20 @@ namespace holovibes
 		cuda_tools::UniquePtr<float>			gpu_convolution_buffer_ = nullptr;
 	};
 
+	/*! \brief Struct containing variables related to the batch in the pipe */
+	struct BatchEnv
+	{
+		/*! \brief Current frames processed in the batch
+		**
+		** At index 0, batch_size frames are enqueued, spacial filter is also executed in batch
+		** Batch size frames are enqueued in the gpu_stft_queue
+		** This is done for perfomances reasons
+		**
+		** The variable is incremented unil it reachs batch_size in enqueue_multiple, then it is set back to 0
+		*/
+		uint batch_index = 0;
+	};
+
 	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */
 	struct Stft_env
 	{
@@ -148,6 +162,7 @@ namespace holovibes
 		void request_average_stop();
 		void request_average_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
 		void request_termination();
+		void request_update_batch_size();
 		void request_update_stft_steps();
 		void request_kill_raw_queue();
 		void request_disable_lens_view();
@@ -230,6 +245,9 @@ namespace holovibes
 		/** Main buffers. */
 		CoreBuffers	buffers_;
 
+		/** Batch environment */
+		BatchEnv batch_env_;
+
 		/** STFT environment. */
 		Stft_env stft_env_;
 
@@ -272,6 +290,7 @@ namespace holovibes
 		std::atomic<bool>	termination_requested_{ false };
 		std::atomic<bool>	request_stft_cuts_{ false };
 		std::atomic<bool>	request_delete_stft_cuts_{ false };
+		std::atomic<bool>   request_update_batch_size_{ false };
 		std::atomic<bool>   request_update_stft_steps_{ false };
 		std::atomic<bool>   request_disable_lens_view_{ false };
 	};

@@ -3,6 +3,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     config.cc
     gpib_dll.cc
     options_parser.cc
+    function_vector.cc
     queue.cc
     recorder.cc
 

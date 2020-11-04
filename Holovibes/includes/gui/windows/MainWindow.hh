@@ -175,6 +175,7 @@ namespace holovibes
 			void set_time_filter(QString value);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
+			void update_batch_size();
 			void update_stft_steps();
 			void set_view_mode(QString value);
 			void set_unwrap_history_size(int value);

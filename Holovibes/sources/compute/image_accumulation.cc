@@ -30,7 +30,7 @@ namespace holovibes
 	using cuda_tools::UniquePtr;
 	namespace compute
 	{
-		ImageAccumulation::ImageAccumulation(FnVector& fn_vect,
+		ImageAccumulation::ImageAccumulation(FunctionVector& fn_vect,
 			ImageAccEnv& image_acc_env,
 			const CoreBuffers& buffers,
 			const camera::FrameDescriptor& fd,
@@ -162,7 +162,7 @@ namespace holovibes
 						image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_res());
 			};
 
-			fn_vect_.emplace_back(compute_average_lambda);
+			fn_vect_.conditional_push_back(compute_average_lambda);
 		}
 
 		void ImageAccumulation::insert_copy_accumulation_result()
@@ -191,7 +191,7 @@ namespace holovibes
 								cudaMemcpyDeviceToDevice);
 			};
 
-			fn_vect_.emplace_back(copy_accumulation_result);
+			fn_vect_.conditional_push_back(copy_accumulation_result);
 		}
 	}
 }

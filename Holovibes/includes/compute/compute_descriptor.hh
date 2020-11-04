@@ -255,6 +255,11 @@ namespace holovibes
 
 		//! Last window selected
 		std::atomic<WindowKind>		current_window{ WindowKind::XYview };
+		/*! \brief Number of images dequeued from input to gpu_input_buffer and batch size of space filter
+		**
+		** Stft_step is decorelated from batch size for performances reasons
+		*/
+		std::atomic<ushort>			batch_size{ 1 };
 		//! Number of images used by SFTF i.e. depth of the SFTF cube
 		std::atomic<ushort>			nSize{ 1 };
 		//! index in the depth axis

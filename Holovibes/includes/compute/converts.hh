@@ -21,14 +21,15 @@
 
 #include "compute_descriptor.hh"
 #include "frame_desc.hh"
-#include "pipeline_utils.hh"
 #include "queue.hh"
 #include "cuda_tools\cufft_handle.hh"
+#include "function_vector.hh"
 
 namespace holovibes
 {
 	class ComputeDescriptor;
 	struct CoreBuffers;
+	struct BatchEnv;
 	struct Stft_env;
 	struct UnwrappingResources;
 	struct UnwrappingResources_2d;
@@ -40,8 +41,9 @@ namespace holovibes
 			/** \brief Constructor.
 
 			*/
-			Converts(FnVector& fn_vect,
+			Converts(FunctionVector& fn_vect,
 				const CoreBuffers& buffers,
+				const BatchEnv& batch_env,
 				const Stft_env& stft_env,
 				cuda_tools::CufftHandle& plan2d,
 				ComputeDescriptor& cd,
@@ -58,46 +60,33 @@ namespace holovibes
 			*/
 			void insert_to_ushort();
 
-			/*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame
-			** 
-			*/
+			/*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
 			void insert_complex_conversion(Queue& input);
 
 		private:
 
-			/** \brief Set pmin_ and pmax_ according to p accumulation.
-
-			*/
+			/** \brief Set pmin_ and pmax_ according to p accumulation. */
 			void insert_compute_p_accu();
-			/** \brief Insert the convertion Complex => Modulus
 
-			*/
-			
+			/** \brief Insert the convertion Complex => Modulus */
 			void insert_to_modulus();
-			
-			/** \brief Insert the convertion Complex => Squared Modulus
 
-			*/
+			/** \brief Insert the convertion Complex => Squared Modulus */
 			void insert_to_squaredmodulus();
-			/** \brief Insert the convertion Complex => Composite
 
-			*/
+			/** \brief Insert the convertion Complex => Composite */
 			void insert_to_composite();
-			/** \brief Insert the convertion Complex => Argument
 
-			*/
+			/** \brief Insert the convertion Complex => Argument */
 			void insert_to_argument(bool unwrap_2d_requested);
-			/** \brief Insert the convertion Complex => Phase increase
 
-			*/
+			/** \brief Insert the convertion Complex => Phase increase */
 			void insert_to_phase_increase(bool unwrap_2d_requested);
-			/** \brief Insert the convertion Float => Unsigned Short in XY window
 
-			*/
+			/** \brief Insert the convertion Float => Unsigned Short in XY window */
 			void insert_main_ushort();
-			/** \brief Insert the convertion Float => Unsigned Short in slices.
 
-			*/
+			/** \brief Insert the convertion Float => Unsigned Short in slices. */
 			void insert_slice_ushort();
 
 			//! pindex.
@@ -106,10 +95,12 @@ namespace holovibes
 			unsigned short pmax_;
 
 			/// Vector function in which we insert the processing
-			FnVector&						fn_vect_;
+			FunctionVector&					fn_vect_;
 
 			//! Main buffers
 			const CoreBuffers&				buffers_;
+			//! Batch environment.
+			const BatchEnv& 				batch_env_;
 			//! STFT environment
 			const Stft_env&					stft_env_;
 			//! Phase unwrapping 1D. Used for phase increase and Argument.

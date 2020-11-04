@@ -65,7 +65,7 @@ namespace holovibes
 							CUDA_C_32F, // Input type
 							n, 1, fd.frame_res(), // Ouput layout same as input
 							CUDA_C_32F, // Output type
-							cd_.stft_steps, // Batch size
+							cd_.batch_size, // Batch size
 							CUDA_C_32F); // Computation type
 
 		int inembed[1];
@@ -82,8 +82,7 @@ namespace holovibes
 		new_fd2.depth = 8;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, cd_.stft_level, "STFTQueue"));
 
-		const uint batch_size = cd_.stft_steps * input_.get_fd().frame_res();
-		if (!buffers_.gpu_input_buffer_.resize(batch_size))
+		if (!buffers_.gpu_input_buffer_.resize(cd_.batch_size * input_.get_fd().frame_res()))
 			err++;
 
 		int output_buffer_size = input_.get_frame_res();
@@ -369,6 +368,12 @@ namespace holovibes
 
 		average_requested_ = true;
 		average_record_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_update_batch_size()
+	{
+		request_update_batch_size_ = true;
 		request_refresh();
 	}
 

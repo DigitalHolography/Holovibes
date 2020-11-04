@@ -17,17 +17,18 @@
 
 #include <cufft.h>
 
-#include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "rect.hh"
 #include "cuda_tools\unique_ptr.hh"
 #include "cuda_tools\array.hh"
 #include "cuda_tools\cufft_handle.hh"
+#include "function_vector.hh"
 
 namespace holovibes
 {
 	class Queue;
 	class ComputeDescriptor;
+	struct BatchEnv;
 	struct Stft_env;
 	struct CoreBuffers;
 
@@ -39,11 +40,12 @@ namespace holovibes
 			/*! \brief Constructor.
 
 			*/
-			FourierTransform(FnVector& fn_vect,
+			FourierTransform(FunctionVector& fn_vect,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
 				cuda_tools::CufftHandle& plan2d,
+				const BatchEnv& batch_env,
 				Stft_env& stft_env);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
@@ -110,7 +112,7 @@ namespace holovibes
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
 
 			/// Vector function in which we insert the processing
-			FnVector&						fn_vect_;
+			FunctionVector&					fn_vect_;
 			//! Main buffers
 			const CoreBuffers&				buffers_;
 			/// Describes the frame size
@@ -118,9 +120,11 @@ namespace holovibes
 			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
 			//! Pland 2D. Used by FFTs (1, 2, filter2D).
-			cuda_tools::CufftHandle&				plan2d_;
+			cuda_tools::CufftHandle&		plan2d_;
+			//! Batch environment.
+			const BatchEnv& 				batch_env_;
 			//! STFT environment.
-			Stft_env&						stft_env_;
+			Stft_env&					stft_env_;
 		};
 	}
 }
