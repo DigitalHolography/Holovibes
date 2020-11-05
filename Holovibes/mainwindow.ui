@@ -1256,7 +1256,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>STFT/PCA cuts</string>
+              <string>Time filter cuts</string>
              </property>
             </widget>
            </item>
@@ -1314,6 +1314,13 @@
             <property name="bottomMargin">
              <number>2</number>
             </property>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide by convolved image</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0">
              <layout class="QHBoxLayout" name="kernelSelectLayout">
               <item>
@@ -1325,19 +1332,18 @@
               </item>
               <item>
                <widget class="QComboBox" name="KernelQuickSelectComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="currentText">
                  <string/>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="DivideConvoCheckBox">
-              <property name="text">
-               <string>Divide by convolved image</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </widget>
