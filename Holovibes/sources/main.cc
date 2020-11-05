@@ -42,6 +42,30 @@ void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context
 	std::cout << str << "\n";
 }
 
+static void check_cuda_graphic_card(bool gui)
+{
+	int nDevices;
+	cudaError_t status = cudaGetDeviceCount(&nDevices);
+	if (status == cudaSuccess)
+		return;
+
+	std::string error_message = "No CUDA graphic card detected.\n"
+								"You will not be able to run Holovibes.\n\n"
+								"Try to update your graphic drivers.";
+
+	if (gui)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(0, "No CUDA graphic card detected", QString::fromUtf8(error_message.c_str()));
+		messageBox.setFixedSize(800, 300);
+	}
+	else
+	{
+		LOG_WARN(error_message);
+	}
+	std::exit(1);
+}
+
 int main(int argc, char* argv[])
 {
 	// Custom Qt message handler
@@ -79,10 +103,13 @@ int main(int argc, char* argv[])
 		// Resizing horizontally the window before starting
 		w.layout_toggled();
 
+		check_cuda_graphic_card(true);
+
 		return a.exec();
 	}
 	else
 	{
+		check_cuda_graphic_card(false);
 		/* --- CLI mode --- */
 		try
 		{
