@@ -56,6 +56,7 @@ set(HOLO_INCLUDES
 add_library("${PROJECT_NAME}_cuda_lib" STATIC)
 
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
+set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
 
 target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE Qt5::Core)
 
