@@ -42,19 +42,19 @@ namespace holovibes
 		Queue& output,
 		ComputeDescriptor& cd)
 		: cd_(cd),
-		input_(input),
-		output_(output),
+		gpu_input_queue_(input),
+		gpu_output_queue_(output),
 		requested_output_size_(global::global_config.output_queue_max_size),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
 
 		plan_unwrap_2d_.plan(
-			input_.get_fd().height,
-			input_.get_fd().width,
+			gpu_input_queue_.get_fd().height,
+			gpu_input_queue_.get_fd().width,
 			CUFFT_C2C);
 
-		const camera::FrameDescriptor& fd = input_.get_fd();
+		const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
 		long long int n[] = {fd.height, fd.width};
 
 		plan2d_.XtplanMany(2,	// 2D
@@ -69,7 +69,7 @@ namespace holovibes
 							CUDA_C_32F); // Computation type
 
 		int inembed[1];
-		int zone_size = input_.get_frame_res();
+		int zone_size = gpu_input_queue_.get_frame_res();
 
 		inembed[0] = cd_.time_filter_size;
 
@@ -78,19 +78,19 @@ namespace holovibes
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
 
-		camera::FrameDescriptor new_fd = input_.get_fd();
+		camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
 		new_fd.depth = 8;
 		time_filter_env_.gpu_time_filter_queue.reset(new Queue(new_fd, cd_.time_filter_size, "STFTQueue"));
 
-		if (!buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_.get_fd().frame_res()))
+		if (!buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * gpu_input_queue_.get_fd().frame_res()))
 			err++;
 
-		int output_buffer_size = input_.get_frame_res();
+		int output_buffer_size = gpu_input_queue_.get_frame_res();
 		if (cd_.img_type == Composite)
 			output_buffer_size *= 3;
 		if (!buffers_.gpu_output_frame.resize(output_buffer_size))
 			err++;
-		buffers_.gpu_postprocess_frame_size = input_.get_frame_res();
+		buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_frame_res();
 
 		if (cd_.img_type == ImgType::Composite)
 			buffers_.gpu_postprocess_frame_size *= 3;
@@ -118,14 +118,14 @@ namespace holovibes
 			/* CUFFT plan1d realloc */
 			int inembed_stft[1] = { time_filter_size };
 
-			int zone_size = input_.get_frame_res();
+			int zone_size = gpu_input_queue_.get_frame_res();
 
 			time_filter_env_.plan1d_stft.planMany(1, inembed_stft,
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
 		}
-		time_filter_env_.gpu_p_acc_buffer.resize(input_.get_frame_res() * time_filter_size);
+		time_filter_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_frame_res() * time_filter_size);
 
 		// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
 		time_filter_env_.pca_cov.resize(time_filter_size * time_filter_size);
@@ -159,20 +159,20 @@ namespace holovibes
 
 	void ICompute::update_spatial_filter_parameters()
 	{
-		const auto& input_fd = input_.get_fd();
+		const auto& gpu_input_queue_fd = gpu_input_queue_.get_fd();
 		batch_env_.batch_index = 0;
 		// We avoid the depth in the multiplication because the resize already take it into account
-		buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_fd.frame_res());
+		buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * gpu_input_queue_fd.frame_res());
 
-		long long int n[] = {input_fd.height, input_fd.width};
+		long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
 		plan2d_.XtplanMany(2,	// 2D
 							n,	// Dimension of inner most & outer most dimension
 							n,	// Storage dimension size
 							1,	// Between two inputs (pixels) of same image distance is one
-							input_fd.frame_res(), // Distance between 2 same index pixels of 2 images
+							gpu_input_queue_fd.frame_res(), // Distance between 2 same index pixels of 2 images
 							CUDA_C_32F, // Input type
-							n, 1, input_fd.frame_res(), // Ouput layout same as input
+							n, 1, gpu_input_queue_fd.frame_res(), // Ouput layout same as input
 							CUDA_C_32F, // Output type
 							cd_.batch_size, // Batch size
 							CUDA_C_32F); // Computation type
@@ -180,7 +180,7 @@ namespace holovibes
 
 	void ICompute::init_cuts()
 	{
-		camera::FrameDescriptor fd_xz = output_.get_fd();
+		camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
 		fd_xz.depth = sizeof(ushort);
 		uint buffer_depth = sizeof(float);
@@ -211,7 +211,7 @@ namespace holovibes
 	{
 		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
 		{
-			auto fd = input_.get_fd();
+			auto fd = gpu_input_queue_.get_fd();
 			gpu_raw_queue_ = std::make_unique<Queue>(fd, global::global_config.output_queue_max_size, "RawOutputQueue");
 		}
 		return gpu_raw_queue_;
@@ -398,7 +398,7 @@ namespace holovibes
 			auto time = std::chrono::high_resolution_clock::now();
 			long long diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
 			InfoManager *manager = gui::InfoManager::get_manager();
-			const camera::FrameDescriptor& output_fd = output_.get_fd();
+			const camera::FrameDescriptor& output_fd = gpu_output_queue_.get_fd();
 
 			if (diff)
 			{
@@ -407,7 +407,7 @@ namespace holovibes
 				const long long voxelPerSecond = fps * output_fd.frame_res() * cd_.time_filter_size;
 				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
-				const long long bytePerSecond = fps * input_.get_fd().frame_size() * cd_.time_filter_stride;
+				const long long bytePerSecond = fps * gpu_input_queue_.get_fd().frame_size() * cd_.time_filter_stride;
 				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
 					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
 			}

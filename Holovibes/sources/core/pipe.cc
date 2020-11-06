@@ -129,7 +129,7 @@ namespace holovibes
 
 		if (output_resize_requested_)
 		{
-			output_.resize(requested_output_size_);
+			gpu_output_queue_.resize(requested_output_size_);
 			output_resize_requested_ = false;
 		}
 
@@ -189,7 +189,7 @@ namespace holovibes
 			return;
 		}
 
-		const camera::FrameDescriptor& input_fd = input_.get_fd();
+		const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
 		/* Begin insertions */
 
@@ -197,7 +197,7 @@ namespace holovibes
 
 		insert_raw_view_enqueue();
 
-		converts_->insert_complex_conversion(input_);
+		converts_->insert_complex_conversion(gpu_input_queue_);
 
 		// spatial transform
 		fourier_transforms_->insert_fft();
@@ -281,13 +281,13 @@ namespace holovibes
 				auto copy_lambda = [&]()
 				{
 					unsigned int raw_frames_copy = std::min(static_cast<unsigned int>(cd_.batch_size.load()), remaining_raw_frames_copy_);
-					input_.copy_multiple(*get_raw_queue(), raw_frames_copy);
+					gpu_input_queue_.copy_multiple(*get_raw_queue(), raw_frames_copy);
 					remaining_raw_frames_copy_ -= raw_frames_copy;
 				};
 				copy_frames_for_recording(copy_lambda);
 			}
 			else if (cd_.raw_view)
-				input_.copy_multiple(*get_raw_queue(), cd_.batch_size);
+				gpu_input_queue_.copy_multiple(*get_raw_queue(), cd_.batch_size);
 		});
 	}
 
@@ -305,7 +305,7 @@ namespace holovibes
 	{
 		fn_compute_vect_.push_back([&](){
 			// Wait while the input queue is enough filled
-			while (input_.get_size() < cd_.batch_size);
+			while (gpu_input_queue_.get_size() < cd_.batch_size);
 		});
 	}
 
@@ -338,21 +338,21 @@ namespace holovibes
 	{
 		fn_compute_vect_.push_back([&]()
 		{
-			enqueue_output(output_,
-						   static_cast<unsigned short*>(input_.get_start()),
+			enqueue_output(gpu_output_queue_,
+						   static_cast<unsigned short*>(gpu_input_queue_.get_start()),
 						   cd_.is_recording && !cd_.record_raw,
-						   "Can't enqueue the input frame in output queue");
-			input_.dequeue();
+						   "Can't enqueue the input frame in gpu_output_queue");
+			gpu_input_queue_.dequeue();
 		});
 	}
 
 	void Pipe::insert_hologram_enqueue_output()
 	{
 		fn_compute_vect_.conditional_push_back([&](){
-			enqueue_output(output_,
+			enqueue_output(gpu_output_queue_,
 						   buffers_.gpu_output_frame.get(),
 						   cd_.is_recording && !cd_.record_raw,
-						   "Can't enqueue the output frame in output queue");
+						   "Can't enqueue the output frame in gpu_output_queue");
 
 			// Always enqueue the cuts if enabled
 			if (cd_.time_filter_cuts_enabled)
@@ -377,12 +377,12 @@ namespace holovibes
 	void Pipe::exec()
 	{
 		if (global::global_config.flush_on_refresh)
-			input_.clear();
+			gpu_input_queue_.clear();
 		while (!termination_requested_)
 		{
 			try
 			{
-				if (input_.get_size() >= 1)
+				if (gpu_input_queue_.get_size() >= 1)
 				{
 					// Run the entire pipeline of calculation
 					run_all();

@@ -235,9 +235,9 @@ namespace holovibes
 		ComputeDescriptor&	cd_;
 
 		/** Reference on the input queue, owned by MainWindow. */
-		Queue&	input_;
+		Queue&	gpu_input_queue_;
 		/** Reference on the output queue, owned by MainWindow. */
-		Queue&	output_;
+		Queue&	gpu_output_queue_;
 
 		/** Interface allowing to use the GPIB dll. */
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
