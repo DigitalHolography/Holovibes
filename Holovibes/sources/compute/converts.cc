@@ -31,7 +31,7 @@ namespace holovibes
 		Converts::Converts(FunctionVector& fn_compute_vect,
 			const CoreBuffersEnv& buffers,
 			const BatchEnv& batch_env,
-			const TimeFilterEnv& stft_env,
+			const TimeFilterEnv& time_filter_env,
 			cuda_tools::CufftHandle& plan_unwrap_2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
@@ -41,7 +41,7 @@ namespace holovibes
 			, fn_compute_vect_(fn_compute_vect)
 			, buffers_(buffers)
 			, batch_env_(batch_env)
-			, stft_env_(stft_env)
+			, time_filter_env_(time_filter_env)
 			, unwrap_res_()
 			, unwrap_res_2d_()
 			, plan_unwrap_2d_(plan_unwrap_2d)
@@ -97,7 +97,7 @@ namespace holovibes
 			fn_compute_vect_.conditional_push_back([=]() {
 				complex_to_modulus(
 					buffers_.gpu_postprocess_frame,
-					stft_env_.gpu_p_acc_buffer,
+					time_filter_env_.gpu_p_acc_buffer,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
@@ -109,7 +109,7 @@ namespace holovibes
 			fn_compute_vect_.conditional_push_back([=]() {
 				complex_to_squared_modulus(
 					buffers_.gpu_postprocess_frame,
-					stft_env_.gpu_p_acc_buffer,
+					time_filter_env_.gpu_p_acc_buffer,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
@@ -124,7 +124,7 @@ namespace holovibes
 					return;
 
 				if(cd_.composite_kind == CompositeKind::RGB)
-					rgb(stft_env_.gpu_p_acc_buffer.get(),
+					rgb(time_filter_env_.gpu_p_acc_buffer.get(),
 						buffers_.gpu_postprocess_frame,
 						fd_.frame_res(),
 						cd_.composite_auto_weights_,
@@ -134,7 +134,7 @@ namespace holovibes
 						cd_.weight_g,
 						cd_.weight_b);
 				else
-					hsv(stft_env_.gpu_p_acc_buffer.get(),
+					hsv(time_filter_env_.gpu_p_acc_buffer.get(),
 						buffers_.gpu_postprocess_frame,
 						fd_.width,
 						fd_.height,
@@ -154,7 +154,7 @@ namespace holovibes
 		{
 			fn_compute_vect_.conditional_push_back([=]() {
 				complex_to_argument(buffers_.gpu_postprocess_frame,
-					stft_env_.gpu_p_acc_buffer, pmin_, pmax_, fd_.frame_res()); });
+					time_filter_env_.gpu_p_acc_buffer, pmin_, pmax_, fd_.frame_res()); });
 
 			if (unwrap_2d_requested)
 			{
@@ -200,7 +200,7 @@ namespace holovibes
 				unwrap_res_->reallocate(fd_.frame_res());
 				fn_compute_vect_.conditional_push_back([=]() {
 					phase_increase(
-						stft_env_.gpu_p_frame,
+						time_filter_env_.gpu_p_frame,
 						unwrap_res_.get(),
 						fd_.frame_res());
 				});
@@ -263,14 +263,14 @@ namespace holovibes
 				float_to_ushort(
 					buffers_.gpu_postprocess_frame_xz.get(),
 					buffers_.gpu_output_frame_xz,
-					stft_env_.gpu_output_queue_xz->get_fd().frame_res(),
+					time_filter_env_.gpu_output_queue_xz->get_fd().frame_res(),
 					2.f);
 			});
 			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
 					buffers_.gpu_postprocess_frame_yz.get(),
 					buffers_.gpu_output_frame_yz,
-					stft_env_.gpu_output_queue_yz->get_fd().frame_res(),
+					time_filter_env_.gpu_output_queue_yz->get_fd().frame_res(),
 					2.f);
 			});
 		}

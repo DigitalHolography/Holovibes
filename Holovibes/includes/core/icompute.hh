@@ -18,13 +18,13 @@
 #include <atomic>
 #include <memory>
 
-# include "config.hh"
-# include "rect.hh"
-# include "observable.hh"
-# include "gpib_controller.hh"
-# include "frame_desc.hh"
-# include "unique_ptr.hh"
-# include "cufft_handle.hh"
+#include "config.hh"
+#include "rect.hh"
+#include "observable.hh"
+#include "gpib_controller.hh"
+#include "frame_desc.hh"
+#include "unique_ptr.hh"
+#include "cufft_handle.hh"
 
 namespace holovibes
 {
@@ -49,9 +49,9 @@ namespace holovibes
 		 Could be removed by changing gpu_postprocess_frame type to cuda_tools::Array. */
 		unsigned int							gpu_postprocess_frame_size = 0;
 		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame. */
-		cuda_tools::UniquePtr<float>				gpu_postprocess_frame_xz = nullptr;
+		cuda_tools::UniquePtr<float>			gpu_postprocess_frame_xz = nullptr;
 		/** Float YZ buffer. Contains only one frame. We fill it with the correct computed p YZ frame. */
-		cuda_tools::UniquePtr<float>				gpu_postprocess_frame_yz = nullptr;
+		cuda_tools::UniquePtr<float>			gpu_postprocess_frame_yz = nullptr;
 
 		/** Unsigned Short output buffer. Contains only one frame, inserted after all postprocessing on float_buffer */
 		cuda_tools::UniquePtr<unsigned short>	gpu_output_frame = nullptr;
@@ -97,10 +97,10 @@ namespace holovibes
 		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;
 
 		// The following are used for the PCA time filter
-		cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
-		cuda_tools::UniquePtr<cuComplex> pca_tmp_buffer = nullptr;
-		cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
-		cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
+		cuda_tools::UniquePtr<cuComplex> 	pca_cov = nullptr;
+		cuda_tools::UniquePtr<cuComplex> 	pca_tmp_buffer = nullptr;
+		cuda_tools::UniquePtr<float>		pca_eigen_values = nullptr;
+		cuda_tools::UniquePtr<int>			pca_dev_info = nullptr;
 	};
 
 	/** \brief Structure containing variables related to the chart computation and recording. */
@@ -249,7 +249,7 @@ namespace holovibes
 		BatchEnv batch_env_;
 
 		/** STFT environment. */
-		TimeFilterEnv stft_env_;
+		TimeFilterEnv time_filter_env_;
 
 		/** Chart environment. */
 		ChartEnv	chart_env_;

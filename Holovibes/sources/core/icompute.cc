@@ -73,14 +73,14 @@ namespace holovibes
 
 		inembed[0] = cd_.time_filter_size;
 
-		stft_env_.plan1d_stft.planMany(1, inembed,
+		time_filter_env_.plan1d_stft.planMany(1, inembed,
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
 
 		camera::FrameDescriptor new_fd = input_.get_fd();
 		new_fd.depth = 8;
-		stft_env_.gpu_time_filter_queue.reset(new Queue(new_fd, cd_.time_filter_size, "STFTQueue"));
+		time_filter_env_.gpu_time_filter_queue.reset(new Queue(new_fd, cd_.time_filter_size, "STFTQueue"));
 
 		if (!buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_.get_fd().frame_res()))
 			err++;
@@ -99,7 +99,7 @@ namespace holovibes
 			err++;
 
 		// Init the gpu_p_frame with the size of input image
-		if (!stft_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
+		if (!time_filter_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
 			err++;
 
 		if (err != 0)
@@ -120,27 +120,27 @@ namespace holovibes
 
 			int zone_size = input_.get_frame_res();
 
-			stft_env_.plan1d_stft.planMany(1, inembed_stft,
+			time_filter_env_.plan1d_stft.planMany(1, inembed_stft,
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
 		}
-		stft_env_.gpu_p_acc_buffer.resize(input_.get_frame_res() * time_filter_size);
+		time_filter_env_.gpu_p_acc_buffer.resize(input_.get_frame_res() * time_filter_size);
 
 		// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
-		stft_env_.pca_cov.resize(time_filter_size * time_filter_size);
-		stft_env_.pca_tmp_buffer.resize(time_filter_size * time_filter_size);
-		stft_env_.pca_eigen_values.resize(time_filter_size);
-		stft_env_.pca_dev_info.resize(1);
+		time_filter_env_.pca_cov.resize(time_filter_size * time_filter_size);
+		time_filter_env_.pca_tmp_buffer.resize(time_filter_size * time_filter_size);
+		time_filter_env_.pca_eigen_values.resize(time_filter_size);
+		time_filter_env_.pca_dev_info.resize(1);
 
 		try
 		{
 			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work */
-			stft_env_.gpu_time_filter_queue->resize(time_filter_size);
+			time_filter_env_.gpu_time_filter_queue->resize(time_filter_size);
 		}
 		catch (std::exception&)
 		{
-			stft_env_.gpu_time_filter_queue.reset(nullptr);
+			time_filter_env_.gpu_time_filter_queue.reset(nullptr);
 			request_time_filter_cuts_ = false;
 			request_delete_time_filter_cuts_ = true;
 			dispose_cuts();
@@ -187,8 +187,8 @@ namespace holovibes
 		auto fd_yz = fd_xz;
 		fd_xz.height = cd_.time_filter_size;
 		fd_yz.width = cd_.time_filter_size;
-		stft_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutXZ"));
-		stft_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutYZ"));
+		time_filter_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutXZ"));
+		time_filter_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutYZ"));
 		buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
 		buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
 
@@ -203,8 +203,8 @@ namespace holovibes
 		buffers_.gpu_output_frame_xz.reset(nullptr);
 		buffers_.gpu_output_frame_yz.reset(nullptr);
 
-		stft_env_.gpu_output_queue_xz.reset(nullptr);
-		stft_env_.gpu_output_queue_yz.reset(nullptr);
+		time_filter_env_.gpu_output_queue_xz.reset(nullptr);
+		time_filter_env_.gpu_output_queue_yz.reset(nullptr);
 	}
 
 	std::unique_ptr<Queue>& ICompute::get_raw_queue()
@@ -241,7 +241,7 @@ namespace holovibes
 
 	std::unique_ptr<Queue>&	ICompute::get_stft_slice_queue(int slice)
 	{
-		return slice ? stft_env_.gpu_output_queue_yz : stft_env_.gpu_output_queue_xz;
+		return slice ? time_filter_env_.gpu_output_queue_yz : time_filter_env_.gpu_output_queue_xz;
 	}
 
 	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)

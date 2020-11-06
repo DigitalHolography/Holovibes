@@ -46,7 +46,7 @@ namespace holovibes
 				holovibes::ComputeDescriptor& cd,
 				cuda_tools::CufftHandle& plan2d,
 				const BatchEnv& batch_env,
-				TimeFilterEnv& stft_env);
+				TimeFilterEnv& time_filter_env);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
 
@@ -124,7 +124,7 @@ namespace holovibes
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
 			//! STFT environment.
-			TimeFilterEnv&					stft_env_;
+			TimeFilterEnv&					time_filter_env_;
 		};
 	}
 }

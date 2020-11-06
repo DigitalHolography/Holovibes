@@ -40,7 +40,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	holovibes::ComputeDescriptor& cd,
 	holovibes::cuda_tools::CufftHandle& plan2d,
 	const holovibes::BatchEnv& batch_env,
-	holovibes::TimeFilterEnv& stft_env)
+	holovibes::TimeFilterEnv& time_filter_env)
 	: gpu_lens_()
 	, gpu_lens_queue_()
 	, gpu_filter2d_buffer_()
@@ -50,7 +50,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	, cd_(cd)
 	, plan2d_(plan2d)
 	, batch_env_(batch_env)
-	, stft_env_(stft_env)
+	, time_filter_env_(time_filter_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
 	gpu_filter2d_buffer_.resize(fd_.frame_res() * cd_.batch_size);
@@ -158,8 +158,8 @@ void FourierTransform::insert_store_p_frame()
 
 		/* Copies with DeviceToDevice (which is the case here) are asynchronous with respect to the host
 		* but never overlap with kernel execution*/
-		cudaXMemcpyAsync(stft_env_.gpu_p_frame,
-				(cuComplex*)stft_env_.gpu_p_acc_buffer + cd_.pindex * frame_res,
+		cudaXMemcpyAsync(time_filter_env_.gpu_p_frame,
+				(cuComplex*)time_filter_env_.gpu_p_acc_buffer + cd_.pindex * frame_res,
 				sizeof(cuComplex) * frame_res,
 				cudaMemcpyDeviceToDevice);
 	});
@@ -168,9 +168,9 @@ void FourierTransform::insert_store_p_frame()
 void FourierTransform::insert_stft()
 {
 	fn_compute_vect_.conditional_push_back([=]() {
-		stft(stft_env_.gpu_time_filter_queue.get(),
-		stft_env_.gpu_p_acc_buffer,
-		stft_env_.plan1d_stft);
+		stft(time_filter_env_.gpu_time_filter_queue.get(),
+		time_filter_env_.gpu_p_acc_buffer,
+		time_filter_env_.plan1d_stft);
 	 });
 }
 
@@ -210,13 +210,13 @@ void FourierTransform::insert_eigenvalue_filter()
 		constexpr cuComplex alpha{ 1, 0 };
 		constexpr cuComplex beta{ 0, 0 };
 
-		cudaXMemcpy(stft_env_.gpu_p_acc_buffer.get(),
-					stft_env_.gpu_time_filter_queue->get_data(),
+		cudaXMemcpy(time_filter_env_.gpu_p_acc_buffer.get(),
+					time_filter_env_.gpu_time_filter_queue->get_data(),
 					fd_.frame_res() * cd_.time_filter_size * sizeof(cuComplex),
 					cudaMemcpyDeviceToDevice);
 
-		cuComplex* H = stft_env_.gpu_p_acc_buffer.get();
-		cuComplex* cov = stft_env_.pca_cov.get();
+		cuComplex* H = time_filter_env_.gpu_p_acc_buffer.get();
+		cuComplex* cov = time_filter_env_.pca_cov.get();
 
 		// cov = H' * H
 		cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
@@ -235,7 +235,7 @@ void FourierTransform::insert_eigenvalue_filter()
 			cd_.time_filter_size));
 
 		// Setup eigen values parameters
-		float* W = stft_env_.pca_eigen_values.get();
+		float* W = time_filter_env_.pca_eigen_values.get();
 		int lwork = 0;
 		cusolverSafeCall(cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
 			CUSOLVER_EIG_MODE_VECTOR,
@@ -260,7 +260,7 @@ void FourierTransform::insert_eigenvalue_filter()
 			W,
 			work.get(),
 			lwork,
-			stft_env_.pca_dev_info.get()));
+			time_filter_env_.pca_dev_info.get()));
 
 		// eigen vectors
 		cuComplex* V = cov;
@@ -302,7 +302,7 @@ void FourierTransform::insert_time_filter_cuts_view()
 				mouse_posy = cursorPos.y();
 			}
 			// -----------------------------------------------------
-			time_filter_cuts_begin(stft_env_.gpu_p_acc_buffer,
+			time_filter_cuts_begin(time_filter_env_.gpu_p_acc_buffer,
 				buffers_.gpu_postprocess_frame_xz.get(),
 				buffers_.gpu_postprocess_frame_yz.get(),
 				mouse_posx,

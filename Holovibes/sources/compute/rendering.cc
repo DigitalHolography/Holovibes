@@ -27,7 +27,7 @@ namespace holovibes
 			const CoreBuffersEnv& buffers,
 			ChartEnv& chart_env,
 			const ImageAccEnv& image_acc_env,
-			const TimeFilterEnv& stft_env,
+			const TimeFilterEnv& time_filter_env,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
@@ -36,7 +36,7 @@ namespace holovibes
 			, buffers_(buffers)
 			, chart_env_(chart_env)
 			, image_acc_env_(image_acc_env)
-			, stft_env_(stft_env)
+			, time_filter_env_(time_filter_env)
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
@@ -200,7 +200,7 @@ namespace holovibes
 			// refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
 				// Compute autocontrast once the gpu stft queue is full
-				if (!stft_env_.gpu_time_filter_queue->is_full())
+				if (!time_filter_env_.gpu_time_filter_queue->is_full())
 					return;
 
 				if (autocontrast_request && (!image_acc_env_.gpu_accumulation_xy_queue ||

@@ -46,7 +46,7 @@ namespace holovibes
 				const CoreBuffersEnv& buffers,
 				ChartEnv& chart_env,
 				const ImageAccEnv& image_acc_env,
-				const TimeFilterEnv& stft_env,
+				const TimeFilterEnv& time_filter_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
@@ -127,7 +127,7 @@ namespace holovibes
 			/// Chart variables
 			ChartEnv&						chart_env_;
 			/// Time filter environment
-			const TimeFilterEnv&			stft_env_;
+			const TimeFilterEnv&			time_filter_env_;
 			/// Image accumulation environment
 			const ImageAccEnv& 				image_acc_env_;
 			/// Describes the input frame size

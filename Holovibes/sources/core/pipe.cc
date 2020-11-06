@@ -49,9 +49,9 @@ namespace holovibes
 		fn_end_vect_ = FunctionVector(batch_condition);
 
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, stft_env_);
-		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, stft_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, stft_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, time_filter_env_);
+		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, time_filter_env_, desc, input.get_fd(), output.get_fd(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, time_filter_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc);
 
 		update_time_filter_size_requested_ = true;
@@ -295,7 +295,7 @@ namespace holovibes
 	{
 		fn_compute_vect_.push_back([&]()
 		{
-			stft_env_.gpu_time_filter_queue->enqueue_multiple(buffers_.gpu_spatial_filter_buffer.get(), cd_.batch_size);
+			time_filter_env_.gpu_time_filter_queue->enqueue_multiple(buffers_.gpu_spatial_filter_buffer.get(), cd_.batch_size);
 			batch_env_.batch_index += cd_.batch_size;
 			assert(batch_env_.batch_index <= cd_.time_filter_stride);
 		});
@@ -357,11 +357,11 @@ namespace holovibes
 			// Always enqueue the cuts if enabled
 			if (cd_.time_filter_cuts_enabled)
 			{
-				safe_enqueue_output(*stft_env_.gpu_output_queue_xz.get(),
+				safe_enqueue_output(*time_filter_env_.gpu_output_queue_xz.get(),
 					buffers_.gpu_output_frame_xz.get(),
 					"Can't enqueue the output xz frame in output xz queue");
 
-				safe_enqueue_output(*stft_env_.gpu_output_queue_yz.get(),
+				safe_enqueue_output(*time_filter_env_.gpu_output_queue_yz.get(),
 					buffers_.gpu_output_frame_yz.get(),
 					"Can't enqueue the output yz frame in output yz queue");
 			}
