@@ -301,7 +301,7 @@ namespace holovibes
 		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z{ 0 };
 		//! Number of pipe iterations between two temporal demodulation.
-		std::atomic<int>			time_filter_stride{ 1 };
+		std::atomic<uint>			time_filter_stride{ 1 };
 
 		std::atomic<int>			unwrap_history_size{ 1 };
 		//! is convolution enabled
