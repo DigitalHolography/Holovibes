@@ -70,7 +70,7 @@ namespace holovibes
 			}
 		}
 
-		void ImageAccumulation::allocate_accumulation_queues()
+		void ImageAccumulation::init()
 		{
 			// XY view
 			if (cd_.img_acc_slice_xy_enabled)
@@ -82,8 +82,6 @@ namespace holovibes
 					cd_.img_acc_slice_xy_level,
 					new_fd);
 			}
-			else
-				image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
 
 			// XZ view
 			if (cd_.img_acc_slice_xz_enabled)
@@ -108,6 +106,16 @@ namespace holovibes
 					cd_.img_acc_slice_yz_level,
 					new_fd);
 			}
+		}
+
+		void ImageAccumulation::dispose()
+		{
+			if (cd_.img_acc_slice_xy_enabled)
+				image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
+			if (cd_.img_acc_slice_xz_enabled)
+				image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
+			if (cd_.img_acc_slice_yz_enabled)
+				image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 		}
 
 		void ImageAccumulation::compute_average(

@@ -80,13 +80,14 @@ namespace holovibes
 			{
 				T* tmp;
 				size *= _private::element_size<T>::value;
-				auto code = cudaMalloc(&tmp, size);
+				reset(nullptr); // Free itself first
+				auto code = cudaMalloc(&tmp, size); // Allocate memory
 				if (code != cudaSuccess)
 				{
 					LOG_ERROR(std::string("cudaMalloc: ") + cudaGetErrorString(code));
 					tmp = nullptr;
 				}
-				reset(tmp);
+				reset(tmp); // Update pointer
 				return tmp;
 			}
 		};

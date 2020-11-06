@@ -58,10 +58,11 @@ namespace holovibes
 			*/
 			void insert_image_accumulation();
 
-			/*!
-			** \brief Handle the allocation of the accumulation queues and average frames
-			*/
-			void allocate_accumulation_queues();
+			/*! \brief Allocate ressources for image accumulation if requested */
+			void init();
+
+			/*! \brief Free ressources for image accumulation */
+			void dispose();
 
 		private:
 			/*!

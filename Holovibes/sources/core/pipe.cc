@@ -87,15 +87,51 @@ namespace holovibes
 
 	bool Pipe::make_requests()
 	{
+		// In order to have a better memory management, free all the ressources
+		// that needs to be freed first and allocate the ressources that need
+		// to be allocated in second
+
 		bool success_allocation = true;
+
+		/* Free buffers */
+		if (cd_.convolution_changed && !cd_.convolution_enabled)
+		{
+			postprocess_->dispose();
+			cd_.convolution_changed = false; // Aknowledge signal from gui
+		}
+
+		if (request_disable_lens_view_)
+		{
+			fourier_transforms_->get_lens_queue().reset(nullptr);
+			request_disable_lens_view_ = false;
+		}
+
+		if (kill_raw_queue_requested_) // Destroy gpu raw queue
+		{
+			gpu_raw_queue_.reset(nullptr);
+			kill_raw_queue_requested_ = false;
+		}
+
+		if (request_delete_time_filter_cuts_)
+		{
+			dispose_cuts();
+			request_delete_time_filter_cuts_ = false;
+		}
+
+		image_accumulation_->dispose(); // done only if requested
+
+		/* Allocate buffer */
+		if (cd_.convolution_changed && cd_.convolution_enabled)
+		{
+			postprocess_->init();
+			cd_.convolution_changed = false; // Aknowledge signal from gui
+		}
 
 		if (output_resize_requested_)
 		{
 			output_.resize(requested_output_size_);
 			output_resize_requested_ = false;
 		}
-
-		postprocess_->allocate_buffers();
 
 		// Updating number of images
 		if (update_time_filter_size_requested_)
@@ -111,54 +147,25 @@ namespace holovibes
 			update_time_filter_size_requested_ = false;
 		}
 
-		const auto& input_fd = input_.get_fd();
-
 		if (request_update_time_filter_stride_)
 		{
 			batch_env_.batch_index = 0;
-
 			request_update_time_filter_stride_ = false;
 		}
 
 		if (request_update_batch_size_)
 		{
-			batch_env_.batch_index = 0;
-			// We avoid the depth in the multiplication because the resize already take it into account
-			buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_fd.frame_res());
-
-			long long int n[] = {input_fd.height, input_fd.width};
-
-			plan2d_.XtplanMany(2,	// 2D
-								n,	// Dimension of inner most & outer most dimension
-								n,	// Storage dimension size
-								1,	// Between two inputs (pixels) of same image distance is one
-								input_fd.frame_res(), // Distance between 2 same index pixels of 2 images
-								CUDA_C_32F, // Input type
-								n, 1, input_fd.frame_res(), // Ouput layout same as input
-								CUDA_C_32F, // Output type
-								cd_.batch_size, // Batch size
-								CUDA_C_32F); // Computation type
-
+			update_spatial_filter_parameters();
 			request_update_batch_size_ = false;
 		}
 
-		if (request_disable_lens_view_)
+		if (request_time_filter_cuts_)
 		{
-			fourier_transforms_->get_lens_queue().reset(nullptr);
-			request_disable_lens_view_ = false;
+			init_cuts();
+			request_time_filter_cuts_ = false;
 		}
 
-		// Allocating cuts queues
-		make_cuts_requests();
-
-		if (kill_raw_queue_requested_) // Destroy gpu raw queue
-		{
-			gpu_raw_queue_.reset(nullptr);
-			kill_raw_queue_requested_ = false;
-		}
-
-		// Allocating accumulation queues/buffers
-		image_accumulation_->allocate_accumulation_queues();
+		image_accumulation_->init(); // done only if requested
 
 		return success_allocation;
 	}

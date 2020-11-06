@@ -78,9 +78,9 @@ namespace holovibes
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
 
-		camera::FrameDescriptor new_fd2 = input_.get_fd();
-		new_fd2.depth = 8;
-		stft_env_.gpu_time_filter_queue.reset(new Queue(new_fd2, cd_.time_filter_size, "STFTQueue"));
+		camera::FrameDescriptor new_fd = input_.get_fd();
+		new_fd.depth = 8;
+		stft_env_.gpu_time_filter_queue.reset(new Queue(new_fd, cd_.time_filter_size, "STFTQueue"));
 
 		if (!buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_.get_fd().frame_res()))
 			err++;
@@ -115,8 +115,6 @@ namespace holovibes
 	{
 		unsigned int err_count = 0;
 		{
-			stft_env_.gpu_p_acc_buffer.reset();
-			stft_env_.plan1d_stft.reset();
 			/* CUFFT plan1d realloc */
 			int inembed_stft[1] = { time_filter_size };
 
@@ -126,37 +124,26 @@ namespace holovibes
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
-			stft_env_.gpu_p_acc_buffer.resize(input_.get_frame_res() * time_filter_size);
-
-			// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
-			stft_env_.pca_cov.reset();
-			stft_env_.pca_tmp_buffer.reset();
-			stft_env_.pca_eigen_values.reset();
-			stft_env_.pca_dev_info.reset();
-
-			stft_env_.pca_cov.resize(time_filter_size * time_filter_size);
-			stft_env_.pca_tmp_buffer.resize(time_filter_size * time_filter_size);
-			stft_env_.pca_eigen_values.resize(time_filter_size);
-			stft_env_.pca_dev_info.resize(1);
 		}
+		stft_env_.gpu_p_acc_buffer.resize(input_.get_frame_res() * time_filter_size);
 
-		stft_env_.gpu_time_filter_queue.reset();
+		// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
+		stft_env_.pca_cov.resize(time_filter_size * time_filter_size);
+		stft_env_.pca_tmp_buffer.resize(time_filter_size * time_filter_size);
+		stft_env_.pca_eigen_values.resize(time_filter_size);
+		stft_env_.pca_dev_info.resize(1);
 
-
-		camera::FrameDescriptor new_fd = input_.get_fd();
-		// gpu_stft_queue is a complex queue
-		new_fd.depth = 8;
 		try
 		{
 			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work */
-			stft_env_.gpu_time_filter_queue.reset(new Queue(new_fd, time_filter_size, "STFTQueue"));
+			stft_env_.gpu_time_filter_queue->resize(time_filter_size);
 		}
 		catch (std::exception&)
 		{
-			stft_env_.gpu_time_filter_queue.reset();
+			stft_env_.gpu_time_filter_queue.reset(nullptr);
 			request_time_filter_cuts_ = false;
 			request_delete_time_filter_cuts_ = true;
-			make_cuts_requests();
+			dispose_cuts();
 			err_count++;
 		}
 
@@ -170,38 +157,54 @@ namespace holovibes
 		return true;
 	}
 
-	void ICompute::make_cuts_requests()
+	void ICompute::update_spatial_filter_parameters()
 	{
-		if (request_time_filter_cuts_)
-		{
-			camera::FrameDescriptor fd_xz = output_.get_fd();
+		const auto& input_fd = input_.get_fd();
+		batch_env_.batch_index = 0;
+		// We avoid the depth in the multiplication because the resize already take it into account
+		buffers_.gpu_spatial_filter_buffer.resize(cd_.batch_size * input_fd.frame_res());
 
-			fd_xz.depth = sizeof(ushort);
-			uint buffer_depth = sizeof(float);
-			auto fd_yz = fd_xz;
-			fd_xz.height = cd_.time_filter_size;
-			fd_yz.width = cd_.time_filter_size;
-			stft_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutXZ"));
-			stft_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutYZ"));
-			buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
-			buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
+		long long int n[] = {input_fd.height, input_fd.width};
 
-			buffers_.gpu_output_frame_xz.resize(fd_xz.frame_res());
-			buffers_.gpu_output_frame_yz.resize(fd_yz.frame_res());
-			request_time_filter_cuts_ = false;
-		}
+		plan2d_.XtplanMany(2,	// 2D
+							n,	// Dimension of inner most & outer most dimension
+							n,	// Storage dimension size
+							1,	// Between two inputs (pixels) of same image distance is one
+							input_fd.frame_res(), // Distance between 2 same index pixels of 2 images
+							CUDA_C_32F, // Input type
+							n, 1, input_fd.frame_res(), // Ouput layout same as input
+							CUDA_C_32F, // Output type
+							cd_.batch_size, // Batch size
+							CUDA_C_32F); // Computation type
+	}
 
-		if (request_delete_time_filter_cuts_)
-		{
-			buffers_.gpu_postprocess_frame_xz.reset();
-			buffers_.gpu_postprocess_frame_yz.reset();
-			buffers_.gpu_output_frame_xz.reset();
-			buffers_.gpu_output_frame_yz.reset();
+	void ICompute::init_cuts()
+	{
+		camera::FrameDescriptor fd_xz = output_.get_fd();
 
-			stft_env_.gpu_output_queue_xz.reset();
-			stft_env_.gpu_output_queue_yz.reset();
-			request_delete_time_filter_cuts_ = false;
-		}
+		fd_xz.depth = sizeof(ushort);
+		uint buffer_depth = sizeof(float);
+		auto fd_yz = fd_xz;
+		fd_xz.height = cd_.time_filter_size;
+		fd_yz.width = cd_.time_filter_size;
+		stft_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutXZ"));
+		stft_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_filter_cuts_output_buffer_size, "STFTCutYZ"));
+		buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
+		buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
+
+		buffers_.gpu_output_frame_xz.resize(fd_xz.frame_res());
+		buffers_.gpu_output_frame_yz.resize(fd_yz.frame_res());
+	}
+
+	void ICompute::dispose_cuts()
+	{
+		buffers_.gpu_postprocess_frame_xz.reset(nullptr);
+		buffers_.gpu_postprocess_frame_yz.reset(nullptr);
+		buffers_.gpu_output_frame_xz.reset(nullptr);
+		buffers_.gpu_output_frame_yz.reset(nullptr);
+
+		stft_env_.gpu_output_queue_xz.reset(nullptr);
+		stft_env_.gpu_output_queue_yz.reset(nullptr);
 	}
 
 	std::unique_ptr<Queue>& ICompute::get_raw_queue()

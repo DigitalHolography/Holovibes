@@ -41,49 +41,41 @@ namespace holovibes
 			, cd_(cd)
 			, plan_(input_fd.width, input_fd.height, CUFFT_C2C)
 		{
-			allocate_buffers();
 		}
 
-		void Postprocessing::allocate_buffers()
+		void Postprocessing::init()
 		{
-			if (cd_.convolution_changed)
-			{
-				if (cd_.convolution_enabled)
-				{
-					size_t width = fd_.width;
-					size_t height = fd_.height;
-					size_t frame_res = width * height;
+			const unsigned int width = fd_.width;
+			const unsigned int height = fd_.height;
+			const size_t frame_res = width * height;
 
-					//No need for memset here since it will be completely overwritten by cuComplex values
-					buffers_.gpu_convolution_buffer.resize(frame_res);
+			//No need for memset here since it will be completely overwritten by cuComplex values
+			buffers_.gpu_convolution_buffer.resize(frame_res);
 
-					//No need for memset here since it will be memset in the actual convolution
-					cuComplex_buffer_.resize(frame_res);
+			//No need for memset here since it will be memset in the actual convolution
+			cuComplex_buffer_.resize(frame_res);
 
-					gpu_kernel_buffer_.resize(frame_res);
-					cudaXMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
-					cudaSafeCall(cudaMemcpy2D(gpu_kernel_buffer_.get(),
-								 sizeof(cuComplex),
-								 cd_.convo_matrix.data(),
-								 sizeof(float), sizeof(float),
-								 frame_res,
-								 cudaMemcpyHostToDevice));
-					//We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
-					shift_corners(gpu_kernel_buffer_.get(), 1, width, height);
-					cufftSafeCall(cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
+			gpu_kernel_buffer_.resize(frame_res);
+			cudaXMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
+			cudaSafeCall(cudaMemcpy2D(gpu_kernel_buffer_.get(),
+							sizeof(cuComplex),
+							cd_.convo_matrix.data(),
+							sizeof(float), sizeof(float),
+							frame_res,
+							cudaMemcpyHostToDevice));
+			//We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
+			shift_corners(gpu_kernel_buffer_.get(), 1, width, height);
+			cufftSafeCall(cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
 
-					hsv_arr_.resize(frame_res * 3);
+			hsv_arr_.resize(frame_res * 3);
+		}
 
-				}
-				else
-				{
-					buffers_.gpu_convolution_buffer.reset();
-					cuComplex_buffer_.reset();
-					gpu_kernel_buffer_.reset();
-					hsv_arr_.reset();
-				}
-				cd_.convolution_changed = false; //Aknowledge signal from gui
-			}
+		void Postprocessing::dispose()
+		{
+			buffers_.gpu_convolution_buffer.reset();
+			cuComplex_buffer_.reset();
+			gpu_kernel_buffer_.reset();
+			hsv_arr_.reset();
 		}
 
 		void Postprocessing::convolution_composite()

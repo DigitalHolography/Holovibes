@@ -220,7 +220,10 @@ namespace holovibes
 		virtual void pipe_error(const int& err_count, std::exception& e);
 		virtual bool update_time_filter_size(const unsigned short time_filter_size);
 
-		void make_cuts_requests();
+		/* Manage ressources */
+		virtual void update_spatial_filter_parameters();
+		void init_cuts();
+		void dispose_cuts();
 
 		void fps_count();
 

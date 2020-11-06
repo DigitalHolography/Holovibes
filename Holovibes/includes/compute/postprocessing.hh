@@ -33,27 +33,24 @@ namespace holovibes
 		class Postprocessing
 		{
 		public:
-			/** \brief Constructor.
-
-			*/
+			/** \brief Constructor. */
 			Postprocessing(FunctionVector& fn_compute_vect,
 				CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
-			/** \brief Allocates convolution buffers.
-
+			/*! \brief Initialize convolution by allocating the corresponding
+			** buffer
 			*/
-			void allocate_buffers();
+			void init();
 
-			/** \brief Insert the Convolution function. TODO: Check if it works.
+			/*! \brief Free the ressources for the postprocessing */
+			void dispose();
 
-			*/
+			/*! \brief Insert the Convolution function. TODO: Check if it works. */
 			void insert_convolution();
 
-			/** \brief Insert the normalization function.
-
-			*/
+			/*! \brief Insert the normalization function. */
 			void insert_renormalize();
 
 		private:
