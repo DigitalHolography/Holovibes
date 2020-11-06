@@ -164,15 +164,6 @@ namespace holovibes
 		void request_kill_raw_queue();
 		void request_disable_lens_view();
 
-		/*!
-		 * \brief Updates the queues size
-		 */
-		void update_acc_parameter(
-			std::unique_ptr<Queue>& gpu_img_acc,
-			std::atomic<bool>& enabled,
-			std::atomic<unsigned int>& queue_length,
-			camera::FrameDescriptor new_fd);
-
 		/*! \brief Execute one iteration of the ICompute.
 		*
 		* * Checks the number of frames in input queue that must at least
