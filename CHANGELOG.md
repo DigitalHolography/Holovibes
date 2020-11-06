@@ -1,5 +1,14 @@
 ## Changelog
 
+### 8.5
+
+* Allow using a different batch size from stft step (decorrelate both parameters)
+* Rename parameters and queue/buffers names for consistency (Direct -> Raw, stft -> time filter, SVD -> PCA)
+* Fix raw recording: copy only required frames to raw queue, prevent skipping frames
+* Improve computations pipe by freeing up resources before new allocations
+* Clean GUI (remove Postprocessing panel: move chart in Export panel and convolution in View panel)
+* More error handling (queues, CUDA not detected)
+
 ### 8.4.1
 
 * Remove dead code and unused functions
