@@ -36,6 +36,7 @@ namespace holovibes
 		{
 			Raw = 1, /**< Simply displaying the input frames */
 			Hologram, /**< Applying the demodulation and computations on the input frames */
+			Lens, /**< Displaying the FFT1/FFT2 lens view */
 			SliceXZ, /**< Displaying the XZ view of the hologram */
 			SliceYZ /**< Displaying the YZ view of the hologram */
 		};

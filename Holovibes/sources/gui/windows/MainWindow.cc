@@ -1814,7 +1814,8 @@ namespace holovibes
 
 					lens_window.reset(new RawWindow(pos,
 													QSize(lens_window_width, lens_window_height),
-													pipe->get_lens_queue()));
+													pipe->get_lens_queue(),
+													KindOfView::Lens));
 
 					lens_window->setTitle("Lens view");
 					lens_window->setCd(&cd_);

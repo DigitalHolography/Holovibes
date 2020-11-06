@@ -253,7 +253,8 @@ namespace holovibes
 			}
 			else
 			{
-				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0);
+				ushort bitshift = kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
+				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, bitshift);
 			}
 
 			// Release resources (needs to be done at each call) and sync, sync usefull since memcpy not async and kernel has a cudaDeviceSyncronize ?
