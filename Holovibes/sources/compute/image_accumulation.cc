@@ -110,11 +110,11 @@ namespace holovibes
 
 		void ImageAccumulation::dispose()
 		{
-			if (cd_.img_acc_slice_xy_enabled)
+			if (!cd_.img_acc_slice_xy_enabled)
 				image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
-			if (cd_.img_acc_slice_xz_enabled)
+			if (!cd_.img_acc_slice_xz_enabled)
 				image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
-			if (cd_.img_acc_slice_yz_enabled)
+			if (!cd_.img_acc_slice_yz_enabled)
 				image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 		}
 
