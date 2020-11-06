@@ -429,6 +429,20 @@ namespace holovibes
 		std::atomic<CompositeKind>	composite_kind;
 
 		std::atomic<bool>			composite_auto_weights_;
+
+		// Record Description
+		/*! \brief boolean to start copying frames in case of raw recording */
+		std::atomic<bool>			request_recorder_copy_frames{ false };
+		/*! \brief Number of frames to record */
+		std::atomic<uint>			nb_frames_record{ 0 };
+		/*! \brief flag to tell the copy of frames is done in case of raw
+		** recording
+		*/
+		std::atomic<bool>			copy_frames_done{ false };
+		/*! \brief flag to signal the recording has started/stopped. Used by the
+		** thread compute and set by thread recorder
+		*/
+		std::atomic<bool>			is_recording{ false };
 		//! \}
 
 #pragma endregion

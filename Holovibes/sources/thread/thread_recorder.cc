@@ -22,15 +22,17 @@ namespace holovibes
 		ThreadRecorder::ThreadRecorder(
 			Queue& queue,
 			const std::string& filepath,
-			const unsigned int n_images,
 			const json& json_settings,
+			ComputeDescriptor& cd,
 			QObject* parent)
 			: QThread(parent)
 			, queue_(queue)
-			, recorder_(queue, filepath)
-			, n_images_(n_images)
-			, json_settings_(json_settings)
+			, recorder_(queue, filepath, cd, json_settings)
 		{
+			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+
+			progress_bar->setMaximum(cd.nb_frames_record);
+			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
 		}
 
 		ThreadRecorder::~ThreadRecorder()
@@ -44,12 +46,7 @@ namespace holovibes
 
 		void ThreadRecorder::run()
 		{
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
-
-			queue_.clear();
-			progress_bar->setMaximum(n_images_);
-			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-			recorder_.record(n_images_, json_settings_);
+			recorder_.record();
 		}
 	}
 }

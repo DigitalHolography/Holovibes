@@ -155,6 +155,53 @@ namespace holovibes
 		*/
 		void insert_reset_batch_index();
 
+		/*!
+		** \brief This method is used to synchronize the thread compute and
+		** the thread recorder. In addition, it performs the transfer of frames
+		** to the queue used for the recording. The queue is referenced in the
+		** lambda.
+		**
+		** Mainwindow creates the thread recorder and call the record method.
+		** In the record method, the thread recorder set
+		** request_recorder_copy_frames to true to request the transfer of
+		** frames, Then, this thread waits for the request to be completed by
+		** the thread compute. Then, the thread compute transfers the number of
+		** frames requested. Then, set the flag (copy_frames_done) to tell the
+		** transfer is done. This allows the thread recorder to know that the
+		** transfer is actually done.
+		** Has to be called only if a recording is being done
+		**
+		** \param copy_function the technique used to copy frame(s), enqueue
+		** or copy multiple...
+		*/
+		void copy_frames_for_recording(std::function<void()> copy_function);
+
+		/*!
+		** \brief Enqueue a frame in a output queue. The behavior is different
+		** whether a recording is being done. Call the copy frames for recording
+		** method if it is recording. Do a simple enqueue otherwise.
+		**
+		** \param output_queue Queue in which the frame is enqueued
+		** \param frame Frame to enqueue
+		** \param is_recording Flag to check if it is recording
+		** \param error Error message when an error occurs
+		*/
+		void enqueue_output(Queue& output_queue,
+							unsigned short* frame,
+							bool is_recording,
+							const std::string& error);
+
+		/*!
+		** \brief Enqueue a frame in an output queue
+		**
+		** \param output_queue Queue in which the frame is enqueued
+		** \param frame Frame to enqueue
+		** \param error Error message when an error occurs
+		*/
+		void safe_enqueue_output(Queue& output_queue,
+									unsigned short* frame,
+									const std::string& error);
+
 	private:
 		//! Vector of functions that will be executed in the exec() function.
 		FunctionVector fn_compute_vect_;
@@ -171,6 +218,10 @@ namespace holovibes
 		std::unique_ptr<compute::Rendering> rendering_;
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
+
+
+		/** Remaining number of raw frames to copy (on recording) */
+		unsigned int remaining_raw_frames_copy_;
 
 		/*! \brief Iterates and executes function of the pipe.
 

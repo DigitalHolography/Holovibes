@@ -140,11 +140,14 @@ namespace holovibes
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
 
-		Recorder recorder = Recorder(*((tcompute_) ? gpu_output_queue_ : gpu_input_queue_),
-			filepath);
+		Recorder recorder = Recorder(
+			*((tcompute_) ? gpu_output_queue_ : gpu_input_queue_),
+			filepath,
+			cd_,
+			HoloFile::get_json_settings(cd_, get_gpu_output_queue()->get_fd()));
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder.record(rec_n_images, HoloFile::get_json_settings(cd_, get_gpu_output_queue()->get_fd()));
+		recorder.record();
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}
 

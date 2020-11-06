@@ -72,6 +72,10 @@ namespace holovibes
 		stft_roi_zone = cd.stft_roi_zone;
 		filter2D_sub_zone = cd.filter2D_sub_zone;
 		contrast_auto_refresh = cd.contrast_auto_refresh.load();
+		request_recorder_copy_frames = cd.request_recorder_copy_frames.load();
+		nb_frames_record = cd.nb_frames_record.load();
+		copy_frames_done = cd.copy_frames_done.load();
+		is_recording = cd.is_recording.load();
 		return *this;
 	}
 

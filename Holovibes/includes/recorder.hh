@@ -28,6 +28,7 @@ using json = ::nlohmann::json;
 namespace holovibes
 {
 	class Queue;
+	class ComputeDescriptor;
 }
 
 namespace holovibes
@@ -57,10 +58,14 @@ namespace holovibes
 		 *
 		 * \param queue The source queue.
 		 * \param filepath The absolute path to the destination file.
+		 * \param cd The compute descriptor (hold the recording description)
+		 * \param json_settings Settings from the main window ui
 		 */
 		Recorder(
 			Queue& queue,
-			const std::string& filepath);
+			const std::string& filepath,
+			ComputeDescriptor& cd,
+			const json& json_settings);
 
 		~Recorder();
 
@@ -69,7 +74,7 @@ namespace holovibes
 		 * Recorder is thread safe and you can stop this function anytime
 		 * by using the "stop" button.
 		 */
-		void record(const unsigned int n_images, const json& json_settings);
+		void record();
 
 		/*! \brief Stop current record */
 		void stop();
@@ -84,5 +89,12 @@ namespace holovibes
 		std::ofstream file_;
 		bool stop_requested_;
 		std::string output_path_;
+
+		ComputeDescriptor& cd_;
+
+		/*! \brief Settings for the footer and header
+		** Get a copy to avoid a abort()
+		*/
+		const json json_settings_;
 	};
 }

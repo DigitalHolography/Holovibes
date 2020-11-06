@@ -27,10 +27,14 @@ namespace holovibes
 {
 	Recorder::Recorder(
 		Queue& queue,
-		const std::string& filepath)
+		const std::string& filepath,
+		ComputeDescriptor& cd,
+		const json& json_settings)
 		: queue_(queue)
 		, file_()
 		, stop_requested_(false)
+		, cd_(cd)
+		, json_settings_(json_settings)
 	{
 		output_path_ = filepath;
 		file_.open(filepath, std::ios::binary | std::ios::trunc);
@@ -44,19 +48,31 @@ namespace holovibes
 		_chdir(execDir.c_str());
 	}
 
-	void Recorder::record(const unsigned int n_images, const json& json_settings)
+	void Recorder::record()
 	{
+		// Flag to start the process of recording in the thread compute
+		cd_.is_recording = true;
+		queue_.clear();
+		// Request enqueueing (or copying) frames for recording
+		cd_.request_recorder_copy_frames = true;
+
+		const unsigned int n_images = cd_.nb_frames_record;
+
+		// While the request hasn't been completed
+		while (cd_.request_recorder_copy_frames)
+			continue;
+
 		const size_t size = queue_.get_frame_size();
-		char* buffer = new char[size]();
-		size_t cur_size = queue_.get_size();
-		const size_t max_size = queue_.get_max_size();
+		char* buffer = new char[size];
+		unsigned int cur_size = queue_.get_size();
+		const unsigned int max_size = queue_.get_max_size();
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
 		auto header = HoloFile::create_header(
-			json_settings.value("pixel_bits", 8),
-			json_settings.value("img_width", 1024),
-			json_settings.value("img_height", 1024),
+			json_settings_.value("pixel_bits", 8),
+			json_settings_.value("img_width", 1024),
+			json_settings_.value("img_height", 1024),
 			n_images
 		);
 		file_.write((char*)(&header), sizeof(HoloFile::Header));
@@ -64,11 +80,16 @@ namespace holovibes
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
 		size_t written_bytes = 0;
 
-		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
+		// The for can be break for two reasons:
+		// -> the recording is requested to stop
+		// -> the thread compute terminated copying frames and the queue is empty
+		// The thread computes has the tasks to copy the correct number of frames
+		unsigned int nb_frames_written = 0;
+		while (!stop_requested_ && (queue_.get_size() > 0 || !cd_.copy_frames_done))
 		{
 			auto start_time = std::chrono::steady_clock::now();
 
-			while (queue_.get_size() < 1)
+			while (queue_.get_size() == 0)
 				std::this_thread::yield();
 
 			cur_size = queue_.get_size();
@@ -101,18 +122,32 @@ namespace holovibes
 			long long saving_rate = written_bytes / microseconds; // bytes / microsecond which is equal to MegaByte / second
 			gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
 
-			emit value_change(i);
+
+			++nb_frames_written;
+			emit value_change(nb_frames_written);
 		}
 
-
-		std::string json_str = json_settings.dump();
+		std::string json_str = json_settings_.dump();
 		file_.write(json_str.data(), json_str.size());
 		file_.close();
 
-		LOG_INFO("[RECORDER] record done !");
+		if (nb_frames_written == n_images)
+			LOG_INFO("[RECORDER] Record succeed !");
+		else
+		{
+		 	LOG_INFO("[RECORDER] Record failed ! Number of frames written "
+			 	+ std::to_string(nb_frames_written) + "/"
+				+ std::to_string(n_images) + ".");
+			LOG_INFO("[RECORDER] Increase output queue size !");
+		}
+
 		gui::InfoManager::get_manager()->remove_info("Recording");
 		gui::InfoManager::get_manager()->remove_info("Saving Throughput");
+
 		delete[] buffer;
+
+		// End of recording
+		cd_.is_recording = false;
 	}
 
 	void Recorder::stop()

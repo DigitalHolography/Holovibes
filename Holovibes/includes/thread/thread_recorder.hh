@@ -24,6 +24,8 @@
 # include "json.hh"
 using json = ::nlohmann::json;
 
+#include "compute_descriptor.hh"
+
 /* Forward declaration. */
 namespace holovibes
 {
@@ -48,15 +50,15 @@ namespace holovibes
 			**
 			** \param queue Queue from where to fetch data
 			** \param filepath string containing output path of record
-			** \param n_images number of frames to record
 			** \param json_settings Settings from the main window ui
+			** \param cd The compute descriptor (hold the recording description)
 			** \param parent Qt parent
 			*/
 			ThreadRecorder(
 				Queue& queue,
 				const std::string& filepath,
-				const unsigned int n_images,
 				const json& json_settings,
+				ComputeDescriptor& cd,
 				QObject* parent = nullptr);
 
 			virtual ~ThreadRecorder();
@@ -78,10 +80,6 @@ namespace holovibes
 			Queue& queue_;
 			/*! Recorder object */
 			Recorder recorder_;
-			/*! Number of frames to record */
-			unsigned int n_images_;
-			/*! Settings from the main window ui */
-			json json_settings_;
 		};
 	}
 }

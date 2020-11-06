@@ -247,17 +247,47 @@ namespace holovibes
 		});
 	}
 
+	void Pipe::copy_frames_for_recording(std::function<void()> copy_function)
+	{
+		// Start recording if requested
+		if (cd_.request_recorder_copy_frames)
+		{
+			cd_.copy_frames_done = false;
+			remaining_raw_frames_copy_ = cd_.nb_frames_record;
+			cd_.request_recorder_copy_frames = false;
+		}
+
+		if (remaining_raw_frames_copy_ > 0)
+		{
+			copy_function();
+			if (remaining_raw_frames_copy_ == 0)
+				cd_.copy_frames_done = true;
+		}
+	}
+
 	void Pipe::insert_raw_view_enqueue()
 	{
 		fn_compute_vect_.push_back([&](){
-			if (cd_.raw_view || cd_.record_raw)
+			// The raw view and raw recording can't be enabled at the same time
+			if (cd_.is_recording && cd_.record_raw)
+			{
+				auto copy_lambda = [&]()
+				{
+					unsigned int raw_frames_copy = std::min(static_cast<unsigned int>(cd_.batch_size.load()), remaining_raw_frames_copy_);
+					input_.copy_multiple(*get_raw_queue(), raw_frames_copy);
+					remaining_raw_frames_copy_ -= raw_frames_copy;
+				};
+				copy_frames_for_recording(copy_lambda);
+			}
+			else if (cd_.raw_view)
 				input_.copy_multiple(*get_raw_queue(), cd_.batch_size);
 		});
 	}
 
 	void Pipe::insert_transfer_for_time_filter()
 	{
-		fn_compute_vect_.push_back([&](){
+		fn_compute_vect_.push_back([&]()
+		{
 			stft_env_.gpu_time_filter_queue->enqueue_multiple(buffers_.gpu_spatial_filter_buffer.get(), cd_.batch_size);
 			batch_env_.batch_index += cd_.batch_size;
 			assert(batch_env_.batch_index <= cd_.time_filter_stride);
@@ -272,12 +302,39 @@ namespace holovibes
 		});
 	}
 
+	void Pipe::safe_enqueue_output(Queue& output_queue,
+									  unsigned short* frame,
+									  const std::string& error)
+	{
+		if (!output_queue.enqueue(frame))
+			throw CustomException(error, error_kind::fail_enqueue);
+	}
+
+	void Pipe::enqueue_output(Queue& output_queue,
+							  unsigned short* frame,
+							  bool is_recording,
+							  const std::string& error)
+	{
+		if (is_recording)
+		{
+			auto lambda = [&]() {
+				safe_enqueue_output(output_queue, frame, error);
+				remaining_raw_frames_copy_ -= 1;
+			};
+			copy_frames_for_recording(lambda);
+		}
+		else
+			safe_enqueue_output(output_queue, frame, error);
+	}
+
 	void Pipe::insert_raw_enqueue_output()
 	{
 		fn_compute_vect_.push_back([&]()
 		{
-			if (!output_.enqueue(input_.get_start()))
-				throw CustomException("Can't enqueue the input frame in output_queue", error_kind::fail_enqueue);
+			enqueue_output(output_,
+						   static_cast<unsigned short*>(input_.get_start()),
+						   cd_.is_recording && !cd_.record_raw,
+						   "Can't enqueue the input frame in output queue");
 			input_.dequeue();
 		});
 	}
@@ -285,15 +342,21 @@ namespace holovibes
 	void Pipe::insert_hologram_enqueue_output()
 	{
 		fn_compute_vect_.conditional_push_back([&](){
-			if (!output_.enqueue(buffers_.gpu_output_frame))
-				throw CustomException("Can't enqueue the output frame in output_queue", error_kind::fail_enqueue);
+			enqueue_output(output_,
+						   buffers_.gpu_output_frame.get(),
+						   cd_.is_recording && !cd_.record_raw,
+						   "Can't enqueue the output frame in output queue");
 
+			// Always enqueue the cuts if enabled
 			if (cd_.time_filter_cuts_enabled)
 			{
-				if (!stft_env_.gpu_output_queue_xz->enqueue(buffers_.gpu_output_frame_xz.get()))
-					throw CustomException("Can't enqueue the output xz frame in output xz queue", error_kind::fail_enqueue);
-				if (!stft_env_.gpu_output_queue_yz->enqueue(buffers_.gpu_output_frame_yz.get()))
-					throw CustomException("Can't enqueue the output yz frame in output yz queue", error_kind::fail_enqueue);
+				safe_enqueue_output(*stft_env_.gpu_output_queue_xz.get(),
+					buffers_.gpu_output_frame_xz.get(),
+					"Can't enqueue the output xz frame in output xz queue");
+
+				safe_enqueue_output(*stft_env_.gpu_output_queue_yz.get(),
+					buffers_.gpu_output_frame_yz.get(),
+					"Can't enqueue the output yz frame in output yz queue");
 			}
 		});
 	}

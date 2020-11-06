@@ -259,7 +259,7 @@ namespace holovibes
 				&& cd_.synchronized_record);
 
 			// Raw view
-			ui.RawDisplayingCheckBox->setEnabled(!is_raw);
+			ui.RawDisplayingCheckBox->setEnabled(!is_raw && !cd_.record_raw);
 			ui.RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view);
 
 			// Chart
@@ -2748,9 +2748,10 @@ namespace holovibes
 			QSpinBox*  nb_of_frames_spinbox = ui.NumberOfFramesSpinBox;
 			QLineEdit* path_line_edit = ui.ImageOutputPathLineEdit;
 
-			int nb_of_frames = nb_of_frames_spinbox->value();
-			if (nb_of_frames == 0)
+			cd_.nb_frames_record = nb_of_frames_spinbox->value();
+			if (cd_.nb_frames_record == 0)
 				return;
+
 			std::string path = path_line_edit->text().toUtf8();
 			if (path == "")
 				return display_error("No output file");
@@ -2769,7 +2770,7 @@ namespace holovibes
 				if (queue)
 				{
 					path = set_record_filename_properties(queue->get_fd(), path, false);
-					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(queue), this));
+					record_thread_.reset(new ThreadRecorder(*queue, path, holo_file_get_json_settings(queue), cd_, this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					if (cd_.synchronized_record)
@@ -2786,6 +2787,10 @@ namespace holovibes
 
 					ui.RawRecordingCheckBox->setDisabled(true);
 					ui.SynchronizedRecordCheckBox->setDisabled(true);
+					// Record button
+					ui.ImageOutputRecPushButton->setEnabled(false);
+					ui.ImageOutputBatchPushButton->setEnabled(false);
+
 				}
 				else
 					throw std::exception("Unable to launch record");
@@ -2807,6 +2812,8 @@ namespace holovibes
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 			ui.ImageOutputStopPushButton->setDisabled(true);
+			ui.ImageOutputRecPushButton->setEnabled(true);
+			ui.ImageOutputBatchPushButton->setEnabled(true);
 
 			if (cd_.record_raw && !cd_.raw_view)
 			{
@@ -2873,7 +2880,7 @@ namespace holovibes
 
 			// Getting the path to the input batch file, and the number of frames to record.
 			const std::string input_path = batch_input_line_edit->text().toUtf8();
-			const uint frame_nb = frame_nb_spin_box->value();
+			cd_.nb_frames_record = frame_nb_spin_box->value();
 			std::string formatted_path;
 
 			try
@@ -2896,7 +2903,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(q), this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, holo_file_get_json_settings(q), cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -2909,7 +2916,7 @@ namespace holovibes
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 							holovibes_.get_chart_queue(),
 							formatted_path,
-							frame_nb,
+							cd_.nb_frames_record,
 							this));
 						connect(CSV_record_thread_.get(),
 							SIGNAL(finished()),
@@ -2923,7 +2930,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(q), this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, holo_file_get_json_settings(q), cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -2936,7 +2943,7 @@ namespace holovibes
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 							holovibes_.get_chart_queue(),
 							formatted_path,
-							frame_nb,
+							cd_.nb_frames_record,
 							this));
 						connect(CSV_record_thread_.get(),
 							SIGNAL(finished()),
@@ -2986,14 +2993,14 @@ namespace holovibes
 
 			std::string output_filename = format_batch_output(path, file_index_);
 			output_filename = set_record_filename_properties(q->get_fd(), output_filename, false);
-			const uint frame_nb = frame_nb_spin_box->value();
+			cd_.nb_frames_record = frame_nb_spin_box->value();
 			if (is_batch_img_)
 			{
 				try
 				{
 					if (gpib_interface_->execute_next_block())
 					{
-						record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, holo_file_get_json_settings(q), this));
+						record_thread_.reset(new ThreadRecorder(*q, output_filename, holo_file_get_json_settings(q), cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3018,7 +3025,7 @@ namespace holovibes
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 							holovibes_.get_chart_queue(),
 							output_filename,
-							frame_nb,
+							cd_.nb_frames_record,
 							this));
 						connect(CSV_record_thread_.get(),
 							SIGNAL(finished()),
