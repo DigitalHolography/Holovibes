@@ -38,7 +38,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	const holovibes::CoreBuffersEnv& buffers,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd,
-	holovibes::cuda_tools::CufftHandle& plan2d,
+	holovibes::cuda_tools::CufftHandle& spatial_filter_plan,
 	const holovibes::BatchEnv& batch_env,
 	holovibes::TimeFilterEnv& time_filter_env)
 	: gpu_lens_()
@@ -48,7 +48,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
-	, plan2d_(plan2d)
+	, spatial_filter_plan_(spatial_filter_plan)
 	, batch_env_(batch_env)
 	, time_filter_env_(time_filter_env)
 {
@@ -86,7 +86,7 @@ void FourierTransform::insert_filter2d()
 				buffers_.gpu_spatial_filter_buffer,
 				gpu_filter2d_buffer_,
 				cd_.batch_size,
-				plan2d_,
+				spatial_filter_plan_,
 				filter2d_zone_,
 				filter2d_subzone_,
 				fd_
@@ -101,7 +101,7 @@ void FourierTransform::insert_filter2d()
 				buffers_.gpu_spatial_filter_buffer,
 				gpu_filter2d_buffer_,
 				cd_.batch_size,
-				plan2d_,
+				spatial_filter_plan_,
 				filter2d_zone_,
 				fd_,
 				exclude_roi);
@@ -125,7 +125,7 @@ void FourierTransform::insert_fft1()
 			buffers_.gpu_spatial_filter_buffer,
 			cd_.batch_size,
 			gpu_lens_.get(),
-			plan2d_,
+			spatial_filter_plan_,
 			fd_.frame_res());
 	});
 }
@@ -146,7 +146,7 @@ void FourierTransform::insert_fft2()
 			buffers_.gpu_spatial_filter_buffer,
 			cd_.batch_size,
 			gpu_lens_.get(),
-			plan2d_,
+			spatial_filter_plan_,
 			fd_);
 	});
 }

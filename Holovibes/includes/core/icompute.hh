@@ -252,7 +252,7 @@ namespace holovibes
 		std::unique_ptr<Queue> gpu_raw_queue_;
 
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
-		cuda_tools::CufftHandle	plan2d_;
+		cuda_tools::CufftHandle	spatial_filter_plan_;
 
 		/** Pland 2D. Used for unwrap 2D. */
 		cuda_tools::CufftHandle	plan_unwrap_2d_;

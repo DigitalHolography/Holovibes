@@ -57,7 +57,7 @@ namespace holovibes
 		const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
 		long long int n[] = {fd.height, fd.width};
 
-		plan2d_.XtplanMany(2,	// 2D
+		spatial_filter_plan_.XtplanMany(2,	// 2D
 							n,	// Dimension of inner most & outer most dimension
 							n,	// Storage dimension size
 							1,	// Between two inputs (pixels) of same image distance is one
@@ -166,7 +166,7 @@ namespace holovibes
 
 		long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
-		plan2d_.XtplanMany(2,	// 2D
+		spatial_filter_plan_.XtplanMany(2,	// 2D
 							n,	// Dimension of inner most & outer most dimension
 							n,	// Storage dimension size
 							1,	// Between two inputs (pixels) of same image distance is one

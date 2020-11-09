@@ -44,7 +44,7 @@ namespace holovibes
 				const CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
-				cuda_tools::CufftHandle& plan2d,
+				cuda_tools::CufftHandle& spatial_filter_plan,
 				const BatchEnv& batch_env,
 				TimeFilterEnv& time_filter_env);
 
@@ -120,7 +120,7 @@ namespace holovibes
 			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
 			//! Pland 2D. Used by FFTs (1, 2, filter2D).
-			cuda_tools::CufftHandle&		plan2d_;
+			cuda_tools::CufftHandle&		spatial_filter_plan_;
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
 			//! STFT environment.

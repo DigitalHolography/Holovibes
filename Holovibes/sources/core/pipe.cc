@@ -49,7 +49,7 @@ namespace holovibes
 		fn_end_vect_ = FunctionVector(batch_condition);
 
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, plan2d_, batch_env_, time_filter_env_);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, spatial_filter_plan_, batch_env_, time_filter_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, time_filter_env_, desc, input.get_fd(), output.get_fd(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, time_filter_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc);
