@@ -91,7 +91,7 @@ namespace holovibes
 		/** STFT YZ Queue. Contains the ouput of the STFT on slice YZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
 		std::unique_ptr<Queue>				gpu_output_queue_yz = nullptr;
 		/** Plan 1D used for the STFT. */
-		cuda_tools::CufftHandle				plan1d_stft;
+		cuda_tools::CufftHandle				stft_plan;
 
 		/** Hold the P frame after the time filter computation. **/
 		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;

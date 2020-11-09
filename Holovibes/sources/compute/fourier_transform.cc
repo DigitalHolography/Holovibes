@@ -170,7 +170,7 @@ void FourierTransform::insert_stft()
 	fn_compute_vect_.conditional_push_back([=]() {
 		stft(time_filter_env_.gpu_time_filter_queue.get(),
 		time_filter_env_.gpu_p_acc_buffer,
-		time_filter_env_.plan1d_stft);
+		time_filter_env_.stft_plan);
 	 });
 }
 

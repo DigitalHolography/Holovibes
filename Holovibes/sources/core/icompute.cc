@@ -73,7 +73,7 @@ namespace holovibes
 
 		inembed[0] = cd_.time_filter_size;
 
-		time_filter_env_.plan1d_stft.planMany(1, inembed,
+		time_filter_env_.stft_plan.planMany(1, inembed,
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
@@ -120,7 +120,7 @@ namespace holovibes
 
 			int zone_size = gpu_input_queue_.get_frame_res();
 
-			time_filter_env_.plan1d_stft.planMany(1, inembed_stft,
+			time_filter_env_.stft_plan.planMany(1, inembed_stft,
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
