@@ -2,7 +2,10 @@
 
 ### 8.5.1
 
+* Add new modes in chart
+* Reduce default size of input_queue
 * Fix raw queue allocation (synchronization between UI and backend)
+* Fix memory leaks when opening raw windows
 
 ### 8.5
 
