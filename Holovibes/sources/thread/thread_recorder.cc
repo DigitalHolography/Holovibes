@@ -26,7 +26,6 @@ namespace holovibes
 			ComputeDescriptor& cd,
 			QObject* parent)
 			: QThread(parent)
-			, queue_(queue)
 			, recorder_(queue, filepath, cd, json_settings)
 		{
 			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();

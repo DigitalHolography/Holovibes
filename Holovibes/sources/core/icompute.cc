@@ -209,15 +209,10 @@ namespace holovibes
 
 	std::unique_ptr<Queue>& ICompute::get_raw_queue()
 	{
-		if (!gpu_raw_queue_ && (cd_.raw_view || cd_.record_raw))
-		{
-			auto fd = gpu_input_queue_.get_fd();
-			gpu_raw_queue_ = std::make_unique<Queue>(fd, global::global_config.output_queue_max_size, "RawOutputQueue");
-		}
 		return gpu_raw_queue_;
 	}
 
-	void	ICompute::delete_stft_slice_queue()
+	void ICompute::delete_stft_slice_queue()
 	{
 		request_delete_time_filter_cuts_ = true;
 		request_refresh();
@@ -284,6 +279,12 @@ namespace holovibes
 	void ICompute::request_kill_raw_queue()
 	{
 		kill_raw_queue_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_allocate_raw_queue()
+	{
+		request_allocate_raw_queue_ = true;
 		request_refresh();
 	}
 

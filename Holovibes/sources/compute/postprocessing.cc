@@ -45,9 +45,7 @@ namespace holovibes
 
 		void Postprocessing::init()
 		{
-			const unsigned int width = fd_.width;
-			const unsigned int height = fd_.height;
-			const size_t frame_res = width * height;
+			const size_t frame_res = fd_.frame_res();
 
 			//No need for memset here since it will be completely overwritten by cuComplex values
 			buffers_.gpu_convolution_buffer.resize(frame_res);
@@ -64,7 +62,7 @@ namespace holovibes
 							frame_res,
 							cudaMemcpyHostToDevice));
 			//We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
-			shift_corners(gpu_kernel_buffer_.get(), 1, width, height);
+			shift_corners(gpu_kernel_buffer_.get(), 1, fd_.width, fd_.height);
 			cufftSafeCall(cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
 
 			hsv_arr_.resize(frame_res * 3);

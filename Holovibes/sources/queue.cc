@@ -26,8 +26,6 @@ namespace holovibes
 	using camera::FrameDescriptor;
 	using camera::Endianness;
 
-	using MutexGuard = std::lock_guard<std::mutex>;
-
 	Queue::Queue(const camera::FrameDescriptor& fd,
 				 const unsigned int max_size,
 				 std::string name,
@@ -70,6 +68,8 @@ namespace holovibes
 
 	void Queue::resize(const unsigned int size)
 	{
+		MutexGuard mGuard(mutex_);
+
 		max_size_ = size;
 
 		if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))

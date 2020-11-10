@@ -76,8 +76,6 @@ namespace holovibes
 			void run() override;
 
 		private:
-			/*! Queue to record */
-			Queue& queue_;
 			/*! Recorder object */
 			Recorder recorder_;
 		};

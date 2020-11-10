@@ -108,6 +108,7 @@ namespace holovibes
 
 		if (kill_raw_queue_requested_) // Destroy gpu raw queue
 		{
+			raw_queue_allocated_ = false;
 			gpu_raw_queue_.reset(nullptr);
 			kill_raw_queue_requested_ = false;
 		}
@@ -167,6 +168,14 @@ namespace holovibes
 
 		image_accumulation_->init(); // done only if requested
 
+		if (request_allocate_raw_queue_)
+		{
+			auto fd = gpu_input_queue_.get_fd();
+			gpu_raw_queue_.reset(
+				new Queue(fd, global::global_config.output_queue_max_size, "RawOutputQueue"));
+			raw_queue_allocated_ = true;
+			request_allocate_raw_queue_ = false;
+		}
 		return success_allocation;
 	}
 
@@ -178,7 +187,7 @@ namespace holovibes
 		{
 			update_time_filter_size_requested_ = false;
 			refresh_requested_ = false;
-			insert_raw_enqueue_output();
+			insert_raw_enqueue_raw_mode();
 			return;
 		}
 
@@ -195,7 +204,7 @@ namespace holovibes
 
 		insert_wait_frames();
 
-		insert_raw_view_enqueue();
+		insert_raw_enqueue_hologram_mode();
 
 		converts_->insert_complex_conversion(gpu_input_queue_);
 
@@ -272,7 +281,7 @@ namespace holovibes
 		}
 	}
 
-	void Pipe::insert_raw_view_enqueue()
+	void Pipe::insert_raw_enqueue_hologram_mode()
 	{
 		fn_compute_vect_.push_back([&](){
 			// The raw view and raw recording can't be enabled at the same time
@@ -334,7 +343,7 @@ namespace holovibes
 			safe_enqueue_output(output_queue, frame, error);
 	}
 
-	void Pipe::insert_raw_enqueue_output()
+	void Pipe::insert_raw_enqueue_raw_mode()
 	{
 		fn_compute_vect_.push_back([&]()
 		{

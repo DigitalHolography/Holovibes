@@ -163,6 +163,7 @@ namespace holovibes
 		void request_update_time_filter_stride();
 		void request_kill_raw_queue();
 		void request_disable_lens_view();
+		void request_allocate_raw_queue();
 
 		/*! \brief Execute one iteration of the ICompute.
 		*
@@ -205,6 +206,8 @@ namespace holovibes
 
 		/*! \brief Get the raw queue. Make allocation if needed */
 		virtual std::unique_ptr<Queue>&	get_raw_queue();
+
+		bool is_raw_queue_allocated() const { return raw_queue_allocated_; }
 	protected:
 
 		virtual void refresh() = 0;
@@ -249,7 +252,12 @@ namespace holovibes
 		ImageAccEnv	image_acc_env_;
 
 		/*! \brief Queue storing raw frames used by raw view and raw recording */
-		std::unique_ptr<Queue> gpu_raw_queue_;
+		std::unique_ptr<Queue> gpu_raw_queue_{ nullptr };
+
+		/*! \brief Flag to check if the raw queue is currently allocated
+		** used for thread synchronization (recorder and ui)
+		*/
+		std::atomic<bool> raw_queue_allocated_{ false };
 
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	spatial_filter_plan_;
@@ -284,5 +292,6 @@ namespace holovibes
 		std::atomic<bool> request_update_batch_size_{ false };
 		std::atomic<bool> request_update_time_filter_stride_{ false };
 		std::atomic<bool> request_disable_lens_view_{ false };
+		std::atomic<bool> request_allocate_raw_queue_{ false };
 	};
 }

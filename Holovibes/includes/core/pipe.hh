@@ -132,12 +132,12 @@ namespace holovibes
 		/*!
 		** \brief Enqueue a batch of frames of input queue for raw view
 		*/
-		void insert_raw_view_enqueue();
+		void insert_raw_enqueue_hologram_mode();
 
 		/*!
 		** \brief Enqueue the input frame in the output queue in raw mode
 		*/
-		void insert_raw_enqueue_output();
+		void insert_raw_enqueue_raw_mode();
 
 		/*!
 		** \brief Enqueue the output frame in the output queue in hologram mode

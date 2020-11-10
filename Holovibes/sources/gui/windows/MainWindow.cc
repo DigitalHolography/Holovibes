@@ -1849,13 +1849,17 @@ namespace holovibes
 
 		void MainWindow::update_raw_view(bool value)
 		{
-			cd_.raw_view = value;
 
-			ICompute* pipe = holovibes_.get_pipe().get();
-			pipe->get_raw_queue()->set_display(cd_.record_raw);
-
-			if (cd_.raw_view)
+			if (value)
 			{
+				ICompute* pipe = holovibes_.get_pipe().get();
+				if (!pipe->is_raw_queue_allocated())
+					pipe->request_allocate_raw_queue();
+				// Wait until the pipe has been allocated and ready to use
+				while (!pipe->is_raw_queue_allocated());
+
+				cd_.raw_view = true;
+
 				ushort raw_window_width = width;
 				ushort raw_window_height = height;
 				get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
@@ -1874,6 +1878,7 @@ namespace holovibes
 			}
 			else
 			{
+				cd_.raw_view = false;
 				disable_raw_view();
 				raw_window.reset(nullptr);
 			}
@@ -2688,7 +2693,6 @@ namespace holovibes
 
 		void MainWindow::set_raw_recording(bool value)
 		{
-			cd_.record_raw = value;
 			ICompute* pipe = holovibes_.get_pipe().get();
 
 			// When switching to raw recording, we no longer care about
@@ -2699,6 +2703,11 @@ namespace holovibes
 			{
 				// Use an output Queue of size 4
 				pipe->request_resize(4);
+				if (!pipe->is_raw_queue_allocated())
+					pipe->request_allocate_raw_queue();
+				// We wait the request to be finished on the creation of the
+				// thread reader
+				cd_.record_raw = true;
 			}
 			else
 			{
@@ -2706,6 +2715,7 @@ namespace holovibes
 				pipe->request_resize(global::global_config.output_queue_max_size);
 				if (!cd_.raw_view)
 					pipe->request_kill_raw_queue();
+				cd_.record_raw = false;
 			}
 		}
 
@@ -2762,7 +2772,11 @@ namespace holovibes
 				Queue *queue;
 				if (cd_.record_raw)
 				{
-					queue = holovibes_.get_pipe()->get_raw_queue().get();
+					// Wait until the raw queue has been allocated by the pipe
+					// (thread compute) and ready to use.
+					ICompute* pipe = holovibes_.get_pipe().get();
+					while (!pipe->is_raw_queue_allocated());
+					queue = pipe->get_raw_queue().get();
 					queue->set_display(true);
 				}
 				else

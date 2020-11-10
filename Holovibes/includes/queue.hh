@@ -44,6 +44,9 @@ namespace holovibes
 	class Queue
 	{
 	public:
+		using MutexGuard = std::lock_guard<std::mutex>;
+
+	public:
 		/*! \brief Queue constructor
 		**
 		** Please note that every size used in internal allocations for the Queue depends
@@ -221,7 +224,7 @@ namespace holovibes
 	private: /* Attributes */
 
 		/*! \brief mutex to lock the queue */
-		std::mutex				mutex_;
+		mutable std::mutex		mutex_;
 		/*! \brief name of the queue */
 		std::string				name_;
 		/*! \brief frame descriptor of a frame store in the queue */

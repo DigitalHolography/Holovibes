@@ -49,6 +49,7 @@ namespace holovibes
 
 	inline void* Queue::get_last_image() const
 	{
+		MutexGuard mGuard(mutex_);
 		// if the queue is empty, return a random frame
 		return data_.get() + ((start_index_ + size_ - 1) % max_size_) * frame_size_;
 	}
