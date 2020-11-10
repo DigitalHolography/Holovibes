@@ -40,7 +40,11 @@ namespace holovibes
 		{}
 
 		RawWindow::~RawWindow()
-		{}
+		{
+			std::cout << "unregister in progress" << std::endl;
+			if (cuResource)
+				cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
+		}
 
 		void RawWindow::initShaders()
 		{
@@ -76,6 +80,7 @@ namespace holovibes
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 			cudaGraphicsGLRegisterBuffer(&cuResource, Pbo,
 				cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+			std::cout << "register done" << std::endl;
 			/* -------------------------------------------------- */
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
