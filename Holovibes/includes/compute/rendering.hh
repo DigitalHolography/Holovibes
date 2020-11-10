@@ -112,11 +112,11 @@ namespace holovibes
 			/*! \see request_chart_record
 			* \brief Call the chart algorithm, store the result and count n
 			* iterations. Request the ICompute to refresh when record is over.
-			* \param signal Signal zone
-			* \param noise Noise zone */
+			* \param signal_zone Signal zone
+			* \param noise_zone Noise zone */
 			void chart_record_caller(
-				const units::RectFd& signal,
-				const units::RectFd& noise,
+				const units::RectFd& signal_zone,
+				const units::RectFd& noise_zone,
 				cudaStream_t stream = 0);
 
 

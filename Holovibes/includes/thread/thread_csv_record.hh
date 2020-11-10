@@ -20,7 +20,7 @@
 #include <QObject>
 #include <QThread>
 
-# include "pipe.hh"
+#include "pipe.hh"
 
 namespace holovibes
 {
@@ -39,7 +39,7 @@ namespace holovibes
 		{
 			Q_OBJECT
 
-				typedef ConcurrentDeque<Tuple4f> Deque;
+				typedef ConcurrentDeque<ChartPoint> Deque;
 
 		signals:
 

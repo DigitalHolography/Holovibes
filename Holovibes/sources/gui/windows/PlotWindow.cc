@@ -21,7 +21,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		PlotWindow::PlotWindow(ConcurrentDeque<Tuple4f>& data_vect,
+		PlotWindow::PlotWindow(ConcurrentDeque<ChartPoint>& data_vect,
 			const size_t auto_scale_point_threshold,
 			const QString title,
 			QWidget* parent)

@@ -12,7 +12,10 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda")
+string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
+string(APPEND CMAKE_CUDA_FLAGS " -arch=sm_61 \
+                                -gencode=arch=compute_61,code=sm_61 \
+                                -gencode=arch=compute_75,code=sm_75")
 
 set(HOLO_INCLUDES
     cuda_includes/
@@ -135,6 +138,7 @@ set (GTEST_MAIN_LIBRARY "C:/gtest/googletest/msvc/2010/gtest-md/x64-Debug/gtestd
 set(SRC_TESTS
     tests/test_example.cc
     tests/test_queue.cc
+    tests/test_chart.cc
     # Add your test files here
 )
 

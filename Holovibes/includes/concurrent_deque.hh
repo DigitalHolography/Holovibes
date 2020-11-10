@@ -21,7 +21,6 @@
 
 namespace holovibes
 {
-	using	Tuple4f = std::tuple<float, float, float, float>;
 	using LockGuard = std::lock_guard<std::mutex>;
 
 	/*! \brief This class is a thread safe wrapper on std::deque.

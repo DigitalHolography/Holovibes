@@ -15,13 +15,14 @@
  * Core class to use HoloVibe  */
 #pragma once
 
-# include "thread_compute.hh"
-# include "thread_capture.hh"
-# include "thread_reader.hh"
-# include "recorder.hh"
-# include "compute_descriptor.hh"
-# include "concurrent_deque.hh"
-# include "icamera.hh"
+#include "thread_compute.hh"
+#include "thread_capture.hh"
+#include "thread_reader.hh"
+#include "recorder.hh"
+#include "compute_descriptor.hh"
+#include "concurrent_deque.hh"
+#include "chart_point.hh"
+#include "icamera.hh"
 
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
@@ -165,7 +166,7 @@ namespace holovibes
 		/*! \brief Getter onto chart_queue
 		 *
 		 * Used when computing the chart of the noise or signal in a given area */
-		ConcurrentDeque<Tuple4f>& get_chart_queue()
+		ConcurrentDeque<ChartPoint>& get_chart_queue()
 		{
 			return chart_queue_;
 		}
@@ -212,7 +213,7 @@ namespace holovibes
 		 * Chart are computes in ThreadCompute and use in CurvePlot
 		 * \note see void MainWindow::set_chart_graphic() for example
 		 */
-		ConcurrentDeque<Tuple4f> chart_queue_;
+		ConcurrentDeque<ChartPoint> chart_queue_;
 
 		/* \brief Store the path of holovibes when it is launched.
 		   so that holovibes.ini is saved at the right place. The problem

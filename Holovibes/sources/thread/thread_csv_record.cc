@@ -56,7 +56,7 @@ namespace holovibes
 			progress_bar->setMaximum(nb_frames_);
 			holo_.get_pipe()->request_chart_record(&deque_, nb_frames_);
 
-			// Temporary hack
+			// FIXME Temporary hack
 			// The changes made here avoid lag during the recording
 			// Can still go wrong and crash for some reason
 			size_t size = 0;
@@ -76,17 +76,29 @@ namespace holovibes
 				<< ", z : " << holo_.get_cd().zdistance
 				<< "]" << std::endl;
 
-			of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
+			of << "["
+				<< "Column 1 : avg(signal), "
+				<< "Column 2 : avg(noise), "
+				<< "Column 3 : avg(signal) / avg(noise), "
+				<< "Column 4 : 10 * log10 (avg(signal) / avg(noise)), "
+				<< "Column 5 : std(signal), "
+				<< "Column 6 : std(signal) / avg(noise), "
+				<< "Column 7 : std(signal) / avg(signal)"
+			<< "]" << std::endl;
 
 			const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
 			unsigned int i = 0;
 			while (i < deque_size && record_)
 			{
-				Tuple4f& tuple = deque_[i];
+				ChartPoint& point = deque_[i];
 				of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
-					<< std::get<0>(tuple) << ","
-					<< std::get<1>(tuple) << ","
-					<< std::get<2>(tuple) << std::endl;
+					<< point.avg_signal << ","
+					<< point.avg_noise << ","
+					<< point.avg_signal_div_avg_noise << ","
+					<< point.log_avg_signal_div_avg_noise << ","
+					<< point.std_signal << ","
+					<< point.std_signal_div_avg_noise << ","
+					<< point.std_signal_div_avg_signal << std::endl;
 				++i;
 			}
 

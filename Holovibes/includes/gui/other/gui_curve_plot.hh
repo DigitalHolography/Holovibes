@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include <QObject>
 #include <QString>
@@ -28,6 +29,7 @@
 #include <QtCharts/QLineSeries>
 
 #include "concurrent_deque.hh"
+#include "chart_point.hh"
 
 using namespace QtCharts;
 
@@ -49,7 +51,7 @@ namespace holovibes
 			** \param height height of the plot in pixels
 			** \param parent Qt parent
 			*/
-			CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
+			CurvePlot(ConcurrentDeque<ChartPoint>& data_vect,
 				const size_t auto_scale_point_threshold,
 				const QString title,
 				const unsigned int width,
@@ -59,13 +61,16 @@ namespace holovibes
 			/*! \brief CurvePlot destructor */
 			~CurvePlot();
 
-			/*! \brief Link curve name with tuple case */
+			/*! \brief Different curve options */
 			enum CurveName
 			{
-				CURVE_SIGNAL = 0,
-				CURVE_NOISE = 1,
-				CURVE_LOG = 2,
-				CURVE_LOG10 = 3
+				AVG_SIGNAL = 0,
+				AVG_NOISE = 1,
+				AVG_SIGNAL_DIV_AVG_NOISE = 2,
+				LOG_AVG_SIGNAL_DIV_AVG_NOISE = 3,
+				STD_SIGNAL = 4,
+				STD_SIGNAL_DIV_AVG_NOISE = 5,
+				STD_SIGNAL_DIV_AVG_SIGNAL = 6,
 			};
 
 			/*! \brief This property holds the recommended minimum size for the widget. */
@@ -131,15 +136,15 @@ namespace holovibes
 			QChartView *chart_view;
 
 			/*! Reference to Deque containing Chart/ROI data */
-			ConcurrentDeque<Tuple4f>& data_vect_;
+			ConcurrentDeque<ChartPoint>& data_vect_;
 			/*! Number of points to draw */
 			unsigned int points_nb_;
 			/*! QTimer used to draw every TIMER_FREQ milliseconds */
 			QTimer timer_;
-			/*! Ptr to function (curve_get_X) who get value of curve in tuple */
-			float(*curve_get_)(const Tuple4f&);
+			/*! Ptr to function who get value of curve in tuple */
+			std::function<double(const ChartPoint&)> curve_get_;
 			/*! Local copy of data_vect data */
-			std::vector<Tuple4f> chart_vector_;
+			std::vector<ChartPoint> chart_vector_;
 
 			/*! Numbers of new points to wait before running auto scale */
 			size_t auto_scale_point_threshold_;

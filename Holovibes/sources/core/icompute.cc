@@ -342,7 +342,7 @@ namespace holovibes
 	}
 
 	void ICompute::request_chart(
-		ConcurrentDeque<Tuple4f>* output)
+		ConcurrentDeque<ChartPoint>* output)
 	{
 		assert(output != nullptr);
 
@@ -360,7 +360,7 @@ namespace holovibes
 	}
 
 	void ICompute::request_chart_record(
-		ConcurrentDeque<Tuple4f>* output,
+		ConcurrentDeque<ChartPoint>* output,
 		const uint n)
 	{
 		assert(output != nullptr);

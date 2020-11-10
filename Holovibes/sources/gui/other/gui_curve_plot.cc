@@ -20,20 +20,11 @@
 #define TIMER_FREQ 40
 #define POINTS 200
 
-/*! \brief CURVE_GET is a macro generating curve_get_X function whoose return std::get<X> of tuple give 
-**
-** This macro is use to instance 4 function curve_get_{0-3} in order to create ptr on */
-# define CURVE_GET(X) float curve_get_ ## X(const holovibes::Tuple4f& a) { return std::get<X>(a); }
-CURVE_GET(0)
-CURVE_GET(1)
-CURVE_GET(2)
-CURVE_GET(3)
-
 namespace holovibes
 {
 	namespace gui
 	{
-		CurvePlot::CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
+		CurvePlot::CurvePlot(ConcurrentDeque<ChartPoint>& data_vect,
 			const size_t auto_scale_point_threshold,
 			const QString title,
 			const unsigned int width,
@@ -43,7 +34,7 @@ namespace holovibes
 			, data_vect_(data_vect)
 			, points_nb_(POINTS)
 			, timer_(this)
-			, curve_get_(curve_get_0)
+			, curve_get_([](const ChartPoint& point){ return point.avg_signal; })
 			, auto_scale_point_threshold_(auto_scale_point_threshold)
 			, auto_scale_curr_points_(0)
 		{
@@ -78,17 +69,26 @@ namespace holovibes
 		{
 			switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
 			{
-			case CurvePlot::CurveName::CURVE_SIGNAL:
-				curve_get_ = curve_get_0;
+			case CurvePlot::CurveName::AVG_SIGNAL:
+				curve_get_ = [](const ChartPoint& point){ return point.avg_signal; };
 				break;
-			case CurvePlot::CurveName::CURVE_NOISE:
-				curve_get_ = curve_get_1;
+			case CurvePlot::CurveName::AVG_NOISE:
+				curve_get_ = [](const ChartPoint& point){ return point.avg_noise; };
 				break;
-			case CurvePlot::CurveName::CURVE_LOG:
-				curve_get_ = curve_get_2;
+			case CurvePlot::CurveName::AVG_SIGNAL_DIV_AVG_NOISE:
+				curve_get_ = [](const ChartPoint& point){ return point.avg_signal_div_avg_noise; };
 				break;
-			case CurvePlot::CurveName::CURVE_LOG10:
-				curve_get_ = curve_get_3;
+			case CurvePlot::CurveName::LOG_AVG_SIGNAL_DIV_AVG_NOISE:
+				curve_get_ = [](const ChartPoint& point){ return point.log_avg_signal_div_avg_noise; };
+				break;
+			case CurvePlot::CurveName::STD_SIGNAL:
+				curve_get_ = [](const ChartPoint& point){ return point.std_signal; };
+				break;
+			case CurvePlot::CurveName::STD_SIGNAL_DIV_AVG_NOISE:
+				curve_get_ = [](const ChartPoint& point){ return point.std_signal_div_avg_noise; };
+				break;
+			case CurvePlot::CurveName::STD_SIGNAL_DIV_AVG_SIGNAL:
+				curve_get_ = [](const ChartPoint& point){ return point.std_signal_div_avg_signal; };
 				break;
 			default:
 				abort();
@@ -147,11 +147,11 @@ namespace holovibes
 
 		void CurvePlot::auto_scale()
 		{
-			std::vector<Tuple4f> tmp = chart_vector_;
+			std::vector<ChartPoint> tmp = chart_vector_;
 
 			auto minmax = std::minmax_element(tmp.cbegin(),
 				tmp.cend(),
-				[&](const Tuple4f& lhs, const Tuple4f& rhs)
+				[&](const ChartPoint& lhs, const ChartPoint& rhs)
 			{
 				return curve_get_(lhs) < curve_get_(rhs);
 			});

@@ -115,30 +115,30 @@ namespace holovibes
 		void Rendering::insert_main_chart()
 		{
 			fn_compute_vect_.conditional_push_back([=]() {
-				units::RectFd signalZone;
-				units::RectFd noiseZone;
-				cd_.signalZone(signalZone, AccessMode::Get);
-				cd_.noiseZone(noiseZone, AccessMode::Get);
-
+				units::RectFd signal_zone;
+				units::RectFd noise_zone;
+				cd_.signalZone(signal_zone, AccessMode::Get);
+				cd_.noiseZone(noise_zone, AccessMode::Get);
+ 
 				chart_env_.chart_output_->push_back(
 					make_chart_plot(
 						buffers_.gpu_postprocess_frame,
 						input_fd_.width,
 						input_fd_.height,
-						signalZone,
-						noiseZone));
+						signal_zone,
+						noise_zone));
 			});
 		}
 
 		void Rendering::insert_chart_record()
 		{
 			fn_compute_vect_.conditional_push_back([=]() {
-				units::RectFd signalZone;
-				units::RectFd noiseZone;
-				cd_.signalZone(signalZone, AccessMode::Get);
-				cd_.noiseZone(noiseZone, AccessMode::Get);
+				units::RectFd signal_zone;
+				units::RectFd noise_zone;
+				cd_.signalZone(signal_zone, AccessMode::Get);
+				cd_.noiseZone(noise_zone, AccessMode::Get);
 
-				chart_record_caller(signalZone, noiseZone);
+				chart_record_caller(signal_zone, noise_zone);
 			});
 		}
 
@@ -285,13 +285,13 @@ namespace holovibes
 
 
 		void Rendering::chart_record_caller(
-			const units::RectFd& signal,
-			const units::RectFd& noise,
+			const units::RectFd& signal_zone,
+			const units::RectFd& noise_zone,
 			cudaStream_t stream)
 		{
 			if (chart_env_.chart_n_ > 0)
 			{
-				chart_env_.chart_output_->push_back(make_chart_plot(buffers_.gpu_postprocess_frame, input_fd_.width, input_fd_.height, signal, noise, stream));
+				chart_env_.chart_output_->push_back(make_chart_plot(buffers_.gpu_postprocess_frame, input_fd_.width, input_fd_.height, signal_zone, noise_zone, stream));
 				chart_env_.chart_n_--;
 			}
 			else

@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>141</width>
-      <height>21</height>
+      <height>22</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="headerLayout">
@@ -62,29 +62,44 @@
      </rect>
     </property>
     <property name="currentText">
-     <string>Signal</string>
+     <string>Average Signal</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
     <item>
      <property name="text">
-      <string>Signal</string>
+      <string>Average Signal</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Noise</string>
+      <string>Average Noise</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Signal/Noise</string>
+      <string>Average Signal/ Average Noise</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>10log10(Signal/Noise)</string>
+      <string>10log10(Average Signal/ Average Noise)</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal / Average Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Std Signal / Average Signal</string>
      </property>
     </item>
    </widget>
@@ -111,7 +126,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

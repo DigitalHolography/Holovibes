@@ -25,10 +25,10 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
+#include "chart_point.hh"
 
 namespace holovibes
 {
-	using	Tuple4f = std::tuple<float, float, float, float>;
 	class Queue;
 	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;
@@ -106,7 +106,7 @@ namespace holovibes
 	/** \brief Structure containing variables related to the chart computation and recording. */
 	struct ChartEnv
 	{
-		ConcurrentDeque<Tuple4f>* chart_output_ = nullptr;
+		ConcurrentDeque<ChartPoint>* chart_output_ = nullptr;
 		unsigned int	chart_n_ = 0;
 	};
 
@@ -155,9 +155,9 @@ namespace holovibes
 		void request_update_unwrap_size(const unsigned size);
 		void request_unwrapping_1d(const bool value);
 		void request_unwrapping_2d(const bool value);
-		void request_chart(ConcurrentDeque<Tuple4f>* output);
+		void request_chart(ConcurrentDeque<ChartPoint>* output);
 		void request_chart_stop();
-		void request_chart_record(ConcurrentDeque<Tuple4f>* output, const unsigned int n);
+		void request_chart_record(ConcurrentDeque<ChartPoint>* output, const unsigned int n);
 		void request_termination();
 		void request_update_batch_size();
 		void request_update_time_filter_stride();
