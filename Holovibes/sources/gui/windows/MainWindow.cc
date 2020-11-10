@@ -358,17 +358,16 @@ namespace holovibes
 			ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
-			// STFT
-			ui.STFTStepsSpinBox->setEnabled(!is_raw);
+			// Time filter
+			ui.TimeFilterStrideSpinBox->setEnabled(!is_raw);
 
 			const uint input_queue_capacity = global::global_config.input_queue_max_size;
 			if (cd_.time_filter_stride > input_queue_capacity)
 				cd_.time_filter_stride = input_queue_capacity;
 
-			ui.STFTStepsSpinBox->setValue(cd_.time_filter_stride);
-			ui.STFTStepsSpinBox->setSingleStep(cd_.batch_size);
-			ui.STFTStepsSpinBox->setMinimum(cd_.batch_size);
-			ui.STFTStepsSpinBox->setMaximum(input_queue_capacity);
+			ui.TimeFilterStrideSpinBox->setValue(cd_.time_filter_stride);
+			ui.TimeFilterStrideSpinBox->setSingleStep(cd_.batch_size);
+			ui.TimeFilterStrideSpinBox->setMinimum(cd_.batch_size);
 
 			// Batch
 			ui.BatchSizeSpinBox->setEnabled(!is_raw);
@@ -1468,7 +1467,7 @@ namespace holovibes
 		{
 			if (!is_raw_mode())
 			{
-				int value = ui.STFTStepsSpinBox->value();
+				int value = ui.TimeFilterStrideSpinBox->value();
 
 				if (value == cd_.time_filter_stride)
 					return;

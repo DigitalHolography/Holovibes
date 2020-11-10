@@ -237,7 +237,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="STFTStepsSpinBox">
+            <widget class="QSpinBox" name="TimeFilterStrideSpinBox">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -4728,7 +4728,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTStepsSpinBox</sender>
+   <sender>TimeFilterStrideSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
    <slot>update_time_filter_stride()</slot>
@@ -5221,7 +5221,6 @@ p, li { white-space: pre-wrap; }
   <slot>update_batch_size()</slot>
   <slot>update_time_filter_stride()</slot>
   <slot>cancel_stft_slice_view()</slot>
-  <slot>stft_view(bool)</slot>
   <slot>stft_signal_trig(bool)</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
