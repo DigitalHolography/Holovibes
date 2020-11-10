@@ -1,5 +1,9 @@
 ## Changelog
 
+### 8.5.1
+
+* Fix raw queue allocation (synchronization between UI and backend)
+
 ### 8.5
 
 * Allow using a different batch size from stft step (decorrelate both parameters)
