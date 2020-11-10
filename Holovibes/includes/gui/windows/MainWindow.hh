@@ -235,9 +235,6 @@ namespace holovibes
 			//! Used to start the record at the same time than file reader.
 			void start_recording();
 
-			camera::FrameDescriptor get_holo_file_frame_descriptor();
-			camera::FrameDescriptor get_cine_file_frame_descriptor();
-
 			#pragma endregion
 			/* ---------- */
 		signals:
@@ -274,12 +271,6 @@ namespace holovibes
 			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
 			void		QSliderQuietSetValue(QSlider* slider, int value);
 			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
-
-			// HoloFile related
-			/*! Updates the compute descriptor with the holo file settings */
-			void holo_file_update_cd();
-			/*! Creates a json object containing the compute descriptor settings */
-			json holo_file_get_json_settings(const Queue* q);
 
 			#pragma endregion
 			/* ---------- */

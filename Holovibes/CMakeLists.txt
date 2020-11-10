@@ -80,7 +80,7 @@ add_library("${PROJECT_NAME}_lib" STATIC
      plotwindow.ui
 )
 
-target_compile_features("${PROJECT_NAME}_lib" PUBLIC cxx_std_17)
+target_compile_features("${PROJECT_NAME}_lib" PUBLIC cxx_std_20)
 
 # Add sources to the target and includes that
 # need to be compiled to the target

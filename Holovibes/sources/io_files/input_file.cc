@@ -10,41 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "thread_recorder.hh"
-#include "recorder.hh"
-#include "queue.hh"
-#include "info_manager.hh"
+#include "input_file.hh"
+#include "file_exception.hh"
 
-namespace holovibes
+namespace holovibes::io_files
 {
-	namespace gui
-	{
-		ThreadRecorder::ThreadRecorder(
-			Queue& queue,
-			const std::string& filepath,
-			ComputeDescriptor& cd,
-			QObject* parent)
-			: QThread(parent)
-			, recorder_(queue, filepath, cd)
-		{
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+    size_t InputFile::read_frames(char* buffer, size_t frames_to_read)
+    {
+        size_t frames_read = std::fread(buffer, actual_frame_size_, frames_to_read, file_);
 
-			progress_bar->setMaximum(cd.nb_frames_record);
-			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-		}
+        if (std::ferror(file_) != 0)
+            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
 
-		ThreadRecorder::~ThreadRecorder()
-		{
-		}
-
-		void ThreadRecorder::stop()
-		{
-			recorder_.stop();
-		}
-
-		void ThreadRecorder::run()
-		{
-			recorder_.record();
-		}
-	}
-}
+        return frames_read;
+    }
+} // namespace holovibes::io_files

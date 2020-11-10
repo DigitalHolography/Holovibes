@@ -21,10 +21,10 @@
 #include "queue.hh"
 #include "holovibes.hh"
 #include "tools.hh"
-#include "holo_file.hh"
 #include "MainWindow.hh"
 #include "cuda_memory.cuh"
 #include "config.hh"
+#include "input_file_handler.hh"
 
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
@@ -39,27 +39,24 @@ namespace holovibes
 		size_t first_frame_id,
 		size_t last_frame_id,
 		Queue& input,
-		FileType file_type,
 		bool load_file_in_gpu,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
 		: IThreadInput()
 		, file_src_(file_src)
 		, fd_(fd)
-		, frame_size_(fd_.frame_size())
+		, frame_size_(io_files::InputFileHandler::get_frame_descriptor().frame_size())
 		, loop_(loop)
 		, fps_(fps)
 		, cur_frame_id_(first_frame_id - 1) // -1 because in ui frame start at 1
 		, first_frame_id_(first_frame_id - 1)
 		, last_frame_id_(last_frame_id - 1)
 		, dst_queue_(input)
-		, file_type_(file_type)
-		, frame_annotation_size_(0)
+		, frame_annotation_size_(io_files::InputFileHandler::get_frame_annotation_size())
 		, load_file_in_gpu_(load_file_in_gpu)
 		, progress_bar_refresh_interval_(fps / progress_bar_refresh_frequency_)
 		, reader_progress_bar_(reader_progress_bar)
 		, main_window_(main_window)
-		, thread_(&ThreadReader::thread_proc, this)
 	{
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
 		dst_queue_.set_square_input_mode(mode);
@@ -73,47 +70,9 @@ namespace holovibes
 		reader_progress_bar->setMaximum(last_frame_id);
 		reader_progress_bar->show();
 
-		// Specific values for cine file
-		if (file_type_ == FileType::CINE)
-		{
-			// Cine file format put an extra 8 bits header for every image
-			frame_size_ += 8;
-			frame_annotation_size_ = 8;
-		}
-	}
+		frame_size_ += frame_annotation_size_;
 
-	FILE* ThreadReader::init_file(fpos_t* start_pos)
-	{
-		FILE* file = nullptr;
-
-		fopen_s(&file, file_src_.c_str(), "rb");
-		if (file == nullptr)
-		{
-			LOG_ERROR("[READER] unable to open file: " + file_src_);
-			return nullptr;
-		}
-
-		// FIXME: Use the InputFile class
-		unsigned int offset = 0;
-		if (file_type_ == FileType::CINE)
-		{
-			// we look were the data is.
-			offset = offset_cine_first_image(file);
-		}
-		else if (file_type_ == FileType::HOLO)
-			offset = sizeof(HoloFile::Header);
-
-		// Compute position of the first frame
-		*start_pos = offset + frame_size_ * first_frame_id_;
-
-		// failure on setting the position in the file
-		if (std::fsetpos(file, start_pos) != 0)
-		{
-			LOG_ERROR("[READER] unable to read/open file: " + file_src_);
-			return nullptr;
-		}
-
-		return file;
+		thread_ = std::thread(&ThreadReader::thread_proc, this);
 	}
 
 	/*! \class FpsHandler
@@ -176,44 +135,39 @@ namespace holovibes
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 
 		size_t buffer_nb_frames;
-		if (load_file_in_gpu_) // TODO: When File class is available use the function
-		 	buffer_nb_frames = last_frame_id_ + 1;
+
+		if (load_file_in_gpu_)
+		 	buffer_nb_frames = io_files::InputFileHandler::get_total_nb_frames();
 		else
 		 	buffer_nb_frames = global::global_config.file_buffer_size;
 
-		size_t buffer_size = frame_size_ * buffer_nb_frames;
-
-		fpos_t start_position;
-		FILE* file = init_file(&start_position);
-		if (!file)
-		{
-			LOG_ERROR("[READER] unable to open file: " + file_src_);
-			return;
-		}
+		size_t buffer_size = frame_size_ * buffer_nb_frames * sizeof(char);
 
 		// Init buffers
 		char* cpu_buffer;
-		cudaError_t error_code = cudaMallocHost(&cpu_buffer, sizeof(char) * buffer_size);
+		cudaError_t error_code = cudaMallocHost(&cpu_buffer, buffer_size);
+
 		if (error_code != cudaSuccess)
 		{
 			if (!load_file_in_gpu_)
 				LOG_ERROR("[READER] Not enough CPU RAM to read file");
 			else
-				LOG_ERROR("[READER] Not enough CPU RAM to read file (consider disabling \"Load file in GPU\" option)");
-			std::fclose(file);
+				LOG_ERROR("[READER] Not enough GPU DRAM to read file (consider disabling \"Load file in GPU\" option)");
+
 			return;
 		}
 
 		char* gpu_buffer = nullptr;
-		error_code = cudaMalloc((void**)&gpu_buffer, sizeof(char) * buffer_size);
+		error_code = cudaMalloc((void**)&gpu_buffer, buffer_size);
+
 		if (error_code != cudaSuccess)
 		{
 			if (!load_file_in_gpu_)
 				LOG_ERROR("[READER] Not enough GPU DRAM to read file");
 			else
 				LOG_ERROR("[READER] Not enough GPU DRAM to read file (consider disabling \"Load file in GPU\" option)");
+
 			cudaSafeCall(cudaFreeHost(cpu_buffer));
-			std::fclose(file);
 			return;
 		}
 
@@ -225,12 +179,20 @@ namespace holovibes
 
 		progress_bar_frame_counter_ = 0;
 
-		if (load_file_in_gpu_)
-			read_file_in_gpu(cpu_buffer, gpu_buffer, buffer_size, file, fps_handler, thread_timer, nb_frames_one_second);
-		else
-			read_file_batch(cpu_buffer, gpu_buffer, buffer_size, file, &start_position, fps_handler, thread_timer, nb_frames_one_second);
+		try
+		{
+			io_files::InputFileHandler::set_pos_to_first_frame();
 
-		std::fclose(file);
+			if (load_file_in_gpu_)
+				read_file_in_gpu(cpu_buffer, gpu_buffer, fps_handler, nb_frames_one_second);
+			else
+				read_file_batch(cpu_buffer, gpu_buffer, buffer_nb_frames, fps_handler, nb_frames_one_second);
+		}
+		catch (const io_files::FileException& e)
+		{
+			LOG_ERROR("[READER] " + std::string(e.what()));
+		}
+
 		// Free memory
 		cudaSafeCall(cudaFreeHost(cpu_buffer));
 		cudaXFree(gpu_buffer);
@@ -238,14 +200,12 @@ namespace holovibes
 
 	void ThreadReader::read_file_in_gpu(char* cpu_buffer,
 									    char* gpu_buffer,
-									    size_t buffer_size,
-									    FILE* file,
 									    FpsHandler& fps_handler,
-									    ThreadTimer& thread_timer,
 									    std::atomic<uint>& nb_frames_one_second)
 	{
 		// Read and copy the entire file
-		size_t frames_read = read_copy_file(cpu_buffer, gpu_buffer, buffer_size, file);
+		size_t frames_to_read = io_files::InputFileHandler::get_total_nb_frames();
+		size_t frames_read = read_copy_file(cpu_buffer, gpu_buffer, frames_to_read);
 
 		while (!stop_requested_)
 		{
@@ -256,38 +216,44 @@ namespace holovibes
 
 	void ThreadReader::read_file_batch(char* cpu_buffer,
 									   char* gpu_buffer,
-									   size_t buffer_size,
-									   FILE* file,
-									   fpos_t* start_pos,
+									   size_t frames_to_read,
 									   FpsHandler& fps_handler,
-									   ThreadTimer& thread_timer,
 									   std::atomic<uint>& nb_frames_one_second)
 	{
 		// Read the entire file by bactch
 		while(!stop_requested_)
 		{
 			// Read batch in cpu and copy it to gpu
-			size_t frames_read = read_copy_file(cpu_buffer, gpu_buffer, buffer_size, file);
+			size_t frames_read = read_copy_file(cpu_buffer, gpu_buffer, frames_to_read);
 
 			// Enqueue the batch frames one by one into the destination queue
 			enqueue_loop(gpu_buffer, frames_read, fps_handler, nb_frames_one_second);
 
 			// Reset to the first frame if needed
-			handle_last_frame(file, start_pos);
+			handle_last_frame();
 		}
 	}
 
 	size_t ThreadReader::read_copy_file(char* cpu_buffer,
 										char* gpu_buffer,
-										size_t buffer_size,
-										FILE* file)
+									    size_t frames_to_read)
 	{
 		// Read
-		const size_t bytes_read = std::fread(cpu_buffer, sizeof(char), buffer_size, file);
-		const size_t frames_read = bytes_read / frame_size_;
+		size_t frames_read = 0;
+
+		try
+		{
+			frames_read = io_files::InputFileHandler::read_frames(cpu_buffer, frames_to_read);
+		}
+		catch (const io_files::FileException& e)
+		{
+			LOG_WARN(e.what());
+		}
+
+		size_t frames_total_size = frames_read * frame_size_;
 
 		// Memcopy in the gpu buffer
-		cudaXMemcpy(gpu_buffer, cpu_buffer, bytes_read * sizeof(char), cudaMemcpyHostToDevice);
+		cudaXMemcpy(gpu_buffer, cpu_buffer, frames_total_size, cudaMemcpyHostToDevice);
 
 		return frames_read;
 	}
@@ -322,7 +288,7 @@ namespace holovibes
 		}
 	}
 
-	void ThreadReader::handle_last_frame(FILE* file, fpos_t* start_pos)
+	void ThreadReader::handle_last_frame()
 	{
 		// Reset to the first frame
 		if (cur_frame_id_ > last_frame_id_)
@@ -330,8 +296,7 @@ namespace holovibes
 			if (loop_)
 			{
 				cur_frame_id_ = first_frame_id_;
-				if (file && start_pos) // No start pos if loaded in gpu
-					std::fsetpos(file, start_pos);
+				io_files::InputFileHandler::set_pos_to_first_frame();
 				emit at_begin();
 				// continue
 			}
@@ -360,25 +325,5 @@ namespace holovibes
 	const camera::FrameDescriptor& ThreadReader::get_queue_fd() const
 	{
 		return dst_queue_.get_fd();
-	}
-
-	long int ThreadReader::offset_cine_first_image(FILE *file)
-	{
-		char			buffer[44];
-		unsigned int	offset_to_ptr = 0;
-		fpos_t			off = 0;
-		long int		offset_to_image = 0;
-
-		/*Reading the whole cine file header*/
-		if (std::fread(buffer, 1, 44, file) != 44)
-			return 0;
-		/*Reading OffImageOffsets for offset to POINTERS TO IMAGES*/
-		std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
-		/*Reading offset of the first image*/
-		off = offset_to_ptr;
-		std::fsetpos(file, &off);
-		if (std::fread(&offset_to_image, 1, sizeof(long int), file) != sizeof(long int))
-			return 0;
-		return offset_to_image;
 	}
 }

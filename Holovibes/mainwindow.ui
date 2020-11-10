@@ -5203,7 +5203,6 @@ p, li { white-space: pre-wrap; }
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_renormalize_constant(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
-  <slot>pixel_size_import()</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
   <slot>set_float_visible(bool)</slot>

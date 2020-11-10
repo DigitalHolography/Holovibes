@@ -10,41 +10,26 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "thread_recorder.hh"
-#include "recorder.hh"
-#include "queue.hh"
-#include "info_manager.hh"
+#include "io_file.hh"
+#include "file_exception.hh"
 
-namespace holovibes
+namespace holovibes::io_files
 {
-	namespace gui
-	{
-		ThreadRecorder::ThreadRecorder(
-			Queue& queue,
-			const std::string& filepath,
-			ComputeDescriptor& cd,
-			QObject* parent)
-			: QThread(parent)
-			, recorder_(queue, filepath, cd)
-		{
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+    IOFile::IOFile(const std::string& file_path, IOFile::OpeningMode mode)
+    {
+        if (mode == IOFile::OpeningMode::READ)
+            file_ = fopen(file_path.c_str(), "rb");
 
-			progress_bar->setMaximum(cd.nb_frames_record);
-			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-		}
+        else
+            file_ = fopen(file_path.c_str(), "wb");
 
-		ThreadRecorder::~ThreadRecorder()
-		{
-		}
+        // if an error occurred
+        if (file_ == nullptr)
+            throw FileException("Unable to open file " + file_path + ": " + std::strerror(errno));
+    }
 
-		void ThreadRecorder::stop()
-		{
-			recorder_.stop();
-		}
-
-		void ThreadRecorder::run()
-		{
-			recorder_.record();
-		}
-	}
-}
+    IOFile::~IOFile()
+    {
+        std::fclose(file_);
+    }
+} // namespace holovibes::io_files

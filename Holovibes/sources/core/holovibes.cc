@@ -143,8 +143,7 @@ namespace holovibes
 		Recorder recorder = Recorder(
 			*((tcompute_) ? gpu_output_queue_ : gpu_input_queue_),
 			filepath,
-			cd_,
-			HoloFile::get_json_settings(cd_, get_gpu_output_queue()->get_fd()));
+			cd_);
 
 		LOG_INFO("[RECORDER] Recorder Start");
 		recorder.record();
@@ -259,7 +258,6 @@ namespace holovibes
 					spanStart,
 					spanEnd,
 					*gpu_input_queue_,
-					cd_.file_type,
 					load_file_in_gpu,
 					reader_progress_bar,
 					main_window));

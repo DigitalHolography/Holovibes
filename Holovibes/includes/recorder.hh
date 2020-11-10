@@ -59,13 +59,11 @@ namespace holovibes
 		 * \param queue The source queue.
 		 * \param filepath The absolute path to the destination file.
 		 * \param cd The compute descriptor (hold the recording description)
-		 * \param json_settings Settings from the main window ui
 		 */
 		Recorder(
 			Queue& queue,
 			const std::string& filepath,
-			ComputeDescriptor& cd,
-			const json& json_settings);
+			ComputeDescriptor& cd);
 
 		~Recorder();
 
@@ -80,21 +78,11 @@ namespace holovibes
 		void stop();
 
 	private:
-		bool is_file_exist(const std::string& filepath);
-		void createFilePath(const std::string folderName);
-
-	private:
 		std::string execDir;
 		Queue& queue_;
-		std::ofstream file_;
 		bool stop_requested_;
 		std::string output_path_;
 
 		ComputeDescriptor& cd_;
-
-		/*! \brief Settings for the footer and header
-		** Get a copy to avoid a abort()
-		*/
-		const json json_settings_;
 	};
 }

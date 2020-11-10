@@ -10,41 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "thread_recorder.hh"
-#include "recorder.hh"
-#include "queue.hh"
-#include "info_manager.hh"
+#pragma once
 
-namespace holovibes
+#include "input_file.hh"
+
+namespace holovibes::io_files
 {
-	namespace gui
-	{
-		ThreadRecorder::ThreadRecorder(
-			Queue& queue,
-			const std::string& filepath,
-			ComputeDescriptor& cd,
-			QObject* parent)
-			: QThread(parent)
-			, recorder_(queue, filepath, cd)
-		{
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+    inline InputFile::InputFile(const std::string& file_path): IOFile(file_path, IOFile::OpeningMode::READ)
+    {}
 
-			progress_bar->setMaximum(cd.nb_frames_record);
-			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-		}
-
-		ThreadRecorder::~ThreadRecorder()
-		{
-		}
-
-		void ThreadRecorder::stop()
-		{
-			recorder_.stop();
-		}
-
-		void ThreadRecorder::run()
-		{
-			recorder_.record();
-		}
-	}
-}
+    inline size_t InputFile::get_frame_annotation_size() const
+    {
+        return frame_annotation_size_;
+    }
+} // namespace holovibes::io_files

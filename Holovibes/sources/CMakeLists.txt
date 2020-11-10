@@ -44,8 +44,13 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
 
-    io_files/cine_file.cc
-    io_files/holo_file.cc
+    io_files/input_file.cc
+    io_files/input_cine_file.cc
+    io_files/input_holo_file.cc
+    io_files/input_file_handler.cc
+    io_files/io_file.cc
+    io_files/output_holo_file.cc
+    io_files/output_file_handler.cc
 
     thread/ithread_input.cc
     thread/thread_capture.cc

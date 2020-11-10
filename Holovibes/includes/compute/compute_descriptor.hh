@@ -107,13 +107,6 @@ namespace holovibes
 		HSV
 	};
 
-	enum class FileType
-	{
-		NONE,
-		HOLO,
-		CINE
-	};
-
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.
@@ -334,9 +327,6 @@ namespace holovibes
 		std::atomic<bool>			gpu_lens_display_enabled{ false };
 		//! enables the signal and noise chart computation
 		std::atomic<bool>			chart_enabled{ false };
-
-		//! is file a .cine
-		std::atomic<FileType>		file_type;
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate{ 30 };

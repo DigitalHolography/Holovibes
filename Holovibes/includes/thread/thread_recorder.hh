@@ -50,14 +50,12 @@ namespace holovibes
 			**
 			** \param queue Queue from where to fetch data
 			** \param filepath string containing output path of record
-			** \param json_settings Settings from the main window ui
 			** \param cd The compute descriptor (hold the recording description)
 			** \param parent Qt parent
 			*/
 			ThreadRecorder(
 				Queue& queue,
 				const std::string& filepath,
-				const json& json_settings,
 				ComputeDescriptor& cd,
 				QObject* parent = nullptr);
 

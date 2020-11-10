@@ -18,7 +18,7 @@
 #include "recorder.hh"
 #include "queue.hh"
 #include "logger.hh"
-#include "holo_file.hh"
+#include "output_file_handler.hh"
 
 # include "gui_group_box.hh"
 # include "info_manager.hh"
@@ -28,22 +28,16 @@ namespace holovibes
 	Recorder::Recorder(
 		Queue& queue,
 		const std::string& filepath,
-		ComputeDescriptor& cd,
-		const json& json_settings)
+		ComputeDescriptor& cd)
 		: queue_(queue)
-		, file_()
 		, stop_requested_(false)
 		, cd_(cd)
-		, json_settings_(json_settings)
 	{
 		output_path_ = filepath;
-		file_.open(filepath, std::ios::binary | std::ios::trunc);
 	}
 
 	Recorder::~Recorder()
 	{
-		if (file_.is_open())
-			file_.close();
 		// return to the .exe directory
 		_chdir(execDir.c_str());
 	}
@@ -69,80 +63,94 @@ namespace holovibes
 
 		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
-		auto header = HoloFile::create_header(
-			json_settings_.value("pixel_bits", 8),
-			json_settings_.value("img_width", 1024),
-			json_settings_.value("img_height", 1024),
-			n_images
-		);
-		file_.write((char*)(&header), sizeof(HoloFile::Header));
+		const camera::FrameDescriptor& queue_fd = queue_.get_fd();
 
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
-		size_t written_bytes = 0;
+		camera::FrameDescriptor file_fd = queue_fd;
+		file_fd.depth = queue_fd.depth == 6 ? 3 : queue_fd.depth;
 
-		// The for can be break for two reasons:
-		// -> the recording is requested to stop
-		// -> the thread compute terminated copying frames and the queue is empty
-		// The thread computes has the tasks to copy the correct number of frames
-		unsigned int nb_frames_written = 0;
-		while (!stop_requested_ && (queue_.get_size() > 0 || !cd_.copy_frames_done))
+		try
 		{
-			auto start_time = std::chrono::steady_clock::now();
+			io_files::OutputFileHandler::create(output_path_, file_fd, n_images);
+			io_files::OutputFileHandler::export_compute_settings(cd_);
 
-			while (queue_.get_size() == 0)
-				std::this_thread::yield();
+			io_files::OutputFileHandler::write_header();
 
-			cur_size = queue_.get_size();
-			if (cur_size >= max_size - 1)
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
-			else if (cur_size > (max_size * 0.8f))
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
-			else
-				gui::InfoManager::get_manager()->remove_info("Recording");
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
+			size_t written_bytes = 0;
 
-
-			if (queue_.get_fd().depth == 6)
+			// The for can be break for two reasons:
+			// -> the recording is requested to stop
+			// -> the thread compute terminated copying frames and the queue is empty
+			// The thread computes has the tasks to copy the correct number of frames
+			unsigned int nb_frames_written = 0;
+			while (!stop_requested_ && (queue_.get_size() > 0 || !cd_.copy_frames_done))
 			{
-				// Record 48-bit color image into 24-bit color
-				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
-				file_.write(buffer, size/2);
-				written_bytes = size / 2;
+				auto start_time = std::chrono::steady_clock::now();
+
+				while (queue_.get_size() == 0)
+					std::this_thread::yield();
+
+				cur_size = queue_.get_size();
+				if (cur_size >= max_size - 1)
+				{
+					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
+																"Recording", "Queue is full, data will be lost !");
+				}
+				else if (cur_size > (max_size * 0.8f))
+				{
+					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
+																"Recording", "Queue is nearly full !");
+				}
+				else
+				{
+					gui::InfoManager::get_manager()->remove_info("Recording");
+				}
+
+				if (queue_fd.depth == 6)
+				{
+					// Record 48-bit color image into 24-bit color
+					queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
+					written_bytes = io_files::OutputFileHandler::write_frame(buffer, size / 2);
+				}
+				else
+				{
+					// Normal recording
+					queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
+					written_bytes = io_files::OutputFileHandler::write_frame(buffer, size);
+				}
+
+				auto end_time = std::chrono::steady_clock::now();
+				auto elapsed = end_time - start_time;
+				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+				long long saving_rate = written_bytes / microseconds; // bytes / microsecond which is equal to MegaByte / second
+				gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
+
+
+				++nb_frames_written;
+				emit value_change(nb_frames_written);
 			}
+
+			io_files::OutputFileHandler::write_footer();
+			io_files::OutputFileHandler::close();
+
+			if (nb_frames_written == n_images)
+				LOG_INFO("[RECORDER] Record succeed !");
 			else
 			{
-				// Normal recording
-				queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
-				file_.write(buffer, size);
-				written_bytes = size;
+				LOG_INFO("[RECORDER] Record failed ! Number of frames written "
+					+ std::to_string(nb_frames_written) + "/"
+					+ std::to_string(n_images) + ".");
+				LOG_INFO("[RECORDER] Increase output queue size !");
 			}
 
-			auto end_time = std::chrono::steady_clock::now();
-			auto elapsed = end_time - start_time;
-			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-			long long saving_rate = written_bytes / microseconds; // bytes / microsecond which is equal to MegaByte / second
-			gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
-
-
-			++nb_frames_written;
-			emit value_change(nb_frames_written);
+			gui::InfoManager::get_manager()->remove_info("Recording");
+			gui::InfoManager::get_manager()->remove_info("Saving Throughput");
 		}
-
-		std::string json_str = json_settings_.dump();
-		file_.write(json_str.data(), json_str.size());
-		file_.close();
-
-		if (nb_frames_written == n_images)
-			LOG_INFO("[RECORDER] Record succeed !");
-		else
+		catch (const io_files::FileException& e)
 		{
-		 	LOG_INFO("[RECORDER] Record failed ! Number of frames written "
-			 	+ std::to_string(nb_frames_written) + "/"
-				+ std::to_string(n_images) + ".");
-			LOG_INFO("[RECORDER] Increase output queue size !");
+			LOG_ERROR("[RECORDER] " + std::string(e.what()));
+			io_files::OutputFileHandler::close();
 		}
-
-		gui::InfoManager::get_manager()->remove_info("Recording");
-		gui::InfoManager::get_manager()->remove_info("Saving Throughput");
 
 		delete[] buffer;
 
@@ -153,57 +161,5 @@ namespace holovibes
 	void Recorder::stop()
 	{
 		stop_requested_ = true;
-	}
-
-	void Recorder::createFilePath(const std::string folderName)
-	{
-		std::list<std::string> folderLevels;
-		char* c_str = (char*)folderName.c_str();
-
-		// Point to end of the string
-		char* strPtr = &c_str[strlen(c_str) - 1];
-
-		// Create a list of the folders which do not currently exist
-		do
-		{
-			if (std::filesystem::exists(c_str))
-				break;
-			// Break off the last folder name, store in folderLevels list
-			do
-			{
-				--strPtr;
-			} while ((*strPtr != '\\') && (*strPtr != '/') && (strPtr >= c_str));
-			folderLevels.push_front(std::string(strPtr + 1));
-			strPtr[1] = 0;
-		} while (strPtr >= c_str);
-
-		if (folderLevels.empty())
-			return;
-		std::cout << folderLevels.back() << std::endl;
-		folderLevels.pop_back();
-
-		// Save the .exe directory before the record
-		execDir = std::filesystem::current_path().string();
-		if (_chdir(c_str))
-		{
-			throw std::exception("[RECORDER] error cannot _chdir directory");
-		}
-
-		// Create the folders iteratively
-		std::string startPath = std::filesystem::current_path().string();
-		for (std::list<std::string>::iterator it = folderLevels.begin(); it != folderLevels.end(); it++)
-		{
-			if (std::filesystem::create_directory(it->c_str()) == 0)
-				throw std::exception("[RECORDER] error cannot create directory");
-
-			_chdir(it->c_str());
-		}
-		_chdir(startPath.c_str());
-	}
-
-	bool Recorder::is_file_exist(const std::string& filepath)
-	{
-		std::ifstream ifs(filepath);
-		return ifs.good();
 	}
 }

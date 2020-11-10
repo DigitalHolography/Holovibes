@@ -12,81 +12,131 @@
 
 #pragma once
 
-#include <string>
-
-namespace holovibes
+namespace holovibes::io_files
 {
-	/*! \brief    Used to get information from .cine files
-	*
-	*   \details  Reads the header of a file and if it is a .cine file
-    */
+    /*!
+     *  \brief    Base class of cine files. Used to store data
+     *
+     *  \details  For more details, see:
+     *            http://phantomhighspeed-knowledge.force.com/servlet/fileField?id=0BE1N000000kD2i#:~:text=Cine%20file%20format%20was%20designed,cameras%20from%20Vision%20Research%20Inc.
+     *            More structs present in the file format could be added to the class to
+     *            perform more checks
+     */
     class CineFile
     {
     public:
-        /*! \brief   Used to store information about the images */
-        // We had here a bug, if we swap the fields pixel size and pixel bits,
-        // the value of pixel size change without any reason later in the execution.
-        // Maybe a pointer does an illegal memory access and changes the value.
-        struct ImageInfo
+        /*!
+         *  \brief    Getter on the total number of frames in the file
+         */
+        size_t get_total_nb_frames() const;
+
+    protected:
+        /*!
+         *  \brief    Struct containing data related directly to the cine file
+         *
+         *  \details  Packed (aligned on 2 bytes) to be exactly 44 bytes, as in the file
+         */
+        #pragma pack(2)
+        struct CineFileHeader
         {
-			/*! Width of 1 image in pixels */
-            int32_t img_width;
-			/*! Height of 1 image in pixels */
-            int32_t img_height;
-            /*! Size of a pixel in micron */
-            float pixel_size;
-			/*! Number of bits in 1 pixel */
-            uint16_t pixel_bits;
+            /*! This is the marker of a cine file.
+            It has to be "CI" in any cine file */
+            uint16_t type;
+            /*! It represents the CINEFILEHEADER structure size
+            as a number of bytes */
+            uint16_t header_size;
+            /*! 0 for gray cines, 1 for a jpeg compressed file,
+            2 for uninterpolated (RAW file) */
+            uint16_t compression;
+            /*! Version number */
+            uint16_t version;
+            /*! First recorded image number, relative to trigger */
+            int32_t first_movie_image;
+            /*! Total count of images, recorded in the camera memory */
+            uint32_t total_image_count;
+            /*! First image saved to this file, relative to trigger */
+            int32_t first_image_no;
+            /*! Count of images saved to this file */
+            uint32_t image_count;
+            /*! Offset of the BITMAPINFOHEADER structure in the cine file */
+            uint32_t off_image_header;
+            /*! Offset of the SETUP structure in the cine file */
+            uint32_t off_setup;
+            /*! Offset in the cine file of an array with the positions
+            of each image stored in the file */
+            uint32_t off_image_offset;
+            /*! Trigger time is a TIME64 structure having the seconds and
+            fraction of second since Jan 1, 1970 */
+            time_t trigger_time;
         };
 
-        /*! \brief    Creates the singleton instance
-        *
-        *   \param    file_path   Path to the .cine file
-        *
-        *   \return   A pointer to the newly created instance,
-        *             or nullptr if an error occured
-        */
-        static CineFile* new_instance(const std::string& file_path);
+        /*!
+         *  \brief    Struct containing data related directly to the frames
+         *
+         *  \details  Packed (aligned on 2 bytes) to be exactly 40 bytes, as in the file
+         */
+        #pragma pack(2)
+        struct BitmapInfoHeader
+        {
+            /*! It specifies the number of bytes required by the structure
+            (without palette) */
+            uint32_t bi_size;
+            /*! It specifies the width of the bitmap, in pixels */
+            int32_t bi_width;
+            /*! It specifies the height of the bitmap, in pixels
+            If biHeight is positive, the bitmap is a bottom-up DIB and
+            its origin is the lower-left corner.
+            If biHeight is negative, the bitmap is a top-down DIB and
+            its origin is the upper-left corner */
+            int32_t bi_height;
+            /*! It specifies the number of planes for the target device.
+            This value must be set to 1 */
+            uint16_t bi_planes;
+            /*! It specifies the number of bits-per-pixel */
+            uint16_t bi_bit_count;
+            /*! It specifies the type of compression for a compressed
+            bottom-up bitmap */
+            uint32_t bi_compression;
+            /*! It specifies the image size in bytes */
+            uint32_t bi_size_image;
+            /* It specifies the horizontal resolution, in pixels-per-meter, of
+            the target device for the bitmap */
+            int32_t bi_x_pels_per_meter;
+            /*! Vertical resolution in pixels per meter */
+            int32_t bi_y_pels_per_meter;
+            /*! Specifies the number of color indexes in the color table that
+            are actually used by the bitmap */
+            uint32_t bi_clr_used;
+            /*! It specifies the number of color indexes that are required for
+            displaying the bitmap */
+            uint32_t bi_clr_important;
+        };
 
-        /*! \brief    Retrieves the singleton instance
-        *
-        *   \return   A pointer to the singleton instance
-        */
-        static CineFile* get_instance();
+        /*!
+         *  \brief    Default constructor
+         */
+        CineFile() = default;
 
-        /*! \brief    Deletes the singleton instance */
-        static void delete_instance();
+        /*!
+         *  \brief    Abstract destructor to make class abstract
+         */
+        virtual ~CineFile() = 0;
 
-		/*! \brief    Returns the current file's image information */
-        const ImageInfo& get_image_info() const;
-
-    private:
-		/*! \brief    Creates a CineFile object from an existing file path and reads all of the required data
-		*
-		*   \param file_path Path of the .cine file to process
-        */
-        CineFile(const std::string& file_path);
-
-        /*! \brief    Default destructor */
-        ~CineFile() = default;
-
-        /*! \brief    Default copy constructor */
+        /*!
+         *  \brief    Default copy constructor
+         */
         CineFile(const CineFile&) = default;
 
-        /*! \brief    Default copy operator */
+        /*!
+         *  \brief    Default copy operator
+         */
         CineFile& operator=(const CineFile&) = default;
 
-		/*! Path of the .cine file */
-        const std::string cine_file_path_;
-
-		/*! Information related to the images of the cine file */
-        ImageInfo image_info_;
-
-		/*! True if there was no error while creating the instance */
-		/*! If false, new_instance method deletes the instance and returns nullptr */
-        bool is_valid_instance_ = false;
-
-		/*! Singleton instance */
-        static CineFile* instance;
+        //! The cine file header of the cine file
+        CineFileHeader cine_file_header_;
+        //! The bitmap info header of the cine file
+        BitmapInfoHeader bitmap_info_header_;
     };
-}
+} // namespace holovibes::io_files
+
+#include "cine_file.hxx"

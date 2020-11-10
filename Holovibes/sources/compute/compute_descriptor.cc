@@ -51,7 +51,6 @@ namespace holovibes
 		convo_matrix_width = cd.convo_matrix_width.load();
 		convo_matrix_height = cd.convo_matrix_height.load();
 		convo_matrix_z = cd.convo_matrix_z.load();
-		file_type = cd.file_type.load();
 		pixel_size = cd.pixel_size.load();
 		img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();
 		img_acc_slice_xz_enabled = cd.img_acc_slice_xz_enabled.load();

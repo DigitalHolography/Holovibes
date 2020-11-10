@@ -31,9 +31,8 @@
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "holo_file.hh"
 #include "config.hh"
-#include "cine_file.hh"
+#include "input_file_handler.hh"
 
 #define MIN_IMG_NB_TIME_FILTER_CUTS 8
 
@@ -1232,14 +1231,7 @@ namespace holovibes
 				InfoManager::get_manager()->insertFrameDescriptorInfo(fd, InfoManager::InfoType::OUTPUT_SOURCE, "Output format");
 				/* Contrast */
 				cd_.contrast_enabled = true;
-				if (cd_.file_type != FileType::HOLO)
-				{
-					set_auto_contrast(); // Set auto contrast on the current window
-					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-					// Set auto contrast on the XY view even if it is not the current window
-					if (pipe)
-						pipe->autocontrast_end_pipe(XYview);
-				}
+
 				/* Notify */
 				notify();
 			}
@@ -2784,7 +2776,7 @@ namespace holovibes
 				if (queue)
 				{
 					path = set_record_filename_properties(queue->get_fd(), path, false);
-					record_thread_.reset(new ThreadRecorder(*queue, path, holo_file_get_json_settings(queue), cd_, this));
+					record_thread_.reset(new ThreadRecorder(*queue, path, cd_, this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					if (cd_.synchronized_record)
@@ -2917,7 +2909,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, holo_file_get_json_settings(q), cd_, this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -2944,7 +2936,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, holo_file_get_json_settings(q), cd_, this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3014,7 +3006,7 @@ namespace holovibes
 				{
 					if (gpib_interface_->execute_next_block())
 					{
-						record_thread_.reset(new ThreadRecorder(*q, output_filename, holo_file_get_json_settings(q), cd_, this));
+						record_thread_.reset(new ThreadRecorder(*q, output_filename, cd_, this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3141,21 +3133,31 @@ namespace holovibes
 			import_line_edit->clear();
 			import_line_edit->insert(filename);
 
-			if (filename.endsWith(".holo"))
-			{
-				HoloFile* holo_file = HoloFile::new_instance(filename.toStdString());
-				cd_.file_type = FileType::HOLO;
+			io_files::InputFileHandler::close();
 
-				set_start_stop_buttons(holo_file != nullptr);
+			if (filename != "")
+			{
+				try
+				{
+					io_files::InputFileHandler::open(filename.toStdString());
+					size_t nb_frames = io_files::InputFileHandler::get_total_nb_frames();
+
+					ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
+					ui.ImportEndIndexSpinBox->setValue(nb_frames);
+
+					set_start_stop_buttons(true);
+				}
+				catch (const io_files::FileException& e)
+				{
+					QMessageBox messageBox;
+					messageBox.critical(nullptr, "File Error", e.what());
+					io_files::InputFileHandler::close();
+					set_start_stop_buttons(false);
+				}
 			}
 
-			else if (filename.endsWith(".cine"))
-			{
-				CineFile* cine_file = CineFile::new_instance(filename.toStdString());
-				cd_.file_type = FileType::CINE;
-
-				set_start_stop_buttons(cine_file != nullptr);
-			}
+			else
+				set_start_stop_buttons(false);
 		}
 
 		void MainWindow::import_stop()
@@ -3166,14 +3168,15 @@ namespace holovibes
 			remove_infos();
 			cd_.compute_mode = Computation::Stop;
 			notify();
+			ui.InputBrowseToolButton->setEnabled(true);
 		}
 
 		void MainWindow::import_start()
 		{
 			import_stop();
+			ui.InputBrowseToolButton->setEnabled(false);
 
-			if (cd_.file_type == FileType::HOLO)
-				holo_file_update_cd();
+			io_files::InputFileHandler::import_compute_settings(cd_);
 
 			init_holovibes_import_mode();
 
@@ -3193,24 +3196,16 @@ namespace holovibes
 			cd_.time_filter_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			cd_.batch_size = cd_.time_filter_stride;
 
-			FrameDescriptor fd;
+			FrameDescriptor fd = io_files::InputFileHandler::get_frame_descriptor();
 
-			if (cd_.file_type == FileType::CINE)
-				fd = get_cine_file_frame_descriptor();
-			else
-				fd = get_holo_file_frame_descriptor();
+			width = fd.width;
+			height = fd.height;
+			get_good_size(width, height, 512);
 
 			is_enabled_camera_ = false;
 			try
 			{
 				std::string file_src = import_line_edit->text().toUtf8();
-
-				// TODO wrong calcul because header not taken into consideration
-				// Will be useless with the new file system
-				auto file_end = std::filesystem::file_size(file_src)
-					/ fd.frame_size();
-				if (file_end > end_spinbox->value())
-					file_end = end_spinbox->value();
 
 				set_correct_square_input_mode();
 
@@ -3220,7 +3215,7 @@ namespace holovibes
 					true,
 					fps_spinbox->value(),
 					start_spinbox->value(),
-					file_end,
+					end_spinbox->value(),
 					load_file_gpu->isChecked(),
 					global::global_config.input_queue_max_size,
 					holovibes_,
@@ -3256,46 +3251,6 @@ namespace holovibes
 			notify();
 		}
 
-		FrameDescriptor MainWindow::get_holo_file_frame_descriptor()
-		{
-			HoloFile* holo_file = HoloFile::get_instance();
-			const HoloFile::Header& header = holo_file->get_header();
-
-			cd_.pixel_size = holo_file->get_meta_data().value("pixel_size", 1.0f);
-
-			width = header.img_width;
-			height = header.img_height;
-			get_good_size(width, height, window_max_size);
-
-			FrameDescriptor fd = {
-				static_cast<ushort>(header.img_width),
-				static_cast<ushort>(header.img_height),
-				header.pixel_bits / 8,
-				header.endianess ? Endianness::BigEndian : Endianness::LittleEndian };
-
-			return fd;
-		}
-
-		FrameDescriptor MainWindow::get_cine_file_frame_descriptor()
-		{
-			CineFile* cine_file = CineFile::get_instance();
-			const CineFile::ImageInfo& image_info = cine_file->get_image_info();
-
-			cd_.pixel_size = image_info.pixel_size;
-
-			width = image_info.img_width;
-			height = image_info.img_height;
-			get_good_size(width, height, window_max_size);
-
-			FrameDescriptor fd = {
-				static_cast<ushort>(image_info.img_width),
-				static_cast<ushort>(image_info.img_height),
-				image_info.pixel_bits / 8,
-				Endianness::LittleEndian };
-
-			return fd;
-		}
-
 		void MainWindow::import_start_spinbox_update()
 		{
 			QSpinBox *start_spinbox = ui.ImportStartIndexSpinBox;
@@ -3312,65 +3267,6 @@ namespace holovibes
 
 			if (end_spinbox->value() < start_spinbox->value())
 				start_spinbox->setValue(end_spinbox->value());
-		}
-
-		void MainWindow::holo_file_update_cd()
-		{
-			auto holo_file = HoloFile::get_instance();
-			const json& json_settings = holo_file->get_meta_data();
-
-			cd_.compute_mode = json_settings.value("mode", Computation::Raw);
-			cd_.algorithm = json_settings.value("algorithm", Algorithm::None);
-			cd_.time_filter = json_settings.value("time_filter", TimeFilter::STFT);
-			cd_.time_filter_size = json_settings.value("#img", 1);
-			cd_.pindex = json_settings.value("p", 0);
-			cd_.lambda = json_settings.value("lambda", 0.0f);
-			cd_.pixel_size = json_settings.value("pixel_size", 12.0);
-			cd_.zdistance = json_settings.value("z", 0.0f);
-			cd_.log_scale_slice_xy_enabled = json_settings.value("log_scale", false);
-			cd_.contrast_min_slice_xy = json_settings.value("contrast_min", 0.0f);
-			cd_.contrast_max_slice_xy = json_settings.value("contrast_max", 0.0f);
-			cd_.fft_shift_enabled = json_settings.value("fft_shift_enabled", true);
-			cd_.x_accu_enabled = json_settings.value("x_acc_enabled", false);
-			cd_.x_acc_level = json_settings.value("x_acc_level", 1);
-			cd_.y_accu_enabled = json_settings.value("y_acc_enabled", false);
-			cd_.y_acc_level = json_settings.value("y_acc_level", 1);
-			cd_.p_accu_enabled = json_settings.value("p_acc_enabled", false);
-			cd_.p_acc_level = json_settings.value("p_acc_level", 1);
-			cd_.img_acc_slice_xy_enabled = json_settings.value("img_acc_slice_xy_enabled", false);
-			cd_.img_acc_slice_xz_enabled = json_settings.value("img_acc_slice_xz_enabled", false);
-			cd_.img_acc_slice_yz_enabled = json_settings.value("img_acc_slice_yz_enabled", false);
-			cd_.img_acc_slice_xy_level = json_settings.value("img_acc_slice_xy_level", 1);
-			cd_.img_acc_slice_xz_level = json_settings.value("img_acc_slice_xz_level", 1);
-			cd_.img_acc_slice_yz_level = json_settings.value("img_acc_slice_yz_level", 1);
-			cd_.renorm_enabled = json_settings.value("renorm_enabled", true);
-			cd_.renorm_constant = json_settings.value("renorm_constant", 15);
-		}
-
-		json MainWindow::holo_file_get_json_settings(const Queue* q)
-		{
-			try
-			{
-				json json_settings;
-				if (q != nullptr)
-				{
-					json_settings = HoloFile::get_json_settings(cd_, q->get_fd());
-				}
-				else
-				{
-					// This code shouldn't run but it's here to avoid a segfault in case something weird happens
-					json_settings = HoloFile::get_json_settings(cd_);
-					json_settings.emplace("img_width", window_max_size);
-					json_settings.emplace("img_height", window_max_size);
-					json_settings.emplace("pixel_bits", 16);
-				}
-				return json_settings;
-			}
-			catch (const std::exception& e)
-			{
-				LOG_ERROR(e.what());
-				return json();
-			}
 		}
 
 #pragma endregion

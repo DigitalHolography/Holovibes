@@ -28,7 +28,6 @@
 /* Forward declaration. */
 namespace holovibes
 {
-  enum class FileType;
   class Queue;
   class Holovibes;
 }
@@ -62,7 +61,6 @@ namespace holovibes
       , size_t first_frame_id
       , size_t last_frame_id
       , Queue& input
-	    , FileType file_type
       , bool load_file_in_gpu
 	    , QProgressBar *reader_progress_bar
 	    , gui::MainWindow *main_window);
@@ -93,19 +91,13 @@ namespace holovibes
     **
     ** \param cpu_buffer preallocated buffer in the cpu (read file)
     ** \param gpu_buffer preallocated buffer in the gpu (copy from cpu_buffer)
-    ** \param buffer_size Number of frames in the file (in bytes)
-    ** \param file the file being read
     ** \param fps_handler handler for simulating fps
-    ** \param thread_timer timer to count the fps
     ** \param nb_frames_one_second number of frames increased at each enqueue
     ** (use by the thread timer)
     */
 	  void read_file_in_gpu(char* cpu_buffer,
 	  								      char* gpu_buffer,
-	  								      size_t buffer_size,
-	  								      FILE* file,
 	  								      FpsHandler& fps_handler,
-	  								      ThreadTimer& thread_timer,
 	  								      std::atomic<uint>& nb_frames_one_second);
 
     /*! \brief Load the file by batch, copy the batch to gpu.
@@ -117,33 +109,26 @@ namespace holovibes
     **
     ** \param cpu_buffer preallocated buffer in the cpu (read file)
     ** \param gpu_buffer preallocated buffer in the gpu (copy from cpu_buffer)
-    ** \param buffer_size Number of frames in the file (in bytes)
-    ** \param file the file being read
-    ** \param start_pos position of the first frame
+    ** \param frames_to_read Number of frames to read
     ** \param fps_handler handler for simulating fps
-    ** \param thread_timer timer to count the fps
     ** \param nb_frames_one_second number of frames increased at each enqueue
     ** (use by the thread timer)
     */
     void read_file_batch(char* cpu_buffer,
                         char* gpu_buffer,
-                        size_t buffer_size,
-                        FILE* file,
-                        fpos_t* start_pos,
+                        size_t frames_to_read,
                         FpsHandler& fps_handler,
-                        ThreadTimer& thread_timer,
                         std::atomic<uint>& nb_frames_one_second);
 
-    /*! \brief read the file (buffer_size bytes) and copy it to the gpu buffer
+    /*! \brief read the file (frames_to_read bytes) and copy it to the gpu buffer
     ** \param cpu_buffer buffer used to read
     ** \param gpu_buffer store the bytes read in this buffer
-    ** \param buffer_size number of bytes to read
+    ** \param frames_to_read number of frames to read
     ** \param file file being read
     */
     size_t read_copy_file(char* cpu_buffer,
                           char* gpu_buffer,
-                          size_t buffer_size,
-                          FILE* file);
+                          size_t frames_to_read);
 
     /*! \brief enqueue frames_read in the destination queue with a speed
     ** according to the given fps
@@ -161,20 +146,8 @@ namespace holovibes
     /*! \brief handle the case of the last frame
     ** Reset to the first frames if the file should be read several times
     ** Stop if no loop.
-    ** If a file is given, set the position in the file to start_pos
-    ** \param file file being read
-    ** \param start_pos position of the first frame
     */
-    void handle_last_frame(FILE* file = nullptr, fpos_t* start_pos = nullptr);
-
-    /*! \brief Seek the offset to attain the .cine file first image */
-    long int  offset_cine_first_image(FILE *file);
-
-    /*!
-    ** \brief open file, set the offset and update the frame size if needed
-    ** \return return the file or nullptr if an error occurs
-    */
-    FILE* init_file(fpos_t* start_pos);
+    void handle_last_frame();
 
   private: /* Attributes */
     /*! \brief Source file */
@@ -195,8 +168,6 @@ namespace holovibes
     size_t last_frame_id_;
     /*! \brief The destination Queue in which the frames are enqueued */
     Queue& dst_queue_;
-    /*! \brief The type of the file to read */
-    FileType file_type_;
     /*! \brief The size in byte of the annotation (8 for cine file) */
     uint frame_annotation_size_;
     /*! \brief Bool to know whether the entire file should be loaded in gpu */
