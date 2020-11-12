@@ -13,9 +13,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
-string(APPEND CMAKE_CUDA_FLAGS " -arch=sm_61 \
-                                -gencode=arch=compute_61,code=sm_61 \
-                                -gencode=arch=compute_75,code=sm_75")
 
 set(HOLO_INCLUDES
     cuda_includes/
