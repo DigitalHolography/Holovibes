@@ -1,5 +1,10 @@
 ## Changelog
 
+### 8.5.2
+
+* Refactoring of file system
+* Fix compatibility issue for chart feature
+
 ### 8.5.1
 
 * Add new modes in chart
