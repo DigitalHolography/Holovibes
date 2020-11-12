@@ -287,46 +287,45 @@ namespace holovibes
 			Holovibes&			holovibes_;
 			ComputeDescriptor&	cd_;
 
-			std::unique_ptr<RawWindow>	mainDisplay;
-			std::unique_ptr<SliceWindow>	sliceXZ;
-			std::unique_ptr<SliceWindow>	sliceYZ;
-			std::unique_ptr<RawWindow>	lens_window;
-			std::unique_ptr<RawWindow>	raw_window;
+			std::unique_ptr<RawWindow>	mainDisplay = nullptr;
+			std::unique_ptr<SliceWindow>	sliceXZ = nullptr;
+			std::unique_ptr<SliceWindow>	sliceYZ = nullptr;
+			std::unique_ptr<RawWindow>	lens_window = nullptr;
+			std::unique_ptr<RawWindow>	 raw_window = nullptr;
 
-			ushort width;
-			ushort height;
-			uint window_max_size;
-			uint time_filter_cuts_window_max_size;
-			uint auxiliary_window_max_size;
+			uint window_max_size = 768;
+			uint time_filter_cuts_window_max_size = 512;
+			uint auxiliary_window_max_size = 512;
 
-			float		displayAngle;
-			float		xzAngle;
-			float		yzAngle;
+			float		displayAngle = 0.f;
+			float		xzAngle = 0.f;
+			float		yzAngle = 0.f;
 
-			int			displayFlip;
-			int			xzFlip;
-			int			yzFlip;
+			int			displayFlip = 0;
+			int			xzFlip = 0;
+			int			yzFlip = 0;
 
-			bool		is_enabled_camera_;
-			bool		is_batch_img_;
-			bool		is_batch_interrupted_;
-			double		z_step_;
-			unsigned	record_frame_step_;
+			bool		is_enabled_camera_ = false;
+			bool		is_batch_img_ = true;
+			bool		is_batch_interrupted_ = false;
+			double		z_step_ = 0.005f;
+			unsigned	record_frame_step_ = 1024;
 
-			CameraKind	kCamera;
-			ImportType	import_type_;
-			QString		last_img_type_;
+			CameraKind	kCamera = CameraKind::NONE;
+			ImportType	import_type_ = ImportType::None;
+			QString		last_img_type_ = "Magnitude";
 
-			std::unique_ptr<PlotWindow>				plot_window_;
-			std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
-			std::unique_ptr<ThreadRecorder>			record_thread_;
-			std::unique_ptr<ThreadCSVRecord>		CSV_record_thread_;
+			std::unique_ptr<PlotWindow>				plot_window_ = nullptr;
+			std::shared_ptr<gpib::IVisaInterface>	gpib_interface_ = nullptr;
+			std::unique_ptr<ThreadRecorder>			record_thread_ = nullptr;
+			std::unique_ptr<ThreadCSVRecord>		CSV_record_thread_ = nullptr;
 
-			size_t auto_scale_point_threshold_;
-			uint	nb_frames_;
-			uint	file_index_;
-			ushort	theme_index_;
+			size_t auto_scale_point_threshold_ = 100;
+			uint	nb_frames_ = 0;
+			uint	file_index_ = 1;
+			ushort	theme_index_ = 0;
 
+			/* Shortcuts (initialized in constructor) */
 			QShortcut	*z_up_shortcut_;
 			QShortcut	*z_down_shortcut_;
 			QShortcut	*p_left_shortcut_;

@@ -73,32 +73,6 @@ namespace holovibes
 		MainWindow::MainWindow(Holovibes& holovibes, QWidget *parent)
 			: QMainWindow(parent),
 			holovibes_(holovibes),
-			mainDisplay(nullptr),
-			window_max_size(768),
-			time_filter_cuts_window_max_size(512),
-			auxiliary_window_max_size(512),
-			sliceXZ(nullptr),
-			sliceYZ(nullptr),
-			displayAngle(0.f),
-			xzAngle(0.f),
-			yzAngle(0.f),
-			displayFlip(0),
-			xzFlip(0),
-			yzFlip(0),
-			is_enabled_camera_(false),
-			is_batch_img_(true),
-			is_batch_interrupted_(false),
-			z_step_(0.005f),
-			record_frame_step_(1024),
-			kCamera(CameraKind::NONE),
-			last_img_type_("Magnitude"),
-			plot_window_(nullptr),
-			record_thread_(nullptr),
-			CSV_record_thread_(nullptr),
-			auto_scale_point_threshold_(100),
-			file_index_(1),
-			theme_index_(0),
-			import_type_(ImportType::None),
 			cd_(holovibes_.get_cd())
 		{
 			ui.setupUi(this);
@@ -1128,8 +1102,8 @@ namespace holovibes
 			{
 				QPoint pos(0, 0);
 				const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-				width = fd.width;
-				height = fd.height;
+				unsigned short width = fd.width;
+				unsigned short height = fd.height;
 				get_good_size(width, height, window_max_size);
 				QSize size(width, height);
 				init_image_mode(pos, size);
@@ -1178,8 +1152,8 @@ namespace holovibes
 		{
 			QPoint pos(0, 0);
 			const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-			width = fd.width;
-			height = fd.height;
+			unsigned short width = fd.width;
+			unsigned short height = fd.height;
 			get_good_size(width, height, window_max_size);
 			QSize size(width, height);
 			init_image_mode(pos, size);
@@ -1799,8 +1773,9 @@ namespace holovibes
 					QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
 					ICompute* pipe = holovibes_.get_pipe().get();
 
-					ushort lens_window_width = width;
-					ushort lens_window_height = height;
+					const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+					ushort lens_window_width = fd.width;
+					ushort lens_window_height = fd.height;
 					get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
 					lens_window.reset(new RawWindow(pos,
@@ -1851,8 +1826,9 @@ namespace holovibes
 
 				cd_.raw_view = true;
 
-				ushort raw_window_width = width;
-				ushort raw_window_height = height;
+				const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+				ushort raw_window_width = fd.width;
+				ushort raw_window_height = fd.height;
 				get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
 
 				// set positions of new windows according to the position of the main GL window and Lens window
@@ -3196,10 +3172,10 @@ namespace holovibes
 			cd_.time_filter_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			cd_.batch_size = cd_.time_filter_stride;
 
-			FrameDescriptor fd = io_files::InputFileHandler::get_frame_descriptor();
+			const FrameDescriptor& fd = io_files::InputFileHandler::get_frame_descriptor();
 
-			width = fd.width;
-			height = fd.height;
+			unsigned short width = fd.width;
+			unsigned short height = fd.height;
 			get_good_size(width, height, 512);
 
 			is_enabled_camera_ = false;
