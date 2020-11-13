@@ -236,11 +236,7 @@ namespace holovibes
 			ui.RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view);
 
 			// Chart
-			ui.ChartGroupBox->setChecked(!is_raw && cd_.chart_enabled);
-			if (mainDisplay
-				&& mainDisplay->getOverlayManager().is_signal_zone_set()
-				&& mainDisplay->getOverlayManager().is_noise_zone_set())
-				set_chart_graphic();
+			ui.ChartGroupBox->setChecked(!is_raw && is_chart_enabled_);
 
 			QPushButton* signalBtn = ui.ChartSignalPushButton;
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
@@ -901,8 +897,14 @@ namespace holovibes
 		{
 			if (cd_.convolution_enabled)
 				set_convolution_mode(false);
-			if (cd_.chart_enabled)
+
+			if (is_chart_enabled_)
 				disable_chart_mode();
+			// Reset chart zones
+			units::RectFd empty_zone;
+			cd_.signalZone(empty_zone, AccessMode::Set);
+			cd_.noiseZone(empty_zone, AccessMode::Set);
+
 			cancel_time_filter_cuts();
 			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
@@ -2459,13 +2461,25 @@ namespace holovibes
 
 		void MainWindow::set_chart_mode(const bool value)
 		{
-			cd_.chart_enabled = value;
-
 			if (mainDisplay)
 			{
 				mainDisplay->resetTransform();
+
 				if (value)
+				{
+					is_chart_enabled_ = true;
+
+					mainDisplay->getOverlayManager().enable_all(Signal);
+					mainDisplay->getOverlayManager().enable_all(Noise);
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
+
+					QPushButton* chart_stop_push_button = ui.ChartOutputStopPushButton;
+					QPushButton* chart_rec_push_button = ui.ChartOutputRecPushButton;
+					QPushButton* chart_plot_push_button = ui.ChartPlotPushButton;
+					chart_stop_push_button->setEnabled(false);
+					chart_rec_push_button->setEnabled(true);
+					chart_plot_push_button->setEnabled(true);
+				}
 				else
 					disable_chart_mode();
 
@@ -2475,7 +2489,18 @@ namespace holovibes
 
 		void MainWindow::disable_chart_mode()
 		{
-			cd_.chart_enabled = false;
+			is_chart_enabled_ = false;
+
+			stop_chart_display();
+			stop_chart_record();
+
+			QPushButton* chart_stop_push_button = ui.ChartOutputStopPushButton;
+			QPushButton* chart_rec_push_button = ui.ChartOutputRecPushButton;
+			QPushButton* chart_plot_push_button = ui.ChartPlotPushButton;
+
+			chart_stop_push_button->setEnabled(false);
+			chart_rec_push_button->setEnabled(false);
+			chart_plot_push_button->setEnabled(false);
 
 			if (mainDisplay)
 			{
@@ -2485,14 +2510,44 @@ namespace holovibes
 				mainDisplay->getOverlayManager().disable_all(Noise);
 			}
 
-			holovibes_.get_pipe()->request_chart_stop();
-
-			holovibes_.get_chart_queue().clear();
-			plot_window_.reset(nullptr);
-
-			pipe_refresh();
-
 			notify();
+		}
+
+		void MainWindow::stop_chart_display()
+		{
+			if (cd_.chart_display_enabled)
+			{
+				auto pipe = holovibes_.get_pipe();
+				holovibes_.get_pipe()->request_disable_display_chart();
+				while (pipe->get_disable_chart_display_requested());
+
+				plot_window_.reset(nullptr);
+
+				QPushButton* chart_plot_push_button = ui.ChartPlotPushButton;
+				chart_plot_push_button->setEnabled(true);
+			}
+		}
+
+		void MainWindow::stop_chart_record()
+		{
+			if (cd_.chart_record_enabled)
+			{
+				if (CSV_record_thread_)
+				{
+					CSV_record_thread_.reset(nullptr);
+					is_batch_interrupted_ = true;
+				}
+
+				auto pipe = holovibes_.get_pipe();
+				pipe->request_disable_record_chart();
+				while (pipe->get_disable_chart_record_requested());
+
+				QPushButton* chart_stop_push_button = ui.ChartOutputStopPushButton;
+				QPushButton* chart_rec_push_button = ui.ChartOutputRecPushButton;
+
+				chart_stop_push_button->setEnabled(false);
+				chart_rec_push_button->setEnabled(true);
+			}
 		}
 
 		void MainWindow::activeSignalZone()
@@ -2507,71 +2562,63 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_chart_graphic()
+		void MainWindow::plot_chart_graphic()
 		{
-			if (plot_window_ != nullptr)
-				return;
+			auto pipe = holovibes_.get_pipe();
+			pipe->request_display_chart();
+			while (pipe->get_chart_display_requested());
 
-			PlotWindow *plot_window = new PlotWindow(holovibes_.get_chart_queue(), auto_scale_point_threshold_, "ROI Chart");
-
-			connect(plot_window, SIGNAL(closed()), this, SLOT(disable_chart_mode()), Qt::UniqueConnection);
-			holovibes_.get_pipe()->request_chart(&holovibes_.get_chart_queue());
-
-			pipe_refresh();
+			PlotWindow *plot_window = new PlotWindow(*holovibes_.get_pipe()->get_chart_display_queue(), auto_scale_point_threshold_, "Chart");
+			connect(plot_window, SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
 			plot_window_.reset(plot_window);
+
+			QPushButton* chart_plot_push_button = ui.ChartPlotPushButton;
+			chart_plot_push_button->setEnabled(false);
 		}
 
-		void MainWindow::browse_roi_output_file()
+		void MainWindow::browse_chart_output_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
-				tr("ROI output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
+				tr("Chart output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
 
-			QLineEdit* roi_output_line_edit = ui.ROIOutputPathLineEdit;
-			roi_output_line_edit->clear();
-			roi_output_line_edit->insert(filename);
+			QLineEdit* chart_output_line_edit = ui.ChartOutputPathLineEdit;
+			chart_output_line_edit->clear();
+			chart_output_line_edit->insert(filename);
 		}
 
 		void MainWindow::chart_record()
 		{
-			if (plot_window_)
-			{
-				plot_window_->stop_drawing();
-				plot_window_.reset(nullptr);
-				pipe_refresh();
-			}
-
-			QLineEdit* output_line_edit = ui.ROIOutputPathLineEdit;
-			QPushButton* roi_stop_push_button = ui.ROIOutputStopPushButton;
+			QLineEdit* output_line_edit = ui.ChartOutputPathLineEdit;
+			QPushButton* chart_stop_push_button = ui.ChartOutputStopPushButton;
+			QPushButton* chart_rec_push_button = ui.ChartOutputRecPushButton;
 			QSpinBox* nb_of_frames_spin_box = ui.NumberOfFramesSpinBox;
 
 			nb_frames_ = nb_of_frames_spin_box->value();
 			if (nb_frames_ == 0)
 				return;
+
 			std::string output_path = output_line_edit->text().toUtf8();
 			if (output_path == "")
 			{
-				roi_stop_push_button->setDisabled(true);
+				chart_stop_push_button->setEnabled(false);
 				return display_error("No output file");
 			}
 
+			auto pipe = holovibes_.get_pipe();
+			pipe->request_record_chart();
+			while (pipe->get_chart_record_requested());
+
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-				holovibes_.get_chart_queue(),
+				*pipe->get_chart_record_queue(),
 				output_path,
 				nb_frames_,
 				this));
-			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_chart_record()));
+
+			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(stop_chart_record()));
 			CSV_record_thread_->start();
 
-			roi_stop_push_button->setDisabled(false);
-		}
-
-		void MainWindow::finished_chart_record()
-		{
-			CSV_record_thread_.reset(nullptr);
-			display_info("ROI record done");
-
-			QPushButton* roi_stop_push_button = ui.ROIOutputStopPushButton;
-			roi_stop_push_button->setDisabled(true);
+			chart_stop_push_button->setEnabled(true);
+			chart_rec_push_button->setEnabled(false);
 		}
 #pragma endregion
 		/* ------------ */
@@ -2836,16 +2883,13 @@ namespace holovibes
 			batch_record(std::string(output_path->text().toUtf8()));
 		}
 
-		void MainWindow::csv_batch_record()
+		void MainWindow::chart_batch_record()
 		{
-			if (plot_window_)
-			{
-				plot_window_->stop_drawing();
-				plot_window_.reset(nullptr);
-				pipe_refresh();
-			}
+			auto pipe = holovibes_.get_pipe();
+			pipe->request_record_chart();
+			while (pipe->get_chart_record_requested());
 
-			QLineEdit* output_path = ui.ROIOutputPathLineEdit;
+			QLineEdit* output_path = ui.ChartOutputPathLineEdit;
 
 			is_batch_img_ = false;
 			is_batch_interrupted_ = false;
@@ -2896,7 +2940,7 @@ namespace holovibes
 					else
 					{
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-							holovibes_.get_chart_queue(),
+							*holovibes_.get_pipe()->get_chart_record_queue(),
 							formatted_path,
 							cd_.nb_frames_record,
 							this));
@@ -2923,7 +2967,7 @@ namespace holovibes
 					else
 					{
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-							holovibes_.get_chart_queue(),
+							*holovibes_.get_pipe()->get_chart_record_queue(),
 							formatted_path,
 							cd_.nb_frames_record,
 							this));
@@ -2962,7 +3006,7 @@ namespace holovibes
 			if (is_batch_img_)
 				path = ui.ImageOutputPathLineEdit->text().toUtf8();
 			else
-				path = ui.ROIOutputPathLineEdit->text().toUtf8();
+				path = ui.ChartOutputPathLineEdit->text().toUtf8();
 
 			Queue *q = nullptr;
 
@@ -3005,7 +3049,7 @@ namespace holovibes
 					if (gpib_interface_->execute_next_block())
 					{
 						CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-							holovibes_.get_chart_queue(),
+							*holovibes_.get_pipe()->get_chart_record_queue(),
 							output_filename,
 							cd_.nb_frames_record,
 							this));
@@ -3044,25 +3088,6 @@ namespace holovibes
 
 			if (no_error)
 				display_info("Batch record done");
-
-			if (plot_window_)
-			{
-				plot_window_->stop_drawing();
-				holovibes_.get_pipe()->request_chart(&holovibes_.get_chart_queue());
-				plot_window_->start_drawing();
-			}
-		}
-
-		void MainWindow::stop_csv_record()
-		{
-			if (cd_.chart_enabled)
-			{
-				if (CSV_record_thread_)
-				{
-					CSV_record_thread_->stop();
-					is_batch_interrupted_ = true;
-				}
-			}
 		}
 
 		void MainWindow::stop_image_record()

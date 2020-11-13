@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Thread class used to record CSV files of ROI/chart computations. */
+ * Thread class used to record CSV files of chart computations. */
 #pragma once
 
 #include <string>
@@ -30,7 +30,7 @@ namespace holovibes
 
 	namespace gui
 	{
-		/*! \brief Thread class used to record CSV files of ROI/chart computations.
+		/*! \brief Thread class used to record CSV files of chart computations.
 		**
 		** It inherits QThread because it is the GUI that needs to launch the record and it has
 		** to know when it is finished (signals/slots system).
@@ -85,6 +85,8 @@ namespace holovibes
 			unsigned int nb_frames_;
 			/*! Flag used to stop recording */
 			bool record_;
+
+			unsigned int old_progress_bar_max_; 
 		};
 	}
 }

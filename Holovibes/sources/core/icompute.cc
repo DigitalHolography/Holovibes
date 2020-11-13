@@ -212,6 +212,16 @@ namespace holovibes
 		return gpu_raw_queue_;
 	}
 
+	std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
+	{
+		return chart_env_.chart_display_queue_;
+	}
+
+	std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
+	{
+		return chart_env_.chart_record_queue_;
+	}
+
 	void ICompute::delete_stft_slice_queue()
 	{
 		request_delete_time_filter_cuts_ = true;
@@ -341,36 +351,27 @@ namespace holovibes
 		unwrap_2d_requested_ = value;
 	}
 
-	void ICompute::request_chart(
-		ConcurrentDeque<ChartPoint>* output)
+	void ICompute::request_display_chart()
 	{
-		assert(output != nullptr);
-
-		output->resize(cd_.time_filter_size);
-		chart_env_.chart_output_ = output;
-
-		chart_requested_ = true;
+		chart_display_requested_ = true;
 		request_refresh();
 	}
 
-	void ICompute::request_chart_stop()
+	void ICompute::request_disable_display_chart()
 	{
-		chart_requested_ = false;
+		disable_chart_display_requested_ = true;
 		request_refresh();
 	}
 
-	void ICompute::request_chart_record(
-		ConcurrentDeque<ChartPoint>* output,
-		const uint n)
+	void ICompute::request_record_chart()
 	{
-		assert(output != nullptr);
-		assert(n != 0);
-
-		chart_env_.chart_output_ = output;
-		chart_env_.chart_n_ = n;
-
-		chart_requested_ = true;
 		chart_record_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_disable_record_chart()
+	{
+		disable_chart_record_requested_ = true;
 		request_refresh();
 	}
 

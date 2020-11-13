@@ -60,8 +60,8 @@ namespace holovibes
 		** * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
 		** * Image rendering: #img, p, z, lambda ...
 		** * View: log scale, shifted corner, contrast ...
-		** * Special: image ratio, Chart/ROI plot ...
-		** * Record: record of raw frames, Chart/ROI file ...
+		** * Special: image ratio, Chart plot ...
+		** * Record: record of raw frames, Chart file ...
 		** * Import : making a file of raw data the image source
 		** * Info : Various runtime informations on the program's state
 		*/
@@ -192,29 +192,29 @@ namespace holovibes
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
 			void set_chart_mode(bool value);
+			void stop_chart_record();
+			void stop_chart_display();
 			void disable_chart_mode();
 			void set_composite_area();
 			void activeSignalZone();
 			void activeNoiseZone();
-			void set_chart_graphic();
+			void plot_chart_graphic();
 			void update_convo_kernel(const QString& value);
 			void browse_file();
 			void set_raw_recording(bool value);
 			void set_record();
 			void set_record_frame_step(int value);
-			void browse_roi_output_file();
+			void browse_chart_output_file();
 			void chart_record();
 			void browse_batch_input();
 			void image_batch_record();
-			void csv_batch_record();
+			void chart_batch_record();
 			void batch_record(const std::string& path);
 			void batch_next_record();
 			void batch_finished_record(bool no_error);
 			void batch_finished_record();
 			void stop_image_record();
 			void finished_image_record();
-			void finished_chart_record();
-			void stop_csv_record();
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
 			void init_holovibes_import_mode();
@@ -315,6 +315,7 @@ namespace holovibes
 			ImportType	import_type_ = ImportType::None;
 			QString		last_img_type_ = "Magnitude";
 
+			bool is_chart_enabled_ = false;
 			std::unique_ptr<PlotWindow>				plot_window_ = nullptr;
 			std::shared_ptr<gpib::IVisaInterface>	gpib_interface_ = nullptr;
 			std::unique_ptr<ThreadRecorder>			record_thread_ = nullptr;

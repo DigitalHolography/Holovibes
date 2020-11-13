@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Widget wrapping for a QtChart. Used to display Chart/ROI computations. */
+ * Widget wrapping for a QtChart. Used to display Chart computations. */
 #pragma once
 
 #include <memory>
@@ -37,7 +37,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief Widget wrapping for a QtChart. Used to display Chart/ROI computations. */
+		/*! \brief Widget wrapping for a QtChart. Used to display Chart computations. */
 		class CurvePlot : public QWidget
 		{
 			Q_OBJECT
@@ -135,7 +135,7 @@ namespace holovibes
 			/*! QtWidget used to display the chart on a window */
 			QChartView *chart_view;
 
-			/*! Reference to Deque containing Chart/ROI data */
+			/*! Reference to Deque containing Chart data */
 			ConcurrentDeque<ChartPoint>& data_vect_;
 			/*! Number of points to draw */
 			unsigned int points_nb_;

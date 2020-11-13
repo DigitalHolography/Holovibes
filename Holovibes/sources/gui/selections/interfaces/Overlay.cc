@@ -70,6 +70,12 @@ namespace holovibes
 			display_ = false;
 		}
 
+		void Overlay::enable()
+		{
+			active_ = true;
+			display_ = true;
+		}
+
 		void Overlay::press(QMouseEvent *e)
 		{
 			if (e->button() == Qt::LeftButton)

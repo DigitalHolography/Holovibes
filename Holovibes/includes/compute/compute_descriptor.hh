@@ -325,8 +325,10 @@ namespace holovibes
 		std::atomic<bool>			time_filter_cuts_enabled{ false };
 		//! is gpu lens display activated
 		std::atomic<bool>			gpu_lens_display_enabled{ false };
-		//! enables the signal and noise chart computation
-		std::atomic<bool>			chart_enabled{ false };
+		//! enables the signal and noise chart display
+		std::atomic<bool>			chart_display_enabled{ false };
+		//! enables the signal and noise chart record
+		std::atomic<bool>			chart_record_enabled{ false };
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate{ 30 };

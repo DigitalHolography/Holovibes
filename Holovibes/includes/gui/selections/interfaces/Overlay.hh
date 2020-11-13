@@ -82,6 +82,10 @@ namespace holovibes
 
 			*/
 			void					disable();
+			/*! \brief Enable this overlay
+
+			*/
+			void					enable();
 
 			/*! \brief Initialize shaders and Vao/Vbo of the overlay
 

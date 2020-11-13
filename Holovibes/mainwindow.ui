@@ -2454,6 +2454,13 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="ChartPlotPushButton">
+                <property name="text">
+                 <string>Plot</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
             <item>
@@ -2462,7 +2469,7 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIOutputPathLineEdit">
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ChartOutputPathLineEdit">
                 <property name="inputMask">
                  <string/>
                 </property>
@@ -2475,7 +2482,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="ROIOutputToolButton">
+               <widget class="QToolButton" name="ChartOutputToolButton">
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -2486,21 +2493,21 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_19">
               <item>
-               <widget class="QPushButton" name="ROIOutputRecPushButton">
+               <widget class="QPushButton" name="ChartOutputRecPushButton">
                 <property name="text">
                  <string>Rec.</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="ROIOutputBatchPushButton">
+               <widget class="QPushButton" name="ChartOutputBatchPushButton">
                 <property name="text">
                  <string>Batch</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="ROIOutputStopPushButton">
+               <widget class="QPushButton" name="ChartOutputStopPushButton">
                 <property name="text">
                  <string>Stop</string>
                 </property>
@@ -3288,11 +3295,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>ImageOutputRecPushButton</tabstop>
   <tabstop>ImageOutputBatchPushButton</tabstop>
   <tabstop>ImageOutputStopPushButton</tabstop>
-  <tabstop>ROIOutputPathLineEdit</tabstop>
-  <tabstop>ROIOutputToolButton</tabstop>
-  <tabstop>ROIOutputRecPushButton</tabstop>
-  <tabstop>ROIOutputBatchPushButton</tabstop>
-  <tabstop>ROIOutputStopPushButton</tabstop>
+  <tabstop>ChartOutputPathLineEdit</tabstop>
+  <tabstop>ChartOutputToolButton</tabstop>
+  <tabstop>ChartOutputRecPushButton</tabstop>
+  <tabstop>ChartOutputBatchPushButton</tabstop>
+  <tabstop>ChartOutputStopPushButton</tabstop>
   <tabstop>BatchInputPathLineEdit</tabstop>
   <tabstop>BatchInputBrowseToolButton</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
@@ -3768,7 +3775,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIOutputRecPushButton</sender>
+   <sender>ChartOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>chart_record()</slot>
@@ -3800,10 +3807,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIOutputBatchPushButton</sender>
+   <sender>ChartOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>csv_batch_record()</slot>
+   <slot>chart_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>911</x>
@@ -3832,10 +3839,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIOutputStopPushButton</sender>
+   <sender>ChartOutputStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>stop_csv_record()</slot>
+   <slot>stop_chart_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>968</x>
@@ -3848,10 +3855,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIOutputToolButton</sender>
+   <sender>ChartOutputToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_roi_output_file()</slot>
+   <slot>browse_chart_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>968</x>
@@ -5143,6 +5150,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ChartPlotPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>plot_chart_graphic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>854</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5173,17 +5196,16 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
   <slot>set_chart_mode(bool)</slot>
-  <slot>disable_chart_mode()</slot>
+  <slot>plot_chart_graphic()</slot>
   <slot>configure_holovibes()</slot>
-  <slot>browse_roi_output_file()</slot>
+  <slot>browse_chart_output_file()</slot>
   <slot>chart_record()</slot>
-  <slot>cancel_chart_record()</slot>
   <slot>browse_batch_input()</slot>
   <slot>batch_record()</slot>
-  <slot>csv_batch_record()</slot>
+  <slot>chart_batch_record()</slot>
   <slot>image_batch_record()</slot>
   <slot>stop_image_record()</slot>
-  <slot>stop_csv_record()</slot>
+  <slot>stop_chart_record()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>

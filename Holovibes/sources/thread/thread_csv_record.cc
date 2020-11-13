@@ -36,37 +36,44 @@ namespace holovibes
 			, path_(path)
 			, nb_frames_(nb_frames)
 			, record_(true)
-		{}
+			, old_progress_bar_max_(InfoManager::get_manager()->get_progress_bar()->maximum())
+		{
+		}
 
 		ThreadCSVRecord::~ThreadCSVRecord()
 		{
 			this->stop();
+
+			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
+			progress_bar->setMaximum(old_progress_bar_max_);
+			progress_bar->setValue(old_progress_bar_max_);
 		}
 
 		void ThreadCSVRecord::stop()
 		{
 			record_ = false;
+
+			terminate();
 		}
 
 		void ThreadCSVRecord::run()
 		{
-			deque_.clear();
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 			connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
 			progress_bar->setMaximum(nb_frames_);
-			holo_.get_pipe()->request_chart_record(&deque_, nb_frames_);
 
-			// FIXME Temporary hack
-			// The changes made here avoid lag during the recording
-			// Can still go wrong and crash for some reason
-			size_t size = 0;
-			while ((size = deque_.size()) < nb_frames_ && record_)
+			size_t new_elts = 0;
+			size_t old_elts = deque_.size();
+			while ((new_elts = deque_.size() - old_elts) < nb_frames_ && record_)
 			{
-				emit value_change(static_cast<int>(size));
+				emit value_change(static_cast<int>(new_elts));
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			emit value_change(nb_frames_);
-			std::cout << path_ << std::endl;
+
+			if (!record_)
+				return;
+
 			std::ofstream of(path_);
 
 			// Header displaying
@@ -86,9 +93,7 @@ namespace holovibes
 				<< "Column 7 : std(signal) / avg(signal)"
 			<< "]" << std::endl;
 
-			const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
-			unsigned int i = 0;
-			while (i < deque_size && record_)
+			for (uint i = old_elts; i < nb_frames_ + old_elts && record_; ++i)
 			{
 				ChartPoint& point = deque_[i];
 				of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
@@ -99,10 +104,11 @@ namespace holovibes
 					<< point.std_signal << ","
 					<< point.std_signal_div_avg_noise << ","
 					<< point.std_signal_div_avg_signal << std::endl;
-				++i;
 			}
 
-			holo_.get_pipe()->request_chart_stop();
+			// It's the function display_info -> refactor it
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", "Chart record done");
+			InfoManager::get_manager()->startDelError("Info");
 		}
 	}
 }

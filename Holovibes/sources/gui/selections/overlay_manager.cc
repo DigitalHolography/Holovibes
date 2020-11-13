@@ -75,7 +75,6 @@ namespace holovibes
 			{
 				std::shared_ptr<Overlay> noise_overlay = std::make_shared<NoiseOverlay>(parent_);
 				create_overlay(noise_overlay);
-				noise_overlay_ = noise_overlay;
 			}
 		}
 
@@ -86,7 +85,6 @@ namespace holovibes
 			{
 				std::shared_ptr<Overlay> signal_overlay = std::make_shared<SignalOverlay>(parent_);
 				create_overlay(signal_overlay);
-				signal_overlay_ = signal_overlay;
 			}
 		}
 
@@ -202,6 +200,18 @@ namespace holovibes
 				if (o->getKind() == ko)
 				{
 					o->disable();
+					found = true;
+				}
+			return found;
+		}
+
+		bool OverlayManager::enable_all(KindOfOverlay ko)
+		{
+			bool found = false;
+			for (auto o : overlays_)
+				if (o->getKind() == ko)
+				{
+					o->enable();
 					found = true;
 				}
 			return found;

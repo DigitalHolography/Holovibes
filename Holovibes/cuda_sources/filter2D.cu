@@ -36,8 +36,6 @@ static void filter2D_roi(cuComplex	*input,
 		uint y = index / width;
 		bool inside_roi = (y >= tl_y && y < br_y
 						  && x >= tl_x && x < br_x);
-		//If exclude_roi is false, we want the condition to be equivalent to !inside_roi
-		//If exclude_roi is true, we went the condition to be equivalent to inside_roi
 		if (inside_roi == exclude_roi)
 		{
 			for (uint i = 0; i < batch_size; ++i)

@@ -59,7 +59,7 @@ namespace holovibes
 			/** \brief insert the functions relative to noise and signal chart.
 
 			 */
-			void insert_chart(std::atomic<bool>& record_request);
+			void insert_chart();
 			/** \brief insert the functions relative to the log10.
 
 			*/
@@ -70,15 +70,6 @@ namespace holovibes
 			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 
 		private:
-			/** \brief insert the chart computation.
-
-			*/
-			void insert_main_chart();
-			/** \brief insert the chart recording.
-
-			*/
-			void insert_chart_record();
-
 			/** \brief insert the log10 on the XY window
 
 			*/
@@ -108,17 +99,6 @@ namespace holovibes
 				const uint			offset,
 				WindowKind			view,
 				cudaStream_t		stream = 0);
-
-			/*! \see request_chart_record
-			* \brief Call the chart algorithm, store the result and count n
-			* iterations. Request the ICompute to refresh when record is over.
-			* \param signal_zone Signal zone
-			* \param noise_zone Noise zone */
-			void chart_record_caller(
-				const units::RectFd& signal_zone,
-				const units::RectFd& noise_zone,
-				cudaStream_t stream = 0);
-
 
 			/// Vector function in which we insert the processing
 			FunctionVector&					fn_compute_vect_;

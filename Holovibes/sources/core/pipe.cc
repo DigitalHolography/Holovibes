@@ -119,6 +119,20 @@ namespace holovibes
 			request_delete_time_filter_cuts_ = false;
 		}
 
+		if (disable_chart_display_requested_)
+		{
+			chart_env_.chart_display_queue_.reset(nullptr);
+			cd_.chart_display_enabled = false;
+			disable_chart_display_requested_ = false;
+		}
+
+		if (disable_chart_record_requested_)
+		{
+			chart_env_.chart_record_queue_.reset(nullptr);
+			cd_.chart_record_enabled = false;
+			disable_chart_record_requested_ = false;
+		}
+
 		image_accumulation_->dispose(); // done only if requested
 
 		/* Allocate buffer */
@@ -176,6 +190,21 @@ namespace holovibes
 			raw_queue_allocated_ = true;
 			request_allocate_raw_queue_ = false;
 		}
+
+		if (chart_display_requested_)
+		{
+			chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
+			cd_.chart_display_enabled = true;
+			chart_display_requested_ = false;
+		}
+
+		if (chart_record_requested_)
+		{
+			chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
+			cd_.chart_record_enabled = true;
+			chart_record_requested_ = false;
+		}
+
 		return success_allocation;
 	}
 
@@ -237,8 +266,7 @@ namespace holovibes
 		image_accumulation_->insert_image_accumulation();
 
 		rendering_->insert_fft_shift();
-		if (chart_requested_)
-			rendering_->insert_chart(chart_record_requested_);
+		rendering_->insert_chart();
 		rendering_->insert_log();
 
 		insert_request_autocontrast();

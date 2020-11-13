@@ -40,7 +40,8 @@ namespace holovibes
 		contrast_enabled = cd.contrast_enabled.load();
 		convolution_enabled = cd.convolution_enabled.load();
 		filter_2d_enabled = cd.filter_2d_enabled.load();
-		chart_enabled = cd.chart_enabled.load();
+		chart_display_enabled = cd.chart_display_enabled.load();
+		chart_record_enabled = cd.chart_record_enabled.load();
 		contrast_min_slice_xy = cd.contrast_min_slice_xy.load();
 		contrast_max_slice_xy = cd.contrast_max_slice_xy.load();
 		contrast_min_slice_xz = cd.contrast_min_slice_xz.load();

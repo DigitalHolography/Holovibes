@@ -163,15 +163,6 @@ namespace holovibes
 			return camera_->get_ini_path();
 		}
 
-		/*! \brief Getter onto chart_queue
-		 *
-		 * Used when computing the chart of the noise or signal in a given area */
-		ConcurrentDeque<ChartPoint>& get_chart_queue()
-		{
-			return chart_queue_;
-		}
-		/*! \} */
-
 		const camera::FrameDescriptor& get_capture_fd();
 
 		/* \brief Get zb = N d^2 / lambda
@@ -207,13 +198,6 @@ namespace holovibes
 		/*! \brief Common compute descriptor shared between CLI/GUI and the
 		 * Pipe. */
 		ComputeDescriptor cd_;
-
-		/*! \brief Store chart of zone signal/noise
-		 *
-		 * Chart are computes in ThreadCompute and use in CurvePlot
-		 * \note see void MainWindow::set_chart_graphic() for example
-		 */
-		ConcurrentDeque<ChartPoint> chart_queue_;
 
 		/* \brief Store the path of holovibes when it is launched.
 		   so that holovibes.ini is saved at the right place. The problem

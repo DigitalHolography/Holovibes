@@ -26,11 +26,11 @@
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "chart_point.hh"
+#include "concurrent_deque.hh"
 
 namespace holovibes
 {
 	class Queue;
-	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;
 	enum WindowKind;
 }
@@ -103,13 +103,12 @@ namespace holovibes
 		cuda_tools::UniquePtr<int>			pca_dev_info = nullptr;
 	};
 
-	/** \brief Structure containing variables related to the chart computation and recording. */
+	/** \brief Structure containing variables related to the chart display and recording. */
 	struct ChartEnv
 	{
-		ConcurrentDeque<ChartPoint>* chart_output_ = nullptr;
-		unsigned int	chart_n_ = 0;
+		std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
+		std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_record_queue_ = nullptr;
 	};
-
 
 	struct ImageAccEnv
 	{
@@ -155,9 +154,10 @@ namespace holovibes
 		void request_update_unwrap_size(const unsigned size);
 		void request_unwrapping_1d(const bool value);
 		void request_unwrapping_2d(const bool value);
-		void request_chart(ConcurrentDeque<ChartPoint>* output);
-		void request_chart_stop();
-		void request_chart_record(ConcurrentDeque<ChartPoint>* output, const unsigned int n);
+		void request_display_chart();
+		void request_disable_display_chart();
+		void request_record_chart();
+		void request_disable_record_chart();
 		void request_termination();
 		void request_update_batch_size();
 		void request_update_time_filter_stride();
@@ -194,18 +194,24 @@ namespace holovibes
 		bool get_refresh_request()						const { return refresh_requested_; }
 		bool get_update_time_filter_size_request()		const { return update_time_filter_size_requested_; }
 		bool get_stft_update_roi_request()				const { return stft_update_roi_requested_; }
-		bool get_chart_request()						const { return chart_requested_; }
-		bool get_chart_record_request()					const { return chart_record_requested_; }
 		bool get_termination_request()					const { return termination_requested_; }
 		bool get_request_time_filter_cuts()				const { return request_time_filter_cuts_; }
 		bool get_request_delete_time_filter_cuts() 		const { return request_delete_time_filter_cuts_; }
 		bool get_output_resize_request()    			const { return output_resize_requested_; }
 		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
+		bool get_chart_display_requested()				const { return chart_display_requested_; }
+		bool get_chart_record_requested()				const { return chart_record_requested_; }
+		bool get_disable_chart_display_requested()		const { return disable_chart_display_requested_; }
+		bool get_disable_chart_record_requested()		const { return disable_chart_record_requested_; }
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 
 		/*! \brief Get the raw queue. Make allocation if needed */
 		virtual std::unique_ptr<Queue>&	get_raw_queue();
+
+		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
+
+		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
 		bool is_raw_queue_allocated() const { return raw_queue_allocated_; }
 	protected:
@@ -282,8 +288,10 @@ namespace holovibes
 		std::atomic<bool> refresh_requested_{ false };
 		std::atomic<bool> update_time_filter_size_requested_{ false };
 		std::atomic<bool> stft_update_roi_requested_{ false };
-		std::atomic<bool> chart_requested_{ false };
+		std::atomic<bool> chart_display_requested_{ false };
+		std::atomic<bool> disable_chart_display_requested_{ false };
 		std::atomic<bool> chart_record_requested_{ false };
+		std::atomic<bool> disable_chart_record_requested_{ false };
 		std::atomic<bool> output_resize_requested_{ false };
 		std::atomic<bool> kill_raw_queue_requested_{ false };
 		std::atomic<bool> termination_requested_{ false };

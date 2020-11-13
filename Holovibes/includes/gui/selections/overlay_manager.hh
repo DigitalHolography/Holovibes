@@ -35,6 +35,8 @@ namespace holovibes
 
 			/*! \brief Disable all the overlay of kind ko*/
 			bool disable_all(KindOfOverlay ko);
+			/*! \brief Enable all the overlay of kind ko*/
+			bool enable_all(KindOfOverlay ko);
 			/*! \brief Disable all the overlays. If def is set, it will create a default overlay. */
 			void reset(bool def = true);
 
@@ -54,20 +56,6 @@ namespace holovibes
 			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
 
-			bool is_signal_zone_set() const
-			{
-				return signal_overlay_ && signal_overlay_->isDisplayed()
-						&& signal_overlay_->getZone().height() != 0
-						&& signal_overlay_->getZone().width() != 0;
-			}
- 
-			bool is_noise_zone_set() const
-			{
-				return noise_overlay_ && noise_overlay_->isDisplayed()
-						&& noise_overlay_->getZone().height() != 0
-						&& noise_overlay_->getZone().width() != 0;
-			}
-
 			# ifdef _DEBUG
 				/*! \brief Prints every overlay in the vector. Debug purpose. */
 				void printVector();
@@ -84,9 +72,6 @@ namespace holovibes
 
 			/*! \brief Deletes from the vector every disabled overlay. */
 			void clean();
-
-			std::shared_ptr<Overlay> signal_overlay_ = nullptr;
-			std::shared_ptr<Overlay> noise_overlay_ = nullptr;
 
 			//! Containing every created overlay.
 			std::vector<std::shared_ptr<Overlay>> overlays_;

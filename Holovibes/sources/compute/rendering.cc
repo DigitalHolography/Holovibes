@@ -67,16 +67,33 @@ namespace holovibes
 			}
 		}
 
-		void Rendering::insert_chart(std::atomic<bool>& record_request)
+		void Rendering::insert_chart()
 		{
-			//TODO: allowing both at the same time
-			if (record_request)
+			if (cd_.chart_display_enabled || cd_.chart_record_enabled)
 			{
-				insert_chart_record();
-				record_request = false;
+				fn_compute_vect_.conditional_push_back([=]() {
+					units::RectFd signal_zone;
+					units::RectFd noise_zone;
+					cd_.signalZone(signal_zone, AccessMode::Get);
+					cd_.noiseZone(noise_zone, AccessMode::Get);
+
+					if (signal_zone.width() == 0 || signal_zone.height() == 0
+						|| noise_zone.width() == 0 || noise_zone.height() == 0)
+						return;
+
+					ChartPoint point = make_chart_plot(
+							buffers_.gpu_postprocess_frame,
+							input_fd_.width,
+							input_fd_.height,
+							signal_zone,
+							noise_zone);
+	
+					if (cd_.chart_display_enabled)
+						chart_env_.chart_display_queue_->push_back(point);
+					if (cd_.chart_record_enabled)
+						chart_env_.chart_record_queue_->push_back(point);
+				});
 			}
-			else
-				insert_main_chart();
 		}
 
 		void Rendering::insert_log()
@@ -108,38 +125,6 @@ namespace holovibes
 				insert_apply_contrast(WindowKind::XZview);
 				insert_apply_contrast(WindowKind::YZview);
 			}
-		}
-
-		//----------
-
-		void Rendering::insert_main_chart()
-		{
-			fn_compute_vect_.conditional_push_back([=]() {
-				units::RectFd signal_zone;
-				units::RectFd noise_zone;
-				cd_.signalZone(signal_zone, AccessMode::Get);
-				cd_.noiseZone(noise_zone, AccessMode::Get);
- 
-				chart_env_.chart_output_->push_back(
-					make_chart_plot(
-						buffers_.gpu_postprocess_frame,
-						input_fd_.width,
-						input_fd_.height,
-						signal_zone,
-						noise_zone));
-			});
-		}
-
-		void Rendering::insert_chart_record()
-		{
-			fn_compute_vect_.conditional_push_back([=]() {
-				units::RectFd signal_zone;
-				units::RectFd noise_zone;
-				cd_.signalZone(signal_zone, AccessMode::Get);
-				cd_.noiseZone(noise_zone, AccessMode::Get);
-
-				chart_record_caller(signal_zone, noise_zone);
-			});
 		}
 
 		void Rendering::insert_main_log()
@@ -281,25 +266,6 @@ namespace holovibes
 				break;
 			}
 			cd_.notify_observers();
-		}
-
-
-		void Rendering::chart_record_caller(
-			const units::RectFd& signal_zone,
-			const units::RectFd& noise_zone,
-			cudaStream_t stream)
-		{
-			if (chart_env_.chart_n_ > 0)
-			{
-				chart_env_.chart_output_->push_back(make_chart_plot(buffers_.gpu_postprocess_frame, input_fd_.width, input_fd_.height, signal_zone, noise_zone, stream));
-				chart_env_.chart_n_--;
-			}
-			else
-			{
-				chart_env_.chart_n_ = 0;
-				chart_env_.chart_output_ = nullptr;
-				Ic_->request_refresh();
-			}
 		}
 	}
 }

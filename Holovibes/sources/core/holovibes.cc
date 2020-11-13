@@ -34,7 +34,6 @@ namespace holovibes
 		gpu_input_queue_(),
 		gpu_output_queue_(),
 		cd_(),
-		chart_queue_(),
 		launch_path(std::filesystem::current_path().generic_string())
 	{
 	}

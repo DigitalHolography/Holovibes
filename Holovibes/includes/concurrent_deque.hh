@@ -25,7 +25,7 @@ namespace holovibes
 
 	/*! \brief This class is a thread safe wrapper on std::deque.
 	 *
-	 * It is used mainly to store Chart/ROI values.
+	 * It is used mainly to store Chart values.
 	 * Every method locks a mutex, do the action and delocks the mutex.
 	 */
 	template <class T> class ConcurrentDeque
