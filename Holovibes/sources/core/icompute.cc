@@ -44,7 +44,6 @@ namespace holovibes
 		: cd_(cd),
 		gpu_input_queue_(input),
 		gpu_output_queue_(output),
-		requested_output_size_(global::global_config.output_queue_max_size),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
@@ -279,10 +278,9 @@ namespace holovibes
 		termination_requested_ = true;
 	}
 
-	void ICompute::request_resize(unsigned int new_output_size)
+	void ICompute::request_output_resize(unsigned int new_output_size)
 	{
-		requested_output_size_ = new_output_size;
-		output_resize_requested_ = true;
+		output_resize_requested_ = new_output_size;
 		request_refresh();
 	}
 

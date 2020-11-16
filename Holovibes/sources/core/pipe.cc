@@ -143,10 +143,10 @@ namespace holovibes
 			cd_.convolution_changed = false; // Aknowledge signal from gui
 		}
 
-		if (output_resize_requested_)
+		if (output_resize_requested_.load() != std::nullopt)
 		{
-			gpu_output_queue_.resize(requested_output_size_);
-			output_resize_requested_ = false;
+			gpu_output_queue_.resize(output_resize_requested_.load().value());
+			output_resize_requested_ = std::nullopt;
 		}
 
 		// Updating number of images

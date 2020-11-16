@@ -2716,7 +2716,7 @@ namespace holovibes
 			if (value)
 			{
 				// Use an output Queue of size 4
-				pipe->request_resize(4);
+				pipe->request_output_resize(4);
 				if (!pipe->is_raw_queue_allocated())
 					pipe->request_allocate_raw_queue();
 				// We wait the request to be finished on the creation of the
@@ -2726,7 +2726,7 @@ namespace holovibes
 			else
 			{
 				// Restore original size
-				pipe->request_resize(global::global_config.output_queue_max_size);
+				pipe->request_output_resize(global::global_config.output_queue_max_size);
 				if (!cd_.raw_view)
 					pipe->request_kill_raw_queue();
 				cd_.record_raw = false;

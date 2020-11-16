@@ -148,7 +148,7 @@ namespace holovibes
 		virtual ~ICompute();
 
 		void request_refresh();
-		void request_resize(unsigned int new_output_size);
+		void request_output_resize(unsigned int new_output_size);
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
@@ -199,7 +199,7 @@ namespace holovibes
 		bool get_termination_request()					const { return termination_requested_; }
 		bool get_request_time_filter_cuts()				const { return request_time_filter_cuts_; }
 		bool get_request_delete_time_filter_cuts() 		const { return request_delete_time_filter_cuts_; }
-		bool get_output_resize_request()    			const { return output_resize_requested_; }
+		std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
 		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
 		bool get_chart_display_requested()				const { return chart_display_requested_; }
 		std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
@@ -279,9 +279,6 @@ namespace holovibes
 		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
 		unsigned int frame_count_;
 
-		// Flags for requests
-		unsigned int requested_output_size_;
-
 		std::atomic<bool> unwrap_1d_requested_{ false };
 		std::atomic<bool> unwrap_2d_requested_{ false };
 		std::atomic<bool> autocontrast_requested_{ false };
@@ -294,7 +291,7 @@ namespace holovibes
 		std::atomic<bool> disable_chart_display_requested_{ false };
 		std::atomic<std::optional<unsigned int>> chart_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_chart_record_requested_{ false };
-		std::atomic<bool> output_resize_requested_{ false };
+		std::atomic<std::optional<unsigned int>> output_resize_requested_{ std::nullopt };
 		std::atomic<bool> kill_raw_queue_requested_{ false };
 		std::atomic<bool> termination_requested_{ false };
 		std::atomic<bool> request_time_filter_cuts_{ false };
