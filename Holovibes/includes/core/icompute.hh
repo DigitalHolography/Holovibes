@@ -201,6 +201,7 @@ namespace holovibes
 		bool get_request_delete_time_filter_cuts() 		const { return request_delete_time_filter_cuts_; }
 		std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
 		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
+		bool get_request_allocate_raw_queue() 			const { return request_allocate_raw_queue_;}
 		bool get_chart_display_requested()				const { return chart_display_requested_; }
 		std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 		bool get_disable_chart_display_requested()		const { return disable_chart_display_requested_; }
@@ -215,7 +216,6 @@ namespace holovibes
 
 		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
-		bool is_raw_queue_allocated() const { return raw_queue_allocated_; }
 	protected:
 
 		virtual void refresh() = 0;
@@ -262,11 +262,6 @@ namespace holovibes
 		/*! \brief Queue storing raw frames used by raw view and raw recording */
 		std::unique_ptr<Queue> gpu_raw_queue_{ nullptr };
 
-		/*! \brief Flag to check if the raw queue is currently allocated
-		** used for thread synchronization (recorder and ui)
-		*/
-		std::atomic<bool> raw_queue_allocated_{ false };
-
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	spatial_filter_plan_;
 
@@ -293,12 +288,12 @@ namespace holovibes
 		std::atomic<bool> disable_chart_record_requested_{ false };
 		std::atomic<std::optional<unsigned int>> output_resize_requested_{ std::nullopt };
 		std::atomic<bool> kill_raw_queue_requested_{ false };
+		std::atomic<bool> request_allocate_raw_queue_{ false };
 		std::atomic<bool> termination_requested_{ false };
 		std::atomic<bool> request_time_filter_cuts_{ false };
 		std::atomic<bool> request_delete_time_filter_cuts_{ false };
 		std::atomic<bool> request_update_batch_size_{ false };
 		std::atomic<bool> request_update_time_filter_stride_{ false };
 		std::atomic<bool> request_disable_lens_view_{ false };
-		std::atomic<bool> request_allocate_raw_queue_{ false };
 	};
 }

@@ -1817,14 +1817,11 @@ namespace holovibes
 
 		void MainWindow::update_raw_view(bool value)
 		{
-
 			if (value)
 			{
 				ICompute* pipe = holovibes_.get_pipe().get();
-				if (!pipe->is_raw_queue_allocated())
-					pipe->request_allocate_raw_queue();
-				// Wait until the pipe has been allocated and ready to use
-				while (!pipe->is_raw_queue_allocated());
+				pipe->request_allocate_raw_queue();
+				while (pipe->get_request_allocate_raw_queue());
 
 				cd_.raw_view = true;
 
@@ -2717,8 +2714,7 @@ namespace holovibes
 			{
 				// Use an output Queue of size 4
 				pipe->request_output_resize(4);
-				if (!pipe->is_raw_queue_allocated())
-					pipe->request_allocate_raw_queue();
+				pipe->request_allocate_raw_queue();
 				// We wait the request to be finished on the creation of the
 				// thread reader
 				cd_.record_raw = true;
@@ -2789,7 +2785,7 @@ namespace holovibes
 					// Wait until the raw queue has been allocated by the pipe
 					// (thread compute) and ready to use.
 					ICompute* pipe = holovibes_.get_pipe().get();
-					while (!pipe->is_raw_queue_allocated());
+					while (pipe->get_request_allocate_raw_queue());
 					queue = pipe->get_raw_queue().get();
 					queue->set_display(true);
 				}

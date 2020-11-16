@@ -108,7 +108,6 @@ namespace holovibes
 
 		if (kill_raw_queue_requested_) // Destroy gpu raw queue
 		{
-			raw_queue_allocated_ = false;
 			gpu_raw_queue_.reset(nullptr);
 			kill_raw_queue_requested_ = false;
 		}
@@ -185,10 +184,12 @@ namespace holovibes
 
 		if (request_allocate_raw_queue_)
 		{
-			auto fd = gpu_input_queue_.get_fd();
-			gpu_raw_queue_.reset(
-				new Queue(fd, global::global_config.output_queue_max_size, "RawOutputQueue"));
-			raw_queue_allocated_ = true;
+			if (!gpu_raw_queue_)
+			{
+				auto fd = gpu_input_queue_.get_fd();
+				gpu_raw_queue_.reset(
+					new Queue(fd, global::global_config.output_queue_max_size, "RawOutputQueue"));
+			}
 			request_allocate_raw_queue_ = false;
 		}
 
