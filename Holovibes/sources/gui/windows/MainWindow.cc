@@ -1140,7 +1140,7 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
+				holovibes_.init_compute(depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
 			}

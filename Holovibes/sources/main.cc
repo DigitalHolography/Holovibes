@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 					h);
 			}
 			if (opts.is_compute_enabled)
-				h.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+				h.init_compute();
 			h.recorder(opts.recorder_filepath, opts.recorder_n_img);
 			h.dispose_compute();
 			h.dispose_capture();

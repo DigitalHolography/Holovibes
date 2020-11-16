@@ -18,12 +18,10 @@ namespace holovibes
 	ThreadCompute::ThreadCompute(
 		ComputeDescriptor& desc,
 		Queue& input,
-		Queue& output,
-		const PipeType pipetype)
+		Queue& output)
 		: cd_(desc)
 		, input_(input)
 		, output_(output)
-		, pipetype_(pipetype)
 		, pipe_(nullptr)
 		, memory_cv_()
 		, thread_(&ThreadCompute::thread_proc, this)

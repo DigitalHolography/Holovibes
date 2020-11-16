@@ -36,13 +36,6 @@ namespace holovibes
 	{
 	public:
 
-		/*! All types of ICompute-based classes are associated with a flag. */
-		enum PipeType
-		{
-			PIPE,
-			PIPELINE
-		};
-
 		/*! \brief Build an ICompute instance between two queues.
 		 *
 		 * \param desc The Compute Descriptor which will be used and modified
@@ -51,8 +44,7 @@ namespace holovibes
 		ThreadCompute(
 			ComputeDescriptor& desc,
 			Queue& input,
-			Queue& output,
-			const PipeType pipetype);
+			Queue& output);
 
 		~ThreadCompute();
 
@@ -88,8 +80,6 @@ namespace holovibes
 
 		Queue& input_;
 		Queue& output_;
-		/*! The current type of ICompute object used. */
-		const PipeType pipetype_;
 
 		std::shared_ptr<ICompute> pipe_;
 

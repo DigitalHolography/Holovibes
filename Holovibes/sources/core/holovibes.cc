@@ -149,7 +149,7 @@ namespace holovibes
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}
 
-	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, const unsigned int& depth)
+	void Holovibes::init_compute(const unsigned int& depth)
 	{
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
@@ -170,7 +170,7 @@ namespace holovibes
 			gpu_input_queue_.reset(nullptr);
 			return;
 		}
-		tcompute_.reset(new ThreadCompute(cd_, *gpu_input_queue_, *gpu_output_queue_, pipetype));
+		tcompute_.reset(new ThreadCompute(cd_, *gpu_input_queue_, *gpu_output_queue_));
 		LOG_INFO("[CUDA] Compute thread started");
 
 		// A wait_for is necessary here in order for the pipe to finish
