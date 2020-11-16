@@ -25,15 +25,8 @@ namespace holovibes
 
 		void NoiseOverlay::release(ushort frameSide)
 		{
-			if (zone_.height() == 0 || zone_.width() == 0)
-				return;
-
-			units::RectFd texZone = zone_;
-
-			// handle Noise
 			if (parent_->getKindOfView() == Hologram)
-				parent_->getCd()->noiseZone(texZone, AccessMode::Set);
-
+				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
 		}
 	}
 }

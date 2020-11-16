@@ -130,6 +130,7 @@ namespace holovibes
 		{
 			chart_env_.chart_record_queue_.reset(nullptr);
 			cd_.chart_record_enabled = false;
+			chart_env_.nb_chart_points_to_record_ = 0;
 			disable_chart_record_requested_ = false;
 		}
 
@@ -198,11 +199,12 @@ namespace holovibes
 			chart_display_requested_ = false;
 		}
 
-		if (chart_record_requested_)
+		if (chart_record_requested_.load() != std::nullopt)
 		{
 			chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
 			cd_.chart_record_enabled = true;
-			chart_record_requested_ = false;
+			chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
+			chart_record_requested_ = std::nullopt;
 		}
 
 		return success_allocation;

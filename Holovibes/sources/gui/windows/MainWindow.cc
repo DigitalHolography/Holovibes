@@ -2605,8 +2605,8 @@ namespace holovibes
 			}
 
 			auto pipe = holovibes_.get_pipe();
-			pipe->request_record_chart();
-			while (pipe->get_chart_record_requested());
+			pipe->request_record_chart(nb_frames_);
+			while (pipe->get_chart_record_requested() != std::nullopt);
 
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 				*pipe->get_chart_record_queue(),
@@ -2885,9 +2885,14 @@ namespace holovibes
 
 		void MainWindow::chart_batch_record()
 		{
+			QSpinBox* nb_of_frames_spin_box = ui.NumberOfFramesSpinBox;
+			nb_frames_ = nb_of_frames_spin_box->value();
+			if (nb_frames_ == 0)
+				return;
+
 			auto pipe = holovibes_.get_pipe();
-			pipe->request_record_chart();
-			while (pipe->get_chart_record_requested());
+			pipe->request_record_chart(nb_frames_); // FIXME Maybe we don't want to record nb_frames_
+			while (pipe->get_chart_record_requested() != std::nullopt);
 
 			QLineEdit* output_path = ui.ChartOutputPathLineEdit;
 

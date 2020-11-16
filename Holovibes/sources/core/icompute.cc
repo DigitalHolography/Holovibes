@@ -363,9 +363,9 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::request_record_chart()
+	void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
 	{
-		chart_record_requested_ = true;
+		chart_record_requested_ = nb_chart_points_to_record;
 		request_refresh();
 	}
 

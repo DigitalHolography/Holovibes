@@ -17,6 +17,7 @@
 
 #include <atomic>
 #include <memory>
+#include <optional>
 
 #include "config.hh"
 #include "rect.hh"
@@ -108,6 +109,7 @@ namespace holovibes
 	{
 		std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
 		std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_record_queue_ = nullptr;
+		unsigned int nb_chart_points_to_record_ = 0;
 	};
 
 	struct ImageAccEnv
@@ -156,7 +158,7 @@ namespace holovibes
 		void request_unwrapping_2d(const bool value);
 		void request_display_chart();
 		void request_disable_display_chart();
-		void request_record_chart();
+		void request_record_chart(unsigned int nb_chart_points_to_record);
 		void request_disable_record_chart();
 		void request_termination();
 		void request_update_batch_size();
@@ -200,7 +202,7 @@ namespace holovibes
 		bool get_output_resize_request()    			const { return output_resize_requested_; }
 		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
 		bool get_chart_display_requested()				const { return chart_display_requested_; }
-		bool get_chart_record_requested()				const { return chart_record_requested_; }
+		std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 		bool get_disable_chart_display_requested()		const { return disable_chart_display_requested_; }
 		bool get_disable_chart_record_requested()		const { return disable_chart_record_requested_; }
 
@@ -252,7 +254,7 @@ namespace holovibes
 		TimeFilterEnv time_filter_env_;
 
 		/** Chart environment. */
-		ChartEnv	chart_env_;
+		ChartEnv chart_env_;
 
 		/** Image accumulation environment */
 		ImageAccEnv	image_acc_env_;
@@ -275,7 +277,7 @@ namespace holovibes
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
 		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
-		unsigned int	frame_count_;
+		unsigned int frame_count_;
 
 		// Flags for requests
 		unsigned int requested_output_size_;
@@ -290,7 +292,7 @@ namespace holovibes
 		std::atomic<bool> stft_update_roi_requested_{ false };
 		std::atomic<bool> chart_display_requested_{ false };
 		std::atomic<bool> disable_chart_display_requested_{ false };
-		std::atomic<bool> chart_record_requested_{ false };
+		std::atomic<std::optional<unsigned int>> chart_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_chart_record_requested_{ false };
 		std::atomic<bool> output_resize_requested_{ false };
 		std::atomic<bool> kill_raw_queue_requested_{ false };

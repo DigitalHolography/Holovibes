@@ -90,8 +90,11 @@ namespace holovibes
 	
 					if (cd_.chart_display_enabled)
 						chart_env_.chart_display_queue_->push_back(point);
-					if (cd_.chart_record_enabled)
+					if (cd_.chart_record_enabled && chart_env_.nb_chart_points_to_record_ != 0)
+					{
 						chart_env_.chart_record_queue_->push_back(point);
+						--chart_env_.nb_chart_points_to_record_;
+					}
 				});
 			}
 		}
