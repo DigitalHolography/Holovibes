@@ -54,7 +54,7 @@ namespace holovibes
 		, dst_queue_(input)
 		, frame_annotation_size_(io_files::InputFileHandler::get_frame_annotation_size())
 		, load_file_in_gpu_(load_file_in_gpu)
-		, progress_bar_refresh_interval_(fps / progress_bar_refresh_frequency_)
+		, progress_bar_refresh_interval_(std::max(1., fps / progress_bar_refresh_frequency_))
 		, reader_progress_bar_(reader_progress_bar)
 		, main_window_(main_window)
 	{
