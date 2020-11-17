@@ -229,6 +229,9 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy camera .ini configs
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
+    # Copy resources (python scripts, ...)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" "${BUILD_DIR}/"
+
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "${BUILD_DIR}/holovibes_logo.png"
