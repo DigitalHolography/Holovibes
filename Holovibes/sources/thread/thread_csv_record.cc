@@ -53,7 +53,7 @@ namespace holovibes
 		{
 			record_ = false;
 
-			terminate();
+			wait();
 		}
 
 		void ThreadCSVRecord::run()
@@ -63,16 +63,11 @@ namespace holovibes
 			progress_bar->setMaximum(nb_frames_);
 
 			size_t new_elts = 0;
-			size_t old_elts = deque_.size();
-			while ((new_elts = deque_.size() - old_elts) < nb_frames_ && record_)
+			do
 			{
 				emit value_change(static_cast<int>(new_elts));
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
-			emit value_change(nb_frames_);
-
-			if (!record_)
-				return;
+			} while ((new_elts = deque_.size()) < nb_frames_ && record_);
 
 			std::ofstream of(path_);
 
@@ -93,7 +88,7 @@ namespace holovibes
 				<< "Column 7 : std(signal) / avg(signal)"
 			<< "]" << std::endl;
 
-			for (uint i = old_elts; i < nb_frames_ + old_elts && record_; ++i)
+			for (uint i = 0; i < new_elts; ++i)
 			{
 				ChartPoint& point = deque_[i];
 				of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
