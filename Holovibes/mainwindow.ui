@@ -4754,7 +4754,7 @@ p, li { white-space: pre-wrap; }
    <sender>DisplayReticleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>display_cross(bool)</slot>
+   <slot>display_reticle(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>289</x>
@@ -5282,7 +5282,7 @@ p, li { white-space: pre-wrap; }
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>holo_file_update()</slot>
-  <slot>display_cross(bool)</slot>
+  <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
  </slots>

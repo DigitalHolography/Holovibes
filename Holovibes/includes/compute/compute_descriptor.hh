@@ -369,9 +369,8 @@ namespace holovibes
 		//! Wait the beginning of the file to start the recording.
 		std::atomic<bool>			synchronized_record{ false };
 
-
-		//! Middle cross.
-		std::atomic<bool>			display_cross{ false };
+		//! Is the reticle overlay enabled
+		std::atomic<bool>			reticle_enabled{ false };
 		//! Reticle border scale.
 		std::atomic<float>			reticle_scale{ 0.5f };
 

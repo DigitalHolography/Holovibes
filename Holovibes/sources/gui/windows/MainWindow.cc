@@ -423,13 +423,8 @@ namespace holovibes
 			ui.groupBox_value->setHidden(rgbMode);
 
 			// Reticle
-			if (ui.DisplayReticleCheckBox->isChecked()
-				&& mainDisplay
-				&& mainDisplay->getOverlayManager().getKind() != KindOfOverlay::Reticle)
-			{
-				ui.DisplayReticleCheckBox->setChecked(false);
-				display_cross(false);
-			}
+			ui.ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
+			ui.DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
 
 			// Lens View
 			ui.LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
@@ -900,10 +895,6 @@ namespace holovibes
 
 			if (is_chart_enabled_)
 				disable_chart_mode();
-			// Reset chart zones
-			units::RectFd empty_zone;
-			cd_.signalZone(empty_zone, AccessMode::Set);
-			cd_.noiseZone(empty_zone, AccessMode::Set);
 
 			cancel_time_filter_cuts();
 			if (cd_.filter_2d_enabled)
@@ -2734,12 +2725,13 @@ namespace holovibes
 			cd_.synchronized_record = value;
 		}
 
-		void MainWindow::display_cross(bool value)
+		void MainWindow::display_reticle(bool value)
 		{
-			ui.ReticleScaleDoubleSpinBox->setEnabled(value);
+			cd_.reticle_enabled = value;
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Reticle>();
+				mainDisplay->getOverlayManager().create_default();
 			}
 			else
 			{

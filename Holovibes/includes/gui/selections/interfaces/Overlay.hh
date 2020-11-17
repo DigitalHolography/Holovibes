@@ -35,6 +35,7 @@ namespace holovibes
 		enum KindOfOverlay
 		{
 			Zoom,
+			Reticle,
 			// Chart
 			Signal,
 			Noise,
@@ -46,8 +47,7 @@ namespace holovibes
 			Filter2DSubZone,
 			// Composite overlays
 			CompositeArea,
-			Rainbow,
-			Reticle
+			Rainbow
 		};
 
 		class BasicOpenGLWindow;

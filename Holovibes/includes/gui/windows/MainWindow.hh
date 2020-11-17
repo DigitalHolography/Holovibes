@@ -230,7 +230,7 @@ namespace holovibes
 			void rotateTexture();
 			void flipTexture();
 			void set_synchronized_record(bool value);
-			void display_cross(bool value);
+			void display_reticle(bool value);
 			void reticle_scale(double value);
 			//! Used to start the record at the same time than file reader.
 			void start_recording();
