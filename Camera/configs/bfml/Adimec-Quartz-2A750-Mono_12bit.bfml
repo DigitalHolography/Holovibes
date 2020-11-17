@@ -250,6 +250,59 @@
 					<!-- Start -->
 				</cxp_regs_after>
 			</mode>
+			<mode name="1024x512">
+				<comments>Custom Holovibes Config</comments>
+				<mode_roi>
+					<xsize>1024</xsize>
+					<ysize>512</ysize>
+				</mode_roi>
+				<io>
+					<trigger_src source="None"/>
+					<encoder_a_src source="None"/>
+				</io>
+				<bitflow_regs>
+					<reg>
+						<address>0</address>
+						<data>0</data>
+					</reg>
+				</bitflow_regs>
+				<cxp_regs_before>
+					<reg>
+						<address>0x00008208</address>
+						<data>0x0001</data>
+					</reg>
+				</cxp_regs_before>
+				<cxp_regs_after>
+					<reg>
+						<address>0x00008118</address>
+						<data>0x00000400</data>
+					</reg>
+					<reg>
+						<address>0x0000811c</address>
+						<data>0x00000200</data>
+					</reg>
+					<reg>
+						<address>0x00008250</address>
+						<data>0x00000000</data>
+					</reg>
+					<reg>
+						<address>0x00008144</address>
+						<data>0x00000101</data>
+					</reg>
+					<reg>
+						<address>0x00008220</address>
+						<data>0x0000056c</data>
+					</reg>
+					<reg>
+						<address>0x00008258</address>
+						<data>0x00000539</data>
+					</reg>
+					<reg>
+						<address>0x00008204</address>
+						<data>0x00000001</data>
+					</reg>
+				</cxp_regs_after>
+			</mode>
 			<mode name="1024x256">
 				<comments>Custom Holovibes Config</comments>
 				<mode_roi>
@@ -303,11 +356,11 @@
 					</reg>
 				</cxp_regs_after>
 			</mode>
-			<mode name="1024x512">
+			<mode name="1024x128">
 				<comments>Custom Holovibes Config</comments>
 				<mode_roi>
 					<xsize>1024</xsize>
-					<ysize>512</ysize>
+					<ysize>128</ysize>
 				</mode_roi>
 				<io>
 					<trigger_src source="None"/>
@@ -332,7 +385,60 @@
 					</reg>
 					<reg>
 						<address>0x0000811c</address>
-						<data>0x00000200</data>
+						<data>0x0000080</data>
+					</reg>
+					<reg>
+						<address>0x00008250</address>
+						<data>0x00000000</data>
+					</reg>
+					<reg>
+						<address>0x00008144</address>
+						<data>0x00000101</data>
+					</reg>
+					<reg>
+						<address>0x00008220</address>
+						<data>0x0000056c</data>
+					</reg>
+					<reg>
+						<address>0x00008258</address>
+						<data>0x00000539</data>
+					</reg>
+					<reg>
+						<address>0x00008204</address>
+						<data>0x00000001</data>
+					</reg>
+				</cxp_regs_after>
+			</mode>
+			<mode name="1024x64">
+				<comments>Custom Holovibes Config</comments>
+				<mode_roi>
+					<xsize>1024</xsize>
+					<ysize>64</ysize>
+				</mode_roi>
+				<io>
+					<trigger_src source="None"/>
+					<encoder_a_src source="None"/>
+				</io>
+				<bitflow_regs>
+					<reg>
+						<address>0</address>
+						<data>0</data>
+					</reg>
+				</bitflow_regs>
+				<cxp_regs_before>
+					<reg>
+						<address>0x00008208</address>
+						<data>0x0001</data>
+					</reg>
+				</cxp_regs_before>
+				<cxp_regs_after>
+					<reg>
+						<address>0x00008118</address>
+						<data>0x00000400</data>
+					</reg>
+					<reg>
+						<address>0x0000811c</address>
+						<data>0x0000040</data>
 					</reg>
 					<reg>
 						<address>0x00008250</address>
