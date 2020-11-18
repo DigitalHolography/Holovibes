@@ -366,10 +366,8 @@ namespace holovibes
 			ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
 			// Filter2d
-			QPushButton *filter_button = ui.Filter2DPushButton;
-			filter_button->setEnabled(!is_raw && !cd_.filter_2d_enabled);
-			filter_button->setStyleSheet((!is_raw && cd_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
-			ui.CancelFilter2DPushButton->setEnabled(!is_raw && cd_.filter_2d_enabled);
+			ui.Filter2DTypeComboBox->setEnabled(!is_raw);
+			ui.Filter2DTypeComboBox->setCurrentIndex(static_cast<int>(cd_.filter_2d_type.load()));
 
 			// Composite
 			const int time_transformation_size_max = cd_.time_transformation_size - 1;
@@ -897,7 +895,7 @@ namespace holovibes
 				disable_chart_mode();
 
 			cancel_time_transformation_cuts();
-			if (cd_.filter_2d_enabled)
+			if (cd_.filter_2d_type != Filter2DType::None)
 				cancel_filter2D();
 			holovibes_.dispose_compute();
 		}
@@ -1458,7 +1456,7 @@ namespace holovibes
 			{
 				try
 				{
-					if (cd_.filter_2d_enabled)
+					if (cd_.filter_2d_type != Filter2DType::None)
 						cancel_filter2D();
 					holovibes_.get_pipe()->create_stft_slice_queue();
 					// set positions of new windows according to the position of the main GL window
@@ -1667,10 +1665,8 @@ namespace holovibes
 			{
 				mainDisplay->resetTransform();
 				mainDisplay->getOverlayManager().create_overlay<Filter2D>();
-				ui.Filter2DPushButton->setStyleSheet("QPushButton {color: #009FFF;}");
 				cd_.log_scale_slice_xy_enabled = true;
 				cd_.fft_shift_enabled = true;
-				cd_.filter_2d_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
 					pipe->autocontrast_end_pipe(XYview);
 				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
@@ -1681,21 +1677,27 @@ namespace holovibes
 		void MainWindow::set_filter2D_type(const QString &filter2Dtype)
 		{
 			const std::string &type_str = filter2Dtype.toStdString();
+
+			Filter2DType old_type = cd_.filter_2d_type;
 			Filter2DType type = Filter2DType::LowPass;
 			if (type_str == "Low pass")
-			{
 				type = Filter2DType::LowPass;
-			}
 			else if (type_str == "High pass")
-			{
 				type = Filter2DType::HighPass;
-			}
 			else if (type_str == "Band pass")
-			{
 				type = Filter2DType::BandPass;
+			else
+				type = Filter2DType::None;
+			cd_.filter_2d_type = type;
+
+			if (cd_.filter_2d_type == Filter2DType::None)
+			{
+				cancel_filter2D();
+				return;
 			}
 
-			cd_.filter_2d_type = type;
+			if (old_type == Filter2DType::None)
+				set_filter2D();
 
 			notify();
 		}
@@ -1705,7 +1707,6 @@ namespace holovibes
 			if (!is_raw_mode())
 			{
 				InfoManager::get_manager()->remove_info("Filter2D");
-				cd_.filter_2d_enabled = false;
 				cd_.log_scale_slice_xy_enabled = false;
 				auto zone = units::RectFd({0, 0}, {0, 0});
 				cd_.setStftZone(zone);

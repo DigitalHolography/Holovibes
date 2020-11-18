@@ -73,8 +73,9 @@ namespace holovibes
 	};
 
 	/*! \brief Type of filter for the Filter2D feature */
-	enum Filter2DType
+	enum class Filter2DType
 	{
+		None,
 		LowPass,
 		HighPass,
 		BandPass
@@ -317,9 +318,8 @@ namespace holovibes
 		std::atomic<bool>			contrast_enabled{ false };
 		//! enables auto refresh of the contrast
 		std::atomic<bool>			contrast_auto_refresh{ true };
-		//! allows to limit the computations to a selected zone
-		std::atomic<bool>			filter_2d_enabled{ false };
-		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};
+		//! type of filter 2D
+		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::None};
 
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			time_transformation_cuts_enabled{ false };

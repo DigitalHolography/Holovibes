@@ -59,11 +59,11 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 void FourierTransform::insert_fft()
 {
 	filter2d_zone_ = cd_.getStftZone();
-	if (cd_.filter_2d_enabled)
+	if (cd_.filter_2d_type != Filter2DType::None)
 		insert_filter2d();
 
 	// In filter 2D: Applying fresnel transform only when filter2d overlay is release
-	if (!cd_.filter_2d_enabled || filter2d_zone_.area())
+	if (cd_.filter_2d_type == Filter2DType::None || filter2d_zone_.area())
 	{
 		if (cd_.space_transformation == SpaceTransformation::FFT1)
 			insert_fft1();
