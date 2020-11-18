@@ -33,8 +33,9 @@
 #include "logger.hh"
 #include "config.hh"
 #include "input_file_handler.hh"
+#include "ithread_input.hh"
 
-#define MIN_IMG_NB_time_transformation_CUTS 8
+#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
 {
@@ -356,7 +357,7 @@ namespace holovibes
 			// Changing time_transformation_size with time transformation cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
 			ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
-			ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_time_transformation_CUTS);
+			ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_raw);
 			ui.WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
@@ -643,6 +644,9 @@ namespace holovibes
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
+				cd_.square_input_mode = static_cast<SquareInputMode>(ptree.get<int>("image_rendering.square_input_mode", cd_.square_input_mode));
+				cd_.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd_.batch_size);
+
 				const ushort p_time_transformation_size = ptree.get<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
 				if (p_time_transformation_size < 1)
 					cd_.time_transformation_size = 1;
@@ -661,6 +665,7 @@ namespace holovibes
 					set_z_step(z_step);
 
 				cd_.space_transformation = static_cast<SpaceTransformation>(ptree.get<int>("image_rendering.space_transformation", cd_.space_transformation));
+				cd_.time_transformation = static_cast<TimeTransformation>(ptree.get<int>("image_rendering.time_transformation", cd_.time_transformation));
 
 				cd_.raw_bitshift = ptree.get<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 
@@ -678,6 +683,13 @@ namespace holovibes
 				cd_.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", cd_.log_scale_slice_yz_enabled);
 
 				cd_.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd_.fft_shift_enabled);
+
+				cd_.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd_.p_accu_enabled);
+				cd_.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd_.x_accu_enabled);
+				cd_.y_accu_enabled = ptree.get<bool>("view.y_accu_enabled", cd_.y_accu_enabled);
+				cd_.p_acc_level = ptree.get<short>("view.p_acc_level", cd_.p_acc_level);
+				cd_.x_acc_level = ptree.get<short>("view.x_acc_level", cd_.x_acc_level);
+				cd_.y_acc_level = ptree.get<short>("view.y_acc_level", cd_.y_acc_level);
 
 				cd_.contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd_.contrast_enabled);
 				cd_.contrast_threshold_low_percentile = ptree.get<float>("view.contrast_threshold_low_percentile", cd_.contrast_threshold_low_percentile);
@@ -787,15 +799,18 @@ namespace holovibes
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-			ptree.put("image_rendering.camera", kCamera);
+			ptree.put<holovibes::SquareInputMode>("image_rendering.square_input_mode", cd_.square_input_mode);
+			ptree.put<ushort>("image_rendering.batch_size", cd_.batch_size);
+			ptree.put<ushort>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
+			ptree.put<holovibes::SpaceTransformation>("image_rendering.space_transformation", cd_.space_transformation);
+			ptree.put<holovibes::TimeTransformation>("image_rendering.time_transformation", cd_.time_transformation);
 			ptree.put<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
+			ptree.put("image_rendering.camera", kCamera);
 			ptree.put<ushort>("image_rendering.p_index", cd_.pindex);
 			ptree.put<float>("image_rendering.lambda", cd_.lambda);
 			ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
-			ptree.put<holovibes::SpaceTransformation>("image_rendering.space_transformation", cd_.space_transformation);
 			ptree.put<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
-			ptree.put<ushort>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
 
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
@@ -807,6 +822,13 @@ namespace holovibes
 			ptree.put<bool>("view.contrast_enabled", cd_.contrast_enabled);
 			ptree.put<float>("view.contrast_threshold_low_percentile", cd_.contrast_threshold_low_percentile);
 			ptree.put<float>("view.contrast_threshold_high_percentile", cd_.contrast_threshold_high_percentile);
+
+			ptree.put<bool>("view.p_accu_enabled", cd_.p_accu_enabled);
+			ptree.put<bool>("view.x_accu_enabled", cd_.x_accu_enabled);
+			ptree.put<bool>("view.y_accu_enabled", cd_.y_accu_enabled);
+			ptree.put<short>("view.p_acc_level", cd_.p_acc_level);
+			ptree.put<short>("view.x_acc_level", cd_.x_acc_level);
+			ptree.put<short>("view.y_acc_level", cd_.y_acc_level);
 
 			ptree.put<float>("view.contrast_min", cd_.contrast_min_slice_xy);
 			ptree.put<float>("view.contrast_max", cd_.contrast_max_slice_xy);

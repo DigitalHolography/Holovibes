@@ -27,7 +27,7 @@ namespace camera
 namespace holovibes
 {
     //If you can find better names, please replace them with yours
-  enum class SquareInputMode
+  enum SquareInputMode
   {
     NO_MODIFICATION,
     ZERO_PADDED_SQUARE,
