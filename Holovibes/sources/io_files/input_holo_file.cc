@@ -100,7 +100,7 @@ namespace holovibes::io_files
     void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
     {
         cd.compute_mode = meta_data_.value("mode", Computation::Raw);
-        cd.algorithm = meta_data_.value("algorithm", Algorithm::None);
+        cd.space_transformation = meta_data_.value("algorithm", SpaceTransformation::None);
         cd.time_transformation = meta_data_.value("time_filter", TimeTransformation::STFT);
         cd.time_transformation_size = meta_data_.value("#img", 1);
         cd.pindex = meta_data_.value("p", 0);

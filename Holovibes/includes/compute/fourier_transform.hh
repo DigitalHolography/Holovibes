@@ -123,7 +123,7 @@ namespace holovibes
 			cuda_tools::CufftHandle&		spatial_transformation_plan_;
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
-			//! STFT environment.
+			//! Time transformation environment.
 			TimeTransformationEnv&					time_transformation_env_;
 		};
 	}

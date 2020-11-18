@@ -70,8 +70,8 @@ namespace holovibes
 	{
 		/*! \brief Current frames processed in the batch
 		**
-		** At index 0, batch_size frames are enqueued, spacial transformation is also executed in batch
-		** Batch size frames are enqueued in the gpu_stft_queue
+		** At index 0, batch_size frames are enqueued, spatial transformation is also executed in batch
+		** Batch size frames are enqueued in the gpu_time_transformation_queue
 		** This is done for perfomances reasons
 		**
 		** The variable is incremented unil it reachs batch_size in enqueue_multiple, then it is set back to 0

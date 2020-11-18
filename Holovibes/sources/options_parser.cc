@@ -418,7 +418,7 @@ namespace holovibes
 		if (vm_.count("1fft"))
 		{
 			opts_.is_compute_enabled = true;
-			opts_.cd.algorithm = Algorithm::FFT1;
+			opts_.cd.space_transformation = SpaceTransformation::FFT1;
 		}
 
 		if (vm_.count("2fft"))
@@ -427,7 +427,7 @@ namespace holovibes
 				throw std::runtime_error("1fft method already selected");
 
 			opts_.is_compute_enabled = true;
-			opts_.cd.algorithm = Algorithm::FFT2;
+			opts_.cd.space_transformation = SpaceTransformation::FFT2;
 		}
 
 		if (vm_.count("time_transformation_size"))

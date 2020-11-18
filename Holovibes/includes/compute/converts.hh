@@ -101,7 +101,7 @@ namespace holovibes
 			const CoreBuffersEnv&				buffers_;
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
-			//! STFT environment
+			//! Time transformation environment
 			const TimeTransformationEnv&					time_transformation_env_;
 			//! Phase unwrapping 1D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources>	unwrap_res_;

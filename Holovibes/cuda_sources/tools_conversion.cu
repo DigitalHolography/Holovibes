@@ -64,7 +64,7 @@ void float_to_complex(cuComplex	*output,
 /* Kernel function wrapped by complex_to_modulus. */
 static __global__
 void kernel_complex_to_modulus_in_stft(float				*output,
-							const cuComplex		*stft_buf,
+							const cuComplex		*input,
 							const ushort		pmin,
 							const ushort		pmax,
 							const uint			size)
@@ -78,7 +78,7 @@ void kernel_complex_to_modulus_in_stft(float				*output,
 		float val = 0.0f;
 		for (int i = pmin; i <= pmax; i++)
 		{
-			const cuComplex *current_p_frame = stft_buf + i * size;
+			const cuComplex *current_p_frame = input + i * size;
 
 			val += hypotf(current_p_frame[index].x, current_p_frame[index].y);
 		}
@@ -89,7 +89,7 @@ void kernel_complex_to_modulus_in_stft(float				*output,
 }
 
 void complex_to_modulus(float			*output,
-						const cuComplex *stft_buf,
+						const cuComplex *input,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
@@ -98,7 +98,7 @@ void complex_to_modulus(float			*output,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_modulus_in_stft << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+	kernel_complex_to_modulus_in_stft << <blocks, threads, 0, stream >> >(output, input, pmin, pmax, size);
 	// No sync needed since everything is run on stream 0
 	cudaCheckError();
 }
@@ -106,7 +106,7 @@ void complex_to_modulus(float			*output,
 /* Kernel function wrapped in complex_to_squared_modulus. */
 static __global__
 void kernel_complex_to_squared_modulus(float				*output,
-									const cuComplex		*stft_buf,
+									const cuComplex		*input,
 									const ushort		pmin,
 									const ushort		pmax,
 									const uint			size)
@@ -120,7 +120,7 @@ void kernel_complex_to_squared_modulus(float				*output,
 		float val = 0.0f;
 		for (int i = pmin; i <= pmax; i++)
 		{
-			const cuComplex *current_p_frame = stft_buf + i * size;
+			const cuComplex *current_p_frame = input + i * size;
 			// square of the square root of the sum of the squares of x and y
 			float tmp = hypotf(current_p_frame[index].x, current_p_frame[index].y);
 			val += tmp * tmp;
@@ -221,7 +221,7 @@ void input_queue_to_input_buffer(void* output,
 }
 
 void complex_to_squared_modulus(float			*output,
-								const cuComplex	*stft_buf,
+								const cuComplex	*input,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size,
@@ -230,7 +230,7 @@ void complex_to_squared_modulus(float			*output,
 const uint threads = get_max_threads_1d();
 const uint blocks = map_blocks_to_problem(size, threads);
 
-kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(output, input, pmin, pmax, size);
 cudaDeviceSynchronize();
 cudaCheckError();
 }
@@ -238,7 +238,7 @@ cudaCheckError();
 /* Kernel function wrapped in complex_to_argument. */
 static __global__
 void kernel_complex_to_argument(float			*output,
-								const cuComplex	*stft_buf,
+								const cuComplex	*input,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size)
@@ -252,7 +252,7 @@ void kernel_complex_to_argument(float			*output,
 		float val = 0.0f;
 		for (int i = pmin; i <= pmax; i++)
 		{
-			const cuComplex *current_p_frame = stft_buf + i * size;
+			const cuComplex *current_p_frame = input + i * size;
 			// Computes the arc tangent of y / x
 			// We use std::atan2 in order to obtain results in [-pi; pi].
 			val += std::atan2(current_p_frame[index].y, current_p_frame[index].x);
@@ -262,7 +262,7 @@ void kernel_complex_to_argument(float			*output,
 }
 
 void complex_to_argument(float			*output,
-						const cuComplex	*stft_buf,
+						const cuComplex	*input,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
@@ -271,7 +271,7 @@ void complex_to_argument(float			*output,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(output, stft_buf, pmin, pmax, size);
+	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(output, input, pmin, pmax, size);
 	cudaDeviceSynchronize();
 	cudaCheckError();
 }

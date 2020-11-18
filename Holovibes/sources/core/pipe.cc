@@ -243,7 +243,7 @@ namespace holovibes
 		// spatial transform
 		fourier_transforms_->insert_fft();
 
-		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to time_transformation_stride)
+		// Move frames from gpu_space_transformation_buffer to gpu_time_transformation_queue (with respect to time_transformation_stride)
 		insert_transfer_for_time_transformation();
 
 		// time transform

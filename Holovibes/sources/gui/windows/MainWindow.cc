@@ -348,10 +348,10 @@ namespace holovibes
 			ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
 			// Image rendering
-			ui.AlgorithmComboBox->setEnabled(!is_raw);
-			ui.AlgorithmComboBox->setCurrentIndex(cd_.algorithm);
-			ui.TimeAlgorithmComboBox->setEnabled(!is_raw);
-			ui.TimeAlgorithmComboBox->setCurrentIndex(cd_.time_transformation);
+			ui.SpaceTransformationComboBox->setEnabled(!is_raw);
+			ui.SpaceTransformationComboBox->setCurrentIndex(cd_.space_transformation);
+			ui.TimeTransformationComboBox->setEnabled(!is_raw);
+			ui.TimeTransformationComboBox->setCurrentIndex(cd_.time_transformation);
 
 			// Changing time_transformation_size with time transformation cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
@@ -662,7 +662,7 @@ namespace holovibes
 				if (z_step > 0.0f)
 					set_z_step(z_step);
 
-				cd_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", cd_.algorithm));
+				cd_.space_transformation = static_cast<SpaceTransformation>(ptree.get<int>("image_rendering.space_transformation", cd_.space_transformation));
 
 				cd_.raw_bitshift = ptree.get<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 
@@ -795,7 +795,7 @@ namespace holovibes
 			ptree.put<float>("image_rendering.lambda", cd_.lambda);
 			ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
-			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", cd_.algorithm);
+			ptree.put<holovibes::SpaceTransformation>("image_rendering.space_transformation", cd_.space_transformation);
 			ptree.put<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 			ptree.put<ushort>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
 
@@ -2163,21 +2163,21 @@ namespace holovibes
 			ui.ZDoubleSpinBox->setSingleStep(value);
 		}
 
-		void MainWindow::set_algorithm(const QString value)
+		void MainWindow::set_space_transformation(const QString value)
 		{
 			if (!is_raw_mode())
 			{
 				if (value == "None")
-					cd_.algorithm = Algorithm::None;
+					cd_.space_transformation = SpaceTransformation::None;
 				else if (value == "1FFT")
-					cd_.algorithm = Algorithm::FFT1;
+					cd_.space_transformation = SpaceTransformation::FFT1;
 				else if (value == "2FFT")
-					cd_.algorithm = Algorithm::FFT2;
+					cd_.space_transformation = SpaceTransformation::FFT2;
 				else
 				{
 					// Shouldn't happen
-					cd_.algorithm = Algorithm::None;
-					LOG_ERROR("Unknown algorithm: " + value.toStdString() + ", falling back to None");
+					cd_.space_transformation = SpaceTransformation::None;
+					LOG_ERROR("Unknown space transform: " + value.toStdString() + ", falling back to None");
 				}
 				set_holographic_mode();
 			}

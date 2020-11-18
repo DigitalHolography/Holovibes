@@ -24,7 +24,7 @@ namespace holovibes
 
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
-		algorithm = cd.algorithm.load();
+		space_transformation = cd.space_transformation.load();
 		time_transformation = cd.time_transformation.load();
 		compute_mode = cd.compute_mode.load();
 		time_transformation_size = cd.time_transformation_size.load();

@@ -74,7 +74,7 @@ void float_to_complex(cuComplex	*output,
  * \param stream The CUDA stream on which to launch the operation.
  */
 void complex_to_modulus(float			*output,
-						const cuComplex *stft_buf,
+						const cuComplex *input,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
@@ -88,7 +88,7 @@ void complex_to_modulus(float			*output,
  * \param stream The CUDA stream on which to launch the operation.
  */
 void complex_to_squared_modulus(float			*output,
-								const cuComplex	*stft_buf,
+								const cuComplex	*input,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size,
@@ -102,7 +102,7 @@ void complex_to_squared_modulus(float			*output,
  * \param stream The CUDA stream on which to launch the operation.
  */
 void complex_to_argument(float				*output,
-						const cuComplex		*stft_buf,
+						const cuComplex		*input,
 						const ushort		pmin,
 						const ushort		pmax,
 						const uint			size,

@@ -86,7 +86,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>185</width>
+          <width>200</width>
           <height>0</height>
          </size>
         </property>
@@ -224,7 +224,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="STFTStepsLabel">
+            <widget class="QLabel" name="TimeStrideLabel">
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
              </property>
@@ -405,7 +405,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="AlgorithmComboBox">
+            <widget class="QComboBox" name="SpaceTransformationComboBox">
              <property name="toolTip">
               <string>select the rendering mode for Hologram</string>
              </property>
@@ -468,7 +468,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="AlgorithmLabel">
+            <widget class="QLabel" name="SpaceTransformationLabel">
              <property name="text">
               <string>Space transform</string>
              </property>
@@ -507,7 +507,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="TimeAlgorithmLabel">
+            <widget class="QLabel" name="TimeTransformationLabel">
              <property name="text">
               <string>Time transform</string>
              </property>
@@ -527,7 +527,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="TimeAlgorithmComboBox">
+            <widget class="QComboBox" name="TimeTransformationComboBox">
              <item>
               <property name="text">
                <string>STFT</string>
@@ -1256,7 +1256,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Time transformation cuts</string>
+              <string>STFT/PCA cuts</string>
              </property>
             </widget>
            </item>
@@ -2598,7 +2598,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>184</width>
+          <width>180</width>
           <height>0</height>
          </size>
         </property>
@@ -3266,7 +3266,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>HologramRadioButton</tabstop>
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
-  <tabstop>AlgorithmComboBox</tabstop>
+  <tabstop>SpaceTransformationComboBox</tabstop>
   <tabstop>timeTransformationSizeSpinBox</tabstop>
   <tabstop>PSpinBox</tabstop>
   <tabstop>WaveLengthDoubleSpinBox</tabstop>
@@ -3711,10 +3711,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AlgorithmComboBox</sender>
+   <sender>SpaceTransformationComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_algorithm(QString)</slot>
+   <slot>set_space_transformation(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4847,7 +4847,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TimeAlgorithmComboBox</sender>
+   <sender>TimeTransformationComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_time_transformation(QString)</slot>
@@ -5172,7 +5172,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
-  <slot>set_algorithm(QString)</slot>
+  <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>

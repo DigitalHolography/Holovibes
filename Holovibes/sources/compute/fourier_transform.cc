@@ -65,11 +65,11 @@ void FourierTransform::insert_fft()
 	// In filter 2D: Applying fresnel transform only when filter2d overlay is release
 	if (!cd_.filter_2d_enabled || filter2d_zone_.area())
 	{
-		if (cd_.algorithm == Algorithm::FFT1)
+		if (cd_.space_transformation == SpaceTransformation::FFT1)
 			insert_fft1();
-		else if (cd_.algorithm == Algorithm::FFT2)
+		else if (cd_.space_transformation == SpaceTransformation::FFT2)
 			insert_fft2();
-		if (cd_.algorithm == Algorithm::FFT1 || cd_.algorithm == Algorithm::FFT2)
+		if (cd_.space_transformation == SpaceTransformation::FFT1 || cd_.space_transformation == SpaceTransformation::FFT2)
 			fn_compute_vect_.push_back([=]() {
 				enqueue_lens();
 			});

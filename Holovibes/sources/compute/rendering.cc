@@ -187,7 +187,7 @@ namespace holovibes
 			// requested check are inside the lambda so that we don't need to
 			// refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
-				// Compute autocontrast once the gpu stft queue is full
+				// Compute autocontrast once the gpu time transformation queue is full
 				if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
 					return;
 

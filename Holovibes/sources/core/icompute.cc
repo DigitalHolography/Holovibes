@@ -79,7 +79,7 @@ namespace holovibes
 
 		camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
 		new_fd.depth = 8;
-		time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size, "STFTQueue"));
+		time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size, "TimeTransformationQueue"));
 
 		if (!buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_.get_fd().frame_res()))
 			err++;

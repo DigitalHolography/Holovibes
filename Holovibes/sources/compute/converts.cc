@@ -91,7 +91,7 @@ namespace holovibes
 			});
 		}
 
-		//we use gpu_input_buffer because when time_transformation_size = 1, gpu_stft_buffer is not used.
+		//we use gpu_input_buffer because when time_transformation_size = 1, gpu_p_acc_buffer is not used.
 		void Converts::insert_to_modulus()
 		{
 			fn_compute_vect_.conditional_push_back([=]() {

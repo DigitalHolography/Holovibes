@@ -19,11 +19,11 @@
 
 using holovibes::units::RectFd;
 
-/*! \brief Compute the STFT time transform from gpu_stft_queue
- * to gpu_stft_buffer using plan1d wich is the data and computation descriptor
+/*! \brief Compute the STFT time transform from gpu_time_transformation_queue_
+ * to gpu_p_acc_buffer using plan1d wich is the data and computation descriptor
  */
-void stft(holovibes::Queue	*gpu_stft_queue,
-		cuComplex			*gpu_stft_buffer,
+void stft(holovibes::Queue	*gpu_time_transformation_queue,
+		cuComplex			*gpu_p_acc_buffer,
 		const cufftHandle	plan1d);
 
 void time_transformation_cuts_begin(const cuComplex		*input,

@@ -40,7 +40,7 @@ namespace holovibes
 	};
 
 	/*! \brief	Rendering mode for Hologram (Space transformation) */
-	enum Algorithm
+	enum SpaceTransformation
 	{
 		None, /**< Nothing Applied */
 		FFT1, /**< Fresnel Transform */
@@ -234,7 +234,7 @@ namespace holovibes
 
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
-		std::atomic<Algorithm>		algorithm{ Algorithm::None };
+		std::atomic<SpaceTransformation>		space_transformation{ SpaceTransformation::None };
 		//! Time transformation to apply in hologram mode
 		std::atomic<TimeTransformation>		time_transformation{ TimeTransformation::STFT };
 		//! Mode of computation of the image

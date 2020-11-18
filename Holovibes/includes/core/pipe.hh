@@ -120,7 +120,7 @@ namespace holovibes
 		virtual bool make_requests();
 
 		/*!
-		** \brief Transfer from gpu_input_buffer to gpu_stft_queue fro time transformation
+		** \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transformation
 		*/
 		void insert_transfer_for_time_transformation();
 
