@@ -237,7 +237,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="TimeFilterStrideSpinBox">
+            <widget class="QSpinBox" name="TimeTransformationStrideSpinBox">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -326,7 +326,7 @@
             <number>6</number>
            </property>
            <item row="3" column="0">
-            <widget class="QLabel" name="timeFilterSizeLabel">
+            <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="text">
               <string># img</string>
              </property>
@@ -470,7 +470,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="AlgorithmLabel">
              <property name="text">
-              <string>Space filter</string>
+              <string>Space transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -478,7 +478,7 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QSpinBox" name="timeFilterSizeSpinBox">
+            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
              <property name="minimum">
               <number>1</number>
              </property>
@@ -509,7 +509,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="TimeAlgorithmLabel">
              <property name="text">
-              <string>Time filter </string>
+              <string>Time transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1248,7 +1248,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QCheckBox" name="TimeFilterCutsCheckBox">
+            <widget class="QCheckBox" name="TimeTransformationCutsCheckBox">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -1256,7 +1256,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Time filter cuts</string>
+              <string>Time transformation cuts</string>
              </property>
             </widget>
            </item>
@@ -3267,14 +3267,14 @@ p, li { white-space: pre-wrap; }
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
   <tabstop>AlgorithmComboBox</tabstop>
-  <tabstop>timeFilterSizeSpinBox</tabstop>
+  <tabstop>timeTransformationSizeSpinBox</tabstop>
   <tabstop>PSpinBox</tabstop>
   <tabstop>WaveLengthDoubleSpinBox</tabstop>
   <tabstop>ZDoubleSpinBox</tabstop>
   <tabstop>ZStepDoubleSpinBox</tabstop>
   <tabstop>BoundaryLineEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
-  <tabstop>TimeFilterCutsCheckBox</tabstop>
+  <tabstop>TimeTransformationCutsCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
@@ -4047,10 +4047,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>timeFilterSizeSpinBox</sender>
+   <sender>timeTransformationSizeSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_time_filter_size()</slot>
+   <slot>set_time_transformation_size()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4207,10 +4207,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TimeFilterCutsCheckBox</sender>
+   <sender>TimeTransformationCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>toggle_time_filter_cuts(bool)</slot>
+   <slot>toggle_time_transformation_cuts(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -4735,10 +4735,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TimeFilterStrideSpinBox</sender>
+   <sender>TimeTransformationStrideSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_time_filter_stride()</slot>
+   <slot>update_time_transformation_stride()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4850,7 +4850,7 @@ p, li { white-space: pre-wrap; }
    <sender>TimeAlgorithmComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_time_filter(QString)</slot>
+   <slot>set_time_transformation(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5173,7 +5173,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
   <slot>set_algorithm(QString)</slot>
-  <slot>set_time_filter(QString)</slot>
+  <slot>set_time_transformation(QString)</slot>
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
@@ -5240,14 +5240,14 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_filter2D()</slot>
   <slot>write_ini()</slot>
   <slot>update_batch_size()</slot>
-  <slot>update_time_filter_stride()</slot>
+  <slot>update_time_transformation_stride()</slot>
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_signal_trig(bool)</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
-  <slot>set_time_filter_size()</slot>
+  <slot>set_time_transformation_size()</slot>
   <slot>set_p_accu()</slot>
   <slot>browse_trigger_config_file()</slot>
   <slot>set_integer_visible(bool)</slot>

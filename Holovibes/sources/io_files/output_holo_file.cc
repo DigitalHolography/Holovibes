@@ -51,9 +51,9 @@ namespace holovibes::io_files
 				{"mode", mode},
 
 				{"algorithm", cd.algorithm.load()},
-				{"time_filter", cd.time_filter.load()},
+				{"time_transformation", cd.time_transformation.load()},
 
-				{"#img", cd.time_filter_size.load()},
+				{"#img", cd.time_transformation_size.load()},
 				{"p", cd.pindex.load()},
 				{"lambda", cd.lambda.load()},
 				{"pixel_size", cd.pixel_size.load()},

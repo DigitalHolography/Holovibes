@@ -120,9 +120,9 @@ namespace holovibes
 		virtual bool make_requests();
 
 		/*!
-		** \brief Transfer from gpu_input_buffer to gpu_stft_queue fro time filtering
+		** \brief Transfer from gpu_input_buffer to gpu_stft_queue fro time transformation
 		*/
-		void insert_transfer_for_time_filter();
+		void insert_transfer_for_time_transformation();
 
 		/*!
 		** \brief Wait that there are at least a batch of frames in input queue
@@ -151,7 +151,7 @@ namespace holovibes
 		void insert_request_autocontrast();
 
 		/*!
-		** \brief Reset the batch index if time_filter_stride has been reached
+		** \brief Reset the batch index if time_transformation_stride has been reached
 		*/
 		void insert_reset_batch_index();
 

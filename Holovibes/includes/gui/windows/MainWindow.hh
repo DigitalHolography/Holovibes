@@ -135,7 +135,7 @@ namespace holovibes
 			void set_filter2D();
 			void set_filter2D_type(const QString &filter2Dtype);
 			void cancel_filter2D();
-			void set_time_filter_size();
+			void set_time_transformation_size();
 			void update_lens_view(bool value);
 			void disable_lens_view();
 			void update_raw_view(bool value);
@@ -172,11 +172,11 @@ namespace holovibes
 			void decrement_z();
 			void set_z_step(double value);
 			void set_algorithm(QString value);
-			void set_time_filter(QString value);
-			void toggle_time_filter_cuts(bool checked);
+			void set_time_transformation(QString value);
+			void toggle_time_transformation_cuts(bool checked);
 			void cancel_stft_slice_view();
 			void update_batch_size();
-			void update_time_filter_stride();
+			void update_time_transformation_stride();
 			void set_view_mode(QString value);
 			void set_unwrap_history_size(int value);
 			void set_unwrapping_1d(const bool value);
@@ -255,7 +255,7 @@ namespace holovibes
 			void		open_file(const std::string& path);
 			void		load_ini(const std::string& path);
 			void		save_ini(const std::string& path);
-			void		cancel_time_filter_cuts();
+			void		cancel_time_transformation_cuts();
 			std::string	format_batch_output(const std::string& path, uint index);
 			std::string	set_record_filename_properties(camera::FrameDescriptor fd, std::string filename, bool add_info = true);
 			void		createPipe();
@@ -294,7 +294,7 @@ namespace holovibes
 			std::unique_ptr<RawWindow>	 raw_window = nullptr;
 
 			uint window_max_size = 768;
-			uint time_filter_cuts_window_max_size = 512;
+			uint time_transformation_cuts_window_max_size = 512;
 			uint auxiliary_window_max_size = 512;
 
 			float		displayAngle = 0.f;

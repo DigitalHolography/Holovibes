@@ -28,7 +28,7 @@ namespace holovibes
 	class ICompute;
 	struct CoreBuffersEnv;
 	struct ChartEnv;
-	struct TimeFilterEnv;
+	struct TimeTransformationEnv;
 	struct ImageAccEnv;
 	enum WindowKind;
 
@@ -46,7 +46,7 @@ namespace holovibes
 				const CoreBuffersEnv& buffers,
 				ChartEnv& chart_env,
 				const ImageAccEnv& image_acc_env,
-				const TimeFilterEnv& time_filter_env,
+				const TimeTransformationEnv& time_transformation_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
@@ -106,8 +106,8 @@ namespace holovibes
 			const CoreBuffersEnv&			buffers_;
 			/// Chart variables
 			ChartEnv&						chart_env_;
-			/// Time filter environment
-			const TimeFilterEnv&			time_filter_env_;
+			/// Time transformation environment
+			const TimeTransformationEnv&			time_transformation_env_;
 			/// Image accumulation environment
 			const ImageAccEnv& 				image_acc_env_;
 			/// Describes the input frame size

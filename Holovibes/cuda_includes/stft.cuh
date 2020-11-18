@@ -19,25 +19,25 @@
 
 using holovibes::units::RectFd;
 
-/*! \brief Compute the STFT time filter from gpu_stft_queue
+/*! \brief Compute the STFT time transform from gpu_stft_queue
  * to gpu_stft_buffer using plan1d wich is the data and computation descriptor
  */
 void stft(holovibes::Queue	*gpu_stft_queue,
 		cuComplex			*gpu_stft_buffer,
 		const cufftHandle	plan1d);
 
-void time_filter_cuts_begin(const cuComplex	*input,
-							float				*output_xz,
-							float				*output_yz,
-							const ushort		xmin,
-							const ushort		ymin,
-							const ushort		xmax,
-							const ushort		ymax,
-							const ushort		width,
-							const ushort		height,
-							const uint			viewmode,
-							const ushort		time_filter_size,
-							const uint			acc_level_xz,
-							const uint			acc_level_yz,
-							const uint			img_type,
-							cudaStream_t		stream = 0);
+void time_transformation_cuts_begin(const cuComplex		*input,
+									float				*output_xz,
+									float				*output_yz,
+									const ushort		xmin,
+									const ushort		ymin,
+									const ushort		xmax,
+									const ushort		ymax,
+									const ushort		width,
+									const ushort		height,
+									const uint			viewmode,
+									const ushort		time_transformation_size,
+									const uint			acc_level_xz,
+									const uint			acc_level_yz,
+									const uint			img_type,
+									cudaStream_t		stream = 0);

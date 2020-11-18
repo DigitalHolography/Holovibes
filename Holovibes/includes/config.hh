@@ -27,7 +27,7 @@ namespace holovibes
 		{
 			this->input_queue_max_size = 256;
 			this->output_queue_max_size = 64;
-			this->time_filter_cuts_output_buffer_size = 8;
+			this->time_transformation_cuts_output_buffer_size = 8;
 			this->flush_on_refresh = false;
 			this->frame_timeout = 100000;
 			this->file_buffer_size = 32;
@@ -48,7 +48,7 @@ namespace holovibes
 		{
 			this->input_queue_max_size = o.input_queue_max_size;
 			this->output_queue_max_size = o.output_queue_max_size;
-			this->time_filter_cuts_output_buffer_size = o.time_filter_cuts_output_buffer_size;
+			this->time_transformation_cuts_output_buffer_size = o.time_transformation_cuts_output_buffer_size;
 			this->flush_on_refresh = o.flush_on_refresh;
 			this->frame_timeout = o.frame_timeout;
 			this->file_buffer_size = o.file_buffer_size;
@@ -63,8 +63,8 @@ namespace holovibes
 		unsigned int input_queue_max_size;
 		/*! \brief Max size of output queue in number of images. */
 		unsigned int output_queue_max_size;
-		/*! \brief Max size of time filter cuts queue in number of images. */
-		unsigned int time_filter_cuts_output_buffer_size;
+		/*! \brief Max size of time transformation cuts queue in number of images. */
+		unsigned int time_transformation_cuts_output_buffer_size;
 		/*! \brief Flush input queue at start of compute::exec. (When the pipe is created) */
 		bool          flush_on_refresh;
 		//! Obsolete. Now using the one in the camera ini file.

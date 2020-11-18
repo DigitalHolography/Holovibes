@@ -42,7 +42,7 @@ namespace holovibes
 	struct CoreBuffersEnv
 	{
 		/** Input buffer. Contains only one frame. We fill it with the input frame*/
-		cuda_tools::UniquePtr<cufftComplex>		gpu_spatial_filter_buffer = nullptr;
+		cuda_tools::UniquePtr<cufftComplex>		gpu_spatial_transformation_buffer = nullptr;
 
 		/** Float buffer. Contains only one frame. We fill it with the correct computed p frame converted to float. */
 		cuda_tools::UniquePtr<float>			gpu_postprocess_frame = nullptr;
@@ -70,7 +70,7 @@ namespace holovibes
 	{
 		/*! \brief Current frames processed in the batch
 		**
-		** At index 0, batch_size frames are enqueued, spacial filter is also executed in batch
+		** At index 0, batch_size frames are enqueued, spacial transformation is also executed in batch
 		** Batch size frames are enqueued in the gpu_stft_queue
 		** This is done for perfomances reasons
 		**
@@ -80,12 +80,12 @@ namespace holovibes
 	};
 
 	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */
-	struct TimeFilterEnv
+	struct TimeTransformationEnv
 	{
-		/** STFT Queue. Constains time_filter_size frames. It accumulates input frames after spatial fft,
-		 in order to apply STFT only when the frame counter is equal to time_filter_stride. */
-		std::unique_ptr<Queue>				gpu_time_filter_queue = nullptr;
-		/** STFT buffer. Contains time_filter_size frames. Contains the result of the STFT done on the STFT queue. */
+		/** STFT Queue. Constains time_transformation_size frames. It accumulates input frames after spatial fft,
+		 in order to apply STFT only when the frame counter is equal to time_transformation_stride. */
+		std::unique_ptr<Queue>				gpu_time_transformation_queue = nullptr;
+		/** STFT buffer. Contains time_transformation_size frames. Contains the result of the STFT done on the STFT queue. */
 		cuda_tools::UniquePtr<cufftComplex>	gpu_p_acc_buffer = nullptr;
 		/** STFT XZ Queue. Contains the ouput of the STFT on slice XZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
 		std::unique_ptr<Queue>				gpu_output_queue_xz = nullptr;
@@ -94,10 +94,10 @@ namespace holovibes
 		/** Plan 1D used for the STFT. */
 		cuda_tools::CufftHandle				stft_plan;
 
-		/** Hold the P frame after the time filter computation. **/
+		/** Hold the P frame after the time transformation computation. **/
 		cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;
 
-		// The following are used for the PCA time filter
+		// The following are used for the PCA time transformation
 		cuda_tools::UniquePtr<cuComplex> 	pca_cov = nullptr;
 		cuda_tools::UniquePtr<cuComplex> 	pca_tmp_buffer = nullptr;
 		cuda_tools::UniquePtr<float>		pca_eigen_values = nullptr;
@@ -152,7 +152,7 @@ namespace holovibes
 		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
-		void request_update_time_filter_size();
+		void request_update_time_transformation_size();
 		void request_update_unwrap_size(const unsigned size);
 		void request_unwrapping_1d(const bool value);
 		void request_unwrapping_2d(const bool value);
@@ -162,7 +162,7 @@ namespace holovibes
 		void request_disable_record_chart();
 		void request_termination();
 		void request_update_batch_size();
-		void request_update_time_filter_stride();
+		void request_update_time_transformation_stride();
 		void request_kill_raw_queue();
 		void request_disable_lens_view();
 		void request_allocate_raw_queue();
@@ -170,7 +170,7 @@ namespace holovibes
 		/*! \brief Execute one iteration of the ICompute.
 		*
 		* * Checks the number of frames in input queue that must at least
-		* time_filter_size*.
+		* time_transformation_size*.
 		* * Call each function of the ICompute.
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
@@ -194,11 +194,11 @@ namespace holovibes
 		bool get_autocontrast_slice_xz_request()		const { return autocontrast_slice_xz_requested_; }
 		bool get_autocontrast_slice_yz_request()		const { return autocontrast_slice_yz_requested_; }
 		bool get_refresh_request()						const { return refresh_requested_; }
-		bool get_update_time_filter_size_request()		const { return update_time_filter_size_requested_; }
+		bool get_update_time_transformation_size_request()		const { return update_time_transformation_size_requested_; }
 		bool get_stft_update_roi_request()				const { return stft_update_roi_requested_; }
 		bool get_termination_request()					const { return termination_requested_; }
-		bool get_request_time_filter_cuts()				const { return request_time_filter_cuts_; }
-		bool get_request_delete_time_filter_cuts() 		const { return request_delete_time_filter_cuts_; }
+		bool get_request_time_transformation_cuts()				const { return request_time_transformation_cuts_; }
+		bool get_request_delete_time_transformation_cuts() 		const { return request_delete_time_transformation_cuts_; }
 		std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
 		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
 		bool get_request_allocate_raw_queue() 			const { return request_allocate_raw_queue_;}
@@ -220,10 +220,10 @@ namespace holovibes
 
 		virtual void refresh() = 0;
 		virtual void pipe_error(const int& err_count, std::exception& e);
-		virtual bool update_time_filter_size(const unsigned short time_filter_size);
+		virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
 		/* Manage ressources */
-		virtual void update_spatial_filter_parameters();
+		virtual void update_spatial_transformation_parameters();
 		void init_cuts();
 		void dispose_cuts();
 
@@ -251,7 +251,7 @@ namespace holovibes
 		BatchEnv batch_env_;
 
 		/** STFT environment. */
-		TimeFilterEnv time_filter_env_;
+		TimeTransformationEnv time_transformation_env_;
 
 		/** Chart environment. */
 		ChartEnv chart_env_;
@@ -263,7 +263,7 @@ namespace holovibes
 		std::unique_ptr<Queue> gpu_raw_queue_{ nullptr };
 
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
-		cuda_tools::CufftHandle	spatial_filter_plan_;
+		cuda_tools::CufftHandle	spatial_transformation_plan_;
 
 		/** Pland 2D. Used for unwrap 2D. */
 		cuda_tools::CufftHandle	plan_unwrap_2d_;
@@ -280,7 +280,7 @@ namespace holovibes
 		std::atomic<bool> autocontrast_slice_xz_requested_{ false };
 		std::atomic<bool> autocontrast_slice_yz_requested_{ false };
 		std::atomic<bool> refresh_requested_{ false };
-		std::atomic<bool> update_time_filter_size_requested_{ false };
+		std::atomic<bool> update_time_transformation_size_requested_{ false };
 		std::atomic<bool> stft_update_roi_requested_{ false };
 		std::atomic<bool> chart_display_requested_{ false };
 		std::atomic<bool> disable_chart_display_requested_{ false };
@@ -290,10 +290,10 @@ namespace holovibes
 		std::atomic<bool> kill_raw_queue_requested_{ false };
 		std::atomic<bool> request_allocate_raw_queue_{ false };
 		std::atomic<bool> termination_requested_{ false };
-		std::atomic<bool> request_time_filter_cuts_{ false };
-		std::atomic<bool> request_delete_time_filter_cuts_{ false };
+		std::atomic<bool> request_time_transformation_cuts_{ false };
+		std::atomic<bool> request_delete_time_transformation_cuts_{ false };
 		std::atomic<bool> request_update_batch_size_{ false };
-		std::atomic<bool> request_update_time_filter_stride_{ false };
+		std::atomic<bool> request_update_time_transformation_stride_{ false };
 		std::atomic<bool> request_disable_lens_view_{ false };
 	};
 }

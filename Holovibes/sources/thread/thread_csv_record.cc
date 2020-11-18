@@ -72,7 +72,7 @@ namespace holovibes
 			std::ofstream of(path_);
 
 			// Header displaying
-			of << "[#img : " << holo_.get_cd().time_filter_size
+			of << "[#img : " << holo_.get_cd().time_transformation_size
 				<< ", p : " << holo_.get_cd().pindex
 				<< ", lambda : " << holo_.get_cd().lambda
 				<< ", z : " << holo_.get_cd().zdistance

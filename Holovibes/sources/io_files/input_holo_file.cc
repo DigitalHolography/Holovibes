@@ -101,8 +101,8 @@ namespace holovibes::io_files
     {
         cd.compute_mode = meta_data_.value("mode", Computation::Raw);
         cd.algorithm = meta_data_.value("algorithm", Algorithm::None);
-        cd.time_filter = meta_data_.value("time_filter", TimeFilter::STFT);
-        cd.time_filter_size = meta_data_.value("#img", 1);
+        cd.time_transformation = meta_data_.value("time_filter", TimeTransformation::STFT);
+        cd.time_transformation_size = meta_data_.value("#img", 1);
         cd.pindex = meta_data_.value("p", 0);
         cd.lambda = meta_data_.value("lambda", 0.0f);
         cd.pixel_size = meta_data_.value("pixel_size", 12.0);

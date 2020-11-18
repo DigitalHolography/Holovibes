@@ -43,18 +43,18 @@ namespace holovibes
 		ComputeDescriptor& desc)
 		: ICompute(input, output, desc)
 	{
-		ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_filter_stride; };
+		ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_transformation_stride; };
 
 		fn_compute_vect_ = FunctionVector(batch_condition);
 		fn_end_vect_ = FunctionVector(batch_condition);
 
 		image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_, image_acc_env_, buffers_, input.get_fd(), desc);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, spatial_filter_plan_, batch_env_, time_filter_env_);
-		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, time_filter_env_, desc, input.get_fd(), output.get_fd(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, time_filter_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_, buffers_, input.get_fd(), desc, spatial_transformation_plan_, batch_env_, time_transformation_env_);
+		rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_, buffers_, chart_env_, image_acc_env_, time_transformation_env_, desc, input.get_fd(), output.get_fd(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_compute_vect_, buffers_, batch_env_, time_transformation_env_, plan_unwrap_2d_, desc, input.get_fd(), output.get_fd());
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc);
 
-		update_time_filter_size_requested_ = true;
+		update_time_transformation_size_requested_ = true;
 
 		try
 		{
@@ -112,10 +112,10 @@ namespace holovibes
 			kill_raw_queue_requested_ = false;
 		}
 
-		if (request_delete_time_filter_cuts_)
+		if (request_delete_time_transformation_cuts_)
 		{
 			dispose_cuts();
-			request_delete_time_filter_cuts_ = false;
+			request_delete_time_transformation_cuts_ = false;
 		}
 
 		if (disable_chart_display_requested_)
@@ -149,35 +149,35 @@ namespace holovibes
 		}
 
 		// Updating number of images
-		if (update_time_filter_size_requested_)
+		if (update_time_transformation_size_requested_)
 		{
-			if (!update_time_filter_size(cd_.time_filter_size))
+			if (!update_time_transformation_size(cd_.time_transformation_size))
 			{
 				success_allocation = false;
 				cd_.pindex = 0;
-				cd_.time_filter_size = 1;
-				update_time_filter_size(1);
+				cd_.time_transformation_size = 1;
+				update_time_transformation_size(1);
 				LOG_WARN("Updating #img failed, #img updated to 1");
 			}
-			update_time_filter_size_requested_ = false;
+			update_time_transformation_size_requested_ = false;
 		}
 
-		if (request_update_time_filter_stride_)
+		if (request_update_time_transformation_stride_)
 		{
 			batch_env_.batch_index = 0;
-			request_update_time_filter_stride_ = false;
+			request_update_time_transformation_stride_ = false;
 		}
 
 		if (request_update_batch_size_)
 		{
-			update_spatial_filter_parameters();
+			update_spatial_transformation_parameters();
 			request_update_batch_size_ = false;
 		}
 
-		if (request_time_filter_cuts_)
+		if (request_time_transformation_cuts_)
 		{
 			init_cuts();
-			request_time_filter_cuts_ = false;
+			request_time_transformation_cuts_ = false;
 		}
 
 		image_accumulation_->init(); // done only if requested
@@ -217,7 +217,7 @@ namespace holovibes
 
 		if (cd_.compute_mode == Computation::Raw)
 		{
-			update_time_filter_size_requested_ = false;
+			update_time_transformation_size_requested_ = false;
 			refresh_requested_ = false;
 			insert_raw_enqueue_raw_mode();
 			return;
@@ -243,20 +243,20 @@ namespace holovibes
 		// spatial transform
 		fourier_transforms_->insert_fft();
 
-		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to time_filter_stride)
-		insert_transfer_for_time_filter();
+		// Move frames from gpu_input_buffer to gpu_stft_queue (with respect to time_transformation_stride)
+		insert_transfer_for_time_transformation();
 
 		// time transform
-		if (cd_.time_filter == TimeFilter::STFT)
+		if (cd_.time_transformation == TimeTransformation::STFT)
 		{
 			fourier_transforms_->insert_stft();
 		}
-		else if (cd_.time_filter == TimeFilter::PCA)
+		else if (cd_.time_transformation == TimeTransformation::PCA)
 		{
 			fourier_transforms_->insert_eigenvalue_filter();
 		}
 
-		fourier_transforms_->insert_time_filter_cuts_view();
+		fourier_transforms_->insert_time_transformation_cuts_view();
 
 		// Used for phase increase
 		fourier_transforms_->insert_store_p_frame();
@@ -289,7 +289,7 @@ namespace holovibes
 	void Pipe::insert_reset_batch_index()
 	{
 		fn_compute_vect_.push_back([&](){
-			if (batch_env_.batch_index == cd_.time_filter_stride)
+			if (batch_env_.batch_index == cd_.time_transformation_stride)
 				batch_env_.batch_index = 0;
 		});
 	}
@@ -331,13 +331,13 @@ namespace holovibes
 		});
 	}
 
-	void Pipe::insert_transfer_for_time_filter()
+	void Pipe::insert_transfer_for_time_transformation()
 	{
 		fn_compute_vect_.push_back([&]()
 		{
-			time_filter_env_.gpu_time_filter_queue->enqueue_multiple(buffers_.gpu_spatial_filter_buffer.get(), cd_.batch_size);
+			time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(buffers_.gpu_spatial_transformation_buffer.get(), cd_.batch_size);
 			batch_env_.batch_index += cd_.batch_size;
-			assert(batch_env_.batch_index <= cd_.time_filter_stride);
+			assert(batch_env_.batch_index <= cd_.time_transformation_stride);
 		});
 	}
 
@@ -395,13 +395,13 @@ namespace holovibes
 						   "Can't enqueue the output frame in gpu_output_queue");
 
 			// Always enqueue the cuts if enabled
-			if (cd_.time_filter_cuts_enabled)
+			if (cd_.time_transformation_cuts_enabled)
 			{
-				safe_enqueue_output(*time_filter_env_.gpu_output_queue_xz.get(),
+				safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
 					buffers_.gpu_output_frame_xz.get(),
 					"Can't enqueue the output xz frame in output xz queue");
 
-				safe_enqueue_output(*time_filter_env_.gpu_output_queue_yz.get(),
+				safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
 					buffers_.gpu_output_frame_yz.get(),
 					"Can't enqueue the output yz frame in output yz queue");
 			}

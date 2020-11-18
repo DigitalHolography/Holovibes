@@ -25,9 +25,9 @@ namespace holovibes
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
 		algorithm = cd.algorithm.load();
-		time_filter = cd.time_filter.load();
+		time_transformation = cd.time_transformation.load();
 		compute_mode = cd.compute_mode.load();
-		time_filter_size = cd.time_filter_size.load();
+		time_transformation_size = cd.time_transformation_size.load();
 		pindex = cd.pindex.load();
 		lambda = cd.lambda.load();
 		zdistance = cd.zdistance.load();
@@ -59,8 +59,8 @@ namespace holovibes
 		img_acc_slice_xy_level = cd.img_acc_slice_xy_level.load();
 		img_acc_slice_xz_level = cd.img_acc_slice_xz_level.load();
 		img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
-		time_filter_stride = cd.time_filter_stride.load();
-		time_filter_cuts_enabled = cd.time_filter_cuts_enabled.load();
+		time_transformation_stride = cd.time_transformation_stride.load();
+		time_transformation_cuts_enabled = cd.time_transformation_cuts_enabled.load();
 		current_window = cd.current_window.load();
 		cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
 		display_rate = cd.display_rate.load();

@@ -39,7 +39,7 @@ namespace holovibes
 		xiB
 	};
 
-	/*! \brief	Rendering mode for Hologram (Space filter) */
+	/*! \brief	Rendering mode for Hologram (Space transformation) */
 	enum Algorithm
 	{
 		None, /**< Nothing Applied */
@@ -47,8 +47,8 @@ namespace holovibes
 		FFT2  /**< Angular spectrum propagation */
 	};
 
-	/*! \brief	Time filtering algorithm to apply */
-	enum TimeFilter
+	/*! \brief	Time transformation algorithm to apply */
+	enum TimeTransformation
 	{
 		STFT,
 		PCA
@@ -235,8 +235,8 @@ namespace holovibes
 #pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm{ Algorithm::None };
-		//! Time filter to apply in hologram mode
-		std::atomic<TimeFilter>		time_filter{ TimeFilter::STFT };
+		//! Time transformation to apply in hologram mode
+		std::atomic<TimeTransformation>		time_transformation{ TimeTransformation::STFT };
 		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode{ Computation::Stop };
 		//! Square conversion mode of the input
@@ -246,13 +246,13 @@ namespace holovibes
 
 		//! Last window selected
 		std::atomic<WindowKind>		current_window{ WindowKind::XYview };
-		/*! \brief Number of images dequeued from input to gpu_input_buffer and batch size of space filter
+		/*! \brief Number of images dequeued from input to gpu_input_queue and batch size of space transformation
 		**
-		** time_filter_stride is decorelated from batch size for performances reasons
+		** time_transformation_stride is decorelated from batch size for performances reasons
 		*/
 		std::atomic<ushort>			batch_size{ 1 };
 		//! Number of images used by SFTF i.e. depth of the SFTF cube
-		std::atomic<ushort>			time_filter_size{ 1 };
+		std::atomic<ushort>			time_transformation_size{ 1 };
 		//! index in the depth axis
 		std::atomic<ushort>			pindex{ 0 };
 
@@ -292,7 +292,7 @@ namespace holovibes
 		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z{ 0 };
 		//! Number of pipe iterations between two temporal demodulation.
-		std::atomic<uint>			time_filter_stride{ 1 };
+		std::atomic<uint>			time_transformation_stride{ 1 };
 
 		std::atomic<int>			unwrap_history_size{ 1 };
 		//! is convolution enabled
@@ -322,7 +322,7 @@ namespace holovibes
 		std::atomic<Filter2DType>   filter_2d_type{Filter2DType::LowPass};
 
 		//! are slices YZ and XZ enabled
-		std::atomic<bool>			time_filter_cuts_enabled{ false };
+		std::atomic<bool>			time_transformation_cuts_enabled{ false };
 		//! is gpu lens display activated
 		std::atomic<bool>			gpu_lens_display_enabled{ false };
 		//! enables the signal and noise chart display

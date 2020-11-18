@@ -88,7 +88,7 @@ namespace holovibes
 			{
 				auto new_fd = fd_;
 				new_fd.depth = sizeof(float);
-				new_fd.height = cd_.time_filter_size;
+				new_fd.height = cd_.time_transformation_size;
 				allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
 					image_acc_env_.gpu_float_average_xz_frame,
 					cd_.img_acc_slice_xz_level,
@@ -100,7 +100,7 @@ namespace holovibes
 			{
 				auto new_fd = fd_;
 				new_fd.depth = sizeof(float);
-				new_fd.width = cd_.time_filter_size;
+				new_fd.width = cd_.time_transformation_size;
 				allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
 					image_acc_env_.gpu_float_average_yz_frame,
 					cd_.img_acc_slice_yz_level,

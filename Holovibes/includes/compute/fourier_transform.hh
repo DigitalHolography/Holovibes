@@ -29,7 +29,7 @@ namespace holovibes
 	class Queue;
 	class ComputeDescriptor;
 	struct BatchEnv;
-	struct TimeFilterEnv;
+	struct TimeTransformationEnv;
 	struct CoreBuffersEnv;
 
 	namespace compute
@@ -44,16 +44,16 @@ namespace holovibes
 				const CoreBuffersEnv& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
-				cuda_tools::CufftHandle& spatial_filter_plan,
+				cuda_tools::CufftHandle& spatial_transformation_plan,
 				const BatchEnv& batch_env,
-				TimeFilterEnv& time_filter_env);
+				TimeTransformationEnv& time_transformation_env);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
 
 			*/
 			void insert_fft();
 
-			/*! \brief enqueue functions that store the p frame after the time filter.
+			/*! \brief enqueue functions that store the p frame after the time transformation.
 
 			*/
 			void FourierTransform::insert_store_p_frame();
@@ -73,10 +73,10 @@ namespace holovibes
 			*/
 			void insert_eigenvalue_filter();
 
-			/*! \brief Enqueue functions relative to time filter cuts display when there are activated
+			/*! \brief Enqueue functions relative to time transformation cuts display when there are activated
 
 			*/
-			void insert_time_filter_cuts_view();
+			void insert_time_transformation_cuts_view();
 
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
@@ -120,11 +120,11 @@ namespace holovibes
 			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
 			//! Pland 2D. Used by FFTs (1, 2, filter2D).
-			cuda_tools::CufftHandle&		spatial_filter_plan_;
+			cuda_tools::CufftHandle&		spatial_transformation_plan_;
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
 			//! STFT environment.
-			TimeFilterEnv&					time_filter_env_;
+			TimeTransformationEnv&					time_transformation_env_;
 		};
 	}
 }

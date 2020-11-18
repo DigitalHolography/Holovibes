@@ -105,7 +105,7 @@ void filter2D_BandPass(cuComplex				*input,
 		return;
 
 	shift_corners(input, batch_size, desc.width, desc.height);
-	
+
 	kernel_filter2D_BandPass << <blocks, threads, 0, stream >> >(
 		input,
 		batch_size,

@@ -34,7 +34,7 @@
 #include "config.hh"
 #include "input_file_handler.hh"
 
-#define MIN_IMG_NB_TIME_FILTER_CUTS 8
+#define MIN_IMG_NB_time_transformation_CUTS 8
 
 namespace holovibes
 {
@@ -253,8 +253,8 @@ namespace holovibes
 				setEnabled(cd_.img_type == ImgType::PhaseIncrease ||
 					cd_.img_type == ImgType::Argument);
 
-			// Time filter cuts
-			ui.TimeFilterCutsCheckBox->setChecked(!is_raw && cd_.time_filter_cuts_enabled);
+			// Time transformation cuts
+			ui.TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
 
 			// Contrast
 			ui.ContrastCheckBox->setChecked(!is_raw && cd_.contrast_enabled);
@@ -273,7 +273,7 @@ namespace holovibes
 
 			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
-			window_selection->setEnabled(cd_.time_filter_cuts_enabled);
+			window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
 			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd_.current_window : 0);
 
 			ui.LogScaleCheckBox->setEnabled(true);
@@ -300,24 +300,24 @@ namespace holovibes
 			// p accu
 			ui.PAccuCheckBox->setEnabled(cd_.img_type != PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
-			ui.PAccSpinBox->setMaximum(cd_.time_filter_size - 1);
-			if (cd_.p_acc_level > cd_.time_filter_size - 1)
-				cd_.p_acc_level = cd_.time_filter_size - 1;
+			ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+			if (cd_.p_acc_level > cd_.time_transformation_size - 1)
+				cd_.p_acc_level = cd_.time_transformation_size - 1;
 			ui.PAccSpinBox->setValue(cd_.p_acc_level);
 			ui.PAccSpinBox->setEnabled(cd_.img_type != PhaseIncrease);
 			if (cd_.p_accu_enabled)
 			{
-				ui.PSpinBox->setMaximum(cd_.time_filter_size - cd_.p_acc_level - 1);
-				if (cd_.pindex > cd_.time_filter_size - cd_.p_acc_level - 1)
-					cd_.pindex = cd_.time_filter_size - cd_.p_acc_level - 1;
+				ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
+				if (cd_.pindex > cd_.time_transformation_size - cd_.p_acc_level - 1)
+					cd_.pindex = cd_.time_transformation_size - cd_.p_acc_level - 1;
 				ui.PSpinBox->setValue(cd_.pindex);
-				ui.PAccSpinBox->setMaximum(cd_.time_filter_size - cd_.pindex - 1);
+				ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
 			}
 			else
 			{
-				ui.PSpinBox->setMaximum(cd_.time_filter_size - 1);
-				if (cd_.pindex > cd_.time_filter_size - 1)
-					cd_.pindex = cd_.time_filter_size - 1;
+				ui.PSpinBox->setMaximum(cd_.time_transformation_size - 1);
+				if (cd_.pindex > cd_.time_transformation_size - 1)
+					cd_.pindex = cd_.time_transformation_size - 1;
 				ui.PSpinBox->setValue(cd_.pindex);
 			}
 
@@ -327,16 +327,16 @@ namespace holovibes
 			ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
-			// Time filter
-			ui.TimeFilterStrideSpinBox->setEnabled(!is_raw);
+			// Time transformation
+			ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
 			const uint input_queue_capacity = global::global_config.input_queue_max_size;
-			if (cd_.time_filter_stride > input_queue_capacity)
-				cd_.time_filter_stride = input_queue_capacity;
+			if (cd_.time_transformation_stride > input_queue_capacity)
+				cd_.time_transformation_stride = input_queue_capacity;
 
-			ui.TimeFilterStrideSpinBox->setValue(cd_.time_filter_stride);
-			ui.TimeFilterStrideSpinBox->setSingleStep(cd_.batch_size);
-			ui.TimeFilterStrideSpinBox->setMinimum(cd_.batch_size);
+			ui.TimeTransformationStrideSpinBox->setValue(cd_.time_transformation_stride);
+			ui.TimeTransformationStrideSpinBox->setSingleStep(cd_.batch_size);
+			ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
 			// Batch
 			ui.BatchSizeSpinBox->setEnabled(!is_raw);
@@ -351,12 +351,12 @@ namespace holovibes
 			ui.AlgorithmComboBox->setEnabled(!is_raw);
 			ui.AlgorithmComboBox->setCurrentIndex(cd_.algorithm);
 			ui.TimeAlgorithmComboBox->setEnabled(!is_raw);
-			ui.TimeAlgorithmComboBox->setCurrentIndex(cd_.time_filter);
+			ui.TimeAlgorithmComboBox->setCurrentIndex(cd_.time_transformation);
 
-			// Changing time_filter_size with time filter cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
-			ui.timeFilterSizeSpinBox->setEnabled(!is_raw && !cd_.time_filter_cuts_enabled);
-			ui.timeFilterSizeSpinBox->setValue(cd_.time_filter_size);
-			ui.TimeFilterCutsCheckBox->setEnabled(ui.timeFilterSizeSpinBox->value() >= MIN_IMG_NB_TIME_FILTER_CUTS);
+			// Changing time_transformation_size with time transformation cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
+			ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
+			ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
+			ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_time_transformation_CUTS);
 
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_raw);
 			ui.WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
@@ -372,15 +372,15 @@ namespace holovibes
 			ui.CancelFilter2DPushButton->setEnabled(!is_raw && cd_.filter_2d_enabled);
 
 			// Composite
-			const int time_filter_size_max = cd_.time_filter_size - 1;
-			ui.PRedSpinBox_Composite->setMaximum(time_filter_size_max);
-			ui.PBlueSpinBox_Composite->setMaximum(time_filter_size_max);
-			ui.SpinBox_hue_freq_min->setMaximum(time_filter_size_max);
-			ui.SpinBox_hue_freq_max->setMaximum(time_filter_size_max);
-			ui.SpinBox_saturation_freq_min->setMaximum(time_filter_size_max);
-			ui.SpinBox_saturation_freq_max->setMaximum(time_filter_size_max);
-			ui.SpinBox_value_freq_min->setMaximum(time_filter_size_max);
-			ui.SpinBox_value_freq_max->setMaximum(time_filter_size_max);
+			const int time_transformation_size_max = cd_.time_transformation_size - 1;
+			ui.PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
+			ui.PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
+			ui.SpinBox_hue_freq_min->setMaximum(time_transformation_size_max);
+			ui.SpinBox_hue_freq_max->setMaximum(time_transformation_size_max);
+			ui.SpinBox_saturation_freq_min->setMaximum(time_transformation_size_max);
+			ui.SpinBox_saturation_freq_max->setMaximum(time_transformation_size_max);
+			ui.SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
+			ui.SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
 
 			ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights_);
 
@@ -449,7 +449,7 @@ namespace holovibes
 					{
 						// notify will be in close_critical_compute
 						cd_.pindex = 0;
-						cd_.time_filter_size = 1;
+						cd_.time_transformation_size = 1;
 						if (cd_.convolution_enabled)
 						{
 							cd_.convolution_enabled = false;
@@ -635,7 +635,7 @@ namespace holovibes
 				config.file_buffer_size = ptree.get<int>("config.file_buffer_size", config.file_buffer_size);
 				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
 				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
-				config.time_filter_cuts_output_buffer_size = ptree.get<int>("config.time_filter_cuts_output_buffer_size", config.time_filter_cuts_output_buffer_size);
+				config.time_transformation_cuts_output_buffer_size = ptree.get<int>("config.time_transformation_cuts_output_buffer_size", config.time_transformation_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 
@@ -645,13 +645,13 @@ namespace holovibes
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
-				const ushort p_time_filter_size = ptree.get<ushort>("image_rendering.time_filter_size", cd_.time_filter_size);
-				if (p_time_filter_size < 1)
-					cd_.time_filter_size = 1;
+				const ushort p_time_transformation_size = ptree.get<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
+				if (p_time_transformation_size < 1)
+					cd_.time_transformation_size = 1;
 				else
-					cd_.time_filter_size = p_time_filter_size;
+					cd_.time_transformation_size = p_time_transformation_size;
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd_.pindex);
-				if (p_index >= 0 && p_index < cd_.time_filter_size)
+				if (p_index >= 0 && p_index < cd_.time_transformation_size)
 					cd_.pindex = p_index;
 
 				cd_.lambda = ptree.get<float>("image_rendering.lambda", cd_.lambda);
@@ -666,7 +666,7 @@ namespace holovibes
 
 				cd_.raw_bitshift = ptree.get<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 
-				cd_.time_filter_stride = ptree.get<int>("image_rendering.time_filter_stride", cd_.time_filter_stride);
+				cd_.time_transformation_stride = ptree.get<int>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
 
 				// View
 				view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
@@ -690,8 +690,8 @@ namespace holovibes
 				cd_.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd_.cuts_contrast_p_offset);
 				if (cd_.cuts_contrast_p_offset < 0)
 					cd_.cuts_contrast_p_offset = 0;
-				else if (cd_.cuts_contrast_p_offset > cd_.time_filter_size - 1)
-					cd_.cuts_contrast_p_offset = cd_.time_filter_size - 1;
+				else if (cd_.cuts_contrast_p_offset > cd_.time_transformation_size - 1)
+					cd_.cuts_contrast_p_offset = cd_.time_transformation_size - 1;
 
 				cd_.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", cd_.img_acc_slice_xy_enabled);
 
@@ -760,7 +760,7 @@ namespace holovibes
 
 				// Display
 				window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-				time_filter_cuts_window_max_size = ptree.get<uint>("display.time_filter_cuts_window_max_size", 512);
+				time_transformation_cuts_window_max_size = ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
 				auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
 
 				notify();
@@ -781,7 +781,7 @@ namespace holovibes
 			ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
 			ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
 			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-			ptree.put<uint>("config.time_filter_cuts_output_buffer_size", config.time_filter_cuts_output_buffer_size);
+			ptree.put<uint>("config.time_transformation_cuts_output_buffer_size", config.time_transformation_cuts_output_buffer_size);
 			ptree.put<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
@@ -790,14 +790,14 @@ namespace holovibes
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
 			ptree.put("image_rendering.camera", kCamera);
-			ptree.put<ushort>("image_rendering.time_filter_size", cd_.time_filter_size);
+			ptree.put<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
 			ptree.put<ushort>("image_rendering.p_index", cd_.pindex);
 			ptree.put<float>("image_rendering.lambda", cd_.lambda);
 			ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
 			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", cd_.algorithm);
 			ptree.put<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
-			ptree.put<ushort>("image_rendering.time_filter_stride", cd_.time_filter_stride);
+			ptree.put<ushort>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
 
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
@@ -875,7 +875,7 @@ namespace holovibes
 
 			// Display
 			ptree.put<uint>("display.main_window_max_size", window_max_size);
-            ptree.put<uint>("display.time_filter_cuts_window_max_size", time_filter_cuts_window_max_size);
+            ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
 			ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
 
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
@@ -896,7 +896,7 @@ namespace holovibes
 			if (is_chart_enabled_)
 				disable_chart_mode();
 
-			cancel_time_filter_cuts();
+			cancel_time_transformation_cuts();
 			if (cd_.filter_2d_enabled)
 				cancel_filter2D();
 			holovibes_.dispose_compute();
@@ -960,7 +960,7 @@ namespace holovibes
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
 			cd_.pindex = 0;
-			cd_.time_filter_size = 1;
+			cd_.time_transformation_size = 1;
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device)
 			{
@@ -1296,8 +1296,8 @@ namespace holovibes
 					refreshViewMode();
 					if (cd_.img_type == ImgType::Composite)
 					{
-						const unsigned min_val_composite = cd_.time_filter_size == 1 ? 0 : 1;
-						const unsigned max_val_composite = cd_.time_filter_size - 1;
+						const unsigned min_val_composite = cd_.time_transformation_size == 1 ? 0 : 1;
+						const unsigned max_val_composite = cd_.time_transformation_size - 1;
 
 						ui.PRedSpinBox_Composite->setValue(min_val_composite);
 						ui.SpinBox_hue_freq_min->setValue(min_val_composite);
@@ -1324,7 +1324,7 @@ namespace holovibes
 				// Force XYview autocontrast
 				pipe->autocontrast_end_pipe(XYview);
 				// Force cuts views autocontrast if needed
-				if (cd_.time_filter_cuts_enabled)
+				if (cd_.time_transformation_cuts_enabled)
 					set_auto_contrast_cuts();
 			}
 		}
@@ -1352,13 +1352,13 @@ namespace holovibes
 
 #pragma region Batch
 
-		static void adapt_time_filter_stride_to_batch_size(ComputeDescriptor& cd)
+		static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd)
 		{
-			if (cd.time_filter_stride < cd.batch_size)
-				cd.time_filter_stride = cd.batch_size;
+			if (cd.time_transformation_stride < cd.batch_size)
+				cd.time_transformation_stride = cd.batch_size;
 			// Go to lower multiple
-			if (cd.time_filter_stride % cd.batch_size != 0)
-				cd.time_filter_stride -= cd.time_filter_stride % cd.batch_size;
+			if (cd.time_transformation_stride % cd.batch_size != 0)
+				cd.time_transformation_stride -= cd.time_transformation_stride % cd.batch_size;
 		}
 
 		void MainWindow::update_batch_size()
@@ -1375,7 +1375,7 @@ namespace holovibes
 				{
 					pipe->insert_fn_end_vect([=]() {
 						cd_.batch_size = value;
-						adapt_time_filter_stride_to_batch_size(cd_);
+						adapt_time_transformation_stride_to_batch_size(cd_);
 						holovibes_.get_pipe()->request_update_batch_size();
 						notify();
 					});
@@ -1412,32 +1412,32 @@ namespace holovibes
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
 				pipe->insert_fn_end_vect([=]() {
-					cd_.time_filter_cuts_enabled = false;
+					cd_.time_transformation_cuts_enabled = false;
 					pipe->delete_stft_slice_queue();
 
-					ui.TimeFilterCutsCheckBox->setChecked(false);
+					ui.TimeTransformationCutsCheckBox->setChecked(false);
 					notify();
 				});
 			}
 
 		}
 
-		void MainWindow::update_time_filter_stride()
+		void MainWindow::update_time_transformation_stride()
 		{
 			if (!is_raw_mode())
 			{
-				int value = ui.TimeFilterStrideSpinBox->value();
+				int value = ui.TimeTransformationStrideSpinBox->value();
 
-				if (value == cd_.time_filter_stride)
+				if (value == cd_.time_transformation_stride)
 					return;
 
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 				if (pipe)
 				{
 					pipe->insert_fn_end_vect([=]() {
-						cd_.time_filter_stride = value;
-						adapt_time_filter_stride_to_batch_size(cd_);
-						holovibes_.get_pipe()->request_update_time_filter_stride();
+						cd_.time_transformation_stride = value;
+						adapt_time_transformation_stride_to_batch_size(cd_);
+						holovibes_.get_pipe()->request_update_time_transformation_stride();
 						notify();
 					});
 				}
@@ -1446,7 +1446,7 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::toggle_time_filter_cuts(bool checked)
+		void MainWindow::toggle_time_transformation_cuts(bool checked)
 		{
 			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
@@ -1464,17 +1464,17 @@ namespace holovibes
 					// set positions of new windows according to the position of the main GL window
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
-					const ushort	nImg = cd_.time_filter_size;
-					uint			time_filter_size = std::max(256u, std::min(512u, (uint)nImg));
+					const ushort	nImg = cd_.time_transformation_size;
+					uint			time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
 
-					if (time_filter_size > time_filter_cuts_window_max_size)
-						time_filter_size = time_filter_cuts_window_max_size;
+					if (time_transformation_size > time_transformation_cuts_window_max_size)
+						time_transformation_size = time_transformation_cuts_window_max_size;
 
-					while (holovibes_.get_pipe()->get_update_time_filter_size_request());
+					while (holovibes_.get_pipe()->get_update_time_transformation_size_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
 					sliceXZ.reset(new SliceWindow(
 						xzPos,
-						QSize(mainDisplay->width(), time_filter_size),
+						QSize(mainDisplay->width(), time_transformation_size),
 						holovibes_.get_pipe()->get_stft_slice_queue(0),
 						KindOfView::SliceXZ,
 						this));
@@ -1485,7 +1485,7 @@ namespace holovibes
 
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
-						QSize(time_filter_size, mainDisplay->height()),
+						QSize(time_transformation_size, mainDisplay->height()),
 						holovibes_.get_pipe()->get_stft_slice_queue(1),
 						KindOfView::SliceYZ,
 						this));
@@ -1495,7 +1495,7 @@ namespace holovibes
 					sliceYZ->setCd(&cd_);
 
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
-					cd_.time_filter_cuts_enabled = true;
+					cd_.time_transformation_cuts_enabled = true;
 					set_auto_contrast_cuts();
 					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
 					if (holo)
@@ -1514,9 +1514,9 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::cancel_time_filter_cuts()
+		void MainWindow::cancel_time_transformation_cuts()
 		{
-			if (cd_.time_filter_cuts_enabled)
+			if (cd_.time_transformation_cuts_enabled)
 				cancel_stft_slice_view();
 			try {
 				while (holovibes_.get_pipe()->get_refresh_request());
@@ -1524,7 +1524,7 @@ namespace holovibes
 			catch (std::exception&)
 			{
 			}
-			cd_.time_filter_cuts_enabled = false;
+			cd_.time_transformation_cuts_enabled = false;
 			notify();
 		}
 
@@ -1731,22 +1731,22 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_time_filter_size()
+		void MainWindow::set_time_transformation_size()
 		{
 			if (!is_raw_mode())
 			{
-				int time_filter_size = ui.timeFilterSizeSpinBox->value();
-				time_filter_size = std::max(1, time_filter_size);
+				int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
+				time_transformation_size = std::max(1, time_transformation_size);
 
-				if (time_filter_size == cd_.time_filter_size)
+				if (time_transformation_size == cd_.time_transformation_size)
 					return;
 				notify();
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 				if (pipe)
 				{
 					pipe->insert_fn_end_vect([=]() {
-						cd_.time_filter_size = time_filter_size;
-						holovibes_.get_pipe()->request_update_time_filter_size();
+						cd_.time_transformation_size = time_transformation_size;
+						holovibes_.get_pipe()->request_update_time_transformation_size();
 						set_p_accu();
 						// This will not do anything until SliceWindow::changeTexture() isn't coded.
 					});
@@ -1892,7 +1892,7 @@ namespace holovibes
 		{
 			if (!is_raw_mode())
 			{
-				if (value < static_cast<int>(cd_.time_filter_size))
+				if (value < static_cast<int>(cd_.time_transformation_size))
 				{
 					cd_.pindex = value;
 					pipe_refresh();
@@ -2095,7 +2095,7 @@ namespace holovibes
 			if (!is_raw_mode())
 			{
 
-				if (cd_.pindex < cd_.time_filter_size)
+				if (cd_.pindex < cd_.time_transformation_size)
 				{
 					cd_.pindex = cd_.pindex + 1;
 					set_auto_contrast();
@@ -2183,14 +2183,14 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_time_filter(QString value)
+		void MainWindow::set_time_transformation(QString value)
 		{
 			if (!is_raw_mode())
 			{
 				if (value == "STFT")
-					cd_.time_filter = TimeFilter::STFT;
+					cd_.time_transformation = TimeTransformation::STFT;
 				else if (value == "PCA")
-					cd_.time_filter = TimeFilter::PCA;
+					cd_.time_transformation = TimeTransformation::PCA;
 				set_holographic_mode();
 			}
 		}
@@ -3187,8 +3187,8 @@ namespace holovibes
 			QCheckBox *load_file_gpu = ui.LoadFileInGpuCheckBox;
 			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
-			cd_.time_filter_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-			cd_.batch_size = cd_.time_filter_stride;
+			cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
+			cd_.batch_size = cd_.time_transformation_stride;
 
 			const FrameDescriptor& fd = io_files::InputFileHandler::get_frame_descriptor();
 

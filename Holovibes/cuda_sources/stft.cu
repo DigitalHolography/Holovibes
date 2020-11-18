@@ -45,16 +45,16 @@ static void	fill_32bit_slices(const cuComplex	*input,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
 							const uint			img_type,
-							const uint			time_filter_size)
+							const uint			time_transformation_size)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < height * time_filter_size)
+	if (id < height * time_transformation_size)
 	{
 		float sum = 0;
 		for (int x = xmin; x <= xmax; ++x)
 		{
 			float pixel_float = 0;
-			cuComplex pixel = input[x + (id / time_filter_size) * width + (id % time_filter_size) * frame_size];
+			cuComplex pixel = input[x + (id / time_transformation_size) * width + (id % time_transformation_size) * frame_size];
 			if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
 				pixel_float = hypotf(pixel.x, pixel.y);
 			else if (img_type == ImgType::SquaredModulus)
@@ -69,7 +69,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		output_yz[id] = sum / static_cast<float>(xmax - xmin + 1);
 	}
 	/* ********** */
-	if (id < width * time_filter_size)
+	if (id < width * time_transformation_size)
 	{
 		float sum = 0;
 		for (int y = ymin; y <= ymax; ++y)
@@ -91,7 +91,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	}
 }
 
-void time_filter_cuts_begin(const cuComplex	*input,
+void time_transformation_cuts_begin(const cuComplex	*input,
 							float				*output_xz,
 							float				*output_yz,
 							const ushort		xmin,
@@ -101,14 +101,14 @@ void time_filter_cuts_begin(const cuComplex	*input,
 							const ushort		width,
 							const ushort		height,
 							const uint			viewmode,
-							const ushort		time_filter_size,
+							const ushort		time_transformation_size,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
 							const uint			img_type,
 							cudaStream_t		stream)
 {
 	const uint frame_size = width * height;
-	const uint output_size = std::max(width, height) * time_filter_size;
+	const uint output_size = std::max(width, height) * time_transformation_size;
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads);
 
@@ -122,7 +122,7 @@ void time_filter_cuts_begin(const cuComplex	*input,
 		width, height,
 		acc_level_xz, acc_level_yz,
 		img_type,
-		time_filter_size);
+		time_transformation_size);
 
 	cudaCheckError();
 }

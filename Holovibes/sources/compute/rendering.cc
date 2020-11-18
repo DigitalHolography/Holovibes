@@ -27,7 +27,7 @@ namespace holovibes
 			const CoreBuffersEnv& buffers,
 			ChartEnv& chart_env,
 			const ImageAccEnv& image_acc_env,
-			const TimeFilterEnv& time_filter_env,
+			const TimeTransformationEnv& time_transformation_env,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
@@ -36,7 +36,7 @@ namespace holovibes
 			, buffers_(buffers)
 			, chart_env_(chart_env)
 			, image_acc_env_(image_acc_env)
-			, time_filter_env_(time_filter_env)
+			, time_transformation_env_(time_transformation_env)
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
@@ -87,7 +87,7 @@ namespace holovibes
 							input_fd_.height,
 							signal_zone,
 							noise_zone);
-	
+
 					if (cd_.chart_display_enabled)
 						chart_env_.chart_display_queue_->push_back(point);
 					if (cd_.chart_record_enabled && chart_env_.nb_chart_points_to_record_ != 0)
@@ -103,7 +103,7 @@ namespace holovibes
 		{
 			if (cd_.log_scale_slice_xy_enabled)
 				insert_main_log();
-			if (cd_.time_filter_cuts_enabled)
+			if (cd_.time_transformation_cuts_enabled)
 				insert_slice_log();
 		}
 
@@ -123,7 +123,7 @@ namespace holovibes
 			insert_apply_contrast(WindowKind::XYview);
 
 			// Apply contrast on cuts if needed
-			if (cd_.time_filter_cuts_enabled)
+			if (cd_.time_transformation_cuts_enabled)
 			{
 				insert_apply_contrast(WindowKind::XZview);
 				insert_apply_contrast(WindowKind::YZview);
@@ -137,7 +137,7 @@ namespace holovibes
 
 		void Rendering::insert_slice_log()
 		{
-			const uint size = fd_.width * cd_.time_filter_size;
+			const uint size = fd_.width * cd_.time_transformation_size;
 			if (cd_.log_scale_slice_xz_enabled)
 				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_xz.get(), size); });
 			if (cd_.log_scale_slice_yz_enabled)
@@ -164,13 +164,13 @@ namespace holovibes
 					break;
 				case YZview:
 					input = buffers_.gpu_postprocess_frame_yz.get();
-					size = fd_.width * cd_.time_filter_size;
+					size = fd_.width * cd_.time_transformation_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
 					max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
 					break;
 				case XZview:
 					input = buffers_.gpu_postprocess_frame_xz.get();
-					size = fd_.width * cd_.time_filter_size;
+					size = fd_.width * cd_.time_transformation_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
 					max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
 					break;
@@ -188,7 +188,7 @@ namespace holovibes
 			// refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
 				// Compute autocontrast once the gpu stft queue is full
-				if (!time_filter_env_.gpu_time_filter_queue->is_full())
+				if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
 					return;
 
 				if (autocontrast_request && (!image_acc_env_.gpu_accumulation_xy_queue ||
@@ -206,7 +206,7 @@ namespace holovibes
 				{
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame_xz.get(),
-						fd_.width * cd_.time_filter_size,
+						fd_.width * cd_.time_transformation_size,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						XZview);
 					autocontrast_slice_xz_request = false;
@@ -218,7 +218,7 @@ namespace holovibes
 					// It might fix the YZ autocontrast computation
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame_yz.get(),
-						fd_.width * cd_.time_filter_size,
+						fd_.width * cd_.time_transformation_size,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						YZview);
 					autocontrast_slice_yz_request = false;

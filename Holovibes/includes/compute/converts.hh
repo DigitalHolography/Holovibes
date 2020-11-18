@@ -30,7 +30,7 @@ namespace holovibes
 	class ComputeDescriptor;
 	struct CoreBuffersEnv;
 	struct BatchEnv;
-	struct TimeFilterEnv;
+	struct TimeTransformationEnv;
 	struct UnwrappingResources;
 	struct UnwrappingResources_2d;
 	namespace compute
@@ -44,7 +44,7 @@ namespace holovibes
 			Converts(FunctionVector& fn_compute_vect,
 				const CoreBuffersEnv& buffers,
 				const BatchEnv& batch_env,
-				const TimeFilterEnv& time_filter_env,
+				const TimeTransformationEnv& time_transformation_env,
 				cuda_tools::CufftHandle& plan2d,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
@@ -102,7 +102,7 @@ namespace holovibes
 			//! Batch environment.
 			const BatchEnv& 				batch_env_;
 			//! STFT environment
-			const TimeFilterEnv&					time_filter_env_;
+			const TimeTransformationEnv&					time_transformation_env_;
 			//! Phase unwrapping 1D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources>	unwrap_res_;
 			//! Phase unwrapping 2D. Used for phase increase and Argument.
