@@ -57,7 +57,7 @@ namespace camera
 			{
 				continue;
 			}
-			
+
 			hdcam_ = param_open.hdcam;
 
 			//Gets and sets camera model name
@@ -251,7 +251,7 @@ namespace camera
 		binning_ = 1;
 
 		ext_trig_ = false;
-		circ_buffer_frame_count_ = 4;
+		circ_buffer_frame_count_ = 64;
 		trig_mode_ = DCAMPROP_TRIGGER_MODE__NORMAL;
 		trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__BNC;
 		trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
