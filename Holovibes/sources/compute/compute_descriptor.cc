@@ -164,6 +164,18 @@ namespace holovibes
 		zoomed_zone = rect;
 	}
 
+	void ComputeDescriptor::setReticleZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		reticle_zone = rect;
+	}
+
+	units::RectFd ComputeDescriptor::getReticleZone() const
+	{
+		LockGuard g(mutex_);
+		return reticle_zone;
+	}
+
 	float ComputeDescriptor::get_contrast_min(WindowKind kind) const
 	{
 		switch (kind)

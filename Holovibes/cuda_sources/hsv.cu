@@ -304,7 +304,7 @@ void from_interweaved_components_to_distinct_components(const float *src, float 
 
 
 
-void apply_percentile_and_threshold(float *gpu_arr, uint frame_res, float low_threshold, float high_threshold)
+void apply_percentile_and_threshold(float *gpu_arr, uint frame_res, uint width, uint height, float low_threshold, float high_threshold)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -314,7 +314,7 @@ void apply_percentile_and_threshold(float *gpu_arr, uint frame_res, float low_th
 		low_threshold, high_threshold
 	};
 
-	percentile_float(gpu_arr, frame_res, percent_in_h, percent_out, 2);
+	percentile_float(gpu_arr, width, height, 0, percent_in_h, percent_out, 2, holovibes::units::RectFd(), false);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, percent_out[0], percent_out[1], frame_res);
 }
 
@@ -371,7 +371,7 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_ar
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	apply_percentile_and_threshold(gpu_arr, frame_res, cd.composite_low_h_threshold, cd.composite_high_h_threshold);
+	apply_percentile_and_threshold(gpu_arr, frame_res, width, height, cd.composite_low_h_threshold, cd.composite_high_h_threshold);
 	gpu_multiply_const(gpu_arr, frame_res, -1);
 	normalize_frame(gpu_arr, frame_res);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, cd.slider_h_threshold_min, cd.slider_h_threshold_max, frame_res);
@@ -382,25 +382,27 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_ar
 	gpu_multiply_const(gpu_arr, frame_res, 0.66f);
 }
 
-void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint frame_res)
+void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint height, uint width)
 {
+	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 	float* gpu_arr_s = gpu_arr + frame_res;
 
-	apply_percentile_and_threshold(gpu_arr_s, frame_res, cd.composite_low_s_threshold, cd.composite_high_s_threshold);
+	apply_percentile_and_threshold(gpu_arr_s, frame_res, width, height, cd.composite_low_s_threshold, cd.composite_high_s_threshold);
 	normalize_frame(gpu_arr_s, frame_res);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr_s, cd.slider_s_threshold_min, cd.slider_s_threshold_max, frame_res);
 	normalize_frame(gpu_arr_s, frame_res);
 }
 
-void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint frame_res)
+void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint height, uint width)
 {
+	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 	float* gpu_arr_v = gpu_arr + frame_res * 2;
 
-	apply_percentile_and_threshold(gpu_arr_v, frame_res, cd.composite_low_v_threshold, cd.composite_high_v_threshold);
+	apply_percentile_and_threshold(gpu_arr_v, frame_res, width, height, cd.composite_low_v_threshold, cd.composite_high_v_threshold);
 	normalize_frame(gpu_arr_v, frame_res);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr_v, cd.slider_v_threshold_min, cd.slider_v_threshold_max, frame_res);
 	normalize_frame(gpu_arr_v, frame_res);
@@ -435,8 +437,8 @@ void hsv(const cuComplex *gpu_input,
 
 
 	apply_operations_on_h(cd, tmp_hsv_arr, height, width);
-	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
-	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);
+	apply_operations_on_s(cd, tmp_hsv_arr, height, width);
+	apply_operations_on_v(cd, tmp_hsv_arr, height, width);
 
 	kernel_from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
 	cudaCheckError();

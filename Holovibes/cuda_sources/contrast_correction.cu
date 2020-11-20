@@ -43,31 +43,37 @@ void apply_contrast_correction(float *input,
 }
 
 void compute_autocontrast(float *input,
-						  const uint size,
+						  const uint width,
+						  const uint height,
 						  const uint offset,
 						  float	*min,
 						  float	*max,
 						  float	contrast_threshold_low_percentile,
-						  float	contrast_threshold_high_percentile)
+						  float	contrast_threshold_high_percentile,
+						  const holovibes::units::RectFd& sub_zone,
+						  bool compute_on_sub_zone)
 {
-	float percent_out[2];
-	const float percent_in_h[2] =
-	{
-		contrast_threshold_low_percentile, contrast_threshold_high_percentile
-	};
+	const float percent_in_h[2] = { contrast_threshold_low_percentile,
+									contrast_threshold_high_percentile };
+	float percent_out[2] = { contrast_threshold_low_percentile,
+							 contrast_threshold_high_percentile };
 
 	// Compute the min and max
 	percentile_float(
-		input + offset,
-		size - 2 * offset, // 2 * offset to apply offset at beginning and at end
+		input,
+		width,
+		height,
+		offset,
 		percent_in_h,
 		percent_out,
-		2
+		2,
+		sub_zone,
+		compute_on_sub_zone
 	);
 
 	*min = percent_out[0];
 	*max = percent_out[1];
-	
+
 	*min = ((*min < 1.0f) ? (1.0f) : (*min));
 	*max = ((*max < 1.0f) ? (1.0f) : (*max));
 }

@@ -39,8 +39,6 @@ namespace holovibes
 			units::RectFd empty_zone;
 			parent_->getCd()->signalZone(empty_zone, AccessMode::Set);
 			parent_->getCd()->noiseZone(empty_zone, AccessMode::Set);
-
-			parent_->getCd()->reticle_enabled = false;
 		}
 
 		template <KindOfOverlay ko>

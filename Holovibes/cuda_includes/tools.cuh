@@ -161,7 +161,7 @@ void convolution_float(const float			*a,
 * \param output_width In pixels, the desired width of the cropped image
 * \param stream The CUDA stream on which to launch the operation.
 */
-void frame_memcpy(float*			input,
+void frame_memcpy(const float*			input,
 				const holovibes::units::RectFd&	zone,
 				const uint			input_width,
 				float*				output,

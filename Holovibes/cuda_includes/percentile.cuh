@@ -11,4 +11,14 @@
 /* **************************************************************************** */
 #pragma once
 
-float *percentile_float(const float *d_input, unsigned frame_res, const float *h_percent, float *h_out_percent, unsigned size_percent);
+#include "rect.hh"
+
+void percentile_float(const float *d_input,
+                      unsigned width,
+                      unsigned height,
+                      unsigned offset,
+                      const float *h_percent,
+                      float *h_out_percent,
+                      unsigned size_percent,
+                      const holovibes::units::RectFd& sub_zone,
+				      bool compute_on_sub_zone);

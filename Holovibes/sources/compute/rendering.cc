@@ -194,9 +194,11 @@ namespace holovibes
 				if (autocontrast_request && (!image_acc_env_.gpu_accumulation_xy_queue ||
 					image_acc_env_.gpu_accumulation_xy_queue->is_full()))
 				{
+					// FIXME Handle composite size, adapt width and height (frames_res = buffers_.gpu_postprocess_frame_size)
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame,
-						buffers_.gpu_postprocess_frame_size,
+						fd_.width,
+						fd_.height,
 						0,
 						XYview);
 					autocontrast_request = false;
@@ -206,7 +208,8 @@ namespace holovibes
 				{
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame_xz.get(),
-						fd_.width * cd_.time_transformation_size,
+						fd_.width,
+						cd_.time_transformation_size,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						XZview);
 					autocontrast_slice_xz_request = false;
@@ -218,7 +221,8 @@ namespace holovibes
 					// It might fix the YZ autocontrast computation
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame_yz.get(),
-						fd_.width * cd_.time_transformation_size,
+						cd_.time_transformation_size,
+						fd_.width,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						YZview);
 					autocontrast_slice_yz_request = false;
@@ -229,7 +233,8 @@ namespace holovibes
 		}
 
 		void Rendering::autocontrast_caller(float*			input,
-			const uint			size,
+			const uint			width,
+			const uint			height,
 			const uint			offset,
 			WindowKind			view,
 			cudaStream_t		stream)
@@ -237,9 +242,16 @@ namespace holovibes
 			float contrast_min = 0.f;
 			float contrast_max = 0.f;
 			// Compute min and max
-			compute_autocontrast(input, size, offset, &contrast_min, &contrast_max,
+			compute_autocontrast(input,
+				width,
+				height,
+				offset,
+				&contrast_min,
+				&contrast_max,
 				cd_.contrast_threshold_low_percentile,
-				cd_.contrast_threshold_high_percentile);
+				cd_.contrast_threshold_high_percentile,
+				cd_.getReticleZone(),
+				cd_.reticle_enabled);
 
 			// Update attributes
 			switch (view)

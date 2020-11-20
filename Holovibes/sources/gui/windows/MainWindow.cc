@@ -423,6 +423,7 @@ namespace holovibes
 
 			// Reticle
 			ui.ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
+			ui.ReticleScaleDoubleSpinBox->setValue(cd_.reticle_scale);
 			ui.DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
 
 			// Lens View
@@ -711,7 +712,7 @@ namespace holovibes
 				displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
 				xzFlip = ptree.get("view.xCut_flip", xzFlip);
 				yzFlip = ptree.get("view.yCut_flip", yzFlip);
-				cd_.reticle_scale = ptree.get("view.reticle_scale", 0.5f);
+				cd_.reticle_scale = ptree.get<float>("view.reticle_scale", 0.5f);
 
 				// Chart
 				auto_scale_point_threshold_ = ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
@@ -2760,6 +2761,7 @@ namespace holovibes
 			{
 				mainDisplay->getOverlayManager().disable_all(Reticle);
 			}
+			pipe_refresh();
 			notify();
 		}
 
@@ -2767,7 +2769,9 @@ namespace holovibes
 		{
 			if (0 > value || value > 1)
 				return;
+
 			cd_.reticle_scale = value;
+			pipe_refresh();
 		}
 
 		void MainWindow::start_recording()

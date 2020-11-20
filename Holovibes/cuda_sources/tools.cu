@@ -308,7 +308,7 @@ void convolution_operator(	const cuComplex		*a,
 	cudaStreamSynchronize(stream);
 }
 
-void frame_memcpy(float				*input,
+void frame_memcpy(const float				*input,
 				const units::RectFd&	zone,
 				const uint			input_width,
 				float				*output,

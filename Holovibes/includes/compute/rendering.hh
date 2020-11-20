@@ -95,7 +95,8 @@ namespace holovibes
 
 			*/
 			void autocontrast_caller(float *input,
-				const uint			size,
+				const uint			width,
+				const uint			height,
 				const uint			offset,
 				WindowKind			view,
 				cudaStream_t		stream = 0);

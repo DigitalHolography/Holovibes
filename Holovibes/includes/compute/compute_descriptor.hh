@@ -149,6 +149,8 @@ namespace holovibes
 		units::RectFd		composite_zone;
 		/*! \brief  The area used to limit the stft computations. */
 		units::RectFd		zoomed_zone;
+		/*! \brief	The zone of the reticle area */
+		units::RectFd		reticle_zone;
 
 	public:
 		/*! \brief ComputeDescriptor constructor
@@ -190,6 +192,7 @@ namespace holovibes
 		units::RectFd getCompositeZone() const;
 		units::RectFd getZoomedZone() const;
 		units::PointFd getStftCursor() const;
+		units::RectFd getReticleZone() const;
 		//! @}
 
 		/*!
@@ -203,6 +206,7 @@ namespace holovibes
 		void setCompositeZone(const units::RectFd& rect);
 		void setZoomedZone(const units::RectFd& rect);
 		void setStftCursor(const units::PointFd& rect);
+		void setReticleZone(const units::RectFd& rect);
 		//! @}
 
 		/*!

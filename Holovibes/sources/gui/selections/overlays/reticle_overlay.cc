@@ -65,6 +65,13 @@ namespace holovibes
 			float w_border = (w_2 * scale) / w_2;
 			float h_border = (h_2 * scale) / h_2;
 
+			units::ConversionData convert(parent_);
+			auto top_left = units::PointWindow(convert, w_2 - w_2 * scale, h_2 - h_2 * scale);
+			auto bottom_right = units::PointWindow(convert, w_2 + w_2 * scale, h_2 + h_2 * scale);
+			units::RectWindow zone_window(top_left, bottom_right);
+			zone_ = zone_window;
+			parent_->getCd()->setReticleZone(zone_);
+
 			/*
 				0-------------1
 				|             |

@@ -12,7 +12,8 @@
 
 #pragma once
 
-# include "Common.cuh"
+#include "Common.cuh"
+#include "rect.hh"
 
 /*! \brief Make the contrast of the image depending of the
 * maximum and minimum input given by the user.
@@ -46,9 +47,12 @@ void apply_contrast_correction(float			*input,
 * high percentil used to get the maximum pixel value.
 */
 void compute_autocontrast(float			*input,
-						  const uint	size,
 						  const uint	width,
+						  const uint 	height,
+						  const uint	offset,
 						  float			*min,
 						  float			*max,
 						  float			contrast_threshold_low_percentile,
-						  float			contrast_threshold_high_percentile);
+						  float			contrast_threshold_high_percentile,
+						  const holovibes::units::RectFd& sub_zone,
+						  bool 			compute_on_sub_zone);

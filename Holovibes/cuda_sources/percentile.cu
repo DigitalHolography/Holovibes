@@ -18,6 +18,7 @@
 #include "unique_ptr.hh"
 #include "tools_compute.cuh"
 #include "logger.hh"
+#include "cuda_memory.cuh"
 
 void fill_percentile_float_in_case_of_error(float* out_percent, unsigned size_percent)
 {
@@ -29,30 +30,53 @@ void fill_percentile_float_in_case_of_error(float* out_percent, unsigned size_pe
 
 /*
 ** \brief Sort a copy of the array and save each of the values at h_percent % of the array in h_out_percent
-** i.e. h_percent = [25f, 50f, 75f] and d_input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] and size_percent = 3
+** i.e. h_percent = [25f, 50f, 75f] and gpu_input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] and size_percent = 3
 ** gives : h_out_percent = [3, 6, 8]
 */
-float *percentile_float(const float *gpu_input, unsigned frame_res, const float* h_percent, float* h_out_percent, unsigned size_percent)
+void percentile_float(const float *gpu_input,
+					  unsigned width,
+					  unsigned height,
+					  unsigned offset,
+				 	  const float* h_percent,
+				 	  float* h_out_percent,
+				 	  unsigned size_percent,
+				 	  const holovibes::units::RectFd& sub_zone,
+				 	  bool compute_on_sub_zone)
 {
 	try {
-		thrust::device_vector<float> gpu_input_copy(frame_res);
-		thrust::copy(gpu_input, gpu_input + frame_res, gpu_input_copy.begin());
-		thrust::sort(gpu_input_copy.begin(), gpu_input_copy.end());
+		unsigned frame_res = width * height - 2 * offset;
+
+		if (compute_on_sub_zone)
+			frame_res = sub_zone.area();
+
+		if (frame_res == 0)
+			return;
+
+		float* gpu_input_copy_;
+		cudaXMalloc((void**) &gpu_input_copy_, frame_res * sizeof(float));
+		thrust::device_ptr<float> gpu_input_copy(gpu_input_copy_);
+
+		if (compute_on_sub_zone)
+			frame_memcpy(gpu_input + offset, sub_zone, width, gpu_input_copy_, sub_zone.width());
+		else
+			thrust::copy(gpu_input + offset, gpu_input + frame_res, gpu_input_copy);
+
+		thrust::sort(gpu_input_copy, gpu_input_copy + frame_res);
 
 		for (unsigned i = 0; i < size_percent; ++i)
 		{
 			unsigned index = h_percent[i] / 100 * frame_res;
 			// copy gpu_input_copy[index] in h_out_percent[i]
-			thrust::copy(gpu_input_copy.begin() + index, gpu_input_copy.begin() + index + 1, h_out_percent + i);
+			thrust::copy(gpu_input_copy + index, gpu_input_copy + index + 1, h_out_percent + i);
 			cudaCheckError();
 		}
+
+		cudaXFree(gpu_input_copy_);
 	}
 	catch (...)
 	{
 		LOG_ERROR("Something went wrong, you should decrease the number of images to free some GPU memory");
 		fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
 	}
-
-	return h_out_percent;
 }
 
