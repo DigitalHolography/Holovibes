@@ -1,5 +1,12 @@
 ## Changelog
 
+### 8.5.3
+
+* Contrast on reticle zone if enabled
+* GUI: simplified Filter2D
+* Fix chart recording
+* Renaming filter -> transformation
+
 ### 8.5.2
 
 * Refactoring of file system
