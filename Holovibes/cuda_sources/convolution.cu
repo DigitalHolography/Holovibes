@@ -21,44 +21,55 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-void convolution_kernel(float				*gpu_input,
-						float				*gpu_convolved_buffer,
-						cuComplex	        *cuComplex_buffer,
-						CufftHandle			*plan,
-						const uint			frame_width,
-						const uint			frame_height,
-						const cuComplex		*gpu_kernel,
-						const bool			divide_convolution_enabled,
-						const bool			normalize_enabled)
+void convolution_kernel(float			*gpu_input,
+						float			*gpu_convolved_buffer,
+						cuComplex		*cuComplex_buffer,
+						CufftHandle		*plan,
+						const uint		size,
+						const cuComplex	*gpu_kernel,
+						const bool		divide_convolution_enabled,
+						const bool		normalize_enabled)
 {
-	size_t size = frame_width * frame_height;
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
-	uint	threads = get_max_threads_1d();
-	uint	blocks = map_blocks_to_problem(size, threads);
-
+	/* Copy gpu_input (float*) to cuComplex_buffer (cuComplex*)
+	* We only want to copy the float value as real part float number in the cuComplex_buffer
+	* To skip the imaginary part, we use a pitch (skipped data) of size sizeof(float)
+	*
+	* The value are first all set to 0 (real & imaginary)
+	* Then value are copied 1 by 1 from gpu_input into the real part
+	* Imaginary is skipped and thus left to its value
+	*/
 	cudaXMemset(cuComplex_buffer, 0, size * sizeof(cuComplex));
-	cudaSafeCall(cudaMemcpy2D(cuComplex_buffer, sizeof(cuComplex), gpu_input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice));
-	//At this point, cuComplex_buffer is the same as the input
+	cudaSafeCall(cudaMemcpy2D(cuComplex_buffer, 	// Destination memory address
+								sizeof(cuComplex), 	// Pitch of destination memory
+								gpu_input, 			// Source memory address 
+								sizeof(float), 		// Pitch of source memory 
+								sizeof(float), 		// Width of matrix transfer (columns in bytes)
+								size,				// Height of matrix transfer (rows)
+								cudaMemcpyDeviceToDevice));
+	// At this point, cuComplex_buffer is the same as the input
 
 	cufftSafeCall(cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_FORWARD));
-	//At this point, cuComplex_buffer is the FFT of the input
+	// At this point, cuComplex_buffer is the FFT of the input
 
-	kernel_multiply_frames_complex << <blocks, threads >> > (cuComplex_buffer, gpu_kernel, cuComplex_buffer, static_cast<uint>(size));
+
+	kernel_multiply_frames_complex<<<blocks, threads>>>(cuComplex_buffer, gpu_kernel, cuComplex_buffer, size);
 	cudaCheckError();
-	//At this point, cuComplex_buffer is the FFT of the input multiplied by the FFT of the kernel
+	// At this point, cuComplex_buffer is the FFT of the input multiplied by the FFT of the kernel
 
 	cufftSafeCall(cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_INVERSE));
 
-	kernel_complex_to_modulus << <blocks, threads >> > (cuComplex_buffer, gpu_convolved_buffer, (uint)size);
-	cudaCheckError();
-
 	if (divide_convolution_enabled)
 	{
-		kernel_divide_frames_float << <blocks, threads >> > (gpu_input, gpu_convolved_buffer, gpu_input, static_cast<uint>(size));
+		kernel_complex_to_modulus<<<blocks, threads>>>(cuComplex_buffer, gpu_convolved_buffer, size);
 		cudaCheckError();
+		kernel_divide_frames_float<<<blocks, threads>>>(gpu_input, gpu_convolved_buffer, gpu_input, size);
 	}
 	else
 	{
-		cudaXMemcpy(gpu_input, gpu_convolved_buffer, size * sizeof(float), cudaMemcpyDeviceToDevice);
+		kernel_complex_to_modulus<<<blocks, threads>>>(cuComplex_buffer, gpu_input, size);
 	}
+	cudaCheckError();
 }

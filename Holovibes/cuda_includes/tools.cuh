@@ -286,18 +286,6 @@ void batched_crop_into_square(const char *input,
 							  const uint elm_size,
 							  const uint batch_size);
 
-/*! \brief Make the average of every element contained in the input.
- *
- * \param input The input data to average.
- * \param size The number of elements to process.
- * \param stream The CUDA stream on which to launch the operation.
- *
- * \return The average value of the *size* first elements.
- */
-float average_operator(const float*	input,
-					const uint		size,
-					cudaStream_t	stream = 0);
-
 /*! \brief Computes the average of every images in ``in`` and stores it in ``out``
  *
  * \param in Array of ``nb_frames`` images of size ``frame_res``

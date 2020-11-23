@@ -61,7 +61,7 @@ namespace holovibes
 		/** Unsigned Short YZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_yz */
 		cuda_tools::UniquePtr<unsigned short>	gpu_output_frame_yz = nullptr;
 
-		/**contain only one frame used only for convolution*/
+		/** Contains only one frame used only for convolution */
 		cuda_tools::UniquePtr<float>			gpu_convolution_buffer = nullptr;
 	};
 

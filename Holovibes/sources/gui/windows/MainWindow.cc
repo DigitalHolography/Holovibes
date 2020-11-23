@@ -1577,9 +1577,9 @@ namespace holovibes
 				std::string path = dir.string();
 
 				std::vector<float> matrix;
-				unsigned matrix_width = 0;
-				unsigned matrix_height = 0;
-				unsigned matrix_z = 1;
+				uint matrix_width = 0;
+				uint matrix_height = 0;
+				uint matrix_z = 1;
 
 				// Doing this the C way cause it's faster
 				FILE* c_file;
@@ -1613,11 +1613,11 @@ namespace holovibes
 
 				fclose(c_file);
 
-				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
+				// Reshape the vector as a (nx,ny) rectangle, keeping z depth
 				uint c = 0;
-				uint nx = holovibes_.get_gpu_output_queue()->get_fd().width;
-				uint ny = holovibes_.get_gpu_output_queue()->get_fd().height;
-				uint size = nx * ny;
+				const uint nx = holovibes_.get_gpu_output_queue()->get_fd().width;
+				const uint ny = holovibes_.get_gpu_output_queue()->get_fd().height;
+				const uint size = nx * ny;
 
 				const uint minw = (nx / 2) - (matrix_width / 2);
 				const uint maxw = (nx / 2) + (matrix_width / 2);
@@ -1635,7 +1635,7 @@ namespace holovibes
 					}
 				}
 
-				//on met les largeurs et hauteurs a la taille de nx et de ny
+				// Update convo matrix parameters
 				cd_.convo_matrix_width = nx;
 				cd_.convo_matrix_height = ny;
 				cd_.convo_matrix_z = matrix_z;

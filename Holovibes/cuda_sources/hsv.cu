@@ -355,7 +355,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	cudaXMalloc((void**)&gpu_memory_space, frame_res * sizeof(float));
 	cudaXMalloc((void**)&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
 	CufftHandle handle{ static_cast<int>(width), static_cast<int>(height), CUFFT_C2C };
-	convolution_kernel(gpu_arr, gpu_memory_space, gpu_cuComplex_buffer, &handle, width, height, gpu_kernel, false, false);
+	convolution_kernel(gpu_arr, gpu_memory_space, gpu_cuComplex_buffer, &handle, width * height, gpu_kernel, false, false);
 	cudaCheckError();
 
 	delete[] blur_matrix;
