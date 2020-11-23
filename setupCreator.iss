@@ -39,6 +39,7 @@ UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
 UninstallFilesDir={app}\{#MyAppVersion}
 SetupIconFile="{#BuildDir}\Holovibes.ico"
+ChangesAssociations=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -86,3 +87,9 @@ Filename: "{tmp}\vcredist_2019_x64.exe"; Parameters: "/install /passive /noresta
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Tasks: desktopicon
+
+[Registry]
+Root: HKCR; Subkey: ".holo"; ValueData: "{#MyAppName}"; Flags: uninsdeletevalue; ValueType: string; ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}"; ValueData: "{#MyAppName}"; Flags: uninsdeletekey; ValueType: string; ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon"; ValueData: "{app}\{#MyAppVersion}\{#MyAppExeName},0"; ValueType: string; ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}\shell\open\command"; ValueData: """{app}\{#MyAppVersion}\{#MyAppExeName}"" ""-i"" ""%1"""; ValueType: string;  ValueName: ""

@@ -272,7 +272,7 @@ namespace holovibes
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
 		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
-		unsigned int frame_count_;
+		unsigned int frame_count_{ 0 };
 
 		std::atomic<bool> unwrap_1d_requested_{ false };
 		std::atomic<bool> unwrap_2d_requested_{ false };

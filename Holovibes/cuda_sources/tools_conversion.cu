@@ -511,7 +511,7 @@ void float_to_ushort(const float	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
+	kernel_float_to_ushort<<<blocks, threads, 0, stream>>>(input, output, size, depth);
 	cudaDeviceSynchronize();
 	cudaCheckError();
 }

@@ -75,7 +75,8 @@ namespace holovibes
 
 			io_files::OutputFileHandler::write_header();
 
-			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
+			if (!gui::InfoManager::is_cli())
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::SAVING_THROUGHPUT, "Saving Throughput", "0 MB/s");
 			size_t written_bytes = 0;
 
 			// The for can be break for two reasons:
@@ -90,20 +91,21 @@ namespace holovibes
 				while (queue_.get_size() == 0)
 					std::this_thread::yield();
 
-				cur_size = queue_.get_size();
-				if (cur_size >= max_size - 1)
+				if (!gui::InfoManager::is_cli())
 				{
-					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
-																"Recording", "Queue is full, data will be lost !");
-				}
-				else if (cur_size > (max_size * 0.8f))
-				{
-					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
-																"Recording", "Queue is nearly full !");
-				}
-				else
-				{
-					gui::InfoManager::get_manager()->remove_info("Recording");
+					cur_size = queue_.get_size();
+					if (cur_size >= max_size - 1)
+					{
+						gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
+																	"Recording", "Queue is full, data will be lost !");
+					}
+					else if (cur_size > (max_size * 0.8f))
+					{
+						gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,
+																	"Recording", "Queue is nearly full !");
+					}
+					else
+						gui::InfoManager::get_manager()->remove_info("Recording");
 				}
 
 				if (queue_fd.depth == 6)
@@ -123,8 +125,8 @@ namespace holovibes
 				auto elapsed = end_time - start_time;
 				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 				long long saving_rate = written_bytes / microseconds; // bytes / microsecond which is equal to MegaByte / second
-				gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
-
+				if (!gui::InfoManager::is_cli())
+					gui::InfoManager::get_manager()->update_info("Saving Throughput", std::to_string(saving_rate) + " MB/s");
 
 				++nb_frames_written;
 				emit value_change(nb_frames_written);
@@ -143,8 +145,11 @@ namespace holovibes
 				LOG_INFO("[RECORDER] Increase output queue size !");
 			}
 
-			gui::InfoManager::get_manager()->remove_info("Recording");
-			gui::InfoManager::get_manager()->remove_info("Saving Throughput");
+			if (!gui::InfoManager::is_cli())
+			{
+				gui::InfoManager::get_manager()->remove_info("Recording");
+				gui::InfoManager::get_manager()->remove_info("Saving Throughput");
+			}
 		}
 		catch (const io_files::FileException& e)
 		{

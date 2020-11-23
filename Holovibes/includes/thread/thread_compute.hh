@@ -15,11 +15,11 @@
  * Thread encapsulation for managing all the processing performed */
 #pragma once
 
-# include <thread>
-# include <condition_variable>
-# include <memory>
+#include <thread>
+#include <condition_variable>
+#include <memory>
 
-# include "icompute.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
@@ -40,11 +40,15 @@ namespace holovibes
 		 *
 		 * \param desc The Compute Descriptor which will be used and modified
 		 * by the ICompute instance.
+		 * \param input The input queue
+		 * \param output The output queue
+		 * \param is_cli Flag whether the thread compute is executed from a cli mode
 		 */
 		ThreadCompute(
 			ComputeDescriptor& desc,
 			Queue& input,
-			Queue& output);
+			Queue& output,
+			const bool is_cli = false);
 
 		~ThreadCompute();
 

@@ -133,7 +133,7 @@ namespace holovibes
 			/*! \brief Converts QPoint to a point in the window
 
 			*/
-			units::PointWindow getMousePos(QPoint pos);
+			units::PointWindow getMousePos(const QPoint& pos);
 
 			//! Zone selected by the users in pixel coordinates (window width, window height)
 			units::RectFd zone_;

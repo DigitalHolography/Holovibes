@@ -114,10 +114,10 @@ void FourierTransform::insert_fft1()
 	const float z = cd_.zdistance;
 
 	fft1_lens(gpu_lens_,
-		fd_,
-		cd_.lambda,
-		z,
-		cd_.pixel_size);
+			fd_,
+			cd_.lambda,
+			z,
+			cd_.pixel_size);
 
 	fn_compute_vect_.push_back([=]() {
 		fft_1(

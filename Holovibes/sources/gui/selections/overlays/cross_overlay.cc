@@ -175,7 +175,8 @@ namespace holovibes
 				// Updating infos Tab
 				std::stringstream ss;
 				ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
-				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
+				if (!gui::InfoManager::is_cli())
+					InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
 
 				auto cd = parent_->getCd();
 				cd->setStftCursor(pos);

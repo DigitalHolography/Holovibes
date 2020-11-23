@@ -15,6 +15,7 @@
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "logger.hh"
+#include "tools.hh"
 
 namespace holovibes
 {
@@ -95,8 +96,8 @@ namespace holovibes
 			parent_->makeCurrent();
 			initializeOpenGLFunctions();
 			Program_ = std::make_unique<QOpenGLShaderProgram>();
-			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.overlay.glsl");
-			Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.color.glsl");
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.overlay.glsl"));
+			Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.color.glsl"));
 			Vao_.create();
 			if (!Program_->bind())
 				LOG_ERROR(Program_->log().toStdString());
@@ -104,7 +105,7 @@ namespace holovibes
 			Program_->release();
 		}
 
-		units::PointWindow Overlay::getMousePos(QPoint pos)
+		units::PointWindow Overlay::getMousePos(const QPoint& pos)
 		{
 			auto x = pos.x();
 			auto y = pos.y();

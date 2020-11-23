@@ -99,10 +99,13 @@ namespace holovibes
 		 * available for GUI because it use QThread way (use slots and is
 		 * stoppable).
 		 * Recorder input queue depends on the mode :
-		 *
 		 * - raw: use gpu_input_queue_ queue
-		 * - hologram: use gpu_output_queue_ queue. */
-		void recorder(const std::string& filepath, const unsigned int rec_n_images);
+		 * - hologram: use gpu_output_queue_ queue.
+		 */
+		void recorder(const std::string& filepath,
+					  const unsigned int rec_n_images,
+		 	          const unsigned int input_fps,
+					  bool record_raw = false);
 
 		/*! \brief Launch the ThreadCompute
 		 * \see ThreadCompute
@@ -126,7 +129,6 @@ namespace holovibes
 			unsigned int spanEnd,
 			bool load_file_in_gpu,
 			unsigned int q_max_size_,
-			Holovibes& holovibes,
 			QProgressBar *reader_progress_bar = nullptr,
 			gui::MainWindow *main_window = nullptr);
 
@@ -170,10 +172,6 @@ namespace holovibes
 		  */
 		const float get_boundary();
 
-		/* \brief Getter onto launch_path
-		*/
-		const std::string get_launch_path();
-
 		/* \brief Return capture thread*/
 		std::unique_ptr<IThreadInput>& get_tcapture()
 		{
@@ -183,27 +181,28 @@ namespace holovibes
 	private:
 		/* Use shared pointers to ensure each ressources will freed. */
 		/*! \brief ICamera use to acquire image */
-		std::shared_ptr<camera::ICamera> camera_;
-		bool camera_initialized_;
+		std::shared_ptr<camera::ICamera> camera_{ nullptr };
+		bool camera_initialized_{ false };
 		/*! \brief IThread which acquiring continuously frames */
-		std::unique_ptr<IThreadInput> tcapture_;
+		std::unique_ptr<IThreadInput> tcapture_{ nullptr };
 		/*! \brief Thread which compute continuously frames */
-		std::unique_ptr<ThreadCompute> tcompute_;
+		std::unique_ptr<ThreadCompute> tcompute_{ nullptr };
 
 		/*! \{ \name Frames queue (GPU) */
-		std::unique_ptr<Queue> gpu_input_queue_;
-		std::unique_ptr<Queue> gpu_output_queue_;
+		std::unique_ptr<Queue> gpu_input_queue_{ nullptr };
+		std::unique_ptr<Queue> gpu_output_queue_{ nullptr };
 		/*! \} */
 
 		/*! \brief Common compute descriptor shared between CLI/GUI and the
 		 * Pipe. */
 		ComputeDescriptor cd_;
 
-		/* \brief Store the path of holovibes when it is launched.
-		   so that holovibes.ini is saved at the right place. The problem
-		   is that QT's functions actually change the current directory so
-		   saving holovibes.ini in "$PWD" isn't working*/
-		std::string launch_path;
+		/*! \brief Store chart of zone signal/noise
+		 *
+		 * Chart are computes in ThreadCompute and use in CurvePlot
+		 * \note see void MainWindow::set_chart_graphic() for example
+		 */
+		ConcurrentDeque<ChartPoint> chart_queue_;
 
 		mutable std::mutex mutex_;
 	};

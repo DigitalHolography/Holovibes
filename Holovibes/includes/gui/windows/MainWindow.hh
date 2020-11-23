@@ -34,7 +34,6 @@ using json = ::nlohmann::json;
 # include "holovibes.hh"
 # include "custom_exception.hh"
 # include "info_manager.hh"
-# include "options_descriptor.hh"
 
 // namespace gui
 # include "HoloWindow.hh"
@@ -45,7 +44,7 @@ using json = ::nlohmann::json;
 # include "ui_mainwindow.h"
 # include "ithread_input.hh"
 
-#define GLOBAL_INI_PATH "holovibes.ini"
+#define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
 Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace holovibes
@@ -217,6 +216,7 @@ namespace holovibes
 			void finished_image_record();
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
+			void import_file(const QString& filename);
 			void init_holovibes_import_mode();
 			void import_start();
 			void import_stop();
@@ -246,9 +246,9 @@ namespace holovibes
 		private:
 			void 		set_raw_mode();
 			void 		set_holographic_mode();
-			void        set_computation_mode();
-			void        set_correct_square_input_mode();
-			void 		set_camera_timeout();
+			void		set_computation_mode();
+			void		set_correct_square_input_mode();
+			void		set_camera_timeout();
 			void		change_camera(CameraKind c);
 			void		display_error(std::string msg);
 			void		display_info(std::string msg);

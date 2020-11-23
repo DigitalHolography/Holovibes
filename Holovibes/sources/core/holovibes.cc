@@ -27,20 +27,10 @@ namespace holovibes
 	using camera::FrameDescriptor;
 
 	Holovibes::Holovibes()
-		: camera_(),
-		camera_initialized_(false),
-		tcapture_(),
-		tcompute_(),
-		gpu_input_queue_(),
-		gpu_output_queue_(),
-		cd_(),
-		launch_path(std::filesystem::current_path().generic_string())
-	{
-	}
+	{}
 
 	Holovibes::~Holovibes()
-	{
-	}
+	{}
 
 	void Holovibes::init_capture(const CameraKind c)
 	{
@@ -133,14 +123,43 @@ namespace holovibes
 		return get_pipe()->get_stft_slice_queue(1);
 	}
 
-	void Holovibes::recorder(const std::string& filepath, const unsigned int rec_n_images)
+	void Holovibes::recorder(const std::string& filepath,
+							 const unsigned int rec_n_images,
+							 const unsigned int input_fps,
+							 bool record_raw)
 	{
 
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");
+		assert(tcompute_ && "Thread compute not initialized");
+
+		cd_.nb_frames_record = rec_n_images;
+		cd_.record_raw = record_raw;
+		// Compute time filter stride such as output fps = 20
+		const unsigned int expected_output_fps = 20;
+		cd_.time_transformation_stride = std::max(input_fps / expected_output_fps,
+										  static_cast<unsigned int>(1));
+		// We force the contrast to not be enable in CLI mode
+		cd_.contrast_enabled = false;
+		Queue* queue = nullptr;
+		if (record_raw)
+		{
+			ICompute* pipe = tcompute_->get_pipe().get();
+			pipe->request_output_resize(4);
+			pipe->request_allocate_raw_queue();
+
+			while (!pipe->get_request_allocate_raw_queue())
+				continue;
+			queue = pipe->get_raw_queue().get();
+		}
+		else // record hologram
+		{
+			queue = gpu_output_queue_.get();
+		}
+
 
 		Recorder recorder = Recorder(
-			*((tcompute_) ? gpu_output_queue_ : gpu_input_queue_),
+			*queue,
 			filepath,
 			cd_);
 
@@ -165,7 +184,7 @@ namespace holovibes
 		}
 		catch (std::logic_error& e)
 		{
-			std::cerr << e.what() << std::endl;
+			LOG_ERROR("[INIT] Couldn't allocate the output queue");
 			tcapture_.reset(nullptr);
 			gpu_input_queue_.reset(nullptr);
 			return;
@@ -226,7 +245,6 @@ namespace holovibes
 		unsigned int spanEnd,
 		bool load_file_in_gpu,
 		unsigned int q_max_size_,
-		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
 	{
@@ -271,10 +289,5 @@ namespace holovibes
 
 			throw;
 		}
-	}
-
-	const std::string Holovibes::get_launch_path()
-	{
-		return launch_path;
 	}
 }

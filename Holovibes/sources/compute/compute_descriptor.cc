@@ -29,6 +29,8 @@ namespace holovibes
 		compute_mode = cd.compute_mode.load();
 		time_transformation_size = cd.time_transformation_size.load();
 		pindex = cd.pindex.load();
+		p_acc_level = cd.p_acc_level.load();
+		p_accu_enabled = cd.p_accu_enabled.load();
 		lambda = cd.lambda.load();
 		zdistance = cd.zdistance.load();
 		img_type = cd.img_type.load();

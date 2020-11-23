@@ -12,7 +12,6 @@
 
 #include "pipe.hh"
 #include "config.hh"
-#include "info_manager.hh"
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
@@ -345,7 +344,8 @@ namespace holovibes
 	{
 		fn_compute_vect_.push_back([&](){
 			// Wait while the input queue is enough filled
-			while (gpu_input_queue_.get_size() < cd_.batch_size);
+			while (gpu_input_queue_.get_size() < cd_.batch_size)
+				continue;
 		});
 	}
 

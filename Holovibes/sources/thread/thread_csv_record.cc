@@ -58,9 +58,12 @@ namespace holovibes
 
 		void ThreadCSVRecord::run()
 		{
-			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
-			connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-			progress_bar->setMaximum(nb_frames_);
+			if (!gui::InfoManager::is_cli())
+			{
+				QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
+				connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
+				progress_bar->setMaximum(nb_frames_);
+			}
 
 			size_t new_elts = 0;
 			do

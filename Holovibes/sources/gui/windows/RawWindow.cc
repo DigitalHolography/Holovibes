@@ -26,6 +26,7 @@
 #include "info_manager.hh"
 #include "cuda_memory.cuh"
 #include "Common.cuh"
+#include "tools.hh"
 
 namespace holovibes
 {
@@ -48,8 +49,8 @@ namespace holovibes
 		void RawWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.raw.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.raw.glsl"));
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
 			Program->link();
 			overlay_manager_.create_default();
 		}

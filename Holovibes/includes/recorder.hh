@@ -59,6 +59,7 @@ namespace holovibes
 		 * \param queue The source queue.
 		 * \param filepath The absolute path to the destination file.
 		 * \param cd The compute descriptor (hold the recording description)
+		 * (i.e type of recording, number of frames to record)
 		 */
 		Recorder(
 			Queue& queue,

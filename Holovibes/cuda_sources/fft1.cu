@@ -20,7 +20,7 @@
 using camera::FrameDescriptor;
 
 
-void fft1_lens(cuComplex*			lens,
+void fft1_lens(cuComplex*	lens,
 	const FrameDescriptor&	fd,
 	const float				lambda,
 	const float				z,
@@ -30,7 +30,7 @@ void fft1_lens(cuComplex*			lens,
 	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-	kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+	kernel_quadratic_lens<<<blocks, threads, 0, stream>>>(lens, fd, lambda, z, pixel_size);
 	cudaCheckError();
 }
 

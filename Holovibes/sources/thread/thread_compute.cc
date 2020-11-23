@@ -18,14 +18,19 @@ namespace holovibes
 	ThreadCompute::ThreadCompute(
 		ComputeDescriptor& desc,
 		Queue& input,
-		Queue& output)
+		Queue& output,
+		const bool is_cli)
 		: cd_(desc)
 		, input_(input)
 		, output_(output)
 		, pipe_(nullptr)
 		, memory_cv_()
-		, thread_(&ThreadCompute::thread_proc, this)
 	{
+		// Wait the recorder to start recording to exec the thread compute
+		// (only if cli mode)
+		while (is_cli && !cd_.is_recording)
+			continue;
+		thread_ = std::thread(&ThreadCompute::thread_proc, this);
 	}
 
 	ThreadCompute::~ThreadCompute()

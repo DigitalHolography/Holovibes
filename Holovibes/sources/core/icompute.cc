@@ -107,7 +107,8 @@ namespace holovibes
 
 	ICompute::~ICompute()
 	{
-		InfoManager::get_manager()->remove_info("Rendering Fps");
+		if (!gui::InfoManager::is_cli())
+			InfoManager::get_manager()->remove_info("Rendering Fps");
 	}
 
 	bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
@@ -393,26 +394,30 @@ namespace holovibes
 
 	void ICompute::fps_count()
 	{
-		if (++frame_count_ >= 100)
+		if (++frame_count_ == 20 && !gui::InfoManager::is_cli())
 		{
 			auto time = std::chrono::high_resolution_clock::now();
-			long long diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
+			long long time_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(time - past_time_).count();
 			InfoManager *manager = gui::InfoManager::get_manager();
-			const camera::FrameDescriptor& output_fd = gpu_output_queue_.get_fd();
 
-			if (diff)
+			if (time_elapsed > 0)
 			{
-				const long long fps = frame_count_ * 1000 / diff;
+				// FPS
+				const long long fps = frame_count_ * 1e9 / time_elapsed;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + " fps");
-				const long long voxelPerSecond = fps * output_fd.frame_res() * cd_.time_transformation_size;
+
+				// Output throughput
+				const long long voxelPerSecond = fps * gpu_output_queue_.get_fd().frame_res() * cd_.time_transformation_size;
 				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
+
+				// Input throughput
 				const long long bytePerSecond = fps * gpu_input_queue_.get_fd().frame_size() * cd_.time_transformation_stride;
 				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
 					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
 			}
-			past_time_ = time;
 			frame_count_ = 0;
+			past_time_ = std::chrono::high_resolution_clock::now();
 		}
 	}
 }

@@ -48,9 +48,9 @@ namespace holovibes
 		, frame_size_(io_files::InputFileHandler::get_frame_descriptor().frame_size())
 		, loop_(loop)
 		, fps_(fps)
-		, cur_frame_id_(first_frame_id - 1) // -1 because in ui frame start at 1
-		, first_frame_id_(first_frame_id - 1)
-		, last_frame_id_(last_frame_id - 1)
+		, cur_frame_id_(first_frame_id)
+		, first_frame_id_(first_frame_id)
+		, last_frame_id_(last_frame_id)
 		, dst_queue_(input)
 		, frame_annotation_size_(io_files::InputFileHandler::get_frame_annotation_size())
 		, load_file_in_gpu_(load_file_in_gpu)
@@ -58,7 +58,8 @@ namespace holovibes
 		, reader_progress_bar_(reader_progress_bar)
 		, main_window_(main_window)
 	{
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
+		if (!gui::InfoManager::is_cli())
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
 		dst_queue_.set_square_input_mode(mode);
 		std::string input_descriptor_info = std::to_string(fd_.width)
 			+ std::string("x")
@@ -66,9 +67,12 @@ namespace holovibes
 			+ std::string(" - ")
 			+ std::to_string(static_cast<int>(fd_.depth * 8))
 			+ std::string("bit");
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
-		reader_progress_bar->setMaximum(last_frame_id);
-		reader_progress_bar->show();
+		if (!gui::InfoManager::is_cli())
+		{
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
+			reader_progress_bar->setMaximum(last_frame_id);
+			reader_progress_bar->show();
+		}
 
 		frame_size_ += frame_annotation_size_;
 
@@ -314,7 +318,8 @@ namespace holovibes
 		while (!thread_.joinable())
 			continue;
 		thread_.join();
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "none");
+		if (!gui::InfoManager::is_cli())
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "none");
 	}
 
 	const camera::FrameDescriptor& ThreadReader::get_input_fd() const

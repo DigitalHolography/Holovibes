@@ -27,15 +27,17 @@ namespace holovibes
 			: QThread(parent)
 			, recorder_(queue, filepath, cd)
 		{
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+			if (!gui::InfoManager::is_cli())
+			{
+				QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 
-			progress_bar->setMaximum(cd.nb_frames_record);
-			connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
+				progress_bar->setMaximum(cd.nb_frames_record);
+				connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
+			}
 		}
 
 		ThreadRecorder::~ThreadRecorder()
-		{
-		}
+		{}
 
 		void ThreadRecorder::stop()
 		{

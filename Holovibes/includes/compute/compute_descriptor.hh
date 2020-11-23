@@ -157,9 +157,7 @@ namespace holovibes
 		 * Initialize the compute descriptor to default values of computation. */
 		ComputeDescriptor();
 
-		/*! \brief ComputeDescriptor destructor.
-
-		*/
+		/*! \brief ComputeDescriptor destructor. */
 		~ComputeDescriptor();
 
 		/*! \brief Assignment operator

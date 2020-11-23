@@ -101,7 +101,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				LOG_WARN(std::string(GLOBAL_INI_PATH) + ": Configuration file not found. Initialization with default values.");
+				LOG_WARN(GLOBAL_INI_PATH + ": Configuration file not found. Initialization with default values.");
 				save_ini(GLOBAL_INI_PATH);
 			}
 
@@ -565,7 +565,7 @@ namespace holovibes
 
 		void MainWindow::configure_holovibes()
 		{
-			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
+			open_file(GLOBAL_INI_PATH);
 		}
 
 		void MainWindow::write_ini()
@@ -899,7 +899,7 @@ namespace holovibes
             ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
 			ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
 
-			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
+			boost::property_tree::write_ini(path, ptree);
 		}
 
 		void MainWindow::open_file(const std::string& path)
@@ -1004,7 +1004,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				LOG_WARN(std::string(GLOBAL_INI_PATH) + ": Config file not found. It will use the default values.");
+				LOG_WARN(GLOBAL_INI_PATH + ": Config file not found. It will use the default values.");
 			}
 			notify();
 		}
@@ -2767,7 +2767,7 @@ namespace holovibes
 
 		void MainWindow::reticle_scale(double value)
 		{
-			if (0 > value || value > 1)
+			if (value < 0.0 || value > 1.0)
 				return;
 
 			cd_.reticle_scale = value;
@@ -2804,7 +2804,8 @@ namespace holovibes
 					// Wait until the raw queue has been allocated by the pipe
 					// (thread compute) and ready to use.
 					ICompute* pipe = holovibes_.get_pipe().get();
-					while (pipe->get_request_allocate_raw_queue());
+					while (pipe->get_request_allocate_raw_queue())
+						continue;
 					queue = pipe->get_raw_queue().get();
 					queue->set_display(true);
 				}
@@ -3149,7 +3150,11 @@ namespace holovibes
 
 			filename = QFileDialog::getOpenFileName(this,
 				tr("import file"), ((tmp_path == "") ? ("C://") : (tmp_path)), tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files (*.cine)"));
+			import_file(filename);
+		}
 
+		void MainWindow::import_file(const QString& filename)
+		{
 			QLineEdit* import_line_edit = ui.ImportPathLineEdit;
 			import_line_edit->clear();
 			import_line_edit->insert(filename);
@@ -3235,11 +3240,10 @@ namespace holovibes
 					fd,
 					true,
 					fps_spinbox->value(),
-					start_spinbox->value(),
-					end_spinbox->value(),
+					start_spinbox->value() - 1,
+					end_spinbox->value() - 1,
 					load_file_gpu->isChecked(),
 					global::global_config.input_queue_max_size,
-					holovibes_,
 					ui.FileReaderProgressBar,
 					this);
 			}

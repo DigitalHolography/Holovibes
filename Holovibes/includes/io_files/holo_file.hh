@@ -32,6 +32,8 @@
 
 #pragma once
 
+#include <sstream>
+
 #include "json.hh"
 
 using json = ::nlohmann::json;
@@ -77,6 +79,19 @@ namespace holovibes::io_files
             uint8_t endianness;
             /*! Padding to make the header 64 bytes long */
             char padding[35];
+
+            std::string to_string()
+            {
+                std::stringstream ss;
+                ss << "magic_number: " << magic_number[0] << magic_number[1] << magic_number[2] << magic_number[3] << '\n';
+                ss << "version: " << version << '\n';
+                ss << "bits_per_pixel: " << bits_per_pixel << '\n';
+                ss << "img_width: " << img_width << '\n';
+                ss << "img_height: " << img_height << '\n';
+                ss << "img_nb: " << img_nb << '\n';
+                ss << "total_data_size: " << total_data_size << '\n';
+                return ss.str();
+            }
         };
 
         /*!

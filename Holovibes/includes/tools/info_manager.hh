@@ -69,6 +69,18 @@ namespace holovibes
 		** \param ui must containt infoProgressBar and infoTextEdit in child*/
 		static InfoManager *get_manager(gui::GroupBox *ui = nullptr);
 
+		/*! \brief Returns true if program is in cli mode (no GUI) */
+		static bool is_cli()
+		{
+			return is_cli_;
+		}
+
+		/*! \brief Setter for the cli value */
+		static void set_cli(bool value)
+		{
+			is_cli_ = value;
+		}
+
 		/*! Stop to refresh the info_panel display*/
 		void stop_display();
 
@@ -90,14 +102,15 @@ namespace holovibes
 		QProgressBar *get_progress_bar();
 	private:
 		/*! Throwed if try instance InfoManager more once*/
-		class ManagerNotInstantiate : std::exception
+		class ManagerNotInstantiate : std::runtime_error
 		{
-			const char *what()
-			{
-				return "InfoManager is not instantiate, use InfoManager::get_manager with arg";
-			}
+		public:
+			ManagerNotInstantiate() : runtime_error("InfoManager is not instantiate, use InfoManager::get_manager with arg")
+			{}
 		};
-		enum class ThreadState {
+
+		enum class ThreadState
+		{
 			Null,
 			Operating,
 			Finish
@@ -132,6 +145,18 @@ namespace holovibes
 
 		/*! Store all informations */
 		std::vector<std::pair<std::string, std::string>>  infos_;
+
+		/*! \brief Flag to know whether we are in cli or gui mode 
+		*
+		* This variable is static since the program (independently of the info manager instance)
+		* can either be gui or cli, thus the variable can be moved up to class level
+		* Moreover, static allow for easier handling in the code (all the get_manager static calls)
+		*
+		* By default the value is false to break with a segfault on get_mamanger call if this value wasn't set to true
+		* This is done to force the programmer to be sure that this value has the correct value set at the correct time
+		* (inline is requiered to initalize a static member like this)
+		*/
+		inline static bool is_cli_{ false };
 	};
 }
 }

@@ -70,6 +70,20 @@ namespace holovibes
 			return "";
 		}
 	}
+
+	QString create_absolute_qt_path(const std::string& relative_path)
+	{
+		std::filesystem::path dir(get_exe_dir());
+		dir = dir / relative_path;
+		return QString(dir.string().c_str());
+	}
+
+	std::string create_absolute_path(const std::string& relative_path)
+	{
+		std::filesystem::path dir(get_exe_dir());
+		dir = dir / relative_path;
+		return dir.string();
+	}
 }
 
 std::string engineering_notation(double value, int nb_significant_figures)

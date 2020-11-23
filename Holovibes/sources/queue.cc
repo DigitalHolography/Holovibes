@@ -62,7 +62,7 @@ namespace holovibes
 
 	Queue::~Queue()
 	{
-		if (display_)
+		if (!gui::InfoManager::is_cli())
 			gui::InfoManager::get_manager()->remove_info(name_);
 	}
 
@@ -122,7 +122,7 @@ namespace holovibes
 			default:
 				assert(false);
 				LOG_ERROR(std::string("Missing switch case for square input mode"));
-				if (display_)
+				if (!gui::InfoManager::is_cli())
 					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 				return false;
 		}
@@ -130,11 +130,12 @@ namespace holovibes
 		if (cuda_status != CUDA_SUCCESS)
 		{
  			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cuda_status)));
-			if (display_)
+			if (!gui::InfoManager::is_cli())
 				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 			data_.reset();
 			return false;
 		}
+
 		if (is_big_endian_)
 			endianness_conversion(
 				reinterpret_cast<ushort *>(new_elt_adress),
@@ -181,7 +182,7 @@ namespace holovibes
 			default:
 				assert(false);
 				LOG_ERROR(std::string("Missing switch case for square input mode"));
-				if (display_)
+				if (!gui::InfoManager::is_cli())
 					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 		}
 
@@ -408,14 +409,17 @@ namespace holovibes
 	{
 		std::string message = std::to_string(size_) + "/" + std::to_string(max_size_) + " (" + calculate_size() + " MB)";
 
-		if (name_ == "InputQueue")
-			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_, message);
-		else if (name_ == "OutputQueue")
-			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
-		else if (name_ == "TimeTransformationQueue")
-			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::TIME_TRANSFORMATION_QUEUE, name_, message);
-		else if (name_ == "RawOutputQueue")
-			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
+		if (!gui::InfoManager::is_cli())
+		{
+			if (name_ == "InputQueue")
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_, message);
+			else if (name_ == "OutputQueue")
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
+			else if (name_ == "TimeTransformationQueue")
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::TIME_TRANSFORMATION_QUEUE, name_, message);
+			else if (name_ == "RawOutputQueue")
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
+		}
 	}
 
 	bool Queue::is_full() const

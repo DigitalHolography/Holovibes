@@ -31,7 +31,8 @@ namespace holovibes
 		, queue_(input)
 		, thread_(&ThreadCapture::thread_proc, this)
 	{
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
+		if (!gui::InfoManager::is_cli())
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
 		queue_.set_square_input_mode(mode);
 		auto fd = get_input_fd();
 		std::string input_descriptor_info = std::to_string(fd.width)
@@ -40,7 +41,8 @@ namespace holovibes
 			+ std::string(" - ")
 			+ std::to_string(static_cast<int>(fd.depth * 8))
 			+ std::string("bit");
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
+		if (!gui::InfoManager::is_cli())
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
 	}
 
 	ThreadCapture::~ThreadCapture()
@@ -50,7 +52,8 @@ namespace holovibes
 		while (!thread_.joinable())
 			continue;
 		thread_.join();
-		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "None");
+		if (!gui::InfoManager::is_cli())
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "None");
 	}
 
 	void ThreadCapture::thread_proc()

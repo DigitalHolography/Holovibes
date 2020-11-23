@@ -22,15 +22,12 @@
 
 #include "options_parser.hh"
 #include "MainWindow.hh"
-#include "logger.hh"
+#include "frame_desc.hh"
+#include "compute_descriptor.hh"
+#include "info_manager.hh"
+#include "input_file_handler.hh"
 
-#include <cublas_v2.h>
-#include "cublas_handle.hh"
-#include "cusolver_handle.hh"
-
-using camera::Endianness;
-
-void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+static void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
 	const std::string& str = msg.toStdString();
 
@@ -66,93 +63,119 @@ static void check_cuda_graphic_card(bool gui)
 	std::exit(1);
 }
 
-int main(int argc, char* argv[])
+static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
+
+	check_cuda_graphic_card(true);
+	// In GUI mode so cli is false
+	holovibes::gui::InfoManager::set_cli(false);
+
 	// Custom Qt message handler
 	qInstallMessageHandler(qt_output_message_handler);
 
-	holovibes::OptionsDescriptor opts;
+	QLocale::setDefault(QLocale("en_US"));
+	QApplication app(argc, argv);
+	QSplashScreen splash(QPixmap("holovibes_logo.png"));
+	splash.show();
 
-	holovibes::OptionsParser opts_parser(opts);
-	opts_parser.parse(argc, argv);
+	// Hide the possibility to close the console while using Holovibes
+	HWND hwnd = GetConsoleWindow();
+	HMENU hmenu = GetSystemMenu(hwnd, FALSE);
+	EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
-	holovibes::Holovibes h;
-	h.set_cd(opts.cd);
-	if (opts.is_gui_enabled)
+	holovibes::gui::MainWindow window(holovibes);
+	window.show();
+	splash.finish(&window);
+	holovibes.get_cd().register_observer(window);
+
+	// Resizing horizontally the window before starting
+	window.layout_toggled();
+
+	if (filename != "")
 	{
-		/* --- GUI mode --- */
-		QLocale::setDefault(QLocale("en_US"));
-		QApplication a(argc, argv);
-		QSplashScreen splash(QPixmap("holovibes_logo.png"));
-		splash.show();
-
-		#ifndef _DEBUG
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-		#endif /* !_DEBUG */
-
-		/* Hide the possibility to close the console while using Holovibes */
-		HWND hwnd = GetConsoleWindow();
-		HMENU hmenu = GetSystemMenu(hwnd, FALSE);
-		EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
-
-		holovibes::gui::MainWindow w(h);
-		w.show();
-		splash.finish(&w);
-		h.get_cd().register_observer(w);
-
-		// Resizing horizontally the window before starting
-		w.layout_toggled();
-
-		check_cuda_graphic_card(true);
-
-		return a.exec();
+		window.import_file(QString(filename.c_str()));
+		window.import_start();
 	}
-	else
+
+	return app.exec();
+}
+
+static void start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+{
+	check_cuda_graphic_card(false);
+	holovibes::gui::InfoManager::set_cli(true);
+
+	std::string input_path = opts.input_path.value();
+	holovibes::io_files::InputFileHandler::open(input_path);
+
+	const camera::FrameDescriptor& fd = holovibes::io_files::InputFileHandler::get_frame_descriptor();
+	size_t input_nb_frames = holovibes::io_files::InputFileHandler::get_total_nb_frames();
+
+	const unsigned int input_fps = opts.input_fps.value_or(60);
+	holovibes.init_import_mode(input_path,
+							fd,
+							true, // Loop is needed to record a lot of frames
+							input_fps, // input fps
+							0, // start index
+							input_nb_frames - 1, // end index
+							false, // load in gpu
+							global::global_config.input_queue_max_size); // queue max size
+
+	holovibes::io_files::InputFileHandler::import_compute_settings(holovibes.get_cd());
+	holovibes.init_compute(fd.depth);
+	holovibes::ComputeDescriptor& cd = holovibes.get_cd();
+
+	// Start recording.
+	holovibes.recorder(opts.output_path.value(), opts.output_nb_frames.value_or(input_nb_frames),
+		input_fps, opts.record_raw);
+	// Record done.
+	// Stop computation and capture.
+	holovibes.dispose_compute();
+	holovibes.dispose_capture();
+
+	holovibes::io_files::InputFileHandler::close();
+}
+
+static void print_version()
+{
+	std::cout << "Holovibes " << holovibes::version << std::endl;
+}
+
+static void print_help(holovibes::OptionsParser parser)
+{
+	print_version();
+	std::cout << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+	std::cout << parser.get_opts_desc();
+}
+
+int main(int argc, char* argv[])
+{
+	holovibes::OptionsParser parser;
+	holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
+
+	if (opts.print_help)
 	{
-		check_cuda_graphic_card(false);
-		/* --- CLI mode --- */
-		try
-		{
-			if (!opts.is_import_mode_enabled)
-				h.init_capture(opts.camera);
-			else
-			{
-				camera::FrameDescriptor fd = {
-					static_cast<unsigned short>(opts.file_image_width),
-					static_cast<unsigned short>(opts.file_image_height),
-					opts.file_image_depth >> 3,
-					(opts.file_is_big_endian ?
-					Endianness::BigEndian : Endianness::LittleEndian)
-				};
-				// TODO wrong calcul because header not taken into consideration
-				// Will be useless with the new file system
-				h.init_import_mode(
-					opts.file_src,
-					fd,
-					false, // loop
-					opts.fps,
-					opts.spanStart,
-					opts.spanEnd,
-					false, // load file in gpu
-					global::global_config.input_queue_max_size,
-					h);
-			}
-			if (opts.is_compute_enabled)
-				h.init_compute();
-			h.recorder(opts.recorder_filepath, opts.recorder_n_img);
-			h.dispose_compute();
-			h.dispose_capture();
-		}
-		catch (camera::CameraException& e)
-		{
-			std::cerr << "[CAMERA] " << e.what() << std::endl;
-			return 1;
-		}
-		catch (std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
-			return 1;
-		}
+		print_help(parser);
+		std::exit(0);
+	}
+
+	if (opts.print_version)
+	{
+		print_version();
+		std::exit(0);
+	}
+
+	holovibes::Holovibes holovibes;
+
+	if (opts.input_path)
+	{
+		if (opts.output_path)
+			start_cli(holovibes, opts);
+		else // start gui
+			start_gui(holovibes, argc, argv, opts.input_path.value());
+
 		return 0;
 	}
+
+	return start_gui(holovibes, argc, argv);
 }
