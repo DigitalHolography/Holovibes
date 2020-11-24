@@ -243,7 +243,7 @@ namespace holovibes
 		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode{ Computation::Stop };
 		//! Square conversion mode of the input
-		std::atomic<SquareInputMode> square_input_mode{SquareInputMode::NO_MODIFICATION};
+		std::atomic<SquareInputMode> square_input_mode{ SquareInputMode::NO_MODIFICATION };
 		//! type of the image displayed
 		std::atomic<ImgType>		img_type{ ImgType::Modulus };
 

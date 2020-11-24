@@ -68,6 +68,11 @@ namespace camera
 			"Could not get frame size",
 			CameraException::CANT_START_ACQUISITION,
 			CloseFlag::BOARD);
+		BFU32 height;
+		err_check(BiBrdInquire(board_, BiCamInqYSize0, &height),
+			"Could not get frame size",
+			CameraException::CANT_START_ACQUISITION,
+			CloseFlag::BOARD);
 		BFU32 depth;
 		err_check(BiBrdInquire(board_, BiCamInqBitsPerPix, &depth),
 			"Could not get frame depth",
@@ -76,7 +81,7 @@ namespace camera
 
 		// Aligned allocation ensures fast memory transfers.
 		const BFSIZET alignment = 4096;
-		err_check(BiBufferAllocAligned(board_, info_, width, width, depth, queue_size_, alignment),
+		err_check(BiBufferAllocAligned(board_, info_, width, height, depth, queue_size_, alignment),
 			"Could not allocate buffer memory",
 			CameraException::MEMORY_PROBLEM,
 			CloseFlag::BOARD);

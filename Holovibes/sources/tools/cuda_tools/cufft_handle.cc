@@ -69,7 +69,7 @@ void CufftHandle::XtplanMany(int rank,
 {
     reset();
 	val_.reset(new cufftHandle);
-    
+
 	cufftSafeCall(cufftCreate(val_.get()));
 
     // Init the work size only once to help cufft
