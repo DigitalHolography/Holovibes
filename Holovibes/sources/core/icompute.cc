@@ -114,6 +114,9 @@ namespace holovibes
 	bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 	{
 		unsigned int err_count = 0;
+		time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_frame_res() * time_transformation_size);
+
+		if (cd_.time_transformation == TimeTransformation::STFT)
 		{
 			/* CUFFT plan1d realloc */
 			int inembed_stft[1] = { time_transformation_size };
@@ -125,13 +128,16 @@ namespace holovibes
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);
 		}
-		time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_frame_res() * time_transformation_size);
-
-		// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
-		time_transformation_env_.pca_cov.resize(time_transformation_size * time_transformation_size);
-		time_transformation_env_.pca_tmp_buffer.resize(time_transformation_size * time_transformation_size);
-		time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
-		time_transformation_env_.pca_dev_info.resize(1);
+		else if (cd_.time_transformation == TimeTransformation::PCA)
+		{
+			// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
+			time_transformation_env_.pca_cov.resize(time_transformation_size * time_transformation_size);
+			time_transformation_env_.pca_tmp_buffer.resize(time_transformation_size * time_transformation_size);
+			time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
+			time_transformation_env_.pca_dev_info.resize(1);
+		}
+		else // Should not happend or be handled (if add more time transformation)
+			assert(false);
 
 		try
 		{
