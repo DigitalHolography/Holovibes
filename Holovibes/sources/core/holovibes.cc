@@ -123,26 +123,31 @@ namespace holovibes
 		return get_pipe()->get_stft_slice_queue(1);
 	}
 
-	void Holovibes::recorder(const std::string& filepath,
-							 const unsigned int rec_n_images,
-							 const unsigned int input_fps,
-							 bool record_raw)
+	void Holovibes::update_cd_for_cli(const unsigned int input_fps,
+							 		  const unsigned int rec_n_images,
+									  const bool record_raw)
 	{
-
-		assert(camera_initialized_ && "Camera not initialized");
-		assert(tcapture_ && "Capture thread not initialized");
-		assert(tcompute_ && "Thread compute not initialized");
-
 		cd_.nb_frames_record = rec_n_images;
 		cd_.record_raw = record_raw;
 		// Compute time filter stride such as output fps = 20
 		const unsigned int expected_output_fps = 20;
 		cd_.time_transformation_stride = std::max(input_fps / expected_output_fps,
 										  static_cast<unsigned int>(1));
+		cd_.batch_size = cd_.time_transformation_stride;
+
 		// We force the contrast to not be enable in CLI mode
 		cd_.contrast_enabled = false;
+	}
+
+	void Holovibes::recorder(const std::string& filepath)
+	{
+
+		assert(camera_initialized_ && "Camera not initialized");
+		assert(tcapture_ && "Capture thread not initialized");
+		assert(tcompute_ && "Thread compute not initialized");
+
 		Queue* queue = nullptr;
-		if (record_raw)
+		if (cd_.record_raw)
 		{
 			ICompute* pipe = tcompute_->get_pipe().get();
 			pipe->request_output_resize(4);

@@ -93,7 +93,6 @@ namespace holovibes
 		/*! \brief Launch the recorder
 		 *
 		 * \param filepath File path to record frames
-		 * \param rec_n_images Number of frames to record
 		 *
 		 * The Recorder is used only for CLI purpose, a thread is
 		 * available for GUI because it use QThread way (use slots and is
@@ -102,10 +101,7 @@ namespace holovibes
 		 * - raw: use gpu_input_queue_ queue
 		 * - hologram: use gpu_output_queue_ queue.
 		 */
-		void recorder(const std::string& filepath,
-					  const unsigned int rec_n_images,
-		 	          const unsigned int input_fps,
-					  bool record_raw = false);
+		void recorder(const std::string& filepath);
 
 		/*! \brief Launch the ThreadCompute
 		 * \see ThreadCompute
@@ -115,6 +111,13 @@ namespace holovibes
 		 * the method contains a lock to avoid conflicts between threads that would
 		 * use the Pipe before it finished the initialization. */
 		void init_compute(const unsigned int& depth = 2);
+
+		/*! \brief Update the compute descriptor for CLI purpose
+		 * Must be called before the initialization of the thread compute and recorder
+		 */
+		void update_cd_for_cli(const unsigned int input_fps,
+						 	   const unsigned int rec_n_images,
+							   const bool record_raw);
 
 
 		/*! \brief Request the computing thread to stop */

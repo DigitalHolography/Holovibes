@@ -122,12 +122,15 @@ static void start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsD
 							global::global_config.input_queue_max_size); // queue max size
 
 	holovibes::io_files::InputFileHandler::import_compute_settings(holovibes.get_cd());
+
+	holovibes.update_cd_for_cli(input_fps,
+								opts.output_nb_frames.value_or(input_nb_frames),
+								opts.record_raw);
 	holovibes.init_compute(fd.depth);
 	holovibes::ComputeDescriptor& cd = holovibes.get_cd();
 
 	// Start recording.
-	holovibes.recorder(opts.output_path.value(), opts.output_nb_frames.value_or(input_nb_frames),
-		input_fps, opts.record_raw);
+	holovibes.recorder(opts.output_path.value());
 	// Record done.
 	// Stop computation and capture.
 	holovibes.dispose_compute();
