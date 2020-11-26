@@ -1,5 +1,11 @@
 ## Changelog
 
+### 8.6
+
+* Implement CLI
+* Small optimizations on convolutions, allocation of buffers
+* Fix contrast on reticle zone
+
 ### 8.5.3
 
 * Contrast on reticle zone if enabled
