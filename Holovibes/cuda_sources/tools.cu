@@ -312,19 +312,17 @@ void frame_memcpy(const float				*input,
 				const units::RectFd&	zone,
 				const uint			input_width,
 				float				*output,
-				const uint			output_width,
 				cudaStream_t		stream)
 {
 	const float	*zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
-	const uint	output_width_float = output_width * sizeof(float);
-	cudaMemcpy2DAsync(	output,
-						output_width_float,
-						zone_ptr,
-						input_width * sizeof(float),
-						output_width_float,
-						output_width,
-						cudaMemcpyDeviceToDevice,
-						stream);
+	cudaMemcpy2DAsync(output,
+					  zone.width() * sizeof(float),
+					  zone_ptr,
+					  input_width * sizeof(float),
+					  zone.width() * sizeof(float),
+					  zone.height(),
+					  cudaMemcpyDeviceToDevice,
+					  stream);
 	cudaStreamSynchronize(stream);
 }
 

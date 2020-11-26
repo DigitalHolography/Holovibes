@@ -57,7 +57,7 @@ void percentile_float(const float *gpu_input,
 		thrust::device_ptr<float> gpu_input_copy(gpu_input_copy_);
 
 		if (compute_on_sub_zone)
-			frame_memcpy(gpu_input + offset, sub_zone, width, gpu_input_copy_, sub_zone.width());
+			frame_memcpy(gpu_input + offset, sub_zone, width, gpu_input_copy_);
 		else
 			thrust::copy(gpu_input + offset, gpu_input + frame_res, gpu_input_copy);
 

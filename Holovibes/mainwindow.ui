@@ -643,6 +643,9 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
              <property name="maximum">
               <double>1.000000000000000</double>
              </property>

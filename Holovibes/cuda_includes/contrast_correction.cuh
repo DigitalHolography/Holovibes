@@ -54,5 +54,5 @@ void compute_autocontrast(float			*input,
 						  float			*max,
 						  float			contrast_threshold_low_percentile,
 						  float			contrast_threshold_high_percentile,
-						  const holovibes::units::RectFd& sub_zone,
+						  const holovibes::units::RectFd sub_zone,
 						  bool 			compute_on_sub_zone);

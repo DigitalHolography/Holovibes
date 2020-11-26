@@ -158,14 +158,12 @@ void convolution_float(const float			*a,
 * \param zone the part of the image we want to extract
 * \param In pixels, the original width of the image
 * \param Where to store the cropped image
-* \param output_width In pixels, the desired width of the cropped image
 * \param stream The CUDA stream on which to launch the operation.
 */
 void frame_memcpy(const float*			input,
 				const holovibes::units::RectFd&	zone,
 				const uint			input_width,
 				float*				output,
-				const uint			output_width,
 				cudaStream_t		stream = 0);
 
 /*! \brief Copies whole input image into output at position (output_srcx, output_srcy)
