@@ -75,7 +75,7 @@ namespace holovibes
 			ComputeDescriptor&				cd_;
 
 			// plan used for the convolution (frame width, frame height, cufft_c2c)
-			CufftHandle						plan_;
+			CufftHandle						convolution_plan_;
 		};
 	}
 }

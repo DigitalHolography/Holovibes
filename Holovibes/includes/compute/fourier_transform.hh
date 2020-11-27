@@ -105,7 +105,9 @@ namespace holovibes
 			units::RectFd					filter2d_subzone_;
 
 			//! Lens used for fresnel transform (During FFT1 and FFT2)
-			cuda_tools::Array<cufftComplex>		gpu_lens_;
+			cuda_tools::UniquePtr<cufftComplex>		gpu_lens_;
+			//! Size of a size of the lens (lens is always a square)
+			uint lens_side_size_ = { 0 };
 			//! Lens Queue. Used for displaying the lens.
 			std::unique_ptr<Queue>				gpu_lens_queue_;
 			//! Filter 2D buffer. Contains one frame.

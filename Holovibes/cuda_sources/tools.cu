@@ -110,15 +110,16 @@ namespace
 	}
 
 	template<typename T>
-	void shift_corners_caller(T*		input,
-							  const uint batch_size,
-							  const uint		size_x,
-							  const uint		size_y,
+	void shift_corners_caller(T*			input,
+							  const uint 	batch_size,
+							  const uint 	size_x,
+							  const uint 	size_y,
 							  cudaStream_t	stream)
 	{
 		uint threads_2d = get_max_threads_2d();
 		dim3 lthreads(threads_2d, threads_2d);
-		dim3 lblocks(1 + (size_x - 1) / threads_2d, 1 + (size_y - 1) / threads_2d);
+		dim3 lblocks(static_cast<ushort>(std::ceil(size_x / static_cast<float>(lthreads.x))),
+					 static_cast<ushort>(std::ceil(size_y / static_cast<float>(lthreads.y))));
 
 		kernel_shift_corners<T> <<< lblocks, lthreads, 0, stream >> >(input, input, batch_size, size_x, size_y);
 		cudaCheckError();
@@ -315,14 +316,14 @@ void frame_memcpy(const float				*input,
 				cudaStream_t		stream)
 {
 	const float	*zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
-	cudaMemcpy2DAsync(output,
+	cudaSafeCall(cudaMemcpy2DAsync(output,
 					  zone.width() * sizeof(float),
 					  zone_ptr,
 					  input_width * sizeof(float),
 					  zone.width() * sizeof(float),
 					  zone.height(),
 					  cudaMemcpyDeviceToDevice,
-					  stream);
+					  stream));
 	cudaStreamSynchronize(stream);
 }
 

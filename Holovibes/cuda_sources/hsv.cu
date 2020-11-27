@@ -301,24 +301,19 @@ void from_interweaved_components_to_distinct_components(const float *src, float 
 	kernel_from_interweaved_components_to_distinct_components<< <blocks, threads, 0, 0 >> > (src, dst, frame_res);
 }
 
-
-
-
 void apply_percentile_and_threshold(float *gpu_arr, uint frame_res, uint width, uint height, float low_threshold, float high_threshold)
 {
 	const uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(frame_res, threads);
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
 	float percent_out[2];
 	const float percent_in_h[2] =
 	{
 		low_threshold, high_threshold
 	};
 
-	percentile_float(gpu_arr, width, height, 0, percent_in_h, percent_out, 2, holovibes::units::RectFd(), false);
+	compute_percentile_xy_view(gpu_arr, width, height, percent_in_h, percent_out, 2, holovibes::units::RectFd(), false);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, percent_out[0], percent_out[1], frame_res);
 }
-
-
 
 void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width)
 {

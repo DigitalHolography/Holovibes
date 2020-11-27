@@ -17,7 +17,7 @@
 #include "percentile.cuh"
 
 static __global__
-void kernel_apply_contrast(float *input,
+void kernel_apply_contrast(float* const input,
 					       const uint size,
 						   const float factor,
 						   const float min)
@@ -28,11 +28,11 @@ void kernel_apply_contrast(float *input,
 		input[index] = factor * (input[index] - min);
 }
 
-void apply_contrast_correction(float *input,
-							const uint size,
-							const ushort dynamic_range,
-							const float	min,
-							const float	max)
+void apply_contrast_correction(float* const input,
+							   const uint size,
+							   const ushort dynamic_range,
+							   const float	min,
+							   const float	max)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -40,40 +40,4 @@ void apply_contrast_correction(float *input,
 	const float factor = dynamic_range / (max - min + FLT_EPSILON);
 	kernel_apply_contrast << <blocks, threads>> > (input, size, factor, min);
 	cudaCheckError();
-}
-
-void compute_autocontrast(float *input,
-						  const uint width,
-						  const uint height,
-						  const uint offset,
-						  float	*min,
-						  float	*max,
-						  float	contrast_threshold_low_percentile,
-						  float	contrast_threshold_high_percentile,
-						  const holovibes::units::RectFd sub_zone,
-						  bool compute_on_sub_zone)
-{
-	const float percent_in_h[2] = { contrast_threshold_low_percentile,
-									contrast_threshold_high_percentile };
-	float percent_out[2] = { contrast_threshold_low_percentile,
-							 contrast_threshold_high_percentile };
-
-	// Compute the min and max
-	percentile_float(
-		input,
-		width,
-		height,
-		offset,
-		percent_in_h,
-		percent_out,
-		2,
-		sub_zone,
-		compute_on_sub_zone
-	);
-
-	*min = percent_out[0];
-	*max = percent_out[1];
-
-	*min = ((*min < 1.0f) ? (1.0f) : (*min));
-	*max = ((*max < 1.0f) ? (1.0f) : (*max));
 }

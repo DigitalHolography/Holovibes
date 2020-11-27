@@ -52,7 +52,7 @@ void cudaXMalloc(void** devPtr, size_t size);
 * \param count Size in bytes to copy.
 * \param kind Type of transfer.
 */
-void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind);
+void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice);
 
 /*! \brief Wrapper around cudaMemcpyAsync to handle errors
 *

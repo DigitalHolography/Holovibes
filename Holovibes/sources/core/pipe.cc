@@ -239,7 +239,7 @@ namespace holovibes
 
 		converts_->insert_complex_conversion(gpu_input_queue_);
 
-		// spatial transform
+		// Spatial transform
 		fourier_transforms_->insert_fft();
 
 		// Move frames from gpu_space_transformation_buffer to gpu_time_transformation_queue (with respect to time_transformation_stride)
@@ -274,12 +274,13 @@ namespace holovibes
 		insert_request_autocontrast();
 		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 
-		fn_compute_vect_.conditional_push_back([=]() { fps_count(); });
-
 		converts_->insert_to_ushort();
 
 		insert_hologram_enqueue_output();
 
+		fn_compute_vect_.conditional_push_back([=]() { fps_count(); });
+
+		// Must be the last inserted function
 		insert_reset_batch_index();
 
 		refresh_requested_ = false;

@@ -49,8 +49,8 @@ namespace holovibes
 		int err = 0;
 
 		plan_unwrap_2d_.plan(
-			gpu_input_queue_.get_fd().height,
 			gpu_input_queue_.get_fd().width,
+			gpu_input_queue_.get_fd().height,
 			CUFFT_C2C);
 
 		const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();

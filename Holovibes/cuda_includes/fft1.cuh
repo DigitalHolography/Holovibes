@@ -12,17 +12,19 @@
 
 #pragma once
 
-# include "Common.cuh"
+#include "Common.cuh"
 
 /*! \brief Find the right threads and block to call quadratic lens
 * with and call it
 */
-void fft1_lens(cuComplex			*lens,
-			const camera::FrameDescriptor&	fd,
-			const float				lambda,
-			const float				z,
-			const float				pixel_size,
-			cudaStream_t			stream = 0);
+void fft1_lens(cuComplex*	lens,
+	const uint 				lens_side_size,
+	const uint 				frame_height,
+	const uint 				frame_width,
+	const float				lambda,
+	const float				z,
+	const float				pixel_size,
+	cudaStream_t			stream = 0);
 
 /*! \brief Apply a lens and call an fft1 on the image
 *

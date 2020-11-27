@@ -38,7 +38,7 @@ namespace holovibes
 			return Ic;
 		}
 
-		void	HoloWindow::initShaders()
+		void HoloWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
@@ -47,14 +47,14 @@ namespace holovibes
 			overlay_manager_.create_default();
 		}
 
-		void	HoloWindow::focusInEvent(QFocusEvent *e)
+		void HoloWindow::focusInEvent(QFocusEvent *e)
 		{
 			QOpenGLWindow::focusInEvent(e);
 			cd_->current_window = WindowKind::XYview;
 			cd_->notify_observers();
 		}
 
-		void	HoloWindow::update_slice_transforms()
+		void HoloWindow::update_slice_transforms()
 		{
 			if (xz_slice_)
 			{
@@ -68,7 +68,7 @@ namespace holovibes
 			}
 		}
 
-		void	HoloWindow::resetTransform()
+		void HoloWindow::resetTransform()
 		{
 			BasicOpenGLWindow::resetTransform();
 		}

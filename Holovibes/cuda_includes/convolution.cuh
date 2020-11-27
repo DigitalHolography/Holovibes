@@ -19,7 +19,7 @@ using holovibes::cuda_tools::CufftHandle;
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
 
 *
-* \param input Buffer on which the convolution will be applied 
+* \param input Buffer on which the convolution will be applied
 * \param convolved_buffer Buffer used for convolution calcul (will be overwriten)
 * \param plan Plan2D used for the three fft
 * \param frame_width Width of the frame

@@ -41,9 +41,10 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
 	const holovibes::BatchEnv& batch_env,
 	holovibes::TimeTransformationEnv& time_transformation_env)
-	: gpu_lens_()
-	, gpu_lens_queue_()
-	, gpu_filter2d_buffer_()
+	: gpu_lens_(nullptr)
+	, lens_side_size_(std::max(fd.height, fd.width))
+	, gpu_lens_queue_(nullptr)
+	, gpu_filter2d_buffer_(nullptr)
 	, fn_compute_vect_(fn_compute_vect)
 	, buffers_(buffers)
 	, fd_(fd)
@@ -113,8 +114,10 @@ void FourierTransform::insert_fft1()
 {
 	const float z = cd_.zdistance;
 
-	fft1_lens(gpu_lens_,
-			fd_,
+	fft1_lens(gpu_lens_.get(),
+			lens_side_size_,
+			fd_.height,
+			fd_.width,
 			cd_.lambda,
 			z,
 			cd_.pixel_size);
@@ -134,11 +137,13 @@ void FourierTransform::insert_fft2()
 {
 	const float z = cd_.zdistance;
 
-	fft2_lens(gpu_lens_,
-		fd_,
-		cd_.lambda,
-		z,
-		cd_.pixel_size);
+	fft2_lens(gpu_lens_.get(),
+			lens_side_size_,
+			fd_.height,
+			fd_.width,
+			cd_.lambda,
+			z,
+			cd_.pixel_size);
 
 	fn_compute_vect_.push_back([=]() {
 		fft_2(

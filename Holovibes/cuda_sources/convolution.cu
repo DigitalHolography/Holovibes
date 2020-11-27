@@ -44,8 +44,8 @@ void convolution_kernel(float			*gpu_input,
 	cudaXMemset(cuComplex_buffer, 0, size * sizeof(cuComplex));
 	cudaSafeCall(cudaMemcpy2D(cuComplex_buffer, 	// Destination memory address
 								sizeof(cuComplex), 	// Pitch of destination memory
-								gpu_input, 			// Source memory address 
-								sizeof(float), 		// Pitch of source memory 
+								gpu_input, 			// Source memory address
+								sizeof(float), 		// Pitch of source memory
 								sizeof(float), 		// Width of matrix transfer (columns in bytes)
 								size,				// Height of matrix transfer (rows)
 								cudaMemcpyDeviceToDevice));

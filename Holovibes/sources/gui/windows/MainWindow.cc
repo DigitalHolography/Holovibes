@@ -1189,7 +1189,6 @@ namespace holovibes
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
 				mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1614,30 +1613,38 @@ namespace holovibes
 				fclose(c_file);
 
 				// Reshape the vector as a (nx,ny) rectangle, keeping z depth
-				uint c = 0;
-				const uint nx = holovibes_.get_gpu_output_queue()->get_fd().width;
-				const uint ny = holovibes_.get_gpu_output_queue()->get_fd().height;
-				const uint size = nx * ny;
+				const uint output_width = holovibes_.get_gpu_output_queue()->get_fd().width;
+				const uint output_height = holovibes_.get_gpu_output_queue()->get_fd().height;
+				const uint size = output_width * output_height;
 
-				const uint minw = (nx / 2) - (matrix_width / 2);
-				const uint maxw = (nx / 2) + (matrix_width / 2);
-				const uint minh = (ny / 2) - (matrix_height / 2);
-				const uint maxh = (ny / 2) + (matrix_height / 2);
+				// The convo matrix is centered and padded with 0 since the kernel is usally
+				// smaller than the output
+				// Example: kernel size is (2, 2) and output size is (4, 4)
+				// The kernel is represented by 'x' and
+				//  | 0 | 0 | 0 | 0 |
+				//  | 0 | x | x | 0 |
+				//  | 0 | x | x | 0 |
+				//  | 0 | 0 | 0 | 0 |
+				const uint first_col = (output_width / 2) - (matrix_width / 2);
+				const uint last_col = (output_width / 2) + (matrix_width / 2);
+				const uint first_row = (output_height / 2) - (matrix_height / 2);
+				const uint last_row = (output_height / 2) + (matrix_height / 2);
 
 				std::vector<float> convo_matrix(size, 0.0f);
 
-				for (size_t i = minh; i < maxh; i++)
+				uint kernel_indice = 0;
+				for (uint i = first_row; i < last_row; i++)
 				{
-					for (size_t j = minw; j < maxw; j++)
+					for (uint j = first_col; j < last_col; j++)
 					{
-						convo_matrix[i * nx + j] = matrix[c];
-						c++;
+						convo_matrix[i * output_width + j] = matrix[kernel_indice];
+						kernel_indice++;
 					}
 				}
 
 				// Update convo matrix parameters
-				cd_.convo_matrix_width = nx;
-				cd_.convo_matrix_height = ny;
+				cd_.convo_matrix_width = output_width;
+				cd_.convo_matrix_height = output_height;
 				cd_.convo_matrix_z = matrix_z;
 				cd_.convo_matrix = convo_matrix;
 			}

@@ -101,6 +101,13 @@ namespace holovibes
 				WindowKind			view,
 				cudaStream_t		stream = 0);
 
+			/** \brief Set the maximum and minimum contrast boundaries (according to the percentile)
+
+			*/
+			void set_contrast_min_max(const float* const percent_out,
+									  std::atomic<float>& contrast_min,
+									  std::atomic<float>& contrast_max);
+
 			/// Vector function in which we insert the processing
 			FunctionVector&					fn_compute_vect_;
 			/// Main buffers

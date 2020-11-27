@@ -18,6 +18,7 @@
 #include "contrast_correction.cuh"
 #include "chart.cuh"
 #include "stft.cuh"
+#include "percentile.cuh"
 
 namespace holovibes
 {
@@ -137,11 +138,10 @@ namespace holovibes
 
 		void Rendering::insert_slice_log()
 		{
-			const uint size = fd_.width * cd_.time_transformation_size;
 			if (cd_.log_scale_slice_xz_enabled)
-				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_xz.get(), size); });
+				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_xz.get(), fd_.width * cd_.time_transformation_size); });
 			if (cd_.log_scale_slice_yz_enabled)
-				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_yz.get(), size); });
+				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_yz.get(), fd_.height * cd_.time_transformation_size); });
 		}
 
 		void Rendering::insert_apply_contrast(WindowKind view)
@@ -164,7 +164,7 @@ namespace holovibes
 					break;
 				case YZview:
 					input = buffers_.gpu_postprocess_frame_yz.get();
-					size = fd_.width * cd_.time_transformation_size;
+					size = fd_.height * cd_.time_transformation_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
 					max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
 					break;
@@ -210,20 +210,18 @@ namespace holovibes
 						buffers_.gpu_postprocess_frame_xz.get(),
 						fd_.width,
 						cd_.time_transformation_size,
-						fd_.width * cd_.cuts_contrast_p_offset,
+						cd_.cuts_contrast_p_offset,
 						XZview);
 					autocontrast_slice_xz_request = false;
 				}
 				if (autocontrast_slice_yz_request && (!image_acc_env_.gpu_accumulation_yz_queue ||
 					image_acc_env_.gpu_accumulation_yz_queue->is_full()))
 				{
-					// FIXME: use the caller with gpu_float_cut_xz
-					// It might fix the YZ autocontrast computation
 					autocontrast_caller(
 						buffers_.gpu_postprocess_frame_yz.get(),
 						cd_.time_transformation_size,
-						fd_.width,
-						fd_.width * cd_.cuts_contrast_p_offset,
+						fd_.height,
+						cd_.cuts_contrast_p_offset,
 						YZview);
 					autocontrast_slice_yz_request = false;
 				}
@@ -232,54 +230,50 @@ namespace holovibes
 			fn_compute_vect_.conditional_push_back(lambda_autocontrast);
 		}
 
-		void Rendering::autocontrast_caller(float*			input,
-			const uint			width,
-			const uint			height,
-			const uint			offset,
-			WindowKind			view,
-			cudaStream_t		stream)
+		void Rendering::set_contrast_min_max(const float* const percent_out,
+											 std::atomic<float>& contrast_min,
+											 std::atomic<float>& contrast_max)
 		{
-			float contrast_min = 0.f;
-			float contrast_max = 0.f;
-			// Compute min and max
-			compute_autocontrast(input,
-				width,
-				height,
-				offset,
-				&contrast_min,
-				&contrast_max,
-				cd_.contrast_threshold_low_percentile,
-				cd_.contrast_threshold_high_percentile,
-				cd_.getReticleZone(),
-				cd_.reticle_enabled);
+			contrast_min = percent_out[0];
+			contrast_max = percent_out[1];
 
-			// Update attributes
+			contrast_min = ((contrast_min < 1.0f) ? (1.0f) : contrast_min);
+			contrast_max = ((contrast_max < 1.0f) ? (1.0f) : contrast_max);
+		}
+
+		void Rendering::autocontrast_caller(float*				input,
+											const uint			width,
+											const uint			height,
+											const uint			offset,
+											WindowKind			view,
+											cudaStream_t		stream)
+		{
+			constexpr uint percent_size = 2;
+
+			const float percent_in[percent_size] = { cd_.contrast_threshold_low_percentile,
+											cd_.contrast_threshold_high_percentile };
+			float percent_out[percent_size] = { -1 };
+
 			switch (view)
 			{
 			case XYview:
-				cd_.contrast_min_slice_xy = contrast_min;
-				cd_.contrast_max_slice_xy = contrast_max;
+				// No offset
+				compute_percentile_xy_view(input, width, height, percent_in, percent_out,
+					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
+				set_contrast_min_max(percent_out, cd_.contrast_min_slice_xy, cd_.contrast_max_slice_xy);
 				break;
 			case YZview:
-				/*
-				In order to make YZview work follow this:
-					- rotate 90 degrees  YZview image
-					- compute min max with offset
-					- rotate -90 degrees
-
-				cd_.contrast_min_slice_xz = contrast_min;
-				cd_.contrast_max_slice_xz = contrast_max;
-
-				*/
+				compute_percentile_yz_view(input, width, height, offset, percent_in, percent_out,
+					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
+				set_contrast_min_max(percent_out, cd_.contrast_min_slice_yz, cd_.contrast_max_slice_yz);
 				break;
 			case XZview:
-				// temporary hack
-				cd_.contrast_min_slice_xz = contrast_min;
-				cd_.contrast_max_slice_xz = contrast_max;
-				cd_.contrast_min_slice_yz = contrast_min;
-				cd_.contrast_max_slice_yz = contrast_max;
+				compute_percentile_xz_view(input, width, height, offset, percent_in, percent_out,
+					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
+				set_contrast_min_max(percent_out, cd_.contrast_min_slice_xz, cd_.contrast_max_slice_xz);
 				break;
 			}
+
 			cd_.notify_observers();
 		}
 	}

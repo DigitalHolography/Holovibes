@@ -39,9 +39,8 @@ namespace holovibes
 			, buffers_(buffers)
 			, fd_(input_fd)
 			, cd_(cd)
-			, plan_(input_fd.width, input_fd.height, CUFFT_C2C)
-		{
-		}
+			, convolution_plan_(input_fd.height, input_fd.width,  CUFFT_C2C)
+		{}
 
 		void Postprocessing::init()
 		{
@@ -56,14 +55,16 @@ namespace holovibes
 			gpu_kernel_buffer_.resize(frame_res);
 			cudaXMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
 			cudaSafeCall(cudaMemcpy2D(gpu_kernel_buffer_.get(),
-							sizeof(cuComplex),
-							cd_.convo_matrix.data(),
-							sizeof(float), sizeof(float),
-							frame_res,
-							cudaMemcpyHostToDevice));
+									  sizeof(cuComplex),
+									  cd_.convo_matrix.data(),
+									  sizeof(float), sizeof(float),
+									  frame_res,
+									  cudaMemcpyHostToDevice));
+
+			constexpr uint batch_size = 1; // since only one frame.
 			// We compute the FFT of the kernel, once, here, instead of every time the convolution subprocess is called
-			shift_corners(gpu_kernel_buffer_.get(), 1, fd_.width, fd_.height);
-			cufftSafeCall(cufftExecC2C(plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
+			shift_corners(gpu_kernel_buffer_.get(), batch_size, fd_.width, fd_.height);
+			cufftSafeCall(cufftExecC2C(convolution_plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
 
 			hsv_arr_.resize(frame_res * 3);
 		}
@@ -87,7 +88,7 @@ namespace holovibes
 			convolution_kernel(hsv_arr_.get(),
 							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
-							   &plan_,
+							   &convolution_plan_,
 							   frame_res,
 							   gpu_kernel_buffer_.get(),
 							   cd_.divide_convolution_enabled,
@@ -96,7 +97,7 @@ namespace holovibes
 			convolution_kernel(hsv_arr_.get() + frame_res,
 							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
-							   &plan_,
+							   &convolution_plan_,
 							   frame_res,
 							   gpu_kernel_buffer_.get(),
 							   cd_.divide_convolution_enabled,
@@ -105,7 +106,7 @@ namespace holovibes
 			convolution_kernel(hsv_arr_.get() + (frame_res * 2),
 							   buffers_.gpu_convolution_buffer.get(),
 							   cuComplex_buffer_.get(),
-							   &plan_,
+							   &convolution_plan_,
 							   frame_res,
 							   gpu_kernel_buffer_,
 							   cd_.divide_convolution_enabled,
@@ -128,7 +129,7 @@ namespace holovibes
 						buffers_.gpu_postprocess_frame.get(),
 						buffers_.gpu_convolution_buffer.get(),
 						cuComplex_buffer_.get(),
-						&plan_,
+						&convolution_plan_,
 						fd_.frame_res(),
 						gpu_kernel_buffer_.get(),
 						cd_.divide_convolution_enabled,

@@ -28,31 +28,8 @@
 * \param max Maximum pixel value of the input image.
 *
 */
-void apply_contrast_correction(float			*input,
-								const uint		size,
-								const ushort	dynamic_range,
-								const float		min,
-								const float		max);
-
-/*! \brief Compute the minimum pixel value of an image and the maximum one
-*	according to a low and a high percentile.
-*
-* \param input The image to correct correct contrast.
-* \param size Size of the image in number of pixels.
-* \param min Minimum pixel value computed.
-* \param max Maximum pixel value computed.
-* \param contrast_threshold_low_percentile
-* low percentil used to get the minimum pixel value.
-* \param contrast_threshold_high_percentil
-* high percentil used to get the maximum pixel value.
-*/
-void compute_autocontrast(float			*input,
-						  const uint	width,
-						  const uint 	height,
-						  const uint	offset,
-						  float			*min,
-						  float			*max,
-						  float			contrast_threshold_low_percentile,
-						  float			contrast_threshold_high_percentile,
-						  const holovibes::units::RectFd sub_zone,
-						  bool 			compute_on_sub_zone);
+void apply_contrast_correction(float* const	input,
+							   const uint	size,
+							   const ushort	dynamic_range,
+							   const float	min,
+							   const float	max);

@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+#include "Common.cuh"
 
 /*! \brief Compute a lens to apply to an image used by the fft1
 *
@@ -24,7 +24,7 @@
 */
 __global__
 void kernel_quadratic_lens(cuComplex			*output,
-						const camera::FrameDescriptor	fd,
+						const uint 				lens_side_size,
 						const float				lambda,
 						const float				dist,
 						const float				pixel_size);
@@ -39,7 +39,7 @@ void kernel_quadratic_lens(cuComplex			*output,
 */
 __global__
 void kernel_spectral_lens(cuComplex				*output,
-						const camera::FrameDescriptor	fd,
+						const uint			    lens_side_size,
 						const float				lambda,
 						const float				distance,
 						const float				pixel_size);

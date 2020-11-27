@@ -12,17 +12,20 @@
 
 #pragma once
 
-# include "Common.cuh"
+#include "Common.cuh"
 
-/*! \brief Find the right threads and block to call spectral lens
-* with and call it
-*/
-void fft2_lens(cuComplex			*lens,
-			const camera::FrameDescriptor&	fd,
-			const float				lambda,
-			const float				z,
-			const float				pixel_size,
-			cudaStream_t			stream = 0);
+/*! \brief takes input complex buffer and computes a p frame that is stored
+ * at output pointer. The output pointer can be another complex buffer or the
+ * same as input buffer.
+ */
+void fft2_lens(cuComplex*	lens,
+	const uint 				lens_side_size,
+	const uint 				frame_height,
+	const uint 				frame_width,
+	const float				lambda,
+	const float				z,
+	const float				pixel_size,
+	cudaStream_t			stream = 0);
 
 /*! \brief takes input complex buffer and computes a p frame that is stored
  * at output pointer. The output pointer can be another complex buffer or the
