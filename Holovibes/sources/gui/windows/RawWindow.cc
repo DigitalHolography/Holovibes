@@ -42,8 +42,10 @@ namespace holovibes
 
 		RawWindow::~RawWindow()
 		{
+			// The following line causes a crash in debug mode but prevent
+			// memory leaks in release.
 			if (cuResource)
-				cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
+				cudaGraphicsUnregisterResource(cuResource);
 		}
 
 		void RawWindow::initShaders()
