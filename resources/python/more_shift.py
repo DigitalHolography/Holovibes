@@ -26,8 +26,8 @@ if __name__ == '__main__':
     input_path = sys.argv[1]
     output_path = sys.argv[2]
 
-    f = holo.parse_file(input_path)
-    data = f.get_frame()
+    f = holo.HoloFileReader(input_path)
+    data = f.get_frame_by_lines()
 
     with open(output_path, 'wb') as output_file:
         for shift in shifts:

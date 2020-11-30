@@ -1,118 +1,99 @@
 #!/usr/bin/env python
 
-import json
-import struct
+"""
+Convert a HOLO file to AVI, MP4 and raw
+"""
+
 import sys
-import os.path as path
-from os.path import basename, dirname, getsize, splitext
+import argparse
+from os.path import isfile
+import cv2
+import numpy as np
+import math
 
-bits_to_bytes = {'8bit': 1, '16bit': 2}
+import holo
 
-old_struct_format = (
-    '='
-    '4s'
-    'H'                 # unsigned short number of bits per pixels
-    'I'                 # unsigned int width of image
-    'I'                 # unsigned int height of image
-    'I'                 # unsigned int number of images
-)
+# Returns (input_path, output_path)
+def parse_cli() -> (str, str, int):
+    parser = argparse.ArgumentParser(description='Convert HOLO to AVI.')
+    parser.add_argument('-i', '--input',
+                        help='input file (HOLO file)', type=str, required=True)
+    parser.add_argument('-o', '--output',
+                        help='output file (AVI file)', type=str, required=True)
+    parser.add_argument('--fps',
+                        help='output FPS', type=int, required=False, default=20)
+    args = parser.parse_args()
+    return (args.input, args.output, args.fps)
 
-new_struct_format = (
-    '='
-    '4s'
-    'H'                 # unsigned short Version number
-    'H'                 # unsigned short number of bits per pixels
-    'I'                 # unsigned int width of image
-    'I'                 # unsigned int height of image
-    'I'                 # unsigned int number of images
-    'Q'                 # unsigned long long total data size
-    'B'                 # unsigned char endianness
-)
+def holo_to_video(input_path: str, output_path: str, fourcc: int, fps: int):
+    print(f"Export {input_path} to {output_path} at {fps} FPS")
 
-old_holo_header_size = 18
+    holo_file = holo.HoloFileReader(input_path)
+    avi_file = cv2.VideoWriter(output_path, fourcc, fps, (holo_file.width, holo_file.height), False)
 
-padding_size = 35
+    for i in range(holo_file.nb_images):
+        frame = holo_file.get_frame()
+        avi_file.write(np.array(frame).reshape((holo_file.width, holo_file.height)).astype('uint8'))
+        progress = math.ceil((i + 1) / holo_file.nb_images * 100)
+        print(f"\rProgress: {progress}%", end="")
 
+    avi_file.release()
+    holo_file.close()
+    print("\nDone")
 
-# Returns (img width, img height, bytes per pixel, number of imgs)
-def parse_title(fpath: str) -> (int, int, int, int, int):
-    print('file is not holo, parsing title information...')
-    fname, _ = splitext(basename(fpath))
-    elems = fname.split('_')
-    w, h, nb, e = elems[(len(elems) - 4):]
-    nb = bits_to_bytes[nb]
-    e = 0 if e == 'e' else 1
-    file_size = getsize(fpath)
-    nb_img = file_size / (int(w) * int(h) * nb)
-    return (int(w), int(h), nb, int(nb_img), e)
+def holo_to_raw(input_path: str, output_path: str):
+    print(f"Export {input_path} to {output_path}")
 
-# Returns (img width, img height, bytes per pixel, number of imgs)
-def parse_holo(fpath: str) -> (int, int, int, int, int):
-    print('file is holo, converting from 18 bytes header to 64 bytes')
-    with open(fpath, 'rb') as file:
-        header = file.read(old_holo_header_size)
-        holo, bits_per_pixel, w, h, img_nb = struct.unpack(old_struct_format, header)
-        if holo.decode('ascii') != "HOLO":
-            raise Exception("Couldn't find HOLO bytes in header")
+    holo_file = holo.HoloFileReader(input_path)
+    raw_file = open(output_path, "wb")
 
-        bytes_per_pixel = bits_per_pixel // 8
+    data = holo_file.get_all_frames()
+    raw_file.write(data)
 
-        # skip data
-        file.seek(img_nb * w * h * bytes_per_pixel, 1)
+    raw_file.close()
+    holo_file.close()
 
-        # load metadata
-        j = json.load(file)
-        
-        return (w, h, bytes_per_pixel, img_nb, j['endianess']) # typo in encoded data
+    print("Done")
 
-def new_file_path(fpath: str) -> str:
-    return path.join(dirname(fpath), f'new_{basename(fpath)}')
+def raw_to_holo(input_path: str, output_path: str):
+    print(f"Export {input_path} to {output_path}")
 
+    width = int(input("Width: "))
+    height = int(input("Height: "))
+    bytes_per_pixel = int(input("Bytes per pixel: "))
+    nb_images = int(input("Number of images: "))
+    size = width * height * bytes_per_pixel * nb_images;
 
-if len(sys.argv) != 2:
-    exit(1)
+    raw_file = open(input_path, "rb")
+    raw_data = raw_file.read(size)
 
-fpath = sys.argv[1]
+    header = (width, height, bytes_per_pixel, nb_images)
+    holo_file = holo.HoloFileWriter(output_path, header, raw_data)
+    holo_file.write()
+    holo_file.close()
 
-is_holo = True
-nfpath = new_file_path(fpath) # don't overwrite file
-path_no_ext, ext = splitext(nfpath)
-if ext != '.holo':
-    is_holo = False
-    nfpath = path_no_ext + '.holo' # switch to holo extension if it was a raw file
+    print("Done")
 
+if __name__ == '__main__':
+    input_path, output_path, fps = parse_cli()
 
-width, height, bytes_per_pixel, img_nb, endianness = parse_holo(fpath) if is_holo else parse_title(fpath)
+    if not isfile(input_path):
+        print(f"Error: no such file {input_path}.", file=sys.stderr)
+        quit()
 
-with open(nfpath, 'wb') as new_file, open(fpath, 'rb') as file:
-    # write new header
-    header = struct.pack(
-        new_struct_format + f'{padding_size}s', # padding to reserve 64 bytes total for the header
-        b'HOLO',
-        1,
-        bytes_per_pixel * 8, # bits per pixel
-        width,
-        height,
-        img_nb,
-        img_nb * width * height * bytes_per_pixel,
-        endianness,
-        bytes([0] * padding_size)
-    )
-    new_file.write(header)
+    input_ext = input_path.split('.')[-1]
+    output_ext = output_path.split('.')[-1]
 
-    # skip old header before copying data
-    if is_holo:
-        file.read(18)
-
-    file_size = getsize(fpath)
-    total = 18 if is_holo else 0
-    while True:
-        data = file.read(2**21)
-        if data:
-            total += new_file.write(data)
-            print(f'\r{total / file_size:.2%}', end='', flush=True)
-        else:
-            print()
-            break
-
-print(f'DONE ! Converted {fpath} to {nfpath}')
+    if input_ext == "raw" and output_ext == "holo":
+        raw_to_holo(input_path, output_path)
+    elif input_ext == "holo" and output_ext == "mp4":
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        holo_to_video(input_path, output_path, fourcc, fps)
+    elif input_ext == "holo" and output_ext == "avi":
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        holo_to_video(input_path, output_path, fourcc, fps)
+    elif input_ext == "holo" and output_ext == "raw":
+        holo_to_raw(input_path, output_path)
+    else:
+        print(f"Error: .{input_ext} to .{output_ext} is not supported.", file=sys.stderr)
+        quit()

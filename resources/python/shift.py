@@ -17,9 +17,9 @@ if __name__ == '__main__':
     input_path = sys.argv[2]
     output_path = sys.argv[3]
 
-    f = holo.parse_file(input_path)
+    f = holo.HoloFileReader(input_path)
 
-    data = f.get_frame()
+    data = f.get_frame_by_lines()
     shifted = []
     for row in data:
         shifted.append(row[shift:] + row[:shift])

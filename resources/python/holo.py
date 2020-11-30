@@ -1,10 +1,12 @@
 from os.path import basename
 from os.path import getsize
 from typing import BinaryIO
-from struct import unpack
+from struct import pack, unpack
+from typing import List
 
-bits_to_bytes = {'8bit': 1, '16bit': 2}
+holo_header_version = 3
 holo_header_size = 64
+holo_header_padding_size = 35
 
 struct_format = (
     '='
@@ -18,57 +20,68 @@ struct_format = (
     'B'                 # unsigned char endianness
 )
 
-padding_size = 35
+class HoloFile:
+    def __init__(self, path: str, header: (int, int, int, int)):
+        self.width = header[0]
+        self.height = header[1]
+        self.bytes_per_pixel = header[2]
+        self.nb_images = header[3]
+        self.path = path
 
-class FileData:
-    def __init__(self, fpath: str, parse_output: (int, int, int, int)):
-        self.width = parse_output[0]
-        self.height = parse_output[1]
-        self.bytes_per_pixel = parse_output[2]
-        self.nb_images = parse_output[3]
-        self.fpath = fpath
-        self.size = getsize(fpath)
-        self.is_holo = is_holo(fpath)
-        self.io = open(fpath, 'rb')
-        if self.is_holo:
-            self.io.read(holo_header_size)
+class HoloFileReader(HoloFile):
+    def __init__(self, path: str):
+        self.io = open(path, 'rb')
+        header_bytes = self.io.read(holo_header_size - holo_header_padding_size)
+        self.io.read(holo_header_padding_size)
 
+        holo, _version, bits_per_pixel, w, h, img_nb, _data_size, _endianness = unpack(struct_format, header_bytes)
+        if holo.decode('ascii') != "HOLO":
+            raise Exception('Cannot read holo file')
 
-    def get_frame(self) -> bytes:
+        header = (w, h, int(bits_per_pixel / 8), img_nb)
+        HoloFile.__init__(self, path, header)
+
+    def get_all_frames(self) -> bytes:
+        data_total_size = self.nb_images * self.height * self.width * self.bytes_per_pixel
+        return self.io.read(data_total_size)
+
+    def get_frame(self) -> List[int]:
+        data = []
+        for _ in range(self.height * self.width):
+            pixel = self.io.read(self.bytes_per_pixel)
+            pixel_int = int.from_bytes(pixel, byteorder='big', signed=False)
+            data.append(pixel_int)
+        return data
+
+    def get_frame_by_lines(self) -> bytes:
         data = []
         for _ in range(self.height):
             data.append(self.io.read(self.bytes_per_pixel * self.width))
         return data
 
+    def close(self):
+        self.io.close()
 
-def is_holo(fpath: str) -> bool:
-    ext = fpath.split('.')[-1]
-    return ext == "holo"
+class HoloFileWriter(HoloFile):
+    def __init__(self, path: str, header: (int, int, int, int), data: bytes):
+        HoloFile.__init__(self, path, header)
+        self.io = open(path, 'wb')
+        self.data = data
 
+    def write(self):
+        h = pack(struct_format,
+                b'HOLO',
+                holo_header_version,
+                self.bytes_per_pixel * 8,
+                self.width,
+                self.height,
+                self.nb_images,
+                self.width * self.height * self.nb_images * self.bytes_per_pixel,
+                1)
+        self.io.write(h) # header
+        self.io.write(pack(str(holo_header_padding_size) + "s", b'0')) # padding
+        self.io.write(self.data) # data
+        self.io.write(pack("2s", b'{}')) # empty json footer
 
-# Returns (img width, img height, bytes per pixel, number of imgs)
-def parse_title(fpath: str) -> (int, int, int, int):
-    fname = basename(fpath)
-    elems = fname.split('_')
-    w, h, nb, _ = elems[(len(elems) - 4):]
-    nb = bits_to_bytes[nb]
-    file_size = getsize(fpath)
-    nb_img = file_size / (int(w) * int(h) * nb)
-    return (int(w), int(h), nb, int(nb_img))
-
-
-# Returns (img width, img height, bytes per pixel, number of imgs)
-def parse_holo(fpath: str) -> (int, int, int, int):
-    with open(fpath, 'rb') as file:
-        header = file.read(holo_header_size)
-        holo, _version, bits_per_pixel, w, h, img_nb, _data_size, _endianness = unpack(struct_format, header)
-        if holo.decode('ascii') != "HOLO":
-            return (0, 0, 0, 0)
-        return (w, h, int(bits_per_pixel / 8), img_nb)
-
-
-def parse_file(fpath: str) -> FileData:
-    if is_holo(fpath):
-        return FileData(fpath, parse_holo(fpath))
-    else:
-        return FileData(fpath, parse_title(fpath))
+    def close(self):
+        self.io.close()

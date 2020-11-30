@@ -73,7 +73,7 @@ namespace holovibes::io_files
             /*! Number of images in the file */
             uint32_t img_nb;
             /*! Total size of the data in bytes
-             *  img_width * img_height * nb_img * (bits_per_pixel * 8) */
+             *  img_width * img_height * nb_img * (bits_per_pixel / 8) */
             uint64_t total_data_size;
             /*! Data endianness */
             uint8_t endianness;
