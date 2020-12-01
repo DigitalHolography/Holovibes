@@ -275,23 +275,23 @@ namespace holovibes
 			});
 		}
 
-		void Converts::insert_complex_conversion(Queue& input)
+		void Converts::insert_complex_conversion(Queue& gpu_input_queue)
 		{
 			fn_compute_vect_.push_back([&]() {
-				std::lock_guard<std::mutex> m_guard(input.get_guard());
+				std::lock_guard<std::mutex> m_guard(gpu_input_queue.get_guard());
 
 				// Copy the data from the input queue to the input buffer
 				// ALL CALL ARE ASYNCHRONOUS SINCE ALL FFTs AND MEMCPYs ARE CALLED ON STREAM 0
 				input_queue_to_input_buffer(buffers_.gpu_spatial_transformation_buffer.get(),
-											input.get_data(),
+											gpu_input_queue.get_data(),
 											fd_.frame_res(),
 											cd_.batch_size,
-											input.get_start_index(),
-											input.get_max_size(),
+											gpu_input_queue.get_start_index(),
+											gpu_input_queue.get_max_size(),
 											fd_.depth);
 
 				// Dequeue batch size frames
-				input.dequeue_non_mutex(cd_.batch_size);
+				gpu_input_queue.dequeue_non_mutex(cd_.batch_size);
 			});
 		}
 	}
