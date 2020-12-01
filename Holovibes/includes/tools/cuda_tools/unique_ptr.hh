@@ -32,13 +32,13 @@ namespace holovibes
 			template <typename T>
 			struct element_size
 			{
-				static const std::size_t value = sizeof(T);
+				static const size_t value = sizeof(T);
 			};
 
 			template<>
 			struct element_size<void>
 			{
-				static const std::size_t value = 1;
+				static const size_t value = 1;
 			};
 		}
 
@@ -69,14 +69,14 @@ namespace holovibes
 			}
 
 			/// Allocates an array of size sizeof(T) * size
-			UniquePtr(std::size_t size)
+			UniquePtr(const size_t size)
 				: base(nullptr, cudaFree)
 			{
 				resize(size);
 			}
 
 			/// Allocates an array of size sizeof(T) * size, free the old pointer if not null
-			bool resize(std::size_t size)
+			bool resize(size_t size)
 			{
 				T* tmp;
 				size *= _private::element_size<T>::value;

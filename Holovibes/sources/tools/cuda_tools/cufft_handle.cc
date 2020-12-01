@@ -16,10 +16,10 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-CufftHandle::CufftHandle() : ws_(nullptr)
+CufftHandle::CufftHandle()
 {}
 
-CufftHandle::CufftHandle(int x, int y, cufftType type) : ws_(nullptr)
+CufftHandle::CufftHandle(const int x, const int y, const cufftType type)
 {
 	plan(x, y, type);
 }
@@ -33,15 +33,10 @@ void CufftHandle::reset()
 {
 	if (val_)
 		cufftSafeCall(cufftDestroy(*val_.get()));
-    if (ws_ != nullptr)
-    {
-        delete ws_;
-        ws_ = nullptr;
-    }
 	val_.reset();
 }
 
-void CufftHandle::plan(int x, int y, cufftType type)
+void CufftHandle::plan(const int x, const int y, const cufftType type)
 {
 	reset();
 	val_.reset(new cufftHandle);
@@ -72,13 +67,9 @@ void CufftHandle::XtplanMany(int rank,
 
 	cufftSafeCall(cufftCreate(val_.get()));
 
-    // Init the work size only once to help cufft
-    if (ws_ == nullptr)
-    {
-        ws_ = new size_t;
-        cufftSafeCall(cufftXtGetSizeMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, ws_, executionType));
-    }
-    cufftSafeCall(cufftXtMakePlanMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, ws_, executionType));
+    size_t ws;
+	cufftSafeCall(cufftXtGetSizeMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, &ws, executionType));
+    cufftSafeCall(cufftXtMakePlanMany(*val_.get(), rank, n, inembed, istride, idist, inputtype, onembed, ostride, odist, outputtype, batch, &ws, executionType));
 }
 
 cufftHandle &CufftHandle::get()

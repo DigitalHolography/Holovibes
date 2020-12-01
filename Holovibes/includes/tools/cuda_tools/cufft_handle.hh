@@ -33,7 +33,7 @@ namespace holovibes
 
 			/*! \brief Constructor calling plan2d
 			 */
-			CufftHandle(int x, int y, cufftType type);
+			CufftHandle(const int x, const int y, const cufftType type);
 
 			/*! \brief Destroy the created plan (if any)
 			 */
@@ -47,7 +47,7 @@ namespace holovibes
 			 *
 			 * Could be overloaded for plan1d and plan3d
 			 */
-			void plan(int x, int y, cufftType type);
+			void plan(const int x, const int y, const cufftType type);
 
 			/*! \brief Calls planMany
 			 */
@@ -85,14 +85,6 @@ namespace holovibes
 			 * we chose a unique_ptr to represent an possibly uninitialized one
 			 */
 			std::unique_ptr<cufftHandle> val_;
-
-			/*! \brief The FFT work size
-			 * Calculated once to help cufft know the work size he needs to perform the ffts
-			 * USED ONLY FOR XTPLANMANY
-			 * THIS IS NOT THREAD SAFE, IF YOU WANT TO USE CUFFT_HANDLE BETWEEN TWO THREADS SWITCH TO ATOMICS
-			 */
-			size_t* ws_;
-
 		};
 	}
 }
