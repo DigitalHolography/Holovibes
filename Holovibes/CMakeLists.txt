@@ -133,9 +133,9 @@ set (GTEST_ROOT         "C:/gtest/googletest")
 set (GTEST_MAIN_LIBRARY "C:/gtest/googletest/msvc/2010/gtest-md/x64-Debug/gtestd.lib")
 
 set(SRC_TESTS
-    tests/test_example.cc
-    tests/test_queue.cc
-    tests/test_chart.cc
+    unit_tests/test_example.cc
+    unit_tests/test_queue.cc
+    unit_tests/test_chart.cc
     # Add your test files here
 )
 

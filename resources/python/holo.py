@@ -30,16 +30,26 @@ class HoloFile:
 
 class HoloFileReader(HoloFile):
     def __init__(self, path: str):
+        self.path = path
         self.io = open(path, 'rb')
         header_bytes = self.io.read(holo_header_size - holo_header_padding_size)
         self.io.read(holo_header_padding_size)
 
         holo, _version, bits_per_pixel, w, h, img_nb, _data_size, _endianness = unpack(struct_format, header_bytes)
-        if holo.decode('ascii') != "HOLO":
-            raise Exception('Cannot read holo file')
+        #if holo.decode('ascii') != "HOLO":
+           # self.io.close()
+            #raise Exception('Cannot read holo file')
 
         header = (w, h, int(bits_per_pixel / 8), img_nb)
         HoloFile.__init__(self, path, header)
+
+    def get_all(self) -> bytes:
+        data_total_size = self.nb_images * self.height * self.width * self.bytes_per_pixel
+        self.io.seek(0)
+        h = self.io.read(holo_header_size)
+        c = self.io.read(data_total_size)
+        f = self.io.read(getsize(self.path) - holo_header_size - data_total_size)
+        return h, c, f
 
     def get_all_frames(self) -> bytes:
         data_total_size = self.nb_images * self.height * self.width * self.bytes_per_pixel

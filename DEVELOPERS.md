@@ -26,11 +26,19 @@ Alternatively, you can build from the command line:
 
 ### Test suite
 
-#### Install GTest
+#### Integration tests
+
+##### Usage
+
+Build the project in release mode and run all integration tests with `./run_integration_tests.py`.
+
+#### Unit tests
+
+##### Installation
 
 1. Download [GTest 1.8.1](https://github.com/google/googletest/releases/tag/release-1.8.1) and extract it to `C:/gtest`.
 2. Open `googletest/msvc/2010/gtest-md.sln` with Visual Studio and build the solution in **x64** and in **Debug** mode.
 
-#### Usage
+##### Usage
 
-Build the project in debug mode and run all unit tests with `./run_tests.py`.
+Build the project in debug mode and run all unit tests with `./run_unit_tests.py`.
