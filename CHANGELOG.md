@@ -1,5 +1,11 @@
 ## Changelog
 
+## 8.7
+
+* Handle anamorphic images
+* Add python scripts to convert .holo to .raw/.avi/.mp4 and .raw to .holo
+* Implement integration test suite
+
 ### 8.6
 
 * Implement CLI

@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v8.6"; /*!< Current version of this project. */
+	const static std::string version = "v8.7"; /*!< Current version of this project. */
 
 	/*!
 	 * \brief	Difference kind of camera supported by Holovibes
