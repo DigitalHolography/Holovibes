@@ -56,6 +56,7 @@ namespace holovibes
 		const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
 		long long int n[] = {fd.height, fd.width};
 
+		// This plan has a useful significant memory cost, check XtplanMany comment
 		spatial_transformation_plan_.XtplanMany(2,	// 2D
 							n,	// Dimension of inner most & outer most dimension
 							n,	// Storage dimension size
@@ -172,6 +173,7 @@ namespace holovibes
 
 		long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
+		// This plan has a useful significant memory cost, check XtplanMany comment
 		spatial_transformation_plan_.XtplanMany(2,	// 2D
 							n,	// Dimension of inner most & outer most dimension
 							n,	// Storage dimension size

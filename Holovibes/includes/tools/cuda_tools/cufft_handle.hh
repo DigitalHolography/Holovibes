@@ -59,6 +59,12 @@ namespace holovibes
 				int batch);
 
 			/*! \brief Calls XtplanMany
+			*
+			* Warning ! Allocating a plan has a VRAM memory cost :
+			* You can check the amount of memory used by checking the ws (working size) variable
+			*
+			* The memory taken by the plan is used by cufft to make the FFT
+			* It's equal in byte to : frame_width * frame_height * sizeof(T) (in our case cuComplex) * batch_size
             */
             void CufftHandle::XtplanMany(int rank,
                 long long *n,
