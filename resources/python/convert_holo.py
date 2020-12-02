@@ -13,15 +13,11 @@ import math
 
 import holo
 
-# Returns (input_path, output_path)
 def parse_cli() -> (str, str, int):
-    parser = argparse.ArgumentParser(description='Convert HOLO to AVI.')
-    parser.add_argument('-i', '--input',
-                        help='input file (HOLO file)', type=str, required=True)
-    parser.add_argument('-o', '--output',
-                        help='output file (AVI file)', type=str, required=True)
-    parser.add_argument('--fps',
-                        help='output FPS', type=int, required=False, default=20)
+    parser = argparse.ArgumentParser(description='Convert .holo to .raw/.mp4/.avi or .raw to .holo.')
+    parser.add_argument('input', help='Path to input file (.holo or .raw)', type=str)
+    parser.add_argument('output', help='Path to output file (.holo, .raw, .avi or .mp4)', type=str)
+    parser.add_argument('--fps', help='output FPS', type=int, required=False, default=20)
     args = parser.parse_args()
     return (args.input, args.output, args.fps)
 
@@ -29,15 +25,18 @@ def holo_to_video(input_path: str, output_path: str, fourcc: int, fps: int):
     print(f"Export {input_path} to {output_path} at {fps} FPS")
 
     holo_file = holo.HoloFileReader(input_path)
-    avi_file = cv2.VideoWriter(output_path, fourcc, fps, (holo_file.width, holo_file.height), False)
+    video_file = cv2.VideoWriter(output_path, fourcc, fps, (holo_file.width, holo_file.height), False)
 
     for i in range(holo_file.nb_images):
         frame = holo_file.get_frame()
-        avi_file.write(np.array(frame).reshape((holo_file.width, holo_file.height)).astype('uint8'))
+        frame_data = np.array(frame).reshape((holo_file.width, holo_file.height)).astype('uint8')
+
+        video_file.write(frame_data)
+
         progress = math.ceil((i + 1) / holo_file.nb_images * 100)
         print(f"\rProgress: {progress}%", end="")
 
-    avi_file.release()
+    video_file.release()
     holo_file.close()
     print("\nDone")
 
@@ -87,7 +86,7 @@ if __name__ == '__main__':
     if input_ext == "raw" and output_ext == "holo":
         raw_to_holo(input_path, output_path)
     elif input_ext == "holo" and output_ext == "mp4":
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         holo_to_video(input_path, output_path, fourcc, fps)
     elif input_ext == "holo" and output_ext == "avi":
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
