@@ -288,9 +288,9 @@ namespace holovibes
 		//! invert contrast
 		std::atomic<bool> contrast_invert { false };
 
-		std::atomic<float> contrast_threshold_low_percentile{ 0.5f };
+		std::atomic<float> contrast_lower_threshold{ 0.5f };
 
-		std::atomic<float> contrast_threshold_high_percentile{ 99.5f };
+		std::atomic<float> contrast_upper_threshold{ 99.5f };
 
 		std::atomic<ushort>			cuts_contrast_p_offset{ 2 };
 		//! Size of a pixel in micron

@@ -250,8 +250,8 @@ namespace holovibes
 		{
 			constexpr uint percent_size = 2;
 
-			const float percent_in[percent_size] = { cd_.contrast_threshold_low_percentile,
-											cd_.contrast_threshold_high_percentile };
+			const float percent_in[percent_size] = { cd_.contrast_lower_threshold,
+											cd_.contrast_upper_threshold };
 			float percent_out[percent_size] = { -1 };
 
 			switch (view)
