@@ -1601,13 +1601,17 @@ namespace holovibes
 		void MainWindow::toggle_renormalize(bool value)
 		{
 			cd_.renorm_enabled = value;
+
+			holovibes_.get_pipe()->request_clear_img_acc();
 			pipe_refresh();
-			notify();
 		}
 
 		void MainWindow::set_renormalize_constant(int value)
 		{
 			cd_.renorm_constant = value;
+
+			holovibes_.get_pipe()->request_clear_img_acc();
+			pipe_refresh();
 		}
 
 		void MainWindow::set_filter2D()

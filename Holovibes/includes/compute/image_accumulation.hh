@@ -64,6 +64,9 @@ namespace holovibes
 			/*! \brief Free ressources for image accumulation */
 			void dispose();
 
+			/*! \brief Clear image accumulation queue */
+			void clear();
+
 		private:
 			/*!
 			** \brief Compute average on one view

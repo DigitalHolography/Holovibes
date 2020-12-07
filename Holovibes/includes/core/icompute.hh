@@ -173,6 +173,7 @@ namespace holovibes
 		void request_hologram_record(unsigned int nb_frames_to_record);
 		void request_raw_record(unsigned int nb_frames_to_record);
 		void request_disable_frame_record();
+		void request_clear_img_acc();
 
 		/*! \brief Execute one iteration of the ICompute.
 		*
@@ -308,5 +309,6 @@ namespace holovibes
 		std::atomic<std::optional<unsigned int>> hologram_record_requested_{ std::nullopt };
 		std::atomic<std::optional<unsigned int>> raw_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_frame_record_requested_{ false };
+		std::atomic<bool> request_clear_img_acc_{ false };
 	};
 }

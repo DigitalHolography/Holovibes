@@ -188,6 +188,12 @@ namespace holovibes
 
 		image_accumulation_->init(); // done only if requested
 
+		if (request_clear_img_acc_)
+		{
+			image_accumulation_->clear();
+			request_clear_img_acc_ = false;
+		}
+
 		if (raw_view_requested_)
 		{
 			auto fd = gpu_input_queue_.get_fd();

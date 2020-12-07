@@ -416,4 +416,10 @@ namespace holovibes
 		request_disable_lens_view_ = true;
 		request_refresh();
 	}
+
+	void ICompute::request_clear_img_acc()
+	{
+		request_clear_img_acc_ = true;
+		request_refresh();
+	}
 }

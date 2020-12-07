@@ -118,6 +118,16 @@ namespace holovibes
 				image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 		}
 
+		void ImageAccumulation::clear()
+		{
+			if (cd_.img_acc_slice_xy_enabled)
+				image_acc_env_.gpu_accumulation_xy_queue->clear();
+			if (cd_.img_acc_slice_xz_enabled)
+				image_acc_env_.gpu_accumulation_xz_queue->clear();
+			if (cd_.img_acc_slice_yz_enabled)
+				image_acc_env_.gpu_accumulation_yz_queue->clear();
+		}
+
 		void ImageAccumulation::compute_average(
 			std::unique_ptr<Queue>& gpu_accumulation_queue,
 			float* gpu_input_frame,
