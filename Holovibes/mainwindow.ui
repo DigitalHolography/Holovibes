@@ -282,7 +282,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_7">
+          <layout class="QGridLayout" name="Filter2DContainer">
            <property name="verticalSpacing">
             <number>6</number>
            </property>

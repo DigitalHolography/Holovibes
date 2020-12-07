@@ -60,7 +60,7 @@ if __name__ == "__main__":
     else:
         cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&"]
         if not os.path.isdir(path.join(config.build_dir, config.conf)): # if build dir doesn't exist, run CMake configure step
-            cmd += ["cmake", "-B", config.build_dir, "-S", ".", "-G", config.gen, f"-DCMAKE_BUILD_TYPE={config.conf}", "-DCMAKE_VERBOSE_MAKEFILE=ON", "&&"]
+            cmd += ["cmake", "-B", config.build_dir, "-S", ".", "-G", config.gen, f"-DCMAKE_BUILD_TYPE={config.conf}", "-DCMAKE_VERBOSE_MAKEFILE=OFF", "&&"]
         cmd += ["cmake", "--build", config.build_dir] + config.remain
         log("CMD", cmd)
         subprocess.call(cmd)
