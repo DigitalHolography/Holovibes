@@ -1,5 +1,12 @@
 ## Changelog
 
+## 8.8
+
+* Refactoring and bug fixes of threads
+* Improve performance of renormalize and limit cuda device sync
+* Apply autocontrast when updating renormalize
+* Fixes in GUI and reticle
+
 ## 8.7
 
 * Handle anamorphic images
