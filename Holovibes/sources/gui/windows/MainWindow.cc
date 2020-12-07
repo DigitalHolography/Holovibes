@@ -1602,7 +1602,7 @@ namespace holovibes
 		{
 			cd_.renorm_enabled = value;
 
-			holovibes_.get_pipe()->request_clear_img_acc();
+			holovibes_.get_compute_pipe()->request_clear_img_acc();
 			pipe_refresh();
 		}
 
@@ -1610,7 +1610,7 @@ namespace holovibes
 		{
 			cd_.renorm_constant = value;
 
-			holovibes_.get_pipe()->request_clear_img_acc();
+			holovibes_.get_compute_pipe()->request_clear_img_acc();
 			pipe_refresh();
 		}
 
