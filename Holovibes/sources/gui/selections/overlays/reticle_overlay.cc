@@ -87,10 +87,6 @@ namespace holovibes
 				 w_border    , -h_border,
 				 w_border    ,  h_border,
 				-w_border    ,  h_border,
-				 0           , -cross_height,
-				 0           ,  cross_height,
-				-cross_width, 0,
-				 cross_width, 0
 			};
 			glGenBuffers(1, &verticesIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
@@ -105,10 +101,6 @@ namespace holovibes
 				1, 0, 0,
 				1, 0, 0,
 				1, 0, 0,
-				1, 0, 0,
-				1, 0, 0,
-				1, 0, 0,
-				1, 0, 0
 			};
 			glGenBuffers(1, &colorIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
@@ -123,8 +115,6 @@ namespace holovibes
 				1, 2,
 				2, 3,
 				3, 0,
-				4, 5,
-				6, 7
 			};
 			glGenBuffers(1, &elemIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);

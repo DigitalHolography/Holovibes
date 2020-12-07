@@ -987,6 +987,9 @@ namespace holovibes
 			/* Raw view & recording */
 			raw_window.reset(nullptr);
 			cd_.raw_view_enabled = false;
+
+			// Disable overlays
+			cd_.reticle_enabled = false;
 		}
 
 		void MainWindow::reset()
