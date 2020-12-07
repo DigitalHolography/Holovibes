@@ -13,11 +13,12 @@
 #include <filesystem>
 #include "input_holo_file.hh"
 #include "file_exception.hh"
+#include "compute_descriptor.hh"
 #include "logger.hh"
 
 namespace holovibes::io_files
 {
-    InputHoloFile::InputHoloFile(const std::string& file_path): InputFile(file_path), HoloFile()
+    InputHoloFile::InputHoloFile(const std::string& file_path): InputFrameFile(file_path), HoloFile()
     {
 		// read the file header
         size_t bytes_read = std::fread(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_);
@@ -42,13 +43,14 @@ namespace holovibes::io_files
 		fd_.byteEndian = holo_file_header_.endianness ?
                         camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
 
-        size_t frame_size = fd_.frame_size();
-        frame_annotation_size_ = 0;
-        actual_frame_size_ = frame_size + frame_annotation_size_;
+        frame_size_ = fd_.frame_size();
 
         // perform a checksum
-        if (holo_file_header_.total_data_size != frame_size * holo_file_header_.img_nb)
+        if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
+        {
+            std::fclose(file_);
             throw FileException("Invalid holo file");
+        }
 
 		// compute the meta data offset to retrieve the meta data
 		uintmax_t meta_data_offset = sizeof(HoloFileHeader) + holo_file_header_.total_data_size;
@@ -89,12 +91,12 @@ namespace holovibes::io_files
 		}
     }
 
-    void InputHoloFile::set_pos_to_first_frame()
+    void InputHoloFile::set_pos_to_frame(size_t frame_id)
     {
-        std::fpos_t first_frame_offset = sizeof(HoloFileHeader);
+        std::fpos_t frame_offset = sizeof(HoloFileHeader) + frame_size_ * frame_id;
 
-        if (std::fsetpos(file_, &first_frame_offset) != 0)
-            throw FileException("Unable to seek the first frame");
+        if (std::fsetpos(file_, &frame_offset) != 0)
+            throw FileException("Unable to seek the frame requested");
     }
 
     void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const

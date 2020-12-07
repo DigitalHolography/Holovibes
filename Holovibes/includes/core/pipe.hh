@@ -66,7 +66,6 @@ namespace holovibes
 		 * \param output Output queue where computed frames will be stored.
 		 * \param desc ComputeDescriptor that contains computation parameters. */
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
-		virtual ~Pipe();
 
 		/*! \brief Get the lens queue to display it.
 
@@ -81,11 +80,6 @@ namespace holovibes
 
 		 */
 		void autocontrast_end_pipe(WindowKind kind);
-
-		/*! \brief Returns the class containing every functions relative to the FF1, FF2 and STFT algorithm.
-
-		*/
-		compute::FourierTransform * get_fourier_transforms();
 
 	protected:
 
@@ -130,19 +124,14 @@ namespace holovibes
 		void insert_wait_frames();
 
 		/*!
-		** \brief Enqueue a batch of frames of input queue for raw view
-		*/
-		void insert_raw_enqueue_hologram_mode();
-
-		/*!
 		** \brief Enqueue the input frame in the output queue in raw mode
 		*/
-		void insert_raw_enqueue_raw_mode();
+		void insert_output_enqueue_raw_mode();
 
 		/*!
 		** \brief Enqueue the output frame in the output queue in hologram mode
 		*/
-		void insert_hologram_enqueue_output();
+		void insert_output_enqueue_hologram_mode();
 
 		/*!
 		** \brief Request the computation of a autocontrast if the contrast and
@@ -150,46 +139,16 @@ namespace holovibes
 		*/
 		void insert_request_autocontrast();
 
+		void insert_raw_view();
+
+		void insert_raw_record();
+
+		void insert_hologram_record();
+
 		/*!
 		** \brief Reset the batch index if time_transformation_stride has been reached
 		*/
 		void insert_reset_batch_index();
-
-		/*!
-		** \brief This method is used to synchronize the thread compute and
-		** the thread recorder. In addition, it performs the transfer of frames
-		** to the queue used for the recording. The queue is referenced in the
-		** lambda.
-		**
-		** Mainwindow creates the thread recorder and call the record method.
-		** In the record method, the thread recorder set
-		** request_recorder_copy_frames to true to request the transfer of
-		** frames, Then, this thread waits for the request to be completed by
-		** the thread compute. Then, the thread compute transfers the number of
-		** frames requested. Then, set the flag (copy_frames_done) to tell the
-		** transfer is done. This allows the thread recorder to know that the
-		** transfer is actually done.
-		** Has to be called only if a recording is being done
-		**
-		** \param copy_function the technique used to copy frame(s), enqueue
-		** or copy multiple...
-		*/
-		void copy_frames_for_recording(std::function<void()> copy_function);
-
-		/*!
-		** \brief Enqueue a frame in a output queue. The behavior is different
-		** whether a recording is being done. Call the copy frames for recording
-		** method if it is recording. Do a simple enqueue otherwise.
-		**
-		** \param output_queue Queue in which the frame is enqueued
-		** \param frame Frame to enqueue
-		** \param is_recording Flag to check if it is recording
-		** \param error Error message when an error occurs
-		*/
-		void enqueue_output(Queue& output_queue,
-							unsigned short* frame,
-							bool is_recording,
-							const std::string& error);
 
 		/*!
 		** \brief Enqueue a frame in an output queue
@@ -219,9 +178,7 @@ namespace holovibes
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
 
-
-		/** Remaining number of raw frames to copy (on recording) */
-		unsigned int remaining_raw_frames_copy_;
+		std::atomic<size_t> processed_output_fps_;
 
 		/*! \brief Iterates and executes function of the pipe.
 

@@ -17,7 +17,6 @@
 #include "cublas_handle.hh"
 #include "cusolver_handle.hh"
 #include "nppi_functions.hh"
-#include "info_manager.hh"
 #include "icompute.hh"
 
 #include "tools_conversion.cuh"
@@ -29,6 +28,7 @@
 #include "stft.cuh"
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
+#include "queue.hh"
 
 using holovibes::compute::FourierTransform;
 using holovibes::Queue;
@@ -185,7 +185,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 	{
 		auto fd = fd_;
 		fd.depth = 8;
-		gpu_lens_queue_ = std::make_unique<Queue>(fd, 16, "GPU lens queue");
+		gpu_lens_queue_ = std::make_unique<Queue>(fd, 16);
 	}
 	return gpu_lens_queue_;
 }

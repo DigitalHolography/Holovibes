@@ -21,7 +21,7 @@
 
 namespace holovibes
 {
-	unsigned short	upper_window_size(ushort width, ushort height)
+	unsigned short upper_window_size(ushort width, ushort height)
 	{
 		return std::max(width, height);
 	}
@@ -69,6 +69,30 @@ namespace holovibes
 		{
 			return "";
 		}
+	}
+
+	std::string get_record_filename(std::string filename)
+	{
+		size_t dot_index = filename.find_last_of('.');
+		if (dot_index == filename.npos)
+			dot_index = filename.size();
+
+		// Make sure 2 files don't have the same name by adding -1 / -2 / -3 ... in the name
+		unsigned i = 1;
+		while (std::filesystem::exists(filename))
+		{
+			if (i == 1)
+			{
+				filename.insert(dot_index, "-1", 0, 2);
+				++i;
+				continue;
+			}
+			unsigned digits_nb = std::log10(i - 1) + 1;
+			filename.replace(dot_index, digits_nb + 1, "-" + std::to_string(i));
+			++i;
+		}
+
+		return filename;
 	}
 
 	QString create_absolute_qt_path(const std::string& relative_path)

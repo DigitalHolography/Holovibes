@@ -12,6 +12,7 @@
 
 #include "stft.cuh"
 #include "Common.cuh"
+#include "queue.hh"
 
 #include <cassert>
 

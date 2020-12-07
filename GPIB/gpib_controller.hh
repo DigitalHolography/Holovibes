@@ -43,19 +43,16 @@ namespace gpib
 		VisaInterface& operator=(const VisaInterface& other) = delete;
 
 		/*! Setting up the connection with an instrument at a given address. */
-		void initialize_instr(const unsigned address);
+		void initialize_instrument(const unsigned address);
 
 		/*! Closing the connection with a given instrument, knowing its address. */
-		void close_instr(const unsigned address);
+		void close_instrument(const unsigned address);
 
-		/*! Launch the commands extracted previously from the input file.
-		 * \return True if there are more commands to issue. */
-		virtual bool	execute_next_block();
-		bool			execute_next_trig();
+		std::optional<Command> get_next_command();
 
+		void pop_next_command();
 
-		std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
-		std::shared_ptr<gpib::IVisaInterface> get_gpib_interface() { return gpib_interface_; }
+		void execute_instrument_command(const Command& cmd);
 
 	private:
 		/*! Setting up the VISA driver to enable future connections. */
@@ -77,27 +74,6 @@ namespace gpib
 		 */
 		struct VisaPimpl;
 		VisaPimpl* pimpl_;
-
-		/*! Each command is formed of an instrument address,
-		* a proper command sent as a string through the VISA interface,
-		* and a number of milliseconds to wait for until next command
-		* is issued. */
-		struct Command
-		{
-			enum type_e
-			{
-				BLOCK,   // #Block   : ignored, just for clarity
-				CAPTURE, // #Capture : Stop issuing commands and acquire a frame
-				COMMAND, // *        : Sent to an instrument as is in a message buffer
-				WAIT     // #WAIT n  : Put the thread to sleep n milliseconds
-			};
-
-			type_e type;
-
-			unsigned address;
-			std::string command;
-			unsigned wait;
-		};
 
 		/*! Lines obtained from the batch input file are stored
 		 * here as separate strings. */

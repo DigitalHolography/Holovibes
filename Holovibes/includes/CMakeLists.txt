@@ -5,9 +5,4 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_group_box.hh
     gui/windows/MainWindow.hh
     gui/windows/PlotWindow.hh
-    recorder.hh
-    thread/thread_csv_record.hh
-    thread/thread_reader.hh
-    thread/thread_recorder.hh
-    tools/info_manager.hh
 )

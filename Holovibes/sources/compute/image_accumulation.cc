@@ -59,7 +59,7 @@ namespace holovibes
 				|| accumulation_level != gpu_accumulation_queue->get_max_size())
 			{
 				gpu_accumulation_queue.reset(
-					new Queue(fd, accumulation_level, "AccumulationQueue@allocate_accumalation_queue"));
+					new Queue(fd, accumulation_level));
 
 				// accumulation queue successfully allocated
 				if (!gpu_average_frame)

@@ -14,7 +14,8 @@
 
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
-#include "info_manager.hh"
+
+#include "holovibes.hh"
 
 namespace holovibes
 {
@@ -30,7 +31,7 @@ namespace holovibes
 			alpha_ = 0.05f;
 			display_ = true;
 		}
-		
+
 		CrossOverlay::~CrossOverlay()
 		{
 			parent_->makeCurrent();
@@ -40,7 +41,7 @@ namespace holovibes
 		void CrossOverlay::init()
 		{
 			// Program_ already bound by caller (initProgram)
-			
+
 			Vao_.bind();
 
 			// Set vertices position
@@ -175,8 +176,7 @@ namespace holovibes
 				// Updating infos Tab
 				std::stringstream ss;
 				ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
-				if (!gui::InfoManager::is_cli())
-					InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
+				Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::CUTS_SLICE_CURSOR, ss.str());
 
 				auto cd = parent_->getCd();
 				cd->setStftCursor(pos);

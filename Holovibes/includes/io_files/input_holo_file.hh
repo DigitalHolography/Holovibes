@@ -12,13 +12,12 @@
 
 #pragma once
 
-#include "input_file.hh"
+#include "input_frame_file.hh"
 #include "holo_file.hh"
-#include "compute_descriptor.hh"
 
 namespace holovibes::io_files
 {
-    class InputHoloFile: public InputFile, public HoloFile
+    class InputHoloFile: public InputFrameFile, public HoloFile
     {
     public:
         /*!
@@ -27,12 +26,12 @@ namespace holovibes::io_files
         size_t get_total_nb_frames() const override;
 
         /*!
-         *  \brief    Set the pointer in the file to the first frame
+         *  \brief    Set the pointer in the file to the frame requested
          *  \details  This method is mandatory to read frames.
          *
          *  \throw    FileException if an error occurred while setting the position
          */
-        void set_pos_to_first_frame() override;
+        void set_pos_to_frame(size_t frame_id) override;
 
         /*!
          *  \brief    Update ComputeDescriptor with the settings present in the file
@@ -42,8 +41,8 @@ namespace holovibes::io_files
         void import_compute_settings(ComputeDescriptor& cd) const override;
 
     private:
-        // Give access to private members to the handler
-        friend class InputFileHandler;
+        // Give access to private members to the factory
+        friend class InputFrameFileFactory;
 
         /*!
          *  \brief    Constructor

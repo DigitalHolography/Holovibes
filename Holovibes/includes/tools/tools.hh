@@ -101,6 +101,8 @@ namespace holovibes
 	std::string get_exe_path();
 	/*! \brief Returns the directory of the currently used executable file*/
 	std::string get_exe_dir();
+	/*! \brief Return the first not used filename available from the parameter filename as a base*/
+	std::string get_record_filename(std::string filename);
 	/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
 	QString create_absolute_qt_path(const std::string& relative_path);
 	/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) */

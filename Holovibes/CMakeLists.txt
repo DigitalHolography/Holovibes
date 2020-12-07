@@ -17,8 +17,9 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
 set(HOLO_INCLUDES
     cuda_includes/
     includes/
-    includes/core/
     includes/compute/
+    includes/containers/
+    includes/core/
     includes/io_files/
     includes/thread/
     includes/tools/

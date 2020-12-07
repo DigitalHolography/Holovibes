@@ -5,7 +5,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     options_parser.cc
     function_vector.cc
     queue.cc
-    recorder.cc
 
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
@@ -15,6 +14,8 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/postprocessing.cc
     compute/rendering.cc
     compute/image_accumulation.cc
+
+    containers/information_container.cc
 
     core/holovibes.cc
     core/icompute.cc
@@ -44,28 +45,29 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
 
-    io_files/input_file.cc
+    io_files/input_frame_file.cc
     io_files/input_cine_file.cc
     io_files/input_holo_file.cc
-    io_files/input_file_handler.cc
-    io_files/io_file.cc
+    io_files/input_frame_file_factory.cc
+    io_files/frame_file.cc
     io_files/output_holo_file.cc
-    io_files/output_file_handler.cc
+    io_files/output_frame_file_factory.cc
 
-    thread/ithread_input.cc
-    thread/thread_capture.cc
-    thread/thread_compute.cc
-    thread/thread_csv_record.cc
-    thread/thread_reader.cc
-    thread/thread_recorder.cc
-    thread/thread_timer.cc
+    thread/batch_gpib_worker.cc
+    thread/camera_frame_read_worker.cc
+    thread/chart_record_worker.cc
+    thread/compute_worker.cc
+    thread/file_frame_read_worker.cc
+    thread/frame_read_worker.cc
+    thread/frame_record_worker.cc
+    thread/information_worker.cc
+    thread/worker.cc
 
     tools/cuda_tools/cublas_handle.cc
     tools/cuda_tools/cufft_handle.cc
     tools/cuda_tools/cusolver_handle.cc
     tools/cuda_tools/nppi_data.cc
     tools/hardware_limits.cc
-    tools/info_manager.cc
     tools/power_of_two.cc
     tools/tools.cc
     tools/units/conversion_data.cc

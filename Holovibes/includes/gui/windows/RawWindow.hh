@@ -25,7 +25,7 @@ namespace holovibes
 		class RawWindow : public BasicOpenGLWindow
 		{
 		public:
-			RawWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Raw);
+			RawWindow(QPoint p, QSize s, Queue* q, KindOfView k = Raw);
 			virtual ~RawWindow();
 
 			void zoomInRect(units::RectOpengl zone);

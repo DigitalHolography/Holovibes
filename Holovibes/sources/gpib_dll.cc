@@ -23,13 +23,13 @@ namespace gpib
 
 		dll_handle = LoadLibrary(dll_filepath.c_str());
 		if (!dll_handle)
-			throw std::runtime_error("unable to load DLL gpib");
+			throw std::runtime_error("Unable to load DLL gpib");
 
 		FnInit init = nullptr;
 		init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_gpib_controller"));
 
 		if (!init)
-			throw std::runtime_error("unable to retrieve the 'new_gpib_controller' function");
+			throw std::runtime_error("Unable to retrieve the 'new_gpib_controller' function");
 
 		return std::shared_ptr<IVisaInterface>(init(gpib_path), DeleterDLL(dll_handle));
 	}

@@ -24,25 +24,15 @@ using json = ::nlohmann::json;
 // namespace camera
 # include "camera_exception.hh"
 
-// namespace gpib
-# include "gpib_dll.hh"
-# include "IVisaInterface.hh"
-# include "gpib_controller.hh"
-# include "gpib_exceptions.hh"
-
 // namespace holovibes
 # include "holovibes.hh"
 # include "custom_exception.hh"
-# include "info_manager.hh"
 
 // namespace gui
 # include "HoloWindow.hh"
 # include "SliceWindow.hh"
 # include "PlotWindow.hh"
-# include "thread_csv_record.hh"
-# include "thread_recorder.hh"
 # include "ui_mainwindow.h"
-# include "ithread_input.hh"
 
 #define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -190,30 +180,10 @@ namespace holovibes
 			void set_auto_refresh_contrast(bool value);
 			void set_log_scale(bool value);
 			void set_fft_shift(bool value);
-			void set_chart_mode(bool value);
-			void stop_chart_record();
-			void stop_chart_display();
-			void disable_chart_mode();
 			void set_composite_area();
-			void activeSignalZone();
-			void activeNoiseZone();
-			void plot_chart_graphic();
 			void update_convo_kernel(const QString& value);
-			void browse_file();
-			void set_raw_recording(bool value);
-			void set_record();
+			void browse_frame_output_file();
 			void set_record_frame_step(int value);
-			void browse_chart_output_file();
-			void chart_record();
-			void browse_batch_input();
-			void image_batch_record();
-			void chart_batch_record();
-			void batch_record(const std::string& path);
-			void batch_next_record();
-			void batch_finished_record(bool no_error);
-			void batch_finished_record();
-			void stop_image_record();
-			void finished_image_record();
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
 			void import_file(const QString& filename);
@@ -229,11 +199,28 @@ namespace holovibes
 			void set_night();
 			void rotateTexture();
 			void flipTexture();
-			void set_synchronized_record(bool value);
 			void display_reticle(bool value);
 			void reticle_scale(double value);
-			//! Used to start the record at the same time than file reader.
-			void start_recording();
+
+			void browse_batch_input();
+
+			void activeSignalZone();
+			void activeNoiseZone();
+			void set_chart_mode(bool value);
+			void start_chart_display();
+			void stop_chart_display();
+			void browse_chart_output_file();
+			void stop_chart_record();
+			void single_chart_record_finished();
+			void single_chart_record();
+			void batch_chart_record_finished();
+			void batch_chart_record();
+
+			void stop_frame_record();
+			void single_frame_record_finished();
+			void single_frame_record();
+			void batch_frame_record_finished();
+			void batch_frame_record();
 
 			#pragma endregion
 			/* ---------- */
@@ -256,8 +243,6 @@ namespace holovibes
 			void		load_ini(const std::string& path);
 			void		save_ini(const std::string& path);
 			void		cancel_time_transformation_cuts();
-			std::string	format_batch_output(const std::string& path, uint index);
-			std::string	set_record_filename_properties(camera::FrameDescriptor fd, std::string filename, bool add_info = true);
 			void		createPipe();
 			void		createHoloWindow();
 			void		close_windows();
@@ -286,6 +271,7 @@ namespace holovibes
 			Ui::MainWindow		ui;
 			Holovibes&			holovibes_;
 			ComputeDescriptor&	cd_;
+			camera::FrameDescriptor 	file_fd_;
 
 			std::unique_ptr<RawWindow>	mainDisplay = nullptr;
 			std::unique_ptr<SliceWindow>	sliceXZ = nullptr;
@@ -306,8 +292,6 @@ namespace holovibes
 			int			yzFlip = 0;
 
 			bool		is_enabled_camera_ = false;
-			bool		is_batch_img_ = true;
-			bool		is_batch_interrupted_ = false;
 			double		z_step_ = 0.005f;
 			unsigned	record_frame_step_ = 1024;
 
@@ -316,15 +300,11 @@ namespace holovibes
 			QString		last_img_type_ = "Magnitude";
 
 			bool is_chart_enabled_ = false;
-			std::unique_ptr<PlotWindow>				plot_window_ = nullptr;
-			std::shared_ptr<gpib::IVisaInterface>	gpib_interface_ = nullptr;
-			std::unique_ptr<ThreadRecorder>			record_thread_ = nullptr;
-			std::unique_ptr<ThreadCSVRecord>		CSV_record_thread_ = nullptr;
+			std::unique_ptr<PlotWindow> plot_window_ = nullptr;
 
 			size_t auto_scale_point_threshold_ = 100;
-			uint	nb_frames_ = 0;
-			uint	file_index_ = 1;
 			ushort	theme_index_ = 0;
+
 
 			/* Shortcuts (initialized in constructor) */
 			QShortcut	*z_up_shortcut_;

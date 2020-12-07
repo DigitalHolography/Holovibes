@@ -18,8 +18,8 @@
 #include "tools.cuh"
 #include "cuda_memory.cuh"
 
-#include "info_manager.hh"
 #include "logger.hh"
+#include "holovibes.hh"
 
 namespace holovibes
 {
@@ -28,7 +28,7 @@ namespace holovibes
 
 	Queue::Queue(const camera::FrameDescriptor& fd,
 				 const unsigned int max_size,
-				 std::string name,
+				 Queue::QueueType type,
 				 unsigned int input_width,
 				 unsigned int input_height,
 				 unsigned int bytes_per_pixel)
@@ -36,13 +36,12 @@ namespace holovibes
 		, frame_size_(fd_.frame_size())
 		, frame_res_(fd_.frame_res())
 		, max_size_(max_size)
+		, type_(type)
 		, size_(0)
 		, start_index_(0)
 		, is_big_endian_(fd.depth >= 2 &&
 			fd.byteEndian == Endianness::BigEndian)
-		, name_(name)
 		, data_()
-		, display_(true)
 		, input_width_(input_width)
 		, input_height_(input_height)
 		, bytes_per_pixel(bytes_per_pixel)
@@ -50,20 +49,21 @@ namespace holovibes
 	{
 		if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
 		{
-			LOG_ERROR("Queue: couldn't allocate queue");
-			throw std::logic_error(name_ + ": couldn't allocate queue");
+			LOG_ERROR("Queue: could not allocate queue");
+			throw std::logic_error("Could not allocate queue");
 		}
 
 		// Needed if input is embedded into a bigger square
 		cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
 
 		fd_.byteEndian = Endianness::LittleEndian;
+
+		Holovibes::instance().get_info_container().add_queue_size(type_, size_, max_size_);
 	}
 
 	Queue::~Queue()
 	{
-		if (!gui::InfoManager::is_cli())
-			gui::InfoManager::get_manager()->remove_info(name_);
+		Holovibes::instance().get_info_container().remove_queue_size(type_);
 	}
 
 	void Queue::resize(const unsigned int size)
@@ -74,8 +74,8 @@ namespace holovibes
 
 		if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
 		{
-			LOG_ERROR("Queue: couldn't resize queue");
-			throw std::logic_error(name_ + ": couldn't resize queue");
+			LOG_ERROR("Queue: could not resize queue");
+			throw std::logic_error("Could not resize queue");
 		}
 
 		//Needed if input is embedded into a bigger square
@@ -121,17 +121,13 @@ namespace holovibes
 				break;
 			default:
 				assert(false);
-				LOG_ERROR(std::string("Missing switch case for square input mode"));
-				if (!gui::InfoManager::is_cli())
-					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
+				LOG_ERROR("Missing switch case for square input mode. Could not enqueue!");
 				return false;
 		}
 
 		if (cuda_status != CUDA_SUCCESS)
 		{
- 			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cuda_status)));
-			if (!gui::InfoManager::is_cli())
-				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
+ 			LOG_ERROR(std::string("Queue: could not enqueue into: ") + std::string(cudaGetErrorString(cuda_status)));
 			data_.reset();
 			return false;
 		}
@@ -147,8 +143,6 @@ namespace holovibes
 			++size_;
 		else
 			start_index_ = (start_index_ + 1) % max_size_;
-		if (display_)
-			display_queue_to_InfoManager();
 
 		return true;
 	}
@@ -181,9 +175,7 @@ namespace holovibes
 				break;
 			default:
 				assert(false);
-				LOG_ERROR(std::string("Missing switch case for square input mode"));
-				if (!gui::InfoManager::is_cli())
-					gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
+				LOG_ERROR("Missing switch case for square input mode. Could not enqueue!");
 		}
 
 		if (is_big_endian_)
@@ -303,7 +295,7 @@ namespace holovibes
 		if (dest.size_ > dest.max_size_)
 		{
 			dest.start_index_ = (dest.start_index_ + dest.size_ - dest.max_size_) % dest.max_size_;
-			dest.size_ = dest.max_size_;
+			dest.size_.store(dest.max_size_.load());
 		}
 	}
 
@@ -344,13 +336,17 @@ namespace holovibes
 		if (size_ > max_size_)
 		{
 			start_index_ = (start_index_ + size_ - max_size_) % max_size_;
-			size_ = max_size_;
+			size_.store(max_size_.load());
 		}
 
-		if (display_)
-			display_queue_to_InfoManager();
-
 		return true;
+	}
+
+	void Queue::enqueue_from_48bit(void* src, cudaMemcpyKind cuda_kind)
+	{
+		cuda_tools::UniquePtr<uchar> src_uchar(frame_size_);
+		ushort_to_uchar(static_cast<ushort*>(src), src_uchar, frame_size_);
+		enqueue(src_uchar, cuda_kind);
 	}
 
 	void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
@@ -361,26 +357,11 @@ namespace holovibes
 		void* first_img = data_.get() + start_index_ * frame_size_;
 		cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind);
 		dequeue_non_mutex(); // Update indexes
-		if (display_)
-			display_queue_to_InfoManager();
 
 		// If dequeuing in the host side, a device synchronization must be
 		// done because the memcpy must be sync in this case
 		if (cuda_kind == cudaMemcpyDeviceToHost)
 			cudaDeviceSynchronize();
-	}
-
-	void Queue::dequeue_48bit_to_24bit(void * dest, cudaMemcpyKind cuda_kind)
-	{
-		assert(size_ > 0);
-		void* first_img = data_.get() + start_index_ * frame_size_;
-		cuda_tools::UniquePtr<uchar> tmp_uchar(frame_size_ / 2);
-		ushort_to_uchar(static_cast<ushort*>(first_img), tmp_uchar, frame_res_ * 3);
-		cudaXMemcpy(dest, tmp_uchar, frame_res_ * 3, cuda_kind);
-		start_index_ = (start_index_ + 1) % max_size_;
-		--size_;
-		if (display_)
-			display_queue_to_InfoManager();
 	}
 
 	void Queue::dequeue(const unsigned int nb_elts)
@@ -403,23 +384,6 @@ namespace holovibes
 
 		size_ = 0;
 		start_index_ = 0;
-	}
-
-	void Queue::display_queue_to_InfoManager() const
-	{
-		std::string message = std::to_string(size_) + "/" + std::to_string(max_size_) + " (" + calculate_size() + " MB)";
-
-		if (!gui::InfoManager::is_cli())
-		{
-			if (name_ == "InputQueue")
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_, message);
-			else if (name_ == "OutputQueue")
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
-			else if (name_ == "TimeTransformationQueue")
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::TIME_TRANSFORMATION_QUEUE, name_, message);
-			else if (name_ == "RawOutputQueue")
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
-		}
 	}
 
 	bool Queue::is_full() const

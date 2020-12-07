@@ -26,6 +26,7 @@ namespace holovibes
 		Config()
 		{
 			this->input_queue_max_size = 256;
+			this->frame_record_queue_max_size = 64;
 			this->output_queue_max_size = 64;
 			this->time_transformation_cuts_output_buffer_size = 8;
 			this->flush_on_refresh = false;
@@ -47,6 +48,7 @@ namespace holovibes
 		Config& operator=(const Config& o)
 		{
 			this->input_queue_max_size = o.input_queue_max_size;
+			this->frame_record_queue_max_size = o.frame_record_queue_max_size;
 			this->output_queue_max_size = o.output_queue_max_size;
 			this->time_transformation_cuts_output_buffer_size = o.time_transformation_cuts_output_buffer_size;
 			this->flush_on_refresh = o.flush_on_refresh;
@@ -61,6 +63,8 @@ namespace holovibes
 
 		/*! \brief Max size of input queue in number of images. */
 		unsigned int input_queue_max_size;
+		/*! \brief Max size of frame record queue in number of images. */
+		unsigned int frame_record_queue_max_size;
 		/*! \brief Max size of output queue in number of images. */
 		unsigned int output_queue_max_size;
 		/*! \brief Max size of time transformation cuts queue in number of images. */

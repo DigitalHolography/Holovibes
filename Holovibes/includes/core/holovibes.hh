@@ -15,14 +15,22 @@
  * Core class to use HoloVibe  */
 #pragma once
 
-#include "thread_compute.hh"
-#include "thread_capture.hh"
-#include "thread_reader.hh"
-#include "recorder.hh"
 #include "compute_descriptor.hh"
+#include "icamera.hh"
+
 #include "concurrent_deque.hh"
 #include "chart_point.hh"
-#include "icamera.hh"
+
+#include "thread_worker_controller.hh"
+#include "file_frame_read_worker.hh"
+#include "camera_frame_read_worker.hh"
+#include "information_worker.hh"
+#include "chart_record_worker.hh"
+#include "frame_record_worker.hh"
+#include "batch_gpib_worker.hh"
+#include "compute_worker.hh"
+
+#include "information_container.hh"
 
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
@@ -31,6 +39,7 @@ namespace holovibes
 	{
 		class MainWindow;
 	}
+
 	class Queue;
 
 	/*! \brief Core class to use HoloVibes
@@ -44,169 +53,122 @@ namespace holovibes
 	class Holovibes
 	{
 	public:
-		/*! \brief Available camera models
-		 *
-		 * Available Cameras are defined here, it is easier for user to select the
-		 * Camera he wish to use, instead of loading the corresponding DLL himself.
-		 *
-		 * The non hardcoded-way would be to search for DLL and build a list of
-		 * available cameras. */
-
-		/*! \brief Construct the holovibes object. */
-		Holovibes();
-
-		/*! \brief Destroy the holovibes object. */
-		~Holovibes();
-
-		/*! \brief Open the camera and launch the ThreadCapture
-		 *
-		 * Launch the capture thread to continuously acquire frames in input
-		 * buffer. */
-		void Holovibes::init_capture(const CameraKind c);
-
-		/*! \brief Request the capture thread to stop - Free ressources. */
-		void dispose_capture();
-
-		/*! \brief Check if camera is initialized. */
-		bool is_camera_initialized();
-
-		/*! \brief Returns the camera name. */
-		const char* get_camera_name();
+		static Holovibes& instance();
 
 		/*! \{ \name Queue getters
 		 *
 		 * Used to record frames */
-		std::unique_ptr<Queue>& get_gpu_input_queue()
-		{
-			return gpu_input_queue_;
-		}
+		std::shared_ptr<Queue> get_gpu_input_queue();
 
 		/*! Used to display frames */
-		std::unique_ptr<Queue>& get_gpu_output_queue()
-		{
-			return gpu_output_queue_;
-		}
+		std::shared_ptr<Queue> get_gpu_output_queue();
 
-		std::unique_ptr<Queue>& get_current_window_output_queue();
+		Queue* get_current_window_output_queue();
 		/*! \} */
 
-		/*! \brief Launch the recorder
-		 *
-		 * \param filepath File path to record frames
-		 *
-		 * The Recorder is used only for CLI purpose, a thread is
-		 * available for GUI because it use QThread way (use slots and is
-		 * stoppable).
-		 * Recorder input queue depends on the mode :
-		 * - raw: use gpu_input_queue_ queue
-		 * - hologram: use gpu_output_queue_ queue.
-		 */
-		void recorder(const std::string& filepath);
-
-		/*! \brief Launch the ThreadCompute
-		 * \see ThreadCompute
-		 * \see Pipe
-		 *
-		 * The pipe is allocated and his allocation can take some times so that
-		 * the method contains a lock to avoid conflicts between threads that would
-		 * use the Pipe before it finished the initialization. */
-		void init_compute(const unsigned int& depth = 2);
-
-		/*! \brief Update the compute descriptor for CLI purpose
-		 * Must be called before the initialization of the thread compute and recorder
-		 */
-		void update_cd_for_cli(const unsigned int input_fps,
-						 	   const unsigned int rec_n_images,
-							   const bool record_raw);
-
-
-		/*! \brief Request the computing thread to stop */
-		void dispose_compute();
-
-		/*! \brief Fetch all the necessary information before importing a file. */
-		void init_import_mode(std::string &file_src,
-			camera::FrameDescriptor fd,
-			bool loop,
-			unsigned int fps,
-			unsigned int spanStart,
-			unsigned int spanEnd,
-			bool load_file_in_gpu,
-			unsigned int q_max_size_,
-			QProgressBar *reader_progress_bar = nullptr,
-			gui::MainWindow *main_window = nullptr);
-
 		/*! \{ \name Getters/Setters */
-		std::shared_ptr<ICompute> get_pipe()
-		{
-			if (tcompute_ != nullptr)
-				return tcompute_->get_pipe();
-			throw std::runtime_error("cannot get pipe, no compute thread");
-		}
+		std::shared_ptr<ICompute> get_compute_pipe();
 
 		/*! \return Common ComputeDescriptor */
-		ComputeDescriptor& get_cd()
-		{
-			return cd_;
-		}
-
-		/*! \brief Clear values related to convolution matrix */
-		void clear_convolution_matrix();
+		ComputeDescriptor& get_cd();
 
 		/*! \brief Set ComputeDescriptor options
 		 *
 		 * \param cd ComputeDescriptor to load
 		 *
 		 * Used when options are loaded from an INI file. */
-		void set_cd(const ComputeDescriptor& cd)
-		{
-			cd_ = cd;
-		}
+		void set_cd(const ComputeDescriptor& cd);
 
 		/*! \return Corresponding Camera INI file path */
-		const char* get_camera_ini_path() const
-		{
-			return camera_->get_ini_path();
-		}
-
-		const camera::FrameDescriptor& get_capture_fd();
+		const char* get_camera_ini_path() const;
 
 		/* \brief Get zb = N d^2 / lambda
 		  Is updated everytime the camera changes or lamdba changes
 		  */
 		const float get_boundary();
 
-		/* \brief Return capture thread*/
-		std::unique_ptr<IThreadInput>& get_tcapture()
-		{
-			return tcapture_;
-		}
+		InformationContainer& get_info_container();
+
+		/*! \brief Update the compute descriptor for CLI purpose
+		 * Must be called before the initialization of the thread compute and recorder
+		 */
+		void update_cd_for_cli(const unsigned int input_fps);
+
+		void init_input_queue(const camera::FrameDescriptor& fd);
+
+		void start_file_frame_read(const std::string& file_path,
+									bool loop,
+									unsigned int fps,
+									unsigned int first_frame_id,
+									unsigned int nb_frames_to_read,
+									bool load_file_in_gpu,
+									const std::function<void()>& callback = [](){});
+
+		void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = [](){});
+
+		void stop_frame_read();
+
+		/*! \brief Clear values related to convolution matrix */
+		void clear_convolution_matrix();
+
+		void start_frame_record(const std::string& path, unsigned int nb_frames_to_record,
+								bool raw_record, const std::function<void()>& callback = [](){});
+
+		void request_stop_frame_record();
+
+		void start_chart_record(const std::string& path, const unsigned int nb_points_to_record,
+			const std::function<void()>& callback = [](){});
+
+		void request_stop_chart_record();
+
+		void start_batch_gpib(const std::string& batch_input_path,
+            				const std::string& output_path,
+							unsigned int nb_frames_to_record,
+                			bool chart_record,
+							bool raw_record_enabled,
+							const std::function<void()>& callback = [](){});
+
+		void request_stop_batch_gpib();
+
+		void start_information_display(bool is_cli, const std::function<void()>& callback = [](){});
+
+		void request_stop_information_display();
+
+		void start_compute(const std::function<void()>& callback = [](){});
+
+		void stop_compute();
+
+		void stop_all_worker_controller();
 
 	private:
-		/* Use shared pointers to ensure each ressources will freed. */
-		/*! \brief ICamera use to acquire image */
-		std::shared_ptr<camera::ICamera> camera_{ nullptr };
-		bool camera_initialized_{ false };
-		/*! \brief IThread which acquiring continuously frames */
-		std::unique_ptr<IThreadInput> tcapture_{ nullptr };
-		/*! \brief Thread which compute continuously frames */
-		std::unique_ptr<ThreadCompute> tcompute_{ nullptr };
+		/*! \brief Construct the holovibes object. */
+		Holovibes() = default;
+
+		InformationContainer info_container_;
+
+		worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
+		worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
+		std::shared_ptr<camera::ICamera> active_camera_{ nullptr };
+
+		worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+		worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
+
+		worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;
+
+		worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
+
+		worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
+		std::atomic<std::shared_ptr<ICompute>> compute_pipe_{ nullptr };
 
 		/*! \{ \name Frames queue (GPU) */
-		std::unique_ptr<Queue> gpu_input_queue_{ nullptr };
-		std::unique_ptr<Queue> gpu_output_queue_{ nullptr };
+		std::atomic<std::shared_ptr<Queue>> gpu_input_queue_{ nullptr };
+		std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{ nullptr };
 		/*! \} */
 
 		/*! \brief Common compute descriptor shared between CLI/GUI and the
 		 * Pipe. */
 		ComputeDescriptor cd_;
-
-		/*! \brief Store chart of zone signal/noise
-		 *
-		 * Chart are computes in ThreadCompute and use in CurvePlot
-		 * \note see void MainWindow::set_chart_graphic() for example
-		 */
-		ConcurrentDeque<ChartPoint> chart_queue_;
-
-		mutable std::mutex mutex_;
 	};
 }
+
+#include "holovibes.hxx"

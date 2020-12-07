@@ -2345,13 +2345,6 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="SynchronizedRecordCheckBox">
-           <property name="text">
-            <string>Sync. with input file</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="ImageOutputGroupBox">
            <property name="title">
             <string>Image output:</string>
@@ -2911,7 +2904,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10,0">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
@@ -2958,7 +2951,7 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <widget class="QProgressBar" name="ExportProgressBar">
+          <widget class="QProgressBar" name="FrameRecordProgressBar">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -2984,7 +2977,38 @@ p, li { white-space: pre-wrap; }
             <enum>QProgressBar::TopToBottom</enum>
            </property>
            <property name="format">
-            <string>output: %v/%m</string>
+            <string>frame record: %v/%m</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="ChartRecordProgressBar">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+           <property name="textVisible">
+            <bool>true</bool>
+           </property>
+           <property name="textDirection">
+            <enum>QProgressBar::TopToBottom</enum>
+           </property>
+           <property name="format">
+            <string>chart record: %v/%m</string>
            </property>
           </widget>
          </item>
@@ -3760,7 +3784,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_record()</slot>
+   <slot>single_frame_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
@@ -3792,7 +3816,7 @@ p, li { white-space: pre-wrap; }
    <sender>ChartOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>chart_record()</slot>
+   <slot>single_chart_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
@@ -3808,7 +3832,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>image_batch_record()</slot>
+   <slot>batch_frame_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>911</x>
@@ -3824,7 +3848,7 @@ p, li { white-space: pre-wrap; }
    <sender>ChartOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>chart_batch_record()</slot>
+   <slot>batch_chart_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>911</x>
@@ -3840,7 +3864,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageOutputStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>stop_image_record()</slot>
+   <slot>stop_frame_record()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>968</x>
@@ -3904,7 +3928,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageOutputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_file()</slot>
+   <slot>browse_frame_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>968</x>
@@ -4397,22 +4421,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RawRecordingCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_raw_recording(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>969</x>
-     <y>172</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ChartGroupBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4425,22 +4433,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>809</x>
      <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SynchronizedRecordCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_synchronized_record(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>972</x>
-     <y>107</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -5136,7 +5128,7 @@ p, li { white-space: pre-wrap; }
    <sender>ChartPlotPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>plot_chart_graphic()</slot>
+   <slot>start_chart_display()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
@@ -5163,8 +5155,8 @@ p, li { white-space: pre-wrap; }
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_number_of_frames(int)</slot>
-  <slot>set_record()</slot>
-  <slot>browse_file()</slot>
+  <slot>single_frame_record()</slot>
+  <slot>browse_frame_output_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
@@ -5178,15 +5170,14 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
   <slot>set_chart_mode(bool)</slot>
-  <slot>plot_chart_graphic()</slot>
+  <slot>start_chart_display()</slot>
   <slot>configure_holovibes()</slot>
   <slot>browse_chart_output_file()</slot>
   <slot>chart_record()</slot>
   <slot>browse_batch_input()</slot>
-  <slot>batch_record()</slot>
-  <slot>chart_batch_record()</slot>
-  <slot>image_batch_record()</slot>
-  <slot>stop_image_record()</slot>
+  <slot>batch_chart_record()</slot>
+  <slot>batch_frame_record()</slot>
+  <slot>stop_frame_record()</slot>
   <slot>stop_chart_record()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
@@ -5257,8 +5248,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>update_raw_view(bool)</slot>
-  <slot>set_raw_recording(bool)</slot>
-  <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>holo_file_update()</slot>

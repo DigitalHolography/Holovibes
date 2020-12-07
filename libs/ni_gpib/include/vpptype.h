@@ -10,6 +10,10 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+/* IviVisaType.h defines the include guard of this file for backward
+ * compatibility reasons. Please ensure that changes in this file are reflected
+ * in IviVisaType.h when necessary.
+ */
 #ifndef __VPPTYPE_HEADER__
 #define __VPPTYPE_HEADER__
 

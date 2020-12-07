@@ -17,12 +17,10 @@
 
 #include <atomic>
 #include <memory>
-#include <optional>
 
 #include "config.hh"
 #include "rect.hh"
 #include "observable.hh"
-#include "gpib_controller.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
@@ -104,6 +102,13 @@ namespace holovibes
 		cuda_tools::UniquePtr<int>			pca_dev_info = nullptr;
 	};
 
+	struct FrameRecordEnv
+	{
+		std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
+		std::atomic<unsigned int> remaining_frames_to_record = 0;
+		bool raw_record_enabled = false;
+	};
+
 	/** \brief Structure containing variables related to the chart display and recording. */
 	struct ChartEnv
 	{
@@ -145,7 +150,6 @@ namespace holovibes
 			Queue& input,
 			Queue& output,
 			ComputeDescriptor& cd);
-		virtual ~ICompute();
 
 		void request_refresh();
 		void request_output_resize(unsigned int new_output_size);
@@ -163,9 +167,12 @@ namespace holovibes
 		void request_termination();
 		void request_update_batch_size();
 		void request_update_time_transformation_stride();
-		void request_kill_raw_queue();
 		void request_disable_lens_view();
-		void request_allocate_raw_queue();
+		void request_raw_view();
+		void request_disable_raw_view();
+		void request_hologram_record(unsigned int nb_frames_to_record);
+		void request_raw_record(unsigned int nb_frames_to_record);
+		void request_disable_frame_record();
 
 		/*! \brief Execute one iteration of the ICompute.
 		*
@@ -186,7 +193,6 @@ namespace holovibes
 		bool			get_cuts_request();
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
-		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
 		bool get_unwrap_1d_request()					const { return unwrap_1d_requested_; }
 		bool get_unwrap_2d_request()					const { return unwrap_2d_requested_; }
@@ -197,24 +203,30 @@ namespace holovibes
 		bool get_update_time_transformation_size_request()		const { return update_time_transformation_size_requested_; }
 		bool get_stft_update_roi_request()				const { return stft_update_roi_requested_; }
 		bool get_termination_request()					const { return termination_requested_; }
-		bool get_request_time_transformation_cuts()				const { return request_time_transformation_cuts_; }
+		bool get_request_time_transformation_cuts()		const { return request_time_transformation_cuts_; }
 		bool get_request_delete_time_transformation_cuts() 		const { return request_delete_time_transformation_cuts_; }
 		std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
-		bool get_kill_raw_queue_requested() 			const { return kill_raw_queue_requested_;}
-		bool get_request_allocate_raw_queue() 			const { return request_allocate_raw_queue_;}
+		bool get_raw_view_requested() 					const { return raw_view_requested_;}
+		bool get_disable_raw_view_requested() 			const { return disable_raw_view_requested_;}
 		bool get_chart_display_requested()				const { return chart_display_requested_; }
 		std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 		bool get_disable_chart_display_requested()		const { return disable_chart_display_requested_; }
 		bool get_disable_chart_record_requested()		const { return disable_chart_record_requested_; }
+		std::optional<unsigned int> get_hologram_record_requested() const { return hologram_record_requested_; }
+		std::optional<unsigned int> get_raw_record_requested() const { return raw_record_requested_; }
+		bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 
-		/*! \brief Get the raw queue. Make allocation if needed */
-		virtual std::unique_ptr<Queue>&	get_raw_queue();
+		virtual std::unique_ptr<Queue>&	get_raw_view_queue();
 
 		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
 
 		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
+
+		virtual std::unique_ptr<Queue>& get_frame_record_queue();
+
+		virtual unsigned int get_remaining_frames_to_record();
 
 	protected:
 
@@ -226,8 +238,6 @@ namespace holovibes
 		virtual void update_spatial_transformation_parameters();
 		void init_cuts();
 		void dispose_cuts();
-
-		void fps_count();
 
 		ICompute& operator=(const ICompute&) = delete;
 		ICompute(const ICompute&) = delete;
@@ -241,9 +251,6 @@ namespace holovibes
 		/** Reference on the output queue, owned by MainWindow. */
 		Queue&	gpu_output_queue_;
 
-		/** Interface allowing to use the GPIB dll. */
-		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
-
 		/** Main buffers. */
 		CoreBuffersEnv	buffers_;
 
@@ -253,14 +260,17 @@ namespace holovibes
 		/** STFT environment. */
 		TimeTransformationEnv time_transformation_env_;
 
+		/** Frame Record environment (Raw + Hologram)*/
+		FrameRecordEnv frame_record_env_;
+
 		/** Chart environment. */
 		ChartEnv chart_env_;
 
 		/** Image accumulation environment */
 		ImageAccEnv	image_acc_env_;
 
-		/*! \brief Queue storing raw frames used by raw view and raw recording */
-		std::unique_ptr<Queue> gpu_raw_queue_{ nullptr };
+		/*! \brief Queue storing raw frames used by raw view */
+		std::unique_ptr<Queue> gpu_raw_view_queue_{ nullptr };
 
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	spatial_transformation_plan_;
@@ -287,13 +297,16 @@ namespace holovibes
 		std::atomic<std::optional<unsigned int>> chart_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_chart_record_requested_{ false };
 		std::atomic<std::optional<unsigned int>> output_resize_requested_{ std::nullopt };
-		std::atomic<bool> kill_raw_queue_requested_{ false };
-		std::atomic<bool> request_allocate_raw_queue_{ false };
+		std::atomic<bool> raw_view_requested_{ false };
+		std::atomic<bool> disable_raw_view_requested_{ false };
 		std::atomic<bool> termination_requested_{ false };
 		std::atomic<bool> request_time_transformation_cuts_{ false };
 		std::atomic<bool> request_delete_time_transformation_cuts_{ false };
 		std::atomic<bool> request_update_batch_size_{ false };
 		std::atomic<bool> request_update_time_transformation_stride_{ false };
 		std::atomic<bool> request_disable_lens_view_{ false };
+		std::atomic<std::optional<unsigned int>> hologram_record_requested_{ std::nullopt };
+		std::atomic<std::optional<unsigned int>> raw_record_requested_{ std::nullopt };
+		std::atomic<bool> disable_frame_record_requested_{ false };
 	};
 }

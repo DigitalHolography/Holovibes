@@ -23,7 +23,6 @@
 
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
-#include "info_manager.hh"
 #include "cuda_memory.cuh"
 #include "Common.cuh"
 #include "tools.hh"
@@ -34,7 +33,7 @@ namespace holovibes
 	using camera::Endianness;
 	namespace gui
 	{
-		RawWindow::RawWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k) :
+		RawWindow::RawWindow(QPoint p, QSize s, Queue* q, KindOfView k) :
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)

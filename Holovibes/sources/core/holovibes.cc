@@ -12,8 +12,6 @@
 
 #include <filesystem>
 
-#include <cassert>
-
 #include "holovibes.hh"
 #include "queue.hh"
 #include "config.hh"
@@ -21,114 +19,29 @@
 #include "tools.hh"
 #include "logger.hh"
 #include "holo_file.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
 	using camera::FrameDescriptor;
 
-	Holovibes::Holovibes()
-	{}
-
-	Holovibes::~Holovibes()
-	{}
-
-	void Holovibes::init_capture(const CameraKind c)
+	Holovibes& Holovibes::instance()
 	{
-		camera_initialized_ = false;
-		try
-		{
-			if (c == CameraKind::Adimec)
-				camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
-			else if (c == CameraKind::IDS)
-				camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-			else if (c == CameraKind::Hamamatsu)
-				camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
-			else if (c == CameraKind::xiQ)
-				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
-			else if (c == CameraKind::xiB)
-				camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
-			else
-				assert(!"Impossible case");
-
-			LOG_INFO("(Holovibes) Initializing camera...");
-			camera_->init_camera();
-			cd_.pixel_size = camera_->get_pixel_size();
-			LOG_INFO("(Holovibes) Resetting queues...");
-
-			auto camera_fd = camera_->get_fd();
-			auto queue_fd = camera_fd;
-			SquareInputMode mode = cd_.square_input_mode;
-			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
-			{
-				//Set values to the max of the two
-				set_max_of_the_two(queue_fd.width, queue_fd.height);
-			}
-			else if (mode == SquareInputMode::CROPPED_SQUARE)
-			{
-				//Set values to the min of the two
-				set_min_of_the_two(queue_fd.width, queue_fd.height);
-			}
-
-			gpu_input_queue_.reset(new Queue(queue_fd, global::global_config.input_queue_max_size, "InputQueue", camera_fd.width, camera_fd.height, camera_fd.depth));
-
-			LOG_INFO("(Holovibes) Starting initialization...");
-			camera_->start_acquisition();
-			tcapture_.reset(new ThreadCapture(*camera_, *gpu_input_queue_, mode));
-			LOG_INFO("[CAPTURE] Capture thread started");
-			camera_initialized_ = true;
-		}
-		catch (std::exception& e)
-		{
-			std::cout << e.what() << std::endl;
-			tcapture_.reset(nullptr);
-			gpu_input_queue_.reset(nullptr);
-
-			throw;
-		}
+		static Holovibes instance;
+		return instance;
 	}
 
-	void Holovibes::dispose_capture()
-	{
-		tcapture_.reset(nullptr);
-		if (camera_ && camera_initialized_)
-		{
-			camera_->stop_acquisition();
-			camera_->shutdown_camera();
-		}
-
-		gpu_input_queue_.reset(nullptr);
-		camera_.reset();
-		camera_initialized_ = false;
-
-		LOG_INFO("[CAPTURE] Capture thread stopped");
-	}
-
-	bool Holovibes::is_camera_initialized()
-	{
-		return camera_.operator bool();
-	}
-
-	const char* Holovibes::get_camera_name()
-	{
-		assert(camera_initialized_ && "Camera not initialized");
-		return camera_.get()->get_name();
-	}
-
-	std::unique_ptr<Queue>& Holovibes::get_current_window_output_queue()
+	Queue* Holovibes::get_current_window_output_queue()
 	{
 		if (cd_.current_window == WindowKind::XYview)
-			return gpu_output_queue_;
+			return gpu_output_queue_.load().get();
 		else if (cd_.current_window == WindowKind::XZview)
-			return get_pipe()->get_stft_slice_queue(0);
-		return get_pipe()->get_stft_slice_queue(1);
+			return get_compute_pipe()->get_stft_slice_queue(0).get();
+		return get_compute_pipe()->get_stft_slice_queue(1).get();
 	}
 
-	void Holovibes::update_cd_for_cli(const unsigned int input_fps,
-							 		  const unsigned int rec_n_images,
-									  const bool record_raw)
+	void Holovibes::update_cd_for_cli(const unsigned int input_fps)
 	{
-		cd_.nb_frames_record = rec_n_images;
-		cd_.record_raw = record_raw;
 		// Compute time filter stride such as output fps = 20
 		const unsigned int expected_output_fps = 20;
 		cd_.time_transformation_stride = std::max(input_fps / expected_output_fps,
@@ -139,84 +52,6 @@ namespace holovibes
 		cd_.contrast_enabled = false;
 	}
 
-	void Holovibes::recorder(const std::string& filepath)
-	{
-
-		assert(camera_initialized_ && "Camera not initialized");
-		assert(tcapture_ && "Capture thread not initialized");
-		assert(tcompute_ && "Thread compute not initialized");
-
-		Queue* queue = nullptr;
-		if (cd_.record_raw)
-		{
-			ICompute* pipe = tcompute_->get_pipe().get();
-			pipe->request_output_resize(4);
-			pipe->request_allocate_raw_queue();
-
-			while (!pipe->get_request_allocate_raw_queue())
-				continue;
-			queue = pipe->get_raw_queue().get();
-		}
-		else // record hologram
-		{
-			queue = gpu_output_queue_.get();
-		}
-
-
-		Recorder recorder = Recorder(
-			*queue,
-			filepath,
-			cd_);
-
-		LOG_INFO("[RECORDER] Recorder Start");
-		recorder.record();
-		LOG_INFO("[RECORDER] Recorder Stop");
-	}
-
-	void Holovibes::init_compute(const unsigned int& depth)
-	{
-		assert(camera_initialized_ && "Camera not initialized");
-		assert(tcapture_ && "Capture thread not initialized");
-		assert(gpu_input_queue_ && "Input queue not initialized");
-
-		camera::FrameDescriptor output_fd = gpu_input_queue_->get_fd();
-		/* depth is 2 by default execpt when we want dynamic complex dislay*/
-		output_fd.depth = depth;
-		try
-		{
-			gpu_output_queue_.reset(new Queue(
-				output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
-		}
-		catch (std::logic_error& e)
-		{
-			LOG_ERROR("[INIT] Couldn't allocate the output queue");
-			tcapture_.reset(nullptr);
-			gpu_input_queue_.reset(nullptr);
-			return;
-		}
-		tcompute_.reset(new ThreadCompute(cd_, *gpu_input_queue_, *gpu_output_queue_));
-		LOG_INFO("[CUDA] Compute thread started");
-
-		// A wait_for is necessary here in order for the pipe to finish
-		// its allocations before getting it.
-		std::unique_lock<std::mutex> lock(mutex_);
-
-		LOG_INFO("Pipe is initializing ");
-		while (tcompute_->get_memory_cv().wait_for(
-			lock, std::chrono::milliseconds(100)) == std::cv_status::timeout)
-		{
-			std::cout << ".";
-		}
-		std::cout << std::endl;
-		LOG_INFO("Pipe initialized.");
-	}
-
-	void Holovibes::dispose_compute()
-	{
-		tcompute_.reset(nullptr);
-		gpu_output_queue_.reset(nullptr);
-	}
-
 	void Holovibes::clear_convolution_matrix()
 	{
 		cd_.convo_matrix_width = 0;
@@ -225,16 +60,11 @@ namespace holovibes
 		cd_.convo_matrix.clear();
 	}
 
-	const camera::FrameDescriptor& Holovibes::get_capture_fd()
-	{
-		return tcapture_->get_queue_fd();
-	}
-
 	const float Holovibes::get_boundary()
 	{
-		if (tcapture_)
+		if (gpu_input_queue_.load())
 		{
-			FrameDescriptor fd = get_capture_fd();
+			FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
 			const float n = static_cast<float>(fd.height);
 			const float d = cd_.pixel_size * 0.000001f;
 			return (n * d * d) / cd_.lambda;
@@ -242,57 +72,162 @@ namespace holovibes
 		return 0.f;
 	}
 
-	void Holovibes::init_import_mode(std::string &file_src,
-		camera::FrameDescriptor fd,
-		bool loop,
-		unsigned int fps,
-		unsigned int spanStart,
-		unsigned int spanEnd,
-		bool load_file_in_gpu,
-		unsigned int q_max_size_,
-		QProgressBar *reader_progress_bar,
-		gui::MainWindow *main_window)
+	void Holovibes::init_input_queue(const camera::FrameDescriptor& fd)
 	{
-		camera_initialized_ = false;
+		SquareInputMode mode = cd_.square_input_mode;
 
+		camera::FrameDescriptor queue_fd = fd;
+
+		if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
+		{
+			//Set values to the max of the two
+			set_max_of_the_two(queue_fd.width, queue_fd.height);
+		}
+		else if (mode == SquareInputMode::CROPPED_SQUARE)
+		{
+			//Set values to the min of the two
+			set_min_of_the_two(queue_fd.width, queue_fd.height);
+		}
+
+		gpu_input_queue_ = std::make_shared<Queue>(queue_fd, global::global_config.input_queue_max_size,
+										Queue::QueueType::INPUT_QUEUE, fd.width, fd.height, fd.depth);
+		gpu_input_queue_.load()->set_square_input_mode(mode);
+	}
+
+	void Holovibes::start_file_frame_read(const std::string& file_path,
+											bool loop,
+											unsigned int fps,
+											unsigned int first_frame_id,
+											unsigned int nb_frames_to_read,
+											bool load_file_in_gpu,
+											const std::function<void()>& callback)
+	{
+		assert(gpu_input_queue_.load() != nullptr);
+
+		file_read_worker_controller_.set_callback(callback);
+		file_read_worker_controller_.start(file_path, loop, fps, first_frame_id,
+										nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
+	}
+
+	void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)
+	{
 		try
 		{
-			SquareInputMode mode = cd_.square_input_mode;
-			camera::FrameDescriptor queue_fd = fd;
-			if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
-			{
-				//Set values to the max of the two
-				set_max_of_the_two(queue_fd.width, queue_fd.height);
-			}
-			else if (mode == SquareInputMode::CROPPED_SQUARE)
-			{
-				//Set values to the min of the two
-				set_min_of_the_two(queue_fd.width, queue_fd.height);
-			}
+			if (camera_kind == CameraKind::Adimec)
+				active_camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
+			else if (camera_kind == CameraKind::IDS)
+				active_camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
+			else if (camera_kind == CameraKind::Hamamatsu)
+				active_camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
+			else if (camera_kind == CameraKind::xiQ)
+				active_camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
+			else if (camera_kind == CameraKind::xiB)
+				active_camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
+			else
+				assert(!"Impossible case");
 
-			gpu_input_queue_.reset(new Queue(queue_fd, q_max_size_, "InputQueue", fd.width, fd.height, fd.depth));
-			tcapture_.reset(
-				new ThreadReader(file_src,
-					fd,
-					mode,
-					loop,
-					fps,
-					spanStart,
-					spanEnd,
-					*gpu_input_queue_,
-					load_file_in_gpu,
-					reader_progress_bar,
-					main_window));
-			LOG_INFO("[CAPTURE] reader thread started");
-			camera_initialized_ = true;
+			cd_.pixel_size = active_camera_->get_pixel_size();
+			const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
+			camera::FrameDescriptor queue_fd = camera_fd;
+
+			init_input_queue(camera_fd);
+
+			camera_read_worker_controller_.set_callback(callback);
+			camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
 		}
 		catch (std::exception& e)
 		{
 			std::cout << e.what() << std::endl;
-			tcapture_.reset(nullptr);
-			gpu_input_queue_.reset(nullptr);
-
+			stop_frame_read();
 			throw;
 		}
+	}
+
+	void Holovibes::stop_frame_read()
+	{
+		camera_read_worker_controller_.stop();
+		file_read_worker_controller_.stop();
+		info_container_.clear();
+		active_camera_.reset();
+		gpu_input_queue_.store(nullptr);
+	}
+
+	void Holovibes::start_frame_record(const std::string& path, unsigned int nb_frames_to_record,
+										 bool raw_record, const std::function<void()>& callback)
+	{
+		frame_record_worker_controller_.set_callback(callback);
+		frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record);
+	}
+
+	void Holovibes::request_stop_frame_record()
+	{
+		frame_record_worker_controller_.request_stop();
+	}
+
+	void Holovibes::start_chart_record(const std::string& path, const unsigned int nb_points_to_record,
+										const std::function<void()>& callback)
+	{
+		chart_record_worker_controller_.set_callback(callback);
+		chart_record_worker_controller_.start(path, nb_points_to_record);
+	}
+
+	void Holovibes::request_stop_chart_record()
+	{
+		chart_record_worker_controller_.request_stop();
+	}
+
+	void Holovibes::start_batch_gpib(const std::string& batch_input_path,
+            				const std::string& output_path,
+							unsigned int nb_frames_to_record,
+                			bool chart_record,
+							bool raw_record_enabled,
+							const std::function<void()>& callback)
+	{
+		batch_gpib_worker_controller_.stop();
+		batch_gpib_worker_controller_.set_callback(callback);
+		batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record, chart_record, raw_record_enabled);
+	}
+
+	void Holovibes::request_stop_batch_gpib()
+	{
+		batch_gpib_worker_controller_.request_stop();
+	}
+
+	void Holovibes::start_information_display(bool is_cli, const std::function<void()>& callback)
+	{
+		info_worker_controller_.set_callback(callback);
+		info_worker_controller_.start(is_cli, info_container_);
+	}
+
+	void Holovibes::request_stop_information_display()
+	{
+		info_worker_controller_.request_stop();
+	}
+
+	void Holovibes::start_compute(const std::function<void()>& callback)
+	{
+		assert(gpu_input_queue_.load() && "Input queue not initialized");
+
+		compute_worker_controller_.set_callback(callback);
+		compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+
+		LOG_INFO("Pipe is initializing");
+		while (!compute_pipe_.load());
+		LOG_INFO("Pipe initialized.");
+	}
+
+	void Holovibes::stop_compute()
+	{
+		compute_worker_controller_.stop();
+	}
+
+	void Holovibes::stop_all_worker_controller()
+	{
+		info_worker_controller_.stop();
+		frame_record_worker_controller_.stop();
+		chart_record_worker_controller_.stop();
+		batch_gpib_worker_controller_.stop();
+		compute_worker_controller_.stop();
+		stop_frame_read();
 	}
 }

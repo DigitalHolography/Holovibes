@@ -59,16 +59,6 @@ namespace holovibes
 		return (start_index_ + size_) % max_size_;
     }
 
-	inline const std::string& Queue::get_name() const
-	{
-		return name_;
-	}
-
-	inline void Queue::set_display(bool value)
-	{
-		display_ = value;
-	}
-
 	inline void Queue::set_square_input_mode(SquareInputMode mode)
 	{
 		square_input_mode_ = mode;

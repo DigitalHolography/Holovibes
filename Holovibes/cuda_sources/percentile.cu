@@ -143,7 +143,7 @@ void compute_percentile_yz_view(const float *gpu_input,
 	try {
 		thrust_gpu_input_copy = allocate_thrust(frame_res);
 
-		// Copy sub array (skip the 2 first columns and the 2 last columns)		
+		// Copy sub array (skip the 2 first columns and the 2 last columns)
 		cudaSafeCall(
 			cudaMemcpy2D(thrust_gpu_input_copy.get(),		 	// dst
 					     (width - 2 * offset) * sizeof(float),	// dpitch

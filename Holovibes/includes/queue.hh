@@ -19,15 +19,9 @@
  */
 #pragma once
 
-#include <iostream>
-#include <mutex>
-#include <cassert>
-
-#include <cuda_runtime.h>
-
 #include "frame_desc.hh"
+#include "compute_descriptor.hh"
 #include "unique_ptr.hh"
-#include "ithread_input.hh"
 
 namespace holovibes
 {
@@ -46,6 +40,14 @@ namespace holovibes
 	public:
 		using MutexGuard = std::lock_guard<std::mutex>;
 
+        enum class QueueType
+        {
+            UNDEFINED,
+            INPUT_QUEUE,
+            OUTPUT_QUEUE,
+            RECORD_QUEUE,
+        };
+
 	public:
 		/*! \brief Queue constructor
 		**
@@ -58,7 +60,7 @@ namespace holovibes
 		**/
 		Queue(const camera::FrameDescriptor& fd,
 			  const unsigned int max_size,
-			  std::string name,
+			  QueueType type = QueueType::UNDEFINED,
 			  unsigned int input_width = 0,
 			  unsigned int input_height = 0,
 			  unsigned int bytes_per_pixel = 1);
@@ -100,16 +102,10 @@ namespace holovibes
 		/*! \return index of the frame right after the last one containing data */
 		inline unsigned int get_end_index() const;
 
-		/*! \return getter to the name of queue */
-		inline const std::string& get_name() const;
-
 		/*! \return getter to the queue mutex */
 		inline std::mutex& get_guard();
 
 		/* Setters */
-		/*! \brief Allow us to choose if we want to display the queue or not */
-		inline void set_display(bool value);
-
 		/*! \brief Set the input mode (cropped, no modification, padding) */
 		inline void set_square_input_mode(SquareInputMode mode);
 
@@ -159,6 +155,9 @@ namespace holovibes
 							  unsigned int nb_elts,
 							  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
+		void Queue::enqueue_from_48bit(void* src,
+										cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+
 		/*! \brief Dequeue method overload
 		**
 		** Copy the first element of the Queue into dest according to cuda_kind
@@ -168,17 +167,6 @@ namespace holovibes
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		*/
 		void dequeue(void* dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
-
-		/*! \brief Dequeue method overload for composite recording
-		**
-		** Copy the first element of the Queue into dest according to cuda_kind
-		** cuda memory type ignoring one byte over two,
-		** then update internal attributes.
-		**
-		** \param dest destination of element copy
-		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
-		*/
-		void dequeue_48bit_to_24bit(void* dest, cudaMemcpyKind cuda_kind);
 
 		/*! \brief Dequeue method
 		**
@@ -207,8 +195,6 @@ namespace holovibes
 		std::string calculate_size(void) const;
 
 	private: /* Private Methods */
-		void display_queue_to_InfoManager() const;
-
 		/*! \brief auxiliary method of enqueue multiple.
 		** Mostly make the copy
 		** \param out the output buffer in which the frames are copied
@@ -225,16 +211,18 @@ namespace holovibes
 
 		/*! \brief mutex to lock the queue */
 		mutable std::mutex		mutex_;
-		/*! \brief name of the queue */
-		std::string				name_;
 		/*! \brief frame descriptor of a frame store in the queue */
 		camera::FrameDescriptor	fd_;
+
 		/*! \brief frame size from the frame descriptor */
 		const size_t			frame_size_;
 		/*! \brief frame resolution from the frame descriptor */
 		const size_t				frame_res_;
 		/*! \brief Maximum size of the queue (capacity) */
-		unsigned int		    max_size_;
+		std::atomic<unsigned int>		    max_size_;
+
+		//! Type of the queue
+		Queue::QueueType type_;
 
 		/*! \brief Size of the queue (number of frames currently stored in the
 		** queue)
@@ -253,10 +241,6 @@ namespace holovibes
 		const bool				is_big_endian_;
 		/*! \brief The actual buffer in which the frames are stored */
 		cuda_tools::UniquePtr<char>	data_;
-		/*! \brief flag to check if the information of the queue must b
-		** displayed
-		*/
-		bool					display_;
 		// Utils used for square input mode
 		/*! \brief Original width of the input */
 		unsigned int input_width_;

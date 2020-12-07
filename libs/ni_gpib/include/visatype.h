@@ -5,11 +5,15 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /* Title   : VISATYPE.H                                                      */
-/* Date    : 04-21-2014                                                      */
+/* Date    : 06-08-2017                                                      */
 /* Purpose : Fundamental VISA data types and macro definitions               */
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+/* IviVisaType.h defines the include guard of this file for backward
+ * compatibility reasons. Please ensure that changes in this file are reflected
+ * in IviVisaType.h when necessary.
+ */
 #ifndef __VISATYPE_HEADER__
 #define __VISATYPE_HEADER__
 
@@ -58,7 +62,7 @@
 
 #ifndef _VI_INT64_UINT64_DEFINED
 #if defined(_WIN64) || ((defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)) && !defined(_NI_mswin16_))
-#if (defined(_MSC_VER) && (_MSC_VER >= 1200)) || (defined(_CVI_) && (_CVI_ >= 700)) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0520)) || defined(__LCC__)
+#if (defined(_MSC_VER) && (_MSC_VER >= 1200)) || (defined(_CVI_) && (_CVI_ >= 700)) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0520)) || defined(__LCC__) || (defined(__GNUC__) && (__GNUC__ >= 3)) || (defined(__clang__) && (__clang_major__ >= 3))
 typedef unsigned   __int64  ViUInt64;
 typedef _VI_SIGNED __int64  ViInt64;
 #define _VI_INT64_UINT64_DEFINED
@@ -141,14 +145,20 @@ typedef ViReal64    _VI_PTR ViPReal64;
 typedef ViReal64    _VI_PTR ViAReal64;
 
 typedef ViPByte             ViBuf;
+typedef const ViByte *      ViConstBuf;
 typedef ViPByte             ViPBuf;
 typedef ViPByte     _VI_PTR ViABuf;
 
 typedef ViPChar             ViString;
+#ifndef _VI_CONST_STRING_DEFINED
+typedef const ViChar *      ViConstString;
+#define _VI_CONST_STRING_DEFINED
+#endif
 typedef ViPChar             ViPString;
 typedef ViPChar     _VI_PTR ViAString;
 
 typedef ViString            ViRsrc;
+typedef ViConstString       ViConstRsrc;
 typedef ViString            ViPRsrc;
 typedef ViString    _VI_PTR ViARsrc;
 
@@ -174,11 +184,6 @@ typedef ViSession   _VI_PTR ViASession;
 
 typedef ViUInt32             ViAttr;
 
-#ifndef _VI_CONST_STRING_DEFINED
-typedef const ViChar * ViConstString;
-#define _VI_CONST_STRING_DEFINED
-#endif
-
 /*- Completion and Error Codes ----------------------------------------------*/
 
 #define VI_SUCCESS          (0L)
@@ -198,4 +203,3 @@ typedef const ViChar * ViConstString;
 #endif
 
 /*- The End -----------------------------------------------------------------*/
-

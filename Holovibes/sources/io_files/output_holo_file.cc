@@ -16,34 +16,36 @@
 namespace holovibes::io_files
 {
     OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb):
-        OutputFile(file_path),
+        OutputFrameFile(file_path),
         HoloFile()
     {
+		fd_ = fd;
+
         holo_file_header_.magic_number[0] = 'H';
 		holo_file_header_.magic_number[1] = 'O';
 		holo_file_header_.magic_number[2] = 'L';
 		holo_file_header_.magic_number[3] = 'O';
 
 		holo_file_header_.version = current_version_;
-		holo_file_header_.bits_per_pixel = fd.depth * 8;
-		holo_file_header_.img_width = fd.width;
-		holo_file_header_.img_height = fd.height;
+		holo_file_header_.bits_per_pixel = fd_.depth * 8;
+		holo_file_header_.img_width = fd_.width;
+		holo_file_header_.img_height = fd_.height;
 		holo_file_header_.img_nb = img_nb;
 		holo_file_header_.endianness = camera::Endianness::LittleEndian;
 
-		holo_file_header_.total_data_size = fd.frame_size() * img_nb;
+		holo_file_header_.total_data_size = fd_.frame_size() * img_nb;
 
         meta_data_ = json();
     }
 
-    void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd)
+    void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
     {
 		// export as a json
 		try
 		{
 			Computation mode = Computation::Raw;
 
-			if (cd.record_raw.load() && cd.compute_mode.load() == Computation::Hologram)
+			if (record_raw && cd.compute_mode.load() == Computation::Hologram)
 				mode = Computation::Hologram;
 
 			meta_data_ = json
@@ -114,4 +116,25 @@ namespace holovibes::io_files
         if (std::fwrite(meta_data_str.data(), sizeof(char), meta_data_size, file_ ) != meta_data_size)
             throw FileException("Unable to write output holo file footer");
     }
+
+	void OutputHoloFile::correct_number_of_frames(unsigned int nb_frames_written)
+	{
+		fpos_t previous_pos;
+
+		if (std::fgetpos(file_, &previous_pos))
+            throw FileException("Unable to correct number of written frames");
+
+		holo_file_header_.img_nb = nb_frames_written;
+		holo_file_header_.total_data_size = fd_.frame_size() * nb_frames_written;
+
+		fpos_t file_begin_pos = 0;
+
+		if (std::fsetpos(file_, &file_begin_pos))
+            throw FileException("Unable to correct number of written frames");
+
+		write_header();
+
+		if (std::fsetpos(file_, &previous_pos))
+            throw FileException("Unable to correct number of written frames");
+	}
 } // namespace holovibes::io_files

@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include "output_file.hh"
+#include "output_frame_file.hh"
 #include "holo_file.hh"
 
 namespace holovibes::io_files
 {
-    class OutputHoloFile: public OutputFile, public HoloFile
+    class OutputHoloFile: public OutputFrameFile, public HoloFile
     {
     public:
         /*!
@@ -28,9 +28,10 @@ namespace holovibes::io_files
         /*!
          *  \brief    Export the compute settings in the file
          *
-         *  \param    cd    The ComputeDescriptor containing the compute settings
+         *  \param    cd            The ComputeDescriptor containing the compute settings
+         *  \param    record_raw    Is the raw record enabled
          */
-        void export_compute_settings(const ComputeDescriptor& cd) override;
+        void export_compute_settings(const ComputeDescriptor& cd, bool record_raw) override;
 
         /*!
          *  \brief    Write the header in the file
@@ -58,9 +59,18 @@ namespace holovibes::io_files
          */
         void write_footer() override;
 
+        /*!
+         *  \brief    Rewrite the sections in the file where the number of frames has been used
+         *  \details  It is useful to correct the header when the file is written
+         *            with a different number of frames than the expected number of frames
+         *
+         *  \throw    FileException if an error occurred while correcting the sections
+         */
+        void correct_number_of_frames(unsigned int nb_frames_written) override;
+
     private:
-        // Give access to private members to the handler
-        friend class OutputFileHandler;
+        // Give access to private members to the factory
+        friend class OutputFrameFileFactory;
 
         /*!
          *  \brief    Constructor

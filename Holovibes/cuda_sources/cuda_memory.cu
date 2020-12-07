@@ -20,6 +20,11 @@ void cudaXMalloc(void** devPtr, size_t size)
     cudaSafeCall(cudaMalloc(devPtr, size));
 }
 
+void cudaXMallocHost(void** devPtr, size_t size)
+{
+    cudaSafeCall(cudaMallocHost(devPtr, size));
+}
+
 void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
 {
     cudaSafeCall(cudaMemcpy(dst, src, count, kind));
@@ -43,4 +48,9 @@ void cudaXMemsetAsync(void* devPtr, int  value, size_t count, cudaStream_t strea
 void cudaXFree(void* devPtr)
 {
     cudaSafeCall(cudaFree(devPtr));
+}
+
+void cudaXFreeHost(void* devPtr)
+{
+    cudaSafeCall(cudaFreeHost(devPtr));
 }

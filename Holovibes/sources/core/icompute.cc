@@ -23,7 +23,6 @@
 #include "concurrent_deque.hh"
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
-#include "info_manager.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
 #include "custom_exception.hh"
@@ -31,9 +30,10 @@
 #include "pipe.hh"
 #include "logger.hh"
 
+#include "holovibes.hh"
+
 namespace holovibes
 {
-	using gui::InfoManager;
 	using camera::FrameDescriptor;
 
 
@@ -80,7 +80,7 @@ namespace holovibes
 
 		camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
 		new_fd.depth = 8;
-		time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size, "TimeTransformationQueue"));
+		time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size));
 
 		if (!buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_.get_fd().frame_res()))
 			err++;
@@ -104,12 +104,6 @@ namespace holovibes
 
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
-	}
-
-	ICompute::~ICompute()
-	{
-		if (!gui::InfoManager::is_cli())
-			InfoManager::get_manager()->remove_info("Rendering Fps");
 	}
 
 	bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
@@ -195,8 +189,8 @@ namespace holovibes
 		auto fd_yz = fd_xz;
 		fd_xz.height = cd_.time_transformation_size;
 		fd_yz.width = cd_.time_transformation_size;
-		time_transformation_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size, "STFTCutXZ"));
-		time_transformation_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size, "STFTCutYZ"));
+		time_transformation_env_.gpu_output_queue_xz.reset(new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size));
+		time_transformation_env_.gpu_output_queue_yz.reset(new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size));
 		buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
 		buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
 
@@ -215,9 +209,9 @@ namespace holovibes
 		time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 	}
 
-	std::unique_ptr<Queue>& ICompute::get_raw_queue()
+	std::unique_ptr<Queue>& ICompute::get_raw_view_queue()
 	{
-		return gpu_raw_queue_;
+		return gpu_raw_view_queue_;
 	}
 
 	std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
@@ -228,6 +222,16 @@ namespace holovibes
 	std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
 	{
 		return chart_env_.chart_record_queue_;
+	}
+
+	std::unique_ptr<Queue>& ICompute::get_frame_record_queue()
+	{
+		return frame_record_env_.gpu_frame_record_queue_;
+	}
+
+	unsigned int ICompute::get_remaining_frames_to_record()
+	{
+		return frame_record_env_.remaining_frames_to_record.load();
 	}
 
 	void ICompute::delete_stft_slice_queue()
@@ -255,11 +259,6 @@ namespace holovibes
 	std::unique_ptr<Queue>&	ICompute::get_stft_slice_queue(int slice)
 	{
 		return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
-	}
-
-	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)
-	{
-		gpib_interface_ = gpib_interface;
 	}
 
 	void ICompute::pipe_error(const int& err_count, std::exception& e)
@@ -293,15 +292,33 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::request_kill_raw_queue()
+	void ICompute::request_disable_raw_view()
 	{
-		kill_raw_queue_requested_ = true;
+		disable_raw_view_requested_ = true;
 		request_refresh();
 	}
 
-	void ICompute::request_allocate_raw_queue()
+	void ICompute::request_raw_view()
 	{
-		request_allocate_raw_queue_ = true;
+		raw_view_requested_ = true;
+		request_refresh();
+	}
+
+	void ICompute::request_hologram_record(unsigned int nb_frames_to_record)
+	{
+		hologram_record_requested_ = nb_frames_to_record;
+		request_refresh();
+	}
+
+	void ICompute::request_raw_record(unsigned int nb_frames_to_record)
+	{
+		raw_record_requested_ = nb_frames_to_record;
+		request_refresh();
+	}
+
+	void ICompute::request_disable_frame_record()
+	{
+		disable_frame_record_requested_ = true;
 		request_refresh();
 	}
 
@@ -398,34 +415,5 @@ namespace holovibes
 	{
 		request_disable_lens_view_ = true;
 		request_refresh();
-	}
-
-	void ICompute::fps_count()
-	{
-		if (++frame_count_ == 20 && !gui::InfoManager::is_cli())
-		{
-			auto time = std::chrono::high_resolution_clock::now();
-			long long time_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(time - past_time_).count();
-			InfoManager *manager = gui::InfoManager::get_manager();
-
-			if (time_elapsed > 0)
-			{
-				// FPS
-				const long long fps = frame_count_ * 1e9 / time_elapsed;
-				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + " fps");
-
-				// Output throughput
-				const long long voxelPerSecond = fps * gpu_output_queue_.get_fd().frame_res() * cd_.time_transformation_size;
-				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
-					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
-
-				// Input throughput
-				const long long bytePerSecond = fps * gpu_input_queue_.get_fd().frame_size() * cd_.time_transformation_stride;
-				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
-					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
-			}
-			frame_count_ = 0;
-			past_time_ = std::chrono::high_resolution_clock::now();
-		}
 	}
 }

@@ -25,7 +25,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window) :
+		SliceWindow::SliceWindow(QPoint p, QSize s, Queue* q, KindOfView k, MainWindow *main_window) :
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),

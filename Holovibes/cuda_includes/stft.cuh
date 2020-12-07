@@ -13,11 +13,14 @@
 #pragma once
 
 #include "Common.cuh"
-#include "compute_descriptor.hh"
 #include "rect.hh"
-#include "queue.hh"
 
 using holovibes::units::RectFd;
+
+namespace holovibes
+{
+	class Queue;
+}
 
 /*! \brief Compute the STFT time transform from gpu_time_transformation_queue_
  * to gpu_p_acc_buffer using plan1d wich is the data and computation descriptor

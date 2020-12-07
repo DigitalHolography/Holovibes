@@ -31,6 +31,7 @@
 #include "contrast_correction.cuh"
 #include "custom_exception.hh"
 #include "pipeline_utils.hh"
+#include "holovibes.hh"
 
 namespace holovibes
 {
@@ -54,6 +55,7 @@ namespace holovibes
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc);
 
 		update_time_transformation_size_requested_ = true;
+		processed_output_fps_.store(0);
 
 		try
 		{
@@ -80,10 +82,6 @@ namespace holovibes
 		}
 	}
 
-	Pipe::~Pipe()
-	{
-	}
-
 	bool Pipe::make_requests()
 	{
 		// In order to have a better memory management, free all the ressources
@@ -105,10 +103,11 @@ namespace holovibes
 			request_disable_lens_view_ = false;
 		}
 
-		if (kill_raw_queue_requested_) // Destroy gpu raw queue
+		if (disable_raw_view_requested_)
 		{
-			gpu_raw_queue_.reset(nullptr);
-			kill_raw_queue_requested_ = false;
+			gpu_raw_view_queue_.reset(nullptr);
+			cd_.raw_view_enabled = false;
+			disable_raw_view_requested_ = false;
 		}
 
 		if (request_delete_time_transformation_cuts_)
@@ -130,6 +129,14 @@ namespace holovibes
 			cd_.chart_record_enabled = false;
 			chart_env_.nb_chart_points_to_record_ = 0;
 			disable_chart_record_requested_ = false;
+		}
+
+		if (disable_frame_record_requested_)
+		{
+			frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
+			cd_.frame_record_enabled = false;
+			frame_record_env_.remaining_frames_to_record = 0;
+			disable_frame_record_requested_ = false;
 		}
 
 		image_accumulation_->dispose(); // done only if requested
@@ -181,15 +188,13 @@ namespace holovibes
 
 		image_accumulation_->init(); // done only if requested
 
-		if (request_allocate_raw_queue_)
+		if (raw_view_requested_)
 		{
-			if (!gpu_raw_queue_)
-			{
-				auto fd = gpu_input_queue_.get_fd();
-				gpu_raw_queue_.reset(
-					new Queue(fd, global::global_config.output_queue_max_size, "RawOutputQueue"));
-			}
-			request_allocate_raw_queue_ = false;
+			auto fd = gpu_input_queue_.get_fd();
+			gpu_raw_view_queue_.reset(
+				new Queue(fd, global::global_config.output_queue_max_size));
+			cd_.raw_view_enabled = true;
+			raw_view_requested_ = false;
 		}
 
 		if (chart_display_requested_)
@@ -207,6 +212,28 @@ namespace holovibes
 			chart_record_requested_ = std::nullopt;
 		}
 
+		if (hologram_record_requested_.load() != std::nullopt)
+		{
+			auto record_fd = gpu_output_queue_.get_fd();
+			record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
+			frame_record_env_.gpu_frame_record_queue_.reset(
+				new Queue(record_fd, global::global_config.frame_record_queue_max_size, Queue::QueueType::RECORD_QUEUE));
+			cd_.frame_record_enabled = true;
+			frame_record_env_.remaining_frames_to_record = hologram_record_requested_.load().value();
+			frame_record_env_.raw_record_enabled = false;
+			hologram_record_requested_ = std::nullopt;
+		}
+
+		if (raw_record_requested_.load() != std::nullopt)
+		{
+			frame_record_env_.gpu_frame_record_queue_.reset(
+				new Queue(gpu_input_queue_.get_fd(), global::global_config.frame_record_queue_max_size, Queue::QueueType::RECORD_QUEUE));
+			cd_.frame_record_enabled = true;
+			frame_record_env_.remaining_frames_to_record = raw_record_requested_.load().value();
+			frame_record_env_.raw_record_enabled = true;
+			raw_record_requested_ = std::nullopt;
+		}
+
 		return success_allocation;
 	}
 
@@ -214,11 +241,12 @@ namespace holovibes
 	{
 		fn_compute_vect_.clear();
 
+
 		if (cd_.compute_mode == Computation::Raw)
 		{
-			update_time_transformation_size_requested_ = false;
 			refresh_requested_ = false;
-			insert_raw_enqueue_raw_mode();
+			insert_raw_record();
+			insert_output_enqueue_raw_mode();
 			return;
 		}
 
@@ -235,7 +263,9 @@ namespace holovibes
 
 		insert_wait_frames();
 
-		insert_raw_enqueue_hologram_mode();
+		insert_raw_record();
+
+		insert_raw_view();
 
 		converts_->insert_complex_conversion(gpu_input_queue_);
 
@@ -244,6 +274,10 @@ namespace holovibes
 
 		// Move frames from gpu_space_transformation_buffer to gpu_time_transformation_queue (with respect to time_transformation_stride)
 		insert_transfer_for_time_transformation();
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		// time transform
 		if (cd_.time_transformation == TimeTransformation::STFT)
@@ -276,9 +310,9 @@ namespace holovibes
 
 		converts_->insert_to_ushort();
 
-		insert_hologram_enqueue_output();
+		insert_output_enqueue_hologram_mode();
 
-		fn_compute_vect_.conditional_push_back([=]() { fps_count(); });
+		insert_hologram_record();
 
 		// Must be the last inserted function
 		insert_reset_batch_index();
@@ -286,48 +320,19 @@ namespace holovibes
 		refresh_requested_ = false;
 	}
 
-	void Pipe::insert_reset_batch_index()
+	void Pipe::insert_wait_frames()
 	{
 		fn_compute_vect_.push_back([&](){
-			if (batch_env_.batch_index == cd_.time_transformation_stride)
-				batch_env_.batch_index = 0;
+			// Wait while the input queue is enough filled
+			while (gpu_input_queue_.get_size() < cd_.batch_size)
+				continue;
 		});
 	}
 
-	void Pipe::copy_frames_for_recording(std::function<void()> copy_function)
+	void Pipe::insert_reset_batch_index()
 	{
-		// Start recording if requested
-		if (cd_.request_recorder_copy_frames)
-		{
-			cd_.copy_frames_done = false;
-			remaining_raw_frames_copy_ = cd_.nb_frames_record;
-			cd_.request_recorder_copy_frames = false;
-		}
-
-		if (remaining_raw_frames_copy_ > 0)
-		{
-			copy_function();
-			if (remaining_raw_frames_copy_ == 0)
-				cd_.copy_frames_done = true;
-		}
-	}
-
-	void Pipe::insert_raw_enqueue_hologram_mode()
-	{
-		fn_compute_vect_.push_back([&](){
-			// The raw view and raw recording can't be enabled at the same time
-			if (cd_.is_recording && cd_.record_raw)
-			{
-				auto copy_lambda = [&]()
-				{
-					unsigned int raw_frames_copy = std::min(static_cast<unsigned int>(cd_.batch_size.load()), remaining_raw_frames_copy_);
-					gpu_input_queue_.copy_multiple(*get_raw_queue(), raw_frames_copy);
-					remaining_raw_frames_copy_ -= raw_frames_copy;
-				};
-				copy_frames_for_recording(copy_lambda);
-			}
-			else if (cd_.raw_view)
-				gpu_input_queue_.copy_multiple(*get_raw_queue(), cd_.batch_size);
+		fn_compute_vect_.conditional_push_back([&](){
+			batch_env_.batch_index = 0;
 		});
 	}
 
@@ -341,15 +346,6 @@ namespace holovibes
 		});
 	}
 
-	void Pipe::insert_wait_frames()
-	{
-		fn_compute_vect_.push_back([&](){
-			// Wait while the input queue is enough filled
-			while (gpu_input_queue_.get_size() < cd_.batch_size)
-				continue;
-		});
-	}
-
 	void Pipe::safe_enqueue_output(Queue& output_queue,
 									  unsigned short* frame,
 									  const std::string& error)
@@ -358,41 +354,27 @@ namespace holovibes
 			throw CustomException(error, error_kind::fail_enqueue);
 	}
 
-	void Pipe::enqueue_output(Queue& output_queue,
-							  unsigned short* frame,
-							  bool is_recording,
-							  const std::string& error)
-	{
-		if (is_recording)
-		{
-			auto lambda = [&]() {
-				safe_enqueue_output(output_queue, frame, error);
-				remaining_raw_frames_copy_ -= 1;
-			};
-			copy_frames_for_recording(lambda);
-		}
-		else
-			safe_enqueue_output(output_queue, frame, error);
-	}
-
-	void Pipe::insert_raw_enqueue_raw_mode()
+	void Pipe::insert_output_enqueue_raw_mode()
 	{
 		fn_compute_vect_.push_back([&]()
 		{
-			enqueue_output(gpu_output_queue_,
+			++processed_output_fps_;
+
+			safe_enqueue_output(gpu_output_queue_,
 						   static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-						   cd_.is_recording && !cd_.record_raw,
 						   "Can't enqueue the input frame in gpu_output_queue");
+
 			gpu_input_queue_.dequeue();
 		});
 	}
 
-	void Pipe::insert_hologram_enqueue_output()
+	void Pipe::insert_output_enqueue_hologram_mode()
 	{
 		fn_compute_vect_.conditional_push_back([&](){
-			enqueue_output(gpu_output_queue_,
+			++processed_output_fps_;
+
+			safe_enqueue_output(gpu_output_queue_,
 						   buffers_.gpu_output_frame.get(),
-						   cd_.is_recording && !cd_.record_raw,
 						   "Can't enqueue the output frame in gpu_output_queue");
 
 			// Always enqueue the cuts if enabled
@@ -409,6 +391,57 @@ namespace holovibes
 		});
 	}
 
+	void Pipe::insert_raw_view()
+	{
+		if (cd_.raw_view_enabled)
+		{
+			fn_compute_vect_.push_back([&](){
+				gpu_input_queue_.copy_multiple(*get_raw_view_queue(), cd_.batch_size);
+			});
+		}
+	}
+
+	void Pipe::insert_raw_record()
+	{
+		if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
+		{
+			fn_compute_vect_.push_back([&](){
+				if (frame_record_env_.remaining_frames_to_record == 0)
+					return;
+
+				unsigned int nb_frames_to_transfer = 1;
+
+				if (cd_.compute_mode == Computation::Hologram)
+				{
+					nb_frames_to_transfer = std::min(static_cast<unsigned int>(cd_.batch_size.load()),
+						frame_record_env_.remaining_frames_to_record.load());
+				}
+
+				gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, nb_frames_to_transfer);
+
+				frame_record_env_.remaining_frames_to_record -= nb_frames_to_transfer;
+			});
+		}
+	}
+
+	void Pipe::insert_hologram_record()
+	{
+		if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
+		{
+			fn_compute_vect_.conditional_push_back([&](){
+				if (frame_record_env_.remaining_frames_to_record == 0)
+					return;
+
+				if (gpu_output_queue_.get_fd().depth == 6)
+					frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get());
+				else
+					frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get());
+
+				frame_record_env_.remaining_frames_to_record -= 1;
+			});
+		}
+	}
+
 	void Pipe::insert_request_autocontrast()
 	{
 		if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
@@ -419,6 +452,10 @@ namespace holovibes
 	{
 		if (global::global_config.flush_on_refresh)
 			gpu_input_queue_.clear();
+
+		Holovibes::instance().get_info_container().add_processed_fps(
+			InformationContainer::FpsType::OUTPUT_FPS, processed_output_fps_);
+
 		while (!termination_requested_)
 		{
 			try
@@ -437,16 +474,14 @@ namespace holovibes
 				pipe_error(1, e);
 			}
 		}
+
+		Holovibes::instance().get_info_container().remove_processed_fps(
+			InformationContainer::FpsType::OUTPUT_FPS);
 	}
 
 	std::unique_ptr<Queue>& Pipe::get_lens_queue()
 	{
 		return fourier_transforms_->get_lens_queue();
-	}
-
-	compute::FourierTransform *Pipe::get_fourier_transforms()
-	{
-		return fourier_transforms_.get();
 	}
 
 	void Pipe::insert_fn_end_vect(std::function<void()> function)

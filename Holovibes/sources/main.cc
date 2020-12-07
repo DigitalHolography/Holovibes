@@ -24,8 +24,10 @@
 #include "MainWindow.hh"
 #include "frame_desc.hh"
 #include "compute_descriptor.hh"
-#include "info_manager.hh"
-#include "input_file_handler.hh"
+#include "input_frame_file_factory.hh"
+#include "logger.hh"
+
+#include "frame_record_worker.hh"
 
 static void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -67,8 +69,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 {
 
 	check_cuda_graphic_card(true);
-	// In GUI mode so cli is false
-	holovibes::gui::InfoManager::set_cli(false);
 
 	// Custom Qt message handler
 	qInstallMessageHandler(qt_output_message_handler);
@@ -103,40 +103,42 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 static void start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
 	check_cuda_graphic_card(false);
-	holovibes::gui::InfoManager::set_cli(true);
+	holovibes.start_information_display(true);
 
 	std::string input_path = opts.input_path.value();
-	holovibes::io_files::InputFileHandler::open(input_path);
 
-	const camera::FrameDescriptor& fd = holovibes::io_files::InputFileHandler::get_frame_descriptor();
-	size_t input_nb_frames = holovibes::io_files::InputFileHandler::get_total_nb_frames();
+	holovibes::io_files::InputFrameFile* input_frame_file = nullptr;
+
+	try
+	{
+		input_frame_file = holovibes::io_files::InputFrameFileFactory::open(input_path);
+	}
+	catch (const holovibes::io_files::FileException& e)
+	{
+		LOG_ERROR(e.what());
+		return;
+	}
+
+	const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
+	size_t input_nb_frames = input_frame_file->get_total_nb_frames();
 
 	const unsigned int input_fps = opts.input_fps.value_or(60);
-	holovibes.init_import_mode(input_path,
-							fd,
-							true, // Loop is needed to record a lot of frames
-							input_fps, // input fps
-							0, // start index
-							input_nb_frames - 1, // end index
-							false, // load in gpu
-							global::global_config.input_queue_max_size); // queue max size
+	holovibes.init_input_queue(fd);
+	holovibes.start_file_frame_read(input_path, true, input_fps, 0, input_nb_frames, false);
 
-	holovibes::io_files::InputFileHandler::import_compute_settings(holovibes.get_cd());
+	input_frame_file->import_compute_settings(holovibes.get_cd());
 
-	holovibes.update_cd_for_cli(input_fps,
-								opts.output_nb_frames.value_or(input_nb_frames),
-								opts.record_raw);
-	holovibes.init_compute(fd.depth);
-	holovibes::ComputeDescriptor& cd = holovibes.get_cd();
+	holovibes.update_cd_for_cli(input_fps);
+	holovibes.start_compute();
 
 	// Start recording.
-	holovibes.recorder(opts.output_path.value());
-	// Record done.
-	// Stop computation and capture.
-	holovibes.dispose_compute();
-	holovibes.dispose_capture();
+	holovibes::worker::FrameRecordWorker frame_record_worker(opts.output_path.value(),
+		opts.output_nb_frames.value_or(input_nb_frames), opts.record_raw);
+	frame_record_worker.run();
 
-	holovibes::io_files::InputFileHandler::close();
+	holovibes.stop_all_worker_controller();
+
+	delete input_frame_file;
 }
 
 static void print_version()
@@ -168,7 +170,7 @@ int main(int argc, char* argv[])
 		std::exit(0);
 	}
 
-	holovibes::Holovibes holovibes;
+	holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
 	if (opts.input_path)
 	{

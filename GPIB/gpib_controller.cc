@@ -31,8 +31,7 @@ namespace gpib
 		VisaPimpl() : status_{ VI_SUCCESS }
 			, ret_count_{ 0 }
 			, buffer_{ nullptr }
-		{
-		}
+		{}
 
 		ViStatus status_; //!< Error status
 
@@ -73,7 +72,7 @@ namespace gpib
 			pimpl_->sessions_.end(),
 			[this](instrument& instr)
 		{
-			close_instr(instr.second);
+			close_instrument(instr.second);
 		});
 
 		close_line();
@@ -81,7 +80,7 @@ namespace gpib
 		delete pimpl_;
 	}
 
-	void VisaInterface::initialize_instr(const unsigned address)
+	void VisaInterface::initialize_instrument(const unsigned address)
 	{
 		// Timeout value used when waiting from a GPIB device.
 		const unsigned timeout = 5000;
@@ -104,7 +103,7 @@ namespace gpib
 		viSetAttribute(pimpl_->sessions_.back().first, VI_ATTR_TMO_VALUE, timeout);
 	}
 
-	void VisaInterface::close_instr(const unsigned address)
+	void VisaInterface::close_instrument(const unsigned address)
 	{
 		auto it = std::find_if(pimpl_->sessions_.begin(),
 			pimpl_->sessions_.end(),
@@ -122,62 +121,61 @@ namespace gpib
 		}
 	}
 
-	bool VisaInterface::execute_next_block()
+	std::optional<Command> VisaInterface::get_next_command()
 	{
-		Command& cmd = batch_cmds_.back();
+		if (batch_cmds_.empty())
+			return std::nullopt;
+		
+		return batch_cmds_.back();
+	}
 
-		do
+	void VisaInterface::pop_next_command()
+	{
+		assert(!batch_cmds_.empty());
+
+		batch_cmds_.pop_back();
+	}
+
+	void VisaInterface::execute_instrument_command(const Command& instrument_command)
+	{
+		assert(instrument_command.type == Command::INSTRUMENT_COMMAND);
+
+		/* If this is the first time a command is issued, the connexion
+			* with the VISA interface must be set up. */
+		if (!pimpl_->buffer_)
 		{
-			if (cmd.type == Command::COMMAND)
+			try
 			{
-				/* If this is the first time a command is issued, the connexion
-				 * with the VISA interface must be set up. */
-				if (!pimpl_->buffer_)
-				{
-					try
-					{
-						initialize_line();
-					}
-					catch (const std::exception& /*e*/)
-					{
-						throw;
-					}
-				}
-				/* If a connexion to this instrument address is not opened,
-				* do it and register the new session. */
-				if (std::find_if(pimpl_->sessions_.begin(),
-					pimpl_->sessions_.end(),
-					[&cmd](instrument& instr)
-				{
-					return instr.second == cmd.address;
-				}) == pimpl_->sessions_.end())
-				{
-					initialize_instr(cmd.address);
-				}
-
-				// Get the session and send it the command through VISA.
-				auto ses = std::find_if(pimpl_->sessions_.begin(),
-					pimpl_->sessions_.end(),
-					[&cmd](instrument& instr)
-				{
-					return instr.second == cmd.address;
-				});
-				viWrite(ses->first,
-					(ViBuf)(cmd.command.c_str()), //ViBuf it's so crap type, that no c++ cast works
-					static_cast<ViInt32>(cmd.command.size()),
-					pimpl_->ret_count_);
+				initialize_line();
 			}
-			else if (cmd.type == Command::WAIT)
-				std::this_thread::sleep_for(std::chrono::milliseconds(cmd.wait));
+			catch (const std::exception& /*e*/)
+			{
+				throw;
+			}
+		}
+		/* If a connexion to this instrument address is not opened,
+		* do it and register the new session. */
+		if (std::find_if(pimpl_->sessions_.begin(),
+			pimpl_->sessions_.end(),
+			[&instrument_command](instrument& instr)
+		{
+			return instr.second == instrument_command.address;
+		}) == pimpl_->sessions_.end())
+		{
+			initialize_instrument(instrument_command.address);
+		}
 
-			batch_cmds_.pop_back();
-			if (!batch_cmds_.empty())
-				cmd = batch_cmds_.back();
-			else
-				return false;
-		} while (cmd.type != Command::CAPTURE);
-
-		return true;
+		// Get the session and send it the command through VISA.
+		auto ses = std::find_if(pimpl_->sessions_.begin(),
+			pimpl_->sessions_.end(),
+			[&instrument_command](instrument& instr)
+		{
+			return instr.second == instrument_command.address;
+		});
+		viWrite(ses->first,
+			(ViBuf)(instrument_command.command.c_str()), //ViBuf it's so crap type, that no c++ cast works
+			static_cast<ViInt32>(instrument_command.command.size()),
+			pimpl_->ret_count_);
 	}
 
 	void VisaInterface::initialize_line()
@@ -267,7 +265,7 @@ namespace gpib
 				std::getline(in, line, '\n');
 				line.append("\n"); // Don't forget the end-of-command character for VISA.
 
-				cmd.type = Command::COMMAND;
+				cmd.type = Command::INSTRUMENT_COMMAND;
 				cmd.address = cur_address;
 				cmd.command = line;
 				cmd.wait = 0;

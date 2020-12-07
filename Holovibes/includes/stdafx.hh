@@ -29,6 +29,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <concepts>
 #include <deque>
 #include <exception>
 #include <fstream>
@@ -37,9 +38,11 @@
 #include <iomanip>
 #include <iostream>
 #include <list>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <stdlib.h>
@@ -47,6 +50,7 @@
 #include <thread>
 #include <tuple>
 #include <utility>
+#include <unordered_map>
 #include <vector>
 
 // C include

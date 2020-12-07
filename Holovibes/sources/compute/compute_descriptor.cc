@@ -24,9 +24,10 @@ namespace holovibes
 
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
+		is_computation_stopped = is_computation_stopped.load();
+		compute_mode = cd.compute_mode.load();
 		space_transformation = cd.space_transformation.load();
 		time_transformation = cd.time_transformation.load();
-		compute_mode = cd.compute_mode.load();
 		time_transformation_size = cd.time_transformation_size.load();
 		pindex = cd.pindex.load();
 		p_acc_level = cd.p_acc_level.load();
@@ -73,10 +74,8 @@ namespace holovibes
 		stft_roi_zone = cd.stft_roi_zone;
 		filter2D_sub_zone = cd.filter2D_sub_zone;
 		contrast_auto_refresh = cd.contrast_auto_refresh.load();
-		request_recorder_copy_frames = cd.request_recorder_copy_frames.load();
-		nb_frames_record = cd.nb_frames_record.load();
-		copy_frames_done = cd.copy_frames_done.load();
-		is_recording = cd.is_recording.load();
+		raw_view_enabled = cd.raw_view_enabled.load();
+		frame_record_enabled = cd.frame_record_enabled.load();
 		return *this;
 	}
 

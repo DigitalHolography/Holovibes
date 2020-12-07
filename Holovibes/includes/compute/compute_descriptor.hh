@@ -19,7 +19,6 @@
 # include <mutex>
 # include "observable.hh"
 # include "rect.hh"
-# include "ithread_input.hh"
 
 
 namespace holovibes
@@ -39,6 +38,13 @@ namespace holovibes
 		xiB
 	};
 
+	enum SquareInputMode
+	{
+		NO_MODIFICATION,
+		ZERO_PADDED_SQUARE,
+		CROPPED_SQUARE
+	};
+
 	/*! \brief	Rendering mode for Hologram (Space transformation) */
 	enum SpaceTransformation
 	{
@@ -54,11 +60,10 @@ namespace holovibes
 		PCA
 	};
 
-	/*! \bried	Input processes */
+	/*! \brief	Input processes, start at 1 to keep compatibility */
 	enum Computation
 	{
-		Stop, /**< Input not displayed */
-		Raw, /**< Interferogram recorded */
+		Raw = 1, /**< Interferogram recorded */
 		Hologram /**< Reconstruction of the object */
 	};
 
@@ -236,12 +241,14 @@ namespace holovibes
 		//! @}
 
 #pragma region Atomics vars
+		//! Is the computation stopped
+		std::atomic<bool> 			is_computation_stopped{ true };
+		//! Mode of computation of the image
+		std::atomic<Computation>	compute_mode{ Computation::Raw };
 		//! Algorithm to apply in hologram mode
 		std::atomic<SpaceTransformation>		space_transformation{ SpaceTransformation::None };
 		//! Time transformation to apply in hologram mode
 		std::atomic<TimeTransformation>		time_transformation{ TimeTransformation::STFT };
-		//! Mode of computation of the image
-		std::atomic<Computation>	compute_mode{ Computation::Stop };
 		//! Square conversion mode of the input
 		std::atomic<SquareInputMode> square_input_mode{ SquareInputMode::NO_MODIFICATION };
 		//! type of the image displayed
@@ -364,9 +371,7 @@ namespace holovibes
 		std::atomic<short>			y_acc_level{ 1 };
 
 		//! Display the raw interferogram when we are in hologram mode.
-		std::atomic<bool>			raw_view{ false };
-		//! Enables the recording of the raw interferogram when we are in hologram mode.
-		std::atomic<bool>			record_raw{ false };
+		std::atomic<bool>			raw_view_enabled{ false };
 
 		//! Wait the beginning of the file to start the recording.
 		std::atomic<bool>			synchronized_record{ false };
@@ -421,19 +426,10 @@ namespace holovibes
 
 		std::atomic<bool>			composite_auto_weights_;
 
-		// Record Description
-		/*! \brief boolean to start copying frames in case of raw recording */
-		std::atomic<bool>			request_recorder_copy_frames{ false };
-		/*! \brief Number of frames to record */
-		std::atomic<uint>			nb_frames_record{ 0 };
-		/*! \brief flag to tell the copy of frames is done in case of raw
-		** recording
-		*/
-		std::atomic<bool>			copy_frames_done{ false };
-		/*! \brief flag to signal the recording has started/stopped. Used by the
+		/*! \brief Flag to signal the recording has started/stopped. Used by the
 		** thread compute and set by thread recorder
 		*/
-		std::atomic<bool>			is_recording{ false };
+		std::atomic<bool>			frame_record_enabled{ false };
 		//! \}
 
 #pragma endregion

@@ -12,15 +12,14 @@
 
 #pragma once
 
-#include <cmath>
 #include <device_launch_parameters.h>
 #include <string>
 #include <exception>
 #include <cublas_v2.h>
+#include <cassert>
 #include "cusolverDn.h"
 
 #include "tools.cuh"
-#include "queue.hh"
 #include "compute_descriptor.hh"
 #include "custom_exception.hh"
 
