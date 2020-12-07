@@ -10,19 +10,38 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <numeric>
 #include "map.cuh"
+
+#include "tools.hh"
 #include "Common.cuh"
+#include "reduce.cuh"
 
-void apply_contrast_correction(float* const input,
-							   const uint size,
-							   const ushort dynamic_range,
-							   const float	min,
-							   const float	max)
+void map_log10(float* const input,
+               const uint	size,
+               cudaStream_t	stream)
 {
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	const auto apply_contrast = [factor, min] __device__ (float pixel){ return factor * (pixel - min); };
 
-	map_generic(input, input, size, apply_contrast, default_cuda_stream);
-	cudaCheckError();
+    static const auto log10 = [] __device__ (const float input_pixel){ return log10f(input_pixel); };
+
+    map_generic(input, input, size, log10, stream);
+}
+
+void map_divide(float* const input,
+                const uint   size,
+                const float  value,
+                cudaStream_t stream)
+{
+    const auto divide = [value] __device__ (const float input_pixel){ return input_pixel / value; };
+
+    map_generic(input, input, size, divide, stream);
+}
+
+void map_multiply(float* const input,
+                const uint   size,
+                const float  value,
+                cudaStream_t stream)
+{
+    const auto multiply = [value] __device__ (const float input_pixel){ return input_pixel * value; };
+
+    map_generic(input, input, size, multiply, stream);
 }

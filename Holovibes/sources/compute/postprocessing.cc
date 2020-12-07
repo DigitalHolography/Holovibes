@@ -18,9 +18,9 @@
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
 #include "hsv.cuh"
-#include "nppi_data.hh"
-#include "nppi_functions.hh"
 #include "cuda_memory.cuh"
+#include "shift_corners.cuh"
+#include "map.cuh"
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -35,6 +35,7 @@ namespace holovibes
 			: gpu_kernel_buffer_()
 			, cuComplex_buffer_()
 			, hsv_arr_()
+			, reduce_result_(1) // allocate an unique double
 			, fn_compute_vect_(fn_compute_vect)
 			, buffers_(buffers)
 			, fd_(input_fd)
@@ -150,8 +151,10 @@ namespace holovibes
 				return;
 
 			fn_compute_vect_.conditional_push_back([=]() {
-				cuda_tools::NppiData nppi_data(fd_.width, fd_.height, cd_.img_type == ImgType::Composite ? 3 : 1);
-				cuda_tools::nppi_normalize(buffers_.gpu_postprocess_frame.get(), nppi_data, cd_.renorm_constant);
+				uint frame_res = fd_.frame_res();
+				if (cd_.img_type == ImgType::Composite)
+					frame_res *= 3;
+				gpu_normalize(buffers_.gpu_postprocess_frame.get(), reduce_result_.get(), frame_res, cd_.renorm_constant);
 			});
 		}
 	}

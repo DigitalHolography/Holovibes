@@ -17,6 +17,7 @@
 #include "unique_ptr.hh"
 #include "tools.cuh"
 #include "cuda_memory.cuh"
+#include "frame_reshape.cuh"
 
 #include "logger.hh"
 #include "holovibes.hh"

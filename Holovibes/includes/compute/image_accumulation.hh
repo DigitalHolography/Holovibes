@@ -17,8 +17,6 @@
 #pragma once
 
 #include "cuda_tools/unique_ptr.hh"
-#include "cuda_tools/array.hh"
-#include "cuda_tools/nppi_data.hh"
 #include "function_vector.hh"
 #include "frame_desc.hh"
 #include "queue.hh"

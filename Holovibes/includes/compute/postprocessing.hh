@@ -62,7 +62,10 @@ namespace holovibes
 			cuda_tools::UniquePtr<cuComplex> 	cuComplex_buffer_;
 			cuda_tools::UniquePtr<float>        hsv_arr_;
 
-			// Vector function in which we insert the processing
+			//! Result of the reduce operation of the current frame used to renormalize the frames
+			cuda_tools::UniquePtr<double>		reduce_result_;
+
+			//! Vector function in which we insert the processing
 			FunctionVector&				fn_compute_vect_;
 
 			//! Main buffers

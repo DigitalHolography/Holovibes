@@ -155,10 +155,10 @@ void float_to_ushort(const float	*input,
 					cudaStream_t	stream = 0);
 
 void float_to_uint8(const float	*input,
-	Npp8u *output,
+	unsigned char *output,
 	const uint size);
 
-void uint8_to_float(const Npp8u	*input,
+void uint8_to_float(const unsigned char	*input,
 	float *output,
 	const uint size);
 

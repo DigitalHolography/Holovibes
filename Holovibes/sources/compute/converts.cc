@@ -21,6 +21,8 @@
 #include "hsv.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
+#include "tools_unwrap.cuh"
+#include "map.cuh"
 
 #include <mutex>
 
@@ -68,7 +70,7 @@ namespace holovibes
 			{
 				fn_compute_vect_.conditional_push_back([=]() {
 					// Multiply frame by (2 ^ 16) - 1 in case of PCA
-					gpu_multiply_const(buffers_.gpu_postprocess_frame, fd_.frame_res(), (2 << 16) - 1);
+					map_multiply(buffers_.gpu_postprocess_frame, fd_.frame_res(), (2 << 16) - 1);
 				});
 			}
 		}

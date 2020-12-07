@@ -16,33 +16,10 @@
 #include "unique_ptr.hh"
 #include "tools.hh"
 #include "cuda_memory.cuh"
+#include "Common.cuh"
 
 #include <cstdio>
 #include <cmath>
-
-// atomicAdd with double is not defined if CUDA Version is not greater than or equal to 600
-// So we use this macro to keep a fully compatible program
-#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 600
-#else
-__device__ double atomicAdd(double* address, double val)
-{
-    unsigned long long int* address_as_ull =
-                              (unsigned long long int*)address;
-    unsigned long long int old = *address_as_ull, assumed;
-
-    do {
-        assumed = old;
-        old = atomicCAS(address_as_ull, assumed,
-                        __double_as_longlong(val +
-                               __longlong_as_double(assumed)));
-
-    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
-    } while (assumed != old);
-
-    return __longlong_as_double(old);
-}
-#endif
-
 
 using holovibes::units::RectFd;
 using holovibes::ChartPoint;
@@ -241,7 +218,7 @@ void apply_zone_std_sum(const float *input,
 	const double avg_zone,
 	cudaStream_t stream)
 {
-	static const auto std_map = [avg_zone] __device__ (float val){ return (val - avg_zone) * (val - avg_zone); };
+	const auto std_map = [avg_zone] __device__ (float val){ return (val - avg_zone) * (val - avg_zone); };
 	apply_mapped_zone_sum(input, height, width, output, zone, std_map, stream);
 }
 

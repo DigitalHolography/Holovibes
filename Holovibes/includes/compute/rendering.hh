@@ -21,6 +21,7 @@
 #include "function_vector.hh"
 #include "queue.hh"
 #include "rect.hh"
+#include "shift_corners.cuh"
 
 namespace holovibes
 {

@@ -98,10 +98,6 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     OpenGL::GL
 
     cufft
-    nppc
-    nppial
-    nppif
-    nppist
     cublas
     cusolver
 
@@ -137,6 +133,7 @@ set(SRC_TESTS
     unit_tests/test_example.cc
     unit_tests/test_queue.cc
     unit_tests/test_chart.cc
+    unit_tests/test_reduce.cc
     # Add your test files here
 )
 

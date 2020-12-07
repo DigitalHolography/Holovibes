@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "filter2D.cuh"
+#include "shift_corners.cuh"
 
 #include <cufftXt.h>
 

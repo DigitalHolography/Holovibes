@@ -19,6 +19,7 @@
 #include "chart.cuh"
 #include "stft.cuh"
 #include "percentile.cuh"
+#include "map.cuh"
 
 namespace holovibes
 {
@@ -133,15 +134,15 @@ namespace holovibes
 
 		void Rendering::insert_main_log()
 		{
-			fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame_size); });
+			fn_compute_vect_.conditional_push_back([=]() {map_log10(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame_size); });
 		}
 
 		void Rendering::insert_slice_log()
 		{
 			if (cd_.log_scale_slice_xz_enabled)
-				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_xz.get(), fd_.width * cd_.time_transformation_size); });
+				fn_compute_vect_.conditional_push_back([=]() {map_log10(buffers_.gpu_postprocess_frame_xz.get(), fd_.width * cd_.time_transformation_size); });
 			if (cd_.log_scale_slice_yz_enabled)
-				fn_compute_vect_.conditional_push_back([=]() {apply_log10(buffers_.gpu_postprocess_frame_yz.get(), fd_.height * cd_.time_transformation_size); });
+				fn_compute_vect_.conditional_push_back([=]() {map_log10(buffers_.gpu_postprocess_frame_yz.get(), fd_.height * cd_.time_transformation_size); });
 		}
 
 		void Rendering::insert_apply_contrast(WindowKind view)

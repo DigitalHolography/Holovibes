@@ -512,7 +512,6 @@ void float_to_ushort(const float	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_to_ushort<<<blocks, threads, 0, stream>>>(input, output, size, depth);
-	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 
@@ -521,7 +520,7 @@ void float_to_ushort(const float	*input,
 **/
 static __global__
 void kernel_float_to_uint8(const float	*input,
-	Npp8u *output,
+	unsigned char *output,
 	const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -533,14 +532,14 @@ void kernel_float_to_uint8(const float	*input,
 			else if (input[index] < 0.f)
 				output[index] = 0;
 			else
-				output[index] = static_cast<Npp8u>(input[index]);
+				output[index] = static_cast<unsigned char>(input[index]);
 	}
 }
 
 
 
 void float_to_uint8(const float	*input,
-	Npp8u *output,
+	unsigned char *output,
 	const uint size)
 {
 	const uint threads = get_max_threads_1d();
@@ -554,7 +553,7 @@ void float_to_uint8(const float	*input,
 /*! \brief Kernel function wrapped in float_to_UINT8
 **/
 static __global__
-void kernel_uint8_to_float(const  Npp8u	*input,
+void kernel_uint8_to_float(const unsigned char* input,
 	float *output,
 	const uint	size)
 {
@@ -564,7 +563,7 @@ void kernel_uint8_to_float(const  Npp8u	*input,
 		output[index] = static_cast<float>(input[index]);
 }
 
-void uint8_to_float(const  Npp8u	*input,
+void uint8_to_float(const unsigned char* input,
 	float			*output,
 	const uint		size)
 {
@@ -730,7 +729,6 @@ void accumulate_images(const float	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
-	cudaDeviceSynchronize();
 	cudaCheckError();
 }
 

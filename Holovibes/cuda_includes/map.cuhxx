@@ -10,19 +10,37 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <numeric>
-#include "map.cuh"
+#pragma once
+
+#include <cuda_runtime.h>
 #include "Common.cuh"
 
-void apply_contrast_correction(float* const input,
-							   const uint size,
-							   const ushort dynamic_range,
-							   const float	min,
-							   const float	max)
+template <typename I, typename O, typename FUNC>
+__global__
+static void kernel_map_generic(const I* const input,
+                       O* const output,
+                       const uint size,
+                       const FUNC func)
 {
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	const auto apply_contrast = [factor, min] __device__ (float pixel){ return factor * (pixel - min); };
+    const uint index = threadIdx.x + blockIdx.x * blockDim.x;
 
-	map_generic(input, input, size, apply_contrast, default_cuda_stream);
-	cudaCheckError();
+    if (index < size)
+    {
+        output[index] = func(input[index]);
+    }
+}
+
+template <typename I, typename O, typename FUNC>
+void map_generic(const I* const input,
+                 O* const output,
+                 const uint size,
+                 const FUNC func,
+                 cudaStream_t stream)
+{
+    // Using 128 threads is more efficient than using the max numb1 of threads supported
+    constexpr uint threads = 128;
+    const uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_map_generic<<<blocks, threads, 0, stream>>>(input, output, size, func);
+    cudaCheckError();
 }

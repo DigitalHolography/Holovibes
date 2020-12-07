@@ -12,23 +12,18 @@
 
 #pragma once
 
-/*
-* \brief This function destroys "frame" by doing reductions.
-* \param d_frame the image
-* \param h_memory_space_sdata space to store results from blocks
-* \return maximum
-*/
-float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
+using uint = unsigned int;
 
-/*
-* \brief This function destroys "frame" by doing reductions.
-* \param d_frame the image
-* \param h_memory_space_sdata space to store results from blocks
-* \return minimum
+/*! \brief Reduce operation gpu side
+*
+* \param input Input buffer
+* \param result Result of the reduce (even with double, imprecision may arise)
+* \param size Input size
+*
+* This kernel has been highly tuned in order to maximize the memory bandwidth usage
+* Numerous benches have been done to achieve the best result possible
+* Don't modify this kernel unless making benches
 */
-float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
+void gpu_reduce(const float* const input, double* const result, const uint size);
 
-/*
-** \brief Writes in min ptr and max ptr the extremums values of frame.
-*/
-void get_minimum_maximum_in_image(const float *frame, const unsigned frame_res, float* min, float* max);
+// FIXME: Templating this function could not be achived

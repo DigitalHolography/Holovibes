@@ -27,27 +27,6 @@ void kernel_complex_divide(cuComplex	*image,
 						 const float	divider,
 						 const uint 	batch_size);
 
-/*! \brief  Divide all the real part pixels of input image(s) by the float divider.
-*
-* \param image The image(s) to process. Should be contiguous memory.
-* \param size Number of elements to process.
-* \param divider Divider value for all elements.
-*/
-__global__
-void kernel_real_part_divide(cuComplex	*image,
-	const uint		size,
-	const float	divider);
-
-/*! \brief  Call a function to divide all real part of pixels of input image(s).
-*
-* \param image The image(s) to process. Should be contiguous memory.
-* \param size Number of elements to process.
-* \param divider Divider value for all elements.
-*/
-void gpu_real_part_divide(cuComplex	*image,
-	const uint	size,
-	const float	divider);
-
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
 * The images to multiply should have the same size.
@@ -84,63 +63,17 @@ void multiply_frames_complex(const cuComplex	*input1,
 								const uint		size,
 								cudaStream_t	stream = 0);
 
-/*! \brief kernel wich compute the substract of a reference image to another */
-__global__
-void kernel_substract_ref(cuComplex				*input,
-						void					*reference,
-						const holovibes::ComputeDescriptor	cd,
-						const uint				nframes);
 
-/*! \brief  substract the pixels value of a reference image to another
-*
-* The images to subtract should have the same size.
-* The result is given in input.
-*/
-void substract_ref(cuComplex	*input,
-				cuComplex		*reference,
-				const uint		frame_resolution,
-				const uint		nframes,
-				cudaStream_t	stream = 0);
-
-/*! \brief Subtract a complex img from another one
-*
-* out = img1 - img2
-*/
-void subtract_frame_complex(cuComplex* img1,
-				   	  cuComplex* img2,
-					  cuComplex* out,
-					  size_t frame_res,
-					  cudaStream_t	stream = 0);
-
-/*! \brief Finds the extremums in input
+/*! \brief normalize input according to a renormalize constant
  *
+ * \param input input data
+ * \param result_reduce device double pointer used to store the result of the
+ * reduction operation required to compute mean value of the frame
+ * \param frame_res frame resolution
+ * \param norm_constant Constant of the normalization
  */
-void gpu_extremums(float			*input,
-					const uint		size,
-					float			*min,
-					float			*max,
-					uint			*min_index,
-					uint			*max_index,
-					cudaStream_t	stream = 0);
-
-__global__
-void kernel_substract_const(float		*frame,
-							uint		frame_size,
-							float		x);
-void gpu_substract_const(float		*frame,
-						uint		frame_size,
-						float		x);
-
-__global__
-void kernel_multiply_const(float		*frame,
-							uint		frame_size,
-							float		x);
-void gpu_multiply_const(float		*frame,
-						uint		frame_size,
-						float		x);
-
-void gpu_multiply_const(cuComplex* frame,
-	uint frame_size,
-	cuComplex x);
-
-void normalize_frame(float* frame, uint frame_res);
+void gpu_normalize(float* const input,
+				   double* const result_reduce,
+				   const uint frame_res,
+				   const uint norm_constant,
+                   cudaStream_t stream = 0);

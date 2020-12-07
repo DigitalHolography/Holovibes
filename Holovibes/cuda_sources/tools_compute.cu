@@ -10,10 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "tools_compute.cuh"
-#include "tools_unwrap.cuh"
-#include "min_max.cuh"
-#include "cuda_memory.cuh"
+#include "reduce.cuh"
+#include "map.cuh"
 
 #include <stdio.h>
 
@@ -37,28 +35,6 @@ void kernel_complex_divide(cuComplex	*image,
 			image[batch_index].y /= divider;
 		}
 	}
-}
-
-
-__global__
-void kernel_real_part_divide(cuComplex	*image,
-	const uint		size,
-	const float	divider)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size)
-		image[index].x = image[index].x / divider * AUTO_CONTRAST_COMPENSATOR;
-}
-
-void gpu_real_part_divide(cuComplex	*image,
-	const uint	size,
-	const float	divider)
-{
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
-
-	kernel_real_part_divide <<< blocks, threads >>>(image, size, divider);
-	cudaCheckError();
 }
 
 __global__
@@ -103,227 +79,23 @@ void multiply_frames_complex(const cuComplex	*input1,
 	cudaCheckError();
 }
 
-__global__
-void kernel_substract_ref(cuComplex	*input,
-						cuComplex	*reference,
-						const uint	size,
-						const uint	frame_size)
+void gpu_normalize(float* const input,
+                   double* const result_reduce,
+                   const uint frame_res,
+                   const uint norm_constant,
+                   cudaStream_t stream)
 {
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    gpu_reduce(input, result_reduce, frame_res);
 
-	input[index].x -= reference[index % frame_size].x;
-}
+    // Let x be a pixel, after renormalization
+    // x = x * 2^(norm_constant) / mean
+    // x = x * 2^(norm_constant) * frame_res / reduce_result
+    const double multiplier = (1 << norm_constant);
+    auto map_function = [multiplier, frame_res, result_reduce] __device__ (const float input_pixel)
+        {
+            // This operation needs to be computed on double to avoid overflow
+            return static_cast<float>(static_cast<double>(input_pixel * multiplier * frame_res) / (*result_reduce));
+        };
 
-void substract_ref(cuComplex	*input,
-				cuComplex		*reference,
-				const uint		frame_resolution,
-				const uint		nframes,
-				cudaStream_t	stream)
-{
-	const uint	n_frame_resolution = frame_resolution * nframes;
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
-    kernel_substract_ref << <blocks, threads, 0, stream >> >(input, reference, n_frame_resolution, frame_resolution);
-	cudaCheckError();
-}
-
-static __global__
-void kernel_subtract_frame_complex(cuComplex* img1,
-	cuComplex* img2,
-	cuComplex* out,
-	size_t frame_res)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index >= frame_res)
-		return;
-
-	float x = img1[index].x - img2[index].x;
-	float y = img1[index].y - img2[index].y;
-
-	out[index].x = x;
-	out[index].y = y;
-}
-
-void subtract_frame_complex(cuComplex* img1,
-	cuComplex* img2,
-	cuComplex* out,
-	size_t frame_res,
-	cudaStream_t stream)
-{
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_res, threads);
-	kernel_subtract_frame_complex <<<blocks, threads, 0, stream>>>(img1, img2, out, frame_res);
-	cudaCheckError();
-	cudaStreamSynchronize(stream);
-}
-
-struct extr_index
-{
-	float extr;
-	uint index;
-};
-
-static __global__
-void local_extremums(float	*input,
-							struct extr_index	*output,
-							uint	block_size,
-							uint	size)
-{
-	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
-	uint begin = id * block_size;
-	if (begin < size)
-	{
-		uint min_id = begin;
-		uint max_id = begin;
-		uint end = begin + block_size;
-		if (end > size)
-			end = size;
-		float min = input[begin];
-		float max = input[begin];
-		while (++begin < end)
-		{
-			float elt = input[begin];
-			if (elt < min)
-			{
-				min = elt;
-				min_id = begin;
-			}
-			else if (elt > max)
-			{
-				max_id = begin;
-				max = elt;
-			}
-		}
-		output[2 * id].index = min_id;
-		output[2 * id].extr = min;
-		output[2 * id + 1].index = max_id;
-		output[2 * id + 1].extr = max;
-	}
-}
-
-static __global__
-void global_extremums(struct extr_index	*input,
-							struct extr_index	*output,
-							uint	nb_blocks)
-{
-	struct extr_index min = input[0];
-	struct extr_index max = input[1];
-	for (uint i = 1; i < nb_blocks; i++)
-	{
-		struct extr_index current_min = input[2 * i];
-		struct extr_index current_max = input[2 * i + 1];
-		if (current_min.extr < min.extr)
-			min = current_min;
-		else if (current_max.extr > max.extr)
-			max = current_max;
-	}
-	output[0] = min;
-	output[1] = max;
-}
-
-
-void gpu_extremums(float			*input,
-					const uint		size,
-					float			*min,
-					float			*max,
-					uint			*min_index,
-					uint			*max_index,
-					cudaStream_t	stream)
-{
-	const uint threads = get_max_threads_1d();
-	const ushort block_size = 1024;
-	const ushort nb_blocks = size / block_size + 1;
-
-	struct extr_index *local_extr = nullptr;
-	struct extr_index *global_extr = nullptr;
-	cudaXMalloc((void**)&local_extr, sizeof(struct extr_index) * 2 * nb_blocks);
-	cudaXMalloc((void**)&global_extr, sizeof(struct extr_index) * 2);
-
-	uint blocks = map_blocks_to_problem(nb_blocks, threads);
-	local_extremums << <threads, blocks, 0, 0 >> > (input,
-		local_extr,
-		block_size,
-		size);
-	cudaCheckError();
-	global_extremums << <1, 1, 0, 0 >> > (local_extr,
-		global_extr,
-		nb_blocks);
-	cudaCheckError();
-
-	struct extr_index extremum[2];
-	cudaXMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
-	cudaXFree(local_extr);
-	cudaXFree(global_extr);
-
-	if (min)
-		*min = extremum[0].extr;
-	if (max)
-		*max = extremum[1].extr;
-
-	if (min_index)
-		*min_index = extremum[0].index;
-	if (max_index)
-		*max_index = extremum[1].index;
-
-}
-
-__global__
-void kernel_substract_const(float		*frame,
-							uint		frame_size,
-							float		x)
-{
-	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < frame_size)
-		frame[id] -= x;
-}
-
-void gpu_substract_const(float		*frame,
-						uint		frame_size,
-						float		x)
-{
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_size, threads);
-	kernel_substract_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
-	cudaCheckError();
-}
-
-__global__
-void kernel_multiply_const(float		*frame,
-							uint		frame_size,
-							float		x)
-{
-	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < frame_size)
-		frame[id] *= x;
-}
-
-void gpu_multiply_const(float		*frame,
-						uint		frame_size,
-						float		x)
-{
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_size, threads);
-	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
-	cudaCheckError();
-}
-
-void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
-{
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_size, threads);
-	kernel_multiply_complex_by_single_complex << <blocks, threads, 0, 0 >> >(frame, x, frame_size);
-	cudaCheckError();
-}
-
-void normalize_frame(float* frame, uint frame_res)
-{
-	float min, max;
-
-	get_minimum_maximum_in_image(frame, frame_res, &min, &max);
-
-	gpu_substract_const(frame, frame_res, min);
-	cudaCheckError();
-	gpu_multiply_const(frame, frame_res, 1 / (max - min));
-	cudaStreamSynchronize(0);
-	cudaCheckError();
+    map_generic(input, input, frame_res, map_function, stream);
 }

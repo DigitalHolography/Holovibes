@@ -7,7 +7,6 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     fft2.cu
     filter2D.cu
     hsv.cu
-    min_max.cu
     percentile.cu
     stft.cu
     texture_update.cu
@@ -17,4 +16,8 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     tools_unwrap.cu
     transforms.cu
     cuda_memory.cu
+    shift_corners.cu
+    frame_reshape.cu
+    map.cu
+    reduce.cu
 )

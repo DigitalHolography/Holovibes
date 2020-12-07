@@ -66,7 +66,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/cuda_tools/cublas_handle.cc
     tools/cuda_tools/cufft_handle.cc
     tools/cuda_tools/cusolver_handle.cc
-    tools/cuda_tools/nppi_data.cc
     tools/hardware_limits.cc
     tools/power_of_two.cc
     tools/tools.cc

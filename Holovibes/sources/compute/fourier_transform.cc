@@ -16,7 +16,6 @@
 #include "compute_descriptor.hh"
 #include "cublas_handle.hh"
 #include "cusolver_handle.hh"
-#include "nppi_functions.hh"
 #include "icompute.hh"
 
 #include "tools_conversion.cuh"

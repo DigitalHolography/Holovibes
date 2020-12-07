@@ -56,7 +56,7 @@ namespace holovibes
 	/*! \brief	Time transformation algorithm to apply */
 	enum TimeTransformation
 	{
-		STFT,
+		STFT = 0,
 		PCA
 	};
 
