@@ -346,6 +346,7 @@ namespace holovibes
 					cd_.pindex = cd_.time_transformation_size - 1;
 				ui.PSpinBox->setValue(cd_.pindex);
 			}
+			ui.PSpinBox->setEnabled(!is_raw);
 
 			// XY accu
 			ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
