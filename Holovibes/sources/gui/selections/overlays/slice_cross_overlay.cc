@@ -100,7 +100,7 @@ namespace holovibes
 
 				pIndex_ = getMousePos(e->pos());
 
-				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
+				uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
 				cd_->pindex = p;
 				cd_->notify_observers();
 			}
@@ -126,8 +126,8 @@ namespace holovibes
 			units::ConversionData convert(parent_);
 
 			pmax = (pmax + 1);
-			topLeft = (kView == SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
-			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax) : units::PointFd(convert, pmax, parent_->getFd().height);
+			topLeft = (kView == KindOfView::SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
+			bottomRight = (kView == KindOfView::SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax) : units::PointFd(convert, pmax, parent_->getFd().height);
 			zone_ = units::RectFd(topLeft, bottomRight);
 
 			// Updating opengl buffer

@@ -45,7 +45,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 							const uint			height,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
-							const uint			img_type,
+							const holovibes::ImgType img_type,
 							const uint			time_transformation_size)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -101,11 +101,10 @@ void time_transformation_cuts_begin(const cuComplex	*input,
 							const ushort		ymax,
 							const ushort		width,
 							const ushort		height,
-							const uint			viewmode,
 							const ushort		time_transformation_size,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
-							const uint			img_type,
+							const holovibes::ImgType img_type,
 							cudaStream_t		stream)
 {
 	const uint frame_size = width * height;

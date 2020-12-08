@@ -10,23 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for the different access mode
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+	/*! \brief Describes the access mode of an accessor. */
+	enum class AccessMode
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		Get = 1,/*!< Get */
+		Set/*!< Set */
+	};
+} // namespace holovibes

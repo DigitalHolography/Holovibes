@@ -10,23 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for kind of window
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+	/*! \brief Represents the kind of slice displayed by the window */
+	enum class WindowKind
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		XYview = 0,/*!< Main view */
+		XZview,/*!< view slice */
+		YZview/*!< YZ view slice */
+	};
+} // namespace holovibes

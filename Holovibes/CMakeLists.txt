@@ -20,16 +20,17 @@ set(HOLO_INCLUDES
     includes/compute/
     includes/containers/
     includes/core/
-    includes/io_files/
-    includes/thread/
-    includes/tools/
-    includes/tools/cuda_tools/
-    includes/tools/units/
+    includes/enum/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/
     includes/gui/selections/overlays/
     includes/gui/windows/
+    includes/io_files/
+    includes/thread/
+    includes/tools/
+    includes/tools/cuda_tools/
+    includes/tools/units/
 
     "${CMAKE_SOURCE_DIR}/libs/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"

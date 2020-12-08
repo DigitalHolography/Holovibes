@@ -10,23 +10,21 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for kind of camera
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+    //! \brief	Difference kind of camera supported by Holovibes
+	enum class CameraKind
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		NONE = 0,/*!< No camera */
+		Adimec,/*!< Adimec camera */
+		IDS,/*!< IDS camera */
+		Hamamatsu,/*!< Hamamatsu camera */
+		xiQ,/*!< xiQ camera */
+		xiB/*!< xiB camera */
+	};
+} // namespace holovibes

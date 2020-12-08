@@ -16,23 +16,23 @@
 #pragma once
 
 // without namespace
-# include "tools.hh"
-# include "json.hh"
+#include "tools.hh"
+#include "json.hh"
 using json = ::nlohmann::json;
 
 
 // namespace camera
-# include "camera_exception.hh"
+#include "camera_exception.hh"
 
 // namespace holovibes
-# include "holovibes.hh"
-# include "custom_exception.hh"
+#include "holovibes.hh"
+#include "custom_exception.hh"
 
 // namespace gui
-# include "HoloWindow.hh"
-# include "SliceWindow.hh"
-# include "PlotWindow.hh"
-# include "ui_mainwindow.h"
+#include "HoloWindow.hh"
+#include "SliceWindow.hh"
+#include "PlotWindow.hh"
+#include "ui_mainwindow.h"
 
 #define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
 Q_DECLARE_METATYPE(std::function<void()>)

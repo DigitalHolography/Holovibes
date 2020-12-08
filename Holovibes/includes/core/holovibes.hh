@@ -21,6 +21,7 @@
 #include "concurrent_deque.hh"
 #include "chart_point.hh"
 
+// Worker & Controller
 #include "thread_worker_controller.hh"
 #include "file_frame_read_worker.hh"
 #include "camera_frame_read_worker.hh"
@@ -29,6 +30,9 @@
 #include "frame_record_worker.hh"
 #include "batch_gpib_worker.hh"
 #include "compute_worker.hh"
+
+// Enum
+#include "enum_camera_kind.hh"
 
 #include "information_container.hh"
 

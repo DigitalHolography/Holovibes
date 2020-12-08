@@ -10,23 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for kind of input mode
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+    //! Enum for the different input mode
+    enum class SquareInputMode
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		NO_MODIFICATION = 0,/*!< No modification on the input */
+		ZERO_PADDED_SQUARE,/*!< Pad the input in order to process a square input */
+		CROPPED_SQUARE/*!< Crop the input in order to process a sqaure input */
+	};
+} // namespace holovibes

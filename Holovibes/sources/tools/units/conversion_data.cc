@@ -17,8 +17,6 @@
 namespace holovibes
 {
 	using gui::BasicOpenGLWindow;
-	using gui::SliceYZ;
-	using gui::SliceXZ;
 	namespace units
 	{
 		ConversionData::ConversionData(const BasicOpenGLWindow& window)
@@ -66,12 +64,12 @@ namespace holovibes
 			auto cd = window_->getCd();
 			auto fd = window_->getFd();
 			float pix_size;
-			if (window_->getKindOfView() == Hologram)
+			if (window_->getKindOfView() == gui::KindOfView::Hologram)
 				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
-			else if (window_->getKindOfView() == SliceXZ && axis == Axis::HORIZONTAL) {
+			else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL) {
 				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
 			}
-			else if (window_->getKindOfView() == SliceYZ && axis == Axis::VERTICAL) {
+			else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL) {
 				pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
 			}
 			else

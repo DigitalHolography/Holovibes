@@ -1,3 +1,4 @@
+
 /* **************************************************************************** */
 /*                       ,,                     ,,  ,,                          */
 /* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
@@ -10,23 +11,20 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for the different type of displaying images
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+	/*! \brief	Displaying type of the image */
+	enum class ImgType
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		Modulus = 0,/*!< Modulus of the complex data */
+		SquaredModulus,/*!<  Modulus taken to its square value */
+		Argument,/*!<  Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
+		PhaseIncrease,/*!<  Phase value computed with the conjugate between the phase of the last image and the previous one */
+		Composite/*!<  Displays different frequency intervals on color RBG or HSV chanels*/
+	};
+} // namespace holovibes

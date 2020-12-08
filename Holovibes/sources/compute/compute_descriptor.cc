@@ -94,11 +94,11 @@ namespace holovibes
 	void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
-		if (m == Get)
+		if (m == AccessMode::Get)
 		{
 			rect = signal_zone;
 		}
-		else if (m == Set)
+		else if (m ==AccessMode::Set)
 		{
 			signal_zone = rect;
 		}
@@ -107,11 +107,11 @@ namespace holovibes
 	void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
-		if (m == Get)
+		if (m == AccessMode::Get)
 		{
 			rect = noise_zone;
 		}
-		else if (m == Set)
+		else if (m == AccessMode::Set)
 		{
 			noise_zone = rect;
 		}

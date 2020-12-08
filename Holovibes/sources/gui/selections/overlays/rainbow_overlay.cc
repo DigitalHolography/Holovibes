@@ -137,7 +137,7 @@ namespace holovibes
 			units::PointFd blue1;
 			units::PointFd blue2;
 
-			if (parent_->getKindOfView() == SliceXZ)
+			if (parent_->getKindOfView() == KindOfView::SliceXZ)
 			{
 				red1 = units::PointFd(convert, 0, red);
 				red2 = units::PointFd(convert, fd.width, red);
@@ -185,7 +185,7 @@ namespace holovibes
 			if (e->buttons() == Qt::LeftButton)
 			{
 				zone_.setDst(getMousePos(e->pos()));
-				if (parent_->getKindOfView() == SliceYZ)
+				if (parent_->getKindOfView() == KindOfView::SliceYZ)
 				{
 					if (parent_->getCd()->composite_kind == CompositeKind::RGB)
 					{

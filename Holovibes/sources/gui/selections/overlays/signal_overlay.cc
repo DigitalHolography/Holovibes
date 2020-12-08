@@ -25,7 +25,7 @@ namespace holovibes
 
 		void SignalOverlay::release(ushort frameSide)
 		{
-			if (parent_->getKindOfView() == Hologram)
+			if (parent_->getKindOfView() == KindOfView::Hologram)
 				parent_->getCd()->signalZone(zone_, AccessMode::Set);
 		}
 	}

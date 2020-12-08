@@ -15,103 +15,25 @@
  * Contains compute parameters. */
 #pragma once
 
-# include <atomic>
-# include <mutex>
-# include "observable.hh"
-# include "rect.hh"
+#include <atomic>
+#include <mutex>
+#include "observable.hh"
+#include "rect.hh"
 
+// enum
+#include "enum_space_transformation.hh"
+#include "enum_square_input_mode.hh"
+#include "enum_time_transformation.hh"
+#include "enum_computation.hh"
+#include "enum_img_type.hh"
+#include "enum_filter_2d.hh"
+#include "enum_access_mode.hh"
+#include "enum_window_kind.hh"
+#include "enum_composite_kind.hh"
 
 namespace holovibes
 {
 	const static std::string version = "v8.8"; /*!< Current version of this project. */
-
-	/*!
-	 * \brief	Difference kind of camera supported by Holovibes
-	 */
-	enum CameraKind
-	{
-		NONE,
-		Adimec,
-		IDS,
-		Hamamatsu,
-		xiQ,
-		xiB
-	};
-
-	enum SquareInputMode
-	{
-		NO_MODIFICATION,
-		ZERO_PADDED_SQUARE,
-		CROPPED_SQUARE
-	};
-
-	/*! \brief	Rendering mode for Hologram (Space transformation) */
-	enum SpaceTransformation
-	{
-		None, /**< Nothing Applied */
-		FFT1, /**< Fresnel Transform */
-		FFT2  /**< Angular spectrum propagation */
-	};
-
-	/*! \brief	Time transformation algorithm to apply */
-	enum TimeTransformation
-	{
-		STFT = 0,
-		PCA
-	};
-
-	/*! \brief	Input processes, start at 1 to keep compatibility */
-	enum Computation
-	{
-		Raw = 1, /**< Interferogram recorded */
-		Hologram /**< Reconstruction of the object */
-	};
-
-	/*! \brief	Displaying type of the image */
-	enum ImgType
-	{
-		Modulus, /**< Modulus of the complex data */
-		SquaredModulus, /**< Modulus taken to its square value */
-		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
-		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
-		Composite /**< Displays different frequency intervals on color RBG or HSV chanels*/
-	};
-
-	/*! \brief Type of filter for the Filter2D feature */
-	enum class Filter2DType
-	{
-		None,
-		LowPass,
-		HighPass,
-		BandPass
-	};
-
-	/*! \brief Describes the access mode of an accessor. */
-	enum AccessMode
-	{
-		Get = 1,
-		Set
-	};
-
-	/*!
-	 * \brief	Represents the kind of slice displayed by the window
-	 */
-	enum WindowKind
-	{
-		XYview,
-		XZview,
-		YZview
-	};
-
-	/*!
-	* \brief	Represents the kind of composite image
-	*/
-
-	enum CompositeKind
-	{
-		RGB,
-		HSV
-	};
 
 	/*! \brief Contains compute parameters.
 	 *

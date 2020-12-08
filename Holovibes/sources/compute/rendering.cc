@@ -157,19 +157,19 @@ namespace holovibes
 
 				switch (view)
 				{
-				case XYview:
+				case WindowKind::XYview:
 					input = buffers_.gpu_postprocess_frame;
 					size = buffers_.gpu_postprocess_frame_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy;
 					max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
 					break;
-				case YZview:
+				case WindowKind::YZview:
 					input = buffers_.gpu_postprocess_frame_yz.get();
 					size = fd_.height * cd_.time_transformation_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
 					max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
 					break;
-				case XZview:
+				case WindowKind::XZview:
 					input = buffers_.gpu_postprocess_frame_xz.get();
 					size = fd_.width * cd_.time_transformation_size;
 					min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
@@ -201,7 +201,7 @@ namespace holovibes
 						fd_.width,
 						fd_.height,
 						0,
-						XYview);
+						WindowKind::XYview);
 					autocontrast_request = false;
 				}
 				if (autocontrast_slice_xz_request && (!image_acc_env_.gpu_accumulation_xz_queue ||
@@ -212,7 +212,7 @@ namespace holovibes
 						fd_.width,
 						cd_.time_transformation_size,
 						cd_.cuts_contrast_p_offset,
-						XZview);
+						WindowKind::XZview);
 					autocontrast_slice_xz_request = false;
 				}
 				if (autocontrast_slice_yz_request && (!image_acc_env_.gpu_accumulation_yz_queue ||
@@ -223,7 +223,7 @@ namespace holovibes
 						cd_.time_transformation_size,
 						fd_.height,
 						cd_.cuts_contrast_p_offset,
-						YZview);
+						WindowKind::YZview);
 					autocontrast_slice_yz_request = false;
 				}
 			};
@@ -257,18 +257,18 @@ namespace holovibes
 
 			switch (view)
 			{
-			case XYview:
+			case WindowKind::XYview:
 				// No offset
 				compute_percentile_xy_view(input, width, height, percent_in, percent_out,
 					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
 				set_contrast_min_max(percent_out, cd_.contrast_min_slice_xy, cd_.contrast_max_slice_xy);
 				break;
-			case YZview:
+			case WindowKind::YZview:
 				compute_percentile_yz_view(input, width, height, offset, percent_in, percent_out,
 					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
 				set_contrast_min_max(percent_out, cd_.contrast_min_slice_yz, cd_.contrast_max_slice_yz);
 				break;
-			case XZview:
+			case WindowKind::XZview:
 				compute_percentile_xz_view(input, width, height, offset, percent_in, percent_out,
 					percent_size, cd_.getReticleZone(), cd_.reticle_enabled);
 				set_contrast_min_max(percent_out, cd_.contrast_min_slice_xz, cd_.contrast_max_slice_xz);

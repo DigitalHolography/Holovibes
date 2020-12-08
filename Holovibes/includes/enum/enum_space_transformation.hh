@@ -10,23 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for the different space transformations
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+    /*! \brief	Rendering mode for Hologram (Space transformation) */
+	enum class SpaceTransformation
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		None = 0,/*!< Nothing Applied */
+		FFT1,/*!< Fresnel Transform */
+		FFT2/*!< Angular spectrum propagation */
+	};
+} // namespace holovibes

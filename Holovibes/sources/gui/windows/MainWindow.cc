@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <list>
+#include <atomic>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -273,7 +274,7 @@ namespace holovibes
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			// Displaying mode
-			ui.ViewModeComboBox->setCurrentIndex(cd_.img_type);
+			ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
 			ui.PhaseUnwrap2DCheckBox->
 				setEnabled(cd_.img_type == ImgType::PhaseIncrease ||
@@ -300,13 +301,13 @@ namespace holovibes
 			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
 			window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
-			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd_.current_window : 0);
+			window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(cd_.current_window.load()) : 0);
 
 			ui.LogScaleCheckBox->setEnabled(true);
-			ui.LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window));
+			ui.LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window.load()));
 			ui.ImgAccuCheckBox->setEnabled(true);
-			ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window));
-			ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window));
+			ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window.load()));
+			ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
 			if (cd_.current_window == WindowKind::XYview)
 			{
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
@@ -324,13 +325,13 @@ namespace holovibes
 			}
 
 			// p accu
-			ui.PAccuCheckBox->setEnabled(cd_.img_type != PhaseIncrease);
+			ui.PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
 			ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
 			if (cd_.p_acc_level > cd_.time_transformation_size - 1)
 				cd_.p_acc_level = cd_.time_transformation_size - 1;
 			ui.PAccSpinBox->setValue(cd_.p_acc_level);
-			ui.PAccSpinBox->setEnabled(cd_.img_type != PhaseIncrease);
+			ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
 			if (cd_.p_accu_enabled)
 			{
 				ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
@@ -376,9 +377,9 @@ namespace holovibes
 
 			// Image rendering
 			ui.SpaceTransformationComboBox->setEnabled(!is_raw);
-			ui.SpaceTransformationComboBox->setCurrentIndex(cd_.space_transformation);
+			ui.SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.space_transformation.load()));
 			ui.TimeTransformationComboBox->setEnabled(!is_raw);
-			ui.TimeTransformationComboBox->setCurrentIndex(cd_.time_transformation);
+			ui.TimeTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.time_transformation.load()));
 
 			// Changing time_transformation_size with time transformation cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
@@ -675,7 +676,7 @@ namespace holovibes
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
-				cd_.square_input_mode = static_cast<SquareInputMode>(ptree.get<int>("image_rendering.square_input_mode", cd_.square_input_mode));
+				cd_.square_input_mode = static_cast<SquareInputMode>(ptree.get<int>("image_rendering.square_input_mode", static_cast<int>(cd_.square_input_mode.load())));
 				cd_.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd_.batch_size);
 
 				const ushort p_time_transformation_size = ptree.get<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
@@ -695,8 +696,8 @@ namespace holovibes
 				if (z_step > 0.0f)
 					set_z_step(z_step);
 
-				cd_.space_transformation = static_cast<SpaceTransformation>(ptree.get<int>("image_rendering.space_transformation", cd_.space_transformation));
-				cd_.time_transformation = static_cast<TimeTransformation>(ptree.get<int>("image_rendering.time_transformation", cd_.time_transformation));
+				cd_.space_transformation = static_cast<SpaceTransformation>(ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd_.space_transformation.load())));
+				cd_.time_transformation = static_cast<TimeTransformation>(ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd_.time_transformation.load())));
 
 				cd_.raw_bitshift = ptree.get<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 
@@ -706,7 +707,7 @@ namespace holovibes
 				view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
 
 				cd_.img_type.exchange(static_cast<ImgType>(
-					ptree.get<int>("view.view_mode", cd_.img_type)));
+					ptree.get<int>("view.view_mode", static_cast<int>(cd_.img_type.load()))));
 				last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
 				cd_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
@@ -831,13 +832,13 @@ namespace holovibes
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-			ptree.put<holovibes::SquareInputMode>("image_rendering.square_input_mode", cd_.square_input_mode);
+			ptree.put<int>("image_rendering.square_input_mode", static_cast<int>(cd_.square_input_mode.load()));
 			ptree.put<ushort>("image_rendering.batch_size", cd_.batch_size);
 			ptree.put<ushort>("image_rendering.time_transformation_stride", cd_.time_transformation_stride);
-			ptree.put<holovibes::SpaceTransformation>("image_rendering.space_transformation", cd_.space_transformation);
-			ptree.put<holovibes::TimeTransformation>("image_rendering.time_transformation", cd_.time_transformation);
+			ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd_.space_transformation.load()));
+			ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd_.time_transformation.load()));
 			ptree.put<ushort>("image_rendering.time_transformation_size", cd_.time_transformation_size);
-			ptree.put("image_rendering.camera", kCamera);
+			ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
 			ptree.put<ushort>("image_rendering.p_index", cd_.pindex);
 			ptree.put<float>("image_rendering.lambda", cd_.lambda);
 			ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
@@ -846,7 +847,7 @@ namespace holovibes
 
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
-			ptree.put<holovibes::ImgType>("view.view_mode", cd_.img_type);
+			ptree.put<int>("view.view_mode", static_cast<int>(cd_.img_type.load()));
 			ptree.put<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
 			ptree.put<bool>("view.log_scale_enabled_cut_xz", cd_.log_scale_slice_xz_enabled);
 			ptree.put<bool>("view.log_scale_enabled_cut_yz", cd_.log_scale_slice_yz_enabled);
@@ -1379,7 +1380,7 @@ namespace holovibes
 				pipe_refresh();
 
 				// Force XYview autocontrast
-				pipe->autocontrast_end_pipe(XYview);
+				pipe->autocontrast_end_pipe(WindowKind::XYview);
 				// Force cuts views autocontrast if needed
 				if (cd_.time_transformation_cuts_enabled)
 					set_auto_contrast_cuts();
@@ -1624,7 +1625,7 @@ namespace holovibes
 				cd_.log_scale_slice_xy_enabled = true;
 				cd_.fft_shift_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-					pipe->autocontrast_end_pipe(XYview);
+					pipe->autocontrast_end_pipe(WindowKind::XYview);
 				notify();
 			}
 		}
@@ -2279,8 +2280,8 @@ namespace holovibes
 		{
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_compute_pipe().get()))
 			{
-				pipe->autocontrast_end_pipe(XZview);
-				pipe->autocontrast_end_pipe(YZview);
+				pipe->autocontrast_end_pipe(WindowKind::XZview);
+				pipe->autocontrast_end_pipe(WindowKind::YZview);
 			}
 		}
 

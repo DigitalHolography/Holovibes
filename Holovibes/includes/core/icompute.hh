@@ -26,12 +26,12 @@
 #include "cufft_handle.hh"
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
+#include "enum_window_kind.hh"
 
 namespace holovibes
 {
 	class Queue;
 	class ComputeDescriptor;
-	enum WindowKind;
 }
 
 namespace holovibes

@@ -251,12 +251,12 @@ namespace holovibes
 		{
 			switch (parent_->getKindOfView())
 			{
-			case Raw:
-			case Hologram:
+			case KindOfView::Raw:
+			case KindOfView::Hologram:
 				create_overlay<Zoom>();
 				break;
-			case SliceXZ:
-			case SliceYZ:
+			case KindOfView::SliceXZ:
+			case KindOfView::SliceYZ:
 				create_overlay<SliceCross>();
 				break;
 			default:

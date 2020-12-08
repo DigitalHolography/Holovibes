@@ -10,23 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "noise_overlay.hh"
-#include "BasicOpenGLWindow.hh"
+/*! \file
+ *  Enum for the different computation mode
+ */
+#pragma once
 
 namespace holovibes
 {
-	namespace gui
+	/*! \brief	Input processes, start at 1 to keep compatibility */
+	enum class Computation
 	{
-		NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Noise, parent)
-		{
-			color_ = { 0.f, 0.64f, 0.67f };
-		}
-
-		void NoiseOverlay::release(ushort frameSide)
-		{
-			if (parent_->getKindOfView() == KindOfView::Hologram)
-				parent_->getCd()->noiseZone(zone_, AccessMode::Set);
-		}
-	}
-}
+		Raw = 1,/*!< Interferogram recorded */
+		Hologram/*!<  Reconstruction of the object */
+	};
+} // namespace holovibes

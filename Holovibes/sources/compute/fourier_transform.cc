@@ -315,11 +315,10 @@ void FourierTransform::insert_time_transformation_cuts_view()
 				mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
 				width,
 				height,
-				cd_.img_type,
 				cd_.time_transformation_size,
 				cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
 				cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
-				cd_.img_type);
+				cd_.img_type.load());
 		}
 	});
 }

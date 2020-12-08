@@ -32,7 +32,7 @@ namespace holovibes
 	namespace gui
 	{
 		/*! \brief Describes the kind of window */
-		enum KindOfView
+		enum class KindOfView
 		{
 			Raw = 1, /**< Simply displaying the input frames */
 			Hologram, /**< Applying the demodulation and computations on the input frames */

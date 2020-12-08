@@ -86,7 +86,7 @@ namespace holovibes
 			err++;
 
 		int output_buffer_size = gpu_input_queue_.get_frame_res();
-		if (cd_.img_type == Composite)
+		if (cd_.img_type == ImgType::Composite)
 			output_buffer_size *= 3;
 		if (!buffers_.gpu_output_frame.resize(output_buffer_size))
 			err++;
@@ -328,9 +328,9 @@ namespace holovibes
 		if (!cd_.contrast_enabled)
 			return;
 
-		if (kind == XYview)
+		if (kind == WindowKind::XYview)
 			autocontrast_requested_ = true;
-		else if (kind == XZview)
+		else if (kind == WindowKind::XZview)
 			autocontrast_slice_xz_requested_ = true;
 		else
 			autocontrast_slice_yz_requested_ = true;
@@ -350,7 +350,7 @@ namespace holovibes
 		notify_observers();
 
 		if (auto pipe = dynamic_cast<Pipe*>(this))
-			pipe->autocontrast_end_pipe(XYview);
+			pipe->autocontrast_end_pipe(WindowKind::XYview);
 	}
 
 	void ICompute::request_update_time_transformation_size()

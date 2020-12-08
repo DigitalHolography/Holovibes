@@ -24,6 +24,7 @@
 #include "queue.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
+#include "enum_img_type.hh"
 
 namespace holovibes
 {

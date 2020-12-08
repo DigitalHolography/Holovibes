@@ -14,6 +14,7 @@
 
 #include "Common.cuh"
 #include "rect.hh"
+#include "enum_img_type.hh"
 
 using holovibes::units::RectFd;
 
@@ -38,9 +39,8 @@ void time_transformation_cuts_begin(const cuComplex		*input,
 									const ushort		ymax,
 									const ushort		width,
 									const ushort		height,
-									const uint			viewmode,
 									const ushort		time_transformation_size,
 									const uint			acc_level_xz,
 									const uint			acc_level_yz,
-									const uint			img_type,
+									const holovibes::ImgType img_type,
 									cudaStream_t		stream = 0);

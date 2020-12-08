@@ -55,15 +55,15 @@ namespace holovibes
 		void Converts::insert_to_float(bool unwrap_2d_requested)
 		{
 			insert_compute_p_accu();
-			if (cd_.img_type == Composite)
+			if (cd_.img_type == ImgType::Composite)
 				insert_to_composite();
-			else if (cd_.img_type == Modulus) //img type in ui : magnitude
+			else if (cd_.img_type == ImgType::Modulus) //img type in ui : magnitude
 				insert_to_modulus();
-			else if (cd_.img_type == SquaredModulus) //img type in ui : squared magnitude
+			else if (cd_.img_type == ImgType::SquaredModulus) //img type in ui : squared magnitude
 				insert_to_squaredmodulus();
-			else if (cd_.img_type == Argument)
+			else if (cd_.img_type == ImgType::Argument)
 				insert_to_argument(unwrap_2d_requested);
-			else if (cd_.img_type == PhaseIncrease)
+			else if (cd_.img_type == ImgType::PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
 
 			if (cd_.time_transformation == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)

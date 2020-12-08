@@ -31,7 +31,6 @@ namespace holovibes
 	struct ChartEnv;
 	struct TimeTransformationEnv;
 	struct ImageAccEnv;
-	enum WindowKind;
 
 	namespace compute
 	{
