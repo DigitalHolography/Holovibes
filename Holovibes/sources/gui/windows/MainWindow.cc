@@ -2630,10 +2630,15 @@ namespace holovibes
 				filepath = QFileDialog::getSaveFileName(this,
 					tr("Chart output file"), record_output_directory_.c_str(), tr("Text files (*.txt);;CSV files (*.csv)"));
 			}
-			else
+			else if (record_mode_ == RecordMode::RAW)
 			{
 				filepath = QFileDialog::getSaveFileName(this,
 					tr("Record output file"), record_output_directory_.c_str(), tr("Holo files (*.holo)"));
+			}
+			else if (record_mode_ == RecordMode::HOLOGRAM)
+			{
+				filepath = QFileDialog::getSaveFileName(this,
+					tr("Record output file"), record_output_directory_.c_str(), tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
 			}
 
 			if (filepath.isEmpty())
@@ -2705,8 +2710,18 @@ namespace holovibes
 			}
 			else
 			{
-				ui.RecordExtComboBox->clear();
-				ui.RecordExtComboBox->insertItem(0, ".holo");
+				if (record_mode_ == RecordMode::RAW)
+				{
+					ui.RecordExtComboBox->clear();
+					ui.RecordExtComboBox->insertItem(0, ".holo");
+				}
+				else if (record_mode_ == RecordMode::HOLOGRAM)
+				{
+					ui.RecordExtComboBox->clear();
+					ui.RecordExtComboBox->insertItem(0, ".holo");
+					ui.RecordExtComboBox->insertItem(1, ".avi");
+					ui.RecordExtComboBox->insertItem(2, ".mp4");
+				}
 
 				ui.ChartPlotWidget->hide();
 
