@@ -29,6 +29,6 @@ namespace holovibes::io_files
             return new OutputMp4File(file_path, fd, img_nb);
 
         else
-            throw FileException("Invalid file extension");
+            throw FileException("Invalid file extension", false);
     }
 } // namespace holovibes::io_files

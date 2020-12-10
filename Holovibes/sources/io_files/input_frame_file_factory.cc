@@ -25,6 +25,6 @@ namespace holovibes::io_files
             return new InputCineFile(file_path);
 
         else
-            throw FileException("Invalid file extension");
+            throw FileException("Invalid file extension", false);
     }
 } // namespace holovibes::io_files

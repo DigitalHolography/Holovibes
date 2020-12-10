@@ -35,7 +35,7 @@ namespace holovibes::io_files
         }
         catch (const cv::Exception&)
         {
-            throw FileException("An error was encountered while trying to create mp4 file");
+            throw FileException("An error was encountered while trying to create mp4 file", false);
         }
     }
 
@@ -84,7 +84,7 @@ namespace holovibes::io_files
         }
         catch(const cv::Exception&)
         {
-            throw FileException("Unable to write output mp4 file frame");
+            throw FileException("Unable to write output mp4 file frame", false);
         }
 
         return frame_size;

@@ -25,7 +25,7 @@ namespace holovibes::io_files
 
         // if an error occurred
         if (file_ == nullptr)
-            throw FileException("Unable to open file " + file_path + ": " + std::strerror(errno));
+            throw FileException("Unable to open file " + file_path);
     }
 
     FrameFile::~FrameFile()

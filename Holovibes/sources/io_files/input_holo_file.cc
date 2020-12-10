@@ -34,7 +34,7 @@ namespace holovibes::io_files
             || std::strncmp("HOLO", holo_file_header_.magic_number, 4) != 0)
 		{
             std::fclose(file_);
-            throw FileException("Invalid holo file");
+            throw FileException("Invalid holo file", false);
 		}
 
 		fd_.width = holo_file_header_.img_width;
@@ -49,7 +49,7 @@ namespace holovibes::io_files
         if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
         {
             std::fclose(file_);
-            throw FileException("Invalid holo file");
+            throw FileException("Invalid holo file", false);
         }
 
 		// compute the meta data offset to retrieve the meta data
@@ -59,7 +59,7 @@ namespace holovibes::io_files
         if (meta_data_offset > file_size)
         {
             std::fclose(file_);
-            throw FileException("Invalid holo file");
+            throw FileException("Invalid holo file", false);
         }
 
 		uintmax_t meta_data_size = file_size - meta_data_offset;

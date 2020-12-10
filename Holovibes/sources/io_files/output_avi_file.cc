@@ -35,7 +35,7 @@ namespace holovibes::io_files
         }
         catch (const cv::Exception&)
         {
-            throw FileException("An error was encountered while trying to create avi file");
+            throw FileException("An error was encountered while trying to create avi file", false);
         }
     }
 
@@ -84,7 +84,7 @@ namespace holovibes::io_files
         }
         catch(const cv::Exception&)
         {
-            throw FileException("Unable to write output avi file frame");
+            throw FileException("Unable to write output avi file frame", false);
         }
 
         return frame_size;

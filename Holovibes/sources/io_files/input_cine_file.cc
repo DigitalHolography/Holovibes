@@ -33,7 +33,7 @@ namespace holovibes::io_files
             || strncmp("CI", reinterpret_cast<char*>(&cine_file_header_.type), 2) != 0)
         {
             std::fclose(file_);
-            throw FileException("Invalid cine file");
+            throw FileException("Invalid cine file", false);
         }
 
         fd_.width = std::abs(bitmap_info_header_.bi_width);
