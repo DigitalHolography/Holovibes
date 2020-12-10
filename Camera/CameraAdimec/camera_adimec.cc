@@ -42,6 +42,8 @@ namespace camera
 			load_ini_params();
 			ini_file_.close();
 		}
+
+		init_camera();
 	}
 
 	void CameraAdimec::init_camera()

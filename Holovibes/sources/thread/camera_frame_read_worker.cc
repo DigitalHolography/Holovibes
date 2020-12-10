@@ -38,7 +38,6 @@ namespace holovibes::worker
 
         try
         {
-            camera_->init_camera();
             camera_->start_acquisition();
 
             while (!stop_requested_)

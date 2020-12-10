@@ -25,10 +25,13 @@ namespace camera
 
 		load_default_params();
 
-		if (ini_file_is_open()) {
+		if (ini_file_is_open())
+		{
 			load_ini_params();
 			ini_file_.close();
 		}
+
+		init_camera();
 	}
 
 	void CameraHamamatsu::init_camera()
@@ -142,7 +145,7 @@ namespace camera
 		std::memset(&dcam_wait_info_, 0, sizeof(dcam_wait_info_));
 
 		dcam_wait_info_.size = sizeof(dcam_wait_info_); //Line required by the API
-		dcam_wait_info_.eventmask = DCAMWAIT_CAPEVENT_FRAMEREADY; //Waiting for event 
+		dcam_wait_info_.eventmask = DCAMWAIT_CAPEVENT_FRAMEREADY; //Waiting for event
 		dcam_wait_info_.timeout = camera::FRAME_TIMEOUT; // This field should be in milliseconds
 	}
 
@@ -297,7 +300,7 @@ namespace camera
 			trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__POSITIVE;
 		else if (trig_polarity == "NEGATIVE")
 			trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
-		
+
 		std::string readoutspeed = pt.get<std::string>("hamamatsu.readoutspeed", "");
 		if (readoutspeed == "SLOWEST")
 			readoutspeed_ = DCAMPROP_READOUTSPEED__SLOWEST;

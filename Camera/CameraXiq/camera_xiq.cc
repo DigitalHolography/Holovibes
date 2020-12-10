@@ -35,6 +35,8 @@ namespace camera
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
+
+    init_camera();
   }
 
   void CameraXiq::init_camera()

@@ -16,6 +16,22 @@
 
 namespace camera
 {
+	CameraIds::CameraIds()
+		: Camera("ids.ini")
+	{
+		name_ = "IDS CMOSIS CMV 4000";
+
+		load_default_params();
+
+		if (ini_file_is_open())
+		{
+			load_ini_params();
+			ini_file_.close();
+		}
+
+		init_camera();
+	}
+
 	void CameraIds::init_camera()
 	{
 		int cameras_nb = 0;

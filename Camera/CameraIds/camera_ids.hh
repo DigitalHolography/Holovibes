@@ -28,18 +28,7 @@ namespace camera
   class CameraIds : public Camera
   {
   public:
-    CameraIds()
-      : Camera("ids.ini")
-    {
-      name_ = "IDS CMOSIS CMV 4000";
-
-      load_default_params();
-      if (ini_file_is_open())
-        load_ini_params();
-
-	  if (ini_file_is_open())
-		  ini_file_.close();
-    }
+    CameraIds();
 
     virtual ~CameraIds()
     {

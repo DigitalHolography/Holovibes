@@ -128,7 +128,6 @@ namespace holovibes
 
 			cd_.pixel_size = active_camera_->get_pixel_size();
 			const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
-			camera::FrameDescriptor queue_fd = camera_fd;
 
 			init_input_queue(camera_fd);
 
