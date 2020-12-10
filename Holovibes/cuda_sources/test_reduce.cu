@@ -10,19 +10,24 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <numeric>
-#include "map.cuh"
-#include "Common.cuh"
+#include "reduce.cuh"
 
-void apply_contrast_correction(float* const input,
-							   const uint size,
-							   const ushort dynamic_range,
-							   const float	min,
-							   const float	max)
+void test_gpu_reduce_add(const float* const input, double* const result, const uint size)
 {
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	const auto apply_contrast = [factor, min] __device__ (float pixel){ return factor * (pixel - min); };
+    reduce_add(input, result, size);
+}
 
-	map_generic(input, input, size, apply_contrast);
-	cudaCheckError();
+void test_gpu_reduce_min(const double* const input, double* const result, const uint size)
+{
+    reduce_min(input, result, size);
+}
+
+void test_gpu_reduce_max(const int* const input, int* const result, const uint size)
+{
+    reduce_max(input, result, size);
+}
+
+void test_gpu_reduce_max(const float* const input, float* const result, const uint size)
+{
+    reduce_max(input, result, size);
 }

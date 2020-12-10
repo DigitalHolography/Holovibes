@@ -10,19 +10,27 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <numeric>
-#include "map.cuh"
+/*! \file WARNING This file should only be included in the test_reduce.cu file
+*
+* Test files must be .cc
+* To be templatable our reduce_generic needs to be in a .cuhxx file
+* Including directly this file in a .cc would not make it compile with nvcc
+* The only solution is to create a .cu file that will be compiled with nvcc
+* Only then, include this file in our test_reduce.cc
+*/
+
+#pragma once
+
 #include "Common.cuh"
 
-void apply_contrast_correction(float* const input,
-							   const uint size,
-							   const ushort dynamic_range,
-							   const float	min,
-							   const float	max)
-{
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	const auto apply_contrast = [factor, min] __device__ (float pixel){ return factor * (pixel - min); };
+/*! \brief reduce_add wrapper */
+void test_gpu_reduce_add(const float* const input, double* const result, const uint size);
 
-	map_generic(input, input, size, apply_contrast);
-	cudaCheckError();
-}
+/*! \brief reduce_min wrapper */
+void test_gpu_reduce_min(const double* const input, double* const result, const uint size);
+
+/*! \brief reduce_max for int values wrapper */
+void test_gpu_reduce_max(const int* const input, int* const result, const uint size);
+
+/*! \brief reduce_max for float values wrapper */
+void test_gpu_reduce_max(const float* const input, float* const result, const uint size);

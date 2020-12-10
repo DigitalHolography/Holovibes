@@ -39,11 +39,4 @@ void map_multiply(float* const input,
                 const float  value,
                 cudaStream_t stream = 0);
 
-template <typename I, typename O, typename FUNC>
-void map_generic(const I* const input,
-                 O* const output,
-                 const uint size,
-                 const FUNC func,
-                 cudaStream_t stream);
-
 #include "map.cuhxx"

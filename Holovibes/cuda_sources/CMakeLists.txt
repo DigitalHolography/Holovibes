@@ -19,5 +19,5 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     shift_corners.cu
     frame_reshape.cu
     map.cu
-    reduce.cu
+    test_reduce.cu
 )

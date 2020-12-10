@@ -85,7 +85,7 @@ void gpu_normalize(float* const input,
                    const uint norm_constant,
                    cudaStream_t stream)
 {
-    gpu_reduce(input, result_reduce, frame_res);
+    reduce_add(input, result_reduce, frame_res);
 
     // Let x be a pixel, after renormalization
     // x = x * 2^(norm_constant) / mean

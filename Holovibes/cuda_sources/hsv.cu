@@ -23,11 +23,10 @@
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
 #include "map.cuh"
+#include "reduce.cuh"
 #include "unique_ptr.hh"
 
 #define SAMPLING_FREQUENCY  1
-static constexpr uint hsv_normalize_constant = 15;
-
 /*
 * \brief Convert an array of HSV normalized float to an array of RGB normalized float
 * i.e.:
@@ -361,24 +360,39 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	cudaXFree(gpu_kernel);
 }
 
-void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, double* reduce_buffer, uint height, uint width)
+void hsv_normalize(float* const gpu_arr, const uint frame_res, float* const gpu_min, float* const gpu_max)
+{
+	reduce_min(gpu_arr, gpu_min, frame_res); // Get the minimum value
+	reduce_max(gpu_arr, gpu_max, frame_res); // Get the maximum value
+
+	const auto lambda = [gpu_min, gpu_max] __device__ (const float pixel)
+	{
+		return (pixel - *gpu_min) * (1 / (*gpu_max - *gpu_min));
+	};
+	map_generic(gpu_arr, gpu_arr, frame_res, lambda);
+}
+
+void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width, float* const gpu_min, float* const gpu_max)
 {
 	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	apply_percentile_and_threshold(gpu_arr, frame_res, width, height, cd.composite_low_h_threshold, cd.composite_high_h_threshold);
+
 	map_multiply(gpu_arr, frame_res, -1.0f);
-	gpu_normalize(gpu_arr, reduce_buffer, frame_res, hsv_normalize_constant);
+	hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max);
+
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, cd.slider_h_threshold_min, cd.slider_h_threshold_max, frame_res);
 	if (cd.h_blur_activated) {
 		apply_gaussian_blur(cd, gpu_arr, height, width);
 	}
-	gpu_normalize(gpu_arr, reduce_buffer, frame_res, hsv_normalize_constant);
+
+	hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max);
 	map_multiply(gpu_arr, frame_res, 0.66f);
 }
 
-void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, double* reduce_buffer, uint height, uint width)
+void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint height, uint width, float* const gpu_min, float* const gpu_max)
 {
 	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
@@ -386,12 +400,15 @@ void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_ar
 	float* gpu_arr_s = gpu_arr + frame_res;
 
 	apply_percentile_and_threshold(gpu_arr_s, frame_res, width, height, cd.composite_low_s_threshold, cd.composite_high_s_threshold);
-	gpu_normalize(gpu_arr_s, reduce_buffer, frame_res, hsv_normalize_constant);
+
+	hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max);
+
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr_s, cd.slider_s_threshold_min, cd.slider_s_threshold_max, frame_res);
-	gpu_normalize(gpu_arr_s, reduce_buffer, frame_res, hsv_normalize_constant);
+
+	hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max);
 }
 
-void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_arr, double* reduce_buffer, uint height, uint width)
+void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint height, uint width, float* const gpu_min, float* const gpu_max)
 {
 	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
@@ -399,9 +416,12 @@ void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_ar
 	float* gpu_arr_v = gpu_arr + frame_res * 2;
 
 	apply_percentile_and_threshold(gpu_arr_v, frame_res, width, height, cd.composite_low_v_threshold, cd.composite_high_v_threshold);
-	gpu_normalize(gpu_arr_v, reduce_buffer, frame_res, hsv_normalize_constant);
+
+	hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max);
+
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr_v, cd.slider_v_threshold_min, cd.slider_v_threshold_max, frame_res);
-	gpu_normalize(gpu_arr_v, reduce_buffer, frame_res, hsv_normalize_constant);
+
+	hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max);
 }
 
 
@@ -431,12 +451,13 @@ void hsv(const cuComplex *gpu_input,
 	kernel_from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 	cudaCheckError();
 
-	// To perform a renormalization, a single double is needed gpu side
+	// To perform a renormalization, a single min buffer and single max buffer is needed gpu side
 	{
-		holovibes::cuda_tools::UniquePtr<double> reduce_buffer(1);
-		apply_operations_on_h(cd, tmp_hsv_arr, reduce_buffer.get(), height, width);
-		apply_operations_on_s(cd, tmp_hsv_arr, reduce_buffer.get(), height, width);
-		apply_operations_on_v(cd, tmp_hsv_arr, reduce_buffer.get(), height, width);
+		holovibes::cuda_tools::UniquePtr<float> gpu_min(1);
+		holovibes::cuda_tools::UniquePtr<float> gpu_max(1);
+		apply_operations_on_h(cd, tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get());
+		apply_operations_on_s(cd, tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get());
+		apply_operations_on_v(cd, tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get());
 	}
 
 	kernel_from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
