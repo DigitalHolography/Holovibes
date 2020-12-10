@@ -1,13 +1,18 @@
 ## Changelog
 
-## 8.8
+### 8.8.1
+
+* Fix crash when loading camera Adimec
+* Fix HSV and crash when starting in composite mode 
+
+### 8.8
 
 * Refactoring and bug fixes of threads
 * Improve performance of renormalize and limit cuda device sync
 * Apply autocontrast when updating renormalize
 * Fixes in GUI and reticle
 
-## 8.7
+### 8.7
 
 * Handle anamorphic images
 * Add python scripts to convert .holo to .raw/.avi/.mp4 and .raw to .holo
