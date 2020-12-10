@@ -273,8 +273,6 @@ namespace holovibes
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
-			// Displaying mode
-			ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
 			ui.PhaseUnwrap2DCheckBox->
 				setEnabled(cd_.img_type == ImgType::PhaseIncrease ||
@@ -709,6 +707,8 @@ namespace holovibes
 				cd_.img_type.exchange(static_cast<ImgType>(
 					ptree.get<int>("view.view_mode", static_cast<int>(cd_.img_type.load()))));
 				last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
+				// Displaying mode
+				ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
 				cd_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
 				cd_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", cd_.log_scale_slice_xz_enabled);
@@ -1349,7 +1349,6 @@ namespace holovibes
 
 				if (need_refresh(last_img_type_, value))
 				{
-				// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
 					cd_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 					if (cd_.img_type == ImgType::Composite)
