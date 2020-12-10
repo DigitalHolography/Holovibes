@@ -2621,6 +2621,11 @@ namespace holovibes
 			ui.NumberOfFramesSpinBox->setSingleStep(value);
 		}
 
+		void MainWindow::set_nb_frames_mode(bool value)
+		{
+			ui.NumberOfFramesSpinBox->setEnabled(value);
+		}
+
 		void MainWindow::browse_record_output_file()
 		{
 			QString filepath;

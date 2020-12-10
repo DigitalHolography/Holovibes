@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1210</width>
-    <height>789</height>
+    <height>796</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2778,6 +2778,9 @@
                  </item>
                  <item>
                   <widget class="QSpinBox" name="NumberOfFramesSpinBox">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="toolTip">
                     <string># of frames to record</string>
                    </property>
@@ -2970,7 +2973,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3031,7 +3034,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5022,6 +5025,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>NumberOfFramesCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_nb_frames_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>799</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5132,5 +5151,6 @@ p, li { white-space: pre-wrap; }
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
   <slot>set_record_mode(QString)</slot>
+  <slot>set_nb_frames_mode(bool)</slot>
  </slots>
 </ui>

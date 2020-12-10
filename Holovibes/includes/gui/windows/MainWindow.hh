@@ -210,6 +210,7 @@ namespace holovibes
 			void reticle_scale(double value);
 
 			void browse_record_output_file();
+			void set_nb_frames_mode(bool value);
 			void set_record_mode(const QString& value);
 			void stop_record();
 			void record_finished(RecordMode record_mode);
