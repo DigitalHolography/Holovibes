@@ -10,25 +10,34 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "output_frame_file_factory.hh"
-#include "output_holo_file.hh"
-#include "output_avi_file.hh"
-#include "output_mp4_file.hh"
+#pragma once
 
 namespace holovibes::io_files
 {
-    OutputFrameFile* OutputFrameFileFactory::create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+    class Mp4File
     {
-        if (file_path.ends_with(".holo"))
-            return new OutputHoloFile(file_path, fd, img_nb);
+    protected:
 
-        else if (file_path.ends_with(".avi"))
-            return new OutputAviFile(file_path, fd, img_nb);
+        /*!
+         *  \brief    Default constructor
+         */
+        Mp4File() = default;
 
-        else if (file_path.ends_with(".mp4"))
-            return new OutputMp4File(file_path, fd, img_nb);
+        /*!
+         *  \brief    Abstract destructor to make class abstract
+         */
+        virtual ~Mp4File() = 0;
 
-        else
-            throw FileException("Invalid file extension");
-    }
+        /*!
+         *  \brief    Default copy constructor
+         */
+        Mp4File(const Mp4File&) = default;
+
+        /*!
+         *  \brief    Default copy operator
+         */
+        Mp4File& operator=(const Mp4File&) = default;
+    };
 } // namespace holovibes::io_files
+
+#include "mp4_file.hxx"
