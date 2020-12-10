@@ -151,16 +151,16 @@ namespace holovibes
 		gpu_input_queue_.store(nullptr);
 	}
 
-	void Holovibes::start_frame_record(const std::string& path, unsigned int nb_frames_to_record,
+	void Holovibes::start_frame_record(const std::string& path, std::optional<unsigned int> nb_frames_to_record,
 										 bool raw_record, const std::function<void()>& callback)
 	{
 		frame_record_worker_controller_.set_callback(callback);
 		frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record);
 	}
 
-	void Holovibes::request_stop_frame_record()
+	void Holovibes::stop_frame_record()
 	{
-		frame_record_worker_controller_.request_stop();
+		frame_record_worker_controller_.stop();
 	}
 
 	void Holovibes::start_chart_record(const std::string& path, const unsigned int nb_points_to_record,
@@ -170,15 +170,15 @@ namespace holovibes
 		chart_record_worker_controller_.start(path, nb_points_to_record);
 	}
 
-	void Holovibes::request_stop_chart_record()
+	void Holovibes::stop_chart_record()
 	{
-		chart_record_worker_controller_.request_stop();
+		chart_record_worker_controller_.stop();
 	}
 
 	void Holovibes::start_batch_gpib(const std::string& batch_input_path,
             				const std::string& output_path,
 							unsigned int nb_frames_to_record,
-                			bool chart_record,
+							bool chart_record,
 							bool raw_record_enabled,
 							const std::function<void()>& callback)
 	{
@@ -187,9 +187,9 @@ namespace holovibes
 		batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record, chart_record, raw_record_enabled);
 	}
 
-	void Holovibes::request_stop_batch_gpib()
+	void Holovibes::stop_batch_gpib()
 	{
-		batch_gpib_worker_controller_.request_stop();
+		batch_gpib_worker_controller_.stop();
 	}
 
 	void Holovibes::start_information_display(bool is_cli, const std::function<void()>& callback)
@@ -198,9 +198,9 @@ namespace holovibes
 		info_worker_controller_.start(is_cli, info_container_);
 	}
 
-	void Holovibes::request_stop_information_display()
+	void Holovibes::stop_information_display()
 	{
-		info_worker_controller_.request_stop();
+		info_worker_controller_.stop();
 	}
 
 	void Holovibes::start_compute(const std::function<void()>& callback)
@@ -210,9 +210,7 @@ namespace holovibes
 		compute_worker_controller_.set_callback(callback);
 		compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
 
-		LOG_INFO("Pipe is initializing");
 		while (!compute_pipe_.load());
-		LOG_INFO("Pipe initialized.");
 	}
 
 	void Holovibes::stop_compute()

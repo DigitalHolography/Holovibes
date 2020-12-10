@@ -109,6 +109,9 @@ namespace holovibes
 		/*! \brief Set the input mode (cropped, no modification, padding) */
 		inline void set_square_input_mode(SquareInputMode mode);
 
+		/*! \return if queue has overridden at least a frame during an enqueue */
+		inline bool has_overridden() const;
+
 		/* Methods */
 		/*! \brief Empty the Queue and change its size.
 		**
@@ -252,6 +255,8 @@ namespace holovibes
 		** CROPPED_SQUARE)
 		*/
 		SquareInputMode square_input_mode_;
+
+		bool has_overridden_;
 	};
 
 	/*! \brief Struct to represents a region in the queue, or two regions in

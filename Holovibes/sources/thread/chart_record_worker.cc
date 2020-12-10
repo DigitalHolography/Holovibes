@@ -54,7 +54,7 @@ namespace holovibes::worker
 
         auto& chart_queue = *pipe->get_chart_record_queue();
 
-		std::atomic<size_t> i = 0;
+		std::atomic<unsigned int> i = 0;
 		Holovibes::instance().get_info_container().add_progress_index(InformationContainer::ProgressType::CHART_RECORD,
 			i, nb_frames_to_record_);
 

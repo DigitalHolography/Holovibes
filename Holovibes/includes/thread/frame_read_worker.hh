@@ -25,6 +25,6 @@ namespace holovibes::worker
     protected:
         std::atomic<std::shared_ptr<Queue>>& gpu_input_queue_;
 
-        std::atomic<size_t> processed_fps_;
+        std::atomic<unsigned int> processed_fps_;
     };
 } // namespace holovibes::worker

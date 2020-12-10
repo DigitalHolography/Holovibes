@@ -51,7 +51,7 @@ namespace holovibes
         indication_map_.insert_or_assign(indication_type, info);
     }
 
-    void InformationContainer::add_processed_fps(FpsType fps_type, std::atomic<size_t>& processed_fps)
+    void InformationContainer::add_processed_fps(FpsType fps_type, std::atomic<unsigned int>& processed_fps)
     {
         MutexGuard m_guard(mutex_);
         fps_map_.insert_or_assign(fps_type, &processed_fps);
@@ -67,8 +67,8 @@ namespace holovibes
         queue_size_map_.insert_or_assign(queue_type, std::make_pair(&cur_size, &max_size));
     }
 
-    void InformationContainer::add_progress_index(ProgressType progress_type, const std::atomic<size_t>& cur_progress,
-                                                                            const std::atomic<size_t>& max_progress)
+    void InformationContainer::add_progress_index(ProgressType progress_type, const std::atomic<unsigned int>& cur_progress,
+                                                                            const std::atomic<unsigned int>& max_progress)
     {
         MutexGuard m_guard(mutex_);
         progress_index_map_.insert_or_assign(progress_type, std::make_pair(&cur_progress, &max_progress));

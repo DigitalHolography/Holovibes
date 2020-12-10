@@ -81,21 +81,21 @@ namespace holovibes::worker
     {
         if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
         {
-            std::atomic<size_t>* input_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::INPUT_FPS);
+            std::atomic<unsigned int>* input_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::INPUT_FPS);
             input_fps_ = std::round(input_fps_ref->load() * (1000.f / waited_time));
             input_fps_ref->store(0);
         }
 
         if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
         {
-            std::atomic<size_t>* output_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::OUTPUT_FPS);
+            std::atomic<unsigned int>* output_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::OUTPUT_FPS);
             output_fps_ = std::round(output_fps_ref->load() * (1000.f / waited_time));
             output_fps_ref->store(0);
         }
 
         if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
         {
-            std::atomic<size_t>* saving_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::SAVING_FPS);
+            std::atomic<unsigned int>* saving_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::SAVING_FPS);
             saving_fps_ = std::round(saving_fps_ref->load() * (1000.f / waited_time));
             saving_fps_ref->store(0);
         }

@@ -24,6 +24,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_curve_plot.cc
     gui/other/gui_drag_drop_lineedit.cc
     gui/other/gui_group_box.cc
+    gui/other/gui_frame.cc
     gui/selections/interfaces/Overlay.cc
     gui/selections/interfaces/rect_overlay.cc
     gui/selections/interfaces/square_overlay.cc

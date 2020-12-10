@@ -43,20 +43,14 @@ namespace holovibes::worker
     }
 
     template <Derived<Worker> T>
-    void ThreadWorkerController<T>::request_stop()
-    {
-        MutexGuard m_guard(mutex_);
-
-        if (worker_ == nullptr)
-            return;
-
-        worker_->stop();
-    }
-
-    template <Derived<Worker> T>
     void ThreadWorkerController<T>::stop()
     {
-        request_stop();
+        {
+            MutexGuard m_guard(mutex_);
+
+            if (worker_ != nullptr)
+                worker_->stop();;
+        }
 
         if (thread_.joinable())
             thread_.join();

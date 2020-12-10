@@ -47,6 +47,7 @@ namespace holovibes
 		, input_height_(input_height)
 		, bytes_per_pixel(bytes_per_pixel)
 		, square_input_mode_(SquareInputMode::NO_MODIFICATION)
+		, has_overridden_(false)
 	{
 		if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
 		{
@@ -143,7 +144,10 @@ namespace holovibes
 		if (size_ < max_size_)
 			++size_;
 		else
+		{
 			start_index_ = (start_index_ + 1) % max_size_;
+			has_overridden_ = true;
+		}
 
 		return true;
 	}
@@ -297,6 +301,7 @@ namespace holovibes
 		{
 			dest.start_index_ = (dest.start_index_ + dest.size_ - dest.max_size_) % dest.max_size_;
 			dest.size_.store(dest.max_size_.load());
+			dest.has_overridden_ = true;
 		}
 	}
 
@@ -338,6 +343,7 @@ namespace holovibes
 		{
 			start_index_ = (start_index_ + size_ - max_size_) % max_size_;
 			size_.store(max_size_.load());
+			has_overridden_ = true;
 		}
 
 		return true;

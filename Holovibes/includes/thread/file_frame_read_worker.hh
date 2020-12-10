@@ -85,9 +85,9 @@ namespace holovibes
 
             size_t first_frame_id_;
 
-            std::atomic<size_t> current_nb_frames_read_;
+            std::atomic<unsigned int> current_nb_frames_read_;
 
-            const std::atomic<size_t> total_nb_frames_to_read_;
+            const std::atomic<unsigned int> total_nb_frames_to_read_;
 
             bool load_file_in_gpu_;
 

@@ -178,7 +178,7 @@ namespace holovibes
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
 
-		std::atomic<size_t> processed_output_fps_;
+		std::atomic<unsigned int> processed_output_fps_;
 
 		/*! \brief Iterates and executes function of the pipe.
 

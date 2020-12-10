@@ -58,13 +58,13 @@ namespace holovibes
 
         void add_indication(IndicationType indication_type, const std::string& indication);
 
-        void add_processed_fps(FpsType fps_type, std::atomic<size_t>& processed_fps);
+        void add_processed_fps(FpsType fps_type, std::atomic<unsigned int>& processed_fps);
 
         void add_queue_size(QueueType queue_type, const std::atomic<unsigned int>& cur_size,
                                                     const std::atomic<unsigned int>& max_size);
 
-        void add_progress_index(ProgressType progress_type, const std::atomic<size_t>& cur_progress,
-                                                            const std::atomic<size_t>& max_progress);
+        void add_progress_index(ProgressType progress_type, const std::atomic<unsigned int>& cur_progress,
+                                                            const std::atomic<unsigned int>& max_progress);
 
         void remove_indication(IndicationType info_type);
 
@@ -87,7 +87,7 @@ namespace holovibes
 
         static const std::unordered_map<FpsType, std::string> fps_type_to_string_;
 
-        std::map<FpsType, std::atomic<size_t>*> fps_map_;
+        std::map<FpsType, std::atomic<unsigned int>*> fps_map_;
 
         static const std::unordered_map<QueueType, std::string> queue_type_to_string_;
 
@@ -95,7 +95,7 @@ namespace holovibes
 
         std::function<void(const std::string&)> display_info_text_function_ = [](const std::string&){};
 
-        std::unordered_map<ProgressType, std::pair<const std::atomic<size_t>*, const std::atomic<size_t>*>> progress_index_map_;
+        std::unordered_map<ProgressType, std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>> progress_index_map_;
 
         std::function<void(ProgressType, size_t, size_t)> update_progress_function_ = [](ProgressType, size_t, size_t){};
     };

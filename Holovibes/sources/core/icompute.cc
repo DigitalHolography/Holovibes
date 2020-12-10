@@ -229,11 +229,6 @@ namespace holovibes
 		return frame_record_env_.gpu_frame_record_queue_;
 	}
 
-	unsigned int ICompute::get_remaining_frames_to_record()
-	{
-		return frame_record_env_.remaining_frames_to_record.load();
-	}
-
 	void ICompute::delete_stft_slice_queue()
 	{
 		request_delete_time_transformation_cuts_ = true;
@@ -304,13 +299,13 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::request_hologram_record(unsigned int nb_frames_to_record)
+	void ICompute::request_hologram_record(std::optional<unsigned int> nb_frames_to_record)
 	{
 		hologram_record_requested_ = nb_frames_to_record;
 		request_refresh();
 	}
 
-	void ICompute::request_raw_record(unsigned int nb_frames_to_record)
+	void ICompute::request_raw_record(std::optional<unsigned int> nb_frames_to_record)
 	{
 		raw_record_requested_ = nb_frames_to_record;
 		request_refresh();

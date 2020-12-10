@@ -115,15 +115,15 @@ namespace holovibes
 		/*! \brief Clear values related to convolution matrix */
 		void clear_convolution_matrix();
 
-		void start_frame_record(const std::string& path, unsigned int nb_frames_to_record,
+		void start_frame_record(const std::string& path, std::optional<unsigned int> nb_frames_to_record,
 								bool raw_record, const std::function<void()>& callback = [](){});
 
-		void request_stop_frame_record();
+		void stop_frame_record();
 
 		void start_chart_record(const std::string& path, const unsigned int nb_points_to_record,
 			const std::function<void()>& callback = [](){});
 
-		void request_stop_chart_record();
+		void stop_chart_record();
 
 		void start_batch_gpib(const std::string& batch_input_path,
             				const std::string& output_path,
@@ -132,11 +132,11 @@ namespace holovibes
 							bool raw_record_enabled,
 							const std::function<void()>& callback = [](){});
 
-		void request_stop_batch_gpib();
+		void stop_batch_gpib();
 
 		void start_information_display(bool is_cli, const std::function<void()>& callback = [](){});
 
-		void request_stop_information_display();
+		void stop_information_display();
 
 		void start_compute(const std::function<void()>& callback = [](){});
 

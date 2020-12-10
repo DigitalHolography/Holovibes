@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1364</width>
-    <height>794</height>
+    <width>1210</width>
+    <height>789</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -66,9 +66,9 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
       <property name="spacing">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
@@ -92,13 +92,13 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>185</width>
+          <width>210</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>185</width>
+          <width>210</width>
           <height>0</height>
          </size>
         </property>
@@ -120,6 +120,9 @@
          <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_12">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_25">
            <item>
@@ -643,7 +646,13 @@
         <property name="flat">
          <bool>false</bool>
         </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
         <layout class="QGridLayout" name="gridLayout_15">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
          <item row="9" column="0" colspan="2">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
@@ -740,6 +749,7 @@
                 <property name="font">
                  <font>
                   <pointsize>8</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="toolTip">
@@ -1422,13 +1432,13 @@
           <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
-          <number>9</number>
+          <number>11</number>
          </property>
          <property name="topMargin">
-          <number>9</number>
+          <number>11</number>
          </property>
          <property name="rightMargin">
-          <number>9</number>
+          <number>11</number>
          </property>
          <property name="bottomMargin">
           <number>9</number>
@@ -1882,6 +1892,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <kerning>true</kerning>
                  </font>
                 </property>
@@ -2021,13 +2032,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_value_freq_min_name">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QSpinBox" name="SpinBox_value_freq_min">
                 <property name="enabled">
@@ -2041,6 +2045,27 @@
                 </property>
                </widget>
               </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_value_freq_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="4">
+               <widget class="QLabel" name="label_value_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_value_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="3" colspan="2">
                <widget class="QSpinBox" name="SpinBox_value_freq_max">
                 <property name="enabled">
@@ -2051,13 +2076,6 @@
                   <width>60</width>
                   <height>0</height>
                  </size>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QLabel" name="label_value_freq_max_name">
-                <property name="text">
-                 <string>Max</string>
                 </property>
                </widget>
               </item>
@@ -2077,24 +2095,10 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="4">
-               <widget class="QLabel" name="label_value_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_value_freq">
                 <property name="text">
                  <string>Freq. channels (p) selection </string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="5">
-               <widget class="QLabel" name="label_value_threshold">
-                <property name="text">
-                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -2152,6 +2156,13 @@
                <widget class="QLabel" name="label_value_threshold_min">
                 <property name="text">
                  <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="5">
+               <widget class="QLabel" name="label_value_threshold">
+                <property name="text">
+                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -2220,6 +2231,7 @@
            <property name="font">
             <font>
              <pointsize>8</pointsize>
+             <kerning>true</kerning>
             </font>
            </property>
            <property name="text">
@@ -2254,119 +2266,113 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+       <widget class="holovibes::gui::Frame" name="ImportExportFrame">
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>190</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>180</width>
+          <width>210</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>185</width>
+          <width>210</width>
           <height>0</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
-        <property name="title">
-         <string>Export</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_10">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="leftMargin">
-          <number>9</number>
+          <number>0</number>
          </property>
          <property name="topMargin">
-          <number>9</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>9</number>
+          <number>0</number>
          </property>
          <property name="bottomMargin">
-          <number>9</number>
+          <number>0</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_23">
-           <item>
-            <widget class="QLabel" name="NumberOfFramesLabel">
-             <property name="text">
-              <string># of frames:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="NumberOfFramesSpinBox">
-             <property name="toolTip">
-              <string># of frames to record</string>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>8388608</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="ImageOutputGroupBox">
-           <property name="title">
-            <string>Image output:</string>
+          <widget class="holovibes::gui::GroupBox" name="ImportGroupBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
+           <property name="minimumSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>210</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
+           </property>
+           <property name="title">
+            <string>Import</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetNoConstraint</enum>
+            </property>
             <property name="leftMargin">
-             <number>2</number>
+             <number>9</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>9</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>9</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>9</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_20">
-              <property name="spacing">
-               <number>0</number>
-              </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
               <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImageOutputPathLineEdit">
-                <property name="inputMask">
-                 <string/>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="acceptDrops">
+                 <bool>true</bool>
                 </property>
                 <property name="text">
                  <string/>
+                </property>
+                <property name="dragEnabled">
+                 <bool>false</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
                 </property>
                 <property name="placeholderText">
                  <string>Select file</string>
@@ -2374,7 +2380,10 @@
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="ImageOutputBrowseToolButton">
+               <widget class="QToolButton" name="InputBrowseToolButton">
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -2383,30 +2392,148 @@
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="RawRecordingCheckBox">
-              <property name="text">
-               <string>Raw recording</string>
+             <layout class="QGridLayout" name="gridLayout_6">
+              <property name="horizontalSpacing">
+               <number>9</number>
               </property>
-             </widget>
+              <property name="verticalSpacing">
+               <number>4</number>
+              </property>
+              <item row="2" column="0">
+               <widget class="QLabel" name="ImportEndIndexLabel">
+                <property name="text">
+                 <string>End Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="ImportFpsLabel">
+                <property name="text">
+                 <string>Input FPS</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="ImportStartIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="ImportStartIndexLabel">
+                <property name="text">
+                 <string>Start Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="ImportInputFpsSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_21">
+             <layout class="QVBoxLayout" name="verticalLayout">
               <item>
-               <widget class="QPushButton" name="ImageOutputRecPushButton">
+               <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
+                <property name="toolTip">
+                 <string>Allows much higher FPS. Requires high GPU DRAM.</string>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="locale">
+                 <locale language="French" country="France"/>
+                </property>
                 <property name="text">
-                 <string>Rec.</string>
+                 <string>Load file in GPU</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
+              <item>
+               <widget class="QPushButton" name="ImportStartPushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Start</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="ImageOutputBatchPushButton">
-                <property name="text">
-                 <string>Batch</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ImageOutputStopPushButton">
+               <widget class="QPushButton" name="ImportStopPushButton">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -2421,430 +2548,344 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="ChartGroupBox">
-           <property name="title">
-            <string>Chart</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_19">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_11">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="ChartSignalPushButton">
-                <property name="text">
-                 <string>Signal</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ChartNoisePushButton">
-                <property name="text">
-                 <string>Noise</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ChartPlotPushButton">
-                <property name="text">
-                 <string>Plot</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="ChartOutputPathLineEdit">
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="placeholderText">
-                 <string>Chart output</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="ChartOutputToolButton">
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_19">
-              <item>
-               <widget class="QPushButton" name="ChartOutputRecPushButton">
-                <property name="text">
-                 <string>Rec.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ChartOutputBatchPushButton">
-                <property name="text">
-                 <string>Batch</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ChartOutputStopPushButton">
-                <property name="text">
-                 <string>Stop</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="title">
-            <string>Batch file input:</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_22">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit">
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="placeholderText">
-                 <string>Select file</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="BatchInputBrowseToolButton">
-                <property name="toolTip">
-                 <string>Allow batch file reading</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+          <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
+           <property name="minimumSize">
             <size>
-             <width>20</width>
+             <width>210</width>
              <height>0</height>
             </size>
            </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="holovibes::gui::GroupBox" name="ImportGroupBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>180</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>184</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>184</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
-        <property name="title">
-         <string>Import</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>9</number>
-         </property>
-         <property name="topMargin">
-          <number>9</number>
-         </property>
-         <property name="rightMargin">
-          <number>9</number>
-         </property>
-         <property name="bottomMargin">
-          <number>9</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
-           <item>
-            <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="dragEnabled">
-              <bool>true</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>Select file</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="InputBrowseToolButton">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <property name="horizontalSpacing">
-            <number>9</number>
+           <property name="maximumSize">
+            <size>
+             <width>210</width>
+             <height>16777215</height>
+            </size>
            </property>
-           <property name="verticalSpacing">
-            <number>4</number>
+           <property name="baseSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
            </property>
-           <item row="2" column="0">
-            <widget class="QLabel" name="ImportEndIndexLabel">
-             <property name="text">
-              <string>End Index</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="ImportEndIndexSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>2100000000</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="ImportFpsLabel">
-             <property name="text">
-              <string>Input FPS</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="ImportStartIndexSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="ImportStartIndexLabel">
-             <property name="text">
-              <string>Start Index</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="ImportInputFpsSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>60</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
+           </property>
+           <property name="title">
+            <string>Export</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetNoConstraint</enum>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="RecordComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string>Raw</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hologram</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Chart</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="RecordFrame">
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>180</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
+              <layout class="QVBoxLayout" name="recordLayout">
+               <property name="spacing">
+                <number>6</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="ChartPlotWidget" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>210</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetDefaultConstraint</enum>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="ChartSignalPushButton">
+                    <property name="text">
+                     <string>Signal</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="ChartNoisePushButton">
+                    <property name="text">
+                     <string>Noise</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="ChartPlotPushButton">
+                    <property name="text">
+                     <string>Plot</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="outputFileSelectionLayout">
+                 <property name="spacing">
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFilePathLineEdit">
+                   <property name="inputMask">
+                    <string/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="dragEnabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>Select output file</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="RecordExtComboBox">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>.holo</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QToolButton" name="OutputFileBrowseToolButton">
+                   <property name="text">
+                    <string>...</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="numberOfFramesLayout">
+                 <item>
+                  <widget class="QCheckBox" name="NumberOfFramesCheckBox">
+                   <property name="text">
+                    <string># of frames</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="NumberOfFramesSpinBox">
+                   <property name="toolTip">
+                    <string># of frames to record</string>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>8388608</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="BatchGroupBox">
+                 <property name="title">
+                  <string>Batch</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                  <property name="leftMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <layout class="QHBoxLayout" name="batchFileSelectionLayout">
+                    <property name="spacing">
+                     <number>6</number>
+                    </property>
+                    <item>
+                     <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit">
+                      <property name="inputMask">
+                       <string/>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="dragEnabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="placeholderText">
+                       <string>Select batch input file</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="BatchInputBrowseToolButton">
+                      <property name="toolTip">
+                       <string>Allow batch file reading</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="recordPushButtonsLayout">
+                 <item>
+                  <widget class="QPushButton" name="ExportRecPushButton">
+                   <property name="text">
+                    <string>Rec.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ExportStopPushButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Stop</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
-             <property name="toolTip">
-              <string>Allows much higher FPS. Requires high GPU DRAM.</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="locale">
-              <locale language="French" country="France"/>
-             </property>
-             <property name="text">
-              <string>Load file in GPU</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_27">
-           <item>
-            <widget class="QPushButton" name="ImportStartPushButton">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Start</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="ImportStopPushButton">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Stop</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_3">
+          <spacer name="BottomExportSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -2897,9 +2938,12 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10,0">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="bottomMargin">
+          <number>9</number>
          </property>
          <item>
           <widget class="QTextEdit" name="InfoTextEdit">
@@ -2926,7 +2970,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -2944,7 +2988,7 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <widget class="QProgressBar" name="FrameRecordProgressBar">
+          <widget class="QProgressBar" name="RecordProgressBar">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -2970,38 +3014,7 @@ p, li { white-space: pre-wrap; }
             <enum>QProgressBar::TopToBottom</enum>
            </property>
            <property name="format">
-            <string>frame record: %v/%m</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QProgressBar" name="ChartRecordProgressBar">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>1</number>
-           </property>
-           <property name="textVisible">
-            <bool>true</bool>
-           </property>
-           <property name="textDirection">
-            <enum>QProgressBar::TopToBottom</enum>
-           </property>
-           <property name="format">
-            <string>chart record: %v/%m</string>
+            <string>record: %v/%m</string>
            </property>
           </widget>
          </item>
@@ -3017,8 +3030,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1364</width>
-     <height>21</height>
+     <width>1210</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3062,8 +3075,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
-    <addaction name="actionExport"/>
-    <addaction name="actionImport"/>
+    <addaction name="actionImportExport"/>
     <addaction name="actionInfo"/>
    </widget>
    <widget class="QMenu" name="menuTheme">
@@ -3174,20 +3186,6 @@ p, li { white-space: pre-wrap; }
     <string>Alt+V</string>
    </property>
   </action>
-  <action name="actionExport">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Export</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+E</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="text">
     <string>Quit</string>
@@ -3209,7 +3207,7 @@ p, li { white-space: pre-wrap; }
     <string/>
    </property>
   </action>
-  <action name="actionImport">
+  <action name="actionImportExport">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -3217,7 +3215,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Import</string>
+    <string>Import/Export</string>
    </property>
    <property name="shortcut">
     <string>Alt+I</string>
@@ -3295,6 +3293,16 @@ p, li { white-space: pre-wrap; }
    </slots>
   </customwidget>
   <customwidget>
+   <class>holovibes::gui::Frame</class>
+   <extends>QFrame</extends>
+   <header>gui_frame.hh</header>
+   <container>1</container>
+   <slots>
+    <slot>ShowOrHide()</slot>
+    <slot>reset()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
    <class>holovibes::gui::Drag_drop_lineedit</class>
    <extends>QLineEdit</extends>
    <header>gui_drag_drop_lineedit.hh</header>
@@ -3321,17 +3329,10 @@ p, li { white-space: pre-wrap; }
   <tabstop>ChartSignalPushButton</tabstop>
   <tabstop>ChartNoisePushButton</tabstop>
   <tabstop>NumberOfFramesSpinBox</tabstop>
-  <tabstop>ImageOutputPathLineEdit</tabstop>
-  <tabstop>ImageOutputBrowseToolButton</tabstop>
-  <tabstop>ImageOutputRecPushButton</tabstop>
-  <tabstop>ImageOutputBatchPushButton</tabstop>
-  <tabstop>ImageOutputStopPushButton</tabstop>
-  <tabstop>ChartOutputPathLineEdit</tabstop>
-  <tabstop>ChartOutputToolButton</tabstop>
-  <tabstop>ChartOutputRecPushButton</tabstop>
-  <tabstop>ChartOutputBatchPushButton</tabstop>
-  <tabstop>ChartOutputStopPushButton</tabstop>
-  <tabstop>BatchInputPathLineEdit</tabstop>
+  <tabstop>OutputFilePathLineEdit</tabstop>
+  <tabstop>OutputFileBrowseToolButton</tabstop>
+  <tabstop>ExportRecPushButton</tabstop>
+  <tabstop>ExportStopPushButton</tabstop>
   <tabstop>BatchInputBrowseToolButton</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
   <tabstop>InputBrowseToolButton</tabstop>
@@ -3502,7 +3503,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionImport</sender>
+   <sender>actionImportExport</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>layout_toggled()</slot>
@@ -3519,22 +3520,6 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>actionView</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionExport</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>layout_toggled()</slot>
@@ -3646,306 +3631,82 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionView</sender>
-   <signal>changed()</signal>
-   <receiver>ViewGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
+   <sender>actionHamamatsu</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>328</x>
-     <y>152</y>
+     <x>809</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>actionExport</sender>
-   <signal>changed()</signal>
-   <receiver>ExportGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
+   <sender>actionDocumentation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>documentation()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>975</x>
-     <y>273</y>
+     <x>809</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>actionImage_rendering</sender>
-   <signal>changed()</signal>
-   <receiver>ImageRenderingGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
-     <y>84</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <sender>BatchSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_p(int)</slot>
+   <slot>update_batch_size()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>284</y>
+     <x>136</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
-     <x>0</x>
-     <y>143</y>
+     <x>681</x>
+     <y>396</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>WaveLengthDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_wavelength(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>310</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_z(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>336</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>202</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SpaceTransformationComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_space_transformation(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>206</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>237</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>LogScaleCheckBox</sender>
+   <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_log_scale(bool)</slot>
+   <slot>set_auto_refresh_contrast(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>380</x>
-     <y>269</y>
+     <x>349</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
-     <x>0</x>
-     <y>153</y>
+     <x>681</x>
+     <y>396</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ImageOutputRecPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>single_frame_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>854</x>
-     <y>202</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>640</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZStepDoubleSpinBox</sender>
+   <sender>ContrastMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_z_step(double)</slot>
+   <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>362</y>
+     <x>378</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChartOutputRecPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>single_chart_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>854</x>
-     <y>278</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>679</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageOutputBatchPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>batch_frame_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>911</x>
-     <y>202</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>716</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChartOutputBatchPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>batch_chart_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>911</x>
-     <y>278</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>715</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageOutputStopPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>stop_frame_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>968</x>
-     <y>202</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>743</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChartOutputStopPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>stop_chart_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>968</x>
-     <y>278</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>766</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChartOutputToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>browse_chart_output_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>968</x>
-     <y>246</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>492</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>BatchInputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>browse_batch_input()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>968</x>
-     <y>322</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>492</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageOutputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>browse_frame_output_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>968</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>492</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionInfo</sender>
-   <signal>changed()</signal>
-   <receiver>InfoGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1361</x>
-     <y>279</y>
+     <x>305</x>
+     <y>310</y>
     </hint>
    </hints>
   </connection>
@@ -3966,18 +3727,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>HologramRadioButton</sender>
-   <signal>clicked()</signal>
+   <sender>actionInfo</sender>
+   <signal>changed()</signal>
+   <receiver>InfoGroupBox</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1361</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WaveLengthDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>reset_input()</slot>
+   <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
-     <y>63</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>44</y>
+     <x>0</x>
+     <y>176</y>
     </hint>
    </hints>
   </connection>
@@ -4014,6 +3791,86 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>LogScaleCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_log_scale(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>380</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImage_rendering</sender>
+   <signal>changed()</signal>
+   <receiver>ImageRenderingGroupBox</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZStepDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_step(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4026,6 +3883,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>447</x>
      <y>260</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpaceTransformationComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_space_transformation(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>237</y>
     </hint>
    </hints>
   </connection>
@@ -4046,66 +3919,50 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ChartSignalPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>activeSignalZone()</slot>
+   <sender>actionView</sender>
+   <signal>changed()</signal>
+   <receiver>ViewGroupBox</receiver>
+   <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>659</x>
-     <y>225</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
-     <y>368</y>
+     <x>328</x>
+     <y>152</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ChartNoisePushButton</sender>
+   <sender>HologramRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>activeNoiseZone()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>702</x>
-     <y>225</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>446</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>timeTransformationSizeSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_time_transformation_size()</slot>
+   <slot>reset_input()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
-     <y>258</y>
+     <y>63</y>
     </hint>
     <hint type="destinationlabel">
-     <x>223</x>
-     <y>229</y>
+     <x>222</x>
+     <y>44</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>PAccuCheckBox</sender>
-   <signal>clicked()</signal>
+   <sender>YAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_p_accu()</slot>
+   <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>208</y>
+     <x>324</x>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>273</y>
+     <x>667</x>
+     <y>438</y>
     </hint>
    </hints>
   </connection>
@@ -4142,118 +3999,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>XAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_x_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>YAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>187</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>YAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>182</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>FFTShiftCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_fft_shift(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>292</x>
-     <y>125</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ViewModeComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_view_mode(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>66</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>306</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PhaseUnwrap2DCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_unwrapping_2d(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>447</x>
-     <y>98</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TimeTransformationCutsCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>toggle_time_transformation_cuts(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>292</x>
-     <y>108</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>444</x>
-     <y>69</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -4286,6 +4031,70 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>TimeTransformationCutsCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggle_time_transformation_cuts(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PAccuCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FFTShiftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_fft_shift(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PhaseUnwrap2DCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrapping_2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>RenormalizationCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4298,6 +4107,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>644</x>
      <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>XAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_x_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ViewModeComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_view_mode(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -4334,34 +4175,50 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>WeightSpinBox_B</sender>
-   <signal>valueChanged(double)</signal>
+   <sender>timeTransformationSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_weights()</slot>
+   <slot>set_time_transformation_size()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>576</y>
+     <x>175</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
+     <x>223</x>
+     <y>229</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>LensViewCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>YAccuCheckBox</sender>
+   <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_lens_view(bool)</slot>
+   <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>142</y>
+     <x>241</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_value_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actualize_frequency_channel_v()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -4382,22 +4239,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionHamamatsu</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_hamamatsu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>RawDisplayingCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4414,34 +4255,66 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ChartGroupBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>SpinBox_hue_freq_min</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_chart_mode(bool)</slot>
+   <slot>set_composite_intervals_hsv_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>791</x>
-     <y>288</y>
+     <x>498</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
+     <x>920</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>actionDocumentation</sender>
-   <signal>triggered()</signal>
+   <sender>WeightSpinBox_B</sender>
+   <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>documentation()</slot>
+   <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>594</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
-     <x>809</x>
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_h_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>542</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
      <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LensViewCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_lens_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
     </hint>
    </hints>
   </connection>
@@ -4478,54 +4351,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SpinBox_hue_freq_min</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv_h_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>498</x>
-     <y>165</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SpinBox_hue_freq_max</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv_h_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>591</x>
-     <y>165</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider_hue_threshold_min</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_h_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>542</x>
-     <y>195</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -4538,22 +4363,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SpinBox_value_freq_min</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv_v_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>500</x>
-     <y>409</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -4590,6 +4399,38 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>SpinBox_value_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_v_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_hue_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_h_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>horizontalSlider_value_threshold_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -4598,102 +4439,6 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>561</x>
      <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_value_freq</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>actualize_frequency_channel_v()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>594</x>
-     <y>383</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_saturation_freq</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>actualize_frequency_channel_s()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>594</x>
-     <y>264</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SpinBox_saturation_freq_min</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv_s_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>500</x>
-     <y>290</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SpinBox_saturation_freq_max</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv_s_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>594</x>
-     <y>290</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider_saturation_threshold_min</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_s_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>561</x>
-     <y>330</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider_saturation_threshold_max</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_s_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>561</x>
-     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -4718,14 +4463,142 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SpinBox_hue_blur_kernel_size</sender>
+   <sender>SpinBox_saturation_freq_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>actualize_kernel_size_blur()</slot>
+   <slot>set_composite_intervals_hsv_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>591</x>
-     <y>232</y>
+     <x>594</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_s_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DisplayReticleCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>display_reticle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>289</x>
+     <y>437</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_saturation_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actualize_frequency_channel_s()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DivideConvoCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_divide_convolution_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>791</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ConvoCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_convolution_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ReticleScaleDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reticle_scale(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DTypeComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2D_type(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_s_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -4750,66 +4623,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>DisplayReticleCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>SpinBox_hue_blur_kernel_size</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>display_reticle(bool)</slot>
+   <slot>actualize_kernel_size_blur()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>289</x>
-     <y>437</y>
+     <x>591</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
+     <x>920</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ReticleScaleDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
+   <sender>SpinBox_saturation_freq_min</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>reticle_scale(double)</slot>
+   <slot>set_composite_intervals_hsv_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>387</x>
-     <y>439</y>
+     <x>500</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SquareInputModeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_square_input_mode(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Filter2DTypeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_filter2D_type(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -4830,18 +4671,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>DivideConvoCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>SquareInputModeComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_divide_convolution_mode(bool)</slot>
+   <slot>set_square_input_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>791</x>
-     <y>153</y>
+     <x>175</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
-     <y>298</y>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -4862,34 +4703,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ConvoCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>ContrastMinDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_convolution_mode(bool)</slot>
+   <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>702</x>
-     <y>69</y>
+     <x>318</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
-     <x>681</x>
-     <y>373</y>
+     <x>375</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>RenormalizeCheckBox</sender>
-   <signal>clicked(bool)</signal>
+   <sender>AutoContrastPushButton</sender>
+   <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>toggle_renormalize(bool)</slot>
+   <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>312</y>
+     <x>378</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
+     <x>0</x>
+     <y>59</y>
     </hint>
    </hints>
   </connection>
@@ -4906,102 +4747,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_start()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1306</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1010</x>
-     <y>125</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionImport</sender>
-   <signal>changed()</signal>
-   <receiver>ImportGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1359</x>
-     <y>280</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStopPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_stop()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1396</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1012</x>
-     <y>153</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>InputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_browse_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1396</x>
-     <y>66</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>492</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartIndexSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_start_spinbox_update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1396</x>
-     <y>315</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>811</x>
-     <y>331</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportEndIndexSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_end_spinbox_update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1396</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>812</x>
-     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -5038,82 +4783,66 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>AutoContrastPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_auto_contrast()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ContrastMinDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_min(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>318</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>375</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ContrastMaxDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_max(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>305</x>
-     <y>310</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AutoRefreshContrastCheckBox</sender>
+   <sender>RenormalizeCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_auto_refresh_contrast(bool)</slot>
+   <slot>toggle_renormalize(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>349</x>
-     <y>364</y>
+     <x>790</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
-     <x>681</x>
-     <y>396</y>
+     <x>920</x>
+     <y>373</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>BatchSizeSpinBox</sender>
-   <signal>editingFinished()</signal>
+   <sender>RecordComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_batch_size()</slot>
+   <slot>set_record_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>111</y>
+     <x>793</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel">
-     <x>681</x>
-     <y>396</y>
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChartNoisePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>activeNoiseZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ChartSignalPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>activeSignalZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>782</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -5124,12 +4853,172 @@ p, li { white-space: pre-wrap; }
    <slot>start_chart_display()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>854</x>
-     <y>229</y>
+     <x>909</x>
+     <y>449</y>
     </hint>
     <hint type="destinationlabel">
-     <x>681</x>
-     <y>396</y>
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OutputFileBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_record_output_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BatchInputBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_batch_input()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>923</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExportRecPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>start_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>797</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExportStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>stop_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>894</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InputBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import_browse_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import_start_spinbox_update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import_end_spinbox_update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import_stop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>894</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>797</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImportExport</sender>
+   <signal>changed()</signal>
+   <receiver>ImportExportFrame</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>845</x>
+     <y>395</y>
     </hint>
    </hints>
   </connection>
@@ -5148,8 +5037,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_number_of_frames(int)</slot>
-  <slot>single_frame_record()</slot>
-  <slot>browse_frame_output_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
@@ -5162,16 +5049,13 @@ p, li { white-space: pre-wrap; }
   <slot>documentation()</slot>
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
-  <slot>set_chart_mode(bool)</slot>
   <slot>start_chart_display()</slot>
   <slot>configure_holovibes()</slot>
-  <slot>browse_chart_output_file()</slot>
   <slot>chart_record()</slot>
+  <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
-  <slot>batch_chart_record()</slot>
-  <slot>batch_frame_record()</slot>
-  <slot>stop_frame_record()</slot>
-  <slot>stop_chart_record()</slot>
+  <slot>start_record()</slot>
+  <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
@@ -5247,5 +5131,6 @@ p, li { white-space: pre-wrap; }
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
+  <slot>set_record_mode(QString)</slot>
  </slots>
 </ui>

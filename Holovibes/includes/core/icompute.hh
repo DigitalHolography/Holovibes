@@ -105,7 +105,7 @@ namespace holovibes
 	struct FrameRecordEnv
 	{
 		std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-		std::atomic<unsigned int> remaining_frames_to_record = 0;
+		std::optional<unsigned int> remaining_frames_to_record = 0;
 		bool raw_record_enabled = false;
 	};
 
@@ -170,8 +170,8 @@ namespace holovibes
 		void request_disable_lens_view();
 		void request_raw_view();
 		void request_disable_raw_view();
-		void request_hologram_record(unsigned int nb_frames_to_record);
-		void request_raw_record(unsigned int nb_frames_to_record);
+		void request_hologram_record(std::optional<unsigned int> nb_frames_to_record);
+		void request_raw_record(std::optional<unsigned int> nb_frames_to_record);
 		void request_disable_frame_record();
 		void request_clear_img_acc();
 
@@ -213,8 +213,8 @@ namespace holovibes
 		std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 		bool get_disable_chart_display_requested()		const { return disable_chart_display_requested_; }
 		bool get_disable_chart_record_requested()		const { return disable_chart_record_requested_; }
-		std::optional<unsigned int> get_hologram_record_requested() const { return hologram_record_requested_; }
-		std::optional<unsigned int> get_raw_record_requested() const { return raw_record_requested_; }
+		std::optional<std::optional<unsigned int>> get_hologram_record_requested() const { return hologram_record_requested_; }
+		std::optional<std::optional<unsigned int>> get_raw_record_requested() const { return raw_record_requested_; }
 		bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
@@ -226,8 +226,6 @@ namespace holovibes
 		virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
 		virtual std::unique_ptr<Queue>& get_frame_record_queue();
-
-		virtual unsigned int get_remaining_frames_to_record();
 
 	protected:
 
@@ -306,8 +304,8 @@ namespace holovibes
 		std::atomic<bool> request_update_batch_size_{ false };
 		std::atomic<bool> request_update_time_transformation_stride_{ false };
 		std::atomic<bool> request_disable_lens_view_{ false };
-		std::atomic<std::optional<unsigned int>> hologram_record_requested_{ std::nullopt };
-		std::atomic<std::optional<unsigned int>> raw_record_requested_{ std::nullopt };
+		std::atomic<std::optional<std::optional<unsigned int>>> hologram_record_requested_{ std::nullopt };
+		std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_frame_record_requested_{ false };
 		std::atomic<bool> request_clear_img_acc_{ false };
 	};

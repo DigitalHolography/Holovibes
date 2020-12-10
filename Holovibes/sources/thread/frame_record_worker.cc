@@ -19,7 +19,7 @@
 namespace holovibes::worker
 {
     FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
-                                        unsigned int nb_frames_to_record,
+                                        std::optional<unsigned int> nb_frames_to_record,
                                         bool raw_record) :
         Worker(),
         file_path_(get_record_filename(file_path)),
@@ -30,11 +30,15 @@ namespace holovibes::worker
 
     void FrameRecordWorker::run()
     {
-        std::atomic<size_t> nb_frames_recorded = 0;
+        std::atomic<unsigned int> nb_frames_recorded = 0;
 
         InformationContainer& info = Holovibes::instance().get_info_container();
         info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
-        info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD, nb_frames_recorded, nb_frames_to_record_);
+
+        if (nb_frames_to_record_.has_value())
+            info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD, nb_frames_recorded, nb_frames_to_record_.value());
+        else
+            info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD, nb_frames_recorded, nb_frames_recorded);
 
         auto pipe = Holovibes::instance().get_compute_pipe();
         Queue& record_queue = init_gpu_record_queue(pipe);
@@ -45,7 +49,8 @@ namespace holovibes::worker
         try
         {
             camera::FrameDescriptor file_fd = record_queue.get_fd();
-            output_frame_file = io_files::OutputFrameFileFactory::create(file_path_, file_fd, nb_frames_to_record_);
+            output_frame_file = io_files::OutputFrameFileFactory::create(file_path_, file_fd,
+                nb_frames_to_record_.has_value() ? nb_frames_to_record_.value() : 0);
 
             auto& cd = Holovibes::instance().get_cd();
             output_frame_file->export_compute_settings(cd, raw_record_);
@@ -55,7 +60,8 @@ namespace holovibes::worker
             const size_t output_frame_size = record_queue.get_frame_size();
             frame_buffer = new char[output_frame_size];
 
-            for (; nb_frames_recorded < nb_frames_to_record_ && !stop_requested_; ++nb_frames_recorded)
+            for (; nb_frames_to_record_ == std::nullopt
+                || nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_; ++nb_frames_recorded)
             {
                 wait_for_frames(record_queue, pipe);
 
@@ -69,13 +75,9 @@ namespace holovibes::worker
 
             if (stop_requested_)
             {
-                LOG_WARN("[RECORDER] Written frames: " + std::to_string(nb_frames_recorded)
-                            + ", expected: " + std::to_string(nb_frames_to_record_)
-                            + ". Correcting file integrity...");
+                LOG_INFO("[RECORDER] Written frames: " + std::to_string(nb_frames_recorded));
 
                 output_frame_file->correct_number_of_frames(nb_frames_recorded);
-
-                LOG_INFO("[RECORDER] File integrity corrected!");
             }
 
             output_frame_file->write_footer();
@@ -99,11 +101,12 @@ namespace holovibes::worker
     Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
     {
         std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-
         if (raw_view_queue)
             raw_view_queue->resize(4);
 
-        Holovibes::instance().get_gpu_output_queue()->resize(4);
+        std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
+        if (output_queue)
+            output_queue->resize(4);
 
         if (raw_record_)
         {
@@ -125,7 +128,7 @@ namespace holovibes::worker
         {
             if (record_queue.get_size() == 0)
             {
-                if (pipe->get_remaining_frames_to_record() == 0)
+                if (record_queue.has_overridden())
                 {
                     LOG_ERROR("[RECORDER] Record queue has been full, data has been lost! "
                             "Try to resize record buffer size");
@@ -146,10 +149,11 @@ namespace holovibes::worker
         while (pipe->get_disable_frame_record_requested() && !stop_requested_);
 
         std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-
         if (raw_view_queue)
             raw_view_queue->resize(global::global_config.output_queue_max_size);
 
-        Holovibes::instance().get_gpu_output_queue()->resize(global::global_config.output_queue_max_size);
+        std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
+        if (output_queue)
+            output_queue->resize(global::global_config.output_queue_max_size);
     }
 } // namespace holovibes::worker

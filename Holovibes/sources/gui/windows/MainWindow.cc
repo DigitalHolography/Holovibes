@@ -100,13 +100,10 @@ namespace holovibes
 							ui.FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
 							ui.FileReaderProgressBar->setValue(static_cast<int>(value));
 							break;
-						case InformationContainer::ProgressType::FRAME_RECORD:
-							ui.FrameRecordProgressBar->setMaximum(static_cast<int>(max_size));
-							ui.FrameRecordProgressBar->setValue(static_cast<int>(value));
-							break;
 						case InformationContainer::ProgressType::CHART_RECORD:
-							ui.ChartRecordProgressBar->setMaximum(static_cast<int>(max_size));
-							ui.ChartRecordProgressBar->setValue(static_cast<int>(value));
+						case InformationContainer::ProgressType::FRAME_RECORD:
+							ui.RecordProgressBar->setMaximum(static_cast<int>(max_size));
+							ui.RecordProgressBar->setValue(static_cast<int>(value));
 							break;
 						default:
 							return;
@@ -115,8 +112,9 @@ namespace holovibes
 			};
 			Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
 			ui.FileReaderProgressBar->hide();
-			ui.FrameRecordProgressBar->hide();
-			ui.ChartRecordProgressBar->hide();
+			ui.RecordProgressBar->hide();
+
+			ui.ChartPlotWidget->hide();
 
 			QRect rec = QGuiApplication::primaryScreen()->geometry();
 			int screen_height = rec.height();
@@ -129,6 +127,14 @@ namespace holovibes
 			// Hide non default tab
 			ui.CompositeGroupBox->setHidden(true);
 
+			// Set default files
+			std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
+			std::filesystem::create_directory(holovibes_documents_path);
+			default_output_filename_ = "capture";
+			record_output_directory_ = holovibes_documents_path.string();
+			file_input_directory_ = "C:\\";
+			batch_input_directory_ = "C:\\";
+
 			try
 			{
 				load_ini(GLOBAL_INI_PATH);
@@ -139,6 +145,7 @@ namespace holovibes
 				save_ini(GLOBAL_INI_PATH);
 			}
 
+			set_record_frame_step(record_frame_step_);
 			set_night();
 
 			// Keyboard shortcuts
@@ -202,13 +209,8 @@ namespace holovibes
 			camera_none();
 			remove_infos();
 
-			holovibes_.stop_compute();
-			if (!is_raw_mode())
-				holovibes_.stop_frame_read();
-
 			Holovibes::instance().stop_all_worker_controller();
 		}
-
 
 #pragma endregion
 		/* ------------ */
@@ -258,12 +260,22 @@ namespace holovibes
 
 			const bool is_raw = is_raw_mode();
 
+			if (is_raw)
+			{
+				ui.RecordComboBox->removeItem(ui.RecordComboBox->findText("Hologram"));
+				ui.RecordComboBox->removeItem(ui.RecordComboBox->findText("Chart"));
+			}
+			else // Hologram mode
+			{
+				if (ui.RecordComboBox->findText("Hologram") == -1)
+					ui.RecordComboBox->insertItem(1, "Hologram");
+				if (ui.RecordComboBox->findText("Chart") == -1)
+					ui.RecordComboBox->insertItem(2, "Chart");
+			}
+
 			// Raw view
 			ui.RawDisplayingCheckBox->setEnabled(!is_raw);
 			ui.RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view_enabled);
-
-			// Chart
-			ui.ChartGroupBox->setChecked(!is_raw && is_chart_enabled_);
 
 			QPushButton* signalBtn = ui.ChartSignalPushButton;
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
@@ -461,6 +473,12 @@ namespace holovibes
 			// Convolution
 			ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
 			ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
+
+			QLineEdit* path_line_edit = ui.OutputFilePathLineEdit;
+			path_line_edit->clear();
+
+			std::string record_output_path = (std::filesystem::path(record_output_directory_) / default_output_filename_).string();
+			path_line_edit->insert(record_output_path.c_str());
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -644,14 +662,12 @@ namespace holovibes
 			boost::property_tree::ptree ptree;
 			GroupBox *image_rendering_group_box = ui.ImageRenderingGroupBox;
 			GroupBox *view_group_box = ui.ViewGroupBox;
-			GroupBox *record_group_box = ui.ExportGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
 
 			QAction	*image_rendering_action = ui.actionImage_rendering;
 			QAction	*view_action = ui.actionView;
-			QAction	*export_action = ui.actionExport;
-			QAction	*import_action = ui.actionImport;
+			QAction	*import_export_action = ui.actionImportExport;
 			QAction	*info_action = ui.actionInfo;
 
 			boost::property_tree::ini_parser::read_ini(path, ptree);
@@ -667,6 +683,12 @@ namespace holovibes
 				config.time_transformation_cuts_output_buffer_size = ptree.get<int>("config.time_transformation_cuts_output_buffer_size", config.time_transformation_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
+
+				// Loaded Directories
+				default_output_filename_ = ptree.get<std::string>("files.default_output_filename", default_output_filename_);
+				record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
+				file_input_directory_ = ptree.get<std::string>("files.file_input_directory", file_input_directory_);
+				batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
 
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
@@ -748,14 +770,11 @@ namespace holovibes
 				// Chart
 				auto_scale_point_threshold_ = ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
-				// Record
-				export_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
-
 				const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
 				set_record_frame_step(record_frame_step);
 
 				// Import
-				import_action->setChecked(!ptree.get<bool>("import.hidden", import_group_box->isHidden()));
+				import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_group_box->isHidden()));
 				cd_.pixel_size = ptree.get<float>("import.pixel_size", cd_.pixel_size);
 				ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
@@ -814,8 +833,7 @@ namespace holovibes
 			boost::property_tree::ptree ptree;
 			GroupBox *image_rendering_group_box = ui.ImageRenderingGroupBox;
 			GroupBox *view_group_box = ui.ViewGroupBox;
-			GroupBox *record_group_box = ui.ExportGroupBox;
-			GroupBox *import_group_box = ui.ImportGroupBox;
+			Frame *import_export_frame = ui.ImportExportFrame;
 			GroupBox *info_group_box = ui.InfoGroupBox;
 			Config& config = global::global_config;
 
@@ -829,6 +847,12 @@ namespace holovibes
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
 			ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd_.display_rate));
+
+			// Default files
+			ptree.put<std::string>("files.default_output_filename", default_output_filename_);
+			ptree.put<std::string>("files.record_output_directory", record_output_directory_);
+			ptree.put<std::string>("files.file_input_directory", file_input_directory_);
+			ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -879,11 +903,10 @@ namespace holovibes
 			ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
 			// Record
-			ptree.put<bool>("record.hidden", record_group_box->isHidden());
 			ptree.put<uint>("record.record_frame_step", record_frame_step_);
 
 			// Import
-			ptree.put<bool>("import.hidden", import_group_box->isHidden());
+			ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 			ptree.put<float>("import.pixel_size", cd_.pixel_size);
 
 			// Info
@@ -945,8 +968,6 @@ namespace holovibes
 		{
 			if (cd_.convolution_enabled)
 				set_convolution_mode(false);
-
-			set_chart_mode(false);
 
 			cancel_time_transformation_cuts();
 
@@ -2202,9 +2223,7 @@ namespace holovibes
 						holovibes_.get_compute_pipe()->request_refresh();
 				}
 				catch (std::runtime_error& e)
-				{
-					std::cerr << e.what() << std::endl;
-				}
+				{}
 			}
 		}
 
@@ -2560,27 +2579,136 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_chart_mode(const bool value)
+		void MainWindow::start_chart_display()
 		{
-			is_chart_enabled_ = value;
+			if (cd_.chart_display_enabled)
+				return;
 
-			ui.ChartPlotPushButton->setEnabled(is_chart_enabled_);
-			ui.ChartOutputRecPushButton->setEnabled(is_chart_enabled_);
-			ui.ChartOutputBatchPushButton->setEnabled(is_chart_enabled_);
-			ui.ChartOutputStopPushButton->setEnabled(false);
+			auto pipe = holovibes_.get_compute_pipe();
+			pipe->request_display_chart();
+			while (pipe->get_chart_display_requested());
 
-			if (is_chart_enabled_ && mainDisplay)
+			plot_window_ = std::make_unique<PlotWindow>(*holovibes_.get_compute_pipe()->get_chart_display_queue(), auto_scale_point_threshold_, "Chart");
+			connect(plot_window_.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
+
+			ui.ChartPlotPushButton->setEnabled(false);
+		}
+
+		void MainWindow::stop_chart_display()
+		{
+			if (!cd_.chart_display_enabled)
+				return;
+
+			try
 			{
-				mainDisplay->resetTransform();
+				auto pipe = holovibes_.get_compute_pipe();
+				pipe->request_disable_display_chart();
+				while (pipe->get_disable_chart_display_requested());
+			}
+			catch (const std::exception&)
+			{}
 
-				mainDisplay->getOverlayManager().enable_all(Signal);
-				mainDisplay->getOverlayManager().enable_all(Noise);
-				mainDisplay->getOverlayManager().create_overlay<Signal>();
+			plot_window_.reset(nullptr);
+
+			ui.ChartPlotPushButton->setEnabled(true);
+		}
+#pragma endregion
+		/* ------------ */
+#pragma region Record
+		void MainWindow::set_record_frame_step(int value)
+		{
+			record_frame_step_ = value;
+			ui.NumberOfFramesSpinBox->setSingleStep(value);
+		}
+
+		void MainWindow::browse_record_output_file()
+		{
+			QString filepath;
+
+			if (record_mode_ == RecordMode::CHART)
+			{
+				filepath = QFileDialog::getSaveFileName(this,
+					tr("Chart output file"), record_output_directory_.c_str(), tr("Text files (*.txt);;CSV files (*.csv)"));
 			}
 			else
 			{
+				filepath = QFileDialog::getSaveFileName(this,
+					tr("Record output file"), record_output_directory_.c_str(), tr("Holo files (*.holo)"));
+			}
+
+			if (filepath.isEmpty())
+				return;
+
+			std::string std_filepath = filepath.toStdString();
+			std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
+			std::filesystem::path path = std::filesystem::path(std_filepath);
+
+			record_output_directory_ = path.parent_path().string();
+
+			const std::string file_ext = path.extension().string();
+			std::string filename = path.filename().string();
+			std::size_t ext_pos = filename.find(file_ext);
+			if (ext_pos != std::string::npos)
+				filename.erase(ext_pos, file_ext.length());
+
+			ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
+
+			default_output_filename_ = filename;
+
+			notify();
+		}
+
+		void MainWindow::browse_batch_input()
+		{
+			QString filename = QFileDialog::getOpenFileName(this,
+				tr("Batch input file"), batch_input_directory_.c_str(), tr("All files (*)"));
+
+			QLineEdit* batch_input_line_edit = ui.BatchInputPathLineEdit;
+			batch_input_line_edit->clear();
+			batch_input_line_edit->insert(filename);
+		}
+
+		void MainWindow::set_record_mode(const QString& value)
+		{
+			if (record_mode_ == RecordMode::CHART)
 				stop_chart_display();
-				stop_chart_record();
+
+			stop_record();
+
+			const std::string text = value.toUtf8();
+
+			if (text == "Chart")
+				record_mode_ = RecordMode::CHART;
+			else if (text == "Hologram")
+				record_mode_ = RecordMode::HOLOGRAM;
+			else if (text == "Raw")
+				record_mode_ = RecordMode::RAW;
+			else
+				throw std::exception("Record mode not handled");
+
+			if (record_mode_ == RecordMode::CHART)
+			{
+				ui.RecordExtComboBox->clear();
+				ui.RecordExtComboBox->insertItem(0, ".csv");
+				ui.RecordExtComboBox->insertItem(1, ".txt");
+
+				ui.ChartPlotWidget->show();
+
+				if (mainDisplay)
+				{
+					mainDisplay->resetTransform();
+
+					mainDisplay->getOverlayManager().enable_all(Signal);
+					mainDisplay->getOverlayManager().enable_all(Noise);
+					mainDisplay->getOverlayManager().create_overlay<Signal>();
+				}
+			}
+			else
+			{
+				ui.RecordExtComboBox->clear();
+				ui.RecordExtComboBox->insertItem(0, ".holo");
+
+				ui.ChartPlotWidget->hide();
 
 				if (mainDisplay)
 				{
@@ -2594,260 +2722,83 @@ namespace holovibes
 			notify();
 		}
 
-		/*
-		**	Chart display
-		*/
-
-		void MainWindow::start_chart_display()
+		void MainWindow::stop_record()
 		{
-			if (cd_.chart_display_enabled)
-				return;
+			holovibes_.stop_batch_gpib();
 
-			auto pipe = holovibes_.get_compute_pipe();
-			pipe->request_display_chart();
-			while (pipe->get_chart_display_requested());
-
-			plot_window_ = std::make_unique<PlotWindow>(*holovibes_.get_compute_pipe()->get_chart_display_queue(), auto_scale_point_threshold_, "Chart");
-			connect(plot_window_.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
-
-			if (is_chart_enabled_)
-				ui.ChartPlotPushButton->setEnabled(false);
+			if (record_mode_ == RecordMode::CHART)
+				holovibes_.stop_chart_record();
+			else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
+				holovibes_.stop_frame_record();
 		}
 
-		void MainWindow::stop_chart_display()
+		void MainWindow::record_finished(RecordMode record_mode)
 		{
-			if (!cd_.chart_display_enabled)
-				return;
+			std::string info;
 
-			auto pipe = holovibes_.get_compute_pipe();
-			holovibes_.get_compute_pipe()->request_disable_display_chart();
-			while (pipe->get_disable_chart_display_requested());
+			if (record_mode == RecordMode::CHART)
+				info = "Chart record finished";
+			else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
+				info = "Frame record finished";
 
-			plot_window_.reset(nullptr);
+			ui.RecordProgressBar->hide();
 
-			if (is_chart_enabled_)
-				ui.ChartPlotPushButton->setEnabled(true);
+			if (ui.BatchGroupBox->isChecked())
+				info = "Batch " + info;
+
+			LOG_INFO("[RECORDER] " + info);
+
+			ui.ExportRecPushButton->setEnabled(true);
+			ui.ExportStopPushButton->setEnabled(false);
 		}
 
-		/*
-		**	Chart record (Single + Batch)
-		*/
-
-		void MainWindow::browse_chart_output_file()
+		void MainWindow::start_record()
 		{
-			QString filename = QFileDialog::getSaveFileName(this,
-				tr("Chart output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
+			bool batch_enabled = ui.BatchGroupBox->isChecked();
 
-			QLineEdit* chart_output_line_edit = ui.ChartOutputPathLineEdit;
-			chart_output_line_edit->clear();
-			chart_output_line_edit->insert(filename);
-		}
+			// Preconditions to start record
 
-		void MainWindow::stop_chart_record()
-		{
-			holovibes_.request_stop_batch_gpib();
-			holovibes_.request_stop_chart_record();
-		}
+			std::optional<unsigned int> nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
+			if (!ui.NumberOfFramesCheckBox->isChecked())
+				nb_frames_to_record = std::nullopt;
 
-		/*
-		** Single chart record
-		*/
+			if ((record_mode_ == RecordMode::CHART || batch_enabled) && nb_frames_to_record == std::nullopt)
+				return display_error("Number of frames must be activated");
 
-		void MainWindow::single_chart_record_finished()
-		{
-			LOG_INFO("Chart record finished");
-
-			ui.ChartRecordProgressBar->hide();
-
-			if (is_chart_enabled_)
-			{
-				ui.ChartOutputRecPushButton->setEnabled(true);
-				ui.ChartOutputBatchPushButton->setEnabled(true);
-				ui.ChartOutputStopPushButton->setEnabled(false);
-			}
-		}
-
-		void MainWindow::single_chart_record()
-		{
-			unsigned int nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
-			if (nb_frames_to_record == 0)
-				return;
-
-			std::string output_path = ui.ChartOutputPathLineEdit->text().toUtf8();
-			if (output_path == "")
-				return display_error("No output file");
-
-			ui.ChartOutputRecPushButton->setEnabled(false);
-			ui.ChartOutputBatchPushButton->setEnabled(false);
-			ui.ChartOutputStopPushButton->setEnabled(true);
-
-			ui.ChartRecordProgressBar->reset();
-			ui.ChartRecordProgressBar->show();
-
-			holovibes_.start_chart_record(output_path, nb_frames_to_record, [=](){
-				synchronize_thread([=](){ single_chart_record_finished(); });
-			});
-		}
-
-		/*
-		** Batch chart record
-		*/
-
-		void MainWindow::batch_chart_record_finished()
-		{
-			LOG_INFO("Batch chart record finished");
-
-			ui.ChartRecordProgressBar->hide();
-
-			if (is_chart_enabled_)
-			{
-				ui.ChartOutputRecPushButton->setEnabled(true);
-				ui.ChartOutputBatchPushButton->setEnabled(true);
-				ui.ChartOutputStopPushButton->setEnabled(false);
-			}
-		}
-
-		void MainWindow::batch_chart_record()
-		{
-			unsigned int nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
-			if (nb_frames_to_record == 0)
-				return;
+			std::string output_path = ui.OutputFilePathLineEdit->text().toStdString()
+				+ ui.RecordExtComboBox->currentText().toStdString();
 
 			std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
-			if (batch_input_path == "")
+			if (batch_enabled && batch_input_path == "")
 				return display_error("No batch input file");
-			std::string output_path = ui.ChartOutputPathLineEdit->text().toUtf8();
-			if (output_path == "")
-				return display_error("No output file");
 
-			ui.ChartOutputRecPushButton->setEnabled(false);
-			ui.ChartOutputBatchPushButton->setEnabled(false);
-			ui.ChartOutputStopPushButton->setEnabled(true);
+			// Start record
 
-			ui.ChartRecordProgressBar->reset();
-			ui.ChartRecordProgressBar->show();
+			ui.ExportRecPushButton->setEnabled(false);
+			ui.ExportStopPushButton->setEnabled(true);
 
-			holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record, true, false, [=](){
-				synchronize_thread([=](){ batch_chart_record_finished(); });
-			});
-		}
-#pragma endregion
-		/* ------------ */
-#pragma region Record
-		void MainWindow::browse_frame_output_file()
-		{
-			QString filename = QFileDialog::getSaveFileName(this,
-				tr("Record output file"), "C://", tr("Holo files (*.holo);; All files (*)"));
+			ui.RecordProgressBar->reset();
+			ui.RecordProgressBar->show();
 
-			QLineEdit* path_line_edit = ui.ImageOutputPathLineEdit;
-			path_line_edit->clear();
-			path_line_edit->insert(filename);
-		}
+			bool record_raw = record_mode_ == RecordMode::RAW;
 
-		void MainWindow::set_record_frame_step(int value)
-		{
-			record_frame_step_ = value;
-			ui.NumberOfFramesSpinBox->setSingleStep(value);
-		}
+			auto callback = [record_mode = record_mode_, this](){
+				synchronize_thread([=](){ record_finished(record_mode); });
+			};
 
-		void MainWindow::single_frame_record_finished()
-		{
-			LOG_INFO("[RECORDER] Frame record finished");
-
-			ui.FrameRecordProgressBar->hide();
-
-			ui.ImageOutputRecPushButton->setEnabled(true);
-			ui.ImageOutputBatchPushButton->setEnabled(true);
-			ui.ImageOutputStopPushButton->setEnabled(false);
-			ui.RawRecordingCheckBox->setEnabled(true);
-		}
-
-		void MainWindow::single_frame_record()
-		{
-			unsigned int nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
-
-			if (nb_frames_to_record == 0)
-				return;
-
-			std::string output_path = ui.ImageOutputPathLineEdit->text().toUtf8();
-
-			if (output_path == "")
+			if (batch_enabled)
 			{
-				display_error("No output file");
-				return;
+				// FIXME Pass the record mode as param
+				holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(),
+					record_mode_ == RecordMode::CHART, record_raw, callback);
 			}
-
-			ui.ImageOutputRecPushButton->setEnabled(false);
-			ui.ImageOutputBatchPushButton->setEnabled(false);
-			ui.ImageOutputStopPushButton->setEnabled(true);
-			ui.RawRecordingCheckBox->setEnabled(false);
-
-			ui.FrameRecordProgressBar->reset();
-			ui.FrameRecordProgressBar->show();
-
-			bool record_raw = ui.RawRecordingCheckBox->isChecked();
-
-			holovibes_.start_frame_record(output_path, nb_frames_to_record, record_raw, [=](){
-				synchronize_thread([=](){ single_frame_record_finished(); });
-			});
-		}
-
-		void MainWindow::stop_frame_record()
-		{
-			holovibes_.request_stop_batch_gpib();
-			holovibes_.request_stop_frame_record();
-		}
-
-		void MainWindow::batch_frame_record_finished()
-		{
-			LOG_INFO("Batch frame record finished");
-
-			ui.FrameRecordProgressBar->hide();
-
-			ui.ImageOutputRecPushButton->setEnabled(true);
-			ui.ImageOutputBatchPushButton->setEnabled(true);
-			ui.ImageOutputStopPushButton->setEnabled(false);
-			ui.RawRecordingCheckBox->setEnabled(true);
-		}
-
-		void MainWindow::batch_frame_record()
-		{
-			unsigned int nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
-			if (nb_frames_to_record == 0)
-				return;
-
-			std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
-			if (batch_input_path == "")
-				return display_error("No batch input file");
-			std::string output_path = ui.ImageOutputPathLineEdit->text().toUtf8();
-			if (output_path == "")
-				return display_error("No output file");
-
-			ui.ImageOutputRecPushButton->setEnabled(false);
-			ui.ImageOutputBatchPushButton->setEnabled(false);
-			ui.ImageOutputStopPushButton->setEnabled(true);
-			ui.RawRecordingCheckBox->setEnabled(false);
-
-			ui.FrameRecordProgressBar->reset();
-			ui.FrameRecordProgressBar->show();
-
-			bool record_raw = ui.RawRecordingCheckBox->isChecked();
-
-			holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record, false, record_raw, [=](){
-				synchronize_thread([=](){ batch_frame_record_finished(); });
-			});
-		}
-#pragma endregion
-		/* ------------ */
-#pragma region Batch_GPIB
-		void MainWindow::browse_batch_input()
-		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("Batch input file"), "C://", tr("All files (*)"));
-
-			QLineEdit* batch_input_line_edit = ui.BatchInputPathLineEdit;
-			batch_input_line_edit->clear();
-			batch_input_line_edit->insert(filename);
+			else
+			{
+				if (record_mode_ == RecordMode::CHART)
+					holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
+				else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
+					holovibes_.start_frame_record(output_path, nb_frames_to_record, record_raw, callback);
+			}
 		}
 #pragma endregion
 		/* ------------ */
@@ -2860,11 +2811,11 @@ namespace holovibes
 
 		void MainWindow::import_browse_file()
 		{
-			static QString tmp_path = "";
 			QString filename = "";
 
 			filename = QFileDialog::getOpenFileName(this,
-				tr("import file"), ((tmp_path == "") ? ("C://") : (tmp_path)), tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files (*.cine)"));
+				tr("import file"), file_input_directory_.c_str(), tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files (*.cine)"));
+
 			import_file(filename);
 		}
 

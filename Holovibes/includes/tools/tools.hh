@@ -21,6 +21,7 @@
 # include <string>
 # include <ctime>
 # include <qrect.h>
+#include <filesystem>
 
 # include "rect.hh"
 # include "hardware_limits.hh"
@@ -107,4 +108,6 @@ namespace holovibes
 	QString create_absolute_qt_path(const std::string& relative_path);
 	/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) */
 	std::string create_absolute_path(const std::string& relative_path);
+	/*! \brief Returns the absolute path to the user Documents folder */
+	std::filesystem::path get_user_documents_path();
 }

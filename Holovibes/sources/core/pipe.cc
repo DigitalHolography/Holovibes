@@ -245,21 +245,22 @@ namespace holovibes
 
 	void Pipe::refresh()
 	{
+		refresh_requested_ = false;
+
 		fn_compute_vect_.clear();
 
+		// Aborting if allocation failed
+		if (!make_requests())
+		{
+			refresh_requested_ = false;
+			return;
+		}
 
 		if (cd_.compute_mode == Computation::Raw)
 		{
 			refresh_requested_ = false;
 			insert_raw_record();
 			insert_output_enqueue_raw_mode();
-			return;
-		}
-
-		// Aborting if allocation failed
-		if (!make_requests())
-		{
-			refresh_requested_ = false;
 			return;
 		}
 
@@ -330,8 +331,6 @@ namespace holovibes
 
 		// Must be the last inserted function
 		insert_reset_batch_index();
-
-		refresh_requested_ = false;
 	}
 
 	void Pipe::insert_wait_frames()
@@ -420,20 +419,29 @@ namespace holovibes
 		if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
 		{
 			fn_compute_vect_.push_back([&](){
-				if (frame_record_env_.remaining_frames_to_record == 0)
+				if (frame_record_env_.remaining_frames_to_record.has_value()
+					&& frame_record_env_.remaining_frames_to_record.value() == 0)
 					return;
 
 				unsigned int nb_frames_to_transfer = 1;
 
 				if (cd_.compute_mode == Computation::Hologram)
 				{
-					nb_frames_to_transfer = std::min(static_cast<unsigned int>(cd_.batch_size.load()),
-						frame_record_env_.remaining_frames_to_record.load());
+					if (frame_record_env_.remaining_frames_to_record == std::nullopt)
+					{
+						nb_frames_to_transfer = static_cast<unsigned int>(cd_.batch_size.load());
+					}
+					else
+					{
+						nb_frames_to_transfer = std::min(static_cast<unsigned int>(cd_.batch_size.load()),
+							frame_record_env_.remaining_frames_to_record.value());
+					}
 				}
 
 				gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, nb_frames_to_transfer);
 
-				frame_record_env_.remaining_frames_to_record -= nb_frames_to_transfer;
+				if (frame_record_env_.remaining_frames_to_record.has_value())
+					frame_record_env_.remaining_frames_to_record.value() -= nb_frames_to_transfer;
 			});
 		}
 	}
@@ -443,7 +451,8 @@ namespace holovibes
 		if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
 		{
 			fn_compute_vect_.conditional_push_back([&](){
-				if (frame_record_env_.remaining_frames_to_record == 0)
+				if (frame_record_env_.remaining_frames_to_record.has_value()
+					&& frame_record_env_.remaining_frames_to_record.value() == 0)
 					return;
 
 				if (gpu_output_queue_.get_fd().depth == 6)
@@ -451,7 +460,8 @@ namespace holovibes
 				else
 					frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get());
 
-				frame_record_env_.remaining_frames_to_record -= 1;
+				if (frame_record_env_.remaining_frames_to_record.has_value())
+					frame_record_env_.remaining_frames_to_record.value() -= 1;
 			});
 		}
 	}

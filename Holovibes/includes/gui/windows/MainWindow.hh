@@ -57,6 +57,14 @@ namespace holovibes
 		class MainWindow : public QMainWindow, public Observer
 		{
 			Q_OBJECT
+
+			enum class RecordMode
+			{
+				RAW,
+				HOLOGRAM,
+				CHART,
+			};
+
 			/* ---------- */
 			#pragma region Public Methods
 		public:
@@ -182,7 +190,6 @@ namespace holovibes
 			void set_fft_shift(bool value);
 			void set_composite_area();
 			void update_convo_kernel(const QString& value);
-			void browse_frame_output_file();
 			void set_record_frame_step(int value);
 			void set_start_stop_buttons(bool value);
 			void import_browse_file();
@@ -202,25 +209,18 @@ namespace holovibes
 			void display_reticle(bool value);
 			void reticle_scale(double value);
 
+			void browse_record_output_file();
+			void set_record_mode(const QString& value);
+			void stop_record();
+			void record_finished(RecordMode record_mode);
+			void start_record();
+
 			void browse_batch_input();
 
 			void activeSignalZone();
 			void activeNoiseZone();
-			void set_chart_mode(bool value);
 			void start_chart_display();
 			void stop_chart_display();
-			void browse_chart_output_file();
-			void stop_chart_record();
-			void single_chart_record_finished();
-			void single_chart_record();
-			void batch_chart_record_finished();
-			void batch_chart_record();
-
-			void stop_frame_record();
-			void single_frame_record_finished();
-			void single_frame_record();
-			void batch_frame_record_finished();
-			void batch_frame_record();
 
 			#pragma endregion
 			/* ---------- */
@@ -278,6 +278,7 @@ namespace holovibes
 			std::unique_ptr<SliceWindow>	sliceYZ = nullptr;
 			std::unique_ptr<RawWindow>	lens_window = nullptr;
 			std::unique_ptr<RawWindow>	 raw_window = nullptr;
+			std::unique_ptr<PlotWindow> plot_window_ = nullptr;
 
 			uint window_max_size = 768;
 			uint time_transformation_cuts_window_max_size = 512;
@@ -293,18 +294,21 @@ namespace holovibes
 
 			bool		is_enabled_camera_ = false;
 			double		z_step_ = 0.005f;
-			unsigned	record_frame_step_ = 1024;
+
+			unsigned record_frame_step_ = 512;
+			RecordMode record_mode_ = RecordMode::RAW;
+
+			std::string default_output_filename_;
+			std::string record_output_directory_;
+			std::string file_input_directory_;
+			std::string batch_input_directory_;
 
 			CameraKind	kCamera = CameraKind::NONE;
 			ImportType	import_type_ = ImportType::None;
 			QString		last_img_type_ = "Magnitude";
 
-			bool is_chart_enabled_ = false;
-			std::unique_ptr<PlotWindow> plot_window_ = nullptr;
-
 			size_t auto_scale_point_threshold_ = 100;
 			ushort	theme_index_ = 0;
-
 
 			/* Shortcuts (initialized in constructor) */
 			QShortcut	*z_up_shortcut_;

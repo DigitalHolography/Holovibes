@@ -10,45 +10,27 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#include "gui_frame.hh"
 
-namespace holovibes::worker
+namespace holovibes
 {
-    class Worker;
+	namespace gui
+	{
+		Frame::Frame(QWidget* parent)
+			: QFrame(parent)
+		{
+		}
 
-    template <class T, class U>
-    concept Derived = std::is_base_of<U, T>::value;
+		Frame::~Frame()
+		{
+		}
 
-    template <Derived<Worker> T>
-    class ThreadWorkerController
-    {
-    public:
-        ThreadWorkerController() = default;
-
-        ~ThreadWorkerController();
-
-        ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
-
-        ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
-
-        void set_callback(std::function<void()> callback);
-
-        template <typename... Args>
-        void start(Args&&... args);
-
-        void stop();
-
-    private:
-        void run();
-
-        std::unique_ptr<T> worker_ = nullptr;
-
-        std::thread thread_;
-
-        std::function<void()> callback_ = [](){};
-
-        std::mutex mutex_;
-    };
-} // namespace holovibes::worker
-
-#include "thread_worker_controller.hxx"
+		void Frame::ShowOrHide()
+		{
+			if (this->isVisible())
+				hide();
+			else
+				show();
+		}
+	}
+}

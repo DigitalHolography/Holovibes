@@ -151,7 +151,7 @@ namespace holovibes::worker
 
     void FileFrameReadWorker::read_file_batch()
     {
-        const size_t batch_size = global::global_config.file_buffer_size;
+        const unsigned int batch_size = global::global_config.file_buffer_size;
 
         fps_handler_.begin();
 

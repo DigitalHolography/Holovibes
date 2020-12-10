@@ -10,45 +10,34 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Contains the overloading of QFrame. */
 #pragma once
 
-namespace holovibes::worker
+#include <QFrame>
+#include <QObject>
+
+namespace holovibes
 {
-    class Worker;
+	namespace gui
+	{
+		/*! \brief QFrame overload, used to hide and show parts of the GUI. */
+		class Frame : public QFrame
+		{
+			Q_OBJECT
 
-    template <class T, class U>
-    concept Derived = std::is_base_of<U, T>::value;
+		public:
+			/*! \brief Frame constructor
+			** \param parent Qt parent
+			*/
+			Frame(QWidget* parent = nullptr);
+			/*! \brief Frame destructor */
+			~Frame();
 
-    template <Derived<Worker> T>
-    class ThreadWorkerController
-    {
-    public:
-        ThreadWorkerController() = default;
-
-        ~ThreadWorkerController();
-
-        ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
-
-        ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
-
-        void set_callback(std::function<void()> callback);
-
-        template <typename... Args>
-        void start(Args&&... args);
-
-        void stop();
-
-    private:
-        void run();
-
-        std::unique_ptr<T> worker_ = nullptr;
-
-        std::thread thread_;
-
-        std::function<void()> callback_ = [](){};
-
-        std::mutex mutex_;
-    };
-} // namespace holovibes::worker
-
-#include "thread_worker_controller.hxx"
+			public slots:
+			/*! \brief Show or hide Frame */
+			void ShowOrHide();
+		};
+	}
+}

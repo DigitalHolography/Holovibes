@@ -80,4 +80,9 @@ namespace holovibes
 	{
 		return mutex_;
 	}
+
+	inline bool Queue::has_overridden() const
+	{
+		return has_overridden_;
+	}
 }

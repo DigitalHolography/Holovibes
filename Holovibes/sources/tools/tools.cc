@@ -14,6 +14,7 @@
 #include <sstream>
 #include <Windows.h>
 #include <filesystem>
+#include <shlobj.h>
 
 #include "tools.hh"
 #include "tools_conversion.cuh"
@@ -107,6 +108,21 @@ namespace holovibes
 		std::filesystem::path dir(get_exe_dir());
 		dir = dir / relative_path;
 		return dir.string();
+	}
+
+	std::filesystem::path get_user_documents_path()
+	{
+		wchar_t document_path[MAX_PATH];
+    	HRESULT sh_res = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
+
+		if (sh_res == S_OK)
+		{
+			char str[MAX_PATH];
+			wcstombs(str, document_path, MAX_PATH - 1);
+			return str;
+		}
+
+		return "";
 	}
 }
 
