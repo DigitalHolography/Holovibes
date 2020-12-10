@@ -10,21 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "output_frame_file_factory.hh"
-#include "output_holo_file.hh"
+#pragma once
+
 #include "output_avi_file.hh"
 
 namespace holovibes::io_files
 {
-    OutputFrameFile* OutputFrameFileFactory::create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+    inline size_t OutputAviFile::get_total_nb_frames() const
     {
-        if (file_path.ends_with(".holo"))
-            return new OutputHoloFile(file_path, fd, img_nb);
-
-        else if (file_path.ends_with(".avi"))
-            return new OutputAviFile(file_path, fd, img_nb);
-
-        else
-            throw FileException("Invalid file extension");
+        return img_nb_;
     }
 } // namespace holovibes::io_files

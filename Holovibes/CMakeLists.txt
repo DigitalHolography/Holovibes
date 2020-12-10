@@ -3,6 +3,7 @@ project(Holovibes CXX CUDA)
 # Packages
 find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(OpenCV REQUIRED)
 
 cmake_policy(SET CMP0100 NEW)
 
@@ -36,6 +37,7 @@ set(HOLO_INCLUDES
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
+    "${OpenCV_INCLUDE_DIRS}"
 )
 
 
@@ -102,6 +104,7 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     cublas
     cusolver
 
+    "${OpenCV_LIBS}"
     "${PROJECT_NAME}_cuda_lib"
 )
 
@@ -218,7 +221,8 @@ set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy shaders and convolution kernels
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" "${BUILD_DIR}/convolution_kernels/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/"
+                                               "${BUILD_DIR}/convolution_kernels/"
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
@@ -228,8 +232,11 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy camera .ini configs
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
-    # Copy resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" "${BUILD_DIR}/"
+    # Copy not all but some resources (python scripts, ...)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/python/"
+                                               "${BUILD_DIR}/python/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/instruction_file_samples/"
+                                               "${BUILD_DIR}/instruction_file_samples/"
 
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"

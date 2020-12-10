@@ -51,6 +51,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     io_files/input_holo_file.cc
     io_files/input_frame_file_factory.cc
     io_files/frame_file.cc
+    io_files/output_avi_file.cc
     io_files/output_holo_file.cc
     io_files/output_frame_file_factory.cc
 

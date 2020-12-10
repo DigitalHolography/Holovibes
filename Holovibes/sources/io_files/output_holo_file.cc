@@ -12,6 +12,7 @@
 
 #include "output_holo_file.hh"
 #include "file_exception.hh"
+#include "logger.hh"
 
 namespace holovibes::io_files
 {
@@ -88,7 +89,7 @@ namespace holovibes::io_files
 		catch (const json::exception& e)
 		{
             meta_data_ = json();
-            throw FileException("An error was encountered while trying to export compute settings");
+            LOG_WARN("An error was encountered while trying to export compute settings");
 		}
     }
 

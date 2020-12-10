@@ -13,6 +13,7 @@
 #define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
 #define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.1\bin"
+#define OpenCVPath "C:\opencv\build\x64\vc15\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -72,6 +73,8 @@ Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Component
 Source: "{#CudaPath}\cublas64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cublasLt64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cusolver64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#OpenCVPath}\opencv_videoio_ffmpeg450_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#OpenCVPath}\opencv_world450.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 
 Source: "resources\setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 
