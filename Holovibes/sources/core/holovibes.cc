@@ -217,16 +217,16 @@ namespace holovibes
 
 	void Holovibes::stop_compute()
 	{
+		frame_record_worker_controller_.stop();
+		chart_record_worker_controller_.stop();
+		batch_gpib_worker_controller_.stop();
 		compute_worker_controller_.stop();
 	}
 
 	void Holovibes::stop_all_worker_controller()
 	{
 		info_worker_controller_.stop();
-		frame_record_worker_controller_.stop();
-		chart_record_worker_controller_.stop();
-		batch_gpib_worker_controller_.stop();
-		compute_worker_controller_.stop();
+		stop_compute();
 		stop_frame_read();
 	}
 }

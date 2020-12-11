@@ -1339,6 +1339,7 @@ namespace holovibes
 			}
 			close_windows();
 			close_critical_compute();
+			cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
 			try
 			{
 				createPipe();
@@ -1371,11 +1372,8 @@ namespace holovibes
 		{
 			if (!is_raw_mode())
 			{
-				QComboBox* ptr = ui.ViewModeComboBox;
-
 				if (need_refresh(last_img_type_, value))
 				{
-					cd_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 					if (cd_.img_type == ImgType::Composite)
 					{
@@ -1398,7 +1396,7 @@ namespace holovibes
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_compute_pipe().get());
 
 				pipe->insert_fn_end_vect([=]() {
-					cd_.img_type = static_cast<ImgType>(ptr->currentIndex());
+					cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
 					notify();
 					layout_toggled();
 				});
