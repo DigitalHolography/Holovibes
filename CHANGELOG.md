@@ -1,5 +1,11 @@
 ## Changelog
 
+### 8.9
+
+* Export holograms to .avi and .mp4
+* GUI: simplify export panel
+* Add support for camera Phantom S710
+* More error handling and bug fixes
 ### 8.8.1
 
 * Fix crash when loading camera Adimec
