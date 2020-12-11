@@ -35,6 +35,8 @@
 #define THREADS_256	256
 #define THREADS_128	128
 
+static constexpr cudaStream_t default_cuda_stream = 0;
+
 #ifndef _DEBUG
 #define cudaCheckError()
 #else

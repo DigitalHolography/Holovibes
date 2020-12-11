@@ -22,8 +22,8 @@ template <typename T, typename U>
 static U init_data_sum(T** d_data, U** d_result, size_t size)
 {
     T* h_data = new T[size];
-    cudaXMalloc(d_data, sizeof(T) * size);
-    cudaXMalloc(d_result, sizeof(U));
+    cudaXMalloc((void**)d_data, sizeof(T) * size);
+    cudaXMalloc((void**)d_result, sizeof(U));
     cudaXMemset(*d_result, 0, sizeof(U));
 
     U result = 0.0;
@@ -45,8 +45,8 @@ template <typename T>
 static T init_data_min(T** d_data, T** d_result, size_t size)
 {
     T* h_data = new T[size];
-    cudaXMalloc(d_data, sizeof(T) * size);
-    cudaXMalloc(d_result, sizeof(T));
+    cudaXMalloc((void**)d_data, sizeof(T) * size);
+    cudaXMalloc((void**)d_result, sizeof(T));
     cudaXMemset(*d_result, 0, sizeof(T));
 
     T result = 1;
@@ -67,8 +67,8 @@ template <typename T>
 static T init_data_max(T** d_data, T** d_result, size_t size)
 {
     T* h_data = new T[size];
-    cudaXMalloc(d_data, sizeof(T) * size);
-    cudaXMalloc(d_result, sizeof(T));
+    cudaXMalloc((void**)d_data, sizeof(T) * size);
+    cudaXMalloc((void**)d_result, sizeof(T));
     cudaXMemset(*d_result, 0, sizeof(T));
 
     T result = static_cast<T>(-99999);

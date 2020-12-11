@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #pragma once
-
 using uint = unsigned int;
 
 /*! \brief Reduce operation gpu side
@@ -29,7 +28,6 @@ using uint = unsigned int;
 */
 template <typename T, typename U, typename R_OP, typename A_OP>
 void reduce_generic(const T* const __restrict__ input,
-                    U* const __restrict__ result,
                     const uint size,
                     const R_OP reduce_op,
                     const A_OP atomic_op,
