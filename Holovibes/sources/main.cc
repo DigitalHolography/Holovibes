@@ -29,18 +29,6 @@
 
 #include "frame_record_worker.hh"
 
-static void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-	const std::string& str = msg.toStdString();
-
-	// Do not print the QtChart warning message when
-	// adding new points to the chart it slows things down a lot
-	if (str.find("is NaN or Inf") != str.npos)
-		return;
-
-	std::cout << str << "\n";
-}
-
 static void check_cuda_graphic_card(bool gui)
 {
 	int nDevices;
@@ -69,9 +57,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 {
 
 	check_cuda_graphic_card(true);
-
-	// Custom Qt message handler
-	qInstallMessageHandler(qt_output_message_handler);
 
 	QLocale::setDefault(QLocale("en_US"));
 	QApplication app(argc, argv);
