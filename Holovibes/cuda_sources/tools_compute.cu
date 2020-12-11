@@ -87,15 +87,19 @@ void gpu_normalize(float* const input,
 {
     reduce_add(input, result_reduce, frame_res);
 
-    // Let x be a pixel, after renormalization
-    // x = x * 2^(norm_constant) / mean
-    // x = x * 2^(norm_constant) * frame_res / reduce_result
-    const double multiplier = (1 << norm_constant);
-    auto map_function = [multiplier, frame_res, result_reduce] __device__ (const float input_pixel)
-        {
-            // This operation needs to be computed on double to avoid overflow
-            return static_cast<float>(static_cast<double>(input_pixel * multiplier * frame_res) / (*result_reduce));
-        };
+    /* Let x be a pixel, after renormalization
+    ** x = x * 2^(norm_constant) / mean
+	** x = x * 2^(norm_constant) * frame_res / reduce_result
+	** x = x * 2^(norm_constant) * (frame_res / reduce_result)
+	*/
+    const float multiplier = (1 << norm_constant);
+    auto map_function = [multiplier, frame_res, result_reduce] __device__ (const float input_pixel) -> float
+	{
+		/* Computing on double is really slow on a GPU, in our case result_reduce can never overflow
+		** Thus it can be casted to a float
+		*/
+		return input_pixel * multiplier * (frame_res / static_cast<const float>(*result_reduce));
+	};
 
     map_generic(input, input, frame_res, map_function, stream);
 }

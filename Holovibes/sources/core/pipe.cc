@@ -329,14 +329,6 @@ namespace holovibes
 		 */
 		fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
 
-		/* The device run asynchronously with respect to the host
-		 * The host call device functions, then continues its execution path
-		 * We need at some point to synchronize the host with the device
-		 * If not, the host will keep on adding new functions to be executed by the device,
-		 * never letting the device the time to execute them
-		 */
-		fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
-
 		// Must be the last inserted function
 		insert_reset_batch_index();
 	}
