@@ -12,34 +12,14 @@
 
 #pragma once
 
-#include "cuda_memory.cuh"
-
-void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
+template <typename T>
+void cudaXMalloc(T** devPtr, size_t size)
 {
-    cudaSafeCall(cudaMemcpy(dst, src, count, kind));
+    cudaSafeCall(cudaMalloc(devPtr, size));
 }
 
-void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream)
+template <typename T>
+void cudaXMallocHost(T** devPtr, size_t size)
 {
-    cudaSafeCall(cudaMemcpyAsync(dst, src, count, kind, stream));
-}
-
-void cudaXMemset(void* devPtr, int  value, size_t count)
-{
-    cudaSafeCall(cudaMemset(devPtr, value, count));
-}
-
-void cudaXMemsetAsync(void* devPtr, int  value, size_t count, cudaStream_t stream)
-{
-    cudaSafeCall(cudaMemsetAsync(devPtr, value, count, stream));
-}
-
-void cudaXFree(void* devPtr)
-{
-    cudaSafeCall(cudaFree(devPtr));
-}
-
-void cudaXFreeHost(void* devPtr)
-{
-    cudaSafeCall(cudaFreeHost(devPtr));
+    cudaSafeCall(cudaMallocHost(devPtr, size));
 }

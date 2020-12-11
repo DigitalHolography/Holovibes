@@ -320,7 +320,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	size_t frame_res = height * width;
 
 	float *gpu_convolution_matrix;
-	cudaXMalloc((void**)&gpu_convolution_matrix, frame_res * sizeof(float));
+	cudaXMalloc(&gpu_convolution_matrix, frame_res * sizeof(float));
 	cudaXMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
 
 	float *blur_matrix = new float[cd.h_blur_kernel_size];
@@ -341,14 +341,14 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	shift_corners(gpu_convolution_matrix, 1, width, height);
 
 	cuComplex *gpu_kernel;
-	cudaXMalloc((void**)&gpu_kernel, frame_res * sizeof(cuComplex));
+	cudaXMalloc(&gpu_kernel, frame_res * sizeof(cuComplex));
 	cudaXMemset(gpu_kernel, 0, frame_res * sizeof(cuComplex));
 	cudaSafeCall(cudaMemcpy2D(gpu_kernel, sizeof(cuComplex), gpu_convolution_matrix, sizeof(float), sizeof(float), frame_res, cudaMemcpyDeviceToDevice));
 
 	float *gpu_memory_space;
 	cuComplex *gpu_cuComplex_buffer;
-	cudaXMalloc((void**)&gpu_memory_space, frame_res * sizeof(float));
-	cudaXMalloc((void**)&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
+	cudaXMalloc(&gpu_memory_space, frame_res * sizeof(float));
+	cudaXMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex));
 	CufftHandle handle{ static_cast<int>(width), static_cast<int>(height), CUFFT_C2C };
 	convolution_kernel(gpu_arr, gpu_memory_space, gpu_cuComplex_buffer, &handle, width * height, gpu_kernel, false, false);
 	cudaCheckError();
@@ -438,12 +438,12 @@ void hsv(const cuComplex *gpu_input,
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	float *gpu_omega_arr = nullptr;
-	cudaXMalloc((void**)&gpu_omega_arr, sizeof(float) * time_transformation_size * 2); // w1[] && w2[]
+	cudaXMalloc(&gpu_omega_arr, sizeof(float) * time_transformation_size * 2); // w1[] && w2[]
 
 	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res);
 
 	float *tmp_hsv_arr;
-	cudaXMalloc((void**)&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
+	cudaXMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
 
 	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, time_transformation_size);
 

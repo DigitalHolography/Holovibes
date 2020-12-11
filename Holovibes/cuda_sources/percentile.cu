@@ -31,7 +31,7 @@ void fill_percentile_float_in_case_of_error(float* const out_percent, unsigned s
 thrust::device_ptr<float> allocate_thrust(const uint frame_res)
 {
 	float* raw_gpu_input_copy;
-	cudaXMalloc((void**)&raw_gpu_input_copy, frame_res * sizeof(float));
+	cudaXMalloc(&raw_gpu_input_copy, frame_res * sizeof(float));
 	return thrust::device_ptr<float>(raw_gpu_input_copy);
 }
 

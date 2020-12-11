@@ -233,8 +233,8 @@ void postcolor_normalize(float *output,
 	float *averages = nullptr;
 	float *sums_per_line = nullptr;
 	const uchar pixel_depth = 3;
-	cudaXMalloc((void**)&averages, sizeof(float) * pixel_depth);
-	cudaXMalloc((void**)&sums_per_line, sizeof(float) * lines * pixel_depth);
+	cudaXMalloc(&averages, sizeof(float) * pixel_depth);
+	cudaXMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
 
 
 	blocks = map_blocks_to_problem(lines * pixel_depth, threads);

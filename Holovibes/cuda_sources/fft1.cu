@@ -36,7 +36,7 @@ void fft1_lens(cuComplex*	lens,
 	cuComplex* square_lens;
 	// In anamorphic mode, the lens is initally a square, it's then cropped to be the same dimension as the frame
 	if (frame_height != frame_width)
-		cudaXMalloc((void**)&square_lens, lens_side_size * lens_side_size * sizeof(cuComplex));
+		cudaXMalloc(&square_lens, lens_side_size * lens_side_size * sizeof(cuComplex));
 	else
 		square_lens = lens;
 
