@@ -92,6 +92,12 @@ namespace holovibes::worker
 
         delete[] frame_buffer;
 
+        if (record_queue.has_overridden())
+        {
+            LOG_ERROR("[RECORDER] Record queue has been full, data has been lost! "
+                    "Try to resize record buffer size");
+        }
+
         reset_gpu_record_queue(pipe);
 
         info.remove_processed_fps(InformationContainer::FpsType::SAVING_FPS);
@@ -129,11 +135,7 @@ namespace holovibes::worker
             if (record_queue.get_size() == 0)
             {
                 if (record_queue.has_overridden())
-                {
-                    LOG_ERROR("[RECORDER] Record queue has been full, data has been lost! "
-                            "Try to resize record buffer size");
                     stop();
-                }
             }
             else
             {
