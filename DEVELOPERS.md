@@ -8,12 +8,17 @@
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/)
 * [BitFlow SDK 6.40](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
+* [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 * [OpenCV 4.5.0](https://opencv.org/releases/)
 
 #### Environment variables
 
-Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path. Do not forget to restart Visual Studio Code or your terminal before compiling again.
-*Note: it is recommended to put Qt above every other paths to avoid conflicts when loading Qt5 DLLs.*
+Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path. *Note: it is recommended to put Qt above every other paths to avoid conflicts when loading Qt5 DLLs.*
+
+Other variables:
+    - `OpenCV_DIR` = `C:\opencv\build`
+
+Do not forget to restart Visual Studio Code or your terminal before compiling again.
 
 ### Compilation
 

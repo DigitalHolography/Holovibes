@@ -44,7 +44,7 @@ namespace camera
 
     const FrameDescriptor& get_fd() const override
     {
-      return desc_;
+      return fd_;
     }
 
     const float get_pixel_size() const override
@@ -68,7 +68,7 @@ namespace camera
      * Try to open the corresponding configuration file, if any, and parse it with Boost
      * to extract some useful data for further configuration. */
     Camera(const std::string& ini_filepath)
-      : desc_()
+      : fd_()
       , name_("Unknown")
       , exposure_time_(0.0f)
 	    , pixel_size_(0.0f)
@@ -117,7 +117,7 @@ namespace camera
     virtual void bind_params() = 0;
 
   protected:
-    FrameDescriptor desc_; //!< Frame descriptor updated by cameras.
+    FrameDescriptor fd_; //!< Frame descriptor updated by cameras.
 
     /* Theses parameters are common to all cameras.
      * Others parameters such as binning, gain ... belongs to

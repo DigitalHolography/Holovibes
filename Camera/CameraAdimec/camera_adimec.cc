@@ -29,11 +29,11 @@ namespace camera
 		name_ = "Adimec Quartz-2A750 M";
 		/* Dimensions are initialized as there were no ROI; they will be updated
 		 * later if needed. */
-		desc_.width = 1440;
-		desc_.height = 1440;
+		fd_.width = 1440;
+		fd_.height = 1440;
 		// Technically the camera is 11-bits, but each pixel value is encoded on 16 bits.
-		desc_.depth = 2;
-		desc_.byteEndian = Endianness::LittleEndian;
+		fd_.depth = 2;
+		fd_.byteEndian = Endianness::LittleEndian;
 		pixel_size_ = 12;
 
 		load_default_params();
@@ -127,7 +127,7 @@ namespace camera
 		BiBrdClose(board_);
 	}
 
-	void* CameraAdimec::get_frame()
+	CapturedFramesDescriptor CameraAdimec::get_frames()
 	{
 		// Mark the previously read buffer as available for writing, for the board.
 		BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE);
@@ -147,9 +147,9 @@ namespace camera
 		}
 
 		if (hd.pBufData == reinterpret_cast<void *>(0xcccccccccccccccc))
-			return get_frame();
+			return get_frames();
 
-		return hd.pBufData;
+		return CapturedFramesDescriptor(hd.pBufData);
 	}
 
 	void CameraAdimec::err_check(const BFRC status,
@@ -218,8 +218,8 @@ namespace camera
 
 		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_HEIGHT, &roi_height_) != BF_OK)
 			std::cerr << "[CAMERA] Cannot read the roi height of the registers of the camera " << std::endl;
-		desc_.width = roi_width_;
-		desc_.height = roi_height_;
+		fd_.width = roi_width_;
+		fd_.height = roi_height_;
 	}
 
 	ICamera* new_camera_device()

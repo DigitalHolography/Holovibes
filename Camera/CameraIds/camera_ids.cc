@@ -47,9 +47,9 @@ namespace camera
 			{
 				// Memory allocation
 				is_AllocImageMem(cam_,
-					desc_.width,
-					desc_.height,
-					static_cast<int>(desc_.depth) << 3, // depth * 8
+					fd_.width,
+					fd_.height,
+					static_cast<int>(fd_.depth) << 3, // depth * 8
 					&frame_,
 					&frame_mem_pid_);
 			}
@@ -81,21 +81,21 @@ namespace camera
 			throw CameraException(CameraException::CANT_SHUTDOWN);
 	}
 
-	void* CameraIds::get_frame()
+	CapturedFramesDescriptor CameraIds::get_frames()
 	{
 		if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
 			throw CameraException(CameraException::CANT_GET_FRAME);
 
-		return frame_;
+		return CapturedFramesDescriptor(frame_);
 	}
 
 	void CameraIds::load_default_params()
 	{
-		desc_.width = 2048;
-		desc_.height = 2048;
-		desc_.depth = 1;
+		fd_.width = 2048;
+		fd_.height = 2048;
+		fd_.depth = 1;
 		pixel_size_ = 5.5f;
-		desc_.byteEndian = Endianness::LittleEndian;
+		fd_.byteEndian = Endianness::LittleEndian;
 
 		exposure_time_ = 49.91f;
 		gain_ = 0;
@@ -113,8 +113,8 @@ namespace camera
 	{
 		const boost::property_tree::ptree& pt = get_ini_pt();
 
-		desc_.width = pt.get<unsigned short>("ids.sensor_width", desc_.width);
-		desc_.height = pt.get<unsigned short>("ids.sensor_height", desc_.height);
+		fd_.width = pt.get<unsigned short>("ids.sensor_width", fd_.width);
+		fd_.height = pt.get<unsigned short>("ids.sensor_height", fd_.height);
 
 		exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
 		gain_ = pt.get<int>("ids.gain", gain_);
@@ -228,13 +228,13 @@ namespace camera
 
 	int CameraIds::get_color_mode(const std::string ui)
 	{
-		desc_.depth = 1;
+		fd_.depth = 1;
 		if (ui == "RAW8")
 			return IS_CM_SENSOR_RAW8;
 		if (ui == "MONO8")
 			return IS_CM_MONO8;
 
-		desc_.depth = 2;
+		fd_.depth = 2;
 		if (ui == "RAW10")
 			return IS_CM_SENSOR_RAW10;
 		if (ui == "RAW12")
@@ -248,7 +248,7 @@ namespace camera
 		if (ui == "MONO16")
 			return IS_CM_MONO16;
 
-		desc_.depth = 1;
+		fd_.depth = 1;
 		return IS_CM_SENSOR_RAW8;
 	}
 

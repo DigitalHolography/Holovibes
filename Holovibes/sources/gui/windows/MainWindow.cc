@@ -1114,6 +1114,11 @@ namespace holovibes
 			change_camera(CameraKind::IDS);
 		}
 
+		void MainWindow::camera_phantom()
+		{
+			change_camera(CameraKind::Phantom);
+		}
+
 		void MainWindow::camera_hamamatsu()
 		{
 			change_camera(CameraKind::Hamamatsu);

@@ -23,6 +23,7 @@ namespace holovibes
 		NONE = 0,/*!< No camera */
 		Adimec,/*!< Adimec camera */
 		IDS,/*!< IDS camera */
+		Phantom,/*!< Phantom S710 camera */
 		Hamamatsu,/*!< Hamamatsu camera */
 		xiQ,/*!< xiQ camera */
 		xiB/*!< xiB camera */

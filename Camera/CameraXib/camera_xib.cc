@@ -70,21 +70,21 @@ namespace camera
       throw CameraException(CameraException::CANT_SHUTDOWN);
   }
 
-  void* CameraXib::get_frame()
+  CapturedFramesDescriptor CameraXib::get_frames()
   {
     xiGetImage(device_, FRAME_TIMEOUT, &frame_);
 
-    return frame_.bp;
+    return CapturedFramesDescriptor(frame_.bp);
   }
 
   void CameraXib::load_default_params()
   {
     /* Fill the frame descriptor. */
-    desc_.width = real_width_;
-    desc_.height = real_height_;
+    fd_.width = real_width_;
+    fd_.height = real_height_;
     pixel_size_ = 5.5f;
-    desc_.depth = 1;
-    desc_.byteEndian = Endianness::BigEndian;
+    fd_.depth = 1;
+    fd_.byteEndian = Endianness::BigEndian;
 
     /* Custom parameters. */
     gain_ = 0.f;
@@ -101,8 +101,8 @@ namespace camera
     roi_width_ = real_width_;
     roi_height_ = real_height_;
 
-    desc_.width = static_cast<unsigned short>(roi_width_);
-    desc_.height = static_cast<unsigned short>(roi_height_);
+    fd_.width = static_cast<unsigned short>(roi_width_);
+    fd_.height = static_cast<unsigned short>(roi_height_);
 
     exposure_time_ = 0;    // free run
   }
@@ -115,8 +115,8 @@ namespace camera
 
     downsampling_rate_ = pt.get<unsigned int>("xib.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
-    desc_.width = desc_.width / static_cast<unsigned short>(downsampling_rate_);
-    desc_.height = desc_.height / static_cast<unsigned short>(downsampling_rate_);
+    fd_.width = fd_.width / static_cast<unsigned short>(downsampling_rate_);
+    fd_.height = fd_.height / static_cast<unsigned short>(downsampling_rate_);
 
     std::string str;
     str = pt.get<std::string>("xib.downsampling_type", "");
@@ -146,10 +146,10 @@ namespace camera
        * initial frame's area (after downsampling!). */
       if (tmp_roi_width > 0 &&
         tmp_roi_height > 0 &&
-        tmp_roi_x < desc_.width &&
-        tmp_roi_y < desc_.height &&
-        tmp_roi_width <= desc_.width &&
-        tmp_roi_height <= desc_.height)
+        tmp_roi_x < fd_.width &&
+        tmp_roi_y < fd_.height &&
+        tmp_roi_width <= fd_.width &&
+        tmp_roi_height <= fd_.height)
       {
         roi_x_ = tmp_roi_x;
         roi_y_ = tmp_roi_y;
@@ -157,8 +157,8 @@ namespace camera
         roi_height_ = tmp_roi_height;
 
         // Don't forget to update the frame descriptor!
-        desc_.width = static_cast<unsigned short>(roi_width_);
-        desc_.height = static_cast<unsigned short>(roi_height_);
+        fd_.width = static_cast<unsigned short>(roi_width_);
+        fd_.height = static_cast<unsigned short>(roi_height_);
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
@@ -266,7 +266,7 @@ namespace camera
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
-      desc_.depth = 2;
+      fd_.depth = 2;
 
     name_ = std::string(name);
   }

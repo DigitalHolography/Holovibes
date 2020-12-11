@@ -93,6 +93,7 @@ namespace holovibes
 			void camera_none();
 			void camera_adimec();
 			void camera_ids();
+			void camera_phantom();
 			void camera_hamamatsu();
 			void camera_xiq();
 			void camera_xib();

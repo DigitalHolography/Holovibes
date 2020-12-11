@@ -117,6 +117,8 @@ namespace holovibes
 				active_camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
 			else if (camera_kind == CameraKind::IDS)
 				active_camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
+			else if (camera_kind == CameraKind::Phantom)
+				active_camera_ = camera::CameraDLL::load_camera("CameraPhantom.dll");
 			else if (camera_kind == CameraKind::Hamamatsu)
 				active_camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
 			else if (camera_kind == CameraKind::xiQ)

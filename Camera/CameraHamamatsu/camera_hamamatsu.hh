@@ -35,7 +35,7 @@ namespace camera
 		virtual void start_acquisition() override;
 		virtual void stop_acquisition() override;
 		virtual void shutdown_camera() override;
-		virtual void *get_frame() override;
+		virtual CapturedFramesDescriptor get_frames() override;
 
 	private:
 		virtual void load_ini_params() override;

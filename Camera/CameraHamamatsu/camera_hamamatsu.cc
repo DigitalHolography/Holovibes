@@ -114,12 +114,12 @@ namespace camera
 	{
 		double bits_per_channel;
 		dcamprop_getvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
-		desc_.depth = bits_per_channel / 8;
+		fd_.depth = bits_per_channel / 8;
 	}
 
 	void CameraHamamatsu::allocate_host_frame_buffer()
 	{
-		auto frame_size = desc_.frame_res();
+		auto frame_size = fd_.frame_res();
 		output_frame_ = std::make_unique<unsigned short[]>(frame_size);
 	}
 
@@ -133,9 +133,9 @@ namespace camera
 		dcam_frame_acq_info_.size = sizeof(dcam_frame_acq_info_); //Line required by the API
 		dcam_frame_acq_info_.iFrame = -1; // -1 to retrieve the latest captured image
 		dcam_frame_acq_info_.buf = output_frame_.get(); //Pointer to host memory where the image will be copied
-		dcam_frame_acq_info_.rowbytes = desc_.width * desc_.depth; //Row size in bytes
-		dcam_frame_acq_info_.width = desc_.width;
-		dcam_frame_acq_info_.height = desc_.height;
+		dcam_frame_acq_info_.rowbytes = fd_.width * fd_.depth; //Row size in bytes
+		dcam_frame_acq_info_.width = fd_.width;
+		dcam_frame_acq_info_.height = fd_.height;
 		dcam_frame_acq_info_.left = 0;
 		dcam_frame_acq_info_.top = 0;
 	}
@@ -214,7 +214,7 @@ namespace camera
 		dcamapi_uninit();
 	}
 
-	void* CameraHamamatsu::get_frame()
+	CapturedFramesDescriptor CameraHamamatsu::get_frames()
 	{
 		//Waiting for frame to be ready
 		auto err_code = dcamwait_start(hwait_, &dcam_wait_info_);
@@ -234,15 +234,15 @@ namespace camera
 			throw CameraException(CameraException::CANT_GET_FRAME);
 		}
 
-		return output_frame_.get();
+		return CapturedFramesDescriptor(output_frame_.get());
 	}
 
 	void CameraHamamatsu::load_default_params()
 	{
-		desc_.width = MAX_WIDTH;
-		desc_.height = MAX_WIDTH;
-		desc_.depth = 2;
-		desc_.byteEndian = Endianness::LittleEndian;
+		fd_.width = MAX_WIDTH;
+		fd_.height = MAX_WIDTH;
+		fd_.depth = 2;
+		fd_.byteEndian = Endianness::LittleEndian;
 
 		pixel_size_ = 6.5f;
 
@@ -270,8 +270,8 @@ namespace camera
 
 		name_ = pt.get<std::string>("hamamatsu.name", name_);
 
-		desc_.width = pt.get<unsigned short>("hamamatsu.roi_width", desc_.width);
-		desc_.height = pt.get<unsigned short>("hamamatsu.roi_height", desc_.height);
+		fd_.width = pt.get<unsigned short>("hamamatsu.roi_width", fd_.width);
+		fd_.height = pt.get<unsigned short>("hamamatsu.roi_height", fd_.height);
 		srcox_ = pt.get<long>("hamamatsu.roi_startx", srcox_);
 		srcoy_ = pt.get<long>("hamamatsu.roi_starty", srcoy_);
 
@@ -320,11 +320,11 @@ namespace camera
 	{
 		//Hardcoded max width and height of the camera
 		//Should change with the model
-		if (desc_.width != MAX_WIDTH || desc_.height != MAX_HEIGHT) // SUBARRAY
+		if (fd_.width != MAX_WIDTH || fd_.height != MAX_HEIGHT) // SUBARRAY
 		{
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYMODE, DCAMPROP_MODE__ON);
-			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHSIZE, desc_.width);
-			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVSIZE, desc_.height);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHSIZE, fd_.width);
+			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVSIZE, fd_.height);
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYHPOS, srcox_);
 			dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVPOS, srcoy_);
 		}
@@ -334,8 +334,8 @@ namespace camera
 
 		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);
-		desc_.width /= binning_;
-		desc_.height /= binning_;
+		fd_.width /= binning_;
+		fd_.height /= binning_;
 
 		if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERSOURCE, ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL) != DCAMERR_SUCCESS)
 			throw CameraException(CameraException::CANT_SET_CONFIG);

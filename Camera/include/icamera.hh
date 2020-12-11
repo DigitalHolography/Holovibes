@@ -20,6 +20,20 @@ namespace camera
 {
   struct FrameDescriptor;
 
+  struct CapturedFramesDescriptor
+  {
+      CapturedFramesDescriptor(void *data_, unsigned int count_, bool on_gpu_ = false)
+        : data(data_), count(count_), on_gpu(on_gpu_)
+      {}
+
+      CapturedFramesDescriptor() : CapturedFramesDescriptor(nullptr, 0) {}
+      CapturedFramesDescriptor(void *data_) : CapturedFramesDescriptor(data_, 1) {}
+
+      void *data;
+      unsigned int count;
+      bool on_gpu;
+  };
+
   /*! \defgroup CameraInterface Camera Interface
    * This small module is the entry point to using all existing cameras DLLs. It regroups :
    * * The ICamera interface.
@@ -105,7 +119,7 @@ namespace camera
     /*! \brief Request the camera to get a frame
      *
      * Getting a frame should not be longer than FRAME_TIMEOUT */
-    virtual void* get_frame() = 0;
+    virtual CapturedFramesDescriptor get_frames() = 0;
   };
 
   /*! extern "C" is used to avoid C++ name mangling.

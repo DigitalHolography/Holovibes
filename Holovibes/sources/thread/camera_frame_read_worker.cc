@@ -42,9 +42,9 @@ namespace holovibes::worker
 
             while (!stop_requested_)
             {
-                auto frame = camera_->get_frame();
-                gpu_input_queue_.load()->enqueue(frame, cudaMemcpyHostToDevice);
-                processed_fps_ += 1;
+                camera::CapturedFramesDescriptor res = camera_->get_frames();
+                gpu_input_queue_.load()->enqueue(res.data, res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
+                processed_fps_ += res.count;
             }
 
             camera_->stop_acquisition();
