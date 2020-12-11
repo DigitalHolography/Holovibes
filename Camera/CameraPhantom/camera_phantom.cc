@@ -30,11 +30,6 @@ namespace camera
 		name_ = "Phantom S710";
 		pixel_size_ = 20;
 
-		fd_.width = 1280;
-		fd_.height = 200;
-		fd_.depth = 1;
-		fd_.byteEndian = Endianness::BigEndian;
-
 		load_default_params();
 		if (ini_file_is_open())
 		{
@@ -47,13 +42,16 @@ namespace camera
 
 	void CameraPhantom::init_camera()
 	{
-		bind_params();
+		fd_.width = grabber_->getWidth();
+		fd_.height = grabber_->getHeight();
+		fd_.depth = 1;
+		fd_.byteEndian = Endianness::BigEndian;
 
 		grabber_->enableEvent<Euresys::NewBufferData>();
 
 		buffers_ = std::vector<unsigned char *>(nb_buffers_, nullptr);
 
-		size_t size = grabber_->getWidth() * grabber_->getHeight();
+		size_t size = fd_.width * fd_.height;
 		for (size_t i = 0; i < nb_buffers_; ++i)
 		{
 			unsigned char *ptr, *devicePtr;
@@ -96,37 +94,17 @@ namespace camera
 	void CameraPhantom::load_default_params()
 	{
 		nb_buffers_ = 64;
-		width_ = 1280;
-		height_ = 200;
-		roi_x_ = 0;
-		roi_y_ = 0;
-		frame_period_ = 1000000 / 3000; // 1e+6 / FPS
-		exposure_time_ = 5000;
 	}
 
 	void CameraPhantom::load_ini_params()
 	{
 		const boost::property_tree::ptree& pt = get_ini_pt();
 		nb_buffers_ = pt.get<unsigned int>("phantom.nb_buffers", nb_buffers_);
-		width_ = pt.get<unsigned int>("phantom.width", width_);
-		height_ = pt.get<unsigned int>("phantom.height", height_);
-		roi_x_ = pt.get<unsigned int>("phantom.roi_x", roi_x_);
-		roi_y_ = pt.get<unsigned int>("phantom.roi_x", roi_y_);
-		frame_period_ = pt.get<float>("phantom.frame_period", frame_period_);
-		exposure_time_ = pt.get<float>("phantom.exposure_time", exposure_time_);
 	}
 
 	void CameraPhantom::bind_params()
 	{
-		// Camera configuration
-		grabber_->setInteger<Euresys::RemoteModule>("Width", width_);
-		grabber_->setInteger<Euresys::RemoteModule>("Height", height_);
-		// grabber_->setInteger<Euresys::RemoteModule>("OffsetX", roi_x_);
-		// grabber_->setInteger<Euresys::RemoteModule>("OffsetY", roi_y_);
-
-		// Frame grabber configuration
-		// grabber_->setFloat<Euresys::DeviceModule>("CycleMinimumPeriod", frame_period_);
-		// grabber_->setFloat<Euresys::DeviceModule>("ExposureTime", exposure_time_);
+		return;
 	}
 
 	ICamera* new_camera_device()
