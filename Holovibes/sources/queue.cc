@@ -129,7 +129,7 @@ namespace holovibes
 
 		if (cuda_status != CUDA_SUCCESS)
 		{
- 			LOG_ERROR(std::string("Queue: could not enqueue into: ") + std::string(cudaGetErrorString(cuda_status)));
+ 			LOG_ERROR(std::string("Queue: could not enqueue: ") + std::string(cudaGetErrorString(cuda_status)));
 			data_.reset();
 			return false;
 		}
