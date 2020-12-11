@@ -30,7 +30,7 @@ namespace holovibes
         {
         public:
             FileFrameReadWorker(const std::string& file_path, bool loop, unsigned int fps,
-                                size_t first_frame_id, size_t total_nb_frames_to_read,
+                                unsigned int first_frame_id, unsigned int total_nb_frames_to_read,
                                 bool load_file_in_gpu,
                                 std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
 
@@ -83,7 +83,7 @@ namespace holovibes
 
             FpsHandler fps_handler_;
 
-            size_t first_frame_id_;
+            unsigned int first_frame_id_;
 
             std::atomic<unsigned int> current_nb_frames_read_;
 
