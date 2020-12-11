@@ -196,13 +196,15 @@ namespace holovibes
 		MutexGuard m_guard_src(mutex_);
 		MutexGuard m_guard_dst(dest.get_guard());
 
-		// The buffer of the queues is stored in the device memory
-		cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice;
-
 		if (nb_elts > size_)
 			nb_elts = size_;
 
-		assert(nb_elts <= dest.max_size_);
+		unsigned int tmp_src_start_index = start_index_;
+		if (nb_elts > dest.max_size_)
+		{
+			start_index_ = (start_index_ + nb_elts - dest.max_size_) % max_size_;
+			nb_elts = dest.max_size_;
+		}
 
 		// Determine regions info
 		struct QueueRegion src;
@@ -242,29 +244,29 @@ namespace holovibes
 			{
 				if (src.first_size > dst.first_size)
 				{
-					cudaXMemcpyAsync(dst.first, src.first, dst.first_size * frame_size_, cuda_kind);
+					cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
 					src.consume_first(dst.first_size, frame_size_);
 
-					cudaXMemcpyAsync(dst.second, src.first, src.first_size * frame_size_, cuda_kind);
+					cudaXMemcpy(dst.second, src.first, src.first_size * frame_size_);
 					dst.consume_second(src.first_size, frame_size_);
 
-					cudaXMemcpyAsync(dst.second, src.second, src.second_size * frame_size_, cuda_kind);
+					cudaXMemcpy(dst.second, src.second, src.second_size * frame_size_);
 				}
 				else // src.first_size <= dst.first_size
 				{
-					cudaXMemcpyAsync(dst.first, src.first, src.first_size * frame_size_, cuda_kind);
+					cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
 					dst.consume_first(src.first_size, frame_size_);
 
 					if (src.second_size > dst.first_size)
 					{
-						cudaXMemcpyAsync(dst.first, src.second, dst.first_size * frame_size_, cuda_kind);
+						cudaXMemcpy(dst.first, src.second, dst.first_size * frame_size_);
 						src.consume_second(dst.first_size, frame_size_);
 
-						cudaXMemcpyAsync(dst.second, src.second, src.second_size * frame_size_, cuda_kind);
+						cudaXMemcpy(dst.second, src.second, src.second_size * frame_size_);
 					}
 					else // src.second_size == dst.first_size
 					{
-						cudaXMemcpyAsync(dst.first, src.second, src.second_size * frame_size_, cuda_kind);
+						cudaXMemcpy(dst.first, src.second, src.second_size * frame_size_);
 					}
 				}
 			}
@@ -272,10 +274,10 @@ namespace holovibes
 			{
 				// In this case: dst.first_size > src.first_size
 
-				cudaXMemcpyAsync(dst.first, src.first, src.first_size * frame_size_, cuda_kind);
+				cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
 				dst.consume_first(src.first_size, frame_size_);
 
-				cudaXMemcpyAsync(dst.first, src.second, dst.first_size * frame_size_, cuda_kind);
+				cudaXMemcpy(dst.first, src.second, dst.first_size * frame_size_);
 			}
 		}
 		else
@@ -284,14 +286,14 @@ namespace holovibes
 			{
 				// In this case: src.first_size > dst.first_size
 
-				cudaXMemcpyAsync(dst.first, src.first, dst.first_size * frame_size_, cuda_kind);
+				cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
 				src.consume_first(dst.first_size, frame_size_);
 
-				cudaXMemcpyAsync(dst.second, src.first, src.first_size * frame_size_, cuda_kind);
+				cudaXMemcpy(dst.second, src.first, src.first_size * frame_size_);
 			}
 			else
 			{
-				cudaXMemcpyAsync(dst.first, src.first, src.first_size * frame_size_, cuda_kind);
+				cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
 			}
 		}
 
@@ -299,10 +301,12 @@ namespace holovibes
 		dest.size_ += nb_elts;
 		if (dest.size_ > dest.max_size_)
 		{
-			dest.start_index_ = (dest.start_index_ + dest.size_ - dest.max_size_) % dest.max_size_;
+			dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
 			dest.size_.store(dest.max_size_.load());
 			dest.has_overridden_ = true;
 		}
+
+		start_index_ = tmp_src_start_index;
 	}
 
 	bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, cudaMemcpyKind cuda_kind)

@@ -78,7 +78,7 @@ void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind =
 * \param kind Type of transfer.
 * \param stream Stream identifier.
 */
-void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream = 0);
+void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice, cudaStream_t stream = 0);
 
 /*! \brief Wrapper around cudaMemset to handle errors
 *

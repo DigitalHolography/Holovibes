@@ -50,6 +50,7 @@ namespace // Tools for testing the queue
         return os;
     }
 }
+
 TEST(QueueTest, SimpleInstantiatingTest)
 {
     camera::FrameDescriptor fd = { 64, 64, 1, camera::Endianness::BigEndian };
@@ -536,10 +537,8 @@ TEST(MoreElementCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.frame_size()));
 }
 
-
-TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
+TEST(DstOverflowCopyMultiple, QueueCopyMultiple)
 {
-    // FIXME: assert(nb_elts < dst.max_size_)
     camera::FrameDescriptor fd = { 3, 1, sizeof(char), camera::Endianness::BigEndian };
     holovibes::Queue q_src(fd, 4, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
@@ -551,14 +550,14 @@ TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 
     // Copy all elements from q_src to q_dst
     // But the size of q_dst is lower than q_dst
-    // This case needs to be correctly handle
+    // This case needs to be correctly handled
     q_src.copy_multiple(q_dst, q_src.get_size());
 
     ASSERT_EQ(q_dst.get_size(), 3); // destination queue max size
-    ASSERT_EQ(q_dst.get_start_index(), 1);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 3 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 1 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 1 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 3 * fd.frame_size()));
 }
 
 TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
@@ -652,7 +651,7 @@ TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
 }
 
-TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
+TEST(ManyDstOverflow, QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = { 2, 1, sizeof(char), camera::Endianness::BigEndian };
     holovibes::Queue q_src(fd, 11, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
@@ -673,24 +672,22 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
     ASSERT_EQ(q_dst.get_size(), 0);
     ASSERT_TRUE(q_dst.get_start_index() == q_dst.get_end_index());
 
-    // FIXME: This test does not work (the copy multiple crash)
     // Copy multiple (10 elements).
     // The size of the destination queue is only 3
     q_src.copy_multiple(q_dst, 10);
 
     // Expected. Not handle but should be fixed
-    ASSERT_EQ(q_dst.get_start_index(), 0);
+    ASSERT_EQ(q_dst.get_start_index(), 2);
     ASSERT_EQ(q_dst.get_size(), 3);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 7 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 8 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 9 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 8 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 9 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 7 * fd.frame_size()));
 
     // Source should be equal to:
     // | a (start index) | b | c | d | e | f | g | h | i | j | k |
     // Destination should be equal to:
-    // | h (start index) | i | j |
+    // | i | j | h (start index) |
 }
-
 
 int main(int argc, char *argv[])
 {
