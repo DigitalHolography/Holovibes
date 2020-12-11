@@ -28,7 +28,7 @@ namespace camera
 		grabber_ = std::make_unique<EuresysCustomGrabber>(*gentl_);
 
 		name_ = "Phantom S710";
-		pixel_size_ = 12;
+		pixel_size_ = 20;
 
 		fd_.width = 1280;
 		fd_.height = 200;
