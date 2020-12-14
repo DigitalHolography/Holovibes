@@ -1286,7 +1286,7 @@
          <item row="13" column="0" colspan="2">
           <widget class="QGroupBox" name="ConvoCheckBox">
            <property name="title">
-            <string>Convolution</string>
+            <string>Convolve</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
