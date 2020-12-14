@@ -380,7 +380,7 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_ar
 
 	apply_percentile_and_threshold(gpu_arr, frame_res, width, height, cd.composite_low_h_threshold, cd.composite_high_h_threshold);
 
-	map_multiply(gpu_arr, frame_res, -1.0f);
+	map_multiply(gpu_arr, gpu_arr, frame_res, -1.0f);
 	hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max);
 
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, cd.slider_h_threshold_min, cd.slider_h_threshold_max, frame_res);
@@ -389,7 +389,7 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_ar
 	}
 
 	hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max);
-	map_multiply(gpu_arr, frame_res, 0.66f);
+	map_multiply(gpu_arr, gpu_arr, frame_res, 0.66f);
 }
 
 void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint height, uint width, float* const gpu_min, float* const gpu_max)
@@ -465,7 +465,7 @@ void hsv(const cuComplex *gpu_input,
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
 	cudaCheckError();
 
-	map_multiply(gpu_output, frame_res * 3, 65536);
+	map_multiply(gpu_output, gpu_output, frame_res * 3, 65536);
 
 	cudaXFree(tmp_hsv_arr);
 	cudaXFree(gpu_omega_arr);

@@ -16,32 +16,36 @@
 #include "Common.cuh"
 #include "reduce.cuh"
 
-void map_log10(float* const input,
-               const uint	size,
+/***** Overloaded and specific map implementations *****/
+void map_log10(const float* const input,
+               float* const output,
+               const size_t	size,
                cudaStream_t	stream)
 {
-
     static const auto log10 = [] __device__ (const float input_pixel){ return log10f(input_pixel); };
 
-    map_generic(input, input, size, log10, stream);
+    map_generic(input, output, size, log10, stream);
 }
 
-void map_divide(float* const input,
-                const uint   size,
-                const float  value,
+// It is mandatory to declare and implement these functions
+// with float array parameters in order to be called from .cc
+
+void map_divide(const float* const input,
+                float* const output,
+                const size_t size,
+                const float value,
                 cudaStream_t stream)
 {
-    const auto divide = [value] __device__ (const float input_pixel){ return input_pixel / value; };
-
-    map_generic(input, input, size, divide, stream);
+    // Call templated version map divide
+    map_divide<float>(input, output, size, value, stream);
 }
 
-void map_multiply(float* const input,
-                const uint   size,
-                const float  value,
-                cudaStream_t stream)
+void map_multiply(const float* const input,
+                  float* const output,
+                  const size_t size,
+                  const float value,
+                  cudaStream_t stream)
 {
-    const auto multiply = [value] __device__ (const float input_pixel){ return input_pixel * value; };
-
-    map_generic(input, input, size, multiply, stream);
+    // Call templated version map multiply
+    map_multiply<float>(input, output, size, value, stream);
 }

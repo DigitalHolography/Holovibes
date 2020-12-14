@@ -20,6 +20,7 @@
 #endif
 # include <string>
 # include <ctime>
+#include <cassert>
 # include <qrect.h>
 #include <filesystem>
 
@@ -48,8 +49,7 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
   unsigned nb_blocks = static_cast<unsigned>(
     std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
 
-  if (nb_blocks > get_max_blocks())
-    nb_blocks = get_max_blocks();
+  assert(nb_blocks <= get_max_blocks() && "Too many blocks required.");
 
   return nb_blocks;
 }

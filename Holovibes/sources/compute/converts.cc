@@ -70,7 +70,10 @@ namespace holovibes
 			{
 				fn_compute_vect_.conditional_push_back([=]() {
 					// Multiply frame by (2 ^ 16) - 1 in case of PCA
-					map_multiply(buffers_.gpu_postprocess_frame, fd_.frame_res(), (2 << 16) - 1);
+					map_multiply(buffers_.gpu_postprocess_frame.get(),
+								 buffers_.gpu_postprocess_frame.get(),
+								 fd_.frame_res(),
+								 static_cast<const float>((2 << 16) - 1));
 				});
 			}
 		}
