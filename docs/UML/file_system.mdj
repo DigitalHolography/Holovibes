@@ -6358,7 +6358,7 @@
 											"top": 1500,
 											"width": 406.9228515625,
 											"height": 13,
-											"text": "+OutputAviFile(file_path: string, fd: FrameDescriptor, img_nb: uint64_t)",
+											"text": "-OutputAviFile(file_path: string, fd: FrameDescriptor, img_nb: uint64_t)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -6669,7 +6669,7 @@
 											"top": 1500,
 											"width": 414.3876953125,
 											"height": 13,
-											"text": "+OutputMp4File(file_path: string, fd: FrameDescriptor, img_nb: uint64_t)",
+											"text": "-OutputMp4File(file_path: string, fd: FrameDescriptor, img_nb: uint64_t)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -6947,7 +6947,7 @@
 											"top": 1200,
 											"width": 71,
 											"height": 13,
-											"text": "+AviFile()",
+											"text": "#AviFile()",
 											"horizontalAlignment": 0
 										}
 									],
@@ -7142,7 +7142,7 @@
 											"top": 1192,
 											"width": 62.486328125,
 											"height": 13,
-											"text": "+Mp4File()",
+											"text": "#Mp4File()",
 											"horizontalAlignment": 0
 										}
 									],
@@ -9534,6 +9534,7 @@
 								"$ref": "AAAAAAF2UaoXWHv0gaM="
 							},
 							"name": "OutputAviFile",
+							"visibility": "private",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -9764,6 +9765,7 @@
 								"$ref": "AAAAAAF2Ua0wWYzRFg4="
 							},
 							"name": "OutputMp4File",
+							"visibility": "private",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -9943,7 +9945,8 @@
 							"_parent": {
 								"$ref": "AAAAAAF2Ua8dd6o7uxs="
 							},
-							"name": "AviFile"
+							"name": "AviFile",
+							"visibility": "protected"
 						}
 					],
 					"isAbstract": true
@@ -9962,7 +9965,8 @@
 							"_parent": {
 								"$ref": "AAAAAAF2UhKPy6u+eL8="
 							},
-							"name": "Mp4File"
+							"name": "Mp4File",
+							"visibility": "protected"
 						}
 					],
 					"isAbstract": true
