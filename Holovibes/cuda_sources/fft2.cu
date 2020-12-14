@@ -56,7 +56,7 @@ static void fft_2_dc(const ushort	width,
 				cuComplex		*pframe,
 				const bool		mode,
 				const uint 		batch_size,
-				cudaStream_t	stream)
+				const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -72,7 +72,7 @@ void fft2_lens(cuComplex*	lens,
 	const float				lambda,
 	const float				z,
 	const float				pixel_size,
-	cudaStream_t			stream)
+	const cudaStream_t			stream)
 {
 	const uint threads_2d = get_max_threads_2d();
 	const dim3 lthreads(threads_2d, threads_2d);
@@ -101,7 +101,7 @@ void fft_2(cuComplex			*input,
 		const cuComplex			*lens,
 		const cufftHandle		plan2d,
 		const FrameDescriptor&	fd,
-		cudaStream_t			stream)
+		const cudaStream_t			stream)
 {
 	const uint frame_resolution = fd.frame_res();
 	const uint threads = get_max_threads_1d();

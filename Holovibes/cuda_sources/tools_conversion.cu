@@ -93,7 +93,7 @@ void complex_to_modulus(float			*output,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
-						cudaStream_t	stream)
+						const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -225,7 +225,7 @@ void complex_to_squared_modulus(float			*output,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size,
-								cudaStream_t	stream)
+								const cudaStream_t	stream)
 {
 const uint threads = get_max_threads_1d();
 const uint blocks = map_blocks_to_problem(size, threads);
@@ -266,7 +266,7 @@ void complex_to_argument(float			*output,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
-						cudaStream_t	stream)
+						const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -339,7 +339,7 @@ void kernel_rescale(T				*data,
 void rescale_float(const float	*input,
 				float			*output,
 				const uint		size,
-				cudaStream_t	stream)
+				const cudaStream_t	stream)
 {
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -388,7 +388,7 @@ void rescale_float_unwrap2d(float			*input,
 							float			*output,
 							float			*cpu_buffer,
 							uint			frame_res,
-							cudaStream_t	stream)
+							const cudaStream_t	stream)
 {
 	float		min = 0;
 	float		max = 0;
@@ -425,7 +425,7 @@ void kernel_rescale_argument(float		*input,
 
 void rescale_argument(float			*input,
 					const uint		frame_res,
-					cudaStream_t	stream)
+					const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -460,7 +460,7 @@ void endianness_conversion(const ushort	*input,
 						ushort			*output,
 						const uint 		batch_size,
 						const uint		size,
-						cudaStream_t	stream)
+						const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -506,7 +506,7 @@ void float_to_ushort(const float	*input,
 					void			*output,
 					const uint		size,
 					const size_t	depth,
-					cudaStream_t	stream)
+					const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -589,7 +589,7 @@ void kernel_ushort_to_uchar(const ushort	*input,
 void ushort_to_uchar(const ushort	*input,
 	uchar			*output,
 	const uint		size,
-	cudaStream_t	stream)
+	const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -632,7 +632,7 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 void complex_to_ushort(const cuComplex	*input,
 					uint				*output,
 					const uint			size,
-					cudaStream_t		stream)
+					const cudaStream_t		stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -646,7 +646,7 @@ void complex_to_ushort(const cuComplex	*input,
 void complex_to_complex(const cuComplex	*input,
 						ushort*			output,
 						const uint		size,
-						cudaStream_t	stream)
+						const cudaStream_t	stream)
 {
 	cudaXMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
 }
@@ -724,7 +724,7 @@ void accumulate_images(const float	*input,
 					const size_t	max_elmt,
 					const size_t	nb_elmt,
 					const size_t	nb_pixel,
-					cudaStream_t	stream)
+					const cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);

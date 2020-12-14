@@ -25,7 +25,7 @@ cudaError_t embedded_frame_cpy(const char *input,
                                const uint output_starty,
                                const uint elm_size,
                                cudaMemcpyKind kind,
-                               cudaStream_t stream)
+                               const cudaStream_t stream)
 {
     assert(input_width + output_startx <= output_width);
     assert(input_height + output_starty <= output_height);
@@ -47,7 +47,7 @@ cudaError_t embed_into_square(const char *input,
                               char *output,
                               const uint elm_size,
                               cudaMemcpyKind kind,
-                              cudaStream_t stream)
+                              const cudaStream_t stream)
 {
     uint output_startx;
     uint output_starty;
@@ -162,7 +162,7 @@ cudaError_t crop_frame(const char *input,
                        char *output,
                        const uint elm_size,
                        cudaMemcpyKind kind,
-                       cudaStream_t stream)
+                       const cudaStream_t stream)
 {
     assert(crop_start_x + crop_width <= input_width);
     assert(crop_start_y + crop_height <= input_height);
@@ -184,7 +184,7 @@ cudaError_t crop_into_square(const char *input,
                              char *output,
                              const uint elm_size,
                              cudaMemcpyKind kind,
-                             cudaStream_t stream)
+                             const cudaStream_t stream)
 {
     uint crop_start_x;
     uint crop_start_y;

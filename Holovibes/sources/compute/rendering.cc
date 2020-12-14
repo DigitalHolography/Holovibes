@@ -266,7 +266,7 @@ namespace holovibes
 											const uint			height,
 											const uint			offset,
 											WindowKind			view,
-											cudaStream_t		stream)
+											const cudaStream_t		stream)
 		{
 			constexpr uint percent_size = 2;
 

@@ -48,7 +48,7 @@ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, 
 void textureUpdate(cudaSurfaceObject_t	cuSurface,
 				void					*frame,
 				const camera::FrameDescriptor&	fd,
-				cudaStream_t			stream)
+				const cudaStream_t			stream)
 {
 
 	const uint fd_width_div_32 = std::max(1u, (unsigned)fd.width / 32u);

@@ -61,7 +61,7 @@ void multiply_frames_complex(const cuComplex	*input1,
 								const cuComplex	*input2,
 								cuComplex		*output,
 								const uint		size,
-								cudaStream_t	stream = 0);
+								const cudaStream_t	stream = 0);
 
 
 /*! \brief normalize input according to a renormalize constant
@@ -76,4 +76,4 @@ void gpu_normalize(float* const input,
 				   double* const result_reduce,
 				   const uint frame_res,
 				   const uint norm_constant,
-                   cudaStream_t stream = 0);
+                   const cudaStream_t stream = 0);

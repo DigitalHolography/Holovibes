@@ -334,7 +334,7 @@ void unwrap_2d(	float*						input,
 				UnwrappingResources_2d*		res,
 				const FrameDescriptor&		fd,
 				float*						output,
-				cudaStream_t				stream)
+				const cudaStream_t				stream)
 {
 	uint		threads_2d = get_max_threads_2d();
 	dim3		lthreads(threads_2d, threads_2d);
@@ -378,7 +378,7 @@ void unwrap_2d(	float*						input,
 void gradient_unwrap_2d(const cufftHandle			plan2d,
 						UnwrappingResources_2d*		res,
 						const FrameDescriptor&			fd,
-						cudaStream_t				stream)
+						const cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
 	const uint	blocks = map_blocks_to_problem(res->image_resolution_, threads);
@@ -404,7 +404,7 @@ void gradient_unwrap_2d(const cufftHandle			plan2d,
 void eq_unwrap_2d(const cufftHandle			plan2d,
 				UnwrappingResources_2d*		res,
 				const FrameDescriptor&			fd,
-				cudaStream_t				stream)
+				const cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
 	const uint	blocks = map_blocks_to_problem(res->image_resolution_, threads);
@@ -435,7 +435,7 @@ void phi_unwrap_2d(	const cufftHandle			plan2d,
 					UnwrappingResources_2d*		res,
 					const FrameDescriptor&			fd,
 					float*						output,
-					cudaStream_t				stream)
+					const cudaStream_t				stream)
 {
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);

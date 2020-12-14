@@ -71,7 +71,7 @@ void multiply_frames_complex(const cuComplex	*input1,
 								const cuComplex	*input2,
 								cuComplex		*output,
 								const uint		size,
-								cudaStream_t	stream)
+								const cudaStream_t	stream)
 {
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(size, threads);
@@ -83,7 +83,7 @@ void gpu_normalize(float* const input,
                    double* const result_reduce,
                    const uint frame_res,
                    const uint norm_constant,
-                   cudaStream_t stream)
+                   const cudaStream_t stream)
 {
     reduce_add(input, result_reduce, frame_res);
 

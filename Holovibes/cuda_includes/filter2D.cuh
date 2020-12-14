@@ -24,7 +24,7 @@ void filter2D(cuComplex				*input,
 			const holovibes::units::RectFd&	r,
 			const camera::FrameDescriptor&	fd,
 			const bool				exclude_roi,
-			cudaStream_t			stream = 0);
+			const cudaStream_t			stream = 0);
 
 void filter2D_BandPass(cuComplex				*input,
 					   cuComplex				*tmp_buffer,
@@ -33,4 +33,4 @@ void filter2D_BandPass(cuComplex				*input,
 					   const holovibes::units::RectFd&	zone,
 					   const holovibes::units::RectFd& subzone,
 					   const camera::FrameDescriptor&	desc,
-					   cudaStream_t			stream = 0);
+					   const cudaStream_t			stream = 0);

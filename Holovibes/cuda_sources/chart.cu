@@ -156,7 +156,7 @@ void apply_mapped_zone_sum(const float *input,
 			  double *output,
 			  const RectFd& zone,
 			  FUNC element_map,
-			  cudaStream_t stream)
+			  const cudaStream_t stream)
 {
 	constexpr ushort block_width = 32;
 	constexpr ushort block_height = 32;
@@ -182,7 +182,7 @@ void apply_zone_sum(const float *input,
 	const uint width,
 	double *output,
 	const RectFd& zone,
-	cudaStream_t stream)
+	const cudaStream_t stream)
 {
 	static const auto identity_map = [] __device__ (float val){ return val; };
 	apply_mapped_zone_sum(input, height, width, output, zone, identity_map, stream);
@@ -192,7 +192,7 @@ static double compute_average(float* input,
 							const uint width,
 							const uint height,
 							const RectFd& zone,
-							cudaStream_t stream)
+							const cudaStream_t stream)
 {
 	holovibes::cuda_tools::UniquePtr<double> gpu_sum_zone;
 	if (!gpu_sum_zone.resize(1))
@@ -216,7 +216,7 @@ void apply_zone_std_sum(const float *input,
 	double *output,
 	const RectFd& zone,
 	const double avg_zone,
-	cudaStream_t stream)
+	const cudaStream_t stream)
 {
 	const auto std_map = [avg_zone] __device__ (float val){ return (val - avg_zone) * (val - avg_zone); };
 	apply_mapped_zone_sum(input, height, width, output, zone, std_map, stream);
@@ -227,7 +227,7 @@ static double compute_std(float* input,
 						const uint height,
 						const RectFd& zone,
 						const double cpu_avg_zone,
-						cudaStream_t stream)
+						const cudaStream_t stream)
 {
 	holovibes::cuda_tools::UniquePtr<double> gpu_std_sum_zone;
 	if (!gpu_std_sum_zone.resize(1))
@@ -250,7 +250,7 @@ ChartPoint make_chart_plot(float			*input,
 						const uint			height,
 						const RectFd&		signal_zone,
 						const RectFd&		noise_zone,
-						cudaStream_t		stream)
+						const cudaStream_t		stream)
 {
 	double cpu_avg_signal = compute_average(input, width, height, signal_zone, stream);
 	double cpu_avg_noise = compute_average(input, width, height, noise_zone, stream);

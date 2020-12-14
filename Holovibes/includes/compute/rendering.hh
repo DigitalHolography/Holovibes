@@ -99,7 +99,7 @@ namespace holovibes
 				const uint			height,
 				const uint			offset,
 				WindowKind			view,
-				cudaStream_t		stream = 0);
+				const cudaStream_t		stream = 0);
 
 			/** \brief Set the maximum and minimum contrast boundaries (according to the percentile)
 

@@ -78,7 +78,7 @@ void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind =
 * \param kind Type of transfer.
 * \param stream Stream identifier.
 */
-void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice, cudaStream_t stream = 0);
+void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice, const cudaStream_t stream = 0);
 
 /*! \brief Wrapper around cudaMemset to handle errors
 *
@@ -100,7 +100,7 @@ void cudaXMemset(void* devPtr, int  value, size_t count);
 * \param value Value to set for each byte of specified memory.
 * \param count Size in bytes to set.
 */
-void cudaXMemsetAsync(void* devPtr, int  value, size_t count, cudaStream_t stream = 0);
+void cudaXMemsetAsync(void* devPtr, int  value, size_t count, const cudaStream_t stream = 0);
 
 /*! \brief Wrapper around cudaFree to handle errors
 *

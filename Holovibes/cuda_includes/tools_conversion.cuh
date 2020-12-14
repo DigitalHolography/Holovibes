@@ -78,7 +78,7 @@ void complex_to_modulus(float			*output,
 						const ushort	pmin,
 						const ushort	pmax,
 						const uint		size,
-						cudaStream_t	stream = 0);
+						const cudaStream_t	stream = 0);
 
 /*! \brief Compute the squared modulus of complex image(s).
  *
@@ -92,7 +92,7 @@ void complex_to_squared_modulus(float			*output,
 								const ushort	pmin,
 								const ushort	pmax,
 								const uint		size,
-								cudaStream_t	stream = 0);
+								const cudaStream_t	stream = 0);
 
 /*! \brief Compute argument (angle) of complex image(s).
  *
@@ -106,7 +106,7 @@ void complex_to_argument(float				*output,
 						const ushort		pmin,
 						const ushort		pmax,
 						const uint			size,
-						cudaStream_t		stream = 0);
+						const cudaStream_t		stream = 0);
 
 /*! Copy the rescaled angle value of each element of the input.
  *
@@ -122,7 +122,7 @@ void complex_to_argument(float				*output,
 void rescale_float(const float	*input,
 				float			*output,
 				const uint		size,
-				cudaStream_t	stream = 0);
+				const cudaStream_t	stream = 0);
 
 /*! \brief Convert from big endian to little endian.
  * \param input The input data in big endian.
@@ -134,7 +134,7 @@ void endianness_conversion(const ushort	*input,
 						ushort			*output,
 						const uint 		batch_size,
 						const uint		size,
-						cudaStream_t	stream = 0);
+						const cudaStream_t	stream = 0);
 
 /*! \brief Convert data from float to unsigned short (16-bit).
  *
@@ -152,7 +152,7 @@ void float_to_ushort(const float	*input,
 					void			*output,
 					const uint		size,
 					const size_t	depth,
-					cudaStream_t	stream = 0);
+					const cudaStream_t	stream = 0);
 
 void float_to_uint8(const float	*input,
 	unsigned char *output,
@@ -165,7 +165,7 @@ void uint8_to_float(const unsigned char	*input,
 void ushort_to_uchar(const ushort	*input,
 	uchar			*output,
 	const uint		size,
-	cudaStream_t	stream = 0);
+	const cudaStream_t	stream = 0);
 
 /*! \brief Converts and tranfers data from input_queue to gpu_input_buffer
 *
@@ -203,13 +203,13 @@ void input_queue_to_input_buffer(void* output,
 void complex_to_ushort(const cuComplex	*input,
 					uint				*output,
 					const uint			size,
-					cudaStream_t		stream = 0);
+					const cudaStream_t		stream = 0);
 
 /*! \brief Memcpy of a complex sized frame into another buffer */
 void complex_to_complex(const cuComplex	*input,
 						ushort			*output,
 						const uint		size,
-						cudaStream_t	stream = 0);
+						const cudaStream_t	stream = 0);
 
 /*! \brief Cast buffer into real_buffer*/
 void	buffer_size_conversion(char					*real_buffer,
@@ -242,7 +242,7 @@ void accumulate_images(const float	*input,
 					const size_t	max_elmt,
 					const size_t	nb_elmt,
 					const size_t	nb_pixel,
-					cudaStream_t	stream = 0);
+					const cudaStream_t	stream = 0);
 
 /*! \brief Kernel to cumulate images into one.
 *
@@ -277,7 +277,7 @@ void rescale_float_unwrap2d(float			*input,
 							float			*output,
 							float			*cpu_buffer,
 							uint			frame_res,
-							cudaStream_t	stream = 0);
+							const cudaStream_t	stream = 0);
 
 __global__
 void kernel_rescale_argument(float		*input,
@@ -285,7 +285,7 @@ void kernel_rescale_argument(float		*input,
 
 void rescale_argument(float			*input,
 					const uint		frame_res,
-					cudaStream_t	stream = 0);
+					const cudaStream_t	stream = 0);
 
 template<typename T>
 __global__

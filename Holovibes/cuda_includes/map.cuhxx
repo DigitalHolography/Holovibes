@@ -48,7 +48,7 @@ static void _map_regular(const I* const input,
                          O* const output,
                          const size_t size,
                          const FUNC func,
-                         cudaStream_t stream)
+                         const cudaStream_t stream)
 {
     // Using 64 threads per blocks is more efficient than using the max number
     // of threads supported
@@ -78,7 +78,7 @@ void _map_vectorize(const T* const input,
                     T* const output,
                     const size_t size,
                     const FUNC func,
-                    cudaStream_t stream)
+                    const cudaStream_t stream)
 {
     assert(size % 4 == 0 && "Map vectorize requires a size divisible by 4.");
 
@@ -101,7 +101,7 @@ void map_generic(const I* const input,
                  O* const output,
                  const size_t size,
                  const FUNC func,
-                 cudaStream_t stream)
+                 const cudaStream_t stream)
 {
     _private::_map_regular(input, output, size, func, stream);
 }
@@ -111,7 +111,7 @@ void map_generic(const float* const input,
                  float* const output,
                  const size_t size,
                  const FUNC func,
-                 cudaStream_t stream)
+                 const cudaStream_t stream)
 {
     if (size % 4 == 0)
     {
@@ -130,7 +130,7 @@ void map_generic(const ushort* const input,
                  ushort* const output,
                  const size_t size,
                  const FUNC func,
-                 cudaStream_t stream)
+                 const cudaStream_t stream)
 {
     if (size % 4 == 0)
     {
@@ -148,7 +148,7 @@ void map_divide(const T* const input,
                 T* const output,
                 const size_t size,
                 const T value,
-                cudaStream_t stream)
+                const cudaStream_t stream)
 {
     const auto divide = [value] __device__ (const T input_pixel) -> T { return input_pixel / value; };
 
@@ -160,7 +160,7 @@ void map_multiply(const T* const input,
                   T* const output,
                   const size_t size,
                   const T value,
-                  cudaStream_t stream)
+                  const cudaStream_t stream)
 {
     const auto multiply = [value] __device__ (const T input_pixel) -> T { return input_pixel * value; };
 

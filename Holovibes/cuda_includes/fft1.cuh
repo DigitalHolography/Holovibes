@@ -24,7 +24,7 @@ void fft1_lens(cuComplex*	lens,
 	const float				lambda,
 	const float				z,
 	const float				pixel_size,
-	cudaStream_t			stream = 0);
+	const cudaStream_t			stream = 0);
 
 /*! \brief Apply a lens and call an fft1 on the image
 *
@@ -38,4 +38,4 @@ void fft_1(cuComplex*			input,
 		const cuComplex*		lens,
 		const cufftHandle		plan2D,
 		const uint				frame_resolution,
-		cudaStream_t			stream = 0);
+		const cudaStream_t			stream = 0);

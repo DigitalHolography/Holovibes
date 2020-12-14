@@ -32,23 +32,23 @@ void reduce_generic(const T* const __restrict__ input,
                     const R_OP reduce_op,
                     const A_OP atomic_op,
                     const T identity_elt,
-                    cudaStream_t stream = 0);
+                    const cudaStream_t stream = 0);
 
 /*! \brief Reduce add operation
 *
 * Two types are needed to avoid overflow (sizeof(U) >= sizeof(T))
 */
 template <typename T, typename U>
-void reduce_add(const T* const input, U* const result, const uint size, cudaStream_t stream = 0);
+void reduce_add(const T* const input, U* const result, const uint size, const cudaStream_t stream = 0);
 
 // Min / Max : ushort not supported by CUDA (because of atomic operation)
 
 /*! \brief Reduce min operation */
 template <typename T>
-void reduce_min(const T* const input, T* const result, const uint size, cudaStream_t stream = 0);
+void reduce_min(const T* const input, T* const result, const uint size, const cudaStream_t stream = 0);
 
 /*! \brief Reduce max operation */
 template <typename T>
-void reduce_max(const T* const input, T* const result, const uint size, cudaStream_t stream = 0);
+void reduce_max(const T* const input, T* const result, const uint size, const cudaStream_t stream = 0);
 
 #include "reduce.cuhxx"

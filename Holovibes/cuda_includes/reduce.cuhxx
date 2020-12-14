@@ -168,7 +168,7 @@ void reduce_generic(const T* const __restrict__ input,
                     const R_OP reduce_op,
                     const A_OP atomic_op,
                     const T identity_elt,
-					cudaStream_t stream)
+					const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
 	constexpr uint optimal_nb_blocks = 1024;
@@ -194,7 +194,7 @@ void reduce_generic(const T* const __restrict__ input,
 }
 
 template <typename T, typename U>
-void reduce_add(const T* const input, U* const result, const uint size, cudaStream_t stream)
+void reduce_add(const T* const input, U* const result, const uint size, const cudaStream_t stream)
 {
     static const auto op_add = [] __device__ (const T left, const T right) { return left + right; };
     static const auto atomic_add = [] __device__ (U* const left, const T right) { atomicAdd(left, right); };
@@ -204,7 +204,7 @@ void reduce_add(const T* const input, U* const result, const uint size, cudaStre
 }
 
 template <typename T>
-void reduce_min(const T* const input, T* const result, const uint size, cudaStream_t stream)
+void reduce_min(const T* const input, T* const result, const uint size, const cudaStream_t stream)
 {
     static const auto op_min = [] __device__ (const T left, const T right) { return min(left, right); };
     static const auto atomic_min = [] __device__ (T* const left, const T right) { atomicMin(left, right); };
@@ -215,7 +215,7 @@ void reduce_min(const T* const input, T* const result, const uint size, cudaStre
 }
 
 template <typename T>
-void reduce_max(const T* const input, T* const result, const uint size, cudaStream_t stream)
+void reduce_max(const T* const input, T* const result, const uint size, const cudaStream_t stream)
 {
     static const auto op_max = [] __device__ (const T left, const T right) { return max(left, right); };
     static const auto atomic_max = [] __device__ (T* const left, const T right) { atomicMax(left, right); };

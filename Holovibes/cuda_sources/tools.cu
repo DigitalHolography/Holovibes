@@ -64,7 +64,7 @@ void frame_memcpy(const float				*input,
 				const units::RectFd&	zone,
 				const uint			input_width,
 				float				*output,
-				cudaStream_t		stream)
+				const cudaStream_t		stream)
 {
 	const float	*zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
 	cudaSafeCall(cudaMemcpy2DAsync(output,

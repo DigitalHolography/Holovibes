@@ -94,7 +94,7 @@ void filter2D_BandPass(cuComplex				*input,
 					   const holovibes::units::RectFd&	zone,
 					   const holovibes::units::RectFd& subzone,
 					   const FrameDescriptor&	desc,
-					   cudaStream_t			stream)
+					   const cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
 	uint blocks = map_blocks_to_problem(desc.frame_res(), threads);
@@ -145,7 +145,7 @@ void filter2D(cuComplex				*input,
 			const holovibes::units::RectFd&	r,
 			const FrameDescriptor&	desc,
 			const bool              exclude_roi,
-			cudaStream_t			stream)
+			const cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
 	uint blocks = map_blocks_to_problem(desc.frame_res(), threads);

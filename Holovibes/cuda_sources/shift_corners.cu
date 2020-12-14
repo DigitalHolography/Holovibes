@@ -65,7 +65,7 @@ namespace
 							  const uint batch_size,
 							  const uint size_x,
 							  const uint size_y,
-							  cudaStream_t stream)
+							  const cudaStream_t stream)
 	{
 		uint threads_2d = get_max_threads_2d();
 		dim3 lthreads(threads_2d, threads_2d);
@@ -80,7 +80,7 @@ namespace
 							  const uint 	batch_size,
 							  const uint 	size_x,
 							  const uint 	size_y,
-							  cudaStream_t	stream)
+							  const cudaStream_t	stream)
 	{
 		uint threads_2d = get_max_threads_2d();
 		dim3 lthreads(threads_2d, threads_2d);
@@ -96,7 +96,7 @@ void shift_corners(float3 *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<float3>(input, batch_size, size_x, size_y, stream);
 }
@@ -106,7 +106,7 @@ void shift_corners(const float3 *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<float3>(input, output, batch_size, size_x, size_y, stream);
 }
@@ -115,7 +115,7 @@ void shift_corners(float *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<float>(input, batch_size, size_x, size_y, stream);
 }
@@ -125,7 +125,7 @@ void shift_corners(const float *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<float>(input, output, batch_size, size_x, size_y, stream);
 }
@@ -134,7 +134,7 @@ void shift_corners(cuComplex *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<cuComplex>(input, batch_size, size_x, size_y, stream);
 }
@@ -144,7 +144,7 @@ void shift_corners(const cuComplex *input,
 				   const uint batch_size,
 				   const uint size_x,
 				   const uint size_y,
-				   cudaStream_t stream)
+				   const cudaStream_t stream)
 {
 	shift_corners_caller<cuComplex>(input, output, batch_size, size_x, size_y, stream);
 }

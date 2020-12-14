@@ -25,7 +25,7 @@ void fft2_lens(cuComplex*	lens,
 	const float				lambda,
 	const float				z,
 	const float				pixel_size,
-	cudaStream_t			stream = 0);
+	const cudaStream_t			stream = 0);
 
 /*! \brief takes input complex buffer and computes a p frame that is stored
  * at output pointer. The output pointer can be another complex buffer or the
@@ -37,4 +37,4 @@ void fft_2(cuComplex			*input,
 		const cuComplex			*lens,
 		const cufftHandle		plan2d,
 		const camera::FrameDescriptor&	fd,
-		cudaStream_t			stream = 0);
+		const cudaStream_t			stream = 0);
