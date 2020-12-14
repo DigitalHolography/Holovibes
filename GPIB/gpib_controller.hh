@@ -12,15 +12,13 @@
 
 #pragma once
 
-# include <vector>
-# include <deque>
-# include <exception>
-# include <utility>
-# include <iostream>
+#include <vector>
+#include <exception>
+#include <utility>
 
-# include "IVisaInterface.hh"
+#include "IVisaInterface.hh"
 
-# define BUF_SIZE 200
+#define BUF_SIZE 200
 
 namespace gpib
 {
@@ -29,10 +27,8 @@ namespace gpib
 	class VisaInterface : public IVisaInterface
 	{
 	public:
-		/*! Build an interface to the GPIB driver using the VISA standard.
-		 * \param path Path to the batch file that is provided to control
-		 * images recording using GPIB-driven components. */
-		VisaInterface(const std::string& path);
+		/*! Build an interface to the GPIB driver using the VISA standard. */
+		VisaInterface();
 
 		/*! Making sure all opened connections are closed,
 		 * and freeing allocated memory. */
@@ -42,28 +38,21 @@ namespace gpib
 
 		VisaInterface& operator=(const VisaInterface& other) = delete;
 
+		void execute_instrument_command(const BatchCommand& cmd);
+
+	private:
 		/*! Setting up the connection with an instrument at a given address. */
 		void initialize_instrument(const unsigned address);
 
 		/*! Closing the connection with a given instrument, knowing its address. */
 		void close_instrument(const unsigned address);
 
-		std::optional<Command> get_next_command();
-
-		void pop_next_command();
-
-		void execute_instrument_command(const Command& cmd);
-
-	private:
 		/*! Setting up the VISA driver to enable future connections. */
 		void initialize_line();
 
 		/*! Closing the connection to the VISA driver.
 		 * Automatically called by the destructor. */
 		void close_line();
-
-		/*! Parse the file and report any error in the format. */
-		void parse_file(std::ifstream& in);
 
 	private:
 		/*! To decouple dependencies between the GPIB controller and Holovibes,
@@ -74,11 +63,5 @@ namespace gpib
 		 */
 		struct VisaPimpl;
 		VisaPimpl* pimpl_;
-
-		/*! Lines obtained from the batch input file are stored
-		 * here as separate strings. */
-		std::deque<Command> batch_cmds_;
-		std::string			path_;
-
 	};
 }

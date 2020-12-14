@@ -13,9 +13,13 @@
 #include "batch_gpib_worker.hh"
 
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <boost/lexical_cast.hpp>
 
 #include "chart_record_worker.hh"
 #include "logger.hh"
+#include "gpib_exceptions.hh"
 
 namespace holovibes::worker
 {
@@ -25,7 +29,6 @@ namespace holovibes::worker
                         const bool chart_record,
                         const bool raw_record_enabled)
         : Worker()
-        , batch_input_path_(batch_input_path)
         , output_path_(output_path)
         , nb_frames_to_record_(nb_frames_to_record)
         , chart_record_(chart_record)
@@ -35,12 +38,12 @@ namespace holovibes::worker
     {
         try
         {
-            gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", batch_input_path_);
+            parse_file(batch_input_path);
         }
-        catch (const std::exception& e)
+        catch (const std::exception& exception)
         {
-            gpib_interface_ = nullptr;
-            LOG_ERROR(e.what());
+            LOG_ERROR(exception.what());
+            batch_cmds_.clear();
         }
     }
 
@@ -59,21 +62,18 @@ namespace holovibes::worker
     {
         unsigned int file_index = 1;
 
-        if (gpib_interface_ == nullptr)
-            return;
-
         try
         {
             while (true)
             {
-                auto cmd = gpib_interface_->get_next_command();
-
-                if (!cmd.has_value() || stop_requested_)
+                if (batch_cmds_.empty() || stop_requested_)
                     return;
 
-                if (cmd->type == gpib::Command::INSTRUMENT_COMMAND)
-                    gpib_interface_->execute_instrument_command(*cmd);
-                else if (cmd->type == gpib::Command::CAPTURE)
+                auto cmd = batch_cmds_.back();
+
+                if (cmd.type == gpib::BatchCommand::INSTRUMENT_COMMAND)
+                    execute_instrument_command(cmd);
+                else if (cmd.type == gpib::BatchCommand::CAPTURE)
                 {
                     std::string formatted_path = format_batch_output(file_index);
 
@@ -92,9 +92,9 @@ namespace holovibes::worker
 
                     ++file_index;
                 }
-                else if (cmd->type == gpib::Command::WAIT)
+                else if (cmd.type == gpib::BatchCommand::WAIT)
                 {
-                    auto waiting_time = cmd->wait;
+                    auto waiting_time = cmd.wait;
 
                     auto starting_time = std::chrono::high_resolution_clock::now();
                     while (!stop_requested_)
@@ -105,7 +105,7 @@ namespace holovibes::worker
                     }
                 }
 
-                gpib_interface_->pop_next_command();
+                batch_cmds_.pop_back();
             }
         }
         catch (const std::exception& e)
@@ -113,6 +113,100 @@ namespace holovibes::worker
             LOG_ERROR(e.what());
             return;
         }
+    }
+
+    void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
+    {
+        std::ifstream in(batch_input_path);
+		if (!in.is_open())
+			throw std::exception("GPIB : Invalid Filepath");
+
+        std::string line;
+		unsigned int line_num = 0;
+		unsigned int cur_address = 0;
+
+		while (in >> line)
+		{
+			batch_cmds_.push_front(gpib::BatchCommand());
+			gpib::BatchCommand& cmd = batch_cmds_.front();
+
+			if (line.compare("#Block") == 0)
+			{
+				// Just a #Block : no special meaning.
+				batch_cmds_.pop_front();
+			}
+			else if (line.compare("#InstrumentAddress") == 0)
+			{
+				// We change the address currently used for commands.
+				try
+				{
+					in >> line;
+					unsigned int address = boost::lexical_cast<unsigned>(line);
+					cur_address = address;
+					batch_cmds_.pop_front();
+				}
+				catch (const boost::bad_lexical_cast& /*e*/)
+				{
+					throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num),
+						gpib::GpibParseError::NoAddress);
+				}
+			}
+			else if (line.compare("#WAIT") == 0)
+			{
+				// We insert a waiting action in the block.
+				try
+				{
+					in >> line;
+					unsigned int wait = boost::lexical_cast<unsigned>(line);
+
+					cmd.type = gpib::BatchCommand::WAIT;
+					cmd.address = 0;
+					cmd.command = "";
+					cmd.wait = wait;
+				}
+				catch (const boost::bad_lexical_cast& /*e*/)
+				{
+					throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num),
+						gpib::GpibParseError::NoWait);
+				}
+			}
+			else if (line.compare("#Capture") == 0)
+			{
+				cmd.type = gpib::BatchCommand::CAPTURE;
+				cmd.address = 0;
+				cmd.command = "";
+				cmd.wait = 0;
+			}
+			else
+			{
+				/* A command string, the validity of which can not be tested because of
+				 * the multiple interfaces to various existing instruments. */
+				for (unsigned i = 0; i < line.size(); ++i)
+					in.unget();
+				std::getline(in, line, '\n');
+				line.append("\n"); // Don't forget the end-of-command character for VISA.
+
+				cmd.type = gpib::BatchCommand::INSTRUMENT_COMMAND;
+				cmd.address = cur_address;
+				cmd.command = line;
+				cmd.wait = 0;
+			}
+			++line_num;
+		}
+
+		if (line_num == 0)
+		{
+			// We just read a blank file...
+			throw gpib::GpibBlankFileError();
+		}
+    }
+
+    void BatchGPIBWorker::execute_instrument_command(gpib::BatchCommand instrument_command)
+    {
+        if (!gpib_interface_)
+            gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll");
+
+        gpib_interface_->execute_instrument_command(instrument_command);
     }
 
     std::string BatchGPIBWorker::format_batch_output(const unsigned int index)

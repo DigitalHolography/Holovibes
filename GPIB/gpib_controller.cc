@@ -10,10 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <iostream>
 #include <string>
-#include <fstream>
 #include <algorithm>
-#include <thread>
 #include <boost/lexical_cast.hpp>
 
 #include "visa.h"
@@ -42,26 +41,9 @@ namespace gpib
 		ViPByte buffer_; //!< Buffer used for writing/reading.
 	};
 
-	VisaInterface::VisaInterface(const std::string& path)
-		: pimpl_{ new VisaPimpl() },
-		path_(path)
-	{
-		std::ifstream in;
-		in.open(path);
-		if (!in.is_open())
-			throw std::exception("GPIB : Invalid Filepath");
-
-		try
-		{
-			parse_file(in);
-		}
-		catch (const std::exception&)
-		{
-			throw;
-		}
-
-		in.close();
-	}
+	VisaInterface::VisaInterface()
+		: pimpl_{ new VisaPimpl() }
+	{}
 
 	VisaInterface::~VisaInterface()
 	{
@@ -121,24 +103,9 @@ namespace gpib
 		}
 	}
 
-	std::optional<Command> VisaInterface::get_next_command()
+	void VisaInterface::execute_instrument_command(const BatchCommand& instrument_command)
 	{
-		if (batch_cmds_.empty())
-			return std::nullopt;
-		
-		return batch_cmds_.back();
-	}
-
-	void VisaInterface::pop_next_command()
-	{
-		assert(!batch_cmds_.empty());
-
-		batch_cmds_.pop_back();
-	}
-
-	void VisaInterface::execute_instrument_command(const Command& instrument_command)
-	{
-		assert(instrument_command.type == Command::INSTRUMENT_COMMAND);
+		assert(instrument_command.type == BatchCommand::INSTRUMENT_COMMAND);
 
 		/* If this is the first time a command is issued, the connexion
 			* with the VISA interface must be set up. */
@@ -198,90 +165,8 @@ namespace gpib
 			std::cerr << "[GPIB] Could not close connection to VISA driver." << std::endl;
 	}
 
-	void VisaInterface::parse_file(std::ifstream& in)
+	IVisaInterface* new_gpib_controller()
 	{
-		std::string line;
-		unsigned int line_num = 0;
-		unsigned int cur_address = 0;
-
-		while (in >> line)
-		{
-			batch_cmds_.push_front(Command());
-			Command& cmd = batch_cmds_.front();
-
-			if (line.compare("#Block") == 0)
-			{
-				// Just a #Block : no special meaning.
-				batch_cmds_.pop_front();
-			}
-			else if (line.compare("#InstrumentAddress") == 0)
-			{
-				// We change the address currently used for commands.
-				try
-				{
-					in >> line;
-					unsigned int address = boost::lexical_cast<unsigned>(line);
-					cur_address = address;
-					batch_cmds_.pop_front();
-				}
-				catch (const boost::bad_lexical_cast& /*e*/)
-				{
-					throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-						GpibParseError::NoAddress);
-				}
-			}
-			else if (line.compare("#WAIT") == 0)
-			{
-				// We insert a waiting action in the block.
-				try
-				{
-					in >> line;
-					unsigned int wait = boost::lexical_cast<unsigned>(line);
-
-					cmd.type = Command::WAIT;
-					cmd.address = 0;
-					cmd.command = "";
-					cmd.wait = wait;
-				}
-				catch (const boost::bad_lexical_cast& /*e*/)
-				{
-					throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-						GpibParseError::NoWait);
-				}
-			}
-			else if (line.compare("#Capture") == 0)
-			{
-				cmd.type = Command::CAPTURE;
-				cmd.address = 0;
-				cmd.command = "";
-				cmd.wait = 0;
-			}
-			else
-			{
-				/* A command string, the validity of which can not be tested because of
-				 * the multiple interfaces to various existing instruments. */
-				for (unsigned i = 0; i < line.size(); ++i)
-					in.unget();
-				std::getline(in, line, '\n');
-				line.append("\n"); // Don't forget the end-of-command character for VISA.
-
-				cmd.type = Command::INSTRUMENT_COMMAND;
-				cmd.address = cur_address;
-				cmd.command = line;
-				cmd.wait = 0;
-			}
-			++line_num;
-		}
-
-		if (line_num == 0)
-		{
-			// We just read a blank file...
-			throw GpibBlankFileError();
-		}
-	}
-
-	IVisaInterface* new_gpib_controller(const std::string path)
-	{
-		return new VisaInterface(path);
+		return new VisaInterface();
 	}
 }

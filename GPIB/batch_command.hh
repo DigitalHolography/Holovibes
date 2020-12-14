@@ -10,37 +10,26 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <stdexcept>
-#include <memory>
-
-#include "gpib_dll.hh"
-
 namespace gpib
 {
-	std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const std::string& dll_filepath)
-	{
-		HINSTANCE dll_handle = nullptr;
+    /*! Each command is formed of an instrument address,
+    * a proper command sent as a string through the VISA interface,
+    * and a number of milliseconds to wait for until next command
+    * is issued. */
+    struct BatchCommand
+    {
+        enum type_e
+        {
+            BLOCK,   			// #Block : ignored, just for clarity
+            CAPTURE, 			// #Capture : Stop issuing commands and acquire a frame
+            INSTRUMENT_COMMAND, // * : Sent to an instrument as is in a message buffer
+            WAIT     			// #WAIT n : Put the thread to sleep n milliseconds
+        };
 
-		dll_handle = LoadLibrary(dll_filepath.c_str());
-		if (!dll_handle)
-			throw std::runtime_error("Unable to load DLL gpib");
+        type_e type;
 
-		FnInit init = nullptr;
-		init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_gpib_controller"));
-
-		if (!init)
-			throw std::runtime_error("Unable to retrieve the 'new_gpib_controller' function");
-
-		return std::shared_ptr<IVisaInterface>(init(), DeleterDLL(dll_handle));
-	}
-
-	GpibDLL::DeleterDLL::DeleterDLL(HINSTANCE dll_handle)
-		: dll_handle_(dll_handle)
-	{}
-
-	void GpibDLL::DeleterDLL::operator()(IVisaInterface* Gpib)
-	{
-		delete Gpib;
-		FreeLibrary(dll_handle_);
-	}
-}
+        unsigned address;
+        std::string command;
+        unsigned wait;
+    };
+} // namespace gpib

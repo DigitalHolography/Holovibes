@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <deque>
+
 #include "gpib_dll.hh"
 #include "IVisaInterface.hh"
 #include "gpib_controller.hh"
@@ -41,11 +43,13 @@ namespace holovibes::worker
         void run() override;
 
     private:
+        void parse_file(const std::string& batch_input_path);
+
+        void execute_instrument_command(gpib::BatchCommand instrument_command);
+
         std::string format_batch_output(const unsigned int index);
 
     private:
-        const std::string batch_input_path_;
-
         const std::string output_path_;
 
         const unsigned int nb_frames_to_record_;
@@ -57,6 +61,8 @@ namespace holovibes::worker
         std::unique_ptr<FrameRecordWorker> frame_record_worker_;
 
         std::unique_ptr<ChartRecordWorker> chart_record_worker_;
+
+        std::deque<gpib::BatchCommand> batch_cmds_;
 
         std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
     };
