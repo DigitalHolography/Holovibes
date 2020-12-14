@@ -44,14 +44,13 @@ namespace camera
 	{
 		fd_.width = grabber_->getWidth();
 		fd_.height = grabber_->getHeight();
-		fd_.depth = 1;
+		fd_.depth = (grabber_->getPixelFormat() == "Mono8") ? 1 : 2;
 		fd_.byteEndian = Endianness::BigEndian;
 
 		grabber_->enableEvent<Euresys::NewBufferData>();
 
-		buffers_ = std::vector<unsigned char *>(nb_buffers_, nullptr);
-
 		size_t size = fd_.width * fd_.height;
+		buffers_ = std::vector<unsigned char *>(nb_buffers_, nullptr);
 		for (size_t i = 0; i < nb_buffers_; ++i)
 		{
 			unsigned char *ptr, *devicePtr;
