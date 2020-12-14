@@ -574,13 +574,6 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QSpinBox" name="RenormalizeSpinBox">
-             <property name="value">
-              <number>15</number>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
@@ -2976,7 +2969,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -4747,22 +4740,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RenormalizeSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_renormalize_constant(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>699</x>
-     <y>314</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -5118,7 +5095,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
-  <slot>set_renormalize_constant(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>

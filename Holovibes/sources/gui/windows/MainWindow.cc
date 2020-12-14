@@ -468,7 +468,6 @@ namespace holovibes
 
 			// Renormalize
 			ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
-			ui.RenormalizeSpinBox->setValue(cd_.renorm_constant);
 
 			// Convolution
 			ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
@@ -693,6 +692,10 @@ namespace holovibes
 				cd_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd_.img_acc_slice_xy_level);
 				cd_.display_rate = ptree.get<float>("config.display_rate", cd_.display_rate);
 
+				// Renormalize
+				cd_.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd_.renorm_enabled);
+				cd_.renorm_constant = ptree.get<uint>("view.renorm_constant", cd_.renorm_constant);
+
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
@@ -898,6 +901,9 @@ namespace holovibes
 			ptree.put<int>("view.xCut_flip", xzFlip);
 			ptree.put<int>("view.yCut_flip", yzFlip);
 			ptree.put<float>("view.reticle_scale", cd_.reticle_scale);
+
+			ptree.put<bool>("view.renorm_enabled", cd_.renorm_enabled);
+			ptree.put<uint>("view.renorm_constant", cd_.renorm_constant);
 
 			// Chart
 			ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
@@ -1626,14 +1632,6 @@ namespace holovibes
 		void MainWindow::toggle_renormalize(bool value)
 		{
 			cd_.renorm_enabled = value;
-
-			holovibes_.get_compute_pipe()->request_clear_img_acc();
-			pipe_refresh();
-		}
-
-		void MainWindow::set_renormalize_constant(int value)
-		{
-			cd_.renorm_constant = value;
 
 			holovibes_.get_compute_pipe()->request_clear_img_acc();
 			pipe_refresh();

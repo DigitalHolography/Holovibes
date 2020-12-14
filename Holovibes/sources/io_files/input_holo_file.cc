@@ -126,6 +126,5 @@ namespace holovibes::io_files
         cd.img_acc_slice_xz_level = meta_data_.value("img_acc_slice_xz_level", 1);
         cd.img_acc_slice_yz_level = meta_data_.value("img_acc_slice_yz_level", 1);
         cd.renorm_enabled = meta_data_.value("renorm_enabled", true);
-        cd.renorm_constant = meta_data_.value("renorm_constant", 15);
     }
 } // namespace holovibes::io_files

@@ -82,8 +82,7 @@ namespace holovibes::io_files
 				{"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
 				{"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
 
-				{"renorm_enabled", cd.renorm_enabled.load()},
-				{"renorm_constant", cd.renorm_constant.load()}
+				{"renorm_enabled", cd.renorm_enabled.load()}
 			};
 		}
 		catch (const json::exception& e)

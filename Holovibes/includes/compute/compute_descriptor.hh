@@ -236,7 +236,7 @@ namespace holovibes
 		//! postprocessing renorm enabled
 		std::atomic<bool>			renorm_enabled{ true };
 		//! postprocessing remormalize multiplication constant
-		std::atomic<unsigned>		renorm_constant{ 15 };
+		std::atomic<unsigned>		renorm_constant{ 5 };
 		//! is log scale in slice XY enabled
 		std::atomic<bool>			log_scale_slice_xy_enabled{ false };
 		//! is log scale in slice XZ enabled
