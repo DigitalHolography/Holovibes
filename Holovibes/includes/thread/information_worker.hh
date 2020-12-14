@@ -40,17 +40,17 @@ namespace holovibes
 
             InformationContainer& info_;
 
-            size_t input_fps_ = 0;
+            unsigned int input_fps_ = 0;
 
-            size_t output_fps_ = 0;
+            unsigned int output_fps_ = 0;
 
-            size_t saving_fps_ = 0;
+            unsigned int saving_fps_ = 0;
 
-            size_t input_throughput_ = 0;
+            unsigned int input_throughput_ = 0;
 
-            size_t output_throughput_ = 0;
+            unsigned int output_throughput_ = 0;
 
-            size_t saving_throughput_ = 0;
+            unsigned int saving_throughput_ = 0;
         };
     }
 } // namespace holovibes::worker
