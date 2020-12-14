@@ -82,7 +82,8 @@ namespace holovibes
 		new_fd.depth = 8;
 		time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size));
 
-		if (!buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_.get_fd().frame_res()))
+		// Static cast size_t to avoid overflow
+		if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(cd_.batch_size) * gpu_input_queue_.get_fd().frame_res()))
 			err++;
 
 		int output_buffer_size = gpu_input_queue_.get_frame_res();
@@ -126,8 +127,9 @@ namespace holovibes
 		else if (cd_.time_transformation == TimeTransformation::PCA)
 		{
 			// Pre allocate all the buffer only when n changes to avoid 1 allocation every frame
-			time_transformation_env_.pca_cov.resize(time_transformation_size * time_transformation_size);
-			time_transformation_env_.pca_tmp_buffer.resize(time_transformation_size * time_transformation_size);
+			// Static cast to avoid ushort overflow
+			time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) * time_transformation_size);
+			time_transformation_env_.pca_tmp_buffer.resize(static_cast<const uint>(time_transformation_size) * time_transformation_size);
 			time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
 			time_transformation_env_.pca_dev_info.resize(1);
 		}

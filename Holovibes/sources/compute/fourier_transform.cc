@@ -53,7 +53,8 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 	, time_transformation_env_(time_transformation_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
-	gpu_filter2d_buffer_.resize(fd_.frame_res() * cd_.batch_size);
+	// static cast in size_t to avoid uint overflow
+	gpu_filter2d_buffer_.resize(static_cast<const size_t>(fd_.frame_res()) * cd_.batch_size);
 }
 
 void FourierTransform::insert_fft()
