@@ -94,8 +94,8 @@ namespace holovibes::worker
 
         if (record_queue.has_overridden())
         {
-            LOG_ERROR("[RECORDER] Record queue has been full, data has been lost! "
-                    "Try to resize record buffer size");
+            LOG_ERROR("[RECORDER] Record queue overloaded, data has been lost! "
+                    "Try to resize record buffer");
         }
 
         reset_gpu_record_queue(pipe);
