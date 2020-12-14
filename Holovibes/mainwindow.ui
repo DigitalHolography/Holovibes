@@ -86,7 +86,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>190</width>
+          <width>210</width>
           <height>0</height>
          </size>
         </property>
@@ -1383,7 +1383,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>210</width>
+          <width>240</width>
           <height>0</height>
          </size>
         </property>
@@ -1548,9 +1548,15 @@
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_hue">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>201</width>
+             <width>16777214</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2262,7 +2268,7 @@
        <widget class="holovibes::gui::Frame" name="ImportExportFrame">
         <property name="minimumSize">
          <size>
-          <width>190</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
@@ -2274,7 +2280,7 @@
         </property>
         <property name="baseSize">
          <size>
-          <width>210</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
@@ -2547,7 +2553,7 @@
           <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
            <property name="minimumSize">
             <size>
-             <width>210</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -2559,7 +2565,7 @@
            </property>
            <property name="baseSize">
             <size>
-             <width>210</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -3030,7 +3036,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
