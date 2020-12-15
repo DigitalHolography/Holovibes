@@ -145,6 +145,7 @@ namespace holovibes
 				save_ini(GLOBAL_INI_PATH);
 			}
 
+			set_z_step(z_step_);
 			set_record_frame_step(record_frame_step_);
 			set_night();
 
