@@ -249,16 +249,13 @@ namespace holovibes
 			}
 		}
 
-
-
 		void Converts::insert_main_ushort()
 		{
 			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_postprocess_frame,
-					buffers_.gpu_output_frame,
-					buffers_.gpu_postprocess_frame_size,
-					output_fd_.depth);
+					buffers_.gpu_postprocess_frame.get(),
+					buffers_.gpu_output_frame.get(),
+					buffers_.gpu_postprocess_frame_size);
 			});
 		}
 
@@ -267,16 +264,14 @@ namespace holovibes
 			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
 					buffers_.gpu_postprocess_frame_xz.get(),
-					buffers_.gpu_output_frame_xz,
-					time_transformation_env_.gpu_output_queue_xz->get_fd().frame_res(),
-					2.f);
+					buffers_.gpu_output_frame_xz.get(),
+					time_transformation_env_.gpu_output_queue_xz->get_fd().frame_res());
 			});
 			fn_compute_vect_.conditional_push_back([=]() {
 				float_to_ushort(
 					buffers_.gpu_postprocess_frame_yz.get(),
-					buffers_.gpu_output_frame_yz,
-					time_transformation_env_.gpu_output_queue_yz->get_fd().frame_res(),
-					2.f);
+					buffers_.gpu_output_frame_yz.get(),
+					time_transformation_env_.gpu_output_queue_yz->get_fd().frame_res());
 			});
 		}
 

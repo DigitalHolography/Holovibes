@@ -73,7 +73,14 @@ namespace holovibes
 			#pragma region Texture
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			const uint size = fd_.frame_size() / ((fd_.depth == 4 || fd_.depth == 8) ? 2 : 1);
+			uint size;
+			if (fd_.depth == 8) 						// cuComplex displayed as a uint
+				size = fd_.frame_res() * sizeof(uint);
+			else if (fd_.depth == 4)					// Float are displayed as ushort
+				size = fd_.frame_res() * sizeof(ushort);
+			else
+				size = fd_.frame_size();
+
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STATIC_DRAW);	//GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
 				(fd_.byteEndian == Endianness::BigEndian) ?
@@ -262,7 +269,7 @@ namespace holovibes
 				convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, bitshift);
 			}
 
-			// Release resources (needs to be done at each call) and sync, sync usefull since memcpy not async and kernel has a cudaDeviceSyncronize ?
+			// Release resources (needs to be done at each call) and sync
 			cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
 			cudaSafeCall(cudaStreamSynchronize(cuStream));
 

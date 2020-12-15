@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #include "transforms.cuh"
-#include "operator_overload.cuh"
 
 using camera::FrameDescriptor;
 
