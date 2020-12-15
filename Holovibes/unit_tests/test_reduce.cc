@@ -36,7 +36,7 @@ static U init_data_sum(T** d_data, U** d_result, size_t size)
 
     cudaXMemcpy(*d_data, h_data, sizeof(T) * size, cudaMemcpyHostToDevice);
 
-    delete h_data;
+    delete[] h_data;
 
     return result;
 }
@@ -58,7 +58,7 @@ static T init_data_min(T** d_data, T** d_result, size_t size)
 
     cudaXMemcpy(*d_data, h_data, sizeof(T) * size, cudaMemcpyHostToDevice);
 
-    delete h_data;
+    delete[] h_data;
 
     return result;
 }
@@ -80,7 +80,7 @@ static T init_data_max(T** d_data, T** d_result, size_t size)
 
     cudaXMemcpy(*d_data, h_data, sizeof(T) * size, cudaMemcpyHostToDevice);
 
-    delete h_data;
+    delete[] h_data;
 
     return result;
 }

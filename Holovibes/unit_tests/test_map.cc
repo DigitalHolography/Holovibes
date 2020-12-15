@@ -29,11 +29,11 @@ static bool check_result(const T* const h_expected, T* const d_got, const size_t
     {
         if (h_expected[i] != h_got[i])
         {
-            delete h_got;
+            delete[] h_got;
             return false;
         }
     }
-    delete h_got;
+    delete[] h_got;
     return true;
 }
 
@@ -75,7 +75,7 @@ static void map_test(size_t size, T value)
     ASSERT_TRUE(check_result(h_data, d_data, size));
 
     cudaXFree(d_data);
-    delete h_data;
+    delete[] h_data;
 }
 
 TEST(MapTest, MappNotDivisbleBy4Multiply)
