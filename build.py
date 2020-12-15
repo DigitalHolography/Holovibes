@@ -11,12 +11,15 @@ class Config:
     remain = []
     remain_str = ""
     build_dir = "build/"
+    vs_version = "Community"
 
 release_opt = ["Release", "release", "R", "r"]
 debug_opt = ["Debug", "debug", "D", "d"]
 ninja_opt = ["Ninja", "ninja", "N", "n"]
 nmake_opt = ["NMake", "nmake", "NM", "nm"]
 vs_opt = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
+community_opt = ["Community", "community", "C", "c"]
+professional_opt = ["Professional", "professional", "P", "p"]
 
 def parse_args(config):
     for i in range(1, len(sys.argv)):
@@ -31,6 +34,10 @@ def parse_args(config):
             config.gen = "NMake Makefiles"
         elif arg in vs_opt:
             config.gen = arg
+        elif arg in community_opt:
+            config.vs_version = "Community"
+        elif arg in professional_opt:
+            config.vs_version = "Professional"
         else:
             config.remain = sys.argv[i:]
             config.remain_str = " ".join(config.remain)
@@ -58,7 +65,7 @@ if __name__ == "__main__":
         log("CMD", cmd)
         subprocess.call(cmd)
     else:
-        cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&"]
+        cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\" + config.vs_version + "\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&"]
         if not os.path.isdir(path.join(config.build_dir, config.conf)): # if build dir doesn't exist, run CMake configure step
             cmd += ["cmake", "-B", config.build_dir, "-S", ".", "-G", config.gen, f"-DCMAKE_BUILD_TYPE={config.conf}", "-DCMAKE_VERBOSE_MAKEFILE=OFF", "&&"]
         cmd += ["cmake", "--build", config.build_dir] + config.remain
