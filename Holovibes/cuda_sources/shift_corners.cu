@@ -13,7 +13,7 @@
 #include "shift_corners.cuh"
 
 #include "hardware_limits.hh"
-#include "Common.cuh"
+#include "common.cuh"
 
 namespace
 {

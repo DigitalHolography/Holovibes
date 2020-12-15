@@ -13,7 +13,7 @@
 #include "map.cuh"
 
 #include "tools.hh"
-#include "Common.cuh"
+#include "common.cuh"
 #include "reduce.cuh"
 
 /***** Overloaded and specific map implementations *****/

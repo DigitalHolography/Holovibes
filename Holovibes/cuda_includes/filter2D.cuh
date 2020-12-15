@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+# include "common.cuh"
 
 /*! \brief Function handling the stft algorithm which steps are \n
 

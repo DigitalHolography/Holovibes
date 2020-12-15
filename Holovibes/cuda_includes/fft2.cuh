@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief takes input complex buffer and computes a p frame that is stored
  * at output pointer. The output pointer can be another complex buffer or the

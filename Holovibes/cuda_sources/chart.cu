@@ -16,7 +16,7 @@
 #include "unique_ptr.hh"
 #include "tools.hh"
 #include "cuda_memory.cuh"
-#include "Common.cuh"
+#include "common.cuh"
 
 #include <cstdio>
 #include <cmath>

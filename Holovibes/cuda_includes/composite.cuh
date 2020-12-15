@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+# include "common.cuh"
 
 # include "compute_descriptor.hh"
 

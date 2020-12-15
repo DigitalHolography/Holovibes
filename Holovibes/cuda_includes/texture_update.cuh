@@ -13,7 +13,7 @@
 #pragma once
 
 # include <surface_functions.h>
-# include "Common.cuh"
+# include "common.cuh"
 
 void	textureUpdate(cudaSurfaceObject_t	cuSurface,
 					void*					frame,

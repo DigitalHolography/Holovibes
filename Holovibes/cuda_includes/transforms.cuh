@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief Compute a lens to apply to an image used by the fft1
 *

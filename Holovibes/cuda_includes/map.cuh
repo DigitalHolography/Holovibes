@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cuda_runtime.h>
-#include "Common.cuh"
+#include "common.cuh"
 
 // Usings
 using uint = unsigned int;

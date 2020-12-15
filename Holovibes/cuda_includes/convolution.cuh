@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+# include "common.cuh"
 #include "cufft_handle.hh"
 using holovibes::cuda_tools::CufftHandle;
 

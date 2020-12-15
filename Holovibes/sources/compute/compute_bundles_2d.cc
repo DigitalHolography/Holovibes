@@ -32,26 +32,14 @@ namespace holovibes
 		, gpu_shift_fy_(nullptr)
 		, minmax_buffer_(nullptr)
 	{
-		int err = 0;
-
-		if (cudaMalloc(&gpu_fx_, sizeof(float) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_fy_, sizeof(float) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_shift_fx_, sizeof(float) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_shift_fy_, sizeof(float) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_angle_, sizeof(float) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_z_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
-			err++;
-		if (err != 0)
-			throw std::exception("Cannot allocate UnwrappingResources2d");
+		cudaXMalloc(&gpu_fx_, sizeof(float) * image_resolution_);
+		cudaXMalloc(&gpu_fy_, sizeof(float) * image_resolution_);
+		cudaXMalloc(&gpu_shift_fx_, sizeof(float) * image_resolution_);
+		cudaXMalloc(&gpu_shift_fy_, sizeof(float) * image_resolution_);
+		cudaXMalloc(&gpu_angle_, sizeof(float) * image_resolution_);
+		cudaXMalloc(&gpu_z_, sizeof(cufftComplex) * image_resolution_);
+		cudaXMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_);
+		cudaXMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_);
 		minmax_buffer_ = new float[image_resolution_]();
 	}
 
@@ -68,30 +56,27 @@ namespace holovibes
 		delete[] minmax_buffer_;
 	}
 
-	bool UnwrappingResources_2d::cudaRealloc(void *ptr, const size_t size)
+	void UnwrappingResources_2d::cudaRealloc(void *ptr, const size_t size)
 	{
 		cudaXFree(ptr);
-		return cudaMalloc(&ptr, size) == cudaSuccess;
+		cudaXMalloc(&ptr, size);
 	}
 
 	void UnwrappingResources_2d::reallocate(const size_t image_size)
 	{
-		bool err = 0;
 		image_resolution_ = image_size;
 
-		err |= cudaRealloc(gpu_fx_, sizeof(float) * image_resolution_);
-		err |= cudaRealloc(gpu_fy_, sizeof(float) * image_resolution_);
-		err |= cudaRealloc(gpu_shift_fx_, sizeof(float) * image_resolution_);
-		err |= cudaRealloc(gpu_shift_fy_, sizeof(float) * image_resolution_);
-		err |= cudaRealloc(gpu_angle_, sizeof(float) * image_resolution_);
-		err |= cudaRealloc(gpu_z_, sizeof(cufftComplex) * image_resolution_);
-		err |= cudaRealloc(gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_);
-		err |= cudaRealloc(gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_);
+		cudaRealloc(gpu_fx_, sizeof(float) * image_resolution_);
+		cudaRealloc(gpu_fy_, sizeof(float) * image_resolution_);
+		cudaRealloc(gpu_shift_fx_, sizeof(float) * image_resolution_);
+		cudaRealloc(gpu_shift_fy_, sizeof(float) * image_resolution_);
+		cudaRealloc(gpu_angle_, sizeof(float) * image_resolution_);
+		cudaRealloc(gpu_z_, sizeof(cufftComplex) * image_resolution_);
+		cudaRealloc(gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_);
+		cudaRealloc(gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_);
 		if (minmax_buffer_)
 			delete[] minmax_buffer_;
 		minmax_buffer_ = nullptr;
 		minmax_buffer_ = new float[image_resolution_]();
-		if (err || minmax_buffer_ == nullptr)
-			throw std::exception("Cannot reallocate UnwrappingResources2d");
 	}
 }

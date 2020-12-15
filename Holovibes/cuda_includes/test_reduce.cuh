@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief reduce_add wrapper */
 void test_gpu_reduce_add(const float* const input, double* const result, const uint size);

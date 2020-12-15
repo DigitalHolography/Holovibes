@@ -12,7 +12,7 @@
 
 #include "cufft_handle.hh"
 
-#include "Common.cuh"
+#include "common.cuh"
 
 using holovibes::cuda_tools::CufftHandle;
 

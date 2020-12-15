@@ -18,20 +18,20 @@
      - Wrap it by adding it here
      - Directly use 'cudaSafeCall' in your code
 
-    The behavior in case of error can be found in the Common.cuh file
+    The behavior in case of error can be found in the common.cuh file
     Currently details about the file, line, error will be logged and the programm will abort
 
     IMPORTANT NOTE : SAFECALLS ARE ONLY ENABLED IN DEBUG MODE
-    (you can again modify this behavior if you wish in the Common.cuh file)
+    (you can again modify this behavior if you wish in the common.cuh file)
 */
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief Wrapper around cudaMalloc to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * Only cuda malloc needs to be templated to avoid (void**) cast of the pointer on the call
@@ -45,7 +45,7 @@ void cudaXMalloc(T** devPtr, size_t size);
 
 /*! \brief Wrapper around cudaMallocHost to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param devPtr The device pointer to allocate.
@@ -57,7 +57,7 @@ void cudaXMallocHost(T** devPtr, size_t size);
 
 /*! \brief Wrapper around cudaMemcpy to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Destination memory address.
@@ -69,7 +69,7 @@ void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind =
 
 /*! \brief Wrapper around cudaMemcpyAsync to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Destination memory address.
@@ -82,7 +82,7 @@ void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind k
 
 /*! \brief Wrapper around cudaMemset to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Destination memory address.
@@ -93,7 +93,7 @@ void cudaXMemset(void* devPtr, int  value, size_t count);
 
 /*! \brief Wrapper around cudaMemsetAsync to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Destination memory address.
@@ -104,7 +104,7 @@ void cudaXMemsetAsync(void* devPtr, int  value, size_t count, const cudaStream_t
 
 /*! \brief Wrapper around cudaFree to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Device pointer to memory to free
@@ -113,7 +113,7 @@ void cudaXFree(void* devPtr);
 
 /*! \brief Wrapper around cudaFree to handle errors
 *
-* This function uses the error handling from Common.cuh (cudaSafeCall)
+* This function uses the error handling from common.cuh (cudaSafeCall)
 * A program built in error WILL abort in case of error
 *
 * \param dst Device pointer to memory to free

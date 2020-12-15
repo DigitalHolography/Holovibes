@@ -15,7 +15,7 @@
 
 #include <cassert>
 
-#include "Common.cuh"
+#include "common.cuh"
 #include "cuda_memory.cuh"
 #include "reduce.cuh"
 

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 #include "chart_point.hh"
 
 /*! \brief  Make the sum of input and selected zone

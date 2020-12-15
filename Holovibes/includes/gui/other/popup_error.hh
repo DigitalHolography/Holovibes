@@ -10,19 +10,15 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <numeric>
-#include "map.cuh"
-#include "common.cuh"
+#pragma once
 
-void apply_contrast_correction(float* const input,
-							   const uint size,
-							   const ushort dynamic_range,
-							   const float	min,
-							   const float	max)
+
+namespace holovibes::gui
 {
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	const auto apply_contrast = [factor, min] __device__ (float pixel){ return factor * (pixel - min); };
 
-	map_generic(input, input, size, apply_contrast);
-	cudaCheckError();
-}
+/*! \brief Display error on a popup and exit the program after the popup is closed
+ * \param error_msg Message to display on the popup
+ * \param exit_value Exit value of the program
+ */
+void show_error_and_exit(const std::string& error_msg, const int exit_value = 1);
+} // namespace holovibes::gui

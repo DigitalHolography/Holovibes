@@ -13,7 +13,7 @@
 #include "frame_reshape.cuh"
 
 #include "tools.hh"
-#include "Common.cuh"
+#include "common.cuh"
 
 cudaError_t embedded_frame_cpy(const char *input,
                                const uint input_width,

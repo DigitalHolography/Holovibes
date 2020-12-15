@@ -33,23 +33,15 @@ namespace holovibes
 		, gpu_angle_copy_(nullptr)
 		, gpu_unwrapped_angle_(nullptr)
 	{
-		int		err = 0;
-		auto	nb_unwrap_elts = image_size * capacity_;
+		auto nb_unwrap_elts = image_size * capacity_;
 
-		if (cudaMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex) * image_size) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_angle_predecessor_, sizeof(float) * image_size) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_angle_current_, sizeof(float) * image_size) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_angle_copy_, sizeof(float) * image_size) != cudaSuccess)
-			err++;
-		if (cudaMalloc(&gpu_unwrapped_angle_, sizeof(float) * image_size) != cudaSuccess)
-			err++;
-		if (err != 0)
-			throw std::exception("Cannot allocate UnwrappingResources");
+		cudaXMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
+		cudaXMalloc(&gpu_predecessor_, sizeof(cufftComplex) * image_size);
+		cudaXMalloc(&gpu_angle_predecessor_, sizeof(float) * image_size);
+		cudaXMalloc(&gpu_angle_current_, sizeof(float) * image_size);
+		cudaXMalloc(&gpu_angle_copy_, sizeof(float) * image_size);
+		cudaXMalloc(&gpu_unwrapped_angle_, sizeof(float) * image_size);
+
 		/* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
 		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
 	}
@@ -64,15 +56,14 @@ namespace holovibes
 		cudaXFree(gpu_unwrapped_angle_);
 	}
 
-	bool UnwrappingResources::cudaRealloc(void *ptr, const size_t size)
+	void UnwrappingResources::cudaRealloc(void *ptr, const size_t size)
 	{
 		cudaXFree(ptr);
-		return cudaMalloc(&ptr, size) == cudaSuccess;
+		cudaXMalloc(&ptr, size);
 	}
 
 	void UnwrappingResources::reallocate(const size_t image_size)
 	{
-		bool err = 0;
 		// We compare requested memory against available memory, and reallocate if needed.
 		if (capacity_ <= total_memory_)
 			return;
@@ -80,14 +71,12 @@ namespace holovibes
 		total_memory_ = capacity_;
 		auto nb_unwrap_elts = image_size * capacity_;
 
-		err |= cudaRealloc(gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
-		err |= cudaRealloc(gpu_predecessor_, sizeof(cufftComplex) * image_size);
-		err |= cudaRealloc(gpu_angle_predecessor_, sizeof(float) * image_size);
-		err |= cudaRealloc(gpu_angle_current_, sizeof(float) * image_size);
-		err |= cudaRealloc(gpu_angle_copy_, sizeof(float) * image_size);
-		err |= cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
-		if (err)
-			throw std::exception("Cannot reallocate UnwrappingResources");
+		cudaRealloc(gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
+		cudaRealloc(gpu_predecessor_, sizeof(cufftComplex) * image_size);
+		cudaRealloc(gpu_angle_predecessor_, sizeof(float) * image_size);
+		cudaRealloc(gpu_angle_current_, sizeof(float) * image_size);
+		cudaRealloc(gpu_angle_copy_, sizeof(float) * image_size);
+		cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
 		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
 	}
 

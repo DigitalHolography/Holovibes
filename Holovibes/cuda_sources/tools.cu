@@ -17,7 +17,7 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "logger.hh"
 #include "cuda_memory.cuh"
-#include "Common.cuh"
+#include "common.cuh"
 
 #include <cassert>
 

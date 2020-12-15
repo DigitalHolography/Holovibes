@@ -24,7 +24,7 @@
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "cuda_memory.cuh"
-#include "Common.cuh"
+#include "common.cuh"
 #include "tools.hh"
 
 namespace holovibes

@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+# include "common.cuh"
 
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *

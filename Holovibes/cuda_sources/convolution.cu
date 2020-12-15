@@ -16,7 +16,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
-#include "Common.cuh"
+#include "common.cuh"
 #include "cuda_memory.cuh"
 
 using holovibes::cuda_tools::CufftHandle;

@@ -38,7 +38,7 @@ namespace holovibes
 		* the capacity requested (in capacity_).
 		*
 		* \param image_size The number of pixels in an image. */
-		bool cudaRealloc(void *ptr, const size_t size);
+		void cudaRealloc(void *ptr, const size_t size);
 		void reallocate(const size_t image_size);
 
 		/*Image_size in pixel*/

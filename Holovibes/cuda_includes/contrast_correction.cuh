@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief Make the contrast of the image depending of the
 * maximum and minimum input given by the user.

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 
 /*! \brief Find the right threads and block to call quadratic lens
 * with and call it

@@ -13,7 +13,7 @@
 #include "fft1.cuh"
 #include "transforms.cuh"
 #include "unique_ptr.hh"
-#include "Common.cuh"
+#include "common.cuh"
 #include "cuda_memory.cuh"
 
 #include <cufftXt.h>

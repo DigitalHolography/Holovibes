@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
 

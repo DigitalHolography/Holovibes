@@ -11,7 +11,7 @@
 /* **************************************************************************** */
 
 #include "stft.cuh"
-#include "Common.cuh"
+#include "common.cuh"
 #include "queue.hh"
 
 #include <cassert>

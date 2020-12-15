@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "Common.cuh"
+# include "common.cuh"
 # include <nppdefs.h>
 
 /* CONVERSION FUNCTIONS */

@@ -19,11 +19,15 @@
 #include <exception>
 #include <cublas_v2.h>
 #include <cassert>
+#include <chrono>
+#include <thread>
+
 #include "cusolverDn.h"
 
 #include "tools.cuh"
 #include "compute_descriptor.hh"
 #include "custom_exception.hh"
+#include "popup_error.hh"
 
 #ifndef M_PI
   #define M_PI       3.14159265358979323846   // pi
@@ -35,7 +39,8 @@
 #define THREADS_256	256
 #define THREADS_128	128
 
-static constexpr const cudaStream_t default_cuda_stream = 0;
+// If cudaSafeCall error, sleep for 8s then exit.
+static constexpr std::chrono::seconds sleeping_error_time = std::chrono::seconds(8);
 
 #ifndef _DEBUG
 #define cudaCheckError()
@@ -57,10 +62,18 @@ static constexpr const cudaStream_t default_cuda_stream = 0;
 #endif
 
 #ifndef _DEBUG
-#define cudaSafeCall(ans) ans
+#define cudaSafeCall(ans) { gpuAssertRelease((ans)); }
+inline void gpuAssertRelease(cudaError_t code)
+{
+   if (code != cudaSuccess)
+   {
+       holovibes::gui::show_error_and_exit("Internal error. Run Holovibes again by reducing buffers size (such as input_buffer_size)",
+        static_cast<int>(code));
+   }
+}
 #else
-#define cudaSafeCall(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+#define cudaSafeCall(ans) { gpuAssertDebug((ans), __FILE__, __LINE__); }
+inline void gpuAssertDebug(cudaError_t code, const char *file, int line, bool abort=true)
 {
    if (code != cudaSuccess)
    {

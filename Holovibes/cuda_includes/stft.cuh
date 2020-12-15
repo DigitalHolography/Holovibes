@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Common.cuh"
+#include "common.cuh"
 #include "rect.hh"
 #include "enum_img_type.hh"
 
