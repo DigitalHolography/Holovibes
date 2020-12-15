@@ -176,7 +176,6 @@ namespace holovibes
 			// spinBox allow ',' and '.' as decimal point
 			spinBoxDecimalPointReplacement(ui.WaveLengthDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ZDoubleSpinBox);
-			spinBoxDecimalPointReplacement(ui.ZStepDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMaxDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
 
@@ -400,7 +399,6 @@ namespace holovibes
 			ui.WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
 			ui.ZDoubleSpinBox->setEnabled(!is_raw);
 			ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-			ui.ZStepDoubleSpinBox->setEnabled(!is_raw);
 			ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
 			// Filter2d

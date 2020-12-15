@@ -330,32 +330,13 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
-           <item row="2" column="0">
-            <widget class="QLabel" name="TimeTransformationLabel">
+           <item row="1" column="0">
+            <widget class="QLabel" name="SpaceTransformationLabel">
              <property name="text">
-              <string>Time transform</string>
+              <string>Space transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QDoubleSpinBox" name="ZStepDoubleSpinBox">
-             <property name="toolTip">
-              <string>step between each modification of z</string>
-             </property>
-             <property name="decimals">
-              <number>5</number>
-             </property>
-             <property name="maximum">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.005000000000000</double>
              </property>
             </widget>
            </item>
@@ -363,6 +344,16 @@
             <widget class="QLabel" name="PLabel">
              <property name="text">
               <string>p</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="TimeTransformationLabel">
+             <property name="text">
+              <string>Time transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -379,16 +370,24 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="TimeTransformationComboBox">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="SpaceTransformationComboBox">
+             <property name="toolTip">
+              <string>select the rendering mode for Hologram</string>
+             </property>
              <item>
               <property name="text">
-               <string>STFT</string>
+               <string>None</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>PCA</string>
+               <string>1FFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2FFT</string>
               </property>
              </item>
             </widget>
@@ -421,73 +420,6 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="PSpinBox">
-             <property name="toolTip">
-              <string>index of the image displayed</string>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="ZStepLabel">
-             <property name="text">
-              <string>z step (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="SpaceTransformationComboBox">
-             <property name="toolTip">
-              <string>select the rendering mode for Hologram</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1FFT</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2FFT</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Wavelength of light used to record interferograms</string>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1000000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="1">
             <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
              <property name="minimum">
@@ -514,16 +446,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="SpaceTransformationLabel">
-             <property name="text">
-              <string>Space transform</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
            <item row="6" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="text">
@@ -534,17 +456,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="BoundaryLabel">
-             <property name="text">
-              <string>Boundary (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="BoundaryLineEdit">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -560,6 +472,65 @@
              </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="TimeTransformationComboBox">
+             <item>
+              <property name="text">
+               <string>STFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>PCA</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
+             <property name="text">
+              <string>Boundary (m)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="PSpinBox">
+             <property name="toolTip">
+              <string>index of the image displayed</string>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Wavelength of light used to record interferograms</string>
+             </property>
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
              </property>
             </widget>
            </item>
@@ -2975,7 +2946,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3036,7 +3007,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3862,22 +3833,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>0</x>
      <y>143</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ZStepDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_z_step(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>362</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>119</x>
-     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -5075,7 +5030,6 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_record()</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
-  <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
   <slot>start_chart_display()</slot>
   <slot>configure_holovibes()</slot>
