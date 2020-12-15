@@ -26,17 +26,15 @@ namespace holovibes::worker
     BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
                                     const std::string& output_path,
                                     unsigned int nb_frames_to_record,
-                                    bool chart_record,
-                                    bool raw_record,
-                                    bool square_output)
-        : Worker()
-        , output_path_(output_path)
-        , nb_frames_to_record_(nb_frames_to_record)
-        , chart_record_(chart_record)
-        , raw_record_(raw_record)
-        , square_output_(square_output)
-        , frame_record_worker_(nullptr)
-        , chart_record_worker_(nullptr)
+                                    RecordMode record_mode,
+                                    bool square_output) :
+        Worker(),
+        output_path_(output_path),
+        nb_frames_to_record_(nb_frames_to_record),
+        record_mode_(record_mode),
+        square_output_(square_output),
+        frame_record_worker_(nullptr),
+        chart_record_worker_(nullptr)
     {
         try
         {
@@ -79,7 +77,7 @@ namespace holovibes::worker
                 {
                     std::string formatted_path = format_batch_output(file_index);
 
-                    if (chart_record_)
+                    if (record_mode_ == RecordMode::CHART)
                     {
                         chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path,
                             nb_frames_to_record_);
@@ -87,8 +85,10 @@ namespace holovibes::worker
                     }
                     else // Frame Record
                     {
+                        bool raw_record = record_mode_ == RecordMode::RAW;
+
                         frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
-                            nb_frames_to_record_, raw_record_, square_output_);
+                            nb_frames_to_record_, raw_record, square_output_);
                         frame_record_worker_->run();
                     }
 
@@ -143,7 +143,7 @@ namespace holovibes::worker
 				try
 				{
 					in >> line;
-					unsigned int address = boost::lexical_cast<unsigned>(line);
+					unsigned int address = boost::lexical_cast<unsigned int>(line);
 					cur_address = address;
 					batch_cmds_.pop_front();
 				}
@@ -159,7 +159,7 @@ namespace holovibes::worker
 				try
 				{
 					in >> line;
-					unsigned int wait = boost::lexical_cast<unsigned>(line);
+					unsigned int wait = boost::lexical_cast<unsigned int>(line);
 
 					cmd.type = gpib::BatchCommand::WAIT;
 					cmd.address = 0;

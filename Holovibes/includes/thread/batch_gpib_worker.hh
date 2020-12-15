@@ -19,6 +19,8 @@
 #include "gpib_controller.hh"
 #include "gpib_exceptions.hh"
 
+#include "enum_record_mode.hh"
+
 #include "frame_record_worker.hh"
 #include "chart_record_worker.hh"
 
@@ -30,8 +32,7 @@ namespace holovibes::worker
         BatchGPIBWorker(const std::string& batch_input_path,
                         const std::string& output_path,
                         unsigned int nb_frames_to_record,
-                        bool chart_record,
-                        bool raw_record_enabled,
+                        RecordMode record_mode,
                         bool square_output);
 
         void stop() override;
@@ -50,9 +51,7 @@ namespace holovibes::worker
 
         const unsigned int nb_frames_to_record_;
 
-        const bool chart_record_;
-
-        const bool raw_record_;
+        const RecordMode record_mode_;
 
         const bool square_output_;
 

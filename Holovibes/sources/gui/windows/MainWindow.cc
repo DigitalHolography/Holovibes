@@ -2826,10 +2826,8 @@ namespace holovibes
 
 			if (batch_enabled)
 			{
-				// FIXME Pass the record mode as param
-				bool record_raw = record_mode_ == RecordMode::RAW;
 				holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(),
-											record_mode_ == RecordMode::CHART, record_raw, square_output, callback);
+											record_mode_, square_output, callback);
 			}
 			else
 			{

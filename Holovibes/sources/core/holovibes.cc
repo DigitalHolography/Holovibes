@@ -10,8 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <filesystem>
-
 #include "holovibes.hh"
 #include "queue.hh"
 #include "config.hh"
@@ -181,15 +179,14 @@ namespace holovibes
 	void Holovibes::start_batch_gpib(const std::string& batch_input_path,
             				const std::string& output_path,
 							unsigned int nb_frames_to_record,
-							bool chart_record,
-							bool raw_record,
+							RecordMode record_mode,
 							bool square_output,
 							const std::function<void()>& callback)
 	{
 		batch_gpib_worker_controller_.stop();
 		batch_gpib_worker_controller_.set_callback(callback);
 		batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record,
-											chart_record, raw_record, square_output);
+											record_mode, square_output);
 	}
 
 	void Holovibes::stop_batch_gpib()

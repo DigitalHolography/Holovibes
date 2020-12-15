@@ -20,6 +20,7 @@
 #include "json.hh"
 using json = ::nlohmann::json;
 
+#include "enum_record_mode.hh"
 
 // namespace camera
 #include "camera_exception.hh"
@@ -57,14 +58,6 @@ namespace holovibes
 		class MainWindow : public QMainWindow, public Observer
 		{
 			Q_OBJECT
-
-			enum class RecordMode
-			{
-				RAW,
-				HOLOGRAM,
-				CHART,
-			};
-
 			/* ---------- */
 			#pragma region Public Methods
 		public:

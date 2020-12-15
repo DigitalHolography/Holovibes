@@ -18,9 +18,6 @@
 #include "compute_descriptor.hh"
 #include "icamera.hh"
 
-#include "concurrent_deque.hh"
-#include "chart_point.hh"
-
 // Worker & Controller
 #include "thread_worker_controller.hh"
 #include "file_frame_read_worker.hh"
@@ -33,6 +30,7 @@
 
 // Enum
 #include "enum_camera_kind.hh"
+#include "enum_record_mode.hh"
 
 #include "information_container.hh"
 
@@ -129,8 +127,7 @@ namespace holovibes
 		void start_batch_gpib(const std::string& batch_input_path,
             				const std::string& output_path,
 							unsigned int nb_frames_to_record,
-                			bool chart_record,
-							bool raw_record,
+							RecordMode record_mode,
 							bool square_output,
 							const std::function<void()>& callback = [](){});
 
