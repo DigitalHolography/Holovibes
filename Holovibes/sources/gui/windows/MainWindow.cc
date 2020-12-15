@@ -2926,10 +2926,12 @@ namespace holovibes
 
 		void MainWindow::import_stop()
 		{
+			close_windows();
+			cancel_time_transformation_cuts();
+
 			holovibes_.stop_all_worker_controller();
 			holovibes_.start_information_display(false);
 
-			close_windows();
 			close_critical_compute();
 			camera_none();
 
