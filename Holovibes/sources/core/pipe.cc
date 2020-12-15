@@ -91,10 +91,11 @@ namespace holovibes
 		bool success_allocation = true;
 
 		/* Free buffers */
-		if (cd_.convolution_changed && !cd_.convolution_enabled)
+		if (disable_convolution_requested_)
 		{
 			postprocess_->dispose();
-			cd_.convolution_changed = false; // Aknowledge signal from gui
+			cd_.convolution_enabled = false;
+			disable_convolution_requested_ = false;
 		}
 
 		if (request_disable_lens_view_)
@@ -142,10 +143,11 @@ namespace holovibes
 		image_accumulation_->dispose(); // done only if requested
 
 		/* Allocate buffer */
-		if (cd_.convolution_changed && cd_.convolution_enabled)
+		if (convolution_requested_)
 		{
 			postprocess_->init();
-			cd_.convolution_changed = false; // Aknowledge signal from gui
+			cd_.convolution_enabled = true;
+			convolution_requested_ = false;
 		}
 
 		if (output_resize_requested_.load() != std::nullopt)

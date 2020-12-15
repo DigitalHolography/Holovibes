@@ -2419,9 +2419,17 @@ namespace holovibes
 			{
 				load_convo_matrix();
 
-				cd_.convolution_changed = true;
+				try
+				{
+					auto pipe = holovibes_.get_compute_pipe();
+					pipe->request_convolution();
+					while (pipe->get_convolution_requested());
+				}
+				catch(const std::exception&)
+				{
+					cd_.convolution_enabled = false;
+				}
 
-				pipe_refresh();
 				notify();
 			}
 		}
@@ -2521,12 +2529,31 @@ namespace holovibes
 			if (!value && cd_.convolution_enabled)
 				set_divide_convolution_mode(false);
 
-			load_convo_matrix();
+			if (value)
+				load_convo_matrix();
 
-			cd_.convolution_changed = cd_.convolution_enabled != value;
-			cd_.convolution_enabled = value;
+			try
+			{
+				auto pipe = holovibes_.get_compute_pipe();
 
-			pipe_refresh();
+				if (value)
+				{
+					pipe->request_convolution();
+					// Wait for the convolution to be enabled for notify
+					while (pipe->get_convolution_requested());
+				}
+				else
+				{
+					pipe->request_disable_convolution();
+					// Wait for the convolution to be disabled for notify
+					while (pipe->get_disable_convolution_requested());
+				}
+			}
+			catch (const std::exception&)
+			{
+				cd_.convolution_enabled = false;
+			}
+
 			notify();
 		}
 

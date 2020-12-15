@@ -229,8 +229,6 @@ namespace holovibes
 		std::atomic<int>			unwrap_history_size{ 1 };
 		//! is convolution enabled
 		std::atomic<bool>			convolution_enabled{ false };
-		//! signal for the post-processing class that the convolution status has changed
-		std::atomic<bool>           convolution_changed{false};
 		//! is divide by convolution enabled
 		std::atomic<bool>			divide_convolution_enabled{ false };
 		//! postprocessing renorm enabled

@@ -419,4 +419,16 @@ namespace holovibes
 		request_clear_img_acc_ = true;
 		request_refresh();
 	}
+
+	void ICompute::request_convolution()
+	{
+		convolution_requested_ = true;
+		request_refresh();
+	}
+	
+	void ICompute::request_disable_convolution()
+	{
+		disable_convolution_requested_ = true;
+		request_refresh();
+	}
 }

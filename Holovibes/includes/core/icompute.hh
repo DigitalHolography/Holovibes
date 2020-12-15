@@ -174,6 +174,8 @@ namespace holovibes
 		void request_raw_record(std::optional<unsigned int> nb_frames_to_record);
 		void request_disable_frame_record();
 		void request_clear_img_acc();
+		void request_convolution();
+		void request_disable_convolution();
 
 		/*! \brief Execute one iteration of the ICompute.
 		*
@@ -216,6 +218,8 @@ namespace holovibes
 		std::optional<std::optional<unsigned int>> get_hologram_record_requested() const { return hologram_record_requested_; }
 		std::optional<std::optional<unsigned int>> get_raw_record_requested() const { return raw_record_requested_; }
 		bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
+		bool get_convolution_requested() const { return convolution_requested_; }
+		bool get_disable_convolution_requested() const { return convolution_requested_; }
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 
@@ -308,5 +312,7 @@ namespace holovibes
 		std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{ std::nullopt };
 		std::atomic<bool> disable_frame_record_requested_{ false };
 		std::atomic<bool> request_clear_img_acc_{ false };
+		std::atomic<bool> convolution_requested_{ false };
+		std::atomic<bool> disable_convolution_requested_{ false };
 	};
 }
