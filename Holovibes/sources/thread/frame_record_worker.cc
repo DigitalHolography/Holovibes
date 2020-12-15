@@ -20,12 +20,14 @@ namespace holovibes::worker
 {
     FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
                                         std::optional<unsigned int> nb_frames_to_record,
-                                        bool raw_record) :
+                                        bool raw_record,
+                                        bool square_output) :
         Worker(),
         file_path_(get_record_filename(file_path)),
         nb_frames_to_record_(nb_frames_to_record),
         processed_fps_(0),
-        raw_record_(raw_record)
+        raw_record_(raw_record),
+        square_output_(square_output)
     {}
 
     void FrameRecordWorker::run()
@@ -54,6 +56,7 @@ namespace holovibes::worker
 
             auto& cd = Holovibes::instance().get_cd();
             output_frame_file->export_compute_settings(cd, raw_record_);
+            output_frame_file->set_make_square_output(square_output_);
 
             output_frame_file->write_header();
 

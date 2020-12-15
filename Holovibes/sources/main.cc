@@ -118,7 +118,7 @@ static void start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsD
 
 	// Start recording.
 	holovibes::worker::FrameRecordWorker frame_record_worker(opts.output_path.value(),
-		opts.output_nb_frames.value_or(input_nb_frames), opts.record_raw);
+		opts.output_nb_frames.value_or(input_nb_frames), opts.record_raw, false);
 	frame_record_worker.run();
 
 	holovibes.stop_all_worker_controller();

@@ -154,10 +154,11 @@ namespace holovibes
 	}
 
 	void Holovibes::start_frame_record(const std::string& path, std::optional<unsigned int> nb_frames_to_record,
-										 bool raw_record, const std::function<void()>& callback)
+										bool raw_record, bool square_output,
+										const std::function<void()>& callback)
 	{
 		frame_record_worker_controller_.set_callback(callback);
-		frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record);
+		frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record, square_output);
 	}
 
 	void Holovibes::stop_frame_record()
@@ -181,12 +182,14 @@ namespace holovibes
             				const std::string& output_path,
 							unsigned int nb_frames_to_record,
 							bool chart_record,
-							bool raw_record_enabled,
+							bool raw_record,
+							bool square_output,
 							const std::function<void()>& callback)
 	{
 		batch_gpib_worker_controller_.stop();
 		batch_gpib_worker_controller_.set_callback(callback);
-		batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record, chart_record, raw_record_enabled);
+		batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record,
+											chart_record, raw_record, square_output);
 	}
 
 	void Holovibes::stop_batch_gpib()

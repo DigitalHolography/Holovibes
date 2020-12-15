@@ -26,7 +26,8 @@ namespace holovibes
         public:
             FrameRecordWorker(const std::string &file_path,
                             std::optional<unsigned int> nb_frames_to_record,
-                            bool raw_record);
+                            bool raw_record,
+                            bool square_output);
 
             void run() override;
 
@@ -44,6 +45,8 @@ namespace holovibes
             std::atomic<unsigned int> processed_fps_;
 
             bool raw_record_;
+
+            bool square_output_;
         };
     } // namespace worker
 } // namespace holovibes

@@ -2601,7 +2601,7 @@
               <property name="maximumSize">
                <size>
                 <width>200</width>
-                <height>180</height>
+                <height>250</height>
                </size>
               </property>
               <property name="frameShape">
@@ -2765,6 +2765,17 @@
                    </property>
                    <property name="value">
                     <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="squareOutputLayout">
+                 <item>
+                  <widget class="QCheckBox" name="SquareOutputCheckBox">
+                   <property name="text">
+                    <string>Square Output</string>
                    </property>
                   </widget>
                  </item>
@@ -3007,7 +3018,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5004,6 +5015,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>RecordExtComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_record_file_extension(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>891</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5113,6 +5140,7 @@ p, li { white-space: pre-wrap; }
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
   <slot>set_record_mode(QString)</slot>
+  <slot>set_record_file_extension(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
  </slots>
 </ui>

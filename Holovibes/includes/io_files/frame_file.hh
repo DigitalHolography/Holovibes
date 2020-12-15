@@ -82,6 +82,8 @@ namespace holovibes::io_files
          */
         FrameFile& operator=(const FrameFile&) = default;
 
+        //! The path of the file
+        const std::string file_path_;
         //! Frame descriptor associated to the file
         camera::FrameDescriptor fd_;
         //! Pointer associated to the file

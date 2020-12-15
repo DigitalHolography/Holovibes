@@ -116,7 +116,8 @@ namespace holovibes
 		void clear_convolution_matrix();
 
 		void start_frame_record(const std::string& path, std::optional<unsigned int> nb_frames_to_record,
-								bool raw_record, const std::function<void()>& callback = [](){});
+								bool raw_record, bool square_output,
+								const std::function<void()>& callback = [](){});
 
 		void stop_frame_record();
 
@@ -129,7 +130,8 @@ namespace holovibes
             				const std::string& output_path,
 							unsigned int nb_frames_to_record,
                 			bool chart_record,
-							bool raw_record_enabled,
+							bool raw_record,
+							bool square_output,
 							const std::function<void()>& callback = [](){});
 
 		void stop_batch_gpib();

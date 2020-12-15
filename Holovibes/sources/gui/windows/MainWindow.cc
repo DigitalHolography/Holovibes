@@ -114,7 +114,7 @@ namespace holovibes
 			ui.FileReaderProgressBar->hide();
 			ui.RecordProgressBar->hide();
 
-			ui.ChartPlotWidget->hide();
+			set_record_mode(QString::fromUtf8("Raw"));
 
 			QRect rec = QGuiApplication::primaryScreen()->geometry();
 			int screen_height = rec.height();
@@ -2739,7 +2739,25 @@ namespace holovibes
 				}
 			}
 
+			ui.SquareOutputCheckBox->hide();
+			ui.SquareOutputCheckBox->setChecked(false);
+
 			notify();
+		}
+
+		void MainWindow::set_record_file_extension(const QString& value)
+		{
+			const std::string text = value.toUtf8();
+
+			if (text == ".avi" || text == ".mp4")
+			{
+				ui.SquareOutputCheckBox->show();
+			}
+			else
+			{
+				ui.SquareOutputCheckBox->hide();
+				ui.SquareOutputCheckBox->setChecked(false);
+			}
 		}
 
 		void MainWindow::stop_record()
@@ -2800,24 +2818,33 @@ namespace holovibes
 			ui.RecordProgressBar->reset();
 			ui.RecordProgressBar->show();
 
-			bool record_raw = record_mode_ == RecordMode::RAW;
-
 			auto callback = [record_mode = record_mode_, this](){
 				synchronize_thread([=](){ record_finished(record_mode); });
 			};
 
+			bool square_output = ui.SquareOutputCheckBox->isChecked();
+
 			if (batch_enabled)
 			{
 				// FIXME Pass the record mode as param
+				bool record_raw = record_mode_ == RecordMode::RAW;
 				holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(),
-					record_mode_ == RecordMode::CHART, record_raw, callback);
+											record_mode_ == RecordMode::CHART, record_raw, square_output, callback);
 			}
 			else
 			{
 				if (record_mode_ == RecordMode::CHART)
+				{
 					holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
-				else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
-					holovibes_.start_frame_record(output_path, nb_frames_to_record, record_raw, callback);
+				}
+				else if (record_mode_ == RecordMode::HOLOGRAM)
+				{
+					holovibes_.start_frame_record(output_path, nb_frames_to_record, false, square_output, callback);
+				}
+				else if (record_mode_ == RecordMode::RAW)
+				{
+					holovibes_.start_frame_record(output_path, nb_frames_to_record, true, false, callback);
+				}
 			}
 		}
 #pragma endregion

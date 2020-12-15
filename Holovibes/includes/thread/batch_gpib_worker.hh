@@ -27,16 +27,12 @@ namespace holovibes::worker
     class BatchGPIBWorker : public Worker
     {
     public:
-
-        /*! \brief BatchGPIBWorker constructor
-        **
-        ** \param parent Qt parent (default is null)
-        */
         BatchGPIBWorker(const std::string& batch_input_path,
-                const std::string& output_path,
-                const unsigned int nb_frames_to_record,
-                const bool chart_record,
-                const bool raw_record_enabled);
+                        const std::string& output_path,
+                        unsigned int nb_frames_to_record,
+                        bool chart_record,
+                        bool raw_record_enabled,
+                        bool square_output);
 
         void stop() override;
 
@@ -56,7 +52,9 @@ namespace holovibes::worker
 
         const bool chart_record_;
 
-        const bool raw_record_enabled_;
+        const bool raw_record_;
+
+        const bool square_output_;
 
         std::unique_ptr<FrameRecordWorker> frame_record_worker_;
 

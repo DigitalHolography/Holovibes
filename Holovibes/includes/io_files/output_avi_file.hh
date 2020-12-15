@@ -36,6 +36,8 @@ namespace holovibes::io_files
 
         /*!
          *  \brief    Write the header in the file
+         *
+         *  \throw    FileException if an error occurred while writing the header
          */
         void write_header() override;
 

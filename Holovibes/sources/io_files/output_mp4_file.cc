@@ -21,14 +21,26 @@ namespace holovibes::io_files
     {
 		fd_ = fd;
         img_nb_ = img_nb;
+    }
 
-        int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+    void OutputMp4File::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
+    {}
 
+    void OutputMp4File::write_header()
+    {
         try
         {
+            int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+
+            cv::Size size = cv::Size(fd_.width, fd_.height);
+
+            if (max_side_square_output_.has_value())
+                size = cv::Size(*max_side_square_output_, *max_side_square_output_);
+
             bool is_color = fd_.depth == 3;
-            video_writer_ = cv::VideoWriter(file_path, fourcc,
-                                            20, cv::Size(fd_.width, fd_.height), is_color);
+
+            video_writer_ = cv::VideoWriter(file_path_, fourcc,
+                                            20, size, is_color);
 
             if (!video_writer_.isOpened())
                 throw cv::Exception();
@@ -38,12 +50,6 @@ namespace holovibes::io_files
             throw FileException("An error was encountered while trying to create mp4 file", false);
         }
     }
-
-    void OutputMp4File::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
-    {}
-
-    void OutputMp4File::write_header()
-    {}
 
     size_t OutputMp4File::write_frame(const char* frame, size_t frame_size)
     {
@@ -80,9 +86,13 @@ namespace holovibes::io_files
                 }
             }
 
-            video_writer_ << mat_frame;
+            // if the output is anamorphic and should be a square output
+            if (max_side_square_output_.has_value())
+                cv::resize(mat_frame, mat_frame, cv::Size(*max_side_square_output_, *max_side_square_output_));
+
+                video_writer_ << mat_frame;
         }
-        catch(const cv::Exception&)
+        catch (const cv::Exception&)
         {
             throw FileException("Unable to write output mp4 file frame", false);
         }
@@ -94,5 +104,7 @@ namespace holovibes::io_files
     {}
 
 	void OutputMp4File::correct_number_of_frames(unsigned int nb_frames_written)
-	{}
+	{
+        img_nb_ = nb_frames_written;
+    }
 } // namespace holovibes::io_files

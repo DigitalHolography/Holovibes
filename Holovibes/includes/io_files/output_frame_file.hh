@@ -67,6 +67,8 @@ namespace holovibes::io_files
          */
         virtual void correct_number_of_frames(unsigned int nb_frames_written) = 0;
 
+        virtual void set_make_square_output(bool make_square_output);
+
     protected:
         // Give access to protected members to the factory
         friend class OutputFrameFileFactory;
@@ -81,6 +83,8 @@ namespace holovibes::io_files
          *  \throw    FileException if an error occurred while opening the file
          */
         OutputFrameFile(const std::string& file_path);
+
+        std::optional<unsigned short> max_side_square_output_ = std::nullopt;
     };
 } // namespace holovibes::io_files
 
