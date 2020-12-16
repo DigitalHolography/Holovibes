@@ -125,7 +125,7 @@ namespace holovibes
 			show();
 
 			// Hide non default tab
-			ui.CompositeGroupBox->setHidden(true);
+			ui.CompositeGroupBox->hide();
 
 			// Set default files
 			std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
@@ -238,9 +238,11 @@ namespace holovibes
 			// Tabs
 			if (cd_.is_computation_stopped)
 			{
+				ui.CompositeGroupBox->hide();
 				ui.ImageRenderingGroupBox->setEnabled(false);
 				ui.ViewGroupBox->setEnabled(false);
 				ui.ExportGroupBox->setEnabled(false);
+				layout_toggled();
 				return;
 			}
 
@@ -1074,9 +1076,7 @@ namespace holovibes
 #pragma region Cameras
 		void MainWindow::change_camera(CameraKind c)
 		{
-			close_windows();
-			close_critical_compute();
-			remove_infos();
+			camera_none();
 
 			if (c != CameraKind::NONE)
 			{
