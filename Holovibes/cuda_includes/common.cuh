@@ -39,9 +39,6 @@
 #define THREADS_256	256
 #define THREADS_128	128
 
-// If cudaSafeCall error, sleep for 8s then exit.
-static constexpr std::chrono::seconds sleeping_error_time = std::chrono::seconds(8);
-
 #ifndef _DEBUG
 #define cudaCheckError()
 #else
@@ -67,7 +64,7 @@ inline void gpuAssertRelease(cudaError_t code)
 {
    if (code != cudaSuccess)
    {
-       holovibes::gui::show_error_and_exit("Internal error. Run Holovibes again by reducing buffers size (such as input_buffer_size)",
+       holovibes::gui::show_error_and_exit("Run Holovibes again by reducing buffers size (such as input_buffer_size)",
         static_cast<int>(code));
    }
 }
@@ -77,6 +74,8 @@ inline void gpuAssertDebug(cudaError_t code, const char *file, int line, bool ab
 {
    if (code != cudaSuccess)
    {
+       // FIXME: Print callers stack for a more efficient debug
+       // See std::source_location (still not implemented by msvc)
       fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
       if (abort) exit(code);
    }
