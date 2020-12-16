@@ -2962,7 +2962,7 @@ namespace holovibes
 			QSpinBox *end_spinbox = ui.ImportEndIndexSpinBox;
 
 			cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-			cd_.batch_size = cd_.time_transformation_stride;
+			cd_.batch_size = 1;
 
 			is_enabled_camera_ = false;
 
