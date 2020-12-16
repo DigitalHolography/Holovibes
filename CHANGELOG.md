@@ -1,5 +1,11 @@
 ## Changelog
 
+### 8.9.2
+
+* GUI: disable composite when stopping computations
+* GUI: disable options when selecting a camera not plugged
+* Set default batch size to 1 to prevent crashes
+
 ### 8.9.1
 
 * Camera: Handle properly Phantom S710 (using 2 banks)
