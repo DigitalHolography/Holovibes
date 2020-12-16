@@ -1,5 +1,15 @@
 ## Changelog
 
+### 8.9.1
+
+* Camera: Handle properly Phantom S710 (using 2 banks)
+* CUDA: on error show a dialog box and exit
+* CUDA: use generic and optimized map operation for most kernels
+* Allow saving avi and mp4 as square outputs
+* GUI: Remove renomalize value and zstep
+* Fix bugs related to composite mode and GUI
+* Update docs and refactor code
+
 ### 8.9
 
 * Export holograms to .avi and .mp4
