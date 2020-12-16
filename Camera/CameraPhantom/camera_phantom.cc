@@ -25,7 +25,7 @@ namespace camera
 		: Camera("phantom.ini")
 	{
 		gentl_ = std::make_unique<Euresys::EGenTL>();
-		grabber_ = std::make_unique<EuresysCustomGrabber>(*gentl_);
+		grabber_ = std::make_unique<EHoloGrabber>(*gentl_);
 
 		name_ = "Phantom S710";
 		pixel_size_ = 20;
@@ -42,27 +42,13 @@ namespace camera
 
 	void CameraPhantom::init_camera()
 	{
-		fd_.width = grabber_->getWidth();
-		fd_.height = grabber_->getHeight();
-		fd_.depth = (grabber_->getPixelFormat() == "Mono8") ? 1 : 2;
+		grabber_->init(nb_buffers_);
+
+		// Set frame descriptor according to grabber settings
+		fd_.width = grabber_->width_;
+		fd_.height = grabber_->height_;
+		fd_.depth = grabber_->depth_;
 		fd_.byteEndian = Endianness::BigEndian;
-
-		grabber_->enableEvent<Euresys::NewBufferData>();
-
-		size_t size = fd_.width * fd_.height;
-		buffers_ = std::vector<unsigned char *>(nb_buffers_, nullptr);
-		for (size_t i = 0; i < nb_buffers_; ++i)
-		{
-			unsigned char *ptr, *devicePtr;
-
-			cudaError_t alloc_res = cudaHostAlloc(&ptr, size, cudaHostAllocMapped);
-			cudaError_t device_ptr_res = cudaHostGetDevicePointer(&devicePtr, ptr, 0);
-			if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-				std::cerr << "[CAMERA] Could not allocate buffers." << std::endl;
-
-			buffers_[i] = ptr;
-			grabber_->announceAndQueue(Euresys::UserMemory(ptr, size, devicePtr));
-		}
 	}
 
 	void CameraPhantom::start_acquisition()
@@ -72,9 +58,6 @@ namespace camera
 
 	void CameraPhantom::stop_acquisition()
 	{
-		for (size_t i = 0; i < nb_buffers_; ++i)
-			cudaFreeHost(buffers_[i]);
-
 		grabber_->stop();
 	}
 
@@ -85,9 +68,7 @@ namespace camera
 
 	CapturedFramesDescriptor CameraPhantom::get_frames()
 	{
-		grabber_->processEvent<Euresys::NewBufferData>(FRAME_TIMEOUT);
-
-		return CapturedFramesDescriptor(grabber_->last_device_ptr_, 1, true);
+		return CapturedFramesDescriptor(grabber_->get_frame(), 1, true);
 	}
 
 	void CameraPhantom::load_default_params()
