@@ -48,7 +48,7 @@ void ChartRecordWorker::run()
     pipe->request_record_chart(nb_frames_to_record_);
     while (pipe->get_chart_record_requested() != std::nullopt &&
            !stop_requested_)
-        ;
+        continue;
 
     auto& chart_queue = *pipe->get_chart_record_queue();
 
@@ -61,7 +61,7 @@ void ChartRecordWorker::run()
     for (; i < nb_frames_to_record_; ++i)
     {
         while (chart_queue.size() <= i && !stop_requested_)
-            ;
+            continue;
         if (stop_requested_)
             break;
 
@@ -76,7 +76,7 @@ void ChartRecordWorker::run()
 
     pipe->request_disable_record_chart();
     while (pipe->get_disable_chart_record_requested() && !stop_requested_)
-        ;
+        continue;
 
     Holovibes::instance().get_info_container().remove_progress_index(
         InformationContainer::ProgressType::CHART_RECORD);

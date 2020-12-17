@@ -223,7 +223,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
                                      gpu_output_queue_);
 
     while (!compute_pipe_.load())
-        ;
+        continue;
 }
 
 void Holovibes::stop_compute()

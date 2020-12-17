@@ -192,15 +192,10 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
     MutexGuard m_guard_src(mutex_);
     MutexGuard m_guard_dst(dest.get_guard());
 
+    assert(nb_elts <= dest.max_size_);
+
     if (nb_elts > size_)
         nb_elts = size_;
-
-    unsigned int tmp_src_start_index = start_index_;
-    if (nb_elts > dest.max_size_)
-    {
-        start_index_ = (start_index_ + nb_elts - dest.max_size_) % max_size_;
-        nb_elts = dest.max_size_;
-    }
 
     // Determine regions info
     struct QueueRegion src;
@@ -313,8 +308,6 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
-
-    start_index_ = tmp_src_start_index;
 }
 
 bool Queue::enqueue_multiple(void* elts,

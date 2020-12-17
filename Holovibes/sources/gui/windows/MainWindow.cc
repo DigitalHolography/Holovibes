@@ -1737,9 +1737,9 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 
             while (holovibes_.get_compute_pipe()
                        ->get_update_time_transformation_size_request())
-                ;
+                continue;
             while (holovibes_.get_compute_pipe()->get_cuts_request())
-                ;
+                continue;
             sliceXZ.reset(new SliceWindow(
                 xzPos,
                 QSize(mainDisplay->width(), time_transformation_size),
@@ -1789,7 +1789,7 @@ void MainWindow::cancel_time_transformation_cuts()
     try
     {
         while (holovibes_.get_compute_pipe()->get_refresh_request())
-            ;
+            continue;
     }
     catch (std::exception&)
     {
@@ -1989,10 +1989,18 @@ void MainWindow::update_raw_view(bool value)
 {
     if (value)
     {
+        if (cd_.batch_size > global::global_config.output_queue_max_size)
+        {
+            ui.RawDisplayingCheckBox->setChecked(false);
+            LOG_ERROR(
+                "[RAW VIEW] Batch size must be lower than output queue size");
+            return;
+        }
+
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_raw_view();
         while (pipe->get_raw_view_requested())
-            ;
+            continue;
 
         const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
         ushort raw_window_width = fd.width;
@@ -2037,7 +2045,7 @@ void MainWindow::disable_raw_view()
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_raw_view();
     while (pipe->get_disable_raw_view_requested())
-        ;
+        continue;
 
     notify();
 }
@@ -2679,7 +2687,7 @@ void MainWindow::update_convo_kernel(const QString& value)
             auto pipe = holovibes_.get_compute_pipe();
             pipe->request_convolution();
             while (pipe->get_convolution_requested())
-                ;
+                continue;
         }
         catch (const std::exception&)
         {
@@ -2803,14 +2811,14 @@ void MainWindow::set_convolution_mode(const bool value)
             pipe->request_convolution();
             // Wait for the convolution to be enabled for notify
             while (pipe->get_convolution_requested())
-                ;
+                continue;
         }
         else
         {
             pipe->request_disable_convolution();
             // Wait for the convolution to be disabled for notify
             while (pipe->get_disable_convolution_requested())
-                ;
+                continue;
         }
     }
     catch (const std::exception&)
@@ -2878,7 +2886,7 @@ void MainWindow::start_chart_display()
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_display_chart();
     while (pipe->get_chart_display_requested())
-        ;
+        continue;
 
     plot_window_ = std::make_unique<PlotWindow>(
         *holovibes_.get_compute_pipe()->get_chart_display_queue(),
@@ -2903,7 +2911,7 @@ void MainWindow::stop_chart_display()
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_disable_display_chart();
         while (pipe->get_disable_chart_display_requested())
-            ;
+            continue;
     }
     catch (const std::exception&)
     {
@@ -3101,6 +3109,7 @@ void MainWindow::record_finished(RecordMode record_mode)
 
     LOG_INFO("[RECORDER] " + info);
 
+    ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
 }
@@ -3128,6 +3137,10 @@ void MainWindow::start_record()
         return display_error("No batch input file");
 
     // Start record
+
+    raw_window.reset(nullptr);
+    disable_raw_view();
+    ui.RawDisplayingCheckBox->setHidden(true);
 
     ui.ExportRecPushButton->setEnabled(false);
     ui.ExportStopPushButton->setEnabled(true);

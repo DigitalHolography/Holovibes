@@ -45,15 +45,19 @@ void FrameRecordWorker::run()
                            processed_fps_);
 
     if (nb_frames_to_record_.has_value())
+    {
         info.add_progress_index(
             InformationContainer::ProgressType::FRAME_RECORD,
             nb_frames_recorded,
             nb_frames_to_record_.value());
+    }
     else
+    {
         info.add_progress_index(
             InformationContainer::ProgressType::FRAME_RECORD,
             nb_frames_recorded,
             nb_frames_recorded);
+    }
 
     auto pipe = Holovibes::instance().get_compute_pipe();
     Queue& record_queue = init_gpu_record_queue(pipe);
@@ -128,10 +132,6 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 {
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(4);
-
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
     if (output_queue)
@@ -142,14 +142,14 @@ Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
         pipe->request_raw_record(nb_frames_to_record_);
         while (pipe->get_raw_record_requested() != std::nullopt &&
                !stop_requested_)
-            ;
+            continue;
     }
     else
     {
         pipe->request_hologram_record(nb_frames_to_record_);
         while (pipe->get_hologram_record_requested() != std::nullopt &&
                !stop_requested_)
-            ;
+            continue;
     }
 
     return *pipe->get_frame_record_queue();
@@ -177,14 +177,11 @@ void FrameRecordWorker::reset_gpu_record_queue(std::shared_ptr<ICompute> pipe)
     pipe->request_disable_frame_record();
 
     while (pipe->get_disable_frame_record_requested() && !stop_requested_)
-        ;
-
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(global::global_config.output_queue_max_size);
+        continue;
 
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
+
     if (output_queue)
         output_queue->resize(global::global_config.output_queue_max_size);
 }
