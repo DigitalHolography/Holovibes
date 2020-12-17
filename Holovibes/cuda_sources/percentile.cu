@@ -59,7 +59,7 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
     }
 }
 
-/*
+/**
 ** \brief Calculate frame_res according to the width, height and required offset
 *
 * \param factor Multiplication factor for the offset (width for xz and height
@@ -72,19 +72,23 @@ uint calculate_frame_res(const uint width,
                          const holovibes::units::RectFd& sub_zone,
                          const bool compute_on_sub_zone)
 {
-    uint frame_res;
-
-    if (compute_on_sub_zone)
-        frame_res = sub_zone.area();
-    else
-        frame_res = width * height - 2 * offset * factor;
-
+    uint frame_res = compute_on_sub_zone ? sub_zone.area()
+                                         : width * height - 2 * offset * factor;
     assert(frame_res > 0);
-
     return frame_res;
 }
 
-void compute_percentile_xz_view(const float* gpu_input,
+uint calculate_frame_res(const uint width,
+                         const uint height,
+                         const uint offset,
+                         const uint factor)
+{
+    uint frame_res = width * height - 2 * offset * factor;
+    assert(frame_res > 0);
+    return frame_res;
+}
+
+void compute_percentile_xy_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,
                                 uint offset,
@@ -131,26 +135,25 @@ void compute_percentile_xz_view(const float* gpu_input,
         cudaXFree(thrust_gpu_input_copy.get());
 }
 
-void compute_percentile_xy_view(const float* gpu_input,
+void compute_percentile_xz_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,
+                                uint offset,
                                 const float* const h_percent,
                                 float* const h_out_percent,
-                                const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone)
+                                const uint size_percent)
 {
-    // Computing the contrast on xy view is the same as calculating it on the xz
-    // view without any offset
-    compute_percentile_xz_view(gpu_input,
+    // Computing the contrast on xz view is the same as calculating it on the xy
+    // view with the offset.
+    compute_percentile_xy_view(gpu_input,
                                width,
                                height,
-                               0,
+                               offset,
                                h_percent,
                                h_out_percent,
                                size_percent,
-                               sub_zone,
-                               compute_on_sub_zone);
+                               holovibes::units::RectFd(),
+                               false);
 }
 
 void compute_percentile_yz_view(const float* gpu_input,
@@ -159,16 +162,9 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 uint offset,
                                 const float* const h_percent,
                                 float* const h_out_percent,
-                                const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone)
+                                const uint size_percent)
 {
-    uint frame_res = calculate_frame_res(width,
-                                         height,
-                                         offset,
-                                         height,
-                                         sub_zone,
-                                         compute_on_sub_zone);
+    uint frame_res = calculate_frame_res(width, height, offset, height);
 
     thrust::device_ptr<float> thrust_gpu_input_copy(nullptr);
     try

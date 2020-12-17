@@ -283,6 +283,7 @@ void Rendering::autocontrast_caller(float* input,
         compute_percentile_xy_view(input,
                                    width,
                                    height,
+                                   0,
                                    percent_in,
                                    percent_out,
                                    percent_size,
@@ -299,9 +300,7 @@ void Rendering::autocontrast_caller(float* input,
                                    offset,
                                    percent_in,
                                    percent_out,
-                                   percent_size,
-                                   cd_.getReticleZone(),
-                                   cd_.reticle_enabled);
+                                   percent_size);
         set_contrast_min_max(percent_out,
                              cd_.contrast_min_slice_yz,
                              cd_.contrast_max_slice_yz);
@@ -313,9 +312,7 @@ void Rendering::autocontrast_caller(float* input,
                                    offset,
                                    percent_in,
                                    percent_out,
-                                   percent_size,
-                                   cd_.getReticleZone(),
-                                   cd_.reticle_enabled);
+                                   percent_size);
         set_contrast_min_max(percent_out,
                              cd_.contrast_min_slice_xz,
                              cd_.contrast_max_slice_xz);
