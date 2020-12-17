@@ -55,14 +55,15 @@ class Queue
     **
     ** \param fd The frame descriptor representing frames stored in the queue
     ** \param max_size The max size of the queue
-    ** \param name The name of the queue
+    ** \param type The type of the queue
     **/
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
           QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,
           unsigned int input_height = 0,
-          unsigned int bytes_per_pixel = 1);
+          unsigned int bytes_per_pixel = 1,
+          const cudaStream_t stream = 0);
 
     /*! \brief Destructor of the queue */
     ~Queue();
@@ -115,9 +116,10 @@ class Queue
     /* Methods */
     /*! \brief Empty the Queue and change its size.
     **
-    **  \param size the new size of the Queue
+    ** \param size the new size of the Queue
+    ** \param stream
     */
-    void resize(const unsigned int size);
+    void resize(const unsigned int size, const cudaStream_t stream = 0);
 
     /*! \brief Enqueue method
     **
@@ -131,10 +133,12 @@ class Queue
     ** The memcpy are synch for Qt
     **.
     ** \param elt pointer to element to enqueue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     bool enqueue(void* elt,
+                 const cudaStream_t stream = 0,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy method for multiple elements
@@ -143,8 +147,11 @@ class Queue
     **
     ** \param dest Output queue
     ** \param nb_elts Number of elements to add in the queue
+    ** \param stream
     */
-    void copy_multiple(Queue& dest, unsigned int nb_elts);
+    void copy_multiple(Queue& dest,
+                       unsigned int nb_elts,
+                       const cudaStream_t stream = 0);
 
     /*! \brief Enqueue method for multiple elements
     **
@@ -154,6 +161,7 @@ class Queue
     **
     ** \param elts List of elements to add in the queue
     ** \param nb_elts Number of elements to add in the queue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     **
@@ -161,10 +169,13 @@ class Queue
     */
     bool enqueue_multiple(void* elts,
                           unsigned int nb_elts,
+                          const cudaStream_t stream = 0,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     void Queue::enqueue_from_48bit(
-        void* src, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+        void* src,
+        const cudaStream_t stream = 0,
+        cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method overload
     **
@@ -172,10 +183,12 @@ class Queue
     ** cuda memory type then update internal attributes.
     **
     ** \param dest destination of element copy
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     void dequeue(void* dest,
+                 const cudaStream_t stream = 0,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method
@@ -210,12 +223,14 @@ class Queue
     ** \param out the output buffer in which the frames are copied
     ** \param in the input buffer from which the frames are copied
     ** \param nb_elts The number of elements to enqueue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     void enqueue_multiple_aux(void* out,
                               void* in,
                               unsigned int nb_elts,
+                              const cudaStream_t stream,
                               cudaMemcpyKind cuda_kind);
 
   private: /* Attributes */

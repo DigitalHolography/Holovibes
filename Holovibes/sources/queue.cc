@@ -28,7 +28,8 @@ Queue::Queue(const camera::FrameDescriptor& fd,
              Queue::QueueType type,
              unsigned int input_width,
              unsigned int input_height,
-             unsigned int bytes_per_pixel)
+             unsigned int bytes_per_pixel,
+             const cudaStream_t stream)
     : fd_(fd)
     , frame_size_(fd_.frame_size())
     , frame_res_(fd_.frame_res())
@@ -51,7 +52,8 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     }
 
     // Needed if input is embedded into a bigger square
-    cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
+    cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
+    cudaStreamSynchronize(stream);
 
     fd_.byteEndian = Endianness::LittleEndian;
 
@@ -65,7 +67,7 @@ Queue::~Queue()
     Holovibes::instance().get_info_container().remove_queue_size(type_);
 }
 
-void Queue::resize(const unsigned int size)
+void Queue::resize(const unsigned int size, const cudaStream_t stream)
 {
     MutexGuard mGuard(mutex_);
 
@@ -78,13 +80,16 @@ void Queue::resize(const unsigned int size)
     }
 
     // Needed if input is embedded into a bigger square
-    cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
+    cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
+    cudaStreamSynchronize(stream);
 
     size_ = 0;
     start_index_ = 0;
 }
 
-bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
+bool Queue::enqueue(void* elt,
+                    const cudaStream_t stream,
+                    cudaMemcpyKind cuda_kind)
 {
     MutexGuard mGuard(mutex_);
 
@@ -96,8 +101,11 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
     {
     case SquareInputMode::NO_MODIFICATION:
         // No async needed for Qt buffer
-        cuda_status =
-            cudaMemcpyAsync(new_elt_adress, elt, frame_size_, cuda_kind);
+        cuda_status = cudaMemcpyAsync(new_elt_adress,
+                                      elt,
+                                      frame_size_,
+                                      cuda_kind,
+                                      stream);
         break;
     case SquareInputMode::ZERO_PADDED_SQUARE:
         // The black bands should have been written at the allocation of the
@@ -107,7 +115,8 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
                                         input_height_,
                                         new_elt_adress,
                                         bytes_per_pixel,
-                                        cuda_kind);
+                                        cuda_kind,
+                                        stream);
         break;
     case SquareInputMode::CROPPED_SQUARE:
         cuda_status = crop_into_square(static_cast<char*>(elt),
@@ -115,7 +124,8 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
                                        input_height_,
                                        new_elt_adress,
                                        bytes_per_pixel,
-                                       cuda_kind);
+                                       cuda_kind,
+                                       stream);
         break;
     default:
         assert(false);
@@ -136,9 +146,11 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
         endianness_conversion(reinterpret_cast<ushort*>(new_elt_adress),
                               reinterpret_cast<ushort*>(new_elt_adress),
                               1,
-                              frame_res_);
+                              frame_res_,
+                              stream);
 
-    cudaStreamSynchronize(0);
+    // Synchronize after the copy has been lauched and before updating the size
+    cudaStreamSynchronize(stream);
 
     if (size_ < max_size_)
         ++size_;
@@ -154,12 +166,13 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
 void Queue::enqueue_multiple_aux(void* out,
                                  void* in,
                                  unsigned int nb_elts,
+                                 const cudaStream_t stream,
                                  cudaMemcpyKind cuda_kind)
 {
     switch (square_input_mode_)
     {
     case SquareInputMode::NO_MODIFICATION:
-        cudaXMemcpyAsync(out, in, nb_elts * frame_size_, cuda_kind);
+        cudaXMemcpyAsync(out, in, nb_elts * frame_size_, cuda_kind, stream);
         break;
     case SquareInputMode::ZERO_PADDED_SQUARE:
         batched_embed_into_square(static_cast<char*>(in),
@@ -167,7 +180,8 @@ void Queue::enqueue_multiple_aux(void* out,
                                   input_height_,
                                   static_cast<char*>(out),
                                   bytes_per_pixel,
-                                  nb_elts);
+                                  nb_elts,
+                                  stream);
         break;
     case SquareInputMode::CROPPED_SQUARE:
         batched_crop_into_square(static_cast<char*>(in),
@@ -175,7 +189,8 @@ void Queue::enqueue_multiple_aux(void* out,
                                  input_height_,
                                  static_cast<char*>(out),
                                  bytes_per_pixel,
-                                 nb_elts);
+                                 nb_elts,
+                                 stream);
         break;
     default:
         assert(false);
@@ -187,10 +202,13 @@ void Queue::enqueue_multiple_aux(void* out,
         endianness_conversion(reinterpret_cast<ushort*>(out),
                               reinterpret_cast<ushort*>(out),
                               nb_elts,
-                              fd_.frame_res());
+                              fd_.frame_res(),
+                              stream);
 }
 
-void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
+void Queue::copy_multiple(Queue& dest,
+                          unsigned int nb_elts,
+                          const cudaStream_t stream)
 {
     MutexGuard m_guard_src(mutex_);
     MutexGuard m_guard_dst(dest.get_guard());
@@ -245,39 +263,57 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         {
             if (src.first_size > dst.first_size)
             {
-                cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
+                cudaXMemcpyAsync(dst.first,
+                                 src.first,
+                                 dst.first_size * frame_size_,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream);
                 src.consume_first(dst.first_size, frame_size_);
 
-                cudaXMemcpy(dst.second,
-                            src.first,
-                            src.first_size * frame_size_);
+                cudaXMemcpyAsync(dst.second,
+                                 src.first,
+                                 src.first_size * frame_size_,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream);
                 dst.consume_second(src.first_size, frame_size_);
 
-                cudaXMemcpy(dst.second,
-                            src.second,
-                            src.second_size * frame_size_);
+                cudaXMemcpyAsync(dst.second,
+                                 src.second,
+                                 src.second_size * frame_size_,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream);
             }
             else // src.first_size <= dst.first_size
             {
-                cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
+                cudaXMemcpyAsync(dst.first,
+                                 src.first,
+                                 src.first_size * frame_size_,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream);
                 dst.consume_first(src.first_size, frame_size_);
 
                 if (src.second_size > dst.first_size)
                 {
-                    cudaXMemcpy(dst.first,
-                                src.second,
-                                dst.first_size * frame_size_);
+                    cudaXMemcpyAsync(dst.first,
+                                     src.second,
+                                     dst.first_size * frame_size_,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream);
                     src.consume_second(dst.first_size, frame_size_);
 
-                    cudaXMemcpy(dst.second,
-                                src.second,
-                                src.second_size * frame_size_);
+                    cudaXMemcpyAsync(dst.second,
+                                     src.second,
+                                     src.second_size * frame_size_,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream);
                 }
                 else // src.second_size == dst.first_size
                 {
-                    cudaXMemcpy(dst.first,
-                                src.second,
-                                src.second_size * frame_size_);
+                    cudaXMemcpyAsync(dst.first,
+                                     src.second,
+                                     src.second_size * frame_size_,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream);
                 }
             }
         }
@@ -285,10 +321,18 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         {
             // In this case: dst.first_size > src.first_size
 
-            cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
+            cudaXMemcpyAsync(dst.first,
+                             src.first,
+                             src.first_size * frame_size_,
+                             cudaMemcpyDeviceToDevice,
+                             stream);
             dst.consume_first(src.first_size, frame_size_);
 
-            cudaXMemcpy(dst.first, src.second, dst.first_size * frame_size_);
+            cudaXMemcpyAsync(dst.first,
+                             src.second,
+                             dst.first_size * frame_size_,
+                             cudaMemcpyDeviceToDevice,
+                             stream);
         }
     }
     else
@@ -297,16 +341,32 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         {
             // In this case: src.first_size > dst.first_size
 
-            cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
+            cudaXMemcpyAsync(dst.first,
+                             src.first,
+                             dst.first_size * frame_size_,
+                             cudaMemcpyDeviceToDevice,
+                             stream);
             src.consume_first(dst.first_size, frame_size_);
 
-            cudaXMemcpy(dst.second, src.first, src.first_size * frame_size_);
+            cudaXMemcpyAsync(dst.second,
+                             src.first,
+                             src.first_size * frame_size_,
+                             cudaMemcpyDeviceToDevice,
+                             stream);
         }
         else
         {
-            cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
+            cudaXMemcpyAsync(dst.first,
+                             src.first,
+                             src.first_size * frame_size_,
+                             cudaMemcpyDeviceToDevice,
+                             stream);
         }
     }
+
+    // Synchronize after every copy has been lauched and before updating the
+    // size
+    cudaStreamSynchronize(stream);
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
@@ -322,6 +382,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
 
 bool Queue::enqueue_multiple(void* elts,
                              unsigned int nb_elts,
+                             const cudaStream_t stream,
                              cudaMemcpyKind cuda_kind)
 {
     MutexGuard mGuard(mutex_);
@@ -347,6 +408,7 @@ bool Queue::enqueue_multiple(void* elts,
         enqueue_multiple_aux(begin_to_enqueue,
                              elts_char,
                              nb_elts_to_insert_at_end,
+                             stream,
                              cuda_kind);
 
         elts_char += nb_elts_to_insert_at_end * frame_size_;
@@ -356,14 +418,19 @@ bool Queue::enqueue_multiple(void* elts,
         enqueue_multiple_aux(data_.get(),
                              elts_char,
                              nb_elts_to_insert_at_beginning,
+                             stream,
                              cuda_kind);
     }
     else
     {
-        enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts, cuda_kind);
+        enqueue_multiple_aux(begin_to_enqueue,
+                             elts_char,
+                             nb_elts,
+                             stream,
+                             cuda_kind);
     }
 
-    cudaStreamSynchronize(0);
+    cudaStreamSynchronize(stream);
 
     size_ += nb_elts;
     // Overwrite older elements in the queue -> update start_index
@@ -377,26 +444,32 @@ bool Queue::enqueue_multiple(void* elts,
     return true;
 }
 
-void Queue::enqueue_from_48bit(void* src, cudaMemcpyKind cuda_kind)
+void Queue::enqueue_from_48bit(void* src,
+                               const cudaStream_t stream,
+                               cudaMemcpyKind cuda_kind)
 {
     cuda_tools::UniquePtr<uchar> src_uchar(frame_size_);
     ushort_to_uchar(static_cast<ushort*>(src), src_uchar, frame_size_);
-    enqueue(src_uchar, cuda_kind);
+    enqueue(src_uchar, stream, cuda_kind);
 }
 
-void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
+void Queue::dequeue(void* dest,
+                    const cudaStream_t stream,
+                    cudaMemcpyKind cuda_kind)
 {
     MutexGuard mGuard(mutex_);
 
     assert(size_ > 0);
     void* first_img = data_.get() + start_index_ * frame_size_;
-    cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind);
-    dequeue_non_mutex(); // Update indexes
+    cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream);
 
     // If dequeuing in the host side, a device synchronization must be
     // done because the memcpy must be sync in this case
+    // TODO: Check if only needed for cudaMemcpyDeviceToHost
     if (cuda_kind == cudaMemcpyDeviceToHost)
-        cudaStreamSynchronize(0);
+        cudaStreamSynchronize(stream);
+
+    dequeue_non_mutex(); // Update indexes
 }
 
 void Queue::dequeue(const unsigned int nb_elts)

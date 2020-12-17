@@ -81,7 +81,7 @@ void endianness_conversion(const ushort* input,
                            ushort* output,
                            const uint batch_size,
                            const uint size,
-                           const cudaStream_t stream = 0);
+                           const cudaStream_t stream);
 
 /*! \brief Convert data from float to unsigned short (16-bit).
  *

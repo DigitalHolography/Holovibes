@@ -228,6 +228,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         if (!gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ +
                                                   frames_enqueued * frame_size_,
+                                              stream_.get(),
                                               cudaMemcpyDeviceToDevice))
         {
             LOG_ERROR("[READER] Cannot enqueue a read frame");

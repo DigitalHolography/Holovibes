@@ -24,7 +24,7 @@ class CudaStreamHandler
     ~CudaStreamHandler();
 
     /*! \brief Getter for the cuda stream */
-    inline const cudaStream_t& get_stream() const;
+    inline const cudaStream_t& get() const;
 
   private:
     /*!

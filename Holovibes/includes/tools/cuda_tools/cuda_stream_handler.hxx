@@ -13,10 +13,7 @@
 namespace holovibes::cuda_tools
 {
 
-inline const cudaStream_t& CudaStreamHandler::get_stream() const
-{
-    return stream_;
-}
+inline const cudaStream_t& CudaStreamHandler::get() const { return stream_; }
 
 } // namespace holovibes::cuda_tools
 

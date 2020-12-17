@@ -10,6 +10,8 @@
 
 #include "worker.hh"
 
+#include "cuda_stream_handler.hh"
+
 namespace holovibes
 {
 class Queue;
@@ -43,6 +45,8 @@ class FrameRecordWorker : public Worker
     bool raw_record_;
 
     bool square_output_;
+
+    cuda_tools::CudaStreamHandler stream_;
 };
 } // namespace worker
 } // namespace holovibes
