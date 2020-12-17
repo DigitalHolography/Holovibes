@@ -32,6 +32,14 @@ namespace holovibes::worker
 
     void FrameRecordWorker::run()
     {
+        ComputeDescriptor& cd = Holovibes::instance().get_cd();
+
+        if (cd.batch_size > global::global_config.frame_record_queue_max_size)
+        {
+            LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
+            return;
+        }
+
         std::atomic<unsigned int> nb_frames_recorded = 0;
 
         InformationContainer& info = Holovibes::instance().get_info_container();
@@ -54,7 +62,6 @@ namespace holovibes::worker
             output_frame_file = io_files::OutputFrameFileFactory::create(file_path_, file_fd,
                 nb_frames_to_record_.has_value() ? nb_frames_to_record_.value() : 0);
 
-            auto& cd = Holovibes::instance().get_cd();
             output_frame_file->export_compute_settings(cd, raw_record_);
             output_frame_file->set_make_square_output(square_output_);
 
