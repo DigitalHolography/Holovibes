@@ -537,15 +537,55 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QCheckBox" name="RenormalizeCheckBox">
-             <property name="text">
-              <string>Renormalize</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="ConvoCheckBox">
+           <property name="title">
+            <string>Convolve</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="kernelSelectLayout">
+              <item>
+               <widget class="QComboBox" name="KernelQuickSelectComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="currentText">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="DivideConvoCheckBox">
+                <property name="text">
+                 <string>Divide</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <spacer name="verticalSpacer_5">
@@ -1129,7 +1169,7 @@
            </item>
           </layout>
          </item>
-         <item row="16" column="0" colspan="2">
+         <item row="17" column="0" colspan="2">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -1254,58 +1294,7 @@
            </item>
           </layout>
          </item>
-         <item row="13" column="0" colspan="2">
-          <widget class="QGroupBox" name="ConvoCheckBox">
-           <property name="title">
-            <string>Convolve</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_8">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="kernelSelectLayout">
-              <item>
-               <widget class="QComboBox" name="KernelQuickSelectComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="DivideConvoCheckBox">
-                <property name="text">
-                 <string>Divide</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="14" column="0" colspan="2">
+         <item row="15" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <widget class="QCheckBox" name="DisplayReticleCheckBox">
@@ -1333,6 +1322,17 @@
              </property>
              <property name="value">
               <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="14" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="RenormalizeCheckBox">
+             <property name="text">
+              <string>Renormalize</string>
              </property>
             </widget>
            </item>
@@ -2957,7 +2957,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3018,7 +3018,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
