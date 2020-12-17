@@ -56,11 +56,9 @@ static int start_gui(holovibes::Holovibes& holovibes,
                      char** argv,
                      const std::string filename = "")
 {
-
-    check_cuda_graphic_card(true);
-
     QLocale::setDefault(QLocale("en_US"));
     QApplication app(argc, argv);
+    check_cuda_graphic_card(true);
     QSplashScreen splash(QPixmap("holovibes_logo.png"));
     splash.show();
 
