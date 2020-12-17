@@ -96,7 +96,8 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
     {
     case SquareInputMode::NO_MODIFICATION:
         // No async needed for Qt buffer
-        cuda_status = cudaMemcpy(new_elt_adress, elt, frame_size_, cuda_kind);
+        cuda_status =
+            cudaMemcpyAsync(new_elt_adress, elt, frame_size_, cuda_kind);
         break;
     case SquareInputMode::ZERO_PADDED_SQUARE:
         // The black bands should have been written at the allocation of the
@@ -136,6 +137,8 @@ bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
                               reinterpret_cast<ushort*>(new_elt_adress),
                               1,
                               frame_res_);
+
+    cudaStreamSynchronize(0);
 
     if (size_ < max_size_)
         ++size_;
@@ -360,6 +363,8 @@ bool Queue::enqueue_multiple(void* elts,
         enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts, cuda_kind);
     }
 
+    cudaStreamSynchronize(0);
+
     size_ += nb_elts;
     // Overwrite older elements in the queue -> update start_index
     if (size_ > max_size_)
@@ -391,7 +396,7 @@ void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
     // If dequeuing in the host side, a device synchronization must be
     // done because the memcpy must be sync in this case
     if (cuda_kind == cudaMemcpyDeviceToHost)
-        cudaDeviceSynchronize();
+        cudaStreamSynchronize(0);
 }
 
 void Queue::dequeue(const unsigned int nb_elts)

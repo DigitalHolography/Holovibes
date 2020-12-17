@@ -35,7 +35,7 @@ cudaError_t embedded_frame_cpy(const char* input,
                                const uint output_starty,
                                const uint elm_size,
                                cudaMemcpyKind kind,
-                               const cudaStream_t stream);
+                               const cudaStream_t stream = 0);
 
 /*! \brief Copies whole input image into output, a square of side
  * max(input_width, input_height), such that the copy is centered
@@ -97,7 +97,7 @@ cudaError_t crop_frame(const char* input,
                        char* output,
                        const uint elm_size,
                        cudaMemcpyKind kind,
-                       const cudaStream_t stream);
+                       const cudaStream_t stream = 0);
 
 /*! \brief Crops input (keeping the center and leaving the borders) as a square
  * and copies the result into output \param input The full image \param

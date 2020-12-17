@@ -199,7 +199,6 @@ void complex_to_squared_modulus(float* output,
                                                                       pmin,
                                                                       pmax,
                                                                       size);
-    cudaDeviceSynchronize();
     cudaCheckError();
 }
 
@@ -244,7 +243,6 @@ void complex_to_argument(float* output,
                                                                pmin,
                                                                pmax,
                                                                size);
-    cudaDeviceSynchronize();
     cudaCheckError();
 }
 
@@ -315,7 +313,6 @@ void rescale_float(const float* input,
                                                     size,
                                                     gpu_local_min,
                                                     gpu_local_max);
-    cudaDeviceSynchronize();
     cudaCheckError();
 
     float* cpu_local_min = new float[blocks];
@@ -341,7 +338,6 @@ void rescale_float(const float* input,
     };
 
     map_generic<float>(output, output, size, lambda, stream);
-    cudaDeviceSynchronize();
     cudaCheckError();
     delete[] cpu_local_max;
     delete[] cpu_local_min;

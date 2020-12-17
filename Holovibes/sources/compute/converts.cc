@@ -293,9 +293,6 @@ void Converts::insert_complex_conversion(Queue& gpu_input_queue)
     fn_compute_vect_.push_back([&]() {
         std::lock_guard<std::mutex> m_guard(gpu_input_queue.get_guard());
 
-        // Copy the data from the input queue to the input buffer
-        // ALL CALL ARE ASYNCHRONOUS SINCE ALL FFTs AND MEMCPYs ARE CALLED ON
-        // STREAM 0
         input_queue_to_input_buffer(
             buffers_.gpu_spatial_transformation_buffer.get(),
             gpu_input_queue.get_data(),

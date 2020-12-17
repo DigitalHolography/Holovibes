@@ -34,6 +34,8 @@ __global__ void kernel_apply_lens(cuComplex* input,
 
 /*! \brief Extract a part of the input image to the output.
  *
+ * The memcpy is async
+ *
  * \param input The full input image
  * \param zone the part of the image we want to extract
  * \param In pixels, the original width of the image

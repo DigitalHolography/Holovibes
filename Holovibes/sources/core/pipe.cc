@@ -292,6 +292,29 @@ void Pipe::refresh()
         return;
     }
 
+    /*
+     * With the --default-stream per-thread nvcc options, each thread runs cuda
+     * calls/operations on its own default stream. Cuda calls/operations ran on
+     * different default streams are processed concurrently by the GPU.
+     *
+     * Thus, the FrameReadWorker and the ComputeWorker run concurrently on the
+     * CPU and in addition concurrently on the device which leads to a higher
+     * GPU usage.
+     *
+     * WARNING: All cuda calls/operations on the thread compute are asynchronous
+     * with respect to the host. Only one stream synchronisation
+     * (cudaStreamSynchronize) at the end of the pipe is required. Adding
+     * more stream synchronisation is not needed.
+     * Using cudaDeviceSynchronize is FORBIDDEN as it will synchronize this
+     * thread stream with all other streams (reducing performences drastically
+     * because of a longer waiting time).
+     *
+     * The value of the default stream is 0. However, not providing a stream to
+     * cuda calls forces the default stream usage.
+     */
+
+    /* Begin insertions */
+
     if (cd_.compute_mode == Computation::Raw)
     {
         refresh_requested_ = false;
@@ -301,8 +324,6 @@ void Pipe::refresh()
     }
 
     const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
-
-    /* Begin insertions */
 
     insert_wait_frames();
 
@@ -361,13 +382,15 @@ void Pipe::refresh()
 
     insert_hologram_record();
 
-    /* The device run asynchronously with respect to the host
-     * The host call device functions, then continues its execution path
-     * We need at some point to synchronize the host with the device
-     * If not, the host will keep on adding new functions to be executed by the
-     * device, never letting the device the time to execute them
+    /* The device run asynchronously on its stream (compute stream) with respect
+     * to the host The host call device functions, then continues its execution
+     * path.
+     * We need at some point to synchronize the host with the compute
+     * stream.
+     * If not, the host will keep on adding new functions to be executed
+     * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
+    fn_compute_vect_.conditional_push_back([=]() { cudaStreamSynchronize(0); });
 
     // Must be the last inserted function
     insert_reset_batch_index();

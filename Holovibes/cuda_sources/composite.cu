@@ -228,7 +228,6 @@ void rgb(cuComplex* input,
                                                 range,
                                                 colors.get());
     cudaCheckError();
-    cudaStreamSynchronize(0);
 }
 
 void postcolor_normalize(float* output,
@@ -282,7 +281,6 @@ void postcolor_normalize(float* output,
                                                       frame_res,
                                                       pixel_depth,
                                                       averages);
-    cudaStreamSynchronize(0);
     cudaCheckError();
     cudaXFree(averages);
     cudaXFree(sums_per_line);
