@@ -10,6 +10,7 @@
 
 #include "worker.hh"
 #include "queue.hh"
+#include "cuda_stream_handler.hh"
 
 namespace holovibes::worker
 {
@@ -37,6 +38,8 @@ class FrameReadWorker : public Worker
     std::atomic<std::shared_ptr<Queue>>& gpu_input_queue_;
 
     std::atomic<unsigned int> processed_fps_;
+
+    cuda_tools::CudaStreamHandler stream_;
 };
 } // namespace holovibes::worker
 
