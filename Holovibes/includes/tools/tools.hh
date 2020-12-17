@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file tools.hh
  *
@@ -18,25 +14,25 @@
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-# include <string>
-# include <ctime>
+#include <string>
+#include <ctime>
 #include <cassert>
-# include <qrect.h>
+#include <qrect.h>
 #include <filesystem>
 
-# include "rect.hh"
-# include "hardware_limits.hh"
-# include "frame_desc.hh"
-# include "cufft.h"
+#include "rect.hh"
+#include "hardware_limits.hh"
+#include "frame_desc.hh"
+#include "cufft.h"
 
 std::string engineering_notation(double n, int nb_significand_digit);
 
 /*! \function Generic loop for deleting a container's elements. */
-template<typename Container, typename Functor>
+template <typename Container, typename Functor>
 void delete_them(Container& c, const Functor& f)
 {
-  std::for_each(c.begin(), c.end(), f);
-  c.clear();
+    std::for_each(c.begin(), c.end(), f);
+    c.clear();
 }
 
 /*! \function Given a problem of *size* elements, compute the lowest number of
@@ -44,70 +40,74 @@ void delete_them(Container& c, const Functor& f)
  *
  * \param nb_threads Number of threads per block. */
 inline unsigned map_blocks_to_problem(const size_t problem_size,
-  const unsigned nb_threads)
+                                      const unsigned nb_threads)
 {
-  unsigned nb_blocks = static_cast<unsigned>(
-    std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
+    unsigned nb_blocks = static_cast<unsigned>(std::ceil(
+        static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
 
-  assert(nb_blocks <= get_max_blocks() && "Too many blocks required.");
+    assert(nb_blocks <= get_max_blocks() && "Too many blocks required.");
 
-  return nb_blocks;
+    return nb_blocks;
 }
 
 inline double clockToMilliseconds(clock_t ticks)
 {
-	// units/(units/time) => time (seconds) * 1000 = milliseconds
-	return (ticks / static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
+    // units/(units/time) => time (seconds) * 1000 = milliseconds
+    return (ticks / static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
 }
 
-template<typename T>
+template <typename T>
 bool is_between(T val, T min, T max)
 {
-	return min <= val && val <= max;
+    return min <= val && val <= max;
 }
 
-template<typename T>
-void set_min_of_the_two(T &a, T &b)
+template <typename T>
+void set_min_of_the_two(T& a, T& b)
 {
-	if (a < b)
-	{
-		b = a;
-	}
-	else
-	{
-		a = b;
-	}
+    if (a < b)
+    {
+        b = a;
+    }
+    else
+    {
+        a = b;
+    }
 }
 
-template<typename T>
-void set_max_of_the_two(T &a, T &b)
+template <typename T>
+void set_max_of_the_two(T& a, T& b)
 {
-	if (a < b)
-	{
-		a = b;
-	}
-	else
-	{
-		b = a;
-	}
+    if (a < b)
+    {
+        a = b;
+    }
+    else
+    {
+        b = a;
+    }
 }
 
 namespace holovibes
 {
-	/*! \brief Calculate the nearest upper power of 2 */
-	unsigned short upper_window_size(ushort width, ushort height);
-	/*! \brief return width and height with the same ratio and the max of the two being window_size*/
-	void get_good_size(ushort& width, ushort& height, ushort window_size);
-	/*! \brief Returns the path of the currently used executable file*/
-	std::string get_exe_path();
-	/*! \brief Returns the directory of the currently used executable file*/
-	std::string get_exe_dir();
-	/*! \brief Return the first not used filename available from the parameter filename as a base*/
-	std::string get_record_filename(std::string filename);
-	/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
-	QString create_absolute_qt_path(const std::string& relative_path);
-	/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) */
-	std::string create_absolute_path(const std::string& relative_path);
-	/*! \brief Returns the absolute path to the user Documents folder */
-	std::filesystem::path get_user_documents_path();
-}
+/*! \brief Calculate the nearest upper power of 2 */
+unsigned short upper_window_size(ushort width, ushort height);
+/*! \brief return width and height with the same ratio and the max of the two
+ * being window_size*/
+void get_good_size(ushort& width, ushort& height, ushort window_size);
+/*! \brief Returns the path of the currently used executable file*/
+std::string get_exe_path();
+/*! \brief Returns the directory of the currently used executable file*/
+std::string get_exe_dir();
+/*! \brief Return the first not used filename available from the parameter
+ * filename as a base*/
+std::string get_record_filename(std::string filename);
+/*! \brief Returns the absolute path from a relative path (prepend by the
+ * execution directory) for qt */
+QString create_absolute_qt_path(const std::string& relative_path);
+/*! \brief Returns the absolute path from a relative path (prepend by the
+ * execution directory) */
+std::string create_absolute_path(const std::string& relative_path);
+/*! \brief Returns the absolute path to the user Documents folder */
+std::filesystem::path get_user_documents_path();
+} // namespace holovibes

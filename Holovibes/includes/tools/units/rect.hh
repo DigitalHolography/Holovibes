@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
  *
@@ -24,283 +20,221 @@
 
 namespace holovibes
 {
-	namespace units
-	{
+namespace units
+{
 
-		/*! \brief A rectangle in some specific unit
-		 *
-		 * It can be manipulated in two ways:
-		 * through top / bottom / left / right, making sure left < right and so on
-		 * or as source / destination, two corner points that can be swapped (used in overlays)
-		 */
-		template <typename T>
-		class Rect
-		{
-		public:
+/*! \brief A rectangle in some specific unit
+ *
+ * It can be manipulated in two ways:
+ * through top / bottom / left / right, making sure left < right and so on
+ * or as source / destination, two corner points that can be swapped (used in
+ * overlays)
+ */
+template <typename T>
+class Rect
+{
+  public:
+    /*! \brief Default constructors, will crash when trying to convert it
+     */
+    Rect() = default;
 
+    /*! \brief Constructs a rectangle from two points
+     *
+     * \param top_left Top left point
+     * \param size bottom_right Bottom right point
+     */
+    Rect(Point<T> src, Point<T> dst)
+        : src_(src)
+        , dst_(dst)
+    {
+    }
 
-			/*! \brief Default constructors, will crash when trying to convert it
-			 */
-			Rect() = default;
+    /*! \brief Constructs a rectangle from its position and size
+     */
+    Rect(ConversionData data,
+         typename T::primary_type x1 = 0,
+         typename T::primary_type y1 = 0,
+         typename T::primary_type x2 = 0,
+         typename T::primary_type y2 = 0)
+        : src_(data, x1, y1)
+        , dst_(data, x2, y2)
+    {
+    }
 
-			/*! \brief Constructs a rectangle from two points
-			 * 
-			 * \param top_left Top left point
-			 * \param size bottom_right Bottom right point
-			 */
-			Rect(Point<T> src, Point<T> dst)
-				: src_(src)
-				, dst_(dst)
-			{}
+    /*! \brief Getters and setters
+     */
+    /**@{*/
+    Point<T> topLeft() const { return Point<T>(x(), y()); }
 
+    Point<T> bottomRight() const { return Point<T>(right(), bottom()); }
 
-			/*! \brief Constructs a rectangle from its position and size
-			 */
-			Rect(ConversionData data,
-				typename T::primary_type x1 = 0,
-				typename T::primary_type y1 = 0,
-				typename T::primary_type x2 = 0,
-				typename T::primary_type y2 = 0)
-				: src_(data, x1, y1)
-				, dst_(data, x2, y2)
-			{}
+    Point<T> topRight() const { return Point<T>(right(), y()); }
 
-			/*! \brief Getters and setters
-			 */
-			/**@{*/
-			Point<T> topLeft() const
-			{
-				return Point<T>(x(), y());
-			}
+    Point<T> bottomLeft() const { return Point<T>(x(), bottom()); }
 
-			Point<T> bottomRight() const
-			{
-				return Point<T>(right(), bottom());
-			}
+    Point<T> size() const
+    {
+        Point<T> res;
 
-			Point<T> topRight() const
-			{
-				return Point<T>(right(), y());
-			}
+        res.x() = dst_.x() > src_.x() ? dst_.x() : src_.x();
+        res.x() -= dst_.x() > src_.x() ? src_.x() : dst_.x();
 
-			Point<T> bottomLeft() const
-			{
-				return Point<T>(x(), bottom());
-			}
+        res.y() = dst_.y() > src_.y() ? dst_.y() : src_.y();
+        res.y() -= dst_.y() > src_.y() ? src_.y() : dst_.y();
 
-			Point<T> size() const
-			{
-				Point<T> res;
+        return res;
+    }
 
-				res.x() = dst_.x() > src_.x() ? dst_.x() : src_.x();
-				res.x() -= dst_.x() > src_.x() ? src_.x() : dst_.x();
+    T x() const { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-				res.y() = dst_.y() > src_.y() ? dst_.y() : src_.y();
-				res.y() -= dst_.y() > src_.y() ? src_.y() : dst_.y();
+    T& x() { return src_.x() < dst_.x() ? src_.x() : dst_.x(); }
 
-				return res;
-			}
+    template <typename U>
+    void setX(U newx)
+    {
+        x().set(newx);
+    }
 
-			T x() const
-			{
-				return src_.x() < dst_.x() ? src_.x() : dst_.x();
-			}
+    T y() const { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-			T& x()
-			{
-				return src_.x() < dst_.x() ? src_.x() : dst_.x();
-			}
+    T& y() { return src_.y() < dst_.y() ? src_.y() : dst_.y(); }
 
-			template <typename U>
-			void setX(U newx)
-			{
-				x().set(newx);
-			}
+    template <typename U>
+    void setY(U newy)
+    {
+        y().set(newy);
+    }
 
-			T y() const
-			{
-				return src_.y() < dst_.y() ? src_.y() : dst_.y();
-			}
+    T width() const { return size().x(); }
 
-			T& y()
-			{
-				return src_.y() < dst_.y() ? src_.y() : dst_.y();
-			}
+    T unsigned_width() const
+    {
+        T res = size().x();
+        if (res < 0)
+            res *= -1;
+        return res;
+    }
 
-			template <typename U>
-			void setY(U newy)
-			{
-				y().set(newy);
-			}
+    template <typename U>
+    void setWidth(U w)
+    {
+        right().set(x() + w);
+    }
 
-			T width() const
-			{
-				return size().x();
-			}
+    T height() const { return size().y(); }
 
-			T unsigned_width() const
-			{
-				T res = size().x();
-					if (res < 0)
-				res *= -1;
-				return res;
-			}
+    T unsigned_height() const
+    {
+        T res = size().y();
+        if (res < 0)
+            res *= -1;
+        return res;
+    }
 
-			template <typename U>
-			void setWidth(U w)
-			{
-				right().set(x() + w);
-			}
+    template <typename U>
+    void setHeight(U h)
+    {
+        bottom().set(y() + h);
+    }
 
-			T height() const
-			{
-				return size().y();
-			}
+    T& bottom() { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-			T unsigned_height() const
-			{
-				T res = size().y();
-					if (res < 0)
-				res *= -1;
-				return res;
-			}
+    T bottom() const { return src_.y() > dst_.y() ? src_.y() : dst_.y(); }
 
-			template <typename U>
-			void setHeight(U h)
-			{
-				bottom().set(y() + h);
-			}
+    template <typename U>
+    void setBottom(U y)
+    {
+        bottom().set(y);
+    }
 
-			T& bottom()
-			{
-				return src_.y() > dst_.y() ? src_.y() : dst_.y();
-			}
+    T& right() { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-			T bottom() const
-			{
-				return src_.y() > dst_.y() ? src_.y() : dst_.y();
-			}
+    T right() const { return src_.x() > dst_.x() ? src_.x() : dst_.x(); }
 
-			template <typename U>
-			void setBottom(U y)
-			{
-				bottom().set(y);
-			}
+    template <typename U>
+    void setRight(U x)
+    {
+        return right().set(x);
+    }
 
-			T& right()
-			{
-				return src_.x() > dst_.x() ? src_.x() : dst_.x();
-			}
+    void setTopLeft(Point<T> p)
+    {
+        setX(p.x());
+        setY(p.y());
+    }
 
-			T right() const
-			{
-				return src_.x() > dst_.x() ? src_.x() : dst_.x();
-			}
+    void setBottomRight(Point<T> p)
+    {
+        setRight(p.x());
+        setBottom(p.y());
+    }
 
-			template <typename U>
-			void setRight(U x)
-			{
-				return right().set(x);
-			}
+    void setSrc(Point<T> p) { src_ = p; }
 
-			void setTopLeft(Point<T> p)
-			{
-				setX(p.x());
-				setY(p.y());
-			}
+    void setDst(Point<T> p) { dst_ = p; }
 
-			void setBottomRight(Point<T> p)
-			{
-				setRight(p.x());
-				setBottom(p.y());
-			}
+    Point<T> src() const { return src_; }
 
-			void setSrc(Point<T> p)
-			{
-				src_ = p;
-			}
+    Point<T> dst() const { return dst_; }
 
-			void setDst(Point<T> p)
-			{
-				dst_ = p;
-			}
+    Point<T>& srcRef() { return src_; }
 
-			Point<T> src() const
-			{
-				return src_;
-			}
+    Point<T>& dstRef() { return dst_; }
 
-			Point<T> dst() const
-			{
-				return dst_;
-			}
+    /**@}*/
 
-			Point<T>& srcRef()
-			{
-				return src_;
-			}
+    /*! \brief Implicit cast into a rectangle of an other unit
+     */
+    template <typename U>
+    operator Rect<U>() const
+    {
+        Rect<U> res(src_, dst_);
+        return res;
+    }
 
-			Point<T>& dstRef()
-			{
-				return dst_;
-			}
+    /*! \brief area, abs(width * height)
+     */
+    typename T::primary_type area() const
+    {
+        return std::abs(width() * height());
+    }
 
-			/**@}*/
+    /*! \brief Center of the rectangle
+     */
+    Point<T> center() const
+    {
+        T x = this->x();
+        x += right();
+        x /= 2;
+        T y = this->y();
+        y += bottom();
+        y /= 2;
+        Point<T> res(x, y);
+        return res;
+    }
 
+  private:
+    Point<T> src_;
+    Point<T> dst_;
+};
 
-			/*! \brief Implicit cast into a rectangle of an other unit
-			 */
-			template <typename U>
-			operator Rect<U>() const
-			{
-				Rect<U> res(src_, dst_);
-				return res;
-			}
+/*! \brief Rectangle in the OpenGL coordinates [-1;1]
+ */
+using RectOpengl = Rect<OpenglPosition>;
 
-			/*! \brief area, abs(width * height)
-			 */
-			typename T::primary_type area() const
-			{
-				return std::abs(width() * height());
-			}
+/*! \brief Rectangle in the frame desc coordinates
+ */
+using RectFd = Rect<FDPixel>;
 
-			/*! \brief Center of the rectangle
-			 */
-			Point<T> center() const
-			{
-				T x = this->x();
-				x += right();
-				x /= 2;
-				T y = this->y();
-				y += bottom();
-				y /= 2;
-				Point<T> res(x, y);
-				return res;
-			}
+/*! \brief Rectangle in the window coordinates
+ */
+using RectWindow = Rect<WindowPixel>;
 
-
-		private:
-			Point<T> src_;
-			Point<T> dst_;
-		};
-
-		/*! \brief Rectangle in the OpenGL coordinates [-1;1]
-		 */
-		using RectOpengl = Rect<OpenglPosition>;
-
-		/*! \brief Rectangle in the frame desc coordinates
-		 */
-		using RectFd = Rect<FDPixel>;
-
-		/*! \brief Rectangle in the window coordinates
-		 */
-		using RectWindow = Rect<WindowPixel>;
-
-		template <typename T>
-		std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
-		{
-			return o << '[' << r.src() << ", " << r.dst() << ']';
-		}
-
-	}
+template <typename T>
+std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
+{
+    return o << '[' << r.src() << ", " << r.dst() << ']';
 }
+
+} // namespace units
+} // namespace holovibes

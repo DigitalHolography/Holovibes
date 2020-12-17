@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 #pragma once
 
@@ -30,99 +26,117 @@
 #include "popup_error.hh"
 
 #ifndef M_PI
-  #define M_PI       3.14159265358979323846   // pi
+#define M_PI 3.14159265358979323846 // pi
 #endif
 #ifndef M_PI_2
-  #define M_PI_2     1.57079632679489661923   // pi/2
+#define M_PI_2 1.57079632679489661923 // pi/2
 #endif
-#define M_2PI		6.28318530717959f
-#define THREADS_256	256
-#define THREADS_128	128
+#define M_2PI 6.28318530717959f
+#define THREADS_256 256
+#define THREADS_128 128
 
 #ifndef _DEBUG
 #define cudaCheckError()
 #else
-#define cudaCheckError()                                                     \
-{                                                                            \
-	auto e = cudaGetLastError();                                             \
-	if (e != cudaSuccess)                                                    \
-	{                                                                        \
-		std::string error = "Cuda failure in ";                              \
-		error += __FILE__;                                                   \
-		error += " at line ";                                                \
-		error += std::to_string(__LINE__);                                   \
-		error += ": ";                                                       \
-		error += cudaGetErrorString(e);                                      \
-		throw holovibes::CustomException(error, holovibes::fail_cudaLaunch); \
-	}												                         \
-}
+#define cudaCheckError()                                                       \
+    {                                                                          \
+        auto e = cudaGetLastError();                                           \
+        if (e != cudaSuccess)                                                  \
+        {                                                                      \
+            std::string error = "Cuda failure in ";                            \
+            error += __FILE__;                                                 \
+            error += " at line ";                                              \
+            error += std::to_string(__LINE__);                                 \
+            error += ": ";                                                     \
+            error += cudaGetErrorString(e);                                    \
+            throw holovibes::CustomException(error,                            \
+                                             holovibes::fail_cudaLaunch);      \
+        }                                                                      \
+    }
 #endif
 
 #ifndef _DEBUG
-#define cudaSafeCall(ans) { gpuAssertRelease((ans)); }
+#define cudaSafeCall(ans)                                                      \
+    {                                                                          \
+        gpuAssertRelease((ans));                                               \
+    }
 inline void gpuAssertRelease(cudaError_t code)
 {
-   if (code != cudaSuccess)
-   {
-       holovibes::gui::show_error_and_exit("Run Holovibes again by reducing buffers size (such as input_buffer_size)",
-        static_cast<int>(code));
-   }
+    if (code != cudaSuccess)
+    {
+        holovibes::gui::show_error_and_exit(
+            "Run Holovibes again by reducing buffers size (such as "
+            "input_buffer_size)",
+            static_cast<int>(code));
+    }
 }
 #else
-#define cudaSafeCall(ans) { gpuAssertDebug((ans), __FILE__, __LINE__); }
-inline void gpuAssertDebug(cudaError_t code, const char *file, int line, bool abort=true)
+#define cudaSafeCall(ans)                                                      \
+    {                                                                          \
+        gpuAssertDebug((ans), __FILE__, __LINE__);                             \
+    }
+inline void
+gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
 {
-   if (code != cudaSuccess)
-   {
-       // FIXME: Print callers stack for a more efficient debug
-       // See std::source_location (still not implemented by msvc)
-      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-      if (abort) exit(code);
-   }
+    if (code != cudaSuccess)
+    {
+        // FIXME: Print callers stack for a more efficient debug
+        // See std::source_location (still not implemented by msvc)
+        fprintf(stderr,
+                "GPUassert: %s %s %d\n",
+                cudaGetErrorString(code),
+                file,
+                line);
+        if (abort)
+            exit(code);
+    }
 }
 #endif
 
 #ifndef _DEBUG
 #define cublasSafeCall(err) err
 #else
-static const char *_cudaGetCublasErrorEnum(cublasStatus_t error)
+static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
 {
     switch (error)
     {
-		case CUBLAS_STATUS_NOT_INITIALIZED:
-            return "CUBLAS_STATUS_NOT_INITIALIZED";
+    case CUBLAS_STATUS_NOT_INITIALIZED:
+        return "CUBLAS_STATUS_NOT_INITIALIZED";
 
-        case CUBLAS_STATUS_ALLOC_FAILED:
-            return "CUBLAS_STATUS_ALLOC_FAILED";
+    case CUBLAS_STATUS_ALLOC_FAILED:
+        return "CUBLAS_STATUS_ALLOC_FAILED";
 
-        case CUBLAS_STATUS_INVALID_VALUE:
-            return "CUBLAS_STATUS_INVALID_VALUE";
+    case CUBLAS_STATUS_INVALID_VALUE:
+        return "CUBLAS_STATUS_INVALID_VALUE";
 
-        case CUBLAS_STATUS_ARCH_MISMATCH:
-            return "CUBLAS_STATUS_ARCH_MISMATCH";
+    case CUBLAS_STATUS_ARCH_MISMATCH:
+        return "CUBLAS_STATUS_ARCH_MISMATCH";
 
-        case CUBLAS_STATUS_MAPPING_ERROR:
-            return "CUBLAS_STATUS_MAPPING_ERROR";
+    case CUBLAS_STATUS_MAPPING_ERROR:
+        return "CUBLAS_STATUS_MAPPING_ERROR";
 
-        case CUBLAS_STATUS_EXECUTION_FAILED:
-            return "CUBLAS_STATUS_EXECUTION_FAILED";
+    case CUBLAS_STATUS_EXECUTION_FAILED:
+        return "CUBLAS_STATUS_EXECUTION_FAILED";
 
-        case CUBLAS_STATUS_INTERNAL_ERROR:
-            return "CUBLAS_STATUS_INTERNAL_ERROR";
+    case CUBLAS_STATUS_INTERNAL_ERROR:
+        return "CUBLAS_STATUS_INTERNAL_ERROR";
     }
 
     return "Unknown cublas error";
 }
-#define cublasSafeCall(err)      __cublasSafeCall(err, __FILE__, __LINE__)
-inline void __cublasSafeCall(cublasStatus_t err, const char *file, const int line)
+#define cublasSafeCall(err) __cublasSafeCall(err, __FILE__, __LINE__)
+inline void
+__cublasSafeCall(cublasStatus_t err, const char* file, const int line)
 {
-    if( CUBLAS_STATUS_SUCCESS != err) {
-		fprintf(stderr, "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
-											__FILE__,
-													__LINE__,
-															_cudaGetCublasErrorEnum(err));
-		cudaDeviceReset();
-		assert(0);
+    if (CUBLAS_STATUS_SUCCESS != err)
+    {
+        fprintf(stderr,
+                "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
+                __FILE__,
+                __LINE__,
+                _cudaGetCublasErrorEnum(err));
+        cudaDeviceReset();
+        assert(0);
     }
 }
 #endif
@@ -130,38 +144,41 @@ inline void __cublasSafeCall(cublasStatus_t err, const char *file, const int lin
 #ifndef _DEBUG
 #define cusolverSafeCall(err) err
 #else
-static const char *_cudaGetCusolverErrorEnum(cusolverStatus_t error)
+static const char* _cudaGetCusolverErrorEnum(cusolverStatus_t error)
 {
     switch (error)
     {
-		case CUSOLVER_STATUS_NOT_INITIALIZED:
-			return "CUSOLVER_STATUS_NOT_INITIALIZED";
-		case CUSOLVER_STATUS_ALLOC_FAILED:
-			return "CUSOLVER_STATUS_ALLOC_FAILED";
-		case CUSOLVER_STATUS_INVALID_VALUE:
-			return "CUSOLVER_STATUS_INVALID_VALUE";
-		case CUSOLVER_STATUS_ARCH_MISMATCH:
-			return "CUSOLVER_STATUS_ARCH_MISMATCH";
-		case CUSOLVER_STATUS_EXECUTION_FAILED:
-			return "CUSOLVER_STATUS_EXECUTION_FAILED";
-		case CUSOLVER_STATUS_INTERNAL_ERROR:
-			return "CUSOLVER_STATUS_INTERNAL_ERROR";
-		case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
-			return "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED";
+    case CUSOLVER_STATUS_NOT_INITIALIZED:
+        return "CUSOLVER_STATUS_NOT_INITIALIZED";
+    case CUSOLVER_STATUS_ALLOC_FAILED:
+        return "CUSOLVER_STATUS_ALLOC_FAILED";
+    case CUSOLVER_STATUS_INVALID_VALUE:
+        return "CUSOLVER_STATUS_INVALID_VALUE";
+    case CUSOLVER_STATUS_ARCH_MISMATCH:
+        return "CUSOLVER_STATUS_ARCH_MISMATCH";
+    case CUSOLVER_STATUS_EXECUTION_FAILED:
+        return "CUSOLVER_STATUS_EXECUTION_FAILED";
+    case CUSOLVER_STATUS_INTERNAL_ERROR:
+        return "CUSOLVER_STATUS_INTERNAL_ERROR";
+    case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
+        return "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED";
     }
 
     return "Unknown cusolver error";
 }
-#define cusolverSafeCall(err)      __cusolverSafeCall(err, __FILE__, __LINE__)
-inline void __cusolverSafeCall(cusolverStatus_t err, const char *file, const int line)
+#define cusolverSafeCall(err) __cusolverSafeCall(err, __FILE__, __LINE__)
+inline void
+__cusolverSafeCall(cusolverStatus_t err, const char* file, const int line)
 {
-    if( CUSOLVER_STATUS_SUCCESS != err) {
-		fprintf(stderr, "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
-											__FILE__,
-													__LINE__,
-															_cudaGetCusolverErrorEnum(err));
-		cudaDeviceReset();
-		assert(0);
+    if (CUSOLVER_STATUS_SUCCESS != err)
+    {
+        fprintf(stderr,
+                "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
+                __FILE__,
+                __LINE__,
+                _cudaGetCusolverErrorEnum(err));
+        cudaDeviceReset();
+        assert(0);
     }
 }
 #endif
@@ -169,142 +186,156 @@ inline void __cusolverSafeCall(cusolverStatus_t err, const char *file, const int
 #ifndef _DEBUG
 #define cufftSafeCall(err) err
 #else
-static const char *_cudaGetErrorEnum(cufftResult error)
+static const char* _cudaGetErrorEnum(cufftResult error)
 {
     switch (error)
     {
-        case CUFFT_SUCCESS:
-            return "CUFFT_SUCCESS";
+    case CUFFT_SUCCESS:
+        return "CUFFT_SUCCESS";
 
-        case CUFFT_INVALID_PLAN:
-            return "CUFFT_INVALID_PLAN";
+    case CUFFT_INVALID_PLAN:
+        return "CUFFT_INVALID_PLAN";
 
-        case CUFFT_ALLOC_FAILED:
-            return "CUFFT_ALLOC_FAILED";
+    case CUFFT_ALLOC_FAILED:
+        return "CUFFT_ALLOC_FAILED";
 
-        case CUFFT_INVALID_TYPE:
-            return "CUFFT_INVALID_TYPE";
+    case CUFFT_INVALID_TYPE:
+        return "CUFFT_INVALID_TYPE";
 
-        case CUFFT_INVALID_VALUE:
-            return "CUFFT_INVALID_VALUE";
+    case CUFFT_INVALID_VALUE:
+        return "CUFFT_INVALID_VALUE";
 
-        case CUFFT_INTERNAL_ERROR:
-            return "CUFFT_INTERNAL_ERROR";
+    case CUFFT_INTERNAL_ERROR:
+        return "CUFFT_INTERNAL_ERROR";
 
-        case CUFFT_EXEC_FAILED:
-            return "CUFFT_EXEC_FAILED";
+    case CUFFT_EXEC_FAILED:
+        return "CUFFT_EXEC_FAILED";
 
-        case CUFFT_SETUP_FAILED:
-            return "CUFFT_SETUP_FAILED";
+    case CUFFT_SETUP_FAILED:
+        return "CUFFT_SETUP_FAILED";
 
-        case CUFFT_INVALID_SIZE:
-            return "CUFFT_INVALID_SIZE";
+    case CUFFT_INVALID_SIZE:
+        return "CUFFT_INVALID_SIZE";
 
-        case CUFFT_UNALIGNED_DATA:
-            return "CUFFT_UNALIGNED_DATA";
+    case CUFFT_UNALIGNED_DATA:
+        return "CUFFT_UNALIGNED_DATA";
     }
 
     return "<unknown>";
 }
 
-#define cufftSafeCall(err)      __cufftSafeCall(err, __FILE__, __LINE__)
-inline void __cufftSafeCall(cufftResult err, const char *file, const int line)
+#define cufftSafeCall(err) __cufftSafeCall(err, __FILE__, __LINE__)
+inline void __cufftSafeCall(cufftResult err, const char* file, const int line)
 {
-    if( CUFFT_SUCCESS != err) {
-		fprintf(stderr, "CUFFT error in file '%s', line %d\n%s\nterminating!\n",
-											__FILE__,
-													__LINE__,
-															_cudaGetErrorEnum(err));
-		cudaDeviceReset();
-		assert(0);
+    if (CUFFT_SUCCESS != err)
+    {
+        fprintf(stderr,
+                "CUFFT error in file '%s', line %d\n%s\nterminating!\n",
+                __FILE__,
+                __LINE__,
+                _cudaGetErrorEnum(err));
+        cudaDeviceReset();
+        assert(0);
     }
 }
 #endif
 
-// atomicAdd with double is not defined if CUDA Version is not greater than or equal to 600
-// So we use this macro to keep a fully compatible program
+// atomicAdd with double is not defined if CUDA Version is not greater than or
+// equal to 600 So we use this macro to keep a fully compatible program
 #if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 600
 #else
 __device__ double atomicAdd(double* address, double val)
 {
-    unsigned long long int* address_as_ull =
-                              (unsigned long long int*)address;
+    unsigned long long int* address_as_ull = (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
 
-    do {
+    do
+    {
         assumed = old;
-        old = atomicCAS(address_as_ull, assumed,
-                        __double_as_longlong(val +
-                               __longlong_as_double(assumed)));
+        old = atomicCAS(
+            address_as_ull,
+            assumed,
+            __double_as_longlong(val + __longlong_as_double(assumed)));
 
-    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+        // Note: uses integer comparison to avoid hang in case of NaN (since NaN
+        // != NaN)
     } while (assumed != old);
 
     return __longlong_as_double(old);
 }
 #endif
 
-// atomicMin is only supported for unsigned int & long long, ushort is not supported by atomicCAS (even though the doc says so)
+// atomicMin is only supported for unsigned int & long long, ushort is not
+// supported by atomicCAS (even though the doc says so)
 #if !defined(__CUDA_ARCH__)
 #else
 __device__ float atomicMin(float* address, float val)
 {
-    int* address_as_i = (int*) address;
+    int* address_as_i = (int*)address;
     int old = *address_as_i, assumed;
-    do {
+    do
+    {
         assumed = old;
-        old = atomicCAS(address_as_i, assumed,
-            __float_as_int(fminf(val, __int_as_float(assumed))));
+        old = atomicCAS(address_as_i,
+                        assumed,
+                        __float_as_int(fminf(val, __int_as_float(assumed))));
     } while (assumed != old);
     return __int_as_float(old);
 }
 __device__ double atomicMin(double* address, double val)
 {
-    unsigned long long int* address_as_ull =
-                              (unsigned long long int*)address;
+    unsigned long long int* address_as_ull = (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
 
-    do {
+    do
+    {
         assumed = old;
-        old = atomicCAS(address_as_ull, assumed,
-                        __double_as_longlong(fmin(val,
-                               __longlong_as_double(assumed))));
+        old = atomicCAS(
+            address_as_ull,
+            assumed,
+            __double_as_longlong(fmin(val, __longlong_as_double(assumed))));
 
-    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+        // Note: uses integer comparison to avoid hang in case of NaN (since NaN
+        // != NaN)
     } while (assumed != old);
 
     return __longlong_as_double(old);
 }
 #endif
 
-// atomicMax is only supported for unsigned int & long long, ushort is not supported by atomicCAS (even though the doc says so)
+// atomicMax is only supported for unsigned int & long long, ushort is not
+// supported by atomicCAS (even though the doc says so)
 #if !defined(__CUDA_ARCH__)
 #else
 __device__ float atomicMax(float* address, float val)
 {
-    int* address_as_i = (int*) address;
+    int* address_as_i = (int*)address;
     int old = *address_as_i, assumed;
-    do {
+    do
+    {
         assumed = old;
-        old = atomicCAS(address_as_i, assumed,
-            __float_as_int(fmaxf(val, __int_as_float(assumed))));
+        old = atomicCAS(address_as_i,
+                        assumed,
+                        __float_as_int(fmaxf(val, __int_as_float(assumed))));
     } while (assumed != old);
     return __int_as_float(old);
 }
 
 __device__ double atomicMax(double* address, double val)
 {
-    unsigned long long int* address_as_ull =
-                              (unsigned long long int*)address;
+    unsigned long long int* address_as_ull = (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
 
-    do {
+    do
+    {
         assumed = old;
-        old = atomicCAS(address_as_ull, assumed,
-                        __double_as_longlong(fmax(val,
-                               __longlong_as_double(assumed))));
+        old = atomicCAS(
+            address_as_ull,
+            assumed,
+            __double_as_longlong(fmax(val, __longlong_as_double(assumed))));
 
-    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+        // Note: uses integer comparison to avoid hang in case of NaN (since NaN
+        // != NaN)
     } while (assumed != old);
 
     return __longlong_as_double(old);

@@ -1,46 +1,42 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
  *
  * Camera XIQ's. */
 #pragma once
 
-# include <Windows.h>
-# include <xiApi.h>
-# include <vector>
-# include <iostream>
+#include <Windows.h>
+#include <xiApi.h>
+#include <vector>
+#include <iostream>
 
-# include <camera.hh>
-# include "camera_exception.hh"
+#include <camera.hh>
+#include "camera_exception.hh"
 
 namespace camera
 {
-  class CameraXib : public Camera
-  {
+class CameraXib : public Camera
+{
   public:
     CameraXib();
 
     virtual ~CameraXib()
     {
-      /* Ensure that the camera is closed in case of exception. */
-      try
-      {
-          shutdown_camera();
-      }
-      // We can't throw in a destructor, but there's nothing to do on error
-      catch (CameraException&)
-      {
-      }
+        /* Ensure that the camera is closed in case of exception. */
+        try
+        {
+            shutdown_camera();
+        }
+        // We can't throw in a destructor, but there's nothing to do on error
+        catch (CameraException&)
+        {
+        }
     }
 
     virtual void init_camera() override;
@@ -72,7 +68,7 @@ namespace camera
 
     //!< Downsampling method.
     /*! * XI_BINNING  0: pixels are interpolated - better image
-      * * XI_SKIPPING 1 : pixels are skipped - higher frame rate */
+     * * XI_SKIPPING 1 : pixels are skipped - higher frame rate */
     XI_DOWNSAMPLING_TYPE downsampling_type_;
 
     //!< RAW, 8/16-bit...
@@ -95,18 +91,21 @@ namespace camera
 
     //!< Activate a hardware/software trigger or not.
     /*!
-    * * XI_TRG_OFF : Capture of next image is automatically started after previous.
-    * * XI_TRG_EDGE_RISING: Capture is started on rising edge of selected input.
-    * * XI_TRG_EDGE_FALLING: Capture is started on falling edge of selected input.
-    * * XI_TRG_SOFTWARE: Capture is started with software trigger.
-    */
+     * * XI_TRG_OFF : Capture of next image is automatically started after
+     * previous.
+     * * XI_TRG_EDGE_RISING: Capture is started on rising edge of selected
+     * input.
+     * * XI_TRG_EDGE_FALLING: Capture is started on falling edge of selected
+     * input.
+     * * XI_TRG_SOFTWARE: Capture is started with software trigger.
+     */
     XI_TRG_SOURCE trigger_src_;
 
-    int roi_x_; //!< ROI offset on X axis. Values start from 0.
-    int roi_y_; //!< ROI offset on Y axis. Values start from 0.
-    int roi_width_; //!< In pixels.
+    int roi_x_;      //!< ROI offset on X axis. Values start from 0.
+    int roi_y_;      //!< ROI offset on Y axis. Values start from 0.
+    int roi_width_;  //!< In pixels.
     int roi_height_; //!< In pixels.
 
     std::vector<char> buffer_rescale_;
-  };
-}
+};
+} // namespace camera

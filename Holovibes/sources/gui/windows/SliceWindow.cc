@@ -1,18 +1,14 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 // Windows include is needed for the cuda_gl_interop header to compile
 #ifdef WIN32
-  #include <windows.h>
+#include <windows.h>
 #endif
 #include <cuda_gl_interop.h>
 
@@ -23,201 +19,223 @@
 
 namespace holovibes
 {
-	namespace gui
-	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, Queue* q, KindOfView k, MainWindow *main_window) :
-			BasicOpenGLWindow(p, s, q, k),
-			cuArray(nullptr),
-			cuSurface(0),
-			main_window_(main_window)
-		{
-			setMinimumSize(s);
-		}
-
-		SliceWindow::~SliceWindow()
-		{
-			cudaDestroySurfaceObject(cuSurface);
-			cudaFreeArray(cuArray);
-		}
-
-		void SliceWindow::initShaders()
-		{
-			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
-			Program->link();
-			if (cd_->img_type == ImgType::Composite)
-				overlay_manager_.create_overlay<Rainbow>();
-			else
-				overlay_manager_.create_default();
-		}
-
-		void SliceWindow::initializeGL()
-		{
-			makeCurrent();
-			initializeOpenGLFunctions();
-			glClearColor(0.f, 0.f, 0.f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
-
-			initShaders();
-			Vao.create();
-			Vao.bind();
-			Program->bind();
-
-			#pragma region Texture
-			glGenTextures(1, &Tex);
-			glBindTexture(GL_TEXTURE_2D, Tex);
-
-			uint	size = fd_.frame_size();
-			ushort	*mTexture = new ushort[size];
-			std::memset(mTexture, 0, size * sizeof(ushort));
-
-			glTexImage2D(GL_TEXTURE_2D, 0,
-				GL_RGBA,
-				fd_.width, fd_.height, 0,
-				GL_RG, GL_UNSIGNED_SHORT, mTexture);
-
-			Program->setUniformValue(Program->uniformLocation("tex"), 0);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	// GL_NEAREST ~ GL_LINEAR
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			if (fd_.depth == 8)
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-			}
-
-			glBindTexture(GL_TEXTURE_2D, 0);
-			delete[] mTexture;
-			cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
-				cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
-			cudaGraphicsMapResources(1, &cuResource, cuStream);
-			cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
-			cuArrRD.resType = cudaResourceTypeArray;
-			cuArrRD.res.array.array = cuArray;
-			cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
-			#pragma endregion
-
-			#pragma region Vertex Buffer Object
-			const float	data[] = {
-				// Top-left
-				-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
-				0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
-				// Top-right
-				1.f, 1.f,
-				1.f, 0.0f,
-				// Bottom-right
-				1.f, -1.f,
-				1.f, 1.f,
-				// Bottom-left
-				-1.f, -1.f,
-				0.0f, 1.f
-			};
-			glGenBuffers(1, &Vbo);
-			glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-				reinterpret_cast<void*>(2 * sizeof(float)));
-
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			#pragma endregion
-
-			#pragma region Element Buffer Object
-			const GLuint elements[] = {
-				0, 1, 2,
-				2, 3, 0
-			};
-			glGenBuffers(1, &Ebo);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			#pragma endregion
-
-			setTransform();
-
-			Program->release();
-			Vao.release();
-
-			glViewport(0, 0, width(), height());
-			startTimer(1000 / cd_->display_rate);
-		}
-
-		void SliceWindow::paintGL()
-		{
-			makeCurrent();
-			glClear(GL_COLOR_BUFFER_BIT);
-			Vao.bind();
-			Program->bind();
-
-			textureUpdate(cuSurface,
-				output_->get_last_image(),
-				output_->get_fd(),
-				cuStream);
-
-			glBindTexture(GL_TEXTURE_2D, Tex);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			Program->release();
-			Vao.release();
-
-			overlay_manager_.draw();
-
-		}
-
-		void SliceWindow::mousePressEvent(QMouseEvent* e)
-		{
-			overlay_manager_.press(e);
-		}
-
-		void SliceWindow::mouseMoveEvent(QMouseEvent* e)
-		{
-			overlay_manager_.move(e);
-		}
-
-		void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
-		{
-			overlay_manager_.release(fd_.width);
-			if (e->button() == Qt::RightButton)
-			{
-				resetTransform();
-				if (auto main_display = main_window_->get_main_display())
-					main_display->resetTransform();
-			}
-		}
-
-		void SliceWindow::focusInEvent(QFocusEvent* e)
-		{
-			QWindow::focusInEvent(e);
-			if (cd_)
-			{
-				cd_->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
-				cd_->notify_observers();
-			}
-		}
-	}
+namespace gui
+{
+SliceWindow::SliceWindow(
+    QPoint p, QSize s, Queue* q, KindOfView k, MainWindow* main_window)
+    : BasicOpenGLWindow(p, s, q, k)
+    , cuArray(nullptr)
+    , cuSurface(0)
+    , main_window_(main_window)
+{
+    setMinimumSize(s);
 }
+
+SliceWindow::~SliceWindow()
+{
+    cudaDestroySurfaceObject(cuSurface);
+    cudaFreeArray(cuArray);
+}
+
+void SliceWindow::initShaders()
+{
+    Program = new QOpenGLShaderProgram();
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        create_absolute_qt_path("shaders/vertex.holo.glsl"));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->link();
+    if (cd_->img_type == ImgType::Composite)
+        overlay_manager_.create_overlay<Rainbow>();
+    else
+        overlay_manager_.create_default();
+}
+
+void SliceWindow::initializeGL()
+{
+    makeCurrent();
+    initializeOpenGLFunctions();
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+
+    initShaders();
+    Vao.create();
+    Vao.bind();
+    Program->bind();
+
+#pragma region Texture
+    glGenTextures(1, &Tex);
+    glBindTexture(GL_TEXTURE_2D, Tex);
+
+    uint size = fd_.frame_size();
+    ushort* mTexture = new ushort[size];
+    std::memset(mTexture, 0, size * sizeof(ushort));
+
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGBA,
+                 fd_.width,
+                 fd_.height,
+                 0,
+                 GL_RG,
+                 GL_UNSIGNED_SHORT,
+                 mTexture);
+
+    Program->setUniformValue(Program->uniformLocation("tex"), 0);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER,
+                    GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    if (fd_.depth == 8)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    delete[] mTexture;
+    cudaGraphicsGLRegisterImage(
+        &cuResource,
+        Tex,
+        GL_TEXTURE_2D,
+        cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
+    cudaGraphicsMapResources(1, &cuResource, cuStream);
+    cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
+    cuArrRD.resType = cudaResourceTypeArray;
+    cuArrRD.res.array.array = cuArray;
+    cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
+#pragma endregion
+
+#pragma region Vertex Buffer Object
+    const float data[] = {// Top-left
+                          -1.f,
+                          1.f, // vertex coord (-1.0f <-> 1.0f)
+                          0.0f,
+                          0.0f, // texture coord (0.0f <-> 1.0f)
+                          // Top-right
+                          1.f,
+                          1.f,
+                          1.f,
+                          0.0f,
+                          // Bottom-right
+                          1.f,
+                          -1.f,
+                          1.f,
+                          1.f,
+                          // Bottom-left
+                          -1.f,
+                          -1.f,
+                          0.0f,
+                          1.f};
+    glGenBuffers(1, &Vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, Vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          4 * sizeof(float),
+                          reinterpret_cast<void*>(2 * sizeof(float)));
+
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+#pragma endregion
+
+#pragma region Element Buffer Object
+    const GLuint elements[] = {0, 1, 2, 2, 3, 0};
+    glGenBuffers(1, &Ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 6 * sizeof(GLuint),
+                 elements,
+                 GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#pragma endregion
+
+    setTransform();
+
+    Program->release();
+    Vao.release();
+
+    glViewport(0, 0, width(), height());
+    startTimer(1000 / cd_->display_rate);
+}
+
+void SliceWindow::paintGL()
+{
+    makeCurrent();
+    glClear(GL_COLOR_BUFFER_BIT);
+    Vao.bind();
+    Program->bind();
+
+    textureUpdate(cuSurface,
+                  output_->get_last_image(),
+                  output_->get_fd(),
+                  cuStream);
+
+    glBindTexture(GL_TEXTURE_2D, Tex);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Program->release();
+    Vao.release();
+
+    overlay_manager_.draw();
+}
+
+void SliceWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
+
+void SliceWindow::mouseMoveEvent(QMouseEvent* e) { overlay_manager_.move(e); }
+
+void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
+{
+    overlay_manager_.release(fd_.width);
+    if (e->button() == Qt::RightButton)
+    {
+        resetTransform();
+        if (auto main_display = main_window_->get_main_display())
+            main_display->resetTransform();
+    }
+}
+
+void SliceWindow::focusInEvent(QFocusEvent* e)
+{
+    QWindow::focusInEvent(e);
+    if (cd_)
+    {
+        cd_->current_window = (kView == KindOfView::SliceXZ)
+                                  ? WindowKind::XZview
+                                  : WindowKind::YZview;
+        cd_->notify_observers();
+    }
+}
+} // namespace gui
+} // namespace holovibes

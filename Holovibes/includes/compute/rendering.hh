@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
 
@@ -25,107 +21,111 @@
 
 namespace holovibes
 {
-	class ComputeDescriptor;
-	class ICompute;
-	struct CoreBuffersEnv;
-	struct ChartEnv;
-	struct TimeTransformationEnv;
-	struct ImageAccEnv;
+class ComputeDescriptor;
+class ICompute;
+struct CoreBuffersEnv;
+struct ChartEnv;
+struct TimeTransformationEnv;
+struct ImageAccEnv;
 
-	namespace compute
-	{
-		using uint = unsigned int;
+namespace compute
+{
+using uint = unsigned int;
 
-		class Rendering
-		{
-		public:
-			/** \brief Constructor.
+class Rendering
+{
+  public:
+    /** \brief Constructor.
 
-			*/
-			Rendering(FunctionVector& fn_compute_vect,
-				const CoreBuffersEnv& buffers,
-				ChartEnv& chart_env,
-				const ImageAccEnv& image_acc_env,
-				const TimeTransformationEnv& time_transformation_env,
-				ComputeDescriptor& cd,
-				const camera::FrameDescriptor& input_fd,
-				const camera::FrameDescriptor& output_fd,
-				ICompute* Ic);
+    */
+    Rendering(FunctionVector& fn_compute_vect,
+              const CoreBuffersEnv& buffers,
+              ChartEnv& chart_env,
+              const ImageAccEnv& image_acc_env,
+              const TimeTransformationEnv& time_transformation_env,
+              ComputeDescriptor& cd,
+              const camera::FrameDescriptor& input_fd,
+              const camera::FrameDescriptor& output_fd,
+              ICompute* Ic);
 
-			/** \brief insert the functions relative to the fft shift.
+    /** \brief insert the functions relative to the fft shift.
 
-			*/
-			void insert_fft_shift();
-			/** \brief insert the functions relative to noise and signal chart.
+    */
+    void insert_fft_shift();
+    /** \brief insert the functions relative to noise and signal chart.
 
-			 */
-			void insert_chart();
-			/** \brief insert the functions relative to the log10.
+     */
+    void insert_chart();
+    /** \brief insert the functions relative to the log10.
 
-			*/
-			void insert_log();
-			/** \brief insert the functions relative to the contrast.
+    */
+    void insert_log();
+    /** \brief insert the functions relative to the contrast.
 
-			*/
-			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
+    */
+    void insert_contrast(std::atomic<bool>& autocontrast_request,
+                         std::atomic<bool>& autocontrast_slice_xz_request,
+                         std::atomic<bool>& autocontrast_slice_yz_request);
 
-		private:
-			/** \brief insert the log10 on the XY window
+  private:
+    /** \brief insert the log10 on the XY window
 
-			*/
-			void insert_main_log();
-			/** \brief insert the log10 on the slices
+    */
+    void insert_main_log();
+    /** \brief insert the log10 on the slices
 
-			*/
-			void insert_slice_log();
+    */
+    void insert_slice_log();
 
-			/** \brief insert the autocontrast computation
+    /** \brief insert the autocontrast computation
 
-			*/
-			void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-				std::atomic<bool>& autocontrast_slice_xz_request,
-				std::atomic<bool>& autocontrast_slice_yz_request);
+    */
+    void insert_compute_autocontrast(
+        std::atomic<bool>& autocontrast_request,
+        std::atomic<bool>& autocontrast_slice_xz_request,
+        std::atomic<bool>& autocontrast_slice_yz_request);
 
-			/** \brief insert the constrast on a view
+    /** \brief insert the constrast on a view
 
-			*/
-			void Rendering::insert_apply_contrast(WindowKind view);
+    */
+    void Rendering::insert_apply_contrast(WindowKind view);
 
-			/** \brief Calls autocontrast and set the correct contrast variables
+    /** \brief Calls autocontrast and set the correct contrast variables
 
-			*/
-			void autocontrast_caller(float *input,
-				const uint			width,
-				const uint			height,
-				const uint			offset,
-				WindowKind			view,
-				const cudaStream_t		stream = 0);
+    */
+    void autocontrast_caller(float* input,
+                             const uint width,
+                             const uint height,
+                             const uint offset,
+                             WindowKind view,
+                             const cudaStream_t stream = 0);
 
-			/** \brief Set the maximum and minimum contrast boundaries (according to the percentile)
+    /** \brief Set the maximum and minimum contrast boundaries (according to the
+       percentile)
 
-			*/
-			void set_contrast_min_max(const float* const percent_out,
-									  std::atomic<float>& contrast_min,
-									  std::atomic<float>& contrast_max);
+    */
+    void set_contrast_min_max(const float* const percent_out,
+                              std::atomic<float>& contrast_min,
+                              std::atomic<float>& contrast_max);
 
-			/// Vector function in which we insert the processing
-			FunctionVector&					fn_compute_vect_;
-			/// Main buffers
-			const CoreBuffersEnv&			buffers_;
-			/// Chart variables
-			ChartEnv&						chart_env_;
-			/// Time transformation environment
-			const TimeTransformationEnv&			time_transformation_env_;
-			/// Image accumulation environment
-			const ImageAccEnv& 				image_acc_env_;
-			/// Describes the input frame size
-			const camera::FrameDescriptor& input_fd_;
-			/// Describes the output frame size
-			const camera::FrameDescriptor&	fd_;
-			/// Variables needed for the computation in the pipe
-			ComputeDescriptor&				cd_;
-			/// Pointer on the parent.
-			ICompute*						Ic_;
-		};
-	}
-}
+    /// Vector function in which we insert the processing
+    FunctionVector& fn_compute_vect_;
+    /// Main buffers
+    const CoreBuffersEnv& buffers_;
+    /// Chart variables
+    ChartEnv& chart_env_;
+    /// Time transformation environment
+    const TimeTransformationEnv& time_transformation_env_;
+    /// Image accumulation environment
+    const ImageAccEnv& image_acc_env_;
+    /// Describes the input frame size
+    const camera::FrameDescriptor& input_fd_;
+    /// Describes the output frame size
+    const camera::FrameDescriptor& fd_;
+    /// Variables needed for the computation in the pipe
+    ComputeDescriptor& cd_;
+    /// Pointer on the parent.
+    ICompute* Ic_;
+};
+} // namespace compute
+} // namespace holovibes

@@ -1,48 +1,48 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
-*
-* Qt window containing the XZ or YZ view of the hologram. */
+ *
+ * Qt window containing the XZ or YZ view of the hologram. */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
-	namespace gui
-	{
-		class MainWindow;
+namespace gui
+{
+class MainWindow;
 
-		class SliceWindow : public BasicOpenGLWindow
-		{
-		public:
-			SliceWindow(QPoint p, QSize s, Queue* q, KindOfView k, MainWindow *main_window = nullptr);
-			virtual ~SliceWindow();
+class SliceWindow : public BasicOpenGLWindow
+{
+  public:
+    SliceWindow(QPoint p,
+                QSize s,
+                Queue* q,
+                KindOfView k,
+                MainWindow* main_window = nullptr);
+    virtual ~SliceWindow();
 
-		protected:
-			cudaArray_t				cuArray;
-			cudaResourceDesc		cuArrRD;
-			cudaSurfaceObject_t		cuSurface;
-			MainWindow *main_window_;
+  protected:
+    cudaArray_t cuArray;
+    cudaResourceDesc cuArrRD;
+    cudaSurfaceObject_t cuSurface;
+    MainWindow* main_window_;
 
-			virtual void	initShaders() override;
-			virtual void	initializeGL() override;
-			virtual void	paintGL() override;
+    virtual void initShaders() override;
+    virtual void initializeGL() override;
+    virtual void paintGL() override;
 
-			void mousePressEvent(QMouseEvent*) override;
-			void mouseMoveEvent(QMouseEvent*) override;
-			void mouseReleaseEvent(QMouseEvent*) override;
-			void focusInEvent(QFocusEvent*) override;
-		};
-	}
-}
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+    void focusInEvent(QFocusEvent*) override;
+};
+} // namespace gui
+} // namespace holovibes

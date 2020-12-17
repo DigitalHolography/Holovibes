@@ -1,30 +1,26 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 #include "chart.cuh"
 #include "cuda_memory.cuh"
 #include "gtest/gtest.h"
 
-using holovibes::units::RectFd;
-using holovibes::units::Point;
 using holovibes::units::FDPixel;
+using holovibes::units::Point;
+using holovibes::units::RectFd;
 
 static void chart_test(const ushort image_width,
-                            const ushort image_height,
-                            const ushort zone_width,
-                            const ushort zone_height,
-                            ushort x_zone_offset,
-                            ushort y_zone_offset,
-                            const float cell_value)
+                       const ushort image_height,
+                       const ushort zone_width,
+                       const ushort zone_height,
+                       ushort x_zone_offset,
+                       ushort y_zone_offset,
+                       const float cell_value)
 {
     ushort total_image_size = image_width * image_height;
 
@@ -70,7 +66,13 @@ TEST(ChartTest, SmallCroppedExample)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
+    chart_test(image_width,
+               image_height,
+               zone_width,
+               zone_height,
+               x_zone_offset,
+               y_zone_offset,
+               cell_value);
 }
 
 TEST(ChartTest, SmallSimple)
@@ -86,7 +88,13 @@ TEST(ChartTest, SmallSimple)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
+    chart_test(image_width,
+               image_height,
+               zone_width,
+               zone_height,
+               x_zone_offset,
+               y_zone_offset,
+               cell_value);
 }
 
 TEST(ChartTest, SuperTinyZone)
@@ -102,7 +110,13 @@ TEST(ChartTest, SuperTinyZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
+    chart_test(image_width,
+               image_height,
+               zone_width,
+               zone_height,
+               x_zone_offset,
+               y_zone_offset,
+               cell_value);
 }
 
 TEST(ChartTest, NonSquareImageAndZone)
@@ -118,7 +132,13 @@ TEST(ChartTest, NonSquareImageAndZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
+    chart_test(image_width,
+               image_height,
+               zone_width,
+               zone_height,
+               x_zone_offset,
+               y_zone_offset,
+               cell_value);
 }
 
 TEST(ChartTest, SmallDifferentValuesImage)
@@ -139,12 +159,12 @@ TEST(ChartTest, SmallDifferentValuesImage)
     float* input;
     cudaMallocManaged(&input, total_image_size * sizeof(float));
     /*
-    * 7 31 6
-    * 1 3 84
-    * 0 9 48
-    * 4 15 40
-    * = 248
-    */
+     * 7 31 6
+     * 1 3 84
+     * 0 9 48
+     * 4 15 40
+     * = 248
+     */
     input[x_zone_offset + y_zone_offset * image_width + 0] = 7;
     input[x_zone_offset + y_zone_offset * image_width + 1] = 31;
     input[x_zone_offset + y_zone_offset * image_width + 2] = 6;
@@ -227,7 +247,7 @@ TEST(ChartTest, DifferentValuesImage)
     ASSERT_EQ(*output, expected_value);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

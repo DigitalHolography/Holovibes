@@ -1,5 +1,11 @@
 ## Contributing
 
+### Coding style
+
+Make sure to configure your IDE to format source code automatically according to the project `.clang-format`.
+
+For instance, on Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
+
 ### Git
 
 - Branch `master` must be clean and compile.

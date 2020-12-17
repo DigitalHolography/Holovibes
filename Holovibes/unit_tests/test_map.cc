@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 #include "gtest/gtest.h"
 #include "map.cuh"
@@ -21,7 +17,8 @@ enum class MAP_OPERATION
 };
 
 template <typename T>
-static bool check_result(const T* const h_expected, T* const d_got, const size_t size)
+static bool
+check_result(const T* const h_expected, T* const d_got, const size_t size)
 {
     T* h_got = new T[size];
     cudaXMemcpy(h_got, d_got, sizeof(T) * size, cudaMemcpyDeviceToHost);
@@ -54,7 +51,7 @@ template <typename T, MAP_OPERATION OP>
 static void map_test(size_t size, T value)
 {
     T* h_data = new T[size];
-    T *d_data;
+    T* d_data;
     cudaXMalloc(&d_data, sizeof(T) * size);
 
     for (unsigned int i = 0; i < size; ++i)
@@ -87,7 +84,7 @@ TEST(MapTest, MappNotDivisbleBy4Multiply)
 
 TEST(MapTest, MappDivisbleBy4Multiply)
 {
-    constexpr size_t size = 512*1024;
+    constexpr size_t size = 512 * 1024;
     constexpr float value = 5.f;
     map_test<float, MAP_OPERATION::MULTIPLY>(size, value);
 }
@@ -101,12 +98,12 @@ TEST(MapTest, MappNotDivisbleBy4Divide)
 
 TEST(MapTest, MappDivisbleBy4Divide)
 {
-    constexpr size_t size = 512*1024;
+    constexpr size_t size = 512 * 1024;
     constexpr float value = 5.f;
     map_test<float, MAP_OPERATION::DIVIDE>(size, value);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -1,22 +1,18 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file Optimized and generic map operation processed gpu side
  *
  * The templated functions can only be called from cuda files (.cu*) files.
- * In order to be exported, the templated function must be declared in .cuh files
- * and implemented in their correponsding .cuhxx files.
- * However, including cuda kernels call .cc files cannot be achieved since
- * those files are not compiled with nvcc.
+ * In order to be exported, the templated function must be declared in .cuh
+ * files and implemented in their correponsding .cuhxx files. However, including
+ * cuda kernels call .cc files cannot be achieved since those files are not
+ * compiled with nvcc.
  *
  * Using a wrapper in .cuhxx and call implemented kernel in .cu does not solve
  * the issue because nvcc compiles .cu* but functions needs to be generate
@@ -52,8 +48,8 @@ void map_generic(const I* const input,
  *
  * This function is the specialized map operation for float arrays.
  * It means that it is the most optimized map operation for float arrays.
- * When possible (if size is divisible by four) the vectorized map function is called.
- * Otherwise, the generic (any types, any size) map function is called.
+ * When possible (if size is divisible by four) the vectorized map function is
+ * called. Otherwise, the generic (any types, any size) map function is called.
  *
  * This function overloads the templated generic function with float.
  */
@@ -99,8 +95,8 @@ void map_multiply(const T* const input,
 /*! \brief Apply log10 on every pixel of the input (float array) */
 void map_log10(const float* const input,
                float* const output,
-               const size_t	size,
-               const cudaStream_t	stream = 0);
+               const size_t size,
+               const cudaStream_t stream = 0);
 
 /*! \brief Divide every pixel of a float array by a value  */
 void map_divide(const float* const input,

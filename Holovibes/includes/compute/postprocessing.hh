@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
 
@@ -25,61 +21,61 @@ using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
 {
-	class ComputeDescriptor;
-	struct CoreBuffersEnv;
+class ComputeDescriptor;
+struct CoreBuffersEnv;
 
-	namespace compute
-	{
-		class Postprocessing
-		{
-		public:
-			/** \brief Constructor. */
-			Postprocessing(FunctionVector& fn_compute_vect,
-				CoreBuffersEnv& buffers,
-				const camera::FrameDescriptor& fd,
-				holovibes::ComputeDescriptor& cd);
+namespace compute
+{
+class Postprocessing
+{
+  public:
+    /** \brief Constructor. */
+    Postprocessing(FunctionVector& fn_compute_vect,
+                   CoreBuffersEnv& buffers,
+                   const camera::FrameDescriptor& fd,
+                   holovibes::ComputeDescriptor& cd);
 
-			/*! \brief Initialize convolution by allocating the corresponding
-			** buffer
-			*/
-			void init();
+    /*! \brief Initialize convolution by allocating the corresponding
+    ** buffer
+    */
+    void init();
 
-			/*! \brief Free the ressources for the postprocessing */
-			void dispose();
+    /*! \brief Free the ressources for the postprocessing */
+    void dispose();
 
-			/*! \brief Insert the Convolution function. TODO: Check if it works. */
-			void insert_convolution();
+    /*! \brief Insert the Convolution function. TODO: Check if it works. */
+    void insert_convolution();
 
-			/*! \brief Insert the normalization function. */
-			void insert_renormalize();
+    /*! \brief Insert the normalization function. */
+    void insert_renormalize();
 
-		private:
+  private:
+    //! used only when the image is composite convolution to do a convolution on
+    //! each component
+    void convolution_composite();
 
-			//! used only when the image is composite convolution to do a convolution on each component
-			void convolution_composite();
+    cuda_tools::UniquePtr<cuComplex> gpu_kernel_buffer_;
+    cuda_tools::UniquePtr<cuComplex> cuComplex_buffer_;
+    cuda_tools::UniquePtr<float> hsv_arr_;
 
-			cuda_tools::UniquePtr<cuComplex>	gpu_kernel_buffer_;
-			cuda_tools::UniquePtr<cuComplex> 	cuComplex_buffer_;
-			cuda_tools::UniquePtr<float>        hsv_arr_;
+    //! Result of the reduce operation of the current frame used to renormalize
+    //! the frames
+    cuda_tools::UniquePtr<double> reduce_result_;
 
-			//! Result of the reduce operation of the current frame used to renormalize the frames
-			cuda_tools::UniquePtr<double>		reduce_result_;
+    //! Vector function in which we insert the processing
+    FunctionVector& fn_compute_vect_;
 
-			//! Vector function in which we insert the processing
-			FunctionVector&				fn_compute_vect_;
+    //! Main buffers
+    CoreBuffersEnv& buffers_;
 
-			//! Main buffers
-			CoreBuffersEnv&				buffers_;
+    // Describes the frame size
+    const camera::FrameDescriptor& fd_;
 
-			// Describes the frame size
-			const camera::FrameDescriptor&	fd_;
+    //! Compute Descriptor
+    ComputeDescriptor& cd_;
 
-			//! Compute Descriptor
-			ComputeDescriptor&				cd_;
-
-			// plan used for the convolution (frame width, frame height, cufft_c2c)
-			CufftHandle						convolution_plan_;
-		};
-	}
-}
-
+    // plan used for the convolution (frame width, frame height, cufft_c2c)
+    CufftHandle convolution_plan_;
+};
+} // namespace compute
+} // namespace holovibes

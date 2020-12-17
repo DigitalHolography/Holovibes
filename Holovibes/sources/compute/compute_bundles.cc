@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 #include <exception>
 
@@ -19,71 +15,71 @@
 
 namespace holovibes
 {
-	UnwrappingResources::UnwrappingResources(
-		const unsigned capacity,
-		const size_t image_size)
-		: total_memory_(capacity)
-		, capacity_(capacity)
-		, size_(0)
-		, next_index_(0)
-		, gpu_unwrap_buffer_(nullptr)
-		, gpu_predecessor_(nullptr)
-		, gpu_angle_predecessor_(nullptr)
-		, gpu_angle_current_(nullptr)
-		, gpu_angle_copy_(nullptr)
-		, gpu_unwrapped_angle_(nullptr)
-	{
-		auto nb_unwrap_elts = image_size * capacity_;
+UnwrappingResources::UnwrappingResources(const unsigned capacity,
+                                         const size_t image_size)
+    : total_memory_(capacity)
+    , capacity_(capacity)
+    , size_(0)
+    , next_index_(0)
+    , gpu_unwrap_buffer_(nullptr)
+    , gpu_predecessor_(nullptr)
+    , gpu_angle_predecessor_(nullptr)
+    , gpu_angle_current_(nullptr)
+    , gpu_angle_copy_(nullptr)
+    , gpu_unwrapped_angle_(nullptr)
+{
+    auto nb_unwrap_elts = image_size * capacity_;
 
-		cudaXMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
-		cudaXMalloc(&gpu_predecessor_, sizeof(cufftComplex) * image_size);
-		cudaXMalloc(&gpu_angle_predecessor_, sizeof(float) * image_size);
-		cudaXMalloc(&gpu_angle_current_, sizeof(float) * image_size);
-		cudaXMalloc(&gpu_angle_copy_, sizeof(float) * image_size);
-		cudaXMalloc(&gpu_unwrapped_angle_, sizeof(float) * image_size);
+    cudaXMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
+    cudaXMalloc(&gpu_predecessor_, sizeof(cufftComplex) * image_size);
+    cudaXMalloc(&gpu_angle_predecessor_, sizeof(float) * image_size);
+    cudaXMalloc(&gpu_angle_current_, sizeof(float) * image_size);
+    cudaXMalloc(&gpu_angle_copy_, sizeof(float) * image_size);
+    cudaXMalloc(&gpu_unwrapped_angle_, sizeof(float) * image_size);
 
-		/* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
-	}
-
-	UnwrappingResources::~UnwrappingResources()
-	{
-		cudaXFree(gpu_unwrap_buffer_);
-		cudaXFree(gpu_predecessor_);
-		cudaXFree(gpu_angle_predecessor_);
-		cudaXFree(gpu_angle_current_);
-		cudaXFree(gpu_angle_copy_);
-		cudaXFree(gpu_unwrapped_angle_);
-	}
-
-	void UnwrappingResources::cudaRealloc(void *ptr, const size_t size)
-	{
-		cudaXFree(ptr);
-		cudaXMalloc(&ptr, size);
-	}
-
-	void UnwrappingResources::reallocate(const size_t image_size)
-	{
-		// We compare requested memory against available memory, and reallocate if needed.
-		if (capacity_ <= total_memory_)
-			return;
-
-		total_memory_ = capacity_;
-		auto nb_unwrap_elts = image_size * capacity_;
-
-		cudaRealloc(gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
-		cudaRealloc(gpu_predecessor_, sizeof(cufftComplex) * image_size);
-		cudaRealloc(gpu_angle_predecessor_, sizeof(float) * image_size);
-		cudaRealloc(gpu_angle_current_, sizeof(float) * image_size);
-		cudaRealloc(gpu_angle_copy_, sizeof(float) * image_size);
-		cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
-		cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
-	}
-
-	void UnwrappingResources::reset(const size_t capacity)
-	{
-		capacity_ = capacity;
-		size_ = 0;
-		next_index_ = 0;
-	}
+    /* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
+    cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
 }
+
+UnwrappingResources::~UnwrappingResources()
+{
+    cudaXFree(gpu_unwrap_buffer_);
+    cudaXFree(gpu_predecessor_);
+    cudaXFree(gpu_angle_predecessor_);
+    cudaXFree(gpu_angle_current_);
+    cudaXFree(gpu_angle_copy_);
+    cudaXFree(gpu_unwrapped_angle_);
+}
+
+void UnwrappingResources::cudaRealloc(void* ptr, const size_t size)
+{
+    cudaXFree(ptr);
+    cudaXMalloc(&ptr, size);
+}
+
+void UnwrappingResources::reallocate(const size_t image_size)
+{
+    // We compare requested memory against available memory, and reallocate if
+    // needed.
+    if (capacity_ <= total_memory_)
+        return;
+
+    total_memory_ = capacity_;
+    auto nb_unwrap_elts = image_size * capacity_;
+
+    cudaRealloc(gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
+    cudaRealloc(gpu_predecessor_, sizeof(cufftComplex) * image_size);
+    cudaRealloc(gpu_angle_predecessor_, sizeof(float) * image_size);
+    cudaRealloc(gpu_angle_current_, sizeof(float) * image_size);
+    cudaRealloc(gpu_angle_copy_, sizeof(float) * image_size);
+    cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
+    cudaXMemset(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts);
+}
+
+void UnwrappingResources::reset(const size_t capacity)
+{
+    capacity_ = capacity;
+    size_ = 0;
+    next_index_ = 0;
+}
+} // namespace holovibes

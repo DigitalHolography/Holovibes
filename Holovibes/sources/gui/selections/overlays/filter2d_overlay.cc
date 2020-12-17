@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 #include "filter2d_overlay.hh"
 #include "BasicOpenGLWindow.hh"
@@ -16,35 +12,35 @@
 
 namespace holovibes
 {
-	namespace gui
-	{
-		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Filter2D, parent)
-		{
-			color_ = { 0.f, 0.62f, 1.f };
-		}
-
-		void Filter2DOverlay::release(ushort frameSide)
-		{
-			checkCorners();
-
-			if (zone_.src() == zone_.dst())
-				return;
-
-			// handle Filter2D
-			auto window = dynamic_cast<HoloWindow *>(parent_);
-			if (window)
-			{
-				window->getCd()->setStftZone(zone_);
-				window->getPipe()->request_filter2D_roi_update();
-				window->getPipe()->request_filter2D_roi_end();
-				if (parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
-					return;
-			}
-
-			parent_->getCd()->fft_shift_enabled = false;
-
-			active_ = false;
-		}
-	}
+namespace gui
+{
+Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
+    : RectOverlay(KindOfOverlay::Filter2D, parent)
+{
+    color_ = {0.f, 0.62f, 1.f};
 }
+
+void Filter2DOverlay::release(ushort frameSide)
+{
+    checkCorners();
+
+    if (zone_.src() == zone_.dst())
+        return;
+
+    // handle Filter2D
+    auto window = dynamic_cast<HoloWindow*>(parent_);
+    if (window)
+    {
+        window->getCd()->setStftZone(zone_);
+        window->getPipe()->request_filter2D_roi_update();
+        window->getPipe()->request_filter2D_roi_end();
+        if (parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
+            return;
+    }
+
+    parent_->getCd()->fft_shift_enabled = false;
+
+    active_ = false;
+}
+} // namespace gui
+} // namespace holovibes

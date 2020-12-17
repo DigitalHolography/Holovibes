@@ -1,14 +1,10 @@
-/* **************************************************************************** */
-/*                       ,,                     ,,  ,,                          */
-/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
-/*   MM      MM           MM         `MA     ,V      MM                         */
-/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
-/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
-/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
-/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
-/*                                                                              */
-/* **************************************************************************** */
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
 
 /*! \file
  *
@@ -17,16 +13,17 @@
 
 #include <cufft.h>
 
-# include "config.hh"
+#include "config.hh"
 
 namespace holovibes
 {
-  /*! Regroup all resources used for phase unwrapping.
-  * Takes care of initialization and destruction. */
-  struct UnwrappingResources
-  {
+/*! Regroup all resources used for phase unwrapping.
+ * Takes care of initialization and destruction. */
+struct UnwrappingResources
+{
     /*! Initialize the capacity from history_size,
-     * set size and next_index to zero, and buffers pointers to null pointers. */
+     * set size and next_index to zero, and buffers pointers to null pointers.
+     */
     UnwrappingResources(const unsigned capacity, const size_t image_size);
 
     /*! If buffers were allocated, deallocate them. */
@@ -39,7 +36,7 @@ namespace holovibes
      * the capacity requested (in capacity_).
      *
      * \param image_size The number of pixels in an image. */
-	  void cudaRealloc(void *ptr, const size_t size);
+    void cudaRealloc(void* ptr, const size_t size);
     void reallocate(const size_t image_size);
 
     /*! Update history size without causing reallocation.
@@ -54,13 +51,14 @@ namespace holovibes
      * operations to the graphics card, which causes crashes. */
     size_t total_memory_;
     size_t capacity_; //!< Maximum number of matrices kept in history.
-    size_t size_; //!< Current number of matrices kept in history.
+    size_t size_;     //!< Current number of matrices kept in history.
 
-    unsigned next_index_; //!< Index of the next matrix to be overriden (the oldest).
+    unsigned
+        next_index_; //!< Index of the next matrix to be overriden (the oldest).
     /*! Buffer used to cumulate phase images. Phase being an angle, it is one
-    * part of a complex information, and can be stored in a float.
-    * Phase images stored here are summed up together at each iteration and
-    * added to the latest phase image. */
+     * part of a complex information, and can be stored in a float.
+     * Phase images stored here are summed up together at each iteration and
+     * added to the latest phase image. */
     float* gpu_unwrap_buffer_;
 
     /*! Copy of the previous complex (untouched) image. */
@@ -75,7 +73,6 @@ namespace holovibes
     float* gpu_angle_copy_;
     /*! Current phase image after unwrapping. */
     float* gpu_unwrapped_angle_;
-  };
+};
 
-
-}
+} // namespace holovibes
