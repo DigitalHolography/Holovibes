@@ -1,5 +1,9 @@
 ## Changelog
 
+### 8.9.3
+
+* Upgrade CUDA from 11.1 to 11.2
+
 ### 8.9.2
 
 * GUI: disable composite when stopping computations
