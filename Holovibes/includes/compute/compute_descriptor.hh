@@ -29,8 +29,8 @@
 
 namespace holovibes
 {
-const static std::string version =
-    "v8.9.3"; /*!< Current version of this project. */
+/*!< Current version of this project. */
+const static std::string version = "v8.9.4";
 
 /*! \brief Contains compute parameters.
  *
@@ -179,11 +179,11 @@ class ComputeDescriptor : public Observable
     //! Last window selected
     std::atomic<WindowKind> current_window{WindowKind::XYview};
     /*! \brief Number of images dequeued from input to gpu_input_queue and batch
-    *size of space transformation
-    **
-    ** time_transformation_stride is decorelated from batch size for
-    *performances reasons
-    */
+     *size of space transformation
+     **
+     ** time_transformation_stride is decorelated from batch size for
+     *performances reasons
+     */
     std::atomic<ushort> batch_size{1};
     //! Number of images used by SFTF i.e. depth of the SFTF cube
     std::atomic<ushort> time_transformation_size{1};

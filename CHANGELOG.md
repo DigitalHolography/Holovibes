@@ -1,5 +1,15 @@
 ## Changelog
 
+### 8.9.4
+
+* GUI: disable batch_size spinbox while recording
+* GUI: move convolve to image rendering panel
+* Fix: overflow when correcting number of frames exported
+* Fix: disable raw view while recording
+* Fix: contrast on cuts while using reticle
+* Fix: error window if cuda graphic card not detected
+* Fix: do not launch frame record if batch size greater than record queue size
+
 ### 8.9.3
 
 * Upgrade CUDA from 11.1 to 11.2
