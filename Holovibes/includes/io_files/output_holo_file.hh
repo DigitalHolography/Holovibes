@@ -65,7 +65,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      *  \throw    FileException if an error occurred while correcting the
      * sections
      */
-    void correct_number_of_frames(unsigned int nb_frames_written) override;
+    void correct_number_of_frames(size_t nb_frames_written) override;
 
   private:
     // Give access to private members to the factory

@@ -64,7 +64,7 @@ class OutputFrameFile : public FrameFile
      *  \throw    FileException if an error occurred while correcting the
      * sections
      */
-    virtual void correct_number_of_frames(unsigned int nb_frames_written) = 0;
+    virtual void correct_number_of_frames(size_t nb_frames_written) = 0;
 
     virtual void set_make_square_output(bool make_square_output);
 

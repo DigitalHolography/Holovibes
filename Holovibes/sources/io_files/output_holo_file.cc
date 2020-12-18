@@ -121,7 +121,7 @@ void OutputHoloFile::write_footer()
         throw FileException("Unable to write output holo file footer");
 }
 
-void OutputHoloFile::correct_number_of_frames(unsigned int nb_frames_written)
+void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
 {
     fpos_t previous_pos;
 

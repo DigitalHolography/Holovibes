@@ -109,7 +109,7 @@ size_t OutputMp4File::write_frame(const char* frame, size_t frame_size)
 
 void OutputMp4File::write_footer() {}
 
-void OutputMp4File::correct_number_of_frames(unsigned int nb_frames_written)
+void OutputMp4File::correct_number_of_frames(size_t nb_frames_written)
 {
     img_nb_ = nb_frames_written;
 }
