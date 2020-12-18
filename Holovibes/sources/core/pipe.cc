@@ -187,7 +187,8 @@ bool Pipe::make_requests()
 
     if (output_resize_requested_.load() != std::nullopt)
     {
-        gpu_output_queue_.resize(output_resize_requested_.load().value());
+        gpu_output_queue_.resize(output_resize_requested_.load().value(),
+                                 stream_);
         output_resize_requested_ = std::nullopt;
     }
 
@@ -438,7 +439,7 @@ void Pipe::insert_transfer_for_time_transformation()
     fn_compute_vect_.push_back([&]() {
         time_transformation_env_.gpu_time_transformation_queue
             ->enqueue_multiple(buffers_.gpu_spatial_transformation_buffer.get(),
-                               cd_.batch_size);
+                               cd_.batch_size, stream_);
         batch_env_.batch_index += cd_.batch_size;
         assert(batch_env_.batch_index <= cd_.time_transformation_stride);
     });
@@ -448,7 +449,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue,
                                unsigned short* frame,
                                const std::string& error)
 {
-    if (!output_queue.enqueue(frame))
+    if (!output_queue.enqueue(frame, stream_))
         throw CustomException(error, error_kind::fail_enqueue);
 }
 
@@ -469,7 +470,8 @@ void Pipe::insert_output_enqueue_raw_mode()
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     fn_compute_vect_.conditional_push_back([&]() {
-        std::cout << "@insert_output_enqueue_hologram_mode call before" << std::endl;
+        std::cout << "@insert_output_enqueue_hologram_mode call before"
+                  << std::endl;
         ++processed_output_fps_;
 
         safe_enqueue_output(
@@ -490,8 +492,8 @@ void Pipe::insert_output_enqueue_hologram_mode()
                 buffers_.gpu_output_frame_yz.get(),
                 "Can't enqueue the output yz frame in output yz queue");
         }
-        std::cout << "@insert_output_enqueue_hologram_mode call after" << std::endl;
-
+        std::cout << "@insert_output_enqueue_hologram_mode call after"
+                  << std::endl;
     });
 }
 
@@ -501,7 +503,8 @@ void Pipe::insert_raw_view()
     {
         fn_compute_vect_.push_back([&]() {
             gpu_input_queue_.copy_multiple(*get_raw_view_queue(),
-                                           cd_.batch_size);
+                                           cd_.batch_size,
+                                           stream_);
         });
     }
 }
@@ -535,7 +538,8 @@ void Pipe::insert_raw_record()
 
             gpu_input_queue_.copy_multiple(
                 *frame_record_env_.gpu_frame_record_queue_,
-                nb_frames_to_transfer);
+                nb_frames_to_transfer,
+                stream_);
 
             if (frame_record_env_.remaining_frames_to_record.has_value())
                 frame_record_env_.remaining_frames_to_record.value() -=
@@ -555,10 +559,12 @@ void Pipe::insert_hologram_record()
 
             if (gpu_output_queue_.get_fd().depth == 6)
                 frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(
-                    buffers_.gpu_output_frame.get());
+                    buffers_.gpu_output_frame.get(),
+                    stream_);
             else
                 frame_record_env_.gpu_frame_record_queue_->enqueue(
-                    buffers_.gpu_output_frame.get());
+                    buffers_.gpu_output_frame.get(),
+                    stream_);
 
             if (frame_record_env_.remaining_frames_to_record.has_value())
                 frame_record_env_.remaining_frames_to_record.value() -= 1;

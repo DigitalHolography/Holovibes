@@ -62,8 +62,7 @@ class Queue
           QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,
           unsigned int input_height = 0,
-          unsigned int bytes_per_pixel = 1,
-          const cudaStream_t stream = 0);
+          unsigned int bytes_per_pixel = 1);
 
     /*! \brief Destructor of the queue */
     ~Queue();
@@ -119,7 +118,7 @@ class Queue
     ** \param size the new size of the Queue
     ** \param stream
     */
-    void resize(const unsigned int size, const cudaStream_t stream = 0);
+    void resize(const unsigned int size, const cudaStream_t stream);
 
     /*! \brief Enqueue method
     **
@@ -138,7 +137,7 @@ class Queue
     *...)
     */
     bool enqueue(void* elt,
-                 const cudaStream_t stream = 0,
+                 const cudaStream_t stream,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy method for multiple elements
@@ -149,9 +148,8 @@ class Queue
     ** \param nb_elts Number of elements to add in the queue
     ** \param stream
     */
-    void copy_multiple(Queue& dest,
-                       unsigned int nb_elts,
-                       const cudaStream_t stream = 0);
+    void
+    copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream);
 
     /*! \brief Enqueue method for multiple elements
     **
@@ -169,12 +167,12 @@ class Queue
     */
     bool enqueue_multiple(void* elts,
                           unsigned int nb_elts,
-                          const cudaStream_t stream = 0,
+                          const cudaStream_t stream,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     void Queue::enqueue_from_48bit(
         void* src,
-        const cudaStream_t stream = 0,
+        const cudaStream_t stream,
         cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method overload
@@ -188,7 +186,7 @@ class Queue
     *...)
     */
     void dequeue(void* dest,
-                 const cudaStream_t stream = 0,
+                 const cudaStream_t stream,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method

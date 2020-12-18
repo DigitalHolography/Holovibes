@@ -155,7 +155,7 @@ TEST(SimpleQueueResize, QueueResize)
     ASSERT_EQ(q.get_max_size(), 2);
 
     unsigned int new_size = 10;
-    q.resize(new_size); // Resize here, empty the queue
+    q.resize(new_size, stream); // Resize here, empty the queue
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), new_size);
 }
@@ -288,7 +288,7 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.resize(2); // reset, same size
+    q.resize(2, stream); // reset, same size
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
 
@@ -797,7 +797,7 @@ TEST(DstOverflowCopyMultiple, QueueCopyMultiple)
     // Copy all elements from q_src to q_dst
     // But the size of q_dst is lower than q_dst
     // This case needs to be correctly handled
-    q_src.copy_multiple(q_dst, q_src.get_size());
+    q_src.copy_multiple(q_dst, q_src.get_size(), stream);
 
     ASSERT_EQ(q_dst.get_size(), 3); // destination queue max size
     ASSERT_EQ(q_dst.get_start_index(), 0);
@@ -897,7 +897,7 @@ TEST(CircularDstCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(q_dst.get_size(), 0);
     ASSERT_EQ(q_dst.get_start_index(), 2);
 
-    q_src.copy_multiple(q_dst, 2);
+    q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(q_dst.get_start_index(), 2);
     ASSERT_EQ(q_dst.get_end_index(), 1);

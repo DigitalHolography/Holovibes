@@ -166,7 +166,8 @@ bool ICompute::update_time_transformation_size(
         /* This will resize cuts buffers: Some modifications are to be applied
          * on opengl to work */
         time_transformation_env_.gpu_time_transformation_queue->resize(
-            time_transformation_size);
+            time_transformation_size,
+            stream_);
     }
     catch (std::exception&)
     {

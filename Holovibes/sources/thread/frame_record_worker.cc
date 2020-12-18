@@ -132,12 +132,12 @@ Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 {
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
-        raw_view_queue->resize(4);
+        raw_view_queue->resize(4, stream_.get());
 
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
     if (output_queue)
-        output_queue->resize(4);
+        output_queue->resize(4, stream_.get());
 
     if (raw_record_)
     {
@@ -183,11 +183,13 @@ void FrameRecordWorker::reset_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
-        raw_view_queue->resize(global::global_config.output_queue_max_size);
+        raw_view_queue->resize(global::global_config.output_queue_max_size,
+                               stream_.get());
 
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
     if (output_queue)
-        output_queue->resize(global::global_config.output_queue_max_size);
+        output_queue->resize(global::global_config.output_queue_max_size,
+                             stream_.get());
 }
 } // namespace holovibes::worker

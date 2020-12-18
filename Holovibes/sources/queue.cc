@@ -28,8 +28,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
              Queue::QueueType type,
              unsigned int input_width,
              unsigned int input_height,
-             unsigned int bytes_per_pixel,
-             const cudaStream_t stream)
+             unsigned int bytes_per_pixel)
     : fd_(fd)
     , frame_size_(fd_.frame_size())
     , frame_res_(fd_.frame_res())
@@ -52,8 +51,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     }
 
     // Needed if input is embedded into a bigger square
-    cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
-    cudaXStreamSynchronize(stream);
+    cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
 
     fd_.byteEndian = Endianness::LittleEndian;
 
