@@ -412,7 +412,7 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
+    fn_compute_vect_.conditional_push_back([=]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -470,8 +470,6 @@ void Pipe::insert_output_enqueue_raw_mode()
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     fn_compute_vect_.conditional_push_back([&]() {
-        std::cout << "@insert_output_enqueue_hologram_mode call before"
-                  << std::endl;
         ++processed_output_fps_;
 
         safe_enqueue_output(
@@ -492,8 +490,6 @@ void Pipe::insert_output_enqueue_hologram_mode()
                 buffers_.gpu_output_frame_yz.get(),
                 "Can't enqueue the output yz frame in output yz queue");
         }
-        std::cout << "@insert_output_enqueue_hologram_mode call after"
-                  << std::endl;
     });
 }
 

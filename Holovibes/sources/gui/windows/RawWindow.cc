@@ -309,7 +309,7 @@ void RawWindow::paintGL()
 
     // Release resources (needs to be done at each call) and sync
     cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(cuStream);
 
     // Texture creationg
     glBindTexture(GL_TEXTURE_2D, Tex);

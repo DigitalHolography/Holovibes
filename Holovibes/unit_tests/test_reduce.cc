@@ -12,6 +12,8 @@
 #include "gtest/gtest.h"
 #include "test_reduce.cuh"
 
+static constexpr cudaStream_t stream = 0;
+
 using uint = unsigned int;
 
 template <typename T, typename U>
@@ -104,7 +106,7 @@ TEST(ReduceTest, RegularTest)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -120,7 +122,7 @@ TEST(ReduceTest, AnamorphicTest)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -136,7 +138,7 @@ TEST(ReduceTest, OddTest)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -152,7 +154,7 @@ TEST(ReduceTest, Test_32x32)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -168,7 +170,7 @@ TEST(ReduceTest, Test_31x31)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -184,7 +186,7 @@ TEST(ReduceTest, Test_33x32)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -200,7 +202,7 @@ TEST(ReduceTest, Test_1024x128)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -216,7 +218,7 @@ TEST(ReduceTest, Test_1024x127)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -232,7 +234,7 @@ TEST(ReduceTest, Test_1024x129)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -248,7 +250,7 @@ TEST(ReduceTest, Test_1023x129)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -264,7 +266,7 @@ TEST(ReduceTest, Test_64x64)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -280,7 +282,7 @@ TEST(ReduceTest, Test_not_power_2)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -296,7 +298,7 @@ TEST(ReduceTest, Test_127)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -312,7 +314,7 @@ TEST(ReduceTest, Test_128)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -328,7 +330,7 @@ TEST(ReduceTest, Test_129)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -344,7 +346,7 @@ TEST(ReduceTest, Test_63)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -360,7 +362,7 @@ TEST(ReduceTest, Test_64)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -376,7 +378,7 @@ TEST(ReduceTest, Test_65)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -392,7 +394,7 @@ TEST(ReduceTest, Test_29)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -408,7 +410,7 @@ TEST(ReduceTest, Test_2048x2048)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -424,7 +426,7 @@ TEST(ReduceTest, Test_256x2048)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -440,7 +442,7 @@ TEST(ReduceTest, Test_256x1024)
         init_data_sum(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_add(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -456,7 +458,7 @@ TEST(ReduceTest, Test_min_1024x1024)
         init_data_min(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_min(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -472,7 +474,7 @@ TEST(ReduceTest, Test_int_max_1024x1024)
         init_data_max(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_max(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }
@@ -488,7 +490,7 @@ TEST(ReduceTest, Test_float_max_1024x1024)
         init_data_max(&d_data, &d_result, image_height * image_width);
 
     test_gpu_reduce_max(d_data, d_result, image_width * image_height);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
 }

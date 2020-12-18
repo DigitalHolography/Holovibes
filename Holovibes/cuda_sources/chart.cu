@@ -225,7 +225,7 @@ static double compute_average(float* input,
                 cudaMemcpyDeviceToHost,
                 stream);
     // Needs to synchronize since host memory is used after
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     cpu_avg_zone /= (zone.height() * zone.width());
 
@@ -274,7 +274,7 @@ static double compute_std(float* input,
                 cudaMemcpyDeviceToHost,
                 stream);
     // Needs to synchronize since host memory is used after
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
     cpu_std_zone = sqrt(cpu_std_zone / (zone.height() * zone.width()));
 
     return cpu_std_zone;

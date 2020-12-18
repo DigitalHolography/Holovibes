@@ -69,7 +69,7 @@ static void map_test(size_t size, T value)
         map_divide(d_data, d_data, size, value, stream);
     else if (OP == MAP_OPERATION::MULTIPLY)
         map_multiply(d_data, d_data, size, value, stream);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 
     ASSERT_TRUE(check_result(h_data, d_data, size));
 
