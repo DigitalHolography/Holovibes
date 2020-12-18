@@ -24,6 +24,8 @@
 #include "batch_gpib_worker.hh"
 #include "compute_worker.hh"
 
+#include "common.cuh"
+
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
@@ -52,7 +54,18 @@ class Holovibes
 {
     struct CudaStreams
     {
-        cudaStream_t reader_stream = 0;
+        CudaStreams()
+        {
+            cudaSafeCall(cudaStreamCreate(&reader_stream));
+            cudaSafeCall(cudaStreamCreate(&compute_stream));
+        }
+
+        ~CudaStreams()
+        {
+            cudaSafeCall(cudaStreamDestroy(reader_stream));
+            cudaSafeCall(cudaStreamDestroy(compute_stream));
+        }
+        cudaStream_t reader_stream;
         cudaStream_t recorder_stream = 0;
         cudaStream_t compute_stream = 0;
     };

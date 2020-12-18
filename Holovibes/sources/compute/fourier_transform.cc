@@ -113,7 +113,6 @@ void FourierTransform::insert_fft1()
 {
     const float z = cd_.zdistance;
 
-    std::cout << "@fft1_lens before" << std::endl;
 
     fft1_lens(gpu_lens_.get(),
               lens_side_size_,
@@ -123,9 +122,7 @@ void FourierTransform::insert_fft1()
               z,
               cd_.pixel_size,
               stream_);
-    std::cout << "@fft1_lens after" << std::endl;
 
-    std::cout << "@fft1_push_back before" << std::endl;
     fn_compute_vect_.push_back([=]() {
         fft_1(buffers_.gpu_spatial_transformation_buffer,
               buffers_.gpu_spatial_transformation_buffer,
@@ -135,7 +132,6 @@ void FourierTransform::insert_fft1()
               fd_.frame_res(),
               stream_);
     });
-    std::cout << "@fft1_push_back after" << std::endl;
 }
 
 void FourierTransform::insert_fft2()

@@ -38,7 +38,6 @@ void fft1_lens(cuComplex* lens,
     else
         square_lens = lens;
 
-    std::cout << "Lens stream : " << stream << std::endl;
     kernel_quadratic_lens<<<blocks, threads, 0, stream>>>(square_lens,
                                                           lens_side_size,
                                                           lambda,

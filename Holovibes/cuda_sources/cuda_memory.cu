@@ -41,10 +41,7 @@ void cudaXFree(void* devPtr) { cudaSafeCall(cudaFree(devPtr)); }
 
 void cudaXFreeHost(void* devPtr) { cudaSafeCall(cudaFreeHost(devPtr)); }
 
-void cudaXStreamSynchronize(const cudaStream_t stream,
-                            const char* file,
-                            const int line)
+void cudaXStreamSynchronize(const cudaStream_t stream)
 {
-    std::cout << "File : " << file << " Line : " << line << std::endl;
     cudaSafeCall(cudaStreamSynchronize(stream));
 }

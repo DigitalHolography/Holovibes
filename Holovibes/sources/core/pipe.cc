@@ -295,7 +295,6 @@ void Pipe::refresh()
 
     fn_compute_vect_.clear();
 
-    std::cout << "@make_resquest before" << std::endl;
 
     // Aborting if allocation failed
     if (!make_requests())
@@ -304,7 +303,6 @@ void Pipe::refresh()
         return;
     }
 
-    std::cout << "@make_resquest after" << std::endl;
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -339,11 +337,9 @@ void Pipe::refresh()
 
     const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
-    std::cout << "@insert_wait_frames before" << std::endl;
 
     insert_wait_frames();
 
-    std::cout << "@insert_wait_frames after" << std::endl;
 
     insert_raw_record();
 
@@ -351,12 +347,10 @@ void Pipe::refresh()
 
     converts_->insert_complex_conversion(gpu_input_queue_);
 
-    std::cout << "@insert_fft before" << std::endl;
 
     // Spatial transform
     fourier_transforms_->insert_fft();
 
-    std::cout << "@insert_fft after" << std::endl;
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
