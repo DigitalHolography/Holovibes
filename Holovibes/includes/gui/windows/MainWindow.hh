@@ -59,12 +59,12 @@ class MainWindow : public QMainWindow, public Observer
 #pragma region Public Methods
   public:
     /*! \brief Set keyboard shortcuts, set visibility and load default values
-    *from holovibes.ini.
-    **
-    ** \param holovibes holovibes object
-    ** \param parent Qt parent (should be null as it is the GUI hierarchy top
-    *class)
-    */
+     *from holovibes.ini.
+     **
+     ** \param holovibes holovibes object
+     ** \param parent Qt parent (should be null as it is the GUI hierarchy top
+     *class)
+     */
     MainWindow(Holovibes& holovibes, QWidget* parent = 0);
     ~MainWindow();
 
@@ -289,6 +289,7 @@ class MainWindow : public QMainWindow, public Observer
     bool is_enabled_camera_ = false;
     double z_step_ = 0.005f;
 
+    bool is_recording_ = false;
     unsigned record_frame_step_ = 512;
     RecordMode record_mode_ = RecordMode::RAW;
 

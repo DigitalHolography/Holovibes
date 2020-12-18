@@ -416,7 +416,7 @@ void MainWindow::on_notify()
     ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!is_raw);
+    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
 
     if (cd_.batch_size > input_queue_capacity)
         cd_.batch_size = input_queue_capacity;
@@ -3112,6 +3112,8 @@ void MainWindow::record_finished(RecordMode record_mode)
     ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
+    ui.BatchSizeSpinBox->setEnabled(true);
+    is_recording_ = false;
 }
 
 void MainWindow::start_record()
@@ -3141,6 +3143,9 @@ void MainWindow::start_record()
     raw_window.reset(nullptr);
     disable_raw_view();
     ui.RawDisplayingCheckBox->setHidden(true);
+
+    ui.BatchSizeSpinBox->setEnabled(false);
+    is_recording_ = true;
 
     ui.ExportRecPushButton->setEnabled(false);
     ui.ExportStopPushButton->setEnabled(true);
