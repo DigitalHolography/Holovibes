@@ -316,8 +316,10 @@ void rescale_float(const float* input,
                                                     gpu_local_max);
     cudaCheckError();
 
-    float* cpu_local_min = new float[blocks];
-    float* cpu_local_max = new float[blocks];
+    float* cpu_local_min;
+    float* cpu_local_max;
+    cudaXMallocHost(&cpu_local_min, sizeof(float) * blocks);
+    cudaXMallocHost(&cpu_local_max, sizeof(float) * blocks);
     cudaXMemcpyAsync(cpu_local_min,
                 gpu_local_min,
                 float_blocks,
@@ -326,7 +328,7 @@ void rescale_float(const float* input,
                 gpu_local_max,
                 float_blocks,
                 cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
+    cudaDeviceSynchronize();
 
     constexpr float max_intensity = max_ushort_value_to_float;
     const float min_element =
@@ -341,8 +343,8 @@ void rescale_float(const float* input,
 
     map_generic<float>(output, output, size, lambda, stream);
     cudaCheckError();
-    delete[] cpu_local_max;
-    delete[] cpu_local_min;
+    cudaXFreeHost(cpu_local_max);
+    cudaXFreeHost(cpu_local_min);
     cudaXFree(gpu_local_min);
     cudaXFree(gpu_local_max);
 }
@@ -359,7 +361,7 @@ void rescale_float_unwrap2d(float* input,
     const uint blocks = map_blocks_to_problem(frame_res, threads);
     uint float_frame_res = sizeof(float) * frame_res;
     cudaXMemcpyAsync(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
+    cudaDeviceSynchronize();
     auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
     min = *minmax.first;
     max = *minmax.second;

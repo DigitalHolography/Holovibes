@@ -415,7 +415,8 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor& cd,
     cudaXMalloc(&gpu_convolution_matrix, frame_res * sizeof(float));
     cudaXMemsetAsync(gpu_convolution_matrix, 0, frame_res * sizeof(float), stream);
 
-    float* blur_matrix = new float[cd.h_blur_kernel_size];
+    float* blur_matrix;
+    cudaXMallocHost(&blur_matrix, cd.h_blur_kernel_size * sizeof(float));
     float blur_value =
         1.0f / (float)(cd.h_blur_kernel_size * cd.h_blur_kernel_size);
     unsigned min_pos_kernel = height / 2 - cd.h_blur_kernel_size / 2;
@@ -466,7 +467,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor& cd,
                        stream);
     cudaCheckError();
 
-    delete[] blur_matrix;
+    cudaXFreeHost(blur_matrix);
     cudaXFree(gpu_memory_space);
     cudaXFree(gpu_cuComplex_buffer);
     cudaXFree(gpu_convolution_matrix);

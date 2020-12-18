@@ -37,7 +37,7 @@ UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size,
     cudaXMalloc(&gpu_z_, sizeof(cufftComplex) * image_resolution_);
     cudaXMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_);
     cudaXMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_);
-    minmax_buffer_ = new float[image_resolution_]();
+    cudaXMallocHost(&minmax_buffer_, sizeof(float) * image_resolution_);
 }
 
 UnwrappingResources_2d::~UnwrappingResources_2d()
@@ -50,7 +50,7 @@ UnwrappingResources_2d::~UnwrappingResources_2d()
     cudaXFree(gpu_z_);
     cudaXFree(gpu_grad_eq_x_);
     cudaXFree(gpu_grad_eq_y_);
-    delete[] minmax_buffer_;
+    cudaXFreeHost(minmax_buffer_ );
 }
 
 void UnwrappingResources_2d::cudaRealloc(void* ptr, const size_t size)
@@ -72,8 +72,8 @@ void UnwrappingResources_2d::reallocate(const size_t image_size)
     cudaRealloc(gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_);
     cudaRealloc(gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_);
     if (minmax_buffer_)
-        delete[] minmax_buffer_;
+        cudaXFreeHost(minmax_buffer_);
     minmax_buffer_ = nullptr;
-    minmax_buffer_ = new float[image_resolution_]();
+    cudaXMallocHost(&minmax_buffer_, sizeof(float) * image_resolution_);
 }
 } // namespace holovibes

@@ -412,8 +412,7 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back(
-        [=]() { cudaXStreamSynchronize(stream_, __FILE__, __LINE__); });
+    fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -439,7 +438,8 @@ void Pipe::insert_transfer_for_time_transformation()
     fn_compute_vect_.push_back([&]() {
         time_transformation_env_.gpu_time_transformation_queue
             ->enqueue_multiple(buffers_.gpu_spatial_transformation_buffer.get(),
-                               cd_.batch_size, stream_);
+                               cd_.batch_size,
+                               stream_);
         batch_env_.batch_index += cd_.batch_size;
         assert(batch_env_.batch_index <= cd_.time_transformation_stride);
     });

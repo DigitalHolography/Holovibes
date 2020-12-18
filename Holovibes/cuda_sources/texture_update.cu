@@ -70,6 +70,6 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
             dim3(fd.width, fd.height));
     }
 
-    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
+    cudaDeviceSynchronize();
     cudaCheckError();
 }
