@@ -192,29 +192,32 @@ void ImageAccumulation::insert_copy_accumulation_result()
         // XY view
         if (image_acc_env_.gpu_accumulation_xy_queue &&
             cd_.img_acc_slice_xy_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame,
                 image_acc_env_.gpu_float_average_xy_frame,
                 image_acc_env_.gpu_accumulation_xy_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
 
         // XZ view
         if (image_acc_env_.gpu_accumulation_xz_queue &&
             cd_.img_acc_slice_xz_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame_xz,
                 image_acc_env_.gpu_float_average_xz_frame,
                 image_acc_env_.gpu_accumulation_xz_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
 
         // YZ view
         if (image_acc_env_.gpu_accumulation_yz_queue &&
             cd_.img_acc_slice_yz_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame_yz,
                 image_acc_env_.gpu_float_average_yz_frame,
                 image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
     };
 
     fn_compute_vect_.conditional_push_back(copy_accumulation_result);

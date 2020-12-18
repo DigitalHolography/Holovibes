@@ -205,10 +205,11 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         size_t frames_total_size = frames_read * frame_size_;
 
         // Memcopy in the gpu buffer
-        cudaXMemcpy(gpu_frame_buffer_,
+        cudaXMemcpyAsync(gpu_frame_buffer_,
                     cpu_frame_buffer_,
                     frames_total_size,
-                    cudaMemcpyHostToDevice);
+                    cudaMemcpyHostToDevice,
+                    stream_);
     }
     catch (const io_files::FileException& e)
     {

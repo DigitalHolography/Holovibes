@@ -293,7 +293,7 @@ void RawWindow::paintGL()
     // Put the frame inside the cuda ressrouce
     if (cd_->img_type == ImgType::Composite)
     {
-        cudaXMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
+        cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
     else
     {
@@ -304,7 +304,7 @@ void RawWindow::paintGL()
                                   fd_.frame_res(),
                                   fd_.depth,
                                   bitshift,
-                                  0);
+                                  cuStream);
     }
 
     // Release resources (needs to be done at each call) and sync

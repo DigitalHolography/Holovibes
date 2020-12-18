@@ -58,16 +58,18 @@ class Holovibes
         {
             cudaSafeCall(cudaStreamCreate(&reader_stream));
             cudaSafeCall(cudaStreamCreate(&compute_stream));
+            cudaSafeCall(cudaStreamCreate(&recorder_stream));
         }
 
         ~CudaStreams()
         {
             cudaSafeCall(cudaStreamDestroy(reader_stream));
             cudaSafeCall(cudaStreamDestroy(compute_stream));
+            cudaSafeCall(cudaStreamDestroy(recorder_stream));
         }
         cudaStream_t reader_stream;
-        cudaStream_t recorder_stream = 0;
-        cudaStream_t compute_stream = 0;
+        cudaStream_t compute_stream;
+        cudaStream_t recorder_stream;
     };
 
   public:
