@@ -46,7 +46,8 @@ class Rendering
               ComputeDescriptor& cd,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
-              ICompute* Ic);
+              ICompute* Ic,
+              const cudaStream_t& stream);
 
     /** \brief insert the functions relative to the fft shift.
 
@@ -97,8 +98,7 @@ class Rendering
                              const uint width,
                              const uint height,
                              const uint offset,
-                             WindowKind view,
-                             const cudaStream_t stream = 0);
+                             WindowKind view);
 
     /** \brief Set the maximum and minimum contrast boundaries (according to the
        percentile)
@@ -126,6 +126,8 @@ class Rendering
     ComputeDescriptor& cd_;
     /// Pointer on the parent.
     ICompute* Ic_;
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes

@@ -29,7 +29,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ComputeDescriptor& cd,
                      const camera::FrameDescriptor& input_fd,
                      const camera::FrameDescriptor& output_fd,
-                     ICompute* Ic)
+                     ICompute* Ic,
+                     const cudaStream_t& stream)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -39,6 +40,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , input_fd_(input_fd)
     , fd_(output_fd)
     , Ic_(Ic)
+    , stream_(stream)
 {
 }
 
@@ -52,14 +54,16 @@ void Rendering::insert_fft_shift()
                                   buffers_.gpu_postprocess_frame.get()),
                               1,
                               fd_.width,
-                              fd_.height);
+                              fd_.height,
+                              stream_);
             });
         else
             fn_compute_vect_.conditional_push_back([=]() {
                 shift_corners(buffers_.gpu_postprocess_frame,
                               1,
                               fd_.width,
-                              fd_.height);
+                              fd_.height,
+                              stream_);
             });
     }
 }
@@ -82,7 +86,8 @@ void Rendering::insert_chart()
                                                input_fd_.width,
                                                input_fd_.height,
                                                signal_zone,
-                                               noise_zone);
+                                               noise_zone,
+                                               stream_);
 
             if (cd_.chart_display_enabled)
                 chart_env_.chart_display_queue_->push_back(point);
@@ -134,7 +139,8 @@ void Rendering::insert_main_log()
     fn_compute_vect_.conditional_push_back([=]() {
         map_log10(buffers_.gpu_postprocess_frame.get(),
                   buffers_.gpu_postprocess_frame.get(),
-                  buffers_.gpu_postprocess_frame_size);
+                  buffers_.gpu_postprocess_frame_size,
+                  stream_);
     });
 }
 
@@ -145,7 +151,8 @@ void Rendering::insert_slice_log()
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_xz.get(),
                       buffers_.gpu_postprocess_frame_xz.get(),
-                      fd_.width * cd_.time_transformation_size);
+                      fd_.width * cd_.time_transformation_size,
+                      stream_);
         });
     }
     if (cd_.log_scale_slice_yz_enabled)
@@ -153,7 +160,8 @@ void Rendering::insert_slice_log()
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                       buffers_.gpu_postprocess_frame_yz.get(),
-                      fd_.height * cd_.time_transformation_size);
+                      fd_.height * cd_.time_transformation_size,
+                      stream_);
         });
     }
 }
@@ -196,7 +204,12 @@ void Rendering::insert_apply_contrast(WindowKind view)
             break;
         }
 
-        apply_contrast_correction(input, size, dynamic_range, min, max);
+        apply_contrast_correction(input,
+                                  size,
+                                  dynamic_range,
+                                  min,
+                                  max,
+                                  stream_);
     });
 }
 
@@ -267,8 +280,7 @@ void Rendering::autocontrast_caller(float* input,
                                     const uint width,
                                     const uint height,
                                     const uint offset,
-                                    WindowKind view,
-                                    const cudaStream_t stream)
+                                    WindowKind view)
 {
     constexpr uint percent_size = 2;
 
@@ -287,7 +299,8 @@ void Rendering::autocontrast_caller(float* input,
                                    percent_out,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled);
+                                   cd_.reticle_enabled,
+                                   stream_);
         set_contrast_min_max(percent_out,
                              cd_.contrast_min_slice_xy,
                              cd_.contrast_max_slice_xy);
@@ -301,7 +314,8 @@ void Rendering::autocontrast_caller(float* input,
                                    percent_out,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled);
+                                   cd_.reticle_enabled,
+                                   stream_);
         set_contrast_min_max(percent_out,
                              cd_.contrast_min_slice_yz,
                              cd_.contrast_max_slice_yz);
@@ -315,7 +329,8 @@ void Rendering::autocontrast_caller(float* input,
                                    percent_out,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled);
+                                   cd_.reticle_enabled,
+                                   stream_);
         set_contrast_min_max(percent_out,
                              cd_.contrast_min_slice_xz,
                              cd_.contrast_max_slice_xz);

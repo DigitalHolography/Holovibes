@@ -21,7 +21,8 @@ void rgb(cuComplex* input,
          const ushort blue,
          const float weight_r,
          const float weight_g,
-         const float weight_b);
+         const float weight_b,
+         const cudaStream_t stream);
 
 void postcolor_normalize(float* output,
                          const uint frame_res,
@@ -29,4 +30,5 @@ void postcolor_normalize(float* output,
                          holovibes::units::RectFd selection,
                          const float weight_r,
                          const float weight_g,
-                         const float weight_b);
+                         const float weight_b,
+                         const cudaStream_t stream);

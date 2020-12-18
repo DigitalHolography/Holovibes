@@ -29,12 +29,14 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      ImageAccEnv& image_acc_env,
                                      const CoreBuffersEnv& buffers,
                                      const camera::FrameDescriptor& fd,
-                                     const holovibes::ComputeDescriptor& cd)
+                                     const holovibes::ComputeDescriptor& cd,
+                                     const cudaStream_t& stream)
     : fn_compute_vect_(fn_compute_vect)
     , image_acc_env_(image_acc_env)
     , buffers_(buffers)
     , fd_(fd)
     , cd_(cd)
+    , stream_(stream)
 {
 }
 
@@ -134,7 +136,7 @@ void ImageAccumulation::compute_average(
     if (gpu_accumulation_queue)
     {
         // Enqueue the computed frame in the accumulation queue
-        gpu_accumulation_queue->enqueue(gpu_input_frame);
+        gpu_accumulation_queue->enqueue(gpu_input_frame, stream_);
 
         // Compute the average and store it in the output frame
         accumulate_images(
@@ -143,7 +145,8 @@ void ImageAccumulation::compute_average(
             gpu_accumulation_queue->get_size(),
             gpu_accumulation_queue->get_max_size(),
             image_acc_level,
-            frame_res);
+            frame_res,
+            stream_);
     }
 }
 

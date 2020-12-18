@@ -14,10 +14,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 # --extended-lambda: enable __device__ lambda
-# --default-stream per-thread: Every host thread has its own stream.
-# Each thread uses its default stream as a regular stream
-# (https://developer.nvidia.com/blog/gpu-pro-tip-cuda-7-streams-simplify-concurrency/)
-string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda --default-stream per-thread")
+string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
 
 set(HOLO_INCLUDES
     cuda_includes/

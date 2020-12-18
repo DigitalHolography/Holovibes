@@ -33,4 +33,5 @@ void convolution_kernel(float* gpu_input,
                         const uint size,
                         const cuComplex* gpu_kernel,
                         const bool divide_convolution_enabled,
-                        const bool normalize_enabled);
+                        const bool normalize_enabled,
+                        const cudaStream_t stream);

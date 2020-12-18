@@ -127,7 +127,8 @@ void input_queue_to_input_buffer(void* output,
                                  const int batch_size,
                                  const uint current_queue_index,
                                  const uint queue_size,
-                                 const uint depth)
+                                 const uint depth,
+                                 const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -150,7 +151,7 @@ void input_queue_to_input_buffer(void* output,
     {
     case 1:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
                                   reinterpret_cast<uchar*>(input),
                                   convert_8_bit,
                                   frame_res,
@@ -160,7 +161,7 @@ void input_queue_to_input_buffer(void* output,
         break;
     case 2:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
                                   reinterpret_cast<ushort*>(input),
                                   convert_16_bit,
                                   frame_res,
@@ -170,7 +171,7 @@ void input_queue_to_input_buffer(void* output,
         break;
     case 4:
         kernel_input_queue_to_input_buffer<cuComplex, float>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
                                   reinterpret_cast<float*>(input),
                                   convert_32_bit,
                                   frame_res,
@@ -297,7 +298,7 @@ void rescale_float(const float* input,
     const uint blocks = map_blocks_to_problem(size, threads);
 
     // TODO : See if gpu_postprocess_frame could be used directly.
-    cudaXMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
+    cudaXMemcpyAsync(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice, stream);
 
     // Computing minimum and maximum values, in order to rescale properly.
     float* gpu_local_min;
@@ -317,14 +318,15 @@ void rescale_float(const float* input,
 
     float* cpu_local_min = new float[blocks];
     float* cpu_local_max = new float[blocks];
-    cudaXMemcpy(cpu_local_min,
+    cudaXMemcpyAsync(cpu_local_min,
                 gpu_local_min,
                 float_blocks,
-                cudaMemcpyDeviceToHost);
-    cudaXMemcpy(cpu_local_max,
+                cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(cpu_local_max,
                 gpu_local_max,
                 float_blocks,
-                cudaMemcpyDeviceToHost);
+                cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
 
     constexpr float max_intensity = max_ushort_value_to_float;
     const float min_element =
@@ -356,7 +358,8 @@ void rescale_float_unwrap2d(float* input,
     const uint threads = THREADS_128;
     const uint blocks = map_blocks_to_problem(frame_res, threads);
     uint float_frame_res = sizeof(float) * frame_res;
-    cudaXMemcpy(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
     auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
     min = *minmax.first;
     max = *minmax.second;
@@ -404,8 +407,8 @@ static __device__ ushort device_float_to_ushort(const float input,
 void complex_to_uint(const cuComplex* const input,
                      uint* const output,
                      const uint size,
-                     const uint shift,
-                     cudaStream_t stream = 0)
+                     cudaStream_t stream,
+                     const uint shift)
 {
     const auto lambda_complex_to_ushort =
         [shift] __device__(const cuComplex in) -> uint {
@@ -428,8 +431,8 @@ void complex_to_uint(const cuComplex* const input,
 void float_to_ushort(const float* const input,
                      ushort* const output,
                      const uint size,
-                     const uint shift,
-                     cudaStream_t stream)
+                     cudaStream_t stream,
+                     const uint shift)
 {
     const auto lambda = [shift] __device__(const float in) -> ushort {
         return device_float_to_ushort(in, shift);
@@ -440,8 +443,8 @@ void float_to_ushort(const float* const input,
 void ushort_to_shifted_ushort(const ushort* const input,
                               ushort* const output,
                               const uint size,
-                              const uint shift,
-                              cudaStream_t stream = 0)
+                              cudaStream_t stream,
+                              const uint shift)
 {
     const auto lambda_shift_ushort =
         [shift] __device__(const ushort in) -> ushort { return in << shift; };
@@ -462,8 +465,8 @@ void ushort_to_uchar(const ushort* input,
 void uchar_to_shifted_uchar(const uchar* input,
                             uchar* output,
                             const uint size,
-                            const uint shift,
-                            cudaStream_t stream = 0)
+                            cudaStream_t stream,
+                            const uint shift)
 {
     const auto lambda_shift_uchar =
         [shift] __device__(const uchar in) -> uchar { return in << shift; };
@@ -539,7 +542,8 @@ void convert_frame_for_display(const void* input,
                                void* output,
                                const uint size,
                                const uint depth,
-                               const ushort shift)
+                               const ushort shift,
+                               const cudaStream_t stream)
 {
     if (depth == 8)
     {
@@ -547,6 +551,7 @@ void convert_frame_for_display(const void* input,
         complex_to_uint(static_cast<const cuComplex* const>(input),
                         static_cast<uint* const>(output),
                         size,
+                        stream,
                         shift);
     }
     else if (depth == 4)
@@ -554,6 +559,7 @@ void convert_frame_for_display(const void* input,
         float_to_ushort(static_cast<const float* const>(input),
                         static_cast<ushort* const>(output),
                         size,
+                        stream,
                         shift);
     }
     else if (depth == 2)
@@ -561,6 +567,7 @@ void convert_frame_for_display(const void* input,
         ushort_to_shifted_ushort(static_cast<const ushort* const>(input),
                                  static_cast<ushort* const>(output),
                                  size,
+                                 stream,
                                  shift);
     }
     else if (depth == 1)
@@ -568,6 +575,7 @@ void convert_frame_for_display(const void* input,
         uchar_to_shifted_uchar(static_cast<const uchar* const>(input),
                                static_cast<uchar* const>(output),
                                size,
+                               stream,
                                shift);
     }
 }

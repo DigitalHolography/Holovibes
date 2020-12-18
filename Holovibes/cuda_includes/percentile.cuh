@@ -22,7 +22,8 @@ void compute_percentile_xz_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone);
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream);
 
 /*!
  * \brief Compute the output percentile of the yz view
@@ -37,7 +38,8 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone);
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream);
 
 /*!
  * \brief Compute the output percentile of the xy view
@@ -51,4 +53,5 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone);
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream);

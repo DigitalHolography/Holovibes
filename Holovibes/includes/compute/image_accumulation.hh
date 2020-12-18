@@ -44,7 +44,8 @@ class ImageAccumulation
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
-                      const holovibes::ComputeDescriptor& cd);
+                      const holovibes::ComputeDescriptor& cd,
+                      const cudaStream_t& stream);
 
     /*!
     ** \brief Enqueue the image accumulation.
@@ -104,6 +105,8 @@ class ImageAccumulation
     const camera::FrameDescriptor& fd_;
     /// Compute Descriptor
     const ComputeDescriptor& cd_;
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes

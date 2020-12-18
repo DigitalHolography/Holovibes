@@ -16,11 +16,13 @@ namespace holovibes::cuda_tools
 CudaStreamHandler::CudaStreamHandler()
 {
     cudaSafeCall(cudaStreamCreate(&stream_));
+    std::cout << "Create stream : " << stream_ << std::endl;
 }
 
 CudaStreamHandler::~CudaStreamHandler()
 {
-    cudaSafeCall(cudaStreamDestroy(stream_));
+    // cudaSafeCall(cudaStreamDestroy(stream_));
+    std::cout << "Destroy stream : " << stream_ << std::endl;
 }
 } // namespace holovibes::cuda_tools
 

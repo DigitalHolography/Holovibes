@@ -15,7 +15,8 @@
 
 namespace holovibes
 {
-UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size)
+UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size,
+                                               const cudaStream_t& stream)
     : image_resolution_(image_size)
     , gpu_fx_(nullptr)
     , gpu_fy_(nullptr)
@@ -26,6 +27,7 @@ UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size)
     , gpu_shift_fx_(nullptr)
     , gpu_shift_fy_(nullptr)
     , minmax_buffer_(nullptr)
+    , stream_(stream)
 {
     cudaXMalloc(&gpu_fx_, sizeof(float) * image_resolution_);
     cudaXMalloc(&gpu_fy_, sizeof(float) * image_resolution_);

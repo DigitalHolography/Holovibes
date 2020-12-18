@@ -30,19 +30,19 @@ void shift_corners(float* input,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);
 
 void shift_corners(cuComplex* input,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);
 
 void shift_corners(float3* input,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);
 
 /*! \brief Shifts in-place the corners of an image.
  *
@@ -62,18 +62,18 @@ void shift_corners(const float3* input,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);
 
 void shift_corners(const float* input,
                    float* output,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);
 
 void shift_corners(const cuComplex* input,
                    cuComplex* output,
                    const uint batch_size,
                    const uint size_x,
                    const uint size_y,
-                   const cudaStream_t stream = 0);
+                   const cudaStream_t stream);

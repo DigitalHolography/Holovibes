@@ -32,10 +32,14 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(Queue& input, Queue& output, ComputeDescriptor& cd)
+ICompute::ICompute(Queue& input,
+                   Queue& output,
+                   ComputeDescriptor& cd,
+                   const cudaStream_t& stream)
     : cd_(cd)
     , gpu_input_queue_(input)
     , gpu_output_queue_(output)
+    , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
     int err = 0;
@@ -48,6 +52,7 @@ ICompute::ICompute(Queue& input, Queue& output, ComputeDescriptor& cd)
     long long int n[] = {fd.height, fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
+    std::cout << "FFT1 plan" << std::endl;
     spatial_transformation_plan_.XtplanMany(
         2, // 2D
         n, // Dimension of inner most & outer most dimension
@@ -67,6 +72,7 @@ ICompute::ICompute(Queue& input, Queue& output, ComputeDescriptor& cd)
 
     inembed[0] = cd_.time_transformation_size;
 
+    std::cout << "STFT plan" << std::endl;
     time_transformation_env_.stft_plan.planMany(1,
                                                 inembed,
                                                 inembed,
@@ -126,6 +132,7 @@ bool ICompute::update_time_transformation_size(
 
         int zone_size = gpu_input_queue_.get_frame_res();
 
+        std::cout << "STFT plan" << std::endl;
         time_transformation_env_.stft_plan.planMany(1,
                                                     inembed_stft,
                                                     inembed_stft,
@@ -197,6 +204,7 @@ void ICompute::update_spatial_transformation_parameters()
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
+    std::cout << "FFT1 plan" << std::endl;
     spatial_transformation_plan_.XtplanMany(
         2, // 2D
         n, // Dimension of inner most & outer most dimension

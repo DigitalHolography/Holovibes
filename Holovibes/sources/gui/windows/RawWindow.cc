@@ -141,7 +141,7 @@ void RawWindow::initializeGL()
                             1.f, // vertex coord (-1.0f <-> 1.0f)
                             0.f,
                             0.f, // texture coord (0.0f <-> 1.0f)
-                            // Top-right
+                                 // Top-right
                             1.f,
                             1.f,
                             1.f,
@@ -303,12 +303,13 @@ void RawWindow::paintGL()
                                   cuPtrToPbo,
                                   fd_.frame_res(),
                                   fd_.depth,
-                                  bitshift);
+                                  bitshift,
+                                  0);
     }
 
     // Release resources (needs to be done at each call) and sync
     cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
-    cudaSafeCall(cudaStreamSynchronize(cuStream));
+    cudaXStreamSynchronize(cuStream);
 
     // Texture creationg
     glBindTexture(GL_TEXTURE_2D, Tex);

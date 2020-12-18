@@ -100,10 +100,12 @@ void fft2_lens(cuComplex* lens,
 
     if (frame_height != frame_width)
     {
-        cudaXMemcpy(lens,
+        cudaXMemcpyAsync(lens,
                     square_lens +
                         ((lens_side_size - frame_height) / 2) * frame_width,
-                    frame_width * frame_height * sizeof(cuComplex));
+                    frame_width * frame_height * sizeof(cuComplex),
+                    cudaMemcpyDeviceToDevice,
+                    stream);
         cudaXFree(square_lens);
     }
 }

@@ -40,3 +40,8 @@ void cudaXMemsetAsync(void* devPtr,
 void cudaXFree(void* devPtr) { cudaSafeCall(cudaFree(devPtr)); }
 
 void cudaXFreeHost(void* devPtr) { cudaSafeCall(cudaFreeHost(devPtr)); }
+
+void cudaXStreamSynchronize(const cudaStream_t stream)
+{
+    cudaSafeCall(cudaStreamSynchronize(stream));
+}

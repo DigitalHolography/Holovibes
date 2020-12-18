@@ -187,7 +187,8 @@ void rgb(cuComplex* input,
          const ushort blue,
          const float weight_r,
          const float weight_g,
-         const float weight_b)
+         const float weight_b,
+         const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -200,7 +201,7 @@ void rgb(cuComplex* input,
     holovibes::cuda_tools::UniquePtr<float> colors(colors_size);
 
     if (normalize)
-        kernel_precompute_colors<<<blocks, threads, 0, 0>>>(colors.get(),
+        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
                                                             red,
                                                             blue,
                                                             min,
@@ -210,7 +211,7 @@ void rgb(cuComplex* input,
                                                             1,
                                                             1);
     else
-        kernel_precompute_colors<<<blocks, threads, 0, 0>>>(colors.get(),
+        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
                                                             red,
                                                             blue,
                                                             min,
@@ -220,7 +221,7 @@ void rgb(cuComplex* input,
                                                             weight_g,
                                                             weight_b);
 
-    kernel_composite<<<blocks, threads, 0, 0>>>(input,
+    kernel_composite<<<blocks, threads, 0, stream>>>(input,
                                                 output,
                                                 frame_res,
                                                 min,
@@ -236,7 +237,8 @@ void postcolor_normalize(float* output,
                          holovibes::units::RectFd selection,
                          const float weight_r,
                          const float weight_g,
-                         const float weight_b)
+                         const float weight_b,
+                         const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -255,7 +257,7 @@ void postcolor_normalize(float* output,
     cudaXMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
 
     blocks = map_blocks_to_problem(lines * pixel_depth, threads);
-    kernel_sum_one_line<<<blocks, threads, 0, 0>>>(output,
+    kernel_sum_one_line<<<blocks, threads, 0, stream>>>(output,
                                                    frame_res,
                                                    pixel_depth,
                                                    real_line_size,
@@ -264,7 +266,7 @@ void postcolor_normalize(float* output,
     cudaCheckError();
 
     blocks = map_blocks_to_problem(pixel_depth, threads);
-    kernel_average_float_array<<<blocks, threads, 0, 0>>>(sums_per_line,
+    kernel_average_float_array<<<blocks, threads, 0, stream>>>(sums_per_line,
                                                           lines,
                                                           lines * line_size,
                                                           pixel_depth,
@@ -272,12 +274,12 @@ void postcolor_normalize(float* output,
     cudaCheckError();
 
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-    kernel_divide_by_weight<<<1, 1, 0, 0>>>(averages,
+    kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages,
                                             weight_r,
                                             weight_g,
                                             weight_b);
     cudaCheckError();
-    kernel_normalize_array<<<blocks, threads, 0, 0>>>(output,
+    kernel_normalize_array<<<blocks, threads, 0, stream>>>(output,
                                                       frame_res,
                                                       pixel_depth,
                                                       averages);

@@ -16,7 +16,8 @@
 namespace holovibes
 {
 UnwrappingResources::UnwrappingResources(const unsigned capacity,
-                                         const size_t image_size)
+                                         const size_t image_size,
+                                         const cudaStream_t& stream)
     : total_memory_(capacity)
     , capacity_(capacity)
     , size_(0)
@@ -27,6 +28,7 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity,
     , gpu_angle_current_(nullptr)
     , gpu_angle_copy_(nullptr)
     , gpu_unwrapped_angle_(nullptr)
+    , stream_(stream)
 {
     auto nb_unwrap_elts = image_size * capacity_;
 

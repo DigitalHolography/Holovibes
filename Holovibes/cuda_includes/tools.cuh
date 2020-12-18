@@ -46,7 +46,7 @@ void frame_memcpy(const float* input,
                   const holovibes::units::RectFd& zone,
                   const uint input_width,
                   float* output,
-                  const cudaStream_t stream = 0);
+                  const cudaStream_t stream);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
 **   and the size of the frame.

@@ -25,9 +25,10 @@ void fill_percentile_float_in_case_of_error(float* const out_percent,
     }
 }
 
-thrust::device_ptr<float> allocate_thrust(const uint frame_res)
+thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream_t stream)
 {
     float* raw_gpu_input_copy;
+    // TODO: cudaXMallocAsync with the stream
     cudaXMalloc(&raw_gpu_input_copy, frame_res * sizeof(float));
     return thrust::device_ptr<float>(raw_gpu_input_copy);
 }
@@ -43,16 +44,18 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
                         const uint frame_res,
                         const float* const h_percent,
                         float* const h_out_percent,
-                        const uint size_percent)
+                        const uint size_percent,
+                        const cudaStream_t stream)
 {
-    thrust::sort(thrust_gpu_input_copy, thrust_gpu_input_copy + frame_res);
+    thrust::sort(thrust::cuda::par.on(stream), thrust_gpu_input_copy, thrust_gpu_input_copy + frame_res);
 
     for (uint i = 0; i < size_percent; ++i)
     {
         const uint index = h_percent[i] / 100 * frame_res;
 
         // Copy gpu_input_copy[index] in h_out_percent[i]
-        thrust::copy(thrust_gpu_input_copy + index,
+        thrust::copy(thrust::cuda::par.on(stream),
+                    thrust_gpu_input_copy + index,
                      thrust_gpu_input_copy + index + 1,
                      h_out_percent + i);
         cudaCheckError();
@@ -92,7 +95,8 @@ void compute_percentile_xz_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone)
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream)
 {
     uint frame_res = calculate_frame_res(width,
                                          height,
@@ -105,14 +109,16 @@ void compute_percentile_xz_view(const float* gpu_input,
     thrust::device_ptr<float> thrust_gpu_input_copy(nullptr);
     try
     {
-        thrust_gpu_input_copy = allocate_thrust(frame_res);
+        thrust_gpu_input_copy = allocate_thrust(frame_res, stream);
         if (compute_on_sub_zone)
             frame_memcpy(gpu_input + offset,
                          sub_zone,
                          width,
-                         thrust_gpu_input_copy.get());
+                         thrust_gpu_input_copy.get(),
+                         stream);
         else
-            thrust::copy(gpu_input + offset,
+            thrust::copy(thrust::cuda::par.on(stream),
+                         gpu_input + offset,
                          gpu_input + offset + frame_res,
                          thrust_gpu_input_copy);
 
@@ -120,7 +126,8 @@ void compute_percentile_xz_view(const float* gpu_input,
                            frame_res,
                            h_percent,
                            h_out_percent,
-                           size_percent);
+                           size_percent,
+                           stream);
     }
     catch (...)
     {
@@ -128,7 +135,7 @@ void compute_percentile_xz_view(const float* gpu_input,
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)
-        cudaXFree(thrust_gpu_input_copy.get());
+        cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }
 
 void compute_percentile_xy_view(const float* gpu_input,
@@ -138,7 +145,8 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone)
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream)
 {
     // Computing the contrast on xy view is the same as calculating it on the xz
     // view without any offset
@@ -150,7 +158,8 @@ void compute_percentile_xy_view(const float* gpu_input,
                                h_out_percent,
                                size_percent,
                                sub_zone,
-                               compute_on_sub_zone);
+                               compute_on_sub_zone,
+                               stream);
 }
 
 void compute_percentile_yz_view(const float* gpu_input,
@@ -161,7 +170,8 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 float* const h_out_percent,
                                 const uint size_percent,
                                 const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone)
+                                const bool compute_on_sub_zone,
+                                const cudaStream_t stream)
 {
     uint frame_res = calculate_frame_res(width,
                                          height,
@@ -173,23 +183,25 @@ void compute_percentile_yz_view(const float* gpu_input,
     thrust::device_ptr<float> thrust_gpu_input_copy(nullptr);
     try
     {
-        thrust_gpu_input_copy = allocate_thrust(frame_res);
+        thrust_gpu_input_copy = allocate_thrust(frame_res, stream);
 
         // Copy sub array (skip the 2 first columns and the 2 last columns)
         cudaSafeCall(
-            cudaMemcpy2D(thrust_gpu_input_copy.get(),          // dst
+            cudaMemcpy2DAsync(thrust_gpu_input_copy.get(),     // dst
                          (width - 2 * offset) * sizeof(float), // dpitch
                          gpu_input + offset,                   // src
                          width * sizeof(float),                // spitch
                          (width - 2 * offset) * sizeof(float), // dwidth
                          height,                               // dheight
-                         cudaMemcpyDeviceToDevice));           // kind
+                         cudaMemcpyDeviceToDevice,             // kind
+                         stream));                             // stream
 
         compute_percentile(thrust_gpu_input_copy,
                            frame_res,
                            h_percent,
                            h_out_percent,
-                           size_percent);
+                           size_percent,
+                           stream);
     }
     catch (...)
     {
@@ -197,5 +209,5 @@ void compute_percentile_yz_view(const float* gpu_input,
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)
-        cudaXFree(thrust_gpu_input_copy.get());
+        cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }

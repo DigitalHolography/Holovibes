@@ -147,7 +147,7 @@ __global__ void kernel_reduce(const T* const __restrict__ input,
         atomicAdd(result, sdata[tid]);
 }
 
-void gpu_reduce(const float* const input, double* const result, const uint size)
+void gpu_reduce(const float* const input, double* const result, const uint size, const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
     constexpr uint optimal_nb_blocks = 1024;
@@ -163,11 +163,11 @@ void gpu_reduce(const float* const input, double* const result, const uint size)
         std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
 
     // Reset result to 0
-    cudaXMemset(result, 0, sizeof(double));
+    cudaXMemsetAsync(result, 0, sizeof(double), stream);
 
     // Each thread works at least on 2 pixels
     kernel_reduce<float, double, optimal_block_size * 2>
-        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float)>>>(
+        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), 0, stream>>>(
             input,
             result,
             size);

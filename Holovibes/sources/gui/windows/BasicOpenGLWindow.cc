@@ -39,7 +39,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k)
     , angle_(0.f)
     , flip_(0)
     , cuResource(nullptr)
-    , cuStream(nullptr)
+    , cuStream()
     , cuPtrToPbo(nullptr)
     , sizeBuffer(0)
     , Program(nullptr)
@@ -52,8 +52,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k)
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    if (cudaStreamCreate(&cuStream) != cudaSuccess)
-        cuStream = nullptr;
+    cudaSafeCall(cudaStreamCreate(&cuStream));
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));

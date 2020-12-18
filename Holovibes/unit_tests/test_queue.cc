@@ -15,7 +15,7 @@
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
 
-constexpr cudaStream_t stream = 0;
+static constexpr cudaStream_t stream = 0;
 
 namespace // Tools for testing the queue
 {

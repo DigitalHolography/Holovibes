@@ -28,7 +28,7 @@ void stft(Queue* gpu_time_transformation_queue,
         gpu_p_acc_buffer,
         CUFFT_FORWARD));
 
-    // No sync needed since all the kernels are executed on stream 0
+    // No sync needed since all the kernels are executed on stream compute
 }
 
 __global__ static void fill_32bit_slices(const cuComplex* input,

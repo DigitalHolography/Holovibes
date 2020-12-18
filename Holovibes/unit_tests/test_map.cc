@@ -10,6 +10,8 @@
 #include "map.cuh"
 #include "cuda_memory.cuh"
 
+static constexpr cudaStream_t stream = 0;
+
 enum class MAP_OPERATION
 {
     DIVIDE = 0,
@@ -64,9 +66,9 @@ static void map_test(size_t size, T value)
     cpu_map<T, OP>(h_data, size, value);
 
     if (OP == MAP_OPERATION::DIVIDE)
-        map_divide(d_data, d_data, size, value);
+        map_divide(d_data, d_data, size, value, stream);
     else if (OP == MAP_OPERATION::MULTIPLY)
-        map_multiply(d_data, d_data, size, value);
+        map_multiply(d_data, d_data, size, value, stream);
     cudaDeviceSynchronize();
 
     ASSERT_TRUE(check_result(h_data, d_data, size));

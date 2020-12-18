@@ -53,7 +53,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
     // Needed if input is embedded into a bigger square
     cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     fd_.byteEndian = Endianness::LittleEndian;
 
@@ -81,7 +81,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     // Needed if input is embedded into a bigger square
     cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     size_ = 0;
     start_index_ = 0;
@@ -150,7 +150,7 @@ bool Queue::enqueue(void* elt,
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     if (size_ < max_size_)
         ++size_;
@@ -366,7 +366,7 @@ void Queue::copy_multiple(Queue& dest,
 
     // Synchronize after every copy has been lauched and before updating the
     // size
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
@@ -430,7 +430,7 @@ bool Queue::enqueue_multiple(void* elts,
                              cuda_kind);
     }
 
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     size_ += nb_elts;
     // Overwrite older elements in the queue -> update start_index
@@ -449,7 +449,7 @@ void Queue::enqueue_from_48bit(void* src,
                                cudaMemcpyKind cuda_kind)
 {
     cuda_tools::UniquePtr<uchar> src_uchar(frame_size_);
-    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, frame_size_);
+    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, frame_size_, stream);
     enqueue(src_uchar, stream, cuda_kind);
 }
 
@@ -463,11 +463,7 @@ void Queue::dequeue(void* dest,
     void* first_img = data_.get() + start_index_ * frame_size_;
     cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream);
 
-    // If dequeuing in the host side, a device synchronization must be
-    // done because the memcpy must be sync in this case
-    // TODO: Check if only needed for cudaMemcpyDeviceToHost
-    if (cuda_kind == cudaMemcpyDeviceToHost)
-        cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     dequeue_non_mutex(); // Update indexes
 }

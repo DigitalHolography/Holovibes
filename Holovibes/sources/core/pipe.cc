@@ -28,13 +28,17 @@
 #include "custom_exception.hh"
 #include "pipeline_utils.hh"
 #include "holovibes.hh"
+#include "cuda_memory.cuh"
 
 namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
-    : ICompute(input, output, desc)
+Pipe::Pipe(Queue& input,
+           Queue& output,
+           ComputeDescriptor& desc,
+           const cudaStream_t& stream)
+    : ICompute(input, output, desc, stream)
 {
     ConditionType batch_condition = [&]() -> bool {
         return batch_env_.batch_index == cd_.time_transformation_stride;
@@ -48,7 +52,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                      image_acc_env_,
                                                      buffers_,
                                                      input.get_fd(),
-                                                     desc);
+                                                     desc,
+                                                     stream_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(
         fn_compute_vect_,
         buffers_,
@@ -56,7 +61,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
         desc,
         spatial_transformation_plan_,
         batch_env_,
-        time_transformation_env_);
+        time_transformation_env_,
+        stream_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -65,7 +71,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                       desc,
                                                       input.get_fd(),
                                                       output.get_fd(),
-                                                      this);
+                                                      this,
+                                                      stream_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     batch_env_,
@@ -73,11 +80,13 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                     plan_unwrap_2d_,
                                                     desc,
                                                     input.get_fd(),
-                                                    output.get_fd());
+                                                    output.get_fd(),
+                                                    stream_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,
                                                              input.get_fd(),
-                                                             desc);
+                                                             desc,
+                                                             stream_);
 
     update_time_transformation_size_requested_ = true;
     processed_output_fps_.store(0);
@@ -285,12 +294,16 @@ void Pipe::refresh()
 
     fn_compute_vect_.clear();
 
+    std::cout << "@make_resquest before" << std::endl;
+
     // Aborting if allocation failed
     if (!make_requests())
     {
         refresh_requested_ = false;
         return;
     }
+
+    std::cout << "@make_resquest after" << std::endl;
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -325,7 +338,11 @@ void Pipe::refresh()
 
     const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
+    std::cout << "@insert_wait_frames before" << std::endl;
+
     insert_wait_frames();
+
+    std::cout << "@insert_wait_frames after" << std::endl;
 
     insert_raw_record();
 
@@ -333,8 +350,12 @@ void Pipe::refresh()
 
     converts_->insert_complex_conversion(gpu_input_queue_);
 
+    std::cout << "@insert_fft before" << std::endl;
+
     // Spatial transform
     fourier_transforms_->insert_fft();
+
+    std::cout << "@insert_fft after" << std::endl;
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -390,7 +411,8 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaStreamSynchronize(0); });
+    fn_compute_vect_.conditional_push_back(
+        [=]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -447,6 +469,7 @@ void Pipe::insert_output_enqueue_raw_mode()
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     fn_compute_vect_.conditional_push_back([&]() {
+        std::cout << "@insert_output_enqueue_hologram_mode call before" << std::endl;
         ++processed_output_fps_;
 
         safe_enqueue_output(
@@ -467,6 +490,8 @@ void Pipe::insert_output_enqueue_hologram_mode()
                 buffers_.gpu_output_frame_yz.get(),
                 "Can't enqueue the output yz frame in output yz queue");
         }
+        std::cout << "@insert_output_enqueue_hologram_mode call after" << std::endl;
+
     });
 }
 

@@ -45,7 +45,8 @@ class Converts
              cuda_tools::CufftHandle& plan2d,
              ComputeDescriptor& cd,
              const camera::FrameDescriptor& input_fd,
-             const camera::FrameDescriptor& output_fd);
+             const camera::FrameDescriptor& output_fd,
+             const cudaStream_t& stream);
 
     /** \brief Insert functions relative to the convertion Complex => Float
 
@@ -112,6 +113,8 @@ class Converts
     const camera::FrameDescriptor& output_fd_;
     /// Variables needed for the computation in the pipe
     ComputeDescriptor& cd_;
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes
