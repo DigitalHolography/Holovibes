@@ -43,4 +43,9 @@ inline const char* Holovibes::get_camera_ini_path() const
 {
     return active_camera_->get_ini_path();
 }
+
+inline const Holovibes::CudaStreams& Holovibes::get_cuda_streams() const
+{
+    return cuda_streams_;
+}
 } // namespace holovibes

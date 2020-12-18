@@ -24,11 +24,11 @@ ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<ICompute>>& pipe,
     , pipe_(pipe)
     , input_(input)
     , output_(output)
+    , stream_(Holovibes::instance().get_cuda_streams().compute_stream)
 {
-    cuda_stream_handler_ = cuda_tools::CudaStreamHandler{};
-    cuda_tools::CublasHandle::set_stream(cuda_stream_handler_.get());
-    cuda_tools::CufftHandle::set_stream(cuda_stream_handler_.get());
-    cuda_tools::CusolverHandle::set_stream(cuda_stream_handler_.get());
+    cuda_tools::CublasHandle::set_stream(stream_);
+    cuda_tools::CufftHandle::set_stream(stream_);
+    cuda_tools::CusolverHandle::set_stream(stream_);
 }
 
 void ComputeWorker::stop()
@@ -59,7 +59,7 @@ void ComputeWorker::run()
         pipe_.store(std::make_shared<Pipe>(*input_.load(),
                                            *output_.load(),
                                            Holovibes::instance().get_cd(),
-                                           cuda_stream_handler_.get()));
+                                           stream_));
     }
     catch (std::exception& e)
     {

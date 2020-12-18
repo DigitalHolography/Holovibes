@@ -10,8 +10,6 @@
 
 #include "worker.hh"
 
-#include "cuda_stream_handler.hh"
-
 namespace holovibes
 {
 class ICompute;
@@ -37,7 +35,7 @@ class ComputeWorker : public Worker
 
     std::atomic<std::shared_ptr<Queue>>& output_;
 
-    cuda_tools::CudaStreamHandler cuda_stream_handler_;
+    const cudaStream_t stream_;
 };
 } // namespace worker
 } // namespace holovibes

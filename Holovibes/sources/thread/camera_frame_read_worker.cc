@@ -46,7 +46,7 @@ void CameraFrameReadWorker::run()
             camera::CapturedFramesDescriptor res = camera_->get_frames();
             gpu_input_queue_.load()->enqueue(
                 res.data,
-                stream_.get(),
+                stream_,
                 res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
             processed_fps_ += res.count;
         }

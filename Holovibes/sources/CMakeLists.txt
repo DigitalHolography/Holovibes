@@ -68,7 +68,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     thread/worker.cc
 
     tools/cuda_tools/cublas_handle.cc
-    tools/cuda_tools/cuda_stream_handler.cc
     tools/cuda_tools/cufft_handle.cc
     tools/cuda_tools/cusolver_handle.cc
     tools/hardware_limits.cc

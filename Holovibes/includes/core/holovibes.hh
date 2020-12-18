@@ -50,6 +50,13 @@ class Queue;
  * themselves. */
 class Holovibes
 {
+    struct CudaStreams
+    {
+        cudaStream_t reader_stream = 0;
+        cudaStream_t recorder_stream = 0;
+        cudaStream_t compute_stream = 0;
+    };
+
   public:
     static Holovibes& instance();
 
@@ -69,6 +76,8 @@ class Holovibes
 
     /*! \return Common ComputeDescriptor */
     ComputeDescriptor& get_cd();
+
+    const CudaStreams& get_cuda_streams() const;
 
     /*! \brief Set ComputeDescriptor options
      *
@@ -185,6 +194,8 @@ class Holovibes
     /*! \brief Common compute descriptor shared between CLI/GUI and the
      * Pipe. */
     ComputeDescriptor cd_;
+
+    CudaStreams cuda_streams_;
 };
 } // namespace holovibes
 
