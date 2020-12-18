@@ -136,6 +136,8 @@ void cudaXFreeHost(void* devPtr);
  *
  * \param stream The id of the stream to synchronize with host
  */
-void cudaXStreamSynchronize(const cudaStream_t stream);
+void cudaXStreamSynchronize(const cudaStream_t stream,
+                            const char* file = "",
+                            const int line = 1);
 
 #include "cuda_memory.cuhxx"

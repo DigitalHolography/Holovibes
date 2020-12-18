@@ -413,7 +413,7 @@ void Pipe::refresh()
      * by the device, never letting the device the time to execute them.
      */
     fn_compute_vect_.conditional_push_back(
-        [=]() { cudaXStreamSynchronize(stream_); });
+        [=]() { cudaXStreamSynchronize(stream_, __FILE__, __LINE__); });
 
     // Must be the last inserted function
     insert_reset_batch_index();

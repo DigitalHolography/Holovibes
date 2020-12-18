@@ -79,7 +79,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     // Needed if input is embedded into a bigger square
     cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
-    cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
 
     size_ = 0;
     start_index_ = 0;
@@ -94,6 +94,7 @@ bool Queue::enqueue(void* elt,
     const uint end_ = (start_index_ + size_) % max_size_;
     char* new_elt_adress = data_.get() + (end_ * frame_size_);
 
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
     cudaError_t cuda_status;
     switch (square_input_mode_)
     {
@@ -148,7 +149,7 @@ bool Queue::enqueue(void* elt,
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
-    cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
 
     if (size_ < max_size_)
         ++size_;
@@ -364,7 +365,7 @@ void Queue::copy_multiple(Queue& dest,
 
     // Synchronize after every copy has been lauched and before updating the
     // size
-    cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
@@ -428,7 +429,7 @@ bool Queue::enqueue_multiple(void* elts,
                              cuda_kind);
     }
 
-    cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
 
     size_ += nb_elts;
     // Overwrite older elements in the queue -> update start_index
@@ -461,7 +462,7 @@ void Queue::dequeue(void* dest,
     void* first_img = data_.get() + start_index_ * frame_size_;
     cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream);
 
-    cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream, __FILE__, __LINE__);
 
     dequeue_non_mutex(); // Update indexes
 }
