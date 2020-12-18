@@ -49,6 +49,8 @@ class Rendering
               ICompute* Ic,
               const cudaStream_t& stream);
 
+     ~Rendering();
+
     /** \brief insert the functions relative to the fft shift.
 
     */
@@ -128,6 +130,8 @@ class Rendering
     ICompute* Ic_;
     /// Compute stream to perform  pipe computation
     const cudaStream_t& stream_;
+
+    float* percent_min_max_;
 };
 } // namespace compute
 } // namespace holovibes

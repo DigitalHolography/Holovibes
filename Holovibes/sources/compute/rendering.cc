@@ -16,6 +16,7 @@
 #include "stft.cuh"
 #include "percentile.cuh"
 #include "map.cuh"
+#include "cuda_memory.cuh"
 
 namespace holovibes
 {
@@ -42,6 +43,13 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , Ic_(Ic)
     , stream_(stream)
 {
+    // Hold 2 float values (min and max)
+    cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
+}
+
+Rendering::~Rendering()
+{
+    cudaXFreeHost(percent_min_max_);
 }
 
 void Rendering::insert_fft_shift()
@@ -286,8 +294,6 @@ void Rendering::autocontrast_caller(float* input,
 
     const float percent_in[percent_size] = {cd_.contrast_lower_threshold,
                                             cd_.contrast_upper_threshold};
-    float percent_out[percent_size] = {-1};
-
     switch (view)
     {
     case WindowKind::XYview:
@@ -296,12 +302,12 @@ void Rendering::autocontrast_caller(float* input,
                                    width,
                                    height,
                                    percent_in,
-                                   percent_out,
+                                   percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
                                    cd_.reticle_enabled,
                                    stream_);
-        set_contrast_min_max(percent_out,
+        set_contrast_min_max(percent_min_max_,
                              cd_.contrast_min_slice_xy,
                              cd_.contrast_max_slice_xy);
         break;
@@ -311,12 +317,12 @@ void Rendering::autocontrast_caller(float* input,
                                    height,
                                    offset,
                                    percent_in,
-                                   percent_out,
+                                   percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
                                    cd_.reticle_enabled,
                                    stream_);
-        set_contrast_min_max(percent_out,
+        set_contrast_min_max(percent_min_max_,
                              cd_.contrast_min_slice_yz,
                              cd_.contrast_max_slice_yz);
         break;
@@ -326,17 +332,16 @@ void Rendering::autocontrast_caller(float* input,
                                    height,
                                    offset,
                                    percent_in,
-                                   percent_out,
+                                   percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
                                    cd_.reticle_enabled,
                                    stream_);
-        set_contrast_min_max(percent_out,
+        set_contrast_min_max(percent_min_max_,
                              cd_.contrast_min_slice_xz,
                              cd_.contrast_max_slice_xz);
         break;
     }
-
     cd_.notify_observers();
 }
 } // namespace compute

@@ -52,14 +52,9 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
     for (uint i = 0; i < size_percent; ++i)
     {
         const uint index = h_percent[i] / 100 * frame_res;
-
-        // Copy gpu_input_copy[index] in h_out_percent[i]
-        thrust::copy(thrust::cuda::par.on(stream),
-                    thrust_gpu_input_copy + index,
-                     thrust_gpu_input_copy + index + 1,
-                     h_out_percent + i);
-        cudaCheckError();
+        cudaXMemcpyAsync(h_out_percent + i, thrust_gpu_input_copy.get() + index, sizeof(float), cudaMemcpyDeviceToHost, stream);
     }
+    cudaXStreamSynchronize(stream);
 }
 
 /*
