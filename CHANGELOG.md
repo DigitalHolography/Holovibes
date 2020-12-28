@@ -1,5 +1,9 @@
 ## Changelog
 
+### 8.9.5
+
+* GUI: remove useless lines at bottom
+
 ### 8.9.4
 
 * GUI: disable batch_size spinbox while recording
@@ -39,7 +43,7 @@
 ### 8.8.1
 
 * Fix crash when loading camera Adimec
-* Fix HSV and crash when starting in composite mode 
+* Fix HSV and crash when starting in composite mode
 
 ### 8.8
 
