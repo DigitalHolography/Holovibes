@@ -318,7 +318,7 @@ void Pipe::refresh()
      * (cudaStreamSynchronize) at the end of the pipe is required. Adding
      * more stream synchronisation is not needed.
      * Using cudaDeviceSynchronize is FORBIDDEN as it will synchronize this
-     * thread stream with all other streams (reducing performences drastically
+     * thread stream with all other streams (reducing performances drastically
      * because of a longer waiting time).
      *
      * The value of the default stream is 0. However, not providing a stream to
@@ -337,9 +337,7 @@ void Pipe::refresh()
 
     const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
-
     insert_wait_frames();
-
 
     insert_raw_record();
 
@@ -347,10 +345,8 @@ void Pipe::refresh()
 
     converts_->insert_complex_conversion(gpu_input_queue_);
 
-
     // Spatial transform
     fourier_transforms_->insert_fft();
-
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to

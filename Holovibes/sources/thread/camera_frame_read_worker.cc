@@ -44,6 +44,7 @@ void CameraFrameReadWorker::run()
         while (!stop_requested_)
         {
             camera::CapturedFramesDescriptor res = camera_->get_frames();
+            // res.count == 1 always
             gpu_input_queue_.load()->enqueue(
                 res.data,
                 stream_,
