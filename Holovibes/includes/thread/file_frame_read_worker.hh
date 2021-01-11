@@ -47,14 +47,14 @@ class FileFrameReadWorker : public FrameReadWorker
         /*! \brief Wait the correct time to simulate fps.
         **
         ** Between each frame enqueue, the waiting duration should be
-        *enqueue_interval_
+        ** enqueue_interval_
         ** However the real waiting duration might be longer than the
-        *theoretical one (due to descheduling)
+        ** theoretical one (due to descheduling)
         ** To cope with this issue, we compute the wasted time in order to take
-        *it into account for the next enqueue
+        ** it into account for the next enqueue
         ** By doing so, the correct enqueuing time is computed, not doing so
-        *would create a lag
-        **/
+        ** would create a lag
+        */
         void wait();
 
       private:

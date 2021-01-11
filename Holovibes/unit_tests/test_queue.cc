@@ -304,6 +304,35 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[2]);
 }
 
+TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = {1,
+                                  1,
+                                  sizeof(char),
+                                  camera::Endianness::BigEndian};
+    constexpr uint queue_size = 3;
+    holovibes::Queue q(fd,
+                       queue_size,
+                       holovibes::Queue::QueueType::UNDEFINED,
+                       fd.width,
+                       fd.height,
+                       fd.depth);
+
+    char elts[] = {'a', 'b', 'c', 'd'};
+    unsigned int nb_elts = 4;
+
+    q.enqueue_multiple(elts, 2, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(q.get_size(), 2);
+
+    q.enqueue_multiple(elts, 4, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(q.get_size(), queue_size);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[1]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[2]);
+    ASSERT_EQ(*get_element_from_queue(q, 2), elts[3]);
+}
+
 TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {64,
