@@ -47,7 +47,6 @@ void ThreadWorkerController<T>::stop()
 
         if (worker_ != nullptr)
             worker_->stop();
-        ;
     }
 
     if (thread_.joinable())

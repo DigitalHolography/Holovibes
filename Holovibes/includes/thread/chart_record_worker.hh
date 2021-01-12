@@ -12,9 +12,16 @@
 
 namespace holovibes::worker
 {
+/*!
+ *  \brief Class used to record chart
+ */
 class ChartRecordWorker : public Worker
 {
   public:
+    /*!
+     *  \param path Output record path
+     *  \param nb_frames_to_record Number of points to record
+     */
     ChartRecordWorker(const std::string& path,
                       const unsigned int nb_frames_to_record);
 

@@ -13,9 +13,17 @@
 
 namespace holovibes::worker
 {
+/*!
+ *  \brief    Abstract class used to read frames
+ */
 class FrameReadWorker : public Worker
 {
   public:
+    /*!
+     *  \brief    Constructor
+     *
+     *  \param    gpu_input_queue   The input queue
+     */
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
 
     /*!
@@ -29,8 +37,9 @@ class FrameReadWorker : public Worker
     FrameReadWorker& operator=(const FrameReadWorker&) = default;
 
   protected:
+    //! The queue in which the frames are stored
     std::atomic<std::shared_ptr<Queue>>& gpu_input_queue_;
-
+    //! The current fps
     std::atomic<unsigned int> processed_fps_;
 };
 } // namespace holovibes::worker
