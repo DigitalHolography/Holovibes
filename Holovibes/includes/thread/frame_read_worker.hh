@@ -19,11 +19,6 @@ class FrameReadWorker : public Worker
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
 
     /*!
-     *  \brief    Abstract destructor to make class abstract
-     */
-    virtual ~FrameReadWorker() = 0;
-
-    /*!
      *  \brief    Default copy constructor
      */
     FrameReadWorker(const FrameReadWorker&) = default;
@@ -39,5 +34,3 @@ class FrameReadWorker : public Worker
     std::atomic<unsigned int> processed_fps_;
 };
 } // namespace holovibes::worker
-
-#include "frame_read_worker.hxx"
