@@ -94,8 +94,6 @@ bool Queue::enqueue(void* elt,
     const uint end_ = (start_index_ + size_) % max_size_;
     char* new_elt_adress = data_.get() + (end_ * frame_size_);
 
-    cudaXStreamSynchronize(stream);
-
     cudaError_t cuda_status;
     switch (square_input_mode_)
     {
