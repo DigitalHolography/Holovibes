@@ -321,11 +321,11 @@ TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
     char elts[] = {'a', 'b', 'c', 'd'};
     unsigned int nb_elts = 4;
 
-    q.enqueue_multiple(elts, 2, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_EQ(q.get_size(), 2);
 
-    q.enqueue_multiple(elts, 4, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts, 4, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_EQ(q.get_size(), queue_size);
     ASSERT_EQ(*get_element_from_queue(q, 0), elts[1]);

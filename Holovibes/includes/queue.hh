@@ -231,6 +231,21 @@ class Queue
                               const cudaStream_t stream,
                               cudaMemcpyKind cuda_kind);
 
+    // Forward declaration
+    template <typename U>
+    struct QueueRegion;
+
+    /*! \brief auxiliary method of copy multiple.
+    ** Make the async copy
+    ** \param src Queue region info of the source queue
+    ** \param dst Queue region info of the dst queue
+    ** \param stream Stream perfoming the copy
+    */
+    template <typename U>
+    void copy_multiple_aux(QueueRegion<U>& src,
+                           QueueRegion<U>& dst,
+                           const cudaStream_t stream);
+
   private: /* Attributes */
     /*! \brief mutex to lock the queue */
     mutable std::mutex mutex_;
@@ -277,36 +292,38 @@ class Queue
     SquareInputMode square_input_mode_;
 
     bool has_overridden_;
-};
 
-/*! \brief Struct to represents a region in the queue, or two regions in
-** case of overflow.
-** first is the first region
-** second is the second region if overflow, nulpptr otherwise.
-** In case of overflow, this struct will look like
-** |----------------- (start_index_) ---------------|
-** |		second          |         first         |
-*/
-struct QueueRegion
-{
-    char* first = nullptr;
-    char* second = nullptr;
-    unsigned int first_size = 0;
-    unsigned int second_size = 0;
-
-    bool overflow(void) { return second != nullptr; }
-
-    void consume_first(unsigned int size, unsigned int frame_size)
+  private: /* Queue Region */
+    /*! \brief Struct to represents a region in the queue, or two regions in
+    ** case of overflow.
+    ** first is the first region
+    ** second is the second region if overflow, nulpptr otherwise.
+    ** In case of overflow, this struct will look like
+    ** |----------------- (start_index_) ---------------|
+    ** |		second          |         first         |
+    */
+    template <typename U>
+    struct QueueRegion
     {
-        first += size * frame_size;
-        first_size -= size;
-    }
+        U* first = nullptr;
+        U* second = nullptr;
+        unsigned int first_size = 0;
+        unsigned int second_size = 0;
 
-    void consume_second(unsigned int size, unsigned int frame_size)
-    {
-        second += size * frame_size;
-        second_size -= size;
-    }
+        bool overflow(void) { return second != nullptr; }
+
+        void consume_first(unsigned int size, unsigned int frame_res)
+        {
+            first += static_cast<size_t>(size) * frame_res * sizeof(U);
+            first_size -= size;
+        }
+
+        void consume_second(unsigned int size, unsigned int frame_res)
+        {
+            second += static_cast<size_t>(size) * frame_res * sizeof(U);
+            second_size -= size;
+        }
+    };
 };
 } // namespace holovibes
 

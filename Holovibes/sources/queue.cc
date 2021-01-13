@@ -224,7 +224,7 @@ void Queue::copy_multiple(Queue& dest,
     }
 
     // Determine regions info
-    struct QueueRegion src;
+    struct QueueRegion<char> src;
     if (start_index_ + nb_elts > max_size_)
     {
         src.first = static_cast<char*>(get_start());
@@ -238,7 +238,7 @@ void Queue::copy_multiple(Queue& dest,
         src.first_size = nb_elts;
     }
 
-    struct QueueRegion dst;
+    struct QueueRegion<char> dst;
     const uint begin_to_enqueue_index =
         (dest.start_index_ + dest.size_) % dest.max_size_;
     void* begin_to_enqueue =
@@ -256,6 +256,29 @@ void Queue::copy_multiple(Queue& dest,
         dst.first_size = nb_elts;
     }
 
+    copy_multiple_aux(src, dst, stream);
+
+    // Synchronize after every copy has been lauched and before updating the
+    // size
+    cudaXStreamSynchronize(stream);
+
+    // Update dest queue parameters
+    dest.size_ += nb_elts;
+    if (dest.size_ > dest.max_size_)
+    {
+        dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
+        dest.size_.store(dest.max_size_.load());
+        dest.has_overridden_ = true;
+    }
+
+    start_index_ = tmp_src_start_index;
+}
+
+template <typename U>
+void Queue::copy_multiple_aux(QueueRegion<U>& src,
+                              QueueRegion<U>& dst,
+                              const cudaStream_t stream)
+{
     // Handle copies depending on regions info
     if (src.overflow())
     {
@@ -268,14 +291,14 @@ void Queue::copy_multiple(Queue& dest,
                                  dst.first_size * frame_size_,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                src.consume_first(dst.first_size, frame_size_);
+                src.consume_first(dst.first_size, frame_res_);
 
                 cudaXMemcpyAsync(dst.second,
                                  src.first,
                                  src.first_size * frame_size_,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                dst.consume_second(src.first_size, frame_size_);
+                dst.consume_second(src.first_size, frame_res_);
 
                 cudaXMemcpyAsync(dst.second,
                                  src.second,
@@ -290,7 +313,7 @@ void Queue::copy_multiple(Queue& dest,
                                  src.first_size * frame_size_,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                dst.consume_first(src.first_size, frame_size_);
+                dst.consume_first(src.first_size, frame_res_);
 
                 if (src.second_size > dst.first_size)
                 {
@@ -299,7 +322,7 @@ void Queue::copy_multiple(Queue& dest,
                                      dst.first_size * frame_size_,
                                      cudaMemcpyDeviceToDevice,
                                      stream);
-                    src.consume_second(dst.first_size, frame_size_);
+                    src.consume_second(dst.first_size, frame_res_);
 
                     cudaXMemcpyAsync(dst.second,
                                      src.second,
@@ -326,7 +349,7 @@ void Queue::copy_multiple(Queue& dest,
                              src.first_size * frame_size_,
                              cudaMemcpyDeviceToDevice,
                              stream);
-            dst.consume_first(src.first_size, frame_size_);
+            dst.consume_first(src.first_size, frame_res_);
 
             cudaXMemcpyAsync(dst.first,
                              src.second,
@@ -346,7 +369,7 @@ void Queue::copy_multiple(Queue& dest,
                              dst.first_size * frame_size_,
                              cudaMemcpyDeviceToDevice,
                              stream);
-            src.consume_first(dst.first_size, frame_size_);
+            src.consume_first(dst.first_size, frame_res_);
 
             cudaXMemcpyAsync(dst.second,
                              src.first,
@@ -363,21 +386,6 @@ void Queue::copy_multiple(Queue& dest,
                              stream);
         }
     }
-
-    // Synchronize after every copy has been lauched and before updating the
-    // size
-    cudaXStreamSynchronize(stream);
-
-    // Update dest queue parameters
-    dest.size_ += nb_elts;
-    if (dest.size_ > dest.max_size_)
-    {
-        dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-        dest.size_.store(dest.max_size_.load());
-        dest.has_overridden_ = true;
-    }
-
-    start_index_ = tmp_src_start_index;
 }
 
 bool Queue::enqueue_multiple(void* elts,
