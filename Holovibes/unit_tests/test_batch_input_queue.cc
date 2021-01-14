@@ -13,18 +13,19 @@
 
 #include <thread>
 
-template <typename T>
-static void
-ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue<T>& q, size_t pos, std::string expected)
+static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q,
+                                size_t pos,
+                                std::string expected)
 {
     // TODO: getter max size
     // if (pos >= q.get_max_size())
     //    return;
 
-    size_t frame_size = q.get_frame_res() * sizeof(T);
+    size_t frame_size = q.get_frame_size();
 
-    const T* d_buffer = q.get_data(); // device buffer
-    T* h_buffer = new T[frame_size];  // host buffer
+    const char* d_buffer =
+        static_cast<const char*>(q.get_data()); // device buffer
+    char* h_buffer = new char[frame_size];      // host buffer
     // Copy one frame from device buffer to host buffer
     cudaXMemcpy(h_buffer,
                 d_buffer + pos * frame_size,
@@ -34,24 +35,21 @@ ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue<T>& q, size_t pos, std::string ex
     ASSERT_EQ(std::string(h_buffer), expected);
 }
 
-template <typename T>
-static T* dequeue_helper(holovibes::BatchInputQueue<T>& q, uint batch_size)
+static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
 {
-    const uint frame_res = q.get_frame_res();
-    const auto lambda = [](const T* const src,
-                           T* const dest,
+    const uint frame_size = q.get_frame_size();
+    const auto lambda = [](const void* const src,
+                           void* const dest,
                            const uint batch_size,
-                           const uint frame_res,
+                           const uint frame_size,
                            const cudaStream_t stream) {
-        const size_t size =
-            static_cast<size_t>(batch_size) * frame_res * sizeof(T);
+        const size_t size = static_cast<size_t>(batch_size) * frame_size;
         cudaSafeCall(
             cudaMemcpyAsync(dest, src, size, cudaMemcpyDeviceToHost, stream));
     };
 
-    T* d_buff;
-    cudaSafeCall(
-        cudaMallocHost((void**)&d_buff, sizeof(T) * frame_res * batch_size));
+    char* d_buff;
+    cudaSafeCall(cudaMallocHost((void**)&d_buff, frame_size * batch_size));
     q.dequeue(d_buff, lambda);
 
     return d_buff;
@@ -61,28 +59,28 @@ TEST(BatchInputQueueTest, SimpleInstantiation)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr uint frame_res = 2;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 2 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     ASSERT_EQ(queue.get_size(), 0);
     // TODO: getter max size
     // ASSERT_EQ(queue.get_max_size(), 3);
 
-    ASSERT_EQ(queue.get_frame_res(), 2);
+    ASSERT_EQ(queue.get_frame_size(), 2);
 }
 
 TEST(BatchInputQueueTest, SimpleEnqueueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr uint frame_res = 2;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 2 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "a\0b\0c\0d\0e\0";
 
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
 
     cudaDeviceSynchronize();
     ASSERT_EQ(queue.get_size(), 3);
@@ -95,15 +93,15 @@ TEST(BatchInputQueueTest, SimpleEnqueueAndDequeueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr uint frame_res = 2;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 2 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "a\0b\0c\0d\0e\0";
 
     // Enqueue
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
 
     char* elt1 = dequeue_helper(queue, batch_size);
     ASSERT_EQ(elt1, std::string("a"));
@@ -122,17 +120,17 @@ TEST(BatchInputQueueTest, SimpleOverwriteElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr uint frame_res = 2;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 2 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "a\0b\0c\0d\0e\0";
 
     // Enqueue
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice); // A
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice); // B
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice); // C
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice); // D
-    queue.enqueue(data + 4 * frame_res, cudaMemcpyHostToDevice); // E
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice); // A
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice); // B
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice); // C
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice); // D
+    queue.enqueue(data + 4 * frame_size, cudaMemcpyHostToDevice); // E
     ASSERT_EQ(queue.get_size(), 3);
 
     char* elt1 = dequeue_helper(queue, batch_size);
@@ -152,21 +150,21 @@ TEST(BatchInputQueueTest, SimpleOverwriteMoreElements)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr uint frame_res = 4;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 4 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "abc\0ABC\0def\0DEF\0ghi\0GHI\0";
 
     // Enqueue ABC
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice); // abc
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice); // abc
     ASSERT_EQ(queue.get_size(), 0);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice); // ABC
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice); // ABC
     ASSERT_EQ(queue.get_size(), 1);
 
     // Enqueue DEF
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice); // def
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice); // def
     ASSERT_EQ(queue.get_size(), 1);
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice); // DEF
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice); // DEF
     ASSERT_EQ(queue.get_size(), 2);
 
     // Dequeue ABC
@@ -176,15 +174,15 @@ TEST(BatchInputQueueTest, SimpleOverwriteMoreElements)
     ASSERT_EQ(elt1 + 4, std::string("ABC"));
 
     // Enqueue GHI
-    queue.enqueue(data + 4 * frame_res, cudaMemcpyHostToDevice); // ghi
+    queue.enqueue(data + 4 * frame_size, cudaMemcpyHostToDevice); // ghi
     ASSERT_EQ(queue.get_size(), 1);
-    queue.enqueue(data + 5 * frame_res, cudaMemcpyHostToDevice); // GHI
+    queue.enqueue(data + 5 * frame_size, cudaMemcpyHostToDevice); // GHI
     ASSERT_EQ(queue.get_size(), 2);
 
     // Enqueue ABC
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice); // abc
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice); // abc
     ASSERT_EQ(queue.get_size(), 2);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice); // ABC
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice); // ABC
     ASSERT_EQ(queue.get_size(), 2);
 
     // Dequeue GHI
@@ -204,16 +202,16 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr uint frame_res = 5;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 5 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice);
     dequeue_helper(queue, batch_size);
     ASSERT_EQ(queue.get_size(), 1);
 
@@ -223,8 +221,8 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0ilan\0"
-    queue.enqueue(data + 4 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 4 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
     ASSERT_EQ(queue.get_size(), 1);
     dequeue_helper(queue, new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
@@ -234,16 +232,16 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr uint frame_res = 5;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 5 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice);
     dequeue_helper(queue, batch_size);
     ASSERT_EQ(queue.get_size(), 1);
 
@@ -253,10 +251,10 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0ilan\0" and "anto\0kaci\0"
-    queue.enqueue(data + 4 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 4 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice);
     ASSERT_EQ(queue.get_size(), 1);
     dequeue_helper(queue, new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
@@ -266,16 +264,16 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr uint frame_res = 5;
-    holovibes::BatchInputQueue<char> queue(total_nb_frames, batch_size, frame_res);
+    constexpr uint frame_size = 5 * sizeof(char);
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, frame_size);
 
     char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
-    queue.enqueue(data + 0 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 1 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 2 * frame_res, cudaMemcpyHostToDevice);
-    queue.enqueue(data + 3 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 2 * frame_size, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 3 * frame_size, cudaMemcpyHostToDevice);
     dequeue_helper(queue, batch_size);
     ASSERT_EQ(queue.get_size(), 1);
 
@@ -285,17 +283,17 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0"
-    queue.enqueue(data + 4 * frame_res, cudaMemcpyHostToDevice);
+    queue.enqueue(data + 4 * frame_size, cudaMemcpyHostToDevice);
     ASSERT_EQ(queue.get_size(), 1);
     dequeue_helper(queue, new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
 }
 
-template <typename T>
-void consumer(holovibes::BatchInputQueue<T>& queue,
+void consumer(holovibes::BatchInputQueue& queue,
               const uint nb_actions,
               std::atomic<bool>& stop_requested,
               uint batch_size,
+              bool resize_during_exec,
               const uint max_batch_size)
 {
     for (uint i = 0; i < nb_actions && !stop_requested; i++)
@@ -311,16 +309,16 @@ void consumer(holovibes::BatchInputQueue<T>& queue,
         if (stop_requested)
             return;
 
-        if (i % 4 == 0)
+        if (resize_during_exec && i % 4 == 0)
         {
-            // batch_size = std::min(batch_size * 2, max_batch_size);
+            batch_size = std::min(batch_size * 2, max_batch_size);
             queue.resize(batch_size);
         }
     }
 }
 
 template <typename T>
-void producer(holovibes::BatchInputQueue<T>& queue,
+void producer(holovibes::BatchInputQueue& queue,
               const uint nb_actions,
               const uint frame_res)
 {
@@ -334,7 +332,7 @@ void producer(holovibes::BatchInputQueue<T>& queue,
     delete[] frame;
 }
 
-TEST(BatchInputQueueTest, SimpleProducerConsumerSituation)
+TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
 {
     constexpr uint nb_tests = 30;
     for (uint i = 0; i < nb_tests; i++)
@@ -343,7 +341,9 @@ TEST(BatchInputQueueTest, SimpleProducerConsumerSituation)
         constexpr uint batch_size = 1;
         constexpr uint max_batch_size = total_nb_frames;
         constexpr uint frame_res = 4;
-        holovibes::BatchInputQueue<float> queue(total_nb_frames, batch_size, frame_res);
+        holovibes::BatchInputQueue queue(total_nb_frames,
+                                         batch_size,
+                                         frame_res * sizeof(float));
 
         // Consumer will do less actions. It is maximum in case of batch size ==
         // 1
@@ -351,11 +351,12 @@ TEST(BatchInputQueueTest, SimpleProducerConsumerSituation)
         constexpr uint producer_actions = total_nb_frames;
         std::atomic<bool> stop_requested{false};
 
-        std::thread consumer_thread(&(consumer<float>),
+        std::thread consumer_thread(&(consumer),
                                     std::ref(queue),
                                     consumer_actions,
                                     std::ref(stop_requested),
                                     batch_size,
+                                    true,
                                     max_batch_size);
         std::thread producer_thread(&(producer<float>),
                                     std::ref(queue),
@@ -368,6 +369,166 @@ TEST(BatchInputQueueTest, SimpleProducerConsumerSituation)
     }
 
     ASSERT_EQ(0, 0);
+}
+
+TEST(BatchInputQueueTest, FullProducerConsumerSituationFloat)
+{
+    constexpr uint total_nb_frames = 4096;
+    constexpr uint batch_size = 1;
+    constexpr uint max_batch_size = total_nb_frames;
+    constexpr uint frame_res = 4;
+    holovibes::BatchInputQueue queue(total_nb_frames,
+                                     batch_size,
+                                     frame_res * sizeof(float));
+
+    // Consumer will do less actions. It is maximum in case of batch size ==
+    // 1
+    constexpr uint actions = total_nb_frames;
+
+    std::atomic<bool> stop_requested{false};
+
+    std::thread consumer_thread(&(consumer),
+                                std::ref(queue),
+                                actions,
+                                std::ref(stop_requested),
+                                batch_size,
+                                false,
+                                max_batch_size);
+    std::thread producer_thread(&(producer<float>),
+                                std::ref(queue),
+                                actions,
+                                frame_res);
+
+    producer_thread.join();
+
+    // consume all frames before stopping the thread
+    while (queue.get_size() != 0)
+        continue;
+
+    stop_requested = true;
+
+    consumer_thread.join();
+
+    ASSERT_EQ(0, 0);
+}
+
+TEST(BatchInputQueueTest, FullProducerConsumerSituationChar)
+{
+    constexpr uint total_nb_frames = 4096;
+    constexpr uint batch_size = 1;
+    constexpr uint max_batch_size = total_nb_frames;
+    constexpr uint frame_res = 4;
+    holovibes::BatchInputQueue queue(total_nb_frames,
+                                     batch_size,
+                                     frame_res * sizeof(char));
+
+    // Consumer will do less actions. It is maximum in case of batch size ==
+    // 1
+    constexpr uint actions = total_nb_frames;
+
+    std::atomic<bool> stop_requested{false};
+
+    std::thread consumer_thread(&(consumer),
+                                std::ref(queue),
+                                actions,
+                                std::ref(stop_requested),
+                                batch_size,
+                                false,
+                                max_batch_size);
+    std::thread producer_thread(&(producer<char>),
+                                std::ref(queue),
+                                actions,
+                                frame_res);
+
+    producer_thread.join();
+
+    while (queue.get_size() != 0)
+        continue;
+
+    stop_requested = true;
+
+    // consume all frames before stopping the thread
+    consumer_thread.join();
+
+    ASSERT_EQ(0, 0);
+}
+
+TEST(BatchInputQueueTest, FullProducerConsumerSituationShort)
+{
+    constexpr uint total_nb_frames = 4096;
+    constexpr uint batch_size = 1;
+    constexpr uint max_batch_size = total_nb_frames;
+    constexpr uint frame_res = 4;
+    holovibes::BatchInputQueue queue(total_nb_frames,
+                                     batch_size,
+                                     frame_res * sizeof(short));
+
+    // Consumer will do less actions. It is maximum in case of batch size ==
+    // 1
+    constexpr uint actions = total_nb_frames;
+
+    std::atomic<bool> stop_requested{false};
+
+    std::thread consumer_thread(&(consumer),
+                                std::ref(queue),
+                                actions,
+                                std::ref(stop_requested),
+                                batch_size,
+                                false,
+                                max_batch_size);
+    std::thread producer_thread(&(producer<short>),
+                                std::ref(queue),
+                                actions,
+                                frame_res);
+
+    producer_thread.join();
+
+    while (queue.get_size() != 0)
+        continue;
+
+    stop_requested = true;
+
+    // consume all frames before stopping the thread
+    consumer_thread.join();
+
+    ASSERT_EQ(0, 0);
+}
+
+TEST(BatchInputQueueTest, PartialProducerConsumerSituationShort)
+{
+    constexpr uint total_nb_frames = 4096;
+    constexpr uint batch_size = 1;
+    constexpr uint max_batch_size = total_nb_frames;
+    constexpr uint frame_res = 4;
+    holovibes::BatchInputQueue queue(total_nb_frames,
+                                     batch_size,
+                                     frame_res * sizeof(short));
+
+    // Consumer will do less actions. It is maximum in case of batch size ==
+    // 1
+    constexpr uint consumer_actions = 2;
+    constexpr uint producer_actions = 10;
+
+    std::atomic<bool> stop_requested{false};
+
+    std::thread consumer_thread(&(consumer),
+                                std::ref(queue),
+                                consumer_actions,
+                                std::ref(stop_requested),
+                                batch_size,
+                                false,
+                                max_batch_size);
+    std::thread producer_thread(&(producer<short>),
+                                std::ref(queue),
+                                producer_actions,
+                                frame_res);
+
+    producer_thread.join();
+
+    // consume all frames before stopping the thread
+    consumer_thread.join();
+
+    ASSERT_EQ(queue.get_size(), 8);
 }
 
 int main(int argc, char* argv[])
