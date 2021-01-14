@@ -1,3 +1,11 @@
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
+
 #pragma once
 
 #include "cuda_runtime.h"
@@ -24,7 +32,9 @@ namespace holovibes
 class BatchInputQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const uint frame_size);
+    BatchInputQueue(const uint total_nb_frames,
+                    const uint batch_size,
+                    const uint frame_size);
 
     ~BatchInputQueue();
 
@@ -47,8 +57,11 @@ class BatchInputQueue
 
     //! \brief Function used when dequeuing a batch of frame
     // src, dst, batch_size, frame_size, stream -> void
-    using dequeue_func_t = std::function<void(const void* const, void* const,
-      const uint, const uint, const cudaStream_t)>;
+    using dequeue_func_t = std::function<void(const void* const,
+                                              void* const,
+                                              const uint,
+                                              const uint,
+                                              const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
@@ -74,26 +87,27 @@ class BatchInputQueue
     */
     void stop_producer();
 
-    inline bool is_empty() const;
+    bool is_empty() const;
 
-    inline uint get_size() const;
+    uint get_size() const;
 
-    inline bool has_overridden() const;
+    bool has_overridden() const;
 
     // HOLO: Can it be removed?
-    inline const void* get_data() const;
+    const void* get_data() const;
 
-    inline uint get_frame_size() const;
+    uint get_frame_size() const;
 
   private: /* Private methods */
-
     /*! \brief Set size attributes and create mutexes and streams arrays.
     ** Used by the consumer and constructor
-    ** \param total_nb_frames The maximum capacity of the queue in terms of number of frames
+    ** \param total_nb_frames The maximum capacity of the queue in terms of
+    *number of frames
     ** (new_batch_size * max_size)
     ** \param new_batch_size The new number of frames in a batch
     */
-    void create_mutexes_streams(const uint total_nb_frames, const uint new_batch_size);
+    void create_mutexes_streams(const uint total_nb_frames,
+                                const uint new_batch_size);
 
     /*! \brief Destroy mutexes and streams arrays.
     ** Used by the consumer and constructor.
@@ -143,3 +157,7 @@ class BatchInputQueue
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
 };
 } // namespace holovibes
+
+#ifdef _DEBUG
+#include "batch_input_queue.hxx"
+#endif // _DEBUG

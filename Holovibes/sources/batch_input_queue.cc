@@ -1,3 +1,11 @@
+/* ________________________________________________________ */
+/*                  _                _  _                   */
+/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
+/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
+/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
+/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
+/* ________________________________________________________ */
+
 #pragma once
 
 #include <cassert>
@@ -8,12 +16,16 @@
 namespace holovibes
 {
 
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const uint frame_size)
+BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
+                                 const uint batch_size,
+                                 const uint frame_size)
     : frame_size_(frame_size)
 {
     // Set priority of streams
     create_mutexes_streams(total_nb_frames, batch_size);
-    cudaXMalloc(&data_, static_cast<size_t>(max_size_) * batch_size_ * frame_size_ * sizeof(char));
+    cudaXMalloc(&data_,
+                static_cast<size_t>(max_size_) * batch_size_ * frame_size_ *
+                    sizeof(char));
 }
 
 BatchInputQueue::~BatchInputQueue()
@@ -22,17 +34,21 @@ BatchInputQueue::~BatchInputQueue()
     cudaXFree(data_);
 }
 
-void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames, const uint new_batch_size)
+void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames,
+                                             const uint new_batch_size)
 {
     assert(new_batch_size > 0 && "Batch size cannot be 0.");
-    assert(total_nb_frames > 0 && "There must be more at least a frame in the queue.");
-    assert(total_nb_frames % new_batch_size == 0 && "Queue size must be a submultiple of batch size.");
+    assert(total_nb_frames > 0 &&
+           "There must be more at least a frame in the queue.");
+    assert(total_nb_frames % new_batch_size == 0 &&
+           "Queue size must be a submultiple of batch size.");
 
     batch_size_ = new_batch_size;
     max_size_ = total_nb_frames / batch_size_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[]>(new std::mutex[max_size_]);
-    batch_streams_ = std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
+    batch_streams_ =
+        std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
     for (uint i = 0; i < max_size_; ++i)
         cudaSafeCall(cudaStreamCreate(&(batch_streams_[i])));
 }
@@ -83,7 +99,9 @@ void BatchInputQueue::enqueue(const void* const input_frame,
 
     // Static_cast to avoid overflow
     char* const new_frame_adress =
-        data_ + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * frame_size_);
+        data_ +
+        ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
+         frame_size_);
 
     cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
@@ -117,7 +135,8 @@ void BatchInputQueue::enqueue(const void* const input_frame,
         // Unlock the current batch mutex
         batch_mutexes_[prev_end_index].unlock();
         // No batch are busy anymore
-        // End of critical section between enqueue (producer) & resize (consumer)
+        // End of critical section between enqueue (producer) & resize
+        // (consumer)
         m_producer_busy_.unlock();
     }
 }
@@ -136,7 +155,8 @@ void BatchInputQueue::dequeue(void* const dest, dequeue_func_t func)
     // are still running.
 
     // From the queue
-    const char* const src = data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+    const char* const src =
+        data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
     func(src, dest, batch_size_, frame_size_, batch_streams_[start_index_]);
 
     // The consumer has the responsability to give data that
@@ -178,7 +198,8 @@ void BatchInputQueue::copy_multiple(BatchInputQueue& dest)
     assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
     // TODO: fix compilation
     // assert(dest.get_max_size() >= batch_size_
-    //    && "Copy multiple: the destination queue must have a size at least greater than batch_size");
+    //    && "Copy multiple: the destination queue must have a size at least
+    //    greater than batch_size");
     assert(frame_size_ == dest.frame_size_);
 
     // Order cannot be guaranteed because of the try lock because a producer
@@ -217,9 +238,12 @@ void BatchInputQueue::copy_multiple(BatchInputQueue& dest)
     }
 
     // Use the source start index (first batch of frames in the queue) stream
-    // An enqueue operation on this stream (if happens) is blocked until the copy is completed.
-    // Make the copy according to the region
-    Queue::copy_multiple_aux(src, dst, frame_size_, batch_streams_[start_index_]);
+    // An enqueue operation on this stream (if happens) is blocked until the
+    // copy is completed. Make the copy according to the region
+    Queue::copy_multiple_aux(src,
+                             dst,
+                             frame_size_,
+                             batch_streams_[start_index_]);
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
@@ -236,30 +260,5 @@ void BatchInputQueue::copy_multiple(BatchInputQueue& dest)
         dest.size_.store(dest.max_size_);
         dest.has_overridden_ = true;
     }
-}
-
-inline bool BatchInputQueue::is_empty() const
-{
-    return size_ == 0;
-}
-
-inline uint BatchInputQueue::get_size() const
-{
-    return size_;
-}
-
-inline bool BatchInputQueue::has_overridden() const
-{
-    return has_overridden_;
-}
-
-inline const void* BatchInputQueue::get_data() const
-{
-    return data_;
-}
-
-inline uint BatchInputQueue::get_frame_size() const
-{
-    return frame_size_;
 }
 } // namespace holovibes
