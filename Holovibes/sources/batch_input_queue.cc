@@ -260,11 +260,16 @@ void BatchInputQueue::copy_multiple(Queue& dest)
 
     // Update dest queue parameters
     dest.size_ += batch_size_;
+
+    // Copy done, release the batch.
+    batch_mutexes_[start_index_].unlock();
+
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
+
 }
 } // namespace holovibes
