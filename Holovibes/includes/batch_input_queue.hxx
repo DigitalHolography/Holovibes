@@ -92,7 +92,7 @@ void BatchInputQueue<T>::enqueue(const T* const input_frame,
     T* const new_frame_adress =
         data_ + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * frame_res_);
 
-    cudaMemcpyXAsync(new_frame_adress,
+    cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
                      sizeof(T) * frame_res_,
                      memcpy_kind,
