@@ -7,6 +7,8 @@
 #include <atomic>
 #include <mutex>
 
+#include "queue.hh"
+
 using uint = unsigned int;
 
 namespace holovibes
@@ -19,11 +21,10 @@ namespace holovibes
 ** i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
 ** Dequeue, Enqueue
 */
-template <typename T>
 class BatchInputQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const uint frame_res);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const uint frame_size);
 
     ~BatchInputQueue();
 
@@ -33,24 +34,28 @@ class BatchInputQueue
     ** and exit this critical section when a batch of frames is full
     ** in order to let the resize occure if needed.
     */
-    void enqueue(const T* const input_frame,
+    void enqueue(const void* const input_frame,
                  const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
-     // /!\ HOLO: Copy multiple will be using a regular queue in holovibes
-     // But it cannot be tested easily here. Use an input queue just for
-     // compilation testing
-     /*! \brief Copy multiple
-     ** Called by the consumer.
-     */
+    // /!\ HOLO: Copy multiple will be using a regular queue in holovibes
+    // But it cannot be tested easily here. Use an input queue just for
+    // compilation testing
+    /*! \brief Copy multiple
+    ** Called by the consumer.
+    */
     void copy_multiple(BatchInputQueue& dest);
+
+    //! \brief Function used when dequeuing a batch of frame
+    // src, dst, batch_size, frame_size, stream -> void
+    using dequeue_func_t = std::function<void(const void* const, void* const,
+      const uint, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
     ** Called by the consumer.
     ** The queue must have at least a batch of frames filled.
     */
-    template <typename FUNC>
-    void dequeue(T* const dest, FUNC func);
+    void BatchInputQueue::dequeue(void* const dest, dequeue_func_t func);
 
     /*! \brief Resize with a new batch size
     ** Called by the consumer.
@@ -76,9 +81,9 @@ class BatchInputQueue
     inline bool has_overridden() const;
 
     // HOLO: Can it be removed?
-    inline const T* get_data() const;
+    inline const void* get_data() const;
 
-    inline uint get_frame_res() const;
+    inline uint get_frame_size() const;
 
   private: /* Private methods */
 
@@ -100,49 +105,12 @@ class BatchInputQueue
     */
     void make_empty();
 
-  private: /* Copy multiple helpers */
-    /*! \brief Struct to represents a region in the queue, or two regions in
-    ** case of overflow.
-    ** first is the first region
-    ** second is the second region if overflow, nulpptr otherwise.
-    ** In case of overflow, this struct will look like
-    ** |--------------(start_index_) ---------------|
-    ** |		second          |         first         |
-    */
-    template <typename U>
-    struct QueueRegion
-    {
-        U* first = nullptr;
-        U* second = nullptr;
-        unsigned int first_size = 0;
-        unsigned int second_size = 0;
-
-        bool overflow(void) { return second != nullptr; }
-
-        void consume_first(unsigned int size, unsigned int frame_size)
-        {
-            first += size * frame_size;
-            first_size -= size;
-        }
-
-        void consume_second(unsigned int size, unsigned int frame_size)
-        {
-            second += size * frame_size;
-            second_size -= size;
-        }
-    };
-
-    template <typename U>
-    void copy_multiple_aux(QueueRegion<U>& src,
-                           QueueRegion<U>& dst,
-                           cudaStream_t copying_stream);
-
   private: /* Private attributes */
     // HOLO: cuda_tools::UniquePtr
-    T* data_;
+    char* data_;
 
-    //! Resolution of a frame (number of pixels). Never modified.
-    const uint frame_res_;
+    //! Size of a frame (number of pixels * depth) in bytes. Never modified.
+    const uint frame_size_;
 
     /*! Current number of full batches
     ** Can concurrently be modified by the producer (enqueue)
@@ -174,7 +142,4 @@ class BatchInputQueue
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
 };
-
 } // namespace holovibes
-
-#include "batch_input_queue.hxx"

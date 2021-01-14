@@ -379,13 +379,13 @@ void rescale_float_unwrap2d(float* input,
 void endianness_conversion(const ushort* input,
                            ushort* output,
                            const uint batch_size,
-                           const uint size,
+                           const uint frame_res,
                            const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> ushort {
         return (in << 8) | (in >> 8);
     };
-    map_generic(input, output, size * batch_size, lambda, stream);
+    map_generic(input, output, frame_res * batch_size, lambda, stream);
 }
 
 /*

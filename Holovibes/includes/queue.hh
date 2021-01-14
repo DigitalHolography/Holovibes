@@ -18,6 +18,7 @@
 #include "frame_desc.hh"
 #include "compute_descriptor.hh"
 #include "unique_ptr.hh"
+#include "batch_input_queue.hh"
 
 namespace holovibes
 {
@@ -35,6 +36,8 @@ namespace holovibes
 */
 class Queue
 {
+  friend class BatchInputQueue;
+
   public:
     using MutexGuard = std::lock_guard<std::mutex>;
 
@@ -232,19 +235,19 @@ class Queue
                               cudaMemcpyKind cuda_kind);
 
     // Forward declaration
-    template <typename U>
     struct QueueRegion;
 
     /*! \brief auxiliary method of copy multiple.
     ** Make the async copy
     ** \param src Queue region info of the source queue
     ** \param dst Queue region info of the dst queue
+    ** \param frame_size Size of the frame in bytes
     ** \param stream Stream perfoming the copy
     */
-    template <typename U>
-    void copy_multiple_aux(QueueRegion<U>& src,
-                           QueueRegion<U>& dst,
-                           const cudaStream_t stream);
+    static void copy_multiple_aux(QueueRegion& src,
+                                  QueueRegion& dst,
+                                  const uint frame_size,
+                                  const cudaStream_t stream);
 
   private: /* Attributes */
     /*! \brief mutex to lock the queue */
@@ -302,25 +305,24 @@ class Queue
     ** |----------------- (start_index_) ---------------|
     ** |		second          |         first         |
     */
-    template <typename U>
     struct QueueRegion
     {
-        U* first = nullptr;
-        U* second = nullptr;
+        char* first = nullptr;
+        char* second = nullptr;
         unsigned int first_size = 0;
         unsigned int second_size = 0;
 
         bool overflow(void) { return second != nullptr; }
 
-        void consume_first(unsigned int size, unsigned int frame_res)
+        void consume_first(unsigned int size, unsigned int frame_size)
         {
-            first += static_cast<size_t>(size) * frame_res * sizeof(U);
+            first += static_cast<size_t>(size) * frame_size * sizeof(char);
             first_size -= size;
         }
 
-        void consume_second(unsigned int size, unsigned int frame_res)
+        void consume_second(unsigned int size, unsigned int frame_size)
         {
-            second += static_cast<size_t>(size) * frame_res * sizeof(U);
+            second += static_cast<size_t>(size) * frame_size * sizeof(char);
             second_size -= size;
         }
     };

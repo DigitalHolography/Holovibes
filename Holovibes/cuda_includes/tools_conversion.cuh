@@ -74,13 +74,13 @@ void rescale_float(const float* input,
 /*! \brief Convert from big endian to little endian.
  * \param input The input data in big endian.
  * \param output Where to store the data converted in little endian.
- * \param size The number of elements to process.
+ * \param frame_res The resolution (number of pixel) of a frame
  * \param stream The CUDA stream on which to launch the operation.
  */
 void endianness_conversion(const ushort* input,
                            ushort* output,
                            const uint batch_size,
-                           const uint size,
+                           const uint frame_res,
                            const cudaStream_t stream);
 
 /*! \brief Convert data from float to unsigned short (16-bit).

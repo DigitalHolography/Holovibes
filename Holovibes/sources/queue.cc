@@ -222,7 +222,7 @@ void Queue::copy_multiple(Queue& dest,
     }
 
     // Determine regions info
-    struct QueueRegion<char> src;
+    struct QueueRegion src;
     if (start_index_ + nb_elts > max_size_)
     {
         src.first = static_cast<char*>(get_start());
@@ -236,25 +236,25 @@ void Queue::copy_multiple(Queue& dest,
         src.first_size = nb_elts;
     }
 
-    struct QueueRegion<char> dst;
+    struct QueueRegion dst;
     const uint begin_to_enqueue_index =
         (dest.start_index_ + dest.size_) % dest.max_size_;
-    void* begin_to_enqueue =
+    char* begin_to_enqueue =
         dest.data_.get() + (begin_to_enqueue_index * dest.frame_size_);
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
-        dst.first = static_cast<char*>(begin_to_enqueue);
+        dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
         dst.second = dest.data_.get();
         dst.second_size = nb_elts - dst.first_size;
     }
     else
     {
-        dst.first = static_cast<char*>(begin_to_enqueue);
+        dst.first = begin_to_enqueue;
         dst.first_size = nb_elts;
     }
 
-    copy_multiple_aux(src, dst, stream);
+    copy_multiple_aux(src, dst, frame_size_, stream);
 
     // Synchronize after every copy has been lauched and before updating the
     // size
@@ -272,9 +272,9 @@ void Queue::copy_multiple(Queue& dest,
     start_index_ = tmp_src_start_index;
 }
 
-template <typename U>
-void Queue::copy_multiple_aux(QueueRegion<U>& src,
-                              QueueRegion<U>& dst,
+void Queue::copy_multiple_aux(QueueRegion& src,
+                              QueueRegion& dst,
+                              const uint frame_size,
                               const cudaStream_t stream)
 {
     // Handle copies depending on regions info
@@ -286,21 +286,21 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
             {
                 cudaXMemcpyAsync(dst.first,
                                  src.first,
-                                 dst.first_size * frame_size_,
+                                 dst.first_size * frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                src.consume_first(dst.first_size, frame_res_);
+                src.consume_first(dst.first_size, frame_size);
 
                 cudaXMemcpyAsync(dst.second,
                                  src.first,
-                                 src.first_size * frame_size_,
+                                 src.first_size * frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                dst.consume_second(src.first_size, frame_res_);
+                dst.consume_second(src.first_size, frame_size);
 
                 cudaXMemcpyAsync(dst.second,
                                  src.second,
-                                 src.second_size * frame_size_,
+                                 src.second_size * frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
             }
@@ -308,23 +308,23 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
             {
                 cudaXMemcpyAsync(dst.first,
                                  src.first,
-                                 src.first_size * frame_size_,
+                                 src.first_size * frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream);
-                dst.consume_first(src.first_size, frame_res_);
+                dst.consume_first(src.first_size, frame_size);
 
                 if (src.second_size > dst.first_size)
                 {
                     cudaXMemcpyAsync(dst.first,
                                      src.second,
-                                     dst.first_size * frame_size_,
+                                     dst.first_size * frame_size,
                                      cudaMemcpyDeviceToDevice,
                                      stream);
-                    src.consume_second(dst.first_size, frame_res_);
+                    src.consume_second(dst.first_size, frame_size);
 
                     cudaXMemcpyAsync(dst.second,
                                      src.second,
-                                     src.second_size * frame_size_,
+                                     src.second_size * frame_size,
                                      cudaMemcpyDeviceToDevice,
                                      stream);
                 }
@@ -332,7 +332,7 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
                 {
                     cudaXMemcpyAsync(dst.first,
                                      src.second,
-                                     src.second_size * frame_size_,
+                                     src.second_size * frame_size,
                                      cudaMemcpyDeviceToDevice,
                                      stream);
                 }
@@ -344,14 +344,14 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
 
             cudaXMemcpyAsync(dst.first,
                              src.first,
-                             src.first_size * frame_size_,
+                             src.first_size * frame_size,
                              cudaMemcpyDeviceToDevice,
                              stream);
-            dst.consume_first(src.first_size, frame_res_);
+            dst.consume_first(src.first_size, frame_size);
 
             cudaXMemcpyAsync(dst.first,
                              src.second,
-                             dst.first_size * frame_size_,
+                             dst.first_size * frame_size,
                              cudaMemcpyDeviceToDevice,
                              stream);
         }
@@ -364,14 +364,14 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
 
             cudaXMemcpyAsync(dst.first,
                              src.first,
-                             dst.first_size * frame_size_,
+                             dst.first_size * frame_size,
                              cudaMemcpyDeviceToDevice,
                              stream);
-            src.consume_first(dst.first_size, frame_res_);
+            src.consume_first(dst.first_size, frame_size);
 
             cudaXMemcpyAsync(dst.second,
                              src.first,
-                             src.first_size * frame_size_,
+                             src.first_size * frame_size,
                              cudaMemcpyDeviceToDevice,
                              stream);
         }
@@ -379,7 +379,7 @@ void Queue::copy_multiple_aux(QueueRegion<U>& src,
         {
             cudaXMemcpyAsync(dst.first,
                              src.first,
-                             src.first_size * frame_size_,
+                             src.first_size * frame_size,
                              cudaMemcpyDeviceToDevice,
                              stream);
         }
