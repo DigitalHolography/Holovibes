@@ -151,6 +151,11 @@ class BatchInputQueue
     ** blocked. Thus std:atomic is not required.
     */
     uint max_size_{0};
+    /*! The current number of frames in the queue
+    ** This variable must always be equal to
+    ** batch_size_ * size_ + curr_batch_counter
+    */
+    std::atomic<uint> curr_nb_frames_{0};
     //! Start batch index.
     std::atomic<uint> start_index_{0};
     //! End index is the index after the last batch

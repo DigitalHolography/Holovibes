@@ -74,6 +74,7 @@ void BatchInputQueue::destroy_mutexes_streams()
 void BatchInputQueue::make_empty()
 {
     size_ = 0;
+    curr_nb_frames_ = 0;
     start_index_ = 0;
     end_index_ = 0;
     curr_batch_counter_ = 0;
@@ -121,6 +122,7 @@ void BatchInputQueue::enqueue(const void* const input_frame,
 
     // Increase the number of frames in the current batch
     curr_batch_counter_++;
+    curr_nb_frames_++;
 
     // The current batch is full
     if (curr_batch_counter_ == batch_size_)
@@ -174,6 +176,7 @@ void BatchInputQueue::dequeue(void* const dest,
     const uint prev_start_index = start_index_;
     start_index_ = (start_index_ + 1) % max_size_;
     size_--;
+    curr_nb_frames_ -= batch_size_;
 
     // Unlock the dequeued batch
     batch_mutexes_[prev_start_index].unlock();
