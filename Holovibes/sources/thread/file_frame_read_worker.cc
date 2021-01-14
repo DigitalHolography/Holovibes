@@ -22,7 +22,7 @@ FileFrameReadWorker::FileFrameReadWorker(
     unsigned int first_frame_id,
     unsigned int total_nb_frames_to_read,
     bool load_file_in_gpu,
-    std::atomic<std::shared_ptr<Queue>>& gpu_input_queue)
+    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : FrameReadWorker(gpu_input_queue)
     , file_path_(file_path)
     , loop_(loop)
@@ -85,6 +85,9 @@ void FileFrameReadWorker::run()
     {
         LOG_ERROR("[READER]" + std::string(e.what()));
     }
+
+    // No more enqueue, thus release the producer ressources
+    gpu_input_queue_.load()->stop_producer();
 
     info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
     info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
@@ -227,14 +230,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     {
         fps_handler_.wait();
 
-        if (!gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ +
-                                                  frames_enqueued * frame_size_,
-                                              stream_,
-                                              cudaMemcpyDeviceToDevice))
-        {
-            LOG_ERROR("[READER] Cannot enqueue a read frame");
-            return;
-        }
+        gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ +
+                                            frames_enqueued * frame_size_,
+                                         cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
         processed_fps_++;

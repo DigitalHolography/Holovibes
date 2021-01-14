@@ -17,7 +17,7 @@
 
 #include "compute_descriptor.hh"
 #include "frame_desc.hh"
-#include "queue.hh"
+#include "batch_input_queue.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
@@ -60,7 +60,7 @@ class Converts
     void insert_to_ushort();
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
-    void insert_complex_conversion(Queue& input);
+    void insert_complex_conversion(BatchInputQueue& input);
 
   private:
     /** \brief Set pmin_ and pmax_ according to p accumulation. */

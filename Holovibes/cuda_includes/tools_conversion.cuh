@@ -116,16 +116,12 @@ void ushort_to_uchar(const ushort* input,
  * \param input The input queue.
  * \param frame_res The total size of a frame (width * height).
  * \param batch_size The size of the batch to transfer.
- * \param current_queue_index The current index of the input queue.
- * \param queue_size The total size of the input queue (max number of elements).
  * \param depth The pixel depth (uchar : 1, ushort : 2, float : 4).
  */
-void input_queue_to_input_buffer(void* output,
-                                 void* input,
+void input_queue_to_input_buffer(void* const output,
+                                 const void* const input,
                                  const uint frame_res,
                                  const int batch_size,
-                                 const uint current_queue_index,
-                                 const uint queue_size,
                                  const uint depth,
                                  const cudaStream_t stream);
 

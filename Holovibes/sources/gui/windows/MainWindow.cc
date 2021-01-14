@@ -741,8 +741,6 @@ void MainWindow::load_ini(const std::string& path)
                            config.time_transformation_cuts_output_buffer_size);
         config.frame_timeout =
             ptree.get<int>("config.frame_timeout", config.frame_timeout);
-        config.flush_on_refresh =
-            ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 
         // Loaded Directories
         default_output_filename_ =
@@ -994,7 +992,6 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<uint>("config.accumulation_buffer_size",
                     cd_.img_acc_slice_xy_level);
     ptree.put<uint>("config.frame_timeout", config.frame_timeout);
-    ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put<ushort>("config.display_rate",
                       static_cast<ushort>(cd_.display_rate));
 
@@ -1330,7 +1327,7 @@ void MainWindow::set_raw_mode()
     if (is_enabled_camera_)
     {
         QPoint pos(0, 0);
-        const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+        const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
         unsigned short width = fd.width;
         unsigned short height = fd.height;
         get_good_size(width, height, window_max_size);
@@ -1339,7 +1336,7 @@ void MainWindow::set_raw_mode()
         cd_.compute_mode = Computation::Raw;
         createPipe();
         mainDisplay.reset(
-            new RawWindow(pos, size, holovibes_.get_gpu_input_queue().get()));
+            new RawWindow(pos, size, holovibes_.get_gpu_output_queue().get()));
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->setRatio(static_cast<float>(width) /

@@ -84,13 +84,10 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd)
     }
 
     gpu_input_queue_ =
-        std::make_shared<Queue>(queue_fd,
-                                global::global_config.input_queue_max_size,
-                                Queue::QueueType::INPUT_QUEUE,
-                                fd.width,
-                                fd.height,
-                                fd.depth);
-    gpu_input_queue_.load()->set_square_input_mode(mode);
+        std::make_shared<BatchInputQueue>(global::global_config.input_queue_max_size,
+                                          queue_fd);
+    // FIXME: Input mode
+    // gpu_input_queue_.load()->set_square_input_mode(mode);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,

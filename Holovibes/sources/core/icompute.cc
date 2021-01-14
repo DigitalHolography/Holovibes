@@ -32,7 +32,7 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(Queue& input,
+ICompute::ICompute(BatchInputQueue& input,
                    Queue& output,
                    ComputeDescriptor& cd,
                    const cudaStream_t& stream)

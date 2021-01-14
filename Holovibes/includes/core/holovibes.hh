@@ -41,6 +41,7 @@ class MainWindow;
 }
 
 class Queue;
+class BatchInputQueue;
 
 /*! \brief Core class to use HoloVibes
  *
@@ -78,7 +79,7 @@ class Holovibes
     /*! \{ \name Queue getters
      *
      * Used to record frames */
-    std::shared_ptr<Queue> get_gpu_input_queue();
+    std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
 
     /*! Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
@@ -202,7 +203,7 @@ class Holovibes
     std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
 
     /*! \{ \name Frames queue (GPU) */
-    std::atomic<std::shared_ptr<Queue>> gpu_input_queue_{nullptr};
+    std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
 

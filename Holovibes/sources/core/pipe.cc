@@ -34,10 +34,11 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(Queue& input,
-           Queue& output,
-           ComputeDescriptor& desc,
-           const cudaStream_t& stream)
+
+    Pipe::Pipe(BatchInputQueue& input,
+               Queue& output,
+               ComputeDescriptor& desc,
+               const cudaStream_t& stream)
     : ICompute(input, output, desc, stream)
 {
     ConditionType batch_condition = [&]() -> bool {
@@ -327,19 +328,19 @@ void Pipe::refresh()
 
     /* Begin insertions */
 
+    insert_wait_frames();
+    // A batch of frame is ready
+
+    insert_raw_record();
+
     if (cd_.compute_mode == Computation::Raw)
     {
+        // insert_output_enqueue_raw_mode();
         refresh_requested_ = false;
-        insert_raw_record();
-        insert_output_enqueue_raw_mode();
         return;
     }
 
     const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
-
-    insert_wait_frames();
-
-    insert_raw_record();
 
     insert_raw_view();
 
@@ -412,7 +413,7 @@ void Pipe::insert_wait_frames()
 {
     fn_compute_vect_.push_back([&]() {
         // Wait while the input queue is enough filled
-        while (gpu_input_queue_.get_size() < cd_.batch_size)
+        while (gpu_input_queue_.is_empty())
             continue;
     });
 }
@@ -445,6 +446,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue,
 
 void Pipe::insert_output_enqueue_raw_mode()
 {
+    /*
     fn_compute_vect_.push_back([&]() {
         ++processed_output_fps_;
 
@@ -454,7 +456,7 @@ void Pipe::insert_output_enqueue_raw_mode()
             "Can't enqueue the input frame in gpu_output_queue");
 
         gpu_input_queue_.dequeue();
-    });
+    });*/
 }
 
 void Pipe::insert_output_enqueue_hologram_mode()
@@ -488,9 +490,8 @@ void Pipe::insert_raw_view()
     if (cd_.raw_view_enabled)
     {
         fn_compute_vect_.push_back([&]() {
-            gpu_input_queue_.copy_multiple(*get_raw_view_queue(),
-                                           cd_.batch_size,
-                                           stream_);
+            // Copy a batch of frame from the input queue to the raw view queue
+            gpu_input_queue_.copy_multiple(*get_raw_view_queue());
         });
     }
 }
@@ -522,10 +523,10 @@ void Pipe::insert_raw_record()
                 }
             }
 
+            // FIXME: what about copy multiple with remaining frames to record < batch_size
+            nb_frames_to_transfer = cd_.batch_size; // to remove
             gpu_input_queue_.copy_multiple(
-                *frame_record_env_.gpu_frame_record_queue_,
-                nb_frames_to_transfer,
-                stream_);
+                *frame_record_env_.gpu_frame_record_queue_);
 
             if (frame_record_env_.remaining_frames_to_record.has_value())
                 frame_record_env_.remaining_frames_to_record.value() -=
@@ -566,9 +567,6 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-    if (global::global_config.flush_on_refresh)
-        gpu_input_queue_.clear();
-
     Holovibes::instance().get_info_container().add_processed_fps(
         InformationContainer::FpsType::OUTPUT_FPS,
         processed_output_fps_);
@@ -577,7 +575,8 @@ void Pipe::exec()
     {
         try
         {
-            if (gpu_input_queue_.get_size() >= 1)
+            // FIXME: Remove this if because there must a wait frame
+            if (!gpu_input_queue_.is_empty())
             {
                 // Run the entire pipeline of calculation
                 run_all();

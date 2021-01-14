@@ -14,6 +14,7 @@ namespace holovibes
 {
 class ICompute;
 class Queue;
+class BatchInputQueue;
 
 namespace worker
 {
@@ -21,7 +22,7 @@ class ComputeWorker : public Worker
 {
   public:
     ComputeWorker(std::atomic<std::shared_ptr<ICompute>>& pipe,
-                  std::atomic<std::shared_ptr<Queue>>& input,
+                  std::atomic<std::shared_ptr<BatchInputQueue>>& input,
                   std::atomic<std::shared_ptr<Queue>>& output);
 
     void stop() override;
@@ -31,7 +32,7 @@ class ComputeWorker : public Worker
   private:
     std::atomic<std::shared_ptr<ICompute>>& pipe_;
 
-    std::atomic<std::shared_ptr<Queue>>& input_;
+    std::atomic<std::shared_ptr<BatchInputQueue>>& input_;
 
     std::atomic<std::shared_ptr<Queue>>& output_;
 

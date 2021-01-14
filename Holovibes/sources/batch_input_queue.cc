@@ -15,11 +15,17 @@
 
 namespace holovibes
 {
+BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
+                                 const camera::FrameDescriptor& fd)
+    : BatchInputQueue(total_nb_frames, 1, fd)
+{}
 
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
                                  const uint batch_size,
-                                 const uint frame_size)
-    : frame_size_(frame_size)
+                                 const camera::FrameDescriptor& fd)
+    : fd_(fd)
+    , frame_res_(fd_.frame_res())
+    , frame_size_(fd_.frame_size())
 {
     // Set priority of streams
     create_mutexes_streams(total_nb_frames, batch_size);
@@ -141,7 +147,9 @@ void BatchInputQueue::enqueue(const void* const input_frame,
     }
 }
 
-void BatchInputQueue::dequeue(void* const dest, dequeue_func_t func)
+void BatchInputQueue::dequeue(void* const dest,
+                              const uint depth,
+                              const dequeue_func_t func)
 {
     assert(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
@@ -155,9 +163,8 @@ void BatchInputQueue::dequeue(void* const dest, dequeue_func_t func)
     // are still running.
 
     // From the queue
-    const char* const src =
-        data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
-    func(src, dest, batch_size_, frame_size_, batch_streams_[start_index_]);
+    const char* const src = data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+    func(src, dest, batch_size_, frame_res_, depth, batch_streams_[start_index_]);
 
     // The consumer has the responsability to give data that
     // finished processing.
@@ -193,7 +200,7 @@ void BatchInputQueue::resize(const uint new_batch_size)
     // End of critical section
 }
 
-void BatchInputQueue::copy_multiple(BatchInputQueue& dest)
+void BatchInputQueue::copy_multiple(Queue& dest)
 {
     assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
     // TODO: fix compilation
@@ -223,7 +230,7 @@ void BatchInputQueue::copy_multiple(BatchInputQueue& dest)
         (dest.start_index_ + dest.size_) % dest.max_size_;
 
     char* begin_to_enqueue =
-        dest.data_ + (begin_to_enqueue_index * dest.frame_size_);
+        dest.data_.get() + (begin_to_enqueue_index * dest.frame_size_);
     if (begin_to_enqueue_index + batch_size_ > dest.max_size_)
     {
         dst.first = begin_to_enqueue;

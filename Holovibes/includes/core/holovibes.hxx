@@ -12,7 +12,7 @@
 
 namespace holovibes
 {
-inline std::shared_ptr<Queue> Holovibes::get_gpu_input_queue()
+inline std::shared_ptr<BatchInputQueue> Holovibes::get_gpu_input_queue()
 {
     return gpu_input_queue_.load();
 }

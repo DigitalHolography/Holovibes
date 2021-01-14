@@ -28,6 +28,7 @@ namespace holovibes
 {
 class Queue;
 class ComputeDescriptor;
+class BatchInputQueue;
 } // namespace holovibes
 
 namespace holovibes
@@ -159,7 +160,7 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(Queue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -311,7 +312,7 @@ class ICompute : public Observable
     ComputeDescriptor& cd_;
 
     /** Reference on the input queue, owned by MainWindow. */
-    Queue& gpu_input_queue_;
+    BatchInputQueue& gpu_input_queue_;
     /** Reference on the output queue, owned by MainWindow. */
     Queue& gpu_output_queue_;
 

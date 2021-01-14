@@ -20,5 +20,12 @@ inline bool BatchInputQueue::has_overridden() const { return has_overridden_; }
 
 inline const void* BatchInputQueue::get_data() const { return data_; }
 
+inline const camera::FrameDescriptor& BatchInputQueue::get_fd() const
+{
+    return fd_;
+}
+
 inline uint BatchInputQueue::get_frame_size() const { return frame_size_; }
+
+inline uint BatchInputQueue::get_frame_res() const { return frame_res_; }
 } // namespace holovibes

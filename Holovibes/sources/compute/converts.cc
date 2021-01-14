@@ -307,23 +307,18 @@ void Converts::insert_slice_ushort()
     });
 }
 
-void Converts::insert_complex_conversion(Queue& gpu_input_queue)
+void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
     fn_compute_vect_.push_back([&]() {
-        std::lock_guard<std::mutex> m_guard(gpu_input_queue.get_guard());
 
-        input_queue_to_input_buffer(
-            buffers_.gpu_spatial_transformation_buffer.get(),
-            gpu_input_queue.get_data(),
-            fd_.frame_res(),
-            cd_.batch_size,
-            gpu_input_queue.get_start_index(),
-            gpu_input_queue.get_max_size(),
-            fd_.depth,
-            stream_);
+        static const BatchInputQueue::dequeue_func_t convert_to_complex = []
+        (const void* const src, void* const dest, const uint batch_size,
+        const uint frame_res, const uint depth, const cudaStream_t stream)
+        {
+            input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream);
+        };
 
-        // Dequeue batch size frames
-        gpu_input_queue.dequeue_non_mutex(cd_.batch_size);
+        gpu_input_queue.dequeue(buffers_.gpu_spatial_transformation_buffer.get(), fd_.depth, convert_to_complex);
     });
 }
 } // namespace compute

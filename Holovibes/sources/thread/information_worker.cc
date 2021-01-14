@@ -46,7 +46,7 @@ void InformationWorker::run()
 
             std::shared_ptr<Queue> gpu_output_queue =
                 Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<Queue> gpu_input_queue =
+            std::shared_ptr<BatchInputQueue> gpu_input_queue =
                 Holovibes::instance().get_gpu_input_queue();
 
             if (gpu_output_queue && gpu_input_queue)

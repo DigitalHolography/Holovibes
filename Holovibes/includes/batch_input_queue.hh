@@ -16,11 +16,14 @@
 #include <mutex>
 
 #include "queue.hh"
+#include "frame_desc.hh"
 
 using uint = unsigned int;
 
 namespace holovibes
 {
+
+class Queue;
 
 /* Conditons:
 ** 2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
@@ -32,9 +35,9 @@ namespace holovibes
 class BatchInputQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames,
-                    const uint batch_size,
-                    const uint frame_size);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+
+    BatchInputQueue(const uint total_nb_frames, const camera::FrameDescriptor& fd);
 
     ~BatchInputQueue();
 
@@ -53,22 +56,21 @@ class BatchInputQueue
     /*! \brief Copy multiple
     ** Called by the consumer.
     */
-    void copy_multiple(BatchInputQueue& dest);
+    void copy_multiple(Queue& dest);
 
     //! \brief Function used when dequeuing a batch of frame
-    // src, dst, batch_size, frame_size, stream -> void
-    using dequeue_func_t = std::function<void(const void* const,
-                                              void* const,
-                                              const uint,
-                                              const uint,
-                                              const cudaStream_t)>;
+    // src, dst, batch_size, frame_res, depth, stream -> void
+    using dequeue_func_t = std::function<void(const void* const, void* const,
+      const uint, const uint, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
     ** Called by the consumer.
     ** The queue must have at least a batch of frames filled.
     */
-    void BatchInputQueue::dequeue(void* const dest, dequeue_func_t func);
+    void BatchInputQueue::dequeue(void* const dest,
+                                  const uint depth,
+                                  const dequeue_func_t func);
 
     /*! \brief Resize with a new batch size
     ** Called by the consumer.
@@ -87,16 +89,20 @@ class BatchInputQueue
     */
     void stop_producer();
 
-    bool is_empty() const;
+    inline bool is_empty() const;
 
-    uint get_size() const;
+    inline uint get_size() const;
 
-    bool has_overridden() const;
+    inline bool has_overridden() const;
 
     // HOLO: Can it be removed?
-    const void* get_data() const;
+    inline const void* get_data() const;
 
-    uint get_frame_size() const;
+    inline const camera::FrameDescriptor& get_fd() const;
+
+    inline uint get_frame_size() const;
+
+    inline uint get_frame_res() const;
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -123,6 +129,10 @@ class BatchInputQueue
     // HOLO: cuda_tools::UniquePtr
     char* data_;
 
+    //! Frame Descriptor
+    const camera::FrameDescriptor fd_;
+    //! Resolution of a frame (number of pixels)
+    const uint frame_res_;
     //! Size of a frame (number of pixels * depth) in bytes. Never modified.
     const uint frame_size_;
 

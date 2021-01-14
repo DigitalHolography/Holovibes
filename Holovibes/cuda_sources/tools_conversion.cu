@@ -97,36 +97,22 @@ kernel_input_queue_to_input_buffer(OTYPE* output,
                                    const ITYPE* const input,
                                    FUNC convert,
                                    const uint frame_res,
-                                   const int batch_size,
-                                   const uint current_queue_index,
-                                   const uint queue_size)
+                                   const int batch_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < frame_res)
     {
-        uint frame_copied = 0;
-        // j swip through the queue from it's start index to either the end of
-        // the queue or all of the batch
-        for (int j = current_queue_index;
-             j < queue_size && frame_copied < batch_size;
-             ++j, ++frame_copied)
-            output[index + frame_copied * frame_res] =
-                device_float_to_complex(convert(input[index + j * frame_res]));
-
-        // Copy might reach end of the queue so we copy the missing frames
-        for (int j = 0; frame_copied < batch_size; ++frame_copied, ++j)
-            output[index + frame_copied * frame_res] =
-                device_float_to_complex(convert(input[index + j * frame_res]));
+        for (int i = 0; i < batch_size; i++)
+            output[index + i * frame_res] =
+                device_float_to_complex(convert(input[index + i * frame_res]));
     }
 }
 
-void input_queue_to_input_buffer(void* output,
-                                 void* input,
+void input_queue_to_input_buffer(void* const output,
+                                 const void* const input,
                                  const uint frame_res,
                                  const int batch_size,
-                                 const uint current_queue_index,
-                                 const uint queue_size,
                                  const uint depth,
                                  const cudaStream_t stream)
 {
@@ -151,37 +137,29 @@ void input_queue_to_input_buffer(void* output,
     {
     case 1:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<uchar*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const uchar* const>(input),
                                   convert_8_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     case 2:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<ushort*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const ushort* const>(input),
                                   convert_16_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     case 4:
         kernel_input_queue_to_input_buffer<cuComplex, float>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<float*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const float* const>(input),
                                   convert_32_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     }
-    // No sync needed since next call (fft1 is called on default main stream
-    // (0))
     cudaCheckError();
 }
 
