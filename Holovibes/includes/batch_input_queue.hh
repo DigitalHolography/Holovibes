@@ -168,6 +168,4 @@ class BatchInputQueue
 };
 } // namespace holovibes
 
-#ifdef _DEBUG
 #include "batch_input_queue.hxx"
-#endif // _DEBUG

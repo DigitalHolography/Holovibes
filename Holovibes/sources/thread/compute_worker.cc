@@ -43,7 +43,7 @@ void ComputeWorker::run()
     try
     {
         auto& cd = Holovibes::instance().get_cd();
-        auto output_fd = input_.load()->get_fd();
+        camera::FrameDescriptor output_fd = input_.load()->get_fd();
         if (cd.compute_mode == Computation::Hologram)
         {
             output_fd.depth = 2;
