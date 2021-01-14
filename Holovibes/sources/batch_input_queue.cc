@@ -206,10 +206,8 @@ void BatchInputQueue::resize(const uint new_batch_size)
 void BatchInputQueue::copy_multiple(Queue& dest)
 {
     assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
-    // TODO: fix compilation
-    // assert(dest.get_max_size() >= batch_size_
-    //    && "Copy multiple: the destination queue must have a size at least
-    //    greater than batch_size");
+    assert(dest.get_max_size() >= batch_size_
+        && "Copy multiple: the destination queue must have a size at least greater than batch_size.");
     assert(frame_size_ == dest.frame_size_);
 
     // Order cannot be guaranteed because of the try lock because a producer
@@ -218,8 +216,7 @@ void BatchInputQueue::copy_multiple(Queue& dest)
     while (!batch_mutexes_[start_index_].try_lock())
         continue;
 
-    // HOLO: Write the following lock to lock the regular dst queue
-    // MutexGuard m_guard_dst(dest.get_guard());
+    Queue::MutexGuard m_guard_dst(dest.get_guard());
 
     // Determine source region info
     struct Queue::QueueRegion src;
@@ -238,7 +235,7 @@ void BatchInputQueue::copy_multiple(Queue& dest)
     {
         dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
-        dst.second = dest.data_;
+        dst.second = dest.data_.get();
         dst.second_size = batch_size_ - dst.first_size;
     }
     else
@@ -266,8 +263,7 @@ void BatchInputQueue::copy_multiple(Queue& dest)
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-        // HOLO: dest.size_.store(dest.max_size_.load());
-        dest.size_.store(dest.max_size_);
+        dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
 }

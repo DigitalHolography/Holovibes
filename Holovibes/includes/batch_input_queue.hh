@@ -143,7 +143,7 @@ class BatchInputQueue
     std::atomic<uint> size_{0};
     /*! Number of frames in a batch
     ** Batch size can only be changed by the consumer when the producer is
-    ** blocked. Thus std:atomic is not required.
+    ** blocked. Thus std::atomic is not required.
     */
     uint batch_size_{0};
     /*! Max number of batch of frames in the queue
