@@ -35,9 +35,12 @@ class Queue;
 class BatchInputQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames,
+                    const uint batch_size,
+                    const camera::FrameDescriptor& fd);
 
-    BatchInputQueue(const uint total_nb_frames, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames,
+                    const camera::FrameDescriptor& fd);
 
     ~BatchInputQueue();
 
@@ -60,8 +63,12 @@ class BatchInputQueue
 
     //! \brief Function used when dequeuing a batch of frame
     // src, dst, batch_size, frame_res, depth, stream -> void
-    using dequeue_func_t = std::function<void(const void* const, void* const,
-      const uint, const uint, const uint, const cudaStream_t)>;
+    using dequeue_func_t = std::function<void(const void* const,
+                                              void* const,
+                                              const uint,
+                                              const uint,
+                                              const uint,
+                                              const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
@@ -136,6 +143,14 @@ class BatchInputQueue
     //! Size of a frame (number of pixels * depth) in bytes. Never modified.
     const uint frame_size_;
 
+    /*! The current number of frames in the queue
+    ** This variable must always be equal to
+    ** batch_size_ * size_ + curr_batch_counter
+    */
+    std::atomic<uint> curr_nb_frames_{0};
+    //! It is atomic for the design of the information container
+    std::atomic<uint> total_nb_frames_{0};
+
     /*! Current number of full batches
     ** Can concurrently be modified by the producer (enqueue)
     ** and the consumer (dequeue, resize)
@@ -151,11 +166,6 @@ class BatchInputQueue
     ** blocked. Thus std:atomic is not required.
     */
     uint max_size_{0};
-    /*! The current number of frames in the queue
-    ** This variable must always be equal to
-    ** batch_size_ * size_ + curr_batch_counter
-    */
-    std::atomic<uint> curr_nb_frames_{0};
     //! Start batch index.
     std::atomic<uint> start_index_{0};
     //! End index is the index after the last batch

@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include "holovibes.hh"
+
 #include "cuda_memory.cuh"
 #include "batch_input_queue.hh"
 
@@ -18,7 +20,8 @@ namespace holovibes
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
                                  const camera::FrameDescriptor& fd)
     : BatchInputQueue(total_nb_frames, 1, fd)
-{}
+{
+}
 
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
                                  const uint batch_size,
@@ -26,18 +29,27 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
     : fd_(fd)
     , frame_res_(fd_.frame_res())
     , frame_size_(fd_.frame_size())
+    , total_nb_frames_(total_nb_frames)
 {
     // Set priority of streams
+    // Set batch_size and max_size
     create_mutexes_streams(total_nb_frames, batch_size);
     cudaXMalloc(&data_,
-                static_cast<size_t>(max_size_) * batch_size_ * frame_size_ *
-                    sizeof(char));
+                static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
+
+    Holovibes::instance().get_info_container().add_queue_size(
+        Queue::QueueType::INPUT_QUEUE,
+        curr_nb_frames_,
+        total_nb_frames_);
 }
 
 BatchInputQueue::~BatchInputQueue()
 {
     destroy_mutexes_streams();
     cudaXFree(data_);
+
+    Holovibes::instance().get_info_container().remove_queue_size(
+        Queue::QueueType::INPUT_QUEUE);
 }
 
 void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames,
@@ -165,8 +177,14 @@ void BatchInputQueue::dequeue(void* const dest,
     // are still running.
 
     // From the queue
-    const char* const src = data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
-    func(src, dest, batch_size_, frame_res_, depth, batch_streams_[start_index_]);
+    const char* const src =
+        data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+    func(src,
+         dest,
+         batch_size_,
+         frame_res_,
+         depth,
+         batch_streams_[start_index_]);
 
     // The consumer has the responsability to give data that
     // finished processing.
@@ -206,8 +224,9 @@ void BatchInputQueue::resize(const uint new_batch_size)
 void BatchInputQueue::copy_multiple(Queue& dest)
 {
     assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
-    assert(dest.get_max_size() >= batch_size_
-        && "Copy multiple: the destination queue must have a size at least greater than batch_size.");
+    assert(dest.get_max_size() >= batch_size_ &&
+           "Copy multiple: the destination queue must have a size at least "
+           "greater than batch_size.");
     assert(frame_size_ == dest.frame_size_);
 
     // Order cannot be guaranteed because of the try lock because a producer
@@ -270,6 +289,5 @@ void BatchInputQueue::copy_multiple(Queue& dest)
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
-
 }
 } // namespace holovibes
