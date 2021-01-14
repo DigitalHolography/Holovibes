@@ -216,6 +216,7 @@ bool Pipe::make_requests()
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
+        gpu_input_queue_.resize(cd_.batch_size);
         request_update_batch_size_ = false;
     }
 
@@ -336,7 +337,6 @@ void Pipe::refresh()
     if (cd_.compute_mode == Computation::Raw)
     {
         // insert_output_enqueue_raw_mode();
-        refresh_requested_ = false;
         return;
     }
 

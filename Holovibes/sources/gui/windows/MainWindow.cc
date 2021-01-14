@@ -1324,6 +1324,7 @@ void MainWindow::set_raw_mode()
     close_critical_compute();
     ui.SquareInputModeComboBox->setEnabled(false);
 
+    /* FIXME: gpu output queue is null
     if (is_enabled_camera_)
     {
         QPoint pos(0, 0);
@@ -1351,7 +1352,7 @@ void MainWindow::set_raw_mode()
         set_divide_convolution_mode(false);
         notify();
         layout_toggled();
-    }
+    }*/
 }
 
 void MainWindow::createPipe()
