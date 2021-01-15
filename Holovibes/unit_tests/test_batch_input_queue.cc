@@ -357,6 +357,28 @@ void consumer(holovibes::BatchInputQueue& queue,
     }
 }
 
+void consumer_gpu(holovibes::BatchInputQueue& queue,
+              const uint nb_actions,
+              std::atomic<bool>& stop_requested,
+              uint batch_size,
+              float* const d_buff,
+              holovibes::BatchInputQueue::dequeue_func_t dequeue_func)
+{
+    for (uint i = 0; i < nb_actions && !stop_requested; i++)
+    {
+        while (!stop_requested && queue.get_size() == 0)
+            continue;
+
+        if (stop_requested)
+            return;
+
+        queue.dequeue(d_buff, sizeof(float), dequeue_func);
+
+        if (stop_requested)
+            return;
+    }
+}
+
 template <typename T>
 void producer(holovibes::BatchInputQueue& queue,
               const uint nb_actions,
@@ -370,6 +392,20 @@ void producer(holovibes::BatchInputQueue& queue,
     queue.stop_producer();
 
     delete[] frame;
+}
+
+void producer_gpu(holovibes::BatchInputQueue& queue,
+              const uint nb_actions,
+              const uint frame_res,
+              const float* const d_buff)
+{
+
+    for (size_t i = 0; i < nb_actions; i++)
+    {
+        queue.enqueue(d_buff, cudaMemcpyDeviceToDevice);
+    }
+
+    queue.stop_producer();
 }
 
 TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
@@ -398,6 +434,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
                                     batch_size,
                                     true,
                                     max_batch_size);
+
         std::thread producer_thread(&(producer<float>),
                                     std::ref(queue),
                                     producer_actions,
@@ -408,6 +445,74 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
         consumer_thread.join();
     }
 
+    ASSERT_EQ(0, 0);
+}
+
+TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
+{
+    // Test with float
+    constexpr camera::FrameDescriptor fd = {1,
+                                            1,
+                                            sizeof(float),
+                                            camera::Endianness::LittleEndian};
+    constexpr uint total_nb_frames = 2;
+    constexpr uint batch_size = 1;
+    const uint frame_size = fd.frame_size();
+    static const holovibes::BatchInputQueue::dequeue_func_t dequeue_func =
+        [](const void* const src,
+           void* const dest,
+           const uint batch_size,
+           const uint frame_res,
+           const uint depth,
+           const cudaStream_t stream) {
+            const size_t size =
+                static_cast<size_t>(batch_size) * frame_res * depth;
+            cudaSafeCall(cudaMemcpyAsync(dest,
+                                         src,
+                                         size,
+                                         cudaMemcpyDeviceToDevice,
+                                         stream));
+        };
+
+    float* d_producer;
+    float* d_consumer;
+    cudaSafeCall(cudaMalloc((void**)&d_producer, frame_size));
+    cudaSafeCall(cudaMalloc((void**)&d_consumer, frame_size * batch_size));
+
+
+    constexpr uint nb_tests = 100;
+    for (uint i = 0; i < nb_tests; i++)
+    {
+        holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
+        uint frame_res = queue.get_frame_res();
+
+        // Consumer will do less actions. It is maximum in case of batch size ==
+        // 1
+        constexpr uint consumer_actions = 2000;
+        constexpr uint producer_actions = 2000;
+        std::atomic<bool> stop_requested{false};
+
+        std::thread consumer_thread(&(consumer_gpu),
+                                    std::ref(queue),
+                                    consumer_actions,
+                                    std::ref(stop_requested),
+                                    batch_size,
+                                    d_consumer,
+                                    dequeue_func);
+
+        std::thread producer_thread(&(producer_gpu),
+                                    std::ref(queue),
+                                    producer_actions,
+                                    frame_res,
+                                    d_producer);
+
+        producer_thread.join();
+        stop_requested = true;
+        consumer_thread.join();
+    }
+
+    cudaSafeCall(cudaFree(d_producer));
+    cudaSafeCall(cudaFree(d_consumer));
     ASSERT_EQ(0, 0);
 }
 
