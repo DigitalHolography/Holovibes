@@ -66,8 +66,21 @@ void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames,
     batch_mutexes_ = std::unique_ptr<std::mutex[]>(new std::mutex[max_size_]);
     batch_streams_ =
         std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
+
+    /*
+    FIXME: On my GTX 770 leastPriority = greatestPriority = 0
+    current context's device does not support stream priorities?
+    Which value of priority should we choose?
+    Note: If the specified priority is outside the numerical range returned by
+          cudaDeviceGetStreamPriorityRange, it will automatically be clamped to
+          the lowest or the highest number in the range.
+
+    int leastPriority = 0;
+    int greatestPriority = 0;
+    cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
+    */
     for (uint i = 0; i < max_size_; ++i)
-        cudaSafeCall(cudaStreamCreate(&(batch_streams_[i])));
+        cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
 }
 
 void BatchInputQueue::destroy_mutexes_streams()

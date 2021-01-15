@@ -8,7 +8,7 @@
 
 /*! \file
  *
- * Core class to use HoloVibe  */
+ * Core class to use HoloVibes  */
 #pragma once
 
 #include "compute_descriptor.hh"
@@ -31,6 +31,13 @@
 #include "enum_record_mode.hh"
 
 #include "information_container.hh"
+
+// CUDA streams priority
+constexpr int CUDA_STREAM_QUEUE_PRIORITY = 1;
+constexpr int CUDA_STREAM_WINDOW_PRIORITY = 1;
+constexpr int CUDA_STREAM_READER_PRIORITY = 1;
+constexpr int CUDA_STREAM_RECORDER_PRIORITY = 1;
+constexpr int CUDA_STREAM_COMPUTE_PRIORITY = 0;
 
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
@@ -57,9 +64,9 @@ class Holovibes
     {
         CudaStreams()
         {
-            cudaSafeCall(cudaStreamCreate(&reader_stream));
-            cudaSafeCall(cudaStreamCreate(&compute_stream));
-            cudaSafeCall(cudaStreamCreate(&recorder_stream));
+            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
+            cudaSafeCall(cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
+            cudaSafeCall(cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
         }
 
         ~CudaStreams()

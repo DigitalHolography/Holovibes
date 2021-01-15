@@ -18,6 +18,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "HoloWindow.hh"
 
+#include "holovibes.hh"
 #include "tools.hh"
 
 namespace holovibes
@@ -52,7 +53,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    cudaSafeCall(cudaStreamCreate(&cuStream));
+    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));
