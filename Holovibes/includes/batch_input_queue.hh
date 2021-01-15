@@ -64,7 +64,6 @@ class BatchInputQueue : public DisplayQueue
     */
     void copy_multiple(Queue& dest, const uint nb_elts);
 
-
     /*! \brief Copy multiple
     ** Called by the consumer.
     ** Call copy multiple with nb_elts == batch_size_
@@ -89,9 +88,7 @@ class BatchInputQueue : public DisplayQueue
     ** \param depth Depth of frame
     ** \param func Apply a function to the batch of frames being dequeued
     */
-    void dequeue(void* const dest,
-                 const uint depth,
-                 const dequeue_func_t func);
+    void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
@@ -128,6 +125,8 @@ class BatchInputQueue : public DisplayQueue
     // HOLO: Can it be removed?
     inline const void* get_data() const;
 
+    inline const uint get_total_nb_frames() const;
+
     inline const camera::FrameDescriptor& get_fd() const;
 
     inline uint get_frame_size() const;
@@ -156,7 +155,7 @@ class BatchInputQueue : public DisplayQueue
     void make_empty();
 
     /*! \brief Update attributes for a dequeue */
-   void dequeue_update_attr();
+    void dequeue_update_attr();
 
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_;

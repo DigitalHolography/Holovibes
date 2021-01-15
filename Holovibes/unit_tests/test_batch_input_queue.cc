@@ -348,7 +348,10 @@ void consumer(holovibes::BatchInputQueue& queue,
 
         if (resize_during_exec && i % 4 == 0)
         {
+            camera::FrameDescriptor fd = queue.get_fd();
+            holovibes::Queue copy_queue(fd, queue.get_total_nb_frames());
             batch_size = std::min(batch_size * 2, max_batch_size);
+            queue.copy_multiple(copy_queue);
             queue.resize(batch_size);
         }
     }
@@ -377,10 +380,8 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
         constexpr uint total_nb_frames = 4096;
         constexpr uint batch_size = 1;
         constexpr uint max_batch_size = total_nb_frames;
-        constexpr camera::FrameDescriptor fd = {2,
-                                                2,
-                                                sizeof(float),
-                                                camera::Endianness::LittleEndian};
+        constexpr camera::FrameDescriptor fd =
+            {2, 2, sizeof(float), camera::Endianness::LittleEndian};
         holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
         uint frame_res = queue.get_frame_res();
 
