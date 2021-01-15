@@ -1,5 +1,9 @@
 ## Changelog
 
+### 9.0
+
+* Upgrade to 9.0 for final release
+
 ### 8.9.5
 
 * GUI: remove useless lines at bottom
