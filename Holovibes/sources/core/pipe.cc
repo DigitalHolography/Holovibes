@@ -447,7 +447,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue,
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        ++processed_output_fps_;
+        processed_output_fps_ += cd_.batch_size;
 
         // FIXME: It seems this enqueue is useless because the RawWindow use
         // the gpu input queue for display
@@ -457,6 +457,7 @@ void Pipe::insert_dequeue_input()
         **    "Can't enqueue the input frame in gpu_output_queue");
         */
 
+        // Dequeue a batch
         gpu_input_queue_.dequeue();
     });
 }

@@ -371,7 +371,7 @@ void producer(holovibes::BatchInputQueue& queue,
 
 TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
 {
-    constexpr uint nb_tests = 30;
+    constexpr uint nb_tests = 100;
     for (uint i = 0; i < nb_tests; i++)
     {
         constexpr uint total_nb_frames = 4096;
