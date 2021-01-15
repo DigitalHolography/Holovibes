@@ -134,7 +134,6 @@ void BatchInputQueue::enqueue(const void* const input_frame,
 
     // Increase the number of frames in the current batch
     curr_batch_counter_++;
-    curr_nb_frames_++;
 
     // The current batch is full
     if (curr_batch_counter_ == batch_size_)
@@ -150,7 +149,10 @@ void BatchInputQueue::enqueue(const void* const input_frame,
             start_index_ = (start_index_ + 1) % max_size_;
         }
         else
+        {
             size_++;
+            curr_nb_frames_ += batch_size_;
+        }
 
         // Unlock the current batch mutex
         batch_mutexes_[prev_end_index].unlock();
