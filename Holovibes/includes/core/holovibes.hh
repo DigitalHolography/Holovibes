@@ -32,6 +32,12 @@
 
 #include "information_container.hh"
 
+// Threads priority
+constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_READER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_RECORDER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_DISPLAY_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+
 // CUDA streams priority
 constexpr int CUDA_STREAM_QUEUE_PRIORITY = 1;
 constexpr int CUDA_STREAM_WINDOW_PRIORITY = 1;
@@ -64,9 +70,18 @@ class Holovibes
     {
         CudaStreams()
         {
-            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
-            cudaSafeCall(cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&reader_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_READER_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&compute_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_COMPUTE_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&recorder_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_RECORDER_PRIORITY));
         }
 
         ~CudaStreams()
