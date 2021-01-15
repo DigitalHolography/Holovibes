@@ -34,11 +34,10 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-
-    Pipe::Pipe(BatchInputQueue& input,
-               Queue& output,
-               ComputeDescriptor& desc,
-               const cudaStream_t& stream)
+Pipe::Pipe(BatchInputQueue& input,
+           Queue& output,
+           ComputeDescriptor& desc,
+           const cudaStream_t& stream)
     : ICompute(input, output, desc, stream)
 {
     ConditionType batch_condition = [&]() -> bool {
@@ -297,14 +296,12 @@ void Pipe::refresh()
 
     fn_compute_vect_.clear();
 
-
     // Aborting if allocation failed
     if (!make_requests())
     {
         refresh_requested_ = false;
         return;
     }
-
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -403,7 +400,8 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaXStreamSynchronize(stream_); });
+    fn_compute_vect_.conditional_push_back(
+        [=]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -586,15 +584,11 @@ void Pipe::exec()
     {
         try
         {
-            // FIXME: Remove this if because there must a wait frame
-            if (!gpu_input_queue_.is_empty())
-            {
-                // Run the entire pipeline of calculation
-                run_all();
+            // Run the entire pipeline of calculation
+            run_all();
 
-                if (refresh_requested_)
-                    refresh();
-            }
+            if (refresh_requested_)
+                refresh();
         }
         catch (CustomException& e)
         {
