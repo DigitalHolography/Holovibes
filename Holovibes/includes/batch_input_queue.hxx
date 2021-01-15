@@ -14,10 +14,16 @@ namespace holovibes
 {
 inline void* BatchInputQueue::get_last_image() const
 {
-    cudaXStreamSynchronize(batch_streams_[end_index_]);
+    // Synchronize the stream of the previous enqueued frame
+    if (curr_batch_counter_ > 0)
+        cudaXStreamSynchronize(batch_streams_[end_index_]);
+    else if (end_index_ > 0)
+        cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
+    else
+        cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
 
-    return data_ + (static_cast<size_t>(end_index_) * batch_size_ +
-                    curr_batch_counter_) *
+    // Return the previous enqueued frame
+    return data_ + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) *
                        frame_size_;
 }
 
