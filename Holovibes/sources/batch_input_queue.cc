@@ -183,8 +183,7 @@ void BatchInputQueue::dequeue(void* const dest,
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
-    while (!batch_mutexes_[start_index_].try_lock())
-        continue;
+    const uint start_index_locked = wait_and_lock(start_index_);
 
     // It is not needed to stream synchronize before the kernel call because it
     // is ran on the stream of the batch which will be blocking if operations
@@ -192,24 +191,23 @@ void BatchInputQueue::dequeue(void* const dest,
 
     // From the queue
     const char* const src =
-        data_.get() + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * frame_size_);
     func(src,
          dest,
          batch_size_,
          frame_res_,
          depth,
-         batch_streams_[start_index_]);
+         batch_streams_[start_index_locked]);
 
     // The consumer has the responsability to give data that
     // finished processing.
-    cudaXStreamSynchronize(batch_streams_[start_index_]);
+    cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update index
-    const uint prev_start_index = start_index_;
     dequeue_update_attr();
 
     // Unlock the dequeued batch
-    batch_mutexes_[prev_start_index].unlock();
+    batch_mutexes_[start_index_locked].unlock();
 }
 
 void BatchInputQueue::dequeue()
@@ -218,15 +216,13 @@ void BatchInputQueue::dequeue()
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
-    while (!batch_mutexes_[start_index_].try_lock())
-        continue;
+    uint start_index_locked = wait_and_lock(start_index_);
 
     // Update index
-    const uint prev_start_index = start_index_;
     dequeue_update_attr();
 
     // Unlock the dequeued batch
-    batch_mutexes_[prev_start_index].unlock();
+    batch_mutexes_[start_index_locked].unlock();
 }
 
 void BatchInputQueue::dequeue_update_attr()
@@ -275,8 +271,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
-    while (!batch_mutexes_[start_index_].try_lock())
-        continue;
+    uint start_index_locked = wait_and_lock(start_index_);
 
     Queue::MutexGuard m_guard_dst(dest.get_guard());
 
@@ -284,7 +279,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     struct Queue::QueueRegion src;
     // Get the start of the starting batch
     src.first =
-        data_.get() + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * frame_size_);
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 
@@ -314,19 +309,19 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     Queue::copy_multiple_aux(src,
                              dst,
                              frame_size_,
-                             batch_streams_[start_index_]);
+                             batch_streams_[start_index_locked]);
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
     // (Stream synchronization could only be done in thread recorder but it
     // would kill this queue design with only 1 producer and 1 consumer).
-    cudaXStreamSynchronize(batch_streams_[start_index_]);
+    cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
 
     // Copy done, release the batch.
-    batch_mutexes_[start_index_].unlock();
+    batch_mutexes_[start_index_locked].unlock();
 
     if (dest.size_ > dest.max_size_)
     {

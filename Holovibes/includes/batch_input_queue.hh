@@ -157,6 +157,15 @@ class BatchInputQueue : public DisplayQueue
     /*! \brief Update attributes for a dequeue */
     void dequeue_update_attr();
 
+
+  /*! \brief Wait until the batch at the position index is free.
+  ** Note: index can be updated, that is why it is a reference
+  ** \param index reference to the index of the batch to lock
+  ** \return The index where it is currently locked
+  */
+  inline uint
+  wait_and_lock(const std::atomic<uint>& index);
+
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_;
 

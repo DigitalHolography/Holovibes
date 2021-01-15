@@ -28,6 +28,19 @@ inline void* BatchInputQueue::get_last_image() const
                frame_size_;
 }
 
+inline uint
+BatchInputQueue::wait_and_lock(const std::atomic<uint>& index)
+{
+    uint tmp_index;
+    while (true)
+    {
+        tmp_index = index.load();
+        if (batch_mutexes_[tmp_index].try_lock())
+            break;
+    }
+    return tmp_index;
+}
+
 inline bool BatchInputQueue::is_empty() const { return size_ == 0; }
 
 inline uint BatchInputQueue::get_size() const { return size_; }
