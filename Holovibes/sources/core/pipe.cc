@@ -526,10 +526,15 @@ void Pipe::insert_raw_record()
                 }
             }
 
-            // FIXME: what about copy multiple with remaining frames to record < batch_size
-            nb_frames_to_transfer = cd_.batch_size; // to remove
+            // Copy frames from the input queue to the record queue
+            // nb_frames_to_transfer might be lower than batch_size for the
+            // last copy multiple.
+            // Later, when the input queue is dequeued it dequeues batch_size
+            // frames. Thus, the recording is consistent but the compute is not
+            // for only the last batch.
             gpu_input_queue_.copy_multiple(
-                *frame_record_env_.gpu_frame_record_queue_);
+                *frame_record_env_.gpu_frame_record_queue_,
+                nb_frames_to_transfer);
 
             if (frame_record_env_.remaining_frames_to_record.has_value())
                 frame_record_env_.remaining_frames_to_record.value() -=

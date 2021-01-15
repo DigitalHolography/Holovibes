@@ -55,11 +55,19 @@ class BatchInputQueue : public DisplayQueue
     void enqueue(const void* const input_frame,
                  const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
-    // /!\ HOLO: Copy multiple will be using a regular queue in holovibes
-    // But it cannot be tested easily here. Use an input queue just for
-    // compilation testing
     /*! \brief Copy multiple
     ** Called by the consumer.
+    ** \param dest The destination queue
+    ** \param nb_elts Number of elts to copy multiple (must be lower than
+    ** batch_size)
+    */
+    void copy_multiple(Queue& dest, const uint nb_elts);
+
+
+    /*! \brief Copy multiple
+    ** Called by the consumer.
+    ** Call copy multiple with nb_elts == batch_size_
+    ** \param dest The destination queue
     */
     void copy_multiple(Queue& dest);
 

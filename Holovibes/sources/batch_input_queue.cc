@@ -246,11 +246,18 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
 void BatchInputQueue::copy_multiple(Queue& dest)
 {
+    copy_multiple(dest, batch_size_);
+}
+
+void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
+{
     assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
-    assert(dest.get_max_size() >= batch_size_ &&
+    assert(dest.get_max_size() >= nb_elts &&
            "Copy multiple: the destination queue must have a size at least "
-           "greater than batch_size.");
+           "greater than number of elements to copy.");
     assert(frame_size_ == dest.frame_size_);
+    assert(nb_elts <= batch_size_ && "Copy multiple: cannot copy more "
+            "than a batch of frames");
 
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -262,9 +269,11 @@ void BatchInputQueue::copy_multiple(Queue& dest)
 
     // Determine source region info
     struct Queue::QueueRegion src;
+    // Get the start of the starting batch
     src.first =
         data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
-    src.first_size = batch_size_;
+    // Copy multiple nb_elts which might be lower than batch_size.
+    src.first_size = nb_elts;
 
     // Determine destination region info
     struct Queue::QueueRegion dst;
@@ -273,17 +282,17 @@ void BatchInputQueue::copy_multiple(Queue& dest)
 
     char* begin_to_enqueue =
         dest.data_.get() + (begin_to_enqueue_index * dest.frame_size_);
-    if (begin_to_enqueue_index + batch_size_ > dest.max_size_)
+    if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
         dst.second = dest.data_.get();
-        dst.second_size = batch_size_ - dst.first_size;
+        dst.second_size = nb_elts - dst.first_size;
     }
     else
     {
         dst.first = begin_to_enqueue;
-        dst.first_size = batch_size_;
+        dst.first_size = nb_elts;
     }
 
     // Use the source start index (first batch of frames in the queue) stream
@@ -301,7 +310,7 @@ void BatchInputQueue::copy_multiple(Queue& dest)
     cudaXStreamSynchronize(batch_streams_[start_index_]);
 
     // Update dest queue parameters
-    dest.size_ += batch_size_;
+    dest.size_ += nb_elts;
 
     // Copy done, release the batch.
     batch_mutexes_[start_index_].unlock();
