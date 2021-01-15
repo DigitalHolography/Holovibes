@@ -72,12 +72,22 @@ class BatchInputQueue
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
+    ** The queue must have at least a batch of frames filled
     ** Called by the consumer.
-    ** The queue must have at least a batch of frames filled.
+    ** \param dest Dequeue in the destination buffer
+    ** \param depth Depth of frame
+    ** \param func Apply a function to the batch of frames being dequeued
     */
-    void BatchInputQueue::dequeue(void* const dest,
-                                  const uint depth,
-                                  const dequeue_func_t func);
+    void dequeue(void* const dest,
+                 const uint depth,
+                 const dequeue_func_t func);
+
+    /*! \brief Deqeue a batch of frames. Block until the queue has at least a
+    ** full batch of frame.
+    ** The queue must have at least a batch of frames filled
+    ** Called by the consumer
+    */
+    void dequeue();
 
     /*! \brief Resize with a new batch size
     ** Called by the consumer.
@@ -127,10 +137,13 @@ class BatchInputQueue
     */
     void destroy_mutexes_streams();
 
-    /*! \brief Update queue indexes to make the queue empty
+    /*! \brief Update queue attributes to make the queue empty
     ** Used by the consumer.
     */
     void make_empty();
+
+    /*! \brief Update attributes for a dequeue */
+   void dequeue_update_attr();
 
   private: /* Private attributes */
     // HOLO: cuda_tools::UniquePtr

@@ -125,9 +125,9 @@ class Pipe : public ICompute
     void insert_wait_frames();
 
     /*!
-    ** \brief Enqueue the input frame in the output queue in raw mode
+    ** \brief Dequeue the input queue frame by frame in raw mode
     */
-    void insert_output_enqueue_raw_mode();
+    void insert_dequeue_input();
 
     /*!
     ** \brief Enqueue the output frame in the output queue in hologram mode

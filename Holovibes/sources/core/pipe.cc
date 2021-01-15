@@ -336,7 +336,7 @@ void Pipe::refresh()
 
     if (cd_.compute_mode == Computation::Raw)
     {
-        // insert_output_enqueue_raw_mode();
+        insert_dequeue_input();
         return;
     }
 
@@ -444,19 +444,21 @@ void Pipe::safe_enqueue_output(Queue& output_queue,
         throw CustomException(error, error_kind::fail_enqueue);
 }
 
-void Pipe::insert_output_enqueue_raw_mode()
+void Pipe::insert_dequeue_input()
 {
-    /*
     fn_compute_vect_.push_back([&]() {
         ++processed_output_fps_;
 
-        safe_enqueue_output(
-            gpu_output_queue_,
-            static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-            "Can't enqueue the input frame in gpu_output_queue");
+        // FIXME: It seems this enqueue is useless because the RawWindow use
+        // the gpu input queue for display
+        /* safe_enqueue_output(
+        **    gpu_output_queue_,
+        **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+        **    "Can't enqueue the input frame in gpu_output_queue");
+        */
 
         gpu_input_queue_.dequeue();
-    });*/
+    });
 }
 
 void Pipe::insert_output_enqueue_hologram_mode()

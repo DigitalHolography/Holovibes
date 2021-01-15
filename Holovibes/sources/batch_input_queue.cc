@@ -192,12 +192,34 @@ void BatchInputQueue::dequeue(void* const dest,
 
     // Update index
     const uint prev_start_index = start_index_;
-    start_index_ = (start_index_ + 1) % max_size_;
-    size_--;
-    curr_nb_frames_ -= batch_size_;
+    dequeue_update_attr();
 
     // Unlock the dequeued batch
     batch_mutexes_[prev_start_index].unlock();
+}
+
+void BatchInputQueue::dequeue()
+{
+    assert(size_ > 0);
+    // Order cannot be guaranteed because of the try lock because a producer
+    // might start enqueue between two try locks
+    // Active waiting until the start batch is available to dequeue
+    while (!batch_mutexes_[start_index_].try_lock())
+        continue;
+
+    // Update index
+    const uint prev_start_index = start_index_;
+    dequeue_update_attr();
+
+    // Unlock the dequeued batch
+    batch_mutexes_[prev_start_index].unlock();
+}
+
+void BatchInputQueue::dequeue_update_attr()
+{
+    start_index_ = (start_index_ + 1) % max_size_;
+    size_--;
+    curr_nb_frames_ -= batch_size_;
 }
 
 void BatchInputQueue::resize(const uint new_batch_size)
