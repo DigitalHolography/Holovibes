@@ -33,8 +33,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
 {
     // Set priority of streams
     // Set batch_size and max_size
-    create_mutexes_streams(total_nb_frames, batch_size);
-    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
+    create_queue(batch_size);
 
     Holovibes::instance().get_info_container().add_queue_size(
         Queue::QueueType::INPUT_QUEUE,
@@ -51,17 +50,17 @@ BatchInputQueue::~BatchInputQueue()
         Queue::QueueType::INPUT_QUEUE);
 }
 
-void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames,
-                                             const uint new_batch_size)
+void BatchInputQueue::create_queue(const uint new_batch_size)
 {
     assert(new_batch_size > 0 && "Batch size cannot be 0.");
-    assert(total_nb_frames > 0 &&
-           "There must be more at least a frame in the queue.");
-    assert(total_nb_frames % new_batch_size == 0 &&
-           "Queue size must be a submultiple of batch size.");
 
     batch_size_ = new_batch_size;
-    max_size_ = total_nb_frames / batch_size_;
+    total_nb_frames_ -= total_nb_frames_ % batch_size_;
+
+    assert(total_nb_frames_ > 0 &&
+           "There must be more at least a frame in the queue.");
+
+    max_size_ = total_nb_frames_ / batch_size_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[]>(new std::mutex[max_size_]);
     batch_streams_ =
@@ -81,6 +80,8 @@ void BatchInputQueue::create_mutexes_streams(const uint total_nb_frames,
     */
     for (uint i = 0; i < max_size_; ++i)
         cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
+
+    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
 }
 
 void BatchInputQueue::destroy_mutexes_streams()
@@ -245,8 +246,7 @@ void BatchInputQueue::resize(const uint new_batch_size)
     destroy_mutexes_streams();
 
     // Create all streams and mutexes
-    const uint total_nb_frames = batch_size_ * max_size_;
-    create_mutexes_streams(total_nb_frames, new_batch_size);
+    create_queue(new_batch_size);
 
     make_empty();
 

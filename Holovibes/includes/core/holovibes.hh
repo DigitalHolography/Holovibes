@@ -39,6 +39,7 @@ constexpr int THREAD_RECORDER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
 constexpr int THREAD_DISPLAY_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
 
 // CUDA streams priority
+// Lower numbers represent higher priorities
 constexpr int CUDA_STREAM_QUEUE_PRIORITY = 1;
 constexpr int CUDA_STREAM_WINDOW_PRIORITY = 1;
 constexpr int CUDA_STREAM_READER_PRIORITY = 1;

@@ -684,6 +684,36 @@ TEST(BatchInputQueueTest, PartialProducerConsumerSituationShort)
     ASSERT_EQ(queue.get_size(), 8);
 }
 
+TEST(BatchInputQueueTest, CreateQueueSizeNotMatcingBatchSize)
+{
+    constexpr uint total_nb_frames = 11;
+    constexpr uint batch_size = 5;
+    constexpr camera::FrameDescriptor fd = {2,
+                                            2,
+                                            sizeof(short),
+                                            camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
+
+    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - total_nb_frames % batch_size);
+}
+
+TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
+{
+    constexpr uint total_nb_frames = 10;
+    constexpr uint batch_size = 5;
+    constexpr camera::FrameDescriptor fd = {2,
+                                            2,
+                                            sizeof(short),
+                                            camera::Endianness::LittleEndian};
+    holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
+
+    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames);
+
+    constexpr uint new_batch_size = 6;
+    queue.resize(new_batch_size);
+    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - (total_nb_frames % new_batch_size));
+}
+
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

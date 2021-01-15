@@ -49,7 +49,7 @@ inline bool BatchInputQueue::has_overridden() const { return has_overridden_; }
 
 inline const void* BatchInputQueue::get_data() const { return data_; }
 
-inline const uint BatchInputQueue::get_total_nb_frames() const
+inline uint BatchInputQueue::get_total_nb_frames() const
 {
     return total_nb_frames_;
 }

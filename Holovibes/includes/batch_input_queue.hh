@@ -125,7 +125,7 @@ class BatchInputQueue : public DisplayQueue
     // HOLO: Can it be removed?
     inline const void* get_data() const;
 
-    inline const uint get_total_nb_frames() const;
+    inline uint get_total_nb_frames() const;
 
     inline const camera::FrameDescriptor& get_fd() const;
 
@@ -136,13 +136,9 @@ class BatchInputQueue : public DisplayQueue
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
     ** Used by the consumer and constructor
-    ** \param total_nb_frames The maximum capacity of the queue in terms of
-    *number of frames
-    ** (new_batch_size * max_size)
     ** \param new_batch_size The new number of frames in a batch
     */
-    void create_mutexes_streams(const uint total_nb_frames,
-                                const uint new_batch_size);
+    void create_queue(const uint new_batch_size);
 
     /*! \brief Destroy mutexes and streams arrays.
     ** Used by the consumer and constructor.
