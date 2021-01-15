@@ -29,12 +29,12 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
     , frame_res_(fd_.frame_res())
     , frame_size_(fd_.frame_size())
     , total_nb_frames_(total_nb_frames)
+    , data_(nullptr)
 {
     // Set priority of streams
     // Set batch_size and max_size
     create_mutexes_streams(total_nb_frames, batch_size);
-    cudaXMalloc(&data_,
-                static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
+    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
 
     Holovibes::instance().get_info_container().add_queue_size(
         Queue::QueueType::INPUT_QUEUE,
@@ -45,7 +45,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
 BatchInputQueue::~BatchInputQueue()
 {
     destroy_mutexes_streams();
-    cudaXFree(data_);
+    // data is free as it is a UniquePtr.
 
     Holovibes::instance().get_info_container().remove_queue_size(
         Queue::QueueType::INPUT_QUEUE);
@@ -117,7 +117,7 @@ void BatchInputQueue::enqueue(const void* const input_frame,
 
     // Static_cast to avoid overflow
     char* const new_frame_adress =
-        data_ +
+        data_.get() +
         ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
          frame_size_);
 
@@ -179,7 +179,7 @@ void BatchInputQueue::dequeue(void* const dest,
 
     // From the queue
     const char* const src =
-        data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+        data_.get() + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
     func(src,
          dest,
          batch_size_,
@@ -271,7 +271,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     struct Queue::QueueRegion src;
     // Get the start of the starting batch
     src.first =
-        data_ + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
+        data_.get() + (static_cast<size_t>(start_index_) * batch_size_ * frame_size_);
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 

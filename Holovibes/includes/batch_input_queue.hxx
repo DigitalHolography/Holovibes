@@ -23,8 +23,8 @@ inline void* BatchInputQueue::get_last_image() const
         cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
 
     // Return the previous enqueued frame
-    return data_ + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) *
-                       frame_size_;
+    return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_)
+        * frame_size_;
 }
 
 inline bool BatchInputQueue::is_empty() const { return size_ == 0; }

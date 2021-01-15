@@ -19,6 +19,7 @@
 #include "display_queue.hh"
 #include "queue.hh"
 #include "frame_desc.hh"
+#include "unique_ptr.hh"
 
 using uint = unsigned int;
 
@@ -158,8 +159,7 @@ class BatchInputQueue : public DisplayQueue
    void dequeue_update_attr();
 
   private: /* Private attributes */
-    // HOLO: cuda_tools::UniquePtr
-    char* data_;
+    cuda_tools::UniquePtr<char> data_;
 
     //! Resolution of a frame (number of pixels)
     const uint frame_res_;

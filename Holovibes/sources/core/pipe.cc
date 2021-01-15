@@ -492,6 +492,9 @@ void Pipe::insert_raw_view()
 {
     if (cd_.raw_view_enabled)
     {
+        // FIXME: Copy multiple copies a batch of frames
+        // The view use get last image which will always the
+        // last image of the batch.
         fn_compute_vect_.push_back([&]() {
             // Copy a batch of frame from the input queue to the raw view queue
             gpu_input_queue_.copy_multiple(*get_raw_view_queue());
