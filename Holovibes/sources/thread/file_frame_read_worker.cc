@@ -209,10 +209,12 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
         // Memcopy in the gpu buffer
         cudaXMemcpyAsync(gpu_frame_buffer_,
-                    cpu_frame_buffer_,
-                    frames_total_size,
-                    cudaMemcpyHostToDevice,
-                    stream_);
+                         cpu_frame_buffer_,
+                         frames_total_size,
+                         cudaMemcpyHostToDevice,
+                         stream_);
+
+        cudaStreamSynchronize(stream_);
     }
     catch (const io_files::FileException& e)
     {
@@ -231,7 +233,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         fps_handler_.wait();
 
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ +
-                                            frames_enqueued * frame_size_,
+                                             frames_enqueued * frame_size_,
                                          cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
