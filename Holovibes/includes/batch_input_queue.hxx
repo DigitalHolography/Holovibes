@@ -12,6 +12,15 @@
 
 namespace holovibes
 {
+inline void* BatchInputQueue::get_last_image() const
+{
+    cudaXStreamSynchronize(batch_streams_[end_index_]);
+
+    return data_ + (static_cast<size_t>(end_index_) * batch_size_ +
+                    curr_batch_counter_) *
+                       frame_size_;
+}
+
 inline bool BatchInputQueue::is_empty() const { return size_ == 0; }
 
 inline uint BatchInputQueue::get_size() const { return size_; }

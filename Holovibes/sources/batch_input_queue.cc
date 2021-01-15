@@ -12,7 +12,6 @@
 
 #include "holovibes.hh"
 
-#include "cuda_memory.cuh"
 #include "batch_input_queue.hh"
 
 namespace holovibes
@@ -26,7 +25,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
                                  const uint batch_size,
                                  const camera::FrameDescriptor& fd)
-    : fd_(fd)
+    : DisplayQueue(fd)
     , frame_res_(fd_.frame_res())
     , frame_size_(fd_.frame_size())
     , total_nb_frames_(total_nb_frames)

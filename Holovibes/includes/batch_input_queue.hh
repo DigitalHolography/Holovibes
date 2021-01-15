@@ -15,6 +15,8 @@
 #include <atomic>
 #include <mutex>
 
+#include "cuda_memory.cuh"
+#include "display_queue.hh"
 #include "queue.hh"
 #include "frame_desc.hh"
 
@@ -32,7 +34,7 @@ class Queue;
 ** i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
 ** Dequeue, Enqueue
 */
-class BatchInputQueue
+class BatchInputQueue : public DisplayQueue
 {
   public: /* Public methods */
     BatchInputQueue(const uint total_nb_frames,
@@ -106,6 +108,8 @@ class BatchInputQueue
     */
     void stop_producer();
 
+    inline void* get_last_image() const override;
+
     inline bool is_empty() const;
 
     inline uint get_size() const;
@@ -149,8 +153,6 @@ class BatchInputQueue
     // HOLO: cuda_tools::UniquePtr
     char* data_;
 
-    //! Frame Descriptor
-    const camera::FrameDescriptor fd_;
     //! Resolution of a frame (number of pixels)
     const uint frame_res_;
     //! Size of a frame (number of pixels * depth) in bytes. Never modified.

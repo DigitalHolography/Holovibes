@@ -19,6 +19,7 @@
 #include "compute_descriptor.hh"
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
+#include "display_queue.hh"
 
 namespace holovibes
 {
@@ -34,9 +35,9 @@ namespace holovibes
 **
 ** The Queue ensures that all elements it contains are written in little endian.
 */
-class Queue
+class Queue : public DisplayQueue
 {
-  friend class BatchInputQueue;
+    friend class BatchInputQueue;
 
   public:
     using MutexGuard = std::lock_guard<std::mutex>;
@@ -77,9 +78,6 @@ class Queue
     /*! \return pointer to internal buffer that contains data. */
     inline void* get_data() const;
 
-    /*! \return FrameDescriptor of the Queue */
-    inline const camera::FrameDescriptor& get_fd() const;
-
     /*! \return the size of one frame (i-e element) of the Queue in pixels. */
     inline size_t get_frame_res() const;
 
@@ -100,7 +98,7 @@ class Queue
     inline void* get_end() const;
 
     /*! \return pointer to the last image */
-    inline void* get_last_image() const;
+    inline void* get_last_image() const override;
 
     /*! \return index of the frame right after the last one containing data */
     inline unsigned int get_end_index() const;
@@ -252,8 +250,6 @@ class Queue
   private: /* Attributes */
     /*! \brief mutex to lock the queue */
     mutable std::mutex mutex_;
-    /*! \brief frame descriptor of a frame store in the queue */
-    camera::FrameDescriptor fd_;
 
     /*! \brief frame size from the frame descriptor */
     const size_t frame_size_;

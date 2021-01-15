@@ -29,7 +29,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
              unsigned int input_width,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
-    : fd_(fd)
+    : DisplayQueue(fd_)
     , frame_size_(fd_.frame_size())
     , frame_res_(fd_.frame_res())
     , max_size_(max_size)

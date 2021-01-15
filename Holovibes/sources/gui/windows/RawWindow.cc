@@ -29,7 +29,7 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, Queue* q, KindOfView k)
+RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , texDepth(0)
     , texType(0)
@@ -293,7 +293,11 @@ void RawWindow::paintGL()
     // Put the frame inside the cuda ressrouce
     if (cd_->img_type == ImgType::Composite)
     {
-        cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
+        cudaXMemcpyAsync(cuPtrToPbo,
+                         frame,
+                         sizeBuffer,
+                         cudaMemcpyDeviceToDevice,
+                         cuStream);
     }
     else
     {

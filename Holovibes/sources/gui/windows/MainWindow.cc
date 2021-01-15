@@ -1324,11 +1324,10 @@ void MainWindow::set_raw_mode()
     close_critical_compute();
     ui.SquareInputModeComboBox->setEnabled(false);
 
-    /* FIXME: gpu output queue is null
     if (is_enabled_camera_)
     {
         QPoint pos(0, 0);
-        const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
+        const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
         unsigned short width = fd.width;
         unsigned short height = fd.height;
         get_good_size(width, height, window_max_size);
@@ -1337,7 +1336,7 @@ void MainWindow::set_raw_mode()
         cd_.compute_mode = Computation::Raw;
         createPipe();
         mainDisplay.reset(
-            new RawWindow(pos, size, holovibes_.get_gpu_output_queue().get()));
+            new RawWindow(pos, size, holovibes_.get_gpu_input_queue().get()));
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->setRatio(static_cast<float>(width) /
@@ -1352,7 +1351,7 @@ void MainWindow::set_raw_mode()
         set_divide_convolution_mode(false);
         notify();
         layout_toggled();
-    }*/
+    }
 }
 
 void MainWindow::createPipe()
