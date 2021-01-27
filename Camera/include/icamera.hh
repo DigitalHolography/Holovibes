@@ -16,6 +16,10 @@ namespace camera
 {
 struct FrameDescriptor;
 
+/*! \struct CapturedFramesDescriptor
+    \brief Simple struct to represent a single or mutiple frames located either
+   in host memory or in device memory.
+*/
 struct CapturedFramesDescriptor
 {
     CapturedFramesDescriptor(void* data_,
@@ -36,8 +40,13 @@ struct CapturedFramesDescriptor
     {
     }
 
+    /*! \brief The pointer at the data location. */
     void* data;
+
+    /*! \brief The number of frames stored in data. */
     unsigned int count;
+
+    /*! \brief Whether data is located in host or device memory (GPU). */
     bool on_gpu;
 };
 
