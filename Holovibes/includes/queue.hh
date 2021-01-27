@@ -137,7 +137,7 @@ class Queue
     bool enqueue(void* elt,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
-    /*! \brief Copy method for multiple elements
+    /*! \brief Copy elements (no dequeue) and enqueue in dest.
     **
     **	Batch copy method
     **
@@ -263,16 +263,17 @@ class Queue
     */
     SquareInputMode square_input_mode_;
 
+    /*! \brief Wheter frames have been overridden during an enqueue. */
     bool has_overridden_;
 };
 
-/*! \brief Struct to represents a region in the queue, or two regions in
+/*! \brief Struct to represent a region in the queue, or two regions in
 ** case of overflow.
-** first is the first region
-** second is the second region if overflow, nulpptr otherwise.
-** In case of overflow, this struct will look like
+** - first is the default region
+** - second is the region at the beginning if overflow, nulpptr otherwise
+** In case of overflow, this struct will look like below.
 ** |----------------- (start_index_) ---------------|
-** |		second          |         first         |
+** |		second          |         first             |
 */
 struct QueueRegion
 {
@@ -281,14 +282,25 @@ struct QueueRegion
     unsigned int first_size = 0;
     unsigned int second_size = 0;
 
+    /*! \brief Check whether the region has a circular overflow. */
     bool overflow(void) { return second != nullptr; }
 
+    /*! \brief Drop the first elements of the first region.
+     **
+     ** \param size Number of elements to drop
+     ** \param frame_size Size of a single frame in bytes
+     */
     void consume_first(unsigned int size, unsigned int frame_size)
     {
         first += size * frame_size;
         first_size -= size;
     }
 
+    /*! \brief Drop the first elements of the second region.
+     **
+     ** \param size Number of elements to drop
+     ** \param frame_size Size of a single frame in bytes
+     */
     void consume_second(unsigned int size, unsigned int frame_size)
     {
         second += size * frame_size;

@@ -187,20 +187,87 @@ void Queue::enqueue_multiple_aux(void* out,
                               fd_.frame_res());
 }
 
+bool Queue::enqueue_multiple(void* elts,
+                             unsigned int nb_elts,
+                             cudaMemcpyKind cuda_kind)
+{
+    MutexGuard mGuard(mutex_);
+
+    // To avoid templating the Queue
+    char* elts_char = static_cast<char*>(elts);
+    if (nb_elts > max_size_)
+    {
+        // Move elts_char to the end and go back from max_size_ frames
+        elts_char += nb_elts * frame_size_;
+        elts_char -= max_size_ * frame_size_;
+
+        // Skip overwritten elts
+        start_index_ = (start_index_ + nb_elts - max_size_) % max_size_;
+
+        // The number of elements to enqueue is now the queue's max_size_
+        nb_elts = max_size_;
+    }
+
+    // Determine the position where new elements will be enqueued
+    const uint begin_to_enqueue_i = (start_index_ + size_) % max_size_;
+    void* begin_to_enqueue = data_.get() + (begin_to_enqueue_i * frame_size_);
+
+    // Handle two cases: circular overflow or simple enqueue
+    if (begin_to_enqueue_i + nb_elts > max_size_)
+    {
+        // Insert elts at the end of queue
+        unsigned int insert_at_end_count = max_size_ - begin_to_enqueue_i;
+        enqueue_multiple_aux(begin_to_enqueue,
+                             elts_char,
+                             insert_at_end_count,
+                             cuda_kind);
+
+        elts_char += insert_at_end_count * frame_size_;
+
+        // Insert elts at the beginning of queue
+        unsigned int insert_at_beginning_count = nb_elts - insert_at_end_count;
+        enqueue_multiple_aux(data_.get(),
+                             elts_char,
+                             insert_at_beginning_count,
+                             cuda_kind);
+    }
+    else
+    {
+        enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts, cuda_kind);
+    }
+
+    size_ += nb_elts;
+
+    // If older elements have been overwriten => update start_index
+    if (size_ > max_size_)
+    {
+        start_index_ = (start_index_ + size_ - max_size_) % max_size_;
+        size_.store(max_size_.load());
+        has_overridden_ = true;
+    }
+
+    return true;
+}
+
 void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
 {
+    // Lock current and dest queue
     MutexGuard m_guard_src(mutex_);
     MutexGuard m_guard_dst(dest.get_guard());
 
+    // The case where nb_elts > dest.max_size_ is not handled
     assert(nb_elts <= dest.max_size_);
 
+    // The maximum number of elements to copy should not be greater than the
+    // size of the current queue
     if (nb_elts > size_)
         nb_elts = size_;
 
-    // Determine regions info
+    // Determine the region of the source of the copy
     struct QueueRegion src;
     if (start_index_ + nb_elts > max_size_)
     {
+        // Handle circular overflow
         src.first = static_cast<char*>(get_start());
         src.first_size = max_size_ - start_index_;
         src.second = data_.get();
@@ -212,15 +279,17 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         src.first_size = nb_elts;
     }
 
+    // Determine the region of the destination of the copy
     struct QueueRegion dst;
-    const uint begin_to_enqueue_index =
+    const uint begin_to_enqueue_i =
         (dest.start_index_ + dest.size_) % dest.max_size_;
     void* begin_to_enqueue =
-        dest.data_.get() + (begin_to_enqueue_index * dest.frame_size_);
-    if (begin_to_enqueue_index + nb_elts > dest.max_size_)
+        dest.data_.get() + (begin_to_enqueue_i * dest.frame_size_);
+    if (begin_to_enqueue_i + nb_elts > dest.max_size_)
     {
+        // Handle circular overflow
         dst.first = static_cast<char*>(begin_to_enqueue);
-        dst.first_size = dest.max_size_ - begin_to_enqueue_index;
+        dst.first_size = dest.max_size_ - begin_to_enqueue_i;
         dst.second = dest.data_.get();
         dst.second_size = nb_elts - dst.first_size;
     }
@@ -235,8 +304,17 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
     {
         if (dst.overflow())
         {
+            // Overflow in src and dst
+            // Handle different cases occuring when src and dst first regions do
+            // not have the same size
             if (src.first_size > dst.first_size)
             {
+                // We need to make 3 different enqueues in dst:
+                // 1. First part of src first region => dst first region (as dst
+                // first region is smaller)
+                // 2. Second part of src first region => dst second region
+                // 3. Full part of src second region => dst second region
+
                 cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
                 src.consume_first(dst.first_size, frame_size_);
 
@@ -251,11 +329,22 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
             }
             else // src.first_size <= dst.first_size
             {
+                // We first need to enqueue the full src first region to
+                // dst first region (as src first region is smaller)
+
                 cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
                 dst.consume_first(src.first_size, frame_size_);
 
                 if (src.second_size > dst.first_size)
                 {
+                    // We want to enqueue the src second region but dst first
+                    // region cannot hold all of the elements by itself. Thus we
+                    // need to make 2 different enqueues in dst:
+                    // 1. First part of src second region => dst first region
+                    // (its remaining part as it was consumed above)
+                    // 2. Second part of src second region => dst second
+                    // region
+
                     cudaXMemcpy(dst.first,
                                 src.second,
                                 dst.first_size * frame_size_);
@@ -267,6 +356,10 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
                 }
                 else // src.second_size == dst.first_size
                 {
+                    // In this case, the remaining part of dst first region can
+                    // hold all the elements from src second region, thus only a
+                    // single enqueue is needed.
+
                     cudaXMemcpy(dst.first,
                                 src.second,
                                 src.second_size * frame_size_);
@@ -275,11 +368,10 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
         }
         else
         {
+            // Overflow in src but no overflow in dst
             // In this case: dst.first_size > src.first_size
-
             cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
             dst.consume_first(src.first_size, frame_size_);
-
             cudaXMemcpy(dst.first, src.second, dst.first_size * frame_size_);
         }
     }
@@ -287,82 +379,30 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts)
     {
         if (dst.overflow())
         {
+            // No overflow in src but overflow in dst
             // In this case: src.first_size > dst.first_size
-
             cudaXMemcpy(dst.first, src.first, dst.first_size * frame_size_);
             src.consume_first(dst.first_size, frame_size_);
-
             cudaXMemcpy(dst.second, src.first, src.first_size * frame_size_);
         }
         else
         {
+            // No overflow in both src and dst
             cudaXMemcpy(dst.first, src.first, src.first_size * frame_size_);
         }
     }
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
+
+    // If older elements of dest queue have been overwriten => update
+    // start_index and size of dest queue
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
-}
-
-bool Queue::enqueue_multiple(void* elts,
-                             unsigned int nb_elts,
-                             cudaMemcpyKind cuda_kind)
-{
-    MutexGuard mGuard(mutex_);
-
-    // To avoid templating the Queue
-    char* elts_char = static_cast<char*>(elts);
-    if (nb_elts > max_size_)
-    {
-        elts_char = elts_char + nb_elts * frame_size_ - max_size_ * frame_size_;
-        // skip overwritten elts
-        start_index_ = (start_index_ + nb_elts - max_size_) % max_size_;
-        nb_elts = max_size_;
-    }
-
-    const uint begin_to_enqueue_index = (start_index_ + size_) % max_size_;
-    void* begin_to_enqueue =
-        data_.get() + (begin_to_enqueue_index * frame_size_);
-
-    if (begin_to_enqueue_index + nb_elts > max_size_)
-    {
-        unsigned int nb_elts_to_insert_at_end =
-            max_size_ - begin_to_enqueue_index;
-        enqueue_multiple_aux(begin_to_enqueue,
-                             elts_char,
-                             nb_elts_to_insert_at_end,
-                             cuda_kind);
-
-        elts_char += nb_elts_to_insert_at_end * frame_size_;
-
-        unsigned int nb_elts_to_insert_at_beginning =
-            nb_elts - nb_elts_to_insert_at_end;
-        enqueue_multiple_aux(data_.get(),
-                             elts_char,
-                             nb_elts_to_insert_at_beginning,
-                             cuda_kind);
-    }
-    else
-    {
-        enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts, cuda_kind);
-    }
-
-    size_ += nb_elts;
-    // Overwrite older elements in the queue -> update start_index
-    if (size_ > max_size_)
-    {
-        start_index_ = (start_index_ + size_ - max_size_) % max_size_;
-        size_.store(max_size_.load());
-        has_overridden_ = true;
-    }
-
-    return true;
 }
 
 void Queue::enqueue_from_48bit(void* src, cudaMemcpyKind cuda_kind)
