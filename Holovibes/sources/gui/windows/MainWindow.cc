@@ -1863,6 +1863,7 @@ void MainWindow::set_filter2D_type(const QString& filter2Dtype)
     if (old_type == Filter2DType::None)
         set_filter2D();
 
+    pipe_refresh();
     notify();
 }
 
