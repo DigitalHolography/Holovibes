@@ -14,8 +14,6 @@ inline size_t Queue::get_frame_size() const { return frame_size_; }
 
 inline void* Queue::get_data() const { return data_; }
 
-inline const camera::FrameDescriptor& Queue::get_fd() const { return fd_; }
-
 inline size_t Queue::get_frame_res() const { return frame_res_; }
 
 inline unsigned int Queue::get_size() const { return size_; }

@@ -28,6 +28,12 @@ ThreadWorkerController<T>::set_callback(std::function<void()> callback)
 }
 
 template <Derived<Worker> T>
+inline void ThreadWorkerController<T>::set_priority(int priority)
+{
+    SetThreadPriority(thread_.native_handle(), priority);
+}
+
+template <Derived<Worker> T>
 template <typename... Args>
 void ThreadWorkerController<T>::start(Args&&... args)
 {

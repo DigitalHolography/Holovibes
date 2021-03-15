@@ -22,7 +22,7 @@ struct UnwrappingResources_2d
     /*! Initialize the capacity from history_size,
      * set size and next_index to zero, and buffers pointers to null pointers.
      */
-    UnwrappingResources_2d(const size_t image_size);
+    UnwrappingResources_2d(const size_t image_size, const cudaStream_t& stream);
 
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources_2d();
@@ -58,5 +58,7 @@ struct UnwrappingResources_2d
     cufftComplex* gpu_grad_eq_y_;
     /*! Buffer to seek minmax value */
     float* minmax_buffer_;
+
+    const cudaStream_t& stream_;
 };
 } // namespace holovibes

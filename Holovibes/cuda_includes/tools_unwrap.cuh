@@ -157,7 +157,8 @@ __global__ void kernel_unwrap2d_last_step(float* output,
  */
 void phase_increase(const cuComplex* cur,
                     holovibes::UnwrappingResources* resources,
-                    const size_t image_size);
+                    const size_t image_size,
+                    const cudaStream_t stream);
 
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(float* input,
@@ -165,7 +166,7 @@ void unwrap_2d(float* input,
                holovibes::UnwrappingResources_2d* res,
                const camera::FrameDescriptor& fd,
                float* output,
-               const cudaStream_t stream = 0);
+               const cudaStream_t stream);
 
 /*! Gradient calculation for unwrap_2d calculations*/
 void gradient_unwrap_2d(const cufftHandle plan2d,

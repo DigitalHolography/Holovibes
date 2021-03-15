@@ -29,12 +29,14 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      ImageAccEnv& image_acc_env,
                                      const CoreBuffersEnv& buffers,
                                      const camera::FrameDescriptor& fd,
-                                     const holovibes::ComputeDescriptor& cd)
+                                     const holovibes::ComputeDescriptor& cd,
+                                     const cudaStream_t& stream)
     : fn_compute_vect_(fn_compute_vect)
     , image_acc_env_(image_acc_env)
     , buffers_(buffers)
     , fd_(fd)
     , cd_(cd)
+    , stream_(stream)
 {
 }
 
@@ -134,7 +136,7 @@ void ImageAccumulation::compute_average(
     if (gpu_accumulation_queue)
     {
         // Enqueue the computed frame in the accumulation queue
-        gpu_accumulation_queue->enqueue(gpu_input_frame);
+        gpu_accumulation_queue->enqueue(gpu_input_frame, stream_);
 
         // Compute the average and store it in the output frame
         accumulate_images(
@@ -143,7 +145,8 @@ void ImageAccumulation::compute_average(
             gpu_accumulation_queue->get_size(),
             gpu_accumulation_queue->get_max_size(),
             image_acc_level,
-            frame_res);
+            frame_res,
+            stream_);
     }
 }
 
@@ -189,29 +192,32 @@ void ImageAccumulation::insert_copy_accumulation_result()
         // XY view
         if (image_acc_env_.gpu_accumulation_xy_queue &&
             cd_.img_acc_slice_xy_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame,
                 image_acc_env_.gpu_float_average_xy_frame,
                 image_acc_env_.gpu_accumulation_xy_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
 
         // XZ view
         if (image_acc_env_.gpu_accumulation_xz_queue &&
             cd_.img_acc_slice_xz_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame_xz,
                 image_acc_env_.gpu_float_average_xz_frame,
                 image_acc_env_.gpu_accumulation_xz_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
 
         // YZ view
         if (image_acc_env_.gpu_accumulation_yz_queue &&
             cd_.img_acc_slice_yz_enabled)
-            cudaXMemcpy(
+            cudaXMemcpyAsync(
                 buffers_.gpu_postprocess_frame_yz,
                 image_acc_env_.gpu_float_average_yz_frame,
                 image_acc_env_.gpu_accumulation_yz_queue->get_fd().frame_size(),
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice,
+                stream_);
     };
 
     fn_compute_vect_.conditional_push_back(copy_accumulation_result);

@@ -12,6 +12,8 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
+cudaStream_t CufftHandle::stream_;
+
 CufftHandle::CufftHandle() {}
 
 CufftHandle::CufftHandle(const int x, const int y, const cufftType type)
@@ -33,6 +35,7 @@ void CufftHandle::plan(const int x, const int y, const cufftType type)
     reset();
     val_.reset(new cufftHandle);
     cufftSafeCall(cufftPlan2d(val_.get(), x, y, type));
+    cufftSafeCall(cufftSetStream(*val_.get(), stream_));
 }
 
 void CufftHandle::planMany(int rank,
@@ -59,6 +62,7 @@ void CufftHandle::planMany(int rank,
                                 odist,
                                 type,
                                 batch));
+    cufftSafeCall(cufftSetStream(*val_.get(), stream_));
 }
 
 void CufftHandle::XtplanMany(int rank,
@@ -76,6 +80,7 @@ void CufftHandle::XtplanMany(int rank,
 {
     reset();
     val_.reset(new cufftHandle);
+
 
     cufftSafeCall(cufftCreate(val_.get()));
 
@@ -108,6 +113,7 @@ void CufftHandle::XtplanMany(int rank,
                                       batch,
                                       &ws,
                                       executionType));
+    cufftSafeCall(cufftSetStream(*val_.get(), stream_));
 }
 
 cufftHandle& CufftHandle::get() { return *val_; }
@@ -115,3 +121,8 @@ cufftHandle& CufftHandle::get() { return *val_; }
 CufftHandle::operator cufftHandle&() { return get(); }
 
 CufftHandle::operator cufftHandle*() { return val_.get(); }
+
+void CufftHandle::set_stream(const cudaStream_t& stream)
+{
+    stream_ = stream;
+}

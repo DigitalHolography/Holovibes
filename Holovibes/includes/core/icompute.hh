@@ -28,6 +28,7 @@ namespace holovibes
 {
 class Queue;
 class ComputeDescriptor;
+class BatchInputQueue;
 } // namespace holovibes
 
 namespace holovibes
@@ -159,8 +160,7 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(Queue& input, Queue& output, ComputeDescriptor& cd);
-
+    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -312,7 +312,7 @@ class ICompute : public Observable
     ComputeDescriptor& cd_;
 
     /** Reference on the input queue, owned by MainWindow. */
-    Queue& gpu_input_queue_;
+    BatchInputQueue& gpu_input_queue_;
     /** Reference on the output queue, owned by MainWindow. */
     Queue& gpu_output_queue_;
 
@@ -342,6 +342,9 @@ class ICompute : public Observable
 
     /** Pland 2D. Used for unwrap 2D. */
     cuda_tools::CufftHandle plan_unwrap_2d_;
+
+    /*! Compute stream to perform  pipe computation */
+    const cudaStream_t& stream_;
 
     /** Chrono counting time between two iteration (Taking into account steps,
      * since it is executing at the end of pipe). */

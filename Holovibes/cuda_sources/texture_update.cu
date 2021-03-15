@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include "texture_update.cuh"
+#include "cuda_memory.cuh"
 
 __global__ static void
 updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
@@ -69,6 +70,6 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
             dim3(fd.width, fd.height));
     }
 
-    cudaStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
     cudaCheckError();
 }

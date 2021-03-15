@@ -28,13 +28,17 @@
 #include "custom_exception.hh"
 #include "pipeline_utils.hh"
 #include "holovibes.hh"
+#include "cuda_memory.cuh"
 
 namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
-    : ICompute(input, output, desc)
+Pipe::Pipe(BatchInputQueue& input,
+           Queue& output,
+           ComputeDescriptor& desc,
+           const cudaStream_t& stream)
+    : ICompute(input, output, desc, stream)
 {
     ConditionType batch_condition = [&]() -> bool {
         return batch_env_.batch_index == cd_.time_transformation_stride;
@@ -48,7 +52,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                      image_acc_env_,
                                                      buffers_,
                                                      input.get_fd(),
-                                                     desc);
+                                                     desc,
+                                                     stream_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(
         fn_compute_vect_,
         buffers_,
@@ -56,7 +61,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
         desc,
         spatial_transformation_plan_,
         batch_env_,
-        time_transformation_env_);
+        time_transformation_env_,
+        stream_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -65,7 +71,8 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                       desc,
                                                       input.get_fd(),
                                                       output.get_fd(),
-                                                      this);
+                                                      this,
+                                                      stream_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     batch_env_,
@@ -73,11 +80,13 @@ Pipe::Pipe(Queue& input, Queue& output, ComputeDescriptor& desc)
                                                     plan_unwrap_2d_,
                                                     desc,
                                                     input.get_fd(),
-                                                    output.get_fd());
+                                                    output.get_fd(),
+                                                    stream_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,
                                                              input.get_fd(),
-                                                             desc);
+                                                             desc,
+                                                             stream_);
 
     update_time_transformation_size_requested_ = true;
     processed_output_fps_.store(0);
@@ -178,7 +187,8 @@ bool Pipe::make_requests()
 
     if (output_resize_requested_.load() != std::nullopt)
     {
-        gpu_output_queue_.resize(output_resize_requested_.load().value());
+        gpu_output_queue_.resize(output_resize_requested_.load().value(),
+                                 stream_);
         output_resize_requested_ = std::nullopt;
     }
 
@@ -205,6 +215,7 @@ bool Pipe::make_requests()
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
+        gpu_input_queue_.resize(cd_.batch_size);
         request_update_batch_size_ = false;
     }
 
@@ -292,21 +303,41 @@ void Pipe::refresh()
         return;
     }
 
-    if (cd_.compute_mode == Computation::Raw)
-    {
-        refresh_requested_ = false;
-        insert_raw_record();
-        insert_output_enqueue_raw_mode();
-        return;
-    }
-
-    const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
+    /*
+     * With the --default-stream per-thread nvcc options, each thread runs cuda
+     * calls/operations on its own default stream. Cuda calls/operations ran on
+     * different default streams are processed concurrently by the GPU.
+     *
+     * Thus, the FrameReadWorker and the ComputeWorker run concurrently on the
+     * CPU and in addition concurrently on the device which leads to a higher
+     * GPU usage.
+     *
+     * WARNING: All cuda calls/operations on the thread compute are asynchronous
+     * with respect to the host. Only one stream synchronisation
+     * (cudaStreamSynchronize) at the end of the pipe is required. Adding
+     * more stream synchronisation is not needed.
+     * Using cudaDeviceSynchronize is FORBIDDEN as it will synchronize this
+     * thread stream with all other streams (reducing performances drastically
+     * because of a longer waiting time).
+     *
+     * The value of the default stream is 0. However, not providing a stream to
+     * cuda calls forces the default stream usage.
+     */
 
     /* Begin insertions */
 
     insert_wait_frames();
+    // A batch of frame is ready
 
     insert_raw_record();
+
+    if (cd_.compute_mode == Computation::Raw)
+    {
+        insert_dequeue_input();
+        return;
+    }
+
+    const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
     insert_raw_view();
 
@@ -361,13 +392,16 @@ void Pipe::refresh()
 
     insert_hologram_record();
 
-    /* The device run asynchronously with respect to the host
-     * The host call device functions, then continues its execution path
-     * We need at some point to synchronize the host with the device
-     * If not, the host will keep on adding new functions to be executed by the
-     * device, never letting the device the time to execute them
+    /* The device run asynchronously on its stream (compute stream) with respect
+     * to the host The host call device functions, then continues its execution
+     * path.
+     * We need at some point to synchronize the host with the compute
+     * stream.
+     * If not, the host will keep on adding new functions to be executed
+     * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaDeviceSynchronize(); });
+    fn_compute_vect_.conditional_push_back(
+        [=]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -377,7 +411,7 @@ void Pipe::insert_wait_frames()
 {
     fn_compute_vect_.push_back([&]() {
         // Wait while the input queue is enough filled
-        while (gpu_input_queue_.get_size() < cd_.batch_size)
+        while (gpu_input_queue_.is_empty())
             continue;
     });
 }
@@ -393,7 +427,8 @@ void Pipe::insert_transfer_for_time_transformation()
     fn_compute_vect_.push_back([&]() {
         time_transformation_env_.gpu_time_transformation_queue
             ->enqueue_multiple(buffers_.gpu_spatial_transformation_buffer.get(),
-                               cd_.batch_size);
+                               cd_.batch_size,
+                               stream_);
         batch_env_.batch_index += cd_.batch_size;
         assert(batch_env_.batch_index <= cd_.time_transformation_stride);
     });
@@ -403,20 +438,24 @@ void Pipe::safe_enqueue_output(Queue& output_queue,
                                unsigned short* frame,
                                const std::string& error)
 {
-    if (!output_queue.enqueue(frame))
+    if (!output_queue.enqueue(frame, stream_))
         throw CustomException(error, error_kind::fail_enqueue);
 }
 
-void Pipe::insert_output_enqueue_raw_mode()
+void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        ++processed_output_fps_;
+        processed_output_fps_ += cd_.batch_size;
 
-        safe_enqueue_output(
-            gpu_output_queue_,
-            static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-            "Can't enqueue the input frame in gpu_output_queue");
+        // FIXME: It seems this enqueue is useless because the RawWindow use
+        // the gpu input queue for display
+        /* safe_enqueue_output(
+        **    gpu_output_queue_,
+        **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+        **    "Can't enqueue the input frame in gpu_output_queue");
+        */
 
+        // Dequeue a batch
         gpu_input_queue_.dequeue();
     });
 }
@@ -451,9 +490,12 @@ void Pipe::insert_raw_view()
 {
     if (cd_.raw_view_enabled)
     {
+        // FIXME: Copy multiple copies a batch of frames
+        // The view use get last image which will always the
+        // last image of the batch.
         fn_compute_vect_.push_back([&]() {
-            gpu_input_queue_.copy_multiple(*get_raw_view_queue(),
-                                           cd_.batch_size);
+            // Copy a batch of frame from the input queue to the raw view queue
+            gpu_input_queue_.copy_multiple(*get_raw_view_queue());
         });
     }
 }
@@ -485,6 +527,12 @@ void Pipe::insert_raw_record()
                 }
             }
 
+            // Copy frames from the input queue to the record queue
+            // nb_frames_to_transfer might be lower than batch_size for the
+            // last copy multiple.
+            // Later, when the input queue is dequeued it dequeues batch_size
+            // frames. Thus, the recording is consistent but the compute is not
+            // for only the last batch.
             gpu_input_queue_.copy_multiple(
                 *frame_record_env_.gpu_frame_record_queue_,
                 nb_frames_to_transfer);
@@ -507,10 +555,12 @@ void Pipe::insert_hologram_record()
 
             if (gpu_output_queue_.get_fd().depth == 6)
                 frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(
-                    buffers_.gpu_output_frame.get());
+                    buffers_.gpu_output_frame.get(),
+                    stream_);
             else
                 frame_record_env_.gpu_frame_record_queue_->enqueue(
-                    buffers_.gpu_output_frame.get());
+                    buffers_.gpu_output_frame.get(),
+                    stream_);
 
             if (frame_record_env_.remaining_frames_to_record.has_value())
                 frame_record_env_.remaining_frames_to_record.value() -= 1;
@@ -526,9 +576,6 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-    if (global::global_config.flush_on_refresh)
-        gpu_input_queue_.clear();
-
     Holovibes::instance().get_info_container().add_processed_fps(
         InformationContainer::FpsType::OUTPUT_FPS,
         processed_output_fps_);
@@ -537,14 +584,11 @@ void Pipe::exec()
     {
         try
         {
-            if (gpu_input_queue_.get_size() >= 1)
-            {
-                // Run the entire pipeline of calculation
-                run_all();
+            // Run the entire pipeline of calculation
+            run_all();
 
-                if (refresh_requested_)
-                    refresh();
-            }
+            if (refresh_requested_)
+                refresh();
         }
         catch (CustomException& e)
         {

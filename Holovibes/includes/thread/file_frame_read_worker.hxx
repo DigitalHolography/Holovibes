@@ -25,9 +25,9 @@ inline void FileFrameReadWorker::FpsHandler::begin()
 inline void FileFrameReadWorker::FpsHandler::wait()
 {
     /* end_time should only be being_time + enqueue_interval_ aka the time point
-    *for the next enqueue
+    ** for the next enqueue
     ** However the wasted_time is substracted to get the correct next enqueue
-    *time point
+    ** time point
     */
     auto end_time = (begin_time_ + enqueue_interval_) - wasted_time_;
 

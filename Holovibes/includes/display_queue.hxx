@@ -8,23 +8,16 @@
 
 #pragma once
 
-#include <cublas_v2.h>
+#include "display_queue.hh"
 
 namespace holovibes
 {
-namespace cuda_tools
-{
-class CublasHandle
-{
-  public:
-    static cublasHandle_t& instance();
-    static void set_stream(const cudaStream_t& stream);
+inline DisplayQueue::DisplayQueue(const camera::FrameDescriptor& fd)
+    : fd_(fd)
+{}
 
-  private:
-    CublasHandle() = delete;
-
-    static bool initialized_;
-    static cublasHandle_t handle_;
-};
-} // namespace cuda_tools
+inline const camera::FrameDescriptor& DisplayQueue::get_fd() const
+{
+    return fd_;
+}
 } // namespace holovibes

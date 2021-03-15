@@ -56,6 +56,15 @@ class ThreadWorkerController
     void set_callback(std::function<void()> callback);
 
     /*!
+     *  \brief    Set the priority of the thread
+     *
+     * \param priority Priority level of the thread
+     *
+     *  \details  This method must be called before the start method
+     */
+    void set_priority(int priority);
+
+    /*!
      *  \brief    Construct the associated worker and start the thread
      *
      *  \details  The run method is executed in the thread

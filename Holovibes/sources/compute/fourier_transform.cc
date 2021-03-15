@@ -36,7 +36,8 @@ FourierTransform::FourierTransform(
     holovibes::ComputeDescriptor& cd,
     holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
     const holovibes::BatchEnv& batch_env,
-    holovibes::TimeTransformationEnv& time_transformation_env)
+    holovibes::TimeTransformationEnv& time_transformation_env,
+    const cudaStream_t& stream)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -48,6 +49,7 @@ FourierTransform::FourierTransform(
     , spatial_transformation_plan_(spatial_transformation_plan)
     , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
+    , stream_(stream)
 {
     gpu_lens_.resize(fd_.frame_res());
     // static cast in size_t to avoid uint overflow
@@ -87,7 +89,8 @@ void FourierTransform::insert_filter2d()
                               spatial_transformation_plan_,
                               filter2d_zone_,
                               filter2d_subzone_,
-                              fd_);
+                              fd_,
+                              stream_);
         });
     }
     else // Low pass or High pass
@@ -100,7 +103,8 @@ void FourierTransform::insert_filter2d()
                      spatial_transformation_plan_,
                      filter2d_zone_,
                      fd_,
-                     exclude_roi);
+                     exclude_roi,
+                     stream_);
         });
     }
 }
@@ -109,13 +113,15 @@ void FourierTransform::insert_fft1()
 {
     const float z = cd_.zdistance;
 
+
     fft1_lens(gpu_lens_.get(),
               lens_side_size_,
               fd_.height,
               fd_.width,
               cd_.lambda,
               z,
-              cd_.pixel_size);
+              cd_.pixel_size,
+              stream_);
 
     fn_compute_vect_.push_back([=]() {
         fft_1(buffers_.gpu_spatial_transformation_buffer,
@@ -123,7 +129,8 @@ void FourierTransform::insert_fft1()
               cd_.batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
-              fd_.frame_res());
+              fd_.frame_res(),
+              stream_);
     });
 }
 
@@ -137,7 +144,8 @@ void FourierTransform::insert_fft2()
               fd_.width,
               cd_.lambda,
               z,
-              cd_.pixel_size);
+              cd_.pixel_size,
+              stream_);
 
     fn_compute_vect_.push_back([=]() {
         fft_2(buffers_.gpu_spatial_transformation_buffer,
@@ -145,7 +153,8 @@ void FourierTransform::insert_fft2()
               cd_.batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
-              fd_);
+              fd_,
+              stream_);
     });
 }
 
@@ -160,7 +169,8 @@ void FourierTransform::insert_store_p_frame()
                          (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
                              cd_.pindex * frame_res,
                          sizeof(cuComplex) * frame_res,
-                         cudaMemcpyDeviceToDevice);
+                         cudaMemcpyDeviceToDevice,
+                         stream_);
     });
 }
 
@@ -191,9 +201,9 @@ void FourierTransform::enqueue_lens()
         // Getting the pointer in the location of the next enqueued element
         cuComplex* copied_lens_ptr =
             static_cast<cuComplex*>(gpu_lens_queue_->get_end());
-        gpu_lens_queue_->enqueue(gpu_lens_);
+        gpu_lens_queue_->enqueue(gpu_lens_, stream_);
         // Normalizing the newly enqueued element
-        normalize_complex(copied_lens_ptr, fd_.frame_res());
+        normalize_complex(copied_lens_ptr, fd_.frame_res(), stream_);
     }
 }
 
@@ -210,11 +220,12 @@ void FourierTransform::insert_eigenvalue_filter()
         constexpr cuComplex alpha{1, 0};
         constexpr cuComplex beta{0, 0};
 
-        cudaXMemcpy(
+        cudaXMemcpyAsync(
             time_transformation_env_.gpu_p_acc_buffer.get(),
             time_transformation_env_.gpu_time_transformation_queue->get_data(),
             fd_.frame_res() * cd_.time_transformation_size * sizeof(cuComplex),
-            cudaMemcpyDeviceToDevice);
+            cudaMemcpyDeviceToDevice,
+            stream_);
 
         cuComplex* H = time_transformation_env_.gpu_p_acc_buffer.get();
         cuComplex* cov = time_transformation_env_.pca_cov.get();
@@ -321,7 +332,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                              : 1,
                 cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load()
                                              : 1,
-                cd_.img_type.load());
+                cd_.img_type.load(),
+                stream_);
         }
     });
 }

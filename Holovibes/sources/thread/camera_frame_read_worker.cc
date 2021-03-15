@@ -13,7 +13,7 @@ namespace holovibes::worker
 {
 CameraFrameReadWorker::CameraFrameReadWorker(
     std::shared_ptr<camera::ICamera> camera,
-    std::atomic<std::shared_ptr<Queue>>& gpu_input_queue)
+    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : FrameReadWorker(gpu_input_queue)
     , camera_(camera)
 {
@@ -44,12 +44,14 @@ void CameraFrameReadWorker::run()
         while (!stop_requested_)
         {
             camera::CapturedFramesDescriptor res = camera_->get_frames();
+            // res.count == 1 always
             gpu_input_queue_.load()->enqueue(
                 res.data,
                 res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
             processed_fps_ += res.count;
         }
 
+        gpu_input_queue_.load()->stop_producer();
         camera_->stop_acquisition();
         camera_->shutdown_camera();
     }

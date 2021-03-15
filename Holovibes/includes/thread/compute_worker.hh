@@ -14,6 +14,7 @@ namespace holovibes
 {
 class ICompute;
 class Queue;
+class BatchInputQueue;
 
 namespace worker
 {
@@ -30,7 +31,7 @@ class ComputeWorker : public Worker
      * \param output Output queue that store processed images for display
      */
     ComputeWorker(std::atomic<std::shared_ptr<ICompute>>& pipe,
-                  std::atomic<std::shared_ptr<Queue>>& input,
+                  std::atomic<std::shared_ptr<BatchInputQueue>>& input,
                   std::atomic<std::shared_ptr<Queue>>& output);
 
     void stop() override;
@@ -43,10 +44,12 @@ class ComputeWorker : public Worker
 
     //! Input queue that is filled either by the file_frame_read_worker or the
     //! camera_frame_read_worker
-    std::atomic<std::shared_ptr<Queue>>& input_;
+    std::atomic<std::shared_ptr<BatchInputQueue>>& input_;
 
     //! Output queue that store processed images for display
     std::atomic<std::shared_ptr<Queue>>& output_;
+
+    const cudaStream_t stream_;
 };
 } // namespace worker
 } // namespace holovibes

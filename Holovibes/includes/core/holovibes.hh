@@ -8,7 +8,7 @@
 
 /*! \file
  *
- * Core class to use HoloVibe  */
+ * Core class to use HoloVibes  */
 #pragma once
 
 #include "compute_descriptor.hh"
@@ -24,11 +24,27 @@
 #include "batch_gpib_worker.hh"
 #include "compute_worker.hh"
 
+#include "common.cuh"
+
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
 
 #include "information_container.hh"
+
+// Threads priority
+constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_READER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_RECORDER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+constexpr int THREAD_DISPLAY_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
+
+// CUDA streams priority
+// Lower numbers represent higher priorities
+constexpr int CUDA_STREAM_QUEUE_PRIORITY = 1;
+constexpr int CUDA_STREAM_WINDOW_PRIORITY = 1;
+constexpr int CUDA_STREAM_READER_PRIORITY = 1;
+constexpr int CUDA_STREAM_RECORDER_PRIORITY = 1;
+constexpr int CUDA_STREAM_COMPUTE_PRIORITY = 0;
 
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
@@ -39,6 +55,7 @@ class MainWindow;
 }
 
 class Queue;
+class BatchInputQueue;
 
 /*! \brief Core class to use HoloVibes
  *
@@ -50,13 +67,42 @@ class Queue;
  * themselves. */
 class Holovibes
 {
+    struct CudaStreams
+    {
+        CudaStreams()
+        {
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&reader_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_READER_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&compute_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_COMPUTE_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&recorder_stream,
+                                             cudaStreamDefault,
+                                             CUDA_STREAM_RECORDER_PRIORITY));
+        }
+
+        ~CudaStreams()
+        {
+            cudaSafeCall(cudaStreamDestroy(reader_stream));
+            cudaSafeCall(cudaStreamDestroy(compute_stream));
+            cudaSafeCall(cudaStreamDestroy(recorder_stream));
+        }
+        cudaStream_t reader_stream;
+        cudaStream_t compute_stream;
+        cudaStream_t recorder_stream;
+    };
+
   public:
     static Holovibes& instance();
 
     /*! \{ \name Queue getters
      *
      * Used to record frames */
-    std::shared_ptr<Queue> get_gpu_input_queue();
+    std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
 
     /*! Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
@@ -69,6 +115,8 @@ class Holovibes
 
     /*! \return Common ComputeDescriptor */
     ComputeDescriptor& get_cd();
+
+    const CudaStreams& get_cuda_streams() const;
 
     /*! \brief Set ComputeDescriptor options
      *
@@ -178,13 +226,15 @@ class Holovibes
     std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
 
     /*! \{ \name Frames queue (GPU) */
-    std::atomic<std::shared_ptr<Queue>> gpu_input_queue_{nullptr};
+    std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
 
     /*! \brief Common compute descriptor shared between CLI/GUI and the
      * Pipe. */
     ComputeDescriptor cd_;
+
+    CudaStreams cuda_streams_;
 };
 } // namespace holovibes
 

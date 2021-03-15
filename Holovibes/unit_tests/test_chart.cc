@@ -47,8 +47,8 @@ static void chart_test(const ushort image_width,
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 
-    apply_zone_sum(input, image_height, image_width, output, zone);
-    cudaDeviceSynchronize();
+    apply_zone_sum(input, image_height, image_width, output, zone, 0);
+    cudaXStreamSynchronize(0);
 
     ASSERT_EQ(static_cast<ushort>(*output), total_zone_size * cell_value);
 }
@@ -194,8 +194,8 @@ TEST(ChartTest, SmallDifferentValuesImage)
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 
-    apply_zone_sum(input, image_height, image_width, output, zone);
-    cudaDeviceSynchronize();
+    apply_zone_sum(input, image_height, image_width, output, zone, 0);
+    cudaXStreamSynchronize(0);
 
     ASSERT_EQ(static_cast<ushort>(*output), 248);
 }
@@ -241,8 +241,8 @@ TEST(ChartTest, DifferentValuesImage)
     zone.setWidth(zone_width);
     zone.setHeight(zone_height);
 
-    apply_zone_sum(input, image_height, image_width, output, zone);
-    cudaDeviceSynchronize();
+    apply_zone_sum(input, image_height, image_width, output, zone, 0);
+    cudaXStreamSynchronize(0);
 
     ASSERT_EQ(*output, expected_value);
 }
