@@ -18,6 +18,7 @@ class CusolverHandle
 {
   public:
     static cusolverDnHandle_t& instance();
+    static void set_stream(const cudaStream_t& stream);
 
   private:
     CusolverHandle() = delete;

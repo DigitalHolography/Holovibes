@@ -214,15 +214,18 @@ static double compute_average(float* input,
     if (!gpu_sum_zone.resize(1))
         return 1;
 
-    cudaXMemset(gpu_sum_zone, 0.f, sizeof(double));
+    cudaXMemsetAsync(gpu_sum_zone, 0.f, sizeof(double), stream);
 
     apply_zone_sum(input, height, width, gpu_sum_zone, zone, stream);
 
     double cpu_avg_zone;
-    cudaXMemcpy(&cpu_avg_zone,
+    cudaXMemcpyAsync(&cpu_avg_zone,
                 gpu_sum_zone,
                 sizeof(double),
-                cudaMemcpyDeviceToHost);
+                cudaMemcpyDeviceToHost,
+                stream);
+    // Needs to synchronize since host memory is used after
+    cudaXStreamSynchronize(stream);
 
     cpu_avg_zone /= (zone.height() * zone.width());
 
@@ -254,7 +257,7 @@ static double compute_std(float* input,
     if (!gpu_std_sum_zone.resize(1))
         return 1;
 
-    cudaXMemset(gpu_std_sum_zone, 0.f, sizeof(double));
+    cudaXMemsetAsync(gpu_std_sum_zone, 0.f, sizeof(double), stream);
 
     apply_zone_std_sum(input,
                        height,
@@ -265,11 +268,13 @@ static double compute_std(float* input,
                        stream);
 
     double cpu_std_zone;
-    cudaXMemcpy(&cpu_std_zone,
+    cudaXMemcpyAsync(&cpu_std_zone,
                 gpu_std_sum_zone,
                 sizeof(double),
-                cudaMemcpyDeviceToHost);
-
+                cudaMemcpyDeviceToHost,
+                stream);
+    // Needs to synchronize since host memory is used after
+    cudaXStreamSynchronize(stream);
     cpu_std_zone = sqrt(cpu_std_zone / (zone.height() * zone.width()));
 
     return cpu_std_zone;

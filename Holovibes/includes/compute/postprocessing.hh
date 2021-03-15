@@ -33,7 +33,8 @@ class Postprocessing
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& fd,
-                   holovibes::ComputeDescriptor& cd);
+                   holovibes::ComputeDescriptor& cd,
+                   const cudaStream_t& stream);
 
     /*! \brief Initialize convolution by allocating the corresponding
     ** buffer
@@ -76,6 +77,9 @@ class Postprocessing
 
     // plan used for the convolution (frame width, frame height, cufft_c2c)
     CufftHandle convolution_plan_;
+
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes

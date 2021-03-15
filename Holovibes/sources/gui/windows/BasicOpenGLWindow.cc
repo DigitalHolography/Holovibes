@@ -18,6 +18,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "HoloWindow.hh"
 
+#include "holovibes.hh"
 #include "tools.hh"
 
 namespace holovibes
@@ -25,7 +26,7 @@ namespace holovibes
 using camera::FrameDescriptor;
 namespace gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
@@ -39,7 +40,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k)
     , angle_(0.f)
     , flip_(0)
     , cuResource(nullptr)
-    , cuStream(nullptr)
+    , cuStream()
     , cuPtrToPbo(nullptr)
     , sizeBuffer(0)
     , Program(nullptr)
@@ -52,8 +53,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k)
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    if (cudaStreamCreate(&cuStream) != cudaSuccess)
-        cuStream = nullptr;
+    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));

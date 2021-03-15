@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include "common.cuh"
+
 namespace holovibes
 {
 namespace cuda_tools
@@ -27,6 +29,12 @@ cusolverDnHandle_t& CusolverHandle::instance()
         initialized_ = true;
     }
     return handle_;
+}
+
+void CusolverHandle::set_stream(const cudaStream_t& stream)
+{
+    instance();
+    cusolverSafeCall(cusolverDnSetStream(handle_, stream));
 }
 } // namespace cuda_tools
 } // namespace holovibes

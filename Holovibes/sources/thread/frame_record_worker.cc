@@ -25,6 +25,7 @@ FrameRecordWorker::FrameRecordWorker(
     , processed_fps_(0)
     , raw_record_(raw_record)
     , square_output_(square_output)
+    , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
 }
 
@@ -92,7 +93,7 @@ void FrameRecordWorker::run()
             if (stop_requested_)
                 break;
 
-            record_queue.dequeue(frame_buffer, cudaMemcpyDeviceToHost);
+            record_queue.dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
             processed_fps_++;
         }
@@ -132,10 +133,14 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 {
+    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
+    if (raw_view_queue)
+        raw_view_queue->resize(4, stream_);
+
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
     if (output_queue)
-        output_queue->resize(4);
+        output_queue->resize(4, stream_);
 
     if (raw_record_)
     {
@@ -179,10 +184,16 @@ void FrameRecordWorker::reset_gpu_record_queue(std::shared_ptr<ICompute> pipe)
     while (pipe->get_disable_frame_record_requested() && !stop_requested_)
         continue;
 
+    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
+    if (raw_view_queue)
+        raw_view_queue->resize(global::global_config.output_queue_max_size,
+                               stream_);
+
     std::shared_ptr<Queue> output_queue =
         Holovibes::instance().get_gpu_output_queue();
 
     if (output_queue)
-        output_queue->resize(global::global_config.output_queue_max_size);
+        output_queue->resize(global::global_config.output_queue_max_size,
+                             stream_);
 }
 } // namespace holovibes::worker

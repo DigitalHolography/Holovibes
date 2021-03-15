@@ -73,6 +73,8 @@ class FrameRecordWorker : public Worker
     bool raw_record_;
     //! Whether the output should be a square
     bool square_output_;
+
+    const cudaStream_t stream_;
 };
 } // namespace worker
 } // namespace holovibes

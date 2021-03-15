@@ -60,8 +60,10 @@ class Pipe : public ICompute
     /*! \brief Allocate CPU/GPU ressources for computation.
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param desc ComputeDescriptor that contains computation parameters. */
-    Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
+     * \param desc ComputeDescriptor that contains computation parameters.
+     * \param stream The compute stream on which all the computations are processed
+     */
+    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
 
     /*! \brief Get the lens queue to display it.
 
@@ -123,9 +125,9 @@ class Pipe : public ICompute
     void insert_wait_frames();
 
     /*!
-    ** \brief Enqueue the input frame in the output queue in raw mode
+    ** \brief Dequeue the input queue frame by frame in raw mode
     */
-    void insert_output_enqueue_raw_mode();
+    void insert_dequeue_input();
 
     /*!
     ** \brief Enqueue the output frame in the output queue in hologram mode

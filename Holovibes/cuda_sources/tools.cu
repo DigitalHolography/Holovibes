@@ -72,7 +72,6 @@ void frame_memcpy(const float* input,
                                    zone.height(),
                                    cudaMemcpyDeviceToDevice,
                                    stream));
-    cudaStreamSynchronize(stream);
 }
 
 __global__ void circ_shift(const cuComplex* input,

@@ -97,37 +97,24 @@ kernel_input_queue_to_input_buffer(OTYPE* output,
                                    const ITYPE* const input,
                                    FUNC convert,
                                    const uint frame_res,
-                                   const int batch_size,
-                                   const uint current_queue_index,
-                                   const uint queue_size)
+                                   const int batch_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < frame_res)
     {
-        uint frame_copied = 0;
-        // j swip through the queue from it's start index to either the end of
-        // the queue or all of the batch
-        for (int j = current_queue_index;
-             j < queue_size && frame_copied < batch_size;
-             ++j, ++frame_copied)
-            output[index + frame_copied * frame_res] =
-                device_float_to_complex(convert(input[index + j * frame_res]));
-
-        // Copy might reach end of the queue so we copy the missing frames
-        for (int j = 0; frame_copied < batch_size; ++frame_copied, ++j)
-            output[index + frame_copied * frame_res] =
-                device_float_to_complex(convert(input[index + j * frame_res]));
+        for (int i = 0; i < batch_size; i++)
+            output[index + i * frame_res] =
+                device_float_to_complex(convert(input[index + i * frame_res]));
     }
 }
 
-void input_queue_to_input_buffer(void* output,
-                                 void* input,
+void input_queue_to_input_buffer(void* const output,
+                                 const void* const input,
                                  const uint frame_res,
                                  const int batch_size,
-                                 const uint current_queue_index,
-                                 const uint queue_size,
-                                 const uint depth)
+                                 const uint depth,
+                                 const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -150,37 +137,29 @@ void input_queue_to_input_buffer(void* output,
     {
     case 1:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<uchar*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const uchar* const>(input),
                                   convert_8_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     case 2:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<ushort*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const ushort* const>(input),
                                   convert_16_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     case 4:
         kernel_input_queue_to_input_buffer<cuComplex, float>
-            <<<blocks, threads>>>(reinterpret_cast<cuComplex*>(output),
-                                  reinterpret_cast<float*>(input),
+            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
+                                  reinterpret_cast<const float* const>(input),
                                   convert_32_bit,
                                   frame_res,
-                                  batch_size,
-                                  current_queue_index,
-                                  queue_size);
+                                  batch_size);
         break;
     }
-    // No sync needed since next call (fft1 is called on default main stream
-    // (0))
     cudaCheckError();
 }
 
@@ -199,7 +178,6 @@ void complex_to_squared_modulus(float* output,
                                                                       pmin,
                                                                       pmax,
                                                                       size);
-    cudaDeviceSynchronize();
     cudaCheckError();
 }
 
@@ -244,7 +222,6 @@ void complex_to_argument(float* output,
                                                                pmin,
                                                                pmax,
                                                                size);
-    cudaDeviceSynchronize();
     cudaCheckError();
 }
 
@@ -299,7 +276,7 @@ void rescale_float(const float* input,
     const uint blocks = map_blocks_to_problem(size, threads);
 
     // TODO : See if gpu_postprocess_frame could be used directly.
-    cudaXMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
+    cudaXMemcpyAsync(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice, stream);
 
     // Computing minimum and maximum values, in order to rescale properly.
     float* gpu_local_min;
@@ -315,19 +292,21 @@ void rescale_float(const float* input,
                                                     size,
                                                     gpu_local_min,
                                                     gpu_local_max);
-    cudaDeviceSynchronize();
     cudaCheckError();
 
-    float* cpu_local_min = new float[blocks];
-    float* cpu_local_max = new float[blocks];
-    cudaXMemcpy(cpu_local_min,
+    float* cpu_local_min;
+    float* cpu_local_max;
+    cudaXMallocHost(&cpu_local_min, sizeof(float) * blocks);
+    cudaXMallocHost(&cpu_local_max, sizeof(float) * blocks);
+    cudaXMemcpyAsync(cpu_local_min,
                 gpu_local_min,
                 float_blocks,
-                cudaMemcpyDeviceToHost);
-    cudaXMemcpy(cpu_local_max,
+                cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(cpu_local_max,
                 gpu_local_max,
                 float_blocks,
-                cudaMemcpyDeviceToHost);
+                cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
 
     constexpr float max_intensity = max_ushort_value_to_float;
     const float min_element =
@@ -341,10 +320,9 @@ void rescale_float(const float* input,
     };
 
     map_generic<float>(output, output, size, lambda, stream);
-    cudaDeviceSynchronize();
     cudaCheckError();
-    delete[] cpu_local_max;
-    delete[] cpu_local_min;
+    cudaXFreeHost(cpu_local_max);
+    cudaXFreeHost(cpu_local_min);
     cudaXFree(gpu_local_min);
     cudaXFree(gpu_local_max);
 }
@@ -360,7 +338,8 @@ void rescale_float_unwrap2d(float* input,
     const uint threads = THREADS_128;
     const uint blocks = map_blocks_to_problem(frame_res, threads);
     uint float_frame_res = sizeof(float) * frame_res;
-    cudaXMemcpy(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
     auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
     min = *minmax.first;
     max = *minmax.second;
@@ -378,13 +357,13 @@ void rescale_float_unwrap2d(float* input,
 void endianness_conversion(const ushort* input,
                            ushort* output,
                            const uint batch_size,
-                           const uint size,
+                           const uint frame_res,
                            const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> ushort {
         return (in << 8) | (in >> 8);
     };
-    map_generic(input, output, size * batch_size, lambda, stream);
+    map_generic(input, output, frame_res * batch_size, lambda, stream);
 }
 
 /*
@@ -408,8 +387,8 @@ static __device__ ushort device_float_to_ushort(const float input,
 void complex_to_uint(const cuComplex* const input,
                      uint* const output,
                      const uint size,
-                     const uint shift,
-                     cudaStream_t stream = 0)
+                     cudaStream_t stream,
+                     const uint shift)
 {
     const auto lambda_complex_to_ushort =
         [shift] __device__(const cuComplex in) -> uint {
@@ -432,8 +411,8 @@ void complex_to_uint(const cuComplex* const input,
 void float_to_ushort(const float* const input,
                      ushort* const output,
                      const uint size,
-                     const uint shift,
-                     cudaStream_t stream)
+                     cudaStream_t stream,
+                     const uint shift)
 {
     const auto lambda = [shift] __device__(const float in) -> ushort {
         return device_float_to_ushort(in, shift);
@@ -444,8 +423,8 @@ void float_to_ushort(const float* const input,
 void ushort_to_shifted_ushort(const ushort* const input,
                               ushort* const output,
                               const uint size,
-                              const uint shift,
-                              cudaStream_t stream = 0)
+                              cudaStream_t stream,
+                              const uint shift)
 {
     const auto lambda_shift_ushort =
         [shift] __device__(const ushort in) -> ushort { return in << shift; };
@@ -466,8 +445,8 @@ void ushort_to_uchar(const ushort* input,
 void uchar_to_shifted_uchar(const uchar* input,
                             uchar* output,
                             const uint size,
-                            const uint shift,
-                            cudaStream_t stream = 0)
+                            cudaStream_t stream,
+                            const uint shift)
 {
     const auto lambda_shift_uchar =
         [shift] __device__(const uchar in) -> uchar { return in << shift; };
@@ -543,7 +522,8 @@ void convert_frame_for_display(const void* input,
                                void* output,
                                const uint size,
                                const uint depth,
-                               const ushort shift)
+                               const ushort shift,
+                               const cudaStream_t stream)
 {
     if (depth == 8)
     {
@@ -551,6 +531,7 @@ void convert_frame_for_display(const void* input,
         complex_to_uint(static_cast<const cuComplex* const>(input),
                         static_cast<uint* const>(output),
                         size,
+                        stream,
                         shift);
     }
     else if (depth == 4)
@@ -558,6 +539,7 @@ void convert_frame_for_display(const void* input,
         float_to_ushort(static_cast<const float* const>(input),
                         static_cast<ushort* const>(output),
                         size,
+                        stream,
                         shift);
     }
     else if (depth == 2)
@@ -565,6 +547,7 @@ void convert_frame_for_display(const void* input,
         ushort_to_shifted_ushort(static_cast<const ushort* const>(input),
                                  static_cast<ushort* const>(output),
                                  size,
+                                 stream,
                                  shift);
     }
     else if (depth == 1)
@@ -572,6 +555,7 @@ void convert_frame_for_display(const void* input,
         uchar_to_shifted_uchar(static_cast<const uchar* const>(input),
                                static_cast<uchar* const>(output),
                                size,
+                               stream,
                                shift);
     }
 }

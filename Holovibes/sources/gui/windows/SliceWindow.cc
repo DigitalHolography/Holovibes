@@ -22,7 +22,7 @@ namespace holovibes
 namespace gui
 {
 SliceWindow::SliceWindow(
-    QPoint p, QSize s, Queue* q, KindOfView k, MainWindow* main_window)
+    QPoint p, QSize s, DisplayQueue* q, KindOfView k, MainWindow* main_window)
     : BasicOpenGLWindow(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
@@ -127,7 +127,7 @@ void SliceWindow::initializeGL()
                           1.f, // vertex coord (-1.0f <-> 1.0f)
                           0.0f,
                           0.0f, // texture coord (0.0f <-> 1.0f)
-                          // Top-right
+                                // Top-right
                           1.f,
                           1.f,
                           1.f,

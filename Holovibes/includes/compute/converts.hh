@@ -17,7 +17,7 @@
 
 #include "compute_descriptor.hh"
 #include "frame_desc.hh"
-#include "queue.hh"
+#include "batch_input_queue.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
@@ -45,7 +45,8 @@ class Converts
              cuda_tools::CufftHandle& plan2d,
              ComputeDescriptor& cd,
              const camera::FrameDescriptor& input_fd,
-             const camera::FrameDescriptor& output_fd);
+             const camera::FrameDescriptor& output_fd,
+             const cudaStream_t& stream);
 
     /** \brief Insert functions relative to the convertion Complex => Float
 
@@ -59,7 +60,7 @@ class Converts
     void insert_to_ushort();
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
-    void insert_complex_conversion(Queue& input);
+    void insert_complex_conversion(BatchInputQueue& input);
 
   private:
     /** \brief Set pmin_ and pmax_ according to p accumulation. */
@@ -112,6 +113,8 @@ class Converts
     const camera::FrameDescriptor& output_fd_;
     /// Variables needed for the computation in the pipe
     ComputeDescriptor& cd_;
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes

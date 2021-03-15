@@ -32,10 +32,14 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(Queue& input, Queue& output, ComputeDescriptor& cd)
+ICompute::ICompute(BatchInputQueue& input,
+                   Queue& output,
+                   ComputeDescriptor& cd,
+                   const cudaStream_t& stream)
     : cd_(cd)
     , gpu_input_queue_(input)
     , gpu_output_queue_(output)
+    , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
     int err = 0;
@@ -159,7 +163,8 @@ bool ICompute::update_time_transformation_size(
         /* This will resize cuts buffers: Some modifications are to be applied
          * on opengl to work */
         time_transformation_env_.gpu_time_transformation_queue->resize(
-            time_transformation_size);
+            time_transformation_size,
+            stream_);
     }
     catch (std::exception&)
     {

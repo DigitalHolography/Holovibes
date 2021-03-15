@@ -50,15 +50,15 @@ void fft1_lens(cuComplex* lens,
         // Data is contiguous for a horizontal frame so a simple memcpy with an
         // offset and a limited size works
         if (frame_width > frame_height)
-            cudaXMemcpy(lens,
+            cudaXMemcpyAsync(lens,
                         square_lens +
                             ((lens_side_size - frame_height) / 2) * frame_width,
-                        frame_width * frame_height * sizeof(cuComplex));
+                        frame_width * frame_height * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
         else
         {
             // For a vertical frame we need memcpy 2d to copy row by row, taking
             // the offset into account every time
-            cudaSafeCall(cudaMemcpy2D(
+            cudaSafeCall(cudaMemcpy2DAsync(
                 lens,                            // Destination (frame)
                 frame_width * sizeof(cuComplex), // Destination width in byte
                 square_lens +
@@ -67,7 +67,8 @@ void fft1_lens(cuComplex* lens,
                 frame_width * sizeof(cuComplex),    // Destination width in byte
                                                     // (yes it's redoundant)
                 frame_height, // Destination height (not in byte)
-                cudaMemcpyDeviceToDevice));
+                cudaMemcpyDeviceToDevice,
+                stream));
         }
         cudaXFree(square_lens);
     }

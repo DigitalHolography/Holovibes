@@ -122,7 +122,8 @@ void batched_embed_into_square(const char* input,
                                const uint input_height,
                                char* output,
                                const uint batch_size,
-                               const uint elm_size)
+                               const uint elm_size,
+                               const cudaStream_t stream)
 {
     uint output_startx;
     uint output_starty;
@@ -145,7 +146,8 @@ void batched_embed_into_square(const char* input,
     size_t blocks =
         map_blocks_to_problem(square_side_len * square_side_len, threads);
 
-    kernel_batched_embed_into_square<<<blocks, threads>>>(input,
+    kernel_batched_embed_into_square<<<blocks, threads, 0, stream>>>
+                                                         (input,
                                                           input_width,
                                                           input_height,
                                                           output,
@@ -259,7 +261,8 @@ void batched_crop_into_square(const char* input,
                               const uint input_height,
                               char* output,
                               const uint elm_size,
-                              const uint batch_size)
+                              const uint batch_size,
+                              const cudaStream_t stream)
 {
     uint crop_start_x;
     uint crop_start_y;
@@ -282,7 +285,8 @@ void batched_crop_into_square(const char* input,
     size_t blocks =
         map_blocks_to_problem(square_side_len * square_side_len, threads);
 
-    kernel_batched_crop_into_square<<<blocks, threads>>>(input,
+    kernel_batched_crop_into_square<<<blocks, threads, 0, stream>>>
+                                                        (input,
                                                          input_width,
                                                          input_height,
                                                          crop_start_x,

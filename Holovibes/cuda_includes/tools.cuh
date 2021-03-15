@@ -34,6 +34,8 @@ __global__ void kernel_apply_lens(cuComplex* input,
 
 /*! \brief Extract a part of the input image to the output.
  *
+ * The memcpy is async
+ *
  * \param input The full input image
  * \param zone the part of the image we want to extract
  * \param In pixels, the original width of the image
@@ -44,7 +46,7 @@ void frame_memcpy(const float* input,
                   const holovibes::units::RectFd& zone,
                   const uint input_width,
                   float* output,
-                  const cudaStream_t stream = 0);
+                  const cudaStream_t stream);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
 **   and the size of the frame.

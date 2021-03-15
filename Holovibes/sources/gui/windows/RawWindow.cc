@@ -29,7 +29,7 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, Queue* q, KindOfView k)
+RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , texDepth(0)
     , texType(0)
@@ -141,7 +141,7 @@ void RawWindow::initializeGL()
                             1.f, // vertex coord (-1.0f <-> 1.0f)
                             0.f,
                             0.f, // texture coord (0.0f <-> 1.0f)
-                            // Top-right
+                                 // Top-right
                             1.f,
                             1.f,
                             1.f,
@@ -293,7 +293,11 @@ void RawWindow::paintGL()
     // Put the frame inside the cuda ressrouce
     if (cd_->img_type == ImgType::Composite)
     {
-        cudaXMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice);
+        cudaXMemcpyAsync(cuPtrToPbo,
+                         frame,
+                         sizeBuffer,
+                         cudaMemcpyDeviceToDevice,
+                         cuStream);
     }
     else
     {
@@ -303,12 +307,13 @@ void RawWindow::paintGL()
                                   cuPtrToPbo,
                                   fd_.frame_res(),
                                   fd_.depth,
-                                  bitshift);
+                                  bitshift,
+                                  cuStream);
     }
 
     // Release resources (needs to be done at each call) and sync
     cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
-    cudaSafeCall(cudaStreamSynchronize(cuStream));
+    cudaXStreamSynchronize(cuStream);
 
     // Texture creationg
     glBindTexture(GL_TEXTURE_2D, Tex);

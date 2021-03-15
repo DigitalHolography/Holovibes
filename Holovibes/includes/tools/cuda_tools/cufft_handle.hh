@@ -26,6 +26,8 @@ class CufftHandle
      */
     CufftHandle();
 
+    static void set_stream(const cudaStream_t& stream);
+
     /*! \brief Constructor calling plan2d
      */
     CufftHandle(const int x, const int y, const cufftType type);
@@ -98,6 +100,8 @@ class CufftHandle
      * we chose a unique_ptr to represent an possibly uninitialized one
      */
     std::unique_ptr<cufftHandle> val_;
+
+    static cudaStream_t stream_;
 };
 } // namespace cuda_tools
 } // namespace holovibes

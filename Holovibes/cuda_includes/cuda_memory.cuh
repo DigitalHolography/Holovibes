@@ -83,8 +83,8 @@ void cudaXMemcpy(void* dst,
 void cudaXMemcpyAsync(void* dst,
                       const void* src,
                       size_t count,
-                      cudaMemcpyKind kind = cudaMemcpyDeviceToDevice,
-                      const cudaStream_t stream = 0);
+                      cudaMemcpyKind kind,
+                      const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaMemset to handle errors
  *
@@ -109,7 +109,7 @@ void cudaXMemset(void* devPtr, int value, size_t count);
 void cudaXMemsetAsync(void* devPtr,
                       int value,
                       size_t count,
-                      const cudaStream_t stream = 0);
+                      const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaFree to handle errors
  *
@@ -128,5 +128,14 @@ void cudaXFree(void* devPtr);
  * \param dst Device pointer to memory to free
  */
 void cudaXFreeHost(void* devPtr);
+
+/*! \brief Wrapper around cudaStreamSynchronize to handle errors
+ *
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
+ *
+ * \param stream The id of the stream to synchronize with host
+ */
+void cudaXStreamSynchronize(const cudaStream_t stream);
 
 #include "cuda_memory.cuhxx"

@@ -98,7 +98,7 @@ void filter2D_BandPass(cuComplex* input,
     if (!zone.area() || !subzone.area())
         return;
 
-    shift_corners(input, batch_size, desc.width, desc.height);
+    shift_corners(input, batch_size, desc.width, desc.height, stream);
 
     kernel_filter2D_BandPass<<<blocks, threads, 0, stream>>>(
         input,
@@ -115,7 +115,7 @@ void filter2D_BandPass(cuComplex* input,
         size);
     cudaCheckError();
 
-    shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height);
+    shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height, stream);
 
     circ_shift<<<blocks, threads, 0, stream>>>(tmp_buffer,
                                                input,
@@ -148,7 +148,7 @@ void filter2D(cuComplex* input,
     if (!r.area())
         return;
 
-    shift_corners(input, batch_size, desc.width, desc.height);
+    shift_corners(input, batch_size, desc.width, desc.height, stream);
 
     filter2D_roi<<<blocks, threads, 0, stream>>>(input,
                                                  batch_size,
@@ -161,7 +161,7 @@ void filter2D(cuComplex* input,
                                                  exclude_roi);
     cudaCheckError();
 
-    shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height);
+    shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height, stream);
 
     circ_shift<<<blocks, threads, 0, stream>>>(tmp_buffer,
                                                input,

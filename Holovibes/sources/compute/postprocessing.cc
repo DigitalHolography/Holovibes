@@ -27,7 +27,8 @@ namespace compute
 Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const camera::FrameDescriptor& input_fd,
-                               ComputeDescriptor& cd)
+                               ComputeDescriptor& cd,
+                               const cudaStream_t& stream)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -37,6 +38,7 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , cd_(cd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
+    , stream_(stream)
 {
 }
 
@@ -52,19 +54,27 @@ void Postprocessing::init()
     cuComplex_buffer_.resize(frame_res);
 
     gpu_kernel_buffer_.resize(frame_res);
-    cudaXMemset(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex));
-    cudaSafeCall(cudaMemcpy2D(gpu_kernel_buffer_.get(),
-                              sizeof(cuComplex),
-                              cd_.convo_matrix.data(),
-                              sizeof(float),
-                              sizeof(float),
-                              frame_res,
-                              cudaMemcpyHostToDevice));
+    cudaXMemsetAsync(gpu_kernel_buffer_.get(),
+                     0,
+                     frame_res * sizeof(cuComplex),
+                     stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
+                                   sizeof(cuComplex),
+                                   cd_.convo_matrix.data(),
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyHostToDevice,
+                                   stream_));
 
     constexpr uint batch_size = 1; // since only one frame.
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
-    shift_corners(gpu_kernel_buffer_.get(), batch_size, fd_.width, fd_.height);
+    shift_corners(gpu_kernel_buffer_.get(),
+                  batch_size,
+                  fd_.width,
+                  fd_.height,
+                  stream_);
     cufftSafeCall(cufftExecC2C(convolution_plan_,
                                gpu_kernel_buffer_.get(),
                                gpu_kernel_buffer_.get(),
@@ -88,7 +98,8 @@ void Postprocessing::convolution_composite()
     from_interweaved_components_to_distinct_components(
         buffers_.gpu_postprocess_frame,
         hsv_arr_.get(),
-        frame_res);
+        frame_res,
+        stream_);
 
     convolution_kernel(hsv_arr_.get(),
                        buffers_.gpu_convolution_buffer.get(),
@@ -97,7 +108,8 @@ void Postprocessing::convolution_composite()
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        cd_.divide_convolution_enabled,
-                       true);
+                       true,
+                       stream_);
 
     convolution_kernel(hsv_arr_.get() + frame_res,
                        buffers_.gpu_convolution_buffer.get(),
@@ -106,7 +118,8 @@ void Postprocessing::convolution_composite()
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        cd_.divide_convolution_enabled,
-                       true);
+                       true,
+                       stream_);
 
     convolution_kernel(hsv_arr_.get() + (frame_res * 2),
                        buffers_.gpu_convolution_buffer.get(),
@@ -115,12 +128,14 @@ void Postprocessing::convolution_composite()
                        frame_res,
                        gpu_kernel_buffer_,
                        cd_.divide_convolution_enabled,
-                       true);
+                       true,
+                       stream_);
 
     from_distinct_components_to_interweaved_components(
         hsv_arr_.get(),
         buffers_.gpu_postprocess_frame,
-        frame_res);
+        frame_res,
+        stream_);
 }
 
 void Postprocessing::insert_convolution()
@@ -138,7 +153,8 @@ void Postprocessing::insert_convolution()
                                fd_.frame_res(),
                                gpu_kernel_buffer_.get(),
                                cd_.divide_convolution_enabled,
-                               true);
+                               true,
+                               stream_);
         });
     }
     else
@@ -160,7 +176,8 @@ void Postprocessing::insert_renormalize()
         gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                       reduce_result_.get(),
                       frame_res,
-                      cd_.renorm_constant);
+                      cd_.renorm_constant,
+                      stream_);
     });
 }
 } // namespace compute

@@ -18,6 +18,8 @@
 #include "frame_desc.hh"
 #include "compute_descriptor.hh"
 #include "unique_ptr.hh"
+#include "batch_input_queue.hh"
+#include "display_queue.hh"
 
 namespace holovibes
 {
@@ -33,8 +35,10 @@ namespace holovibes
 **
 ** The Queue ensures that all elements it contains are written in little endian.
 */
-class Queue
+class Queue : public DisplayQueue
 {
+    friend class BatchInputQueue;
+
   public:
     using MutexGuard = std::lock_guard<std::mutex>;
 
@@ -55,7 +59,7 @@ class Queue
     **
     ** \param fd The frame descriptor representing frames stored in the queue
     ** \param max_size The max size of the queue
-    ** \param name The name of the queue
+    ** \param type The type of the queue
     **/
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
@@ -73,9 +77,6 @@ class Queue
 
     /*! \return pointer to internal buffer that contains data. */
     inline void* get_data() const;
-
-    /*! \return FrameDescriptor of the Queue */
-    inline const camera::FrameDescriptor& get_fd() const;
 
     /*! \return the size of one frame (i-e element) of the Queue in pixels. */
     inline size_t get_frame_res() const;
@@ -97,7 +98,7 @@ class Queue
     inline void* get_end() const;
 
     /*! \return pointer to the last image */
-    inline void* get_last_image() const;
+    inline void* get_last_image() const override;
 
     /*! \return index of the frame right after the last one containing data */
     inline unsigned int get_end_index() const;
@@ -115,9 +116,10 @@ class Queue
     /* Methods */
     /*! \brief Empty the Queue and change its size.
     **
-    **  \param size the new size of the Queue
+    ** \param size the new size of the Queue
+    ** \param stream
     */
-    void resize(const unsigned int size);
+    void resize(const unsigned int size, const cudaStream_t stream);
 
     /*! \brief Enqueue method
     **
@@ -131,10 +133,12 @@ class Queue
     ** The memcpy are synch for Qt
     **.
     ** \param elt pointer to element to enqueue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     bool enqueue(void* elt,
+                 const cudaStream_t stream,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy elements (no dequeue) and enqueue in dest.
@@ -143,8 +147,10 @@ class Queue
     **
     ** \param dest Output queue
     ** \param nb_elts Number of elements to add in the queue
+    ** \param stream
     */
-    void copy_multiple(Queue& dest, unsigned int nb_elts);
+    void
+    copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream);
 
     /*! \brief Enqueue method for multiple elements
     **
@@ -154,6 +160,7 @@ class Queue
     **
     ** \param elts List of elements to add in the queue
     ** \param nb_elts Number of elements to add in the queue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     **
@@ -161,10 +168,13 @@ class Queue
     */
     bool enqueue_multiple(void* elts,
                           unsigned int nb_elts,
+                          const cudaStream_t stream,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     void Queue::enqueue_from_48bit(
-        void* src, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+        void* src,
+        const cudaStream_t stream,
+        cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method overload
     **
@@ -172,10 +182,12 @@ class Queue
     ** cuda memory type then update internal attributes.
     **
     ** \param dest destination of element copy
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     void dequeue(void* dest,
+                 const cudaStream_t stream,
                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method
@@ -210,19 +222,34 @@ class Queue
     ** \param out the output buffer in which the frames are copied
     ** \param in the input buffer from which the frames are copied
     ** \param nb_elts The number of elements to enqueue
+    ** \param stream
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice
     *...)
     */
     void enqueue_multiple_aux(void* out,
                               void* in,
                               unsigned int nb_elts,
+                              const cudaStream_t stream,
                               cudaMemcpyKind cuda_kind);
+
+    // Forward declaration
+    struct QueueRegion;
+
+    /*! \brief auxiliary method of copy multiple.
+    ** Make the async copy
+    ** \param src Queue region info of the source queue
+    ** \param dst Queue region info of the dst queue
+    ** \param frame_size Size of the frame in bytes
+    ** \param stream Stream perfoming the copy
+    */
+    static void copy_multiple_aux(QueueRegion& src,
+                                  QueueRegion& dst,
+                                  const uint frame_size,
+                                  const cudaStream_t stream);
 
   private: /* Attributes */
     /*! \brief mutex to lock the queue */
     mutable std::mutex mutex_;
-    /*! \brief frame descriptor of a frame store in the queue */
-    camera::FrameDescriptor fd_;
 
     /*! \brief frame size from the frame descriptor */
     const size_t frame_size_;
@@ -265,47 +292,37 @@ class Queue
 
     /*! \brief Wheter frames have been overridden during an enqueue. */
     bool has_overridden_;
-};
 
-/*! \brief Struct to represent a region in the queue, or two regions in
-** case of overflow.
-** - first is the default region
-** - second is the region at the beginning if overflow, nulpptr otherwise
-** In case of overflow, this struct will look like below.
-** |----------------- (start_index_) ---------------|
-** |		second          |         first             |
-*/
-struct QueueRegion
-{
-    char* first = nullptr;
-    char* second = nullptr;
-    unsigned int first_size = 0;
-    unsigned int second_size = 0;
-
-    /*! \brief Check whether the region has a circular overflow. */
-    bool overflow(void) { return second != nullptr; }
-
-    /*! \brief Drop the first elements of the first region.
-     **
-     ** \param size Number of elements to drop
-     ** \param frame_size Size of a single frame in bytes
-     */
-    void consume_first(unsigned int size, unsigned int frame_size)
+  private: /* Queue Region */
+    /*! \brief Struct to represents a region in the queue, or two regions in
+    ** case of overflow.
+    ** first is the first region
+    ** second is the second region if overflow, nulpptr otherwise.
+    ** In case of overflow, this struct will look like
+    ** |----------------- (start_index_) ---------------|
+    ** |		second          |         first         |
+    */
+    struct QueueRegion
     {
-        first += size * frame_size;
-        first_size -= size;
-    }
+        char* first = nullptr;
+        char* second = nullptr;
+        unsigned int first_size = 0;
+        unsigned int second_size = 0;
 
-    /*! \brief Drop the first elements of the second region.
-     **
-     ** \param size Number of elements to drop
-     ** \param frame_size Size of a single frame in bytes
-     */
-    void consume_second(unsigned int size, unsigned int frame_size)
-    {
-        second += size * frame_size;
-        second_size -= size;
-    }
+        bool overflow(void) { return second != nullptr; }
+
+        void consume_first(unsigned int size, unsigned int frame_size)
+        {
+            first += static_cast<size_t>(size) * frame_size * sizeof(char);
+            first_size -= size;
+        }
+
+        void consume_second(unsigned int size, unsigned int frame_size)
+        {
+            second += static_cast<size_t>(size) * frame_size * sizeof(char);
+            second_size -= size;
+        }
+    };
 };
 } // namespace holovibes
 
