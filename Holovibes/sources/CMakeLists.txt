@@ -5,6 +5,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     options_parser.cc
     function_vector.cc
     queue.cc
+    batch_input_queue.cc
 
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc

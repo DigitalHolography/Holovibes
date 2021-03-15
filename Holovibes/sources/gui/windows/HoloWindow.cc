@@ -19,7 +19,7 @@ namespace gui
 {
 HoloWindow::HoloWindow(QPoint p,
                        QSize s,
-                       Queue* q,
+                       DisplayQueue* q,
                        SharedPipe ic,
                        std::unique_ptr<SliceWindow>& xz,
                        std::unique_ptr<SliceWindow>& yz,

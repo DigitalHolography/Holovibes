@@ -26,7 +26,7 @@ class HoloWindow : public RawWindow
   public:
     HoloWindow(QPoint p,
                QSize s,
-               Queue* q,
+               DisplayQueue* q,
                SharedPipe ic,
                std::unique_ptr<SliceWindow>& xy,
                std::unique_ptr<SliceWindow>& yy,

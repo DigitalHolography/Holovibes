@@ -45,7 +45,7 @@ class FileFrameReadWorker : public FrameReadWorker
                         unsigned int first_frame_id,
                         unsigned int total_nb_frames_to_read,
                         bool load_file_in_gpu,
-                        std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
+                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 

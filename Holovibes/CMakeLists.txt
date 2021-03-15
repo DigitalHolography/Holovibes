@@ -13,6 +13,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
+# --extended-lambda: enable __device__ lambda
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
 
 set(HOLO_INCLUDES
@@ -140,6 +141,7 @@ set(SRC_TESTS
     unit_tests/test_chart.cc
     unit_tests/test_reduce.cc
     unit_tests/test_map.cc
+    unit_tests/test_batch_input_queue.cc
     # Add your test files here
 )
 
@@ -174,8 +176,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${GTEST_FOUND} AND ${THREADS_FOUND})
 
         # Add the executable created to the test list of ctest
         add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-        # Set timeout of the test to 5 seconds
-        set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 5)
+        # Set timeout of the test to 60 seconds
+        set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 60)
     endforeach()
 else()
     message(STATUS "TESTS: Unit tests disabled in Release mode")

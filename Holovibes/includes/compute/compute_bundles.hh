@@ -24,7 +24,9 @@ struct UnwrappingResources
     /*! Initialize the capacity from history_size,
      * set size and next_index to zero, and buffers pointers to null pointers.
      */
-    UnwrappingResources(const unsigned capacity, const size_t image_size);
+    UnwrappingResources(const unsigned capacity,
+                        const size_t image_size,
+                        const cudaStream_t& stream);
 
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources();
@@ -73,6 +75,8 @@ struct UnwrappingResources
     float* gpu_angle_copy_;
     /*! Current phase image after unwrapping. */
     float* gpu_unwrapped_angle_;
+
+    const cudaStream_t& stream_;
 };
 
 } // namespace holovibes

@@ -744,8 +744,6 @@ void MainWindow::load_ini(const std::string& path)
                            config.time_transformation_cuts_output_buffer_size);
         config.frame_timeout =
             ptree.get<int>("config.frame_timeout", config.frame_timeout);
-        config.flush_on_refresh =
-            ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 
         // Loaded Directories
         default_output_filename_ =
@@ -997,7 +995,6 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<uint>("config.accumulation_buffer_size",
                     cd_.img_acc_slice_xy_level);
     ptree.put<uint>("config.frame_timeout", config.frame_timeout);
-    ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put<ushort>("config.display_rate",
                       static_cast<ushort>(cd_.display_rate));
 

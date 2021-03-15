@@ -20,7 +20,7 @@
 
 #include "overlay_manager.hh"
 #include "tools_conversion.cuh"
-#include "queue.hh"
+#include "display_queue.hh"
 
 namespace holovibes
 {
@@ -42,7 +42,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
   public:
     // Constructor & Destructor
-    BasicOpenGLWindow(QPoint p, QSize s, Queue* q, KindOfView k);
+    BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
     virtual ~BasicOpenGLWindow();
 
     const KindOfView getKindOfView() const;
@@ -74,7 +74,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     Qt::WindowState winState;
     QPoint winPos;
     //! Output queue filled in the computing pipeline
-    Queue* output_;
+    DisplayQueue* output_;
     ComputeDescriptor* cd_;
     const camera::FrameDescriptor& fd_;
     const KindOfView kView;

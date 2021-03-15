@@ -265,7 +265,8 @@ __global__ void kernel_unwrap2d_last_step(float* output,
 
 void phase_increase(const cuComplex* cur,
                     UnwrappingResources* resources,
-                    const size_t image_size)
+                    const size_t image_size,
+                    const cudaStream_t stream)
 {
     const uint threads =
         THREADS_128; // 3072 cuda cores / 24 SMM = 128 Threads per SMM
@@ -273,35 +274,35 @@ void phase_increase(const cuComplex* cur,
     static bool first_time = true;
     if (first_time)
     {
-        cudaXMemcpy(resources->gpu_predecessor_,
+        cudaXMemcpyAsync(resources->gpu_predecessor_,
                     cur,
                     sizeof(cuComplex) * image_size,
-                    cudaMemcpyDeviceToDevice);
+                    cudaMemcpyDeviceToDevice, stream);
         first_time = false;
     }
 
     // Compute the newest phase image, not unwrapped yet
-    kernel_compute_angle_mult<<<blocks, threads>>>(
+    kernel_compute_angle_mult<<<blocks, threads, 0, stream>>>(
         resources->gpu_predecessor_,
         cur,
         resources->gpu_angle_current_,
         image_size);
     cudaCheckError();
     // Updating predecessor (complex image) for the next iteration
-    cudaXMemcpy(resources->gpu_predecessor_,
+    cudaXMemcpyAsync(resources->gpu_predecessor_,
                 cur,
                 sizeof(cuComplex) * image_size,
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice, stream);
 
     /* Copying in order to later enqueue the (not summed up with values
      * in gpu_unwrap_buffer_) phase image. */
-    cudaXMemcpy(resources->gpu_angle_copy_,
+    cudaXMemcpyAsync(resources->gpu_angle_copy_,
                 resources->gpu_angle_current_,
                 sizeof(float) * image_size,
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice, stream);
 
     // Applying history on the latest phase image
-    kernel_correct_angles<<<blocks, threads>>>(resources->gpu_angle_current_,
+    kernel_correct_angles<<<blocks, threads, 0, stream>>>(resources->gpu_angle_current_,
                                                resources->gpu_unwrap_buffer_,
                                                image_size,
                                                resources->size_);
@@ -311,10 +312,10 @@ void phase_increase(const cuComplex* cur,
      * The buffer is handled as a circular buffer. */
     float* next_unwrap =
         resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-    cudaXMemcpy(next_unwrap,
+    cudaXMemcpyAsync(next_unwrap,
                 resources->gpu_angle_copy_,
                 sizeof(float) * image_size,
-                cudaMemcpyDeviceToDevice);
+                cudaMemcpyDeviceToDevice, stream);
     if (resources->size_ < resources->capacity_)
         ++resources->size_;
     resources->next_index_ =

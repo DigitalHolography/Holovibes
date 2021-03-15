@@ -27,4 +27,5 @@ void apply_contrast_correction(float* const input,
                                const uint size,
                                const ushort dynamic_range,
                                const float min,
-                               const float max);
+                               const float max,
+                               const cudaStream_t stream);

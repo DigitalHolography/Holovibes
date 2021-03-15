@@ -15,6 +15,8 @@
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
 
+static constexpr cudaStream_t stream = 0;
+
 namespace // Tools for testing the queue
 {
 /*! \brief Get the element at a specific position in the queue */
@@ -108,7 +110,7 @@ TEST(QueueNotFull, QueueIsFullTest)
 
     // Enqueue
     // Warning: enqueue HostToDevice
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_FALSE(q.is_full());
 
     delete new_elt;
@@ -130,8 +132,8 @@ TEST(QueueFull, QueueIsFull)
     char* new_elt = new char[fd.frame_res()];
 
     // Enqueue
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(q.is_full());
 
     delete new_elt;
@@ -153,7 +155,7 @@ TEST(SimpleQueueResize, QueueResize)
     ASSERT_EQ(q.get_max_size(), 2);
 
     unsigned int new_size = 10;
-    q.resize(new_size); // Resize here, empty the queue
+    q.resize(new_size, stream); // Resize here, empty the queue
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), new_size);
 }
@@ -176,17 +178,17 @@ TEST(EnqueueCheckValues, QueueEnqueue)
     char elt3 = 'c';
     char* buffer = nullptr;
 
-    q.enqueue(&elt1, cudaMemcpyHostToDevice);
+    q.enqueue(&elt1, stream, cudaMemcpyHostToDevice);
     buffer = get_element_from_queue(q, 0);
     ASSERT_EQ(q.get_size(), 1);
     ASSERT_EQ(*buffer, elt1);
 
-    q.enqueue(&elt2, cudaMemcpyHostToDevice);
+    q.enqueue(&elt2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(*get_element_from_queue(q, 0), elt1);
     ASSERT_EQ(*get_element_from_queue(q, 1), elt2);
 
-    q.enqueue(&elt3, cudaMemcpyHostToDevice);
+    q.enqueue(&elt3, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(*get_element_from_queue(q, 0), elt3);
     ASSERT_EQ(*get_element_from_queue(q, 1), elt2);
@@ -208,28 +210,28 @@ TEST(SimpleEnqueues, QueueEnqueue)
 
     char* new_elt = new char[fd.frame_res()];
 
-    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 1);
     ASSERT_EQ(q.get_start_index(), 0);
     // just test onces the return value
     // We can't easily make the enqueue fail in the test
     ASSERT_TRUE(res);
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
     // Queue full, circular queue, update start index
     // Reminder: the size of the queue is 2
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
 
@@ -252,7 +254,7 @@ TEST(EnqueueNotSquare, QueueEnqueue)
 
     char* new_elt = new char[fd.frame_res()];
 
-    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 1);
 
@@ -275,31 +277,60 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     char elts[] = {'a', 'b', 'c'};
     unsigned int nb_elts = 3;
 
-    q.enqueue_multiple(elts, 2, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(*get_element_from_queue(q, 0), elts[0]);
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
 
     // enqueue 3rd element
-    q.enqueue_multiple(elts + 2, 1, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts + 2, 1, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(*get_element_from_queue(q, 0), elts[2]);
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.resize(2); // reset, same size
+    q.resize(2, stream); // reset, same size
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
 
     // Directly enqueue three elements. The first element is going to be skipped
-    q.enqueue_multiple(elts, 3, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts, 3, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 1);
     ASSERT_EQ(*get_element_from_queue(q, 0), elts[2]);
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
 
-    q.enqueue_multiple(elts, 3, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(elts, 3, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_EQ(*get_element_from_queue(q, 0), elts[1]);
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[2]);
+}
+
+TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
+{
+    camera::FrameDescriptor fd = {1,
+                                  1,
+                                  sizeof(char),
+                                  camera::Endianness::BigEndian};
+    constexpr uint queue_size = 3;
+    holovibes::Queue q(fd,
+                       queue_size,
+                       holovibes::Queue::QueueType::UNDEFINED,
+                       fd.width,
+                       fd.height,
+                       fd.depth);
+
+    char elts[] = {'a', 'b', 'c', 'd'};
+    unsigned int nb_elts = 4;
+
+    q.enqueue_multiple(elts, 2, stream, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(q.get_size(), 2);
+
+    q.enqueue_multiple(elts, 4, stream, cudaMemcpyHostToDevice);
+    ASSERT_EQ(q.get_start_index(), 0);
+    ASSERT_EQ(q.get_size(), queue_size);
+    ASSERT_EQ(*get_element_from_queue(q, 0), elts[1]);
+    ASSERT_EQ(*get_element_from_queue(q, 1), elts[2]);
+    ASSERT_EQ(*get_element_from_queue(q, 2), elts[3]);
 }
 
 TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
@@ -318,7 +349,8 @@ TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
     unsigned int nb_elts = 2;
     char* new_elt = new char[fd.frame_res() * nb_elts];
 
-    bool res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    bool res =
+        q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
@@ -342,23 +374,23 @@ TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
     unsigned int nb_elts = 2;
     char* new_elt = new char[fd.frame_res() * nb_elts];
 
-    bool res = q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 1);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    res = q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    res = q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
 
     // Enqueue multiple of 1 element
-    res = q.enqueue_multiple(new_elt, 1, cudaMemcpyHostToDevice);
+    res = q.enqueue_multiple(new_elt, 1, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
@@ -383,7 +415,8 @@ TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
     char* new_elt = new char[fd.frame_res() * nb_elts];
 
     // Enqueue 3 elements at once but the maximum size of the queue is 2
-    bool res = q.enqueue_multiple(new_elt, nb_elts, cudaMemcpyHostToDevice);
+    bool res =
+        q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
@@ -405,12 +438,12 @@ TEST(FullMultipleEnqueue, QueueMultipleEnqueue)
     unsigned int nb_elts = 2;
     char* new_elt = new char[fd.frame_res() * nb_elts];
 
-    bool res = q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    bool res = q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    res = q.enqueue_multiple(new_elt, 1, cudaMemcpyHostToDevice);
+    res = q.enqueue_multiple(new_elt, 1, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
@@ -433,7 +466,7 @@ TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
     // 2 frames of a resolution of 3
     char new_elt[] = "ab\0cd\0";
 
-    q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q, 0)), std::string(new_elt));
@@ -473,7 +506,7 @@ TEST(DequeueOneFrame, QueueDequeue)
 
     char* new_elt = new char[fd.frame_res()];
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 1);
     ASSERT_EQ(q.get_start_index(), 0);
 
@@ -482,13 +515,13 @@ TEST(DequeueOneFrame, QueueDequeue)
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     q.dequeue();
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
-    q.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
+    q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(q.is_full());
     ASSERT_EQ(q.get_start_index(), 0);
     q.dequeue();
@@ -514,7 +547,7 @@ TEST(DequeueMultipleFrames, QueueDequeue)
 
     char* new_elt = new char[fd.frame_res() * 2];
 
-    q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
@@ -522,7 +555,7 @@ TEST(DequeueMultipleFrames, QueueDequeue)
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 2);
 
-    q.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 2);
 
@@ -546,7 +579,10 @@ TEST(DequeueTooManyFrames, QueueDequeue)
 
     char* new_elt = new char[fd.frame_res() * 2];
 
-    q.enqueue_multiple(new_elt, q.get_max_size() - 1, cudaMemcpyHostToDevice);
+    q.enqueue_multiple(new_elt,
+                       q.get_max_size() - 1,
+                       stream,
+                       cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
@@ -571,7 +607,7 @@ TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
-    ASSERT_DEATH(q.dequeue(buff, cudaMemcpyDeviceToHost), "");
+    ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), "");
 
     delete buff;
 }
@@ -593,10 +629,10 @@ TEST(SimpleDequeueValue, QueueDequeueValue)
     char* res = new char[fd.frame_res()];
 
     char* buff[] = {"ab\0", "cd\0", "ef\0"};
-    q.enqueue(buff[0], cudaMemcpyHostToDevice);
+    q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
 
     // Make one enqueue and dequeue
-    q.dequeue(res, cudaMemcpyDeviceToHost);
+    q.dequeue(res, stream, cudaMemcpyDeviceToHost);
     ASSERT_EQ(std::string(res), std::string(buff[0]));
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 1);
@@ -621,19 +657,19 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
     char* buff[] = {"ab\0", "cd\0", "ef\0"};
 
     // Change indexes
-    q.enqueue(buff[0], cudaMemcpyHostToDevice);
-    q.dequeue(res, cudaMemcpyDeviceToHost);
+    q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
+    q.dequeue(res, stream, cudaMemcpyDeviceToHost);
 
     // Make two enqueues followed by two dequeues
-    q.enqueue(buff[1], cudaMemcpyHostToDevice);
-    q.enqueue(buff[2], cudaMemcpyHostToDevice);
+    q.enqueue(buff[1], stream, cudaMemcpyHostToDevice);
+    q.enqueue(buff[2], stream, cudaMemcpyHostToDevice);
 
-    q.dequeue(res, cudaMemcpyDeviceToHost);
+    q.dequeue(res, stream, cudaMemcpyDeviceToHost);
     ASSERT_EQ(std::string(res), std::string(buff[1]));
     ASSERT_EQ(q.get_size(), 1);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    q.dequeue(res, cudaMemcpyDeviceToHost);
+    q.dequeue(res, stream, cudaMemcpyDeviceToHost);
     ASSERT_EQ(std::string(res), std::string(buff[2]));
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 1);
@@ -660,7 +696,7 @@ TEST(EmptyCopyMultiple, QueueCopyMultiple)
                            fd.height,
                            fd.depth);
 
-    q_src.copy_multiple(q_dst, 1);
+    q_src.copy_multiple(q_dst, 1, stream);
 }
 
 TEST(SimpleCopyMultiple, QueueCopyMultiple)
@@ -686,7 +722,7 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
     // 2 frames of a resolution of 3
     char new_elt[] = "ab\0cd\0";
 
-    q_src.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q_src.get_start_index(), 0);
     ASSERT_EQ(q_src.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q_src, 0)),
@@ -694,7 +730,7 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(std::string(get_element_from_queue(q_src, 1)),
               std::string(new_elt + fd.frame_size()));
 
-    q_src.copy_multiple(q_dst, 2);
+    q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)),
@@ -702,7 +738,7 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)),
               std::string(new_elt + fd.frame_size()));
 
-    q_src.copy_multiple(q_dst, 2);
+    q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 4);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)),
@@ -734,12 +770,13 @@ TEST(MoreElementCopyMultiple, QueueCopyMultiple)
     char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
 
     // Fill the source queue
-    q_src.enqueue(new_elt, cudaMemcpyHostToDevice);
-    q_src.enqueue(new_elt + fd.frame_size(), cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + fd.frame_size(), stream, cudaMemcpyHostToDevice);
 
     // Fill the destination queue
     q_dst.enqueue_multiple(new_elt + 2 * fd.frame_size(),
                            3,
+                           stream,
                            cudaMemcpyHostToDevice);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 3);
@@ -751,7 +788,7 @@ TEST(MoreElementCopyMultiple, QueueCopyMultiple)
               std::string(new_elt + 4 * fd.frame_size()));
 
     // Copy more elements than the source queue size
-    q_src.copy_multiple(q_dst, 3);
+    q_src.copy_multiple(q_dst, 3, stream);
     // Only two elments are supposed to be copied
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)),
               std::string(new_elt));
@@ -784,12 +821,12 @@ TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
     // Make the source queue full
-    q_src.enqueue_multiple(new_elt, 4, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 4, stream, cudaMemcpyHostToDevice);
 
     // Copy all elements from q_src to q_dst
     // But the size of q_dst is lower than q_dst
-    // This case is currently not handled so this test is disabled
-    q_src.copy_multiple(q_dst, q_src.get_size());
+    // This case needs to be correctly handled
+    q_src.copy_multiple(q_dst, q_src.get_size(), stream);
 
     ASSERT_EQ(q_dst.get_size(), 3); // destination queue max size
     ASSERT_EQ(q_dst.get_start_index(), 0);
@@ -823,18 +860,22 @@ TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
     // Create setup for the source queue
-    q_src.enqueue(new_elt, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     q_src.dequeue();
-    q_src.enqueue(new_elt + fd.frame_size(), cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + fd.frame_size(), stream, cudaMemcpyHostToDevice);
     q_src.dequeue();
-    q_src.enqueue(new_elt + 2 * fd.frame_size(), cudaMemcpyHostToDevice);
-    q_src.enqueue(new_elt + 3 * fd.frame_size(), cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + 2 * fd.frame_size(),
+                  stream,
+                  cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + 3 * fd.frame_size(),
+                  stream,
+                  cudaMemcpyHostToDevice);
     ASSERT_EQ(q_src.get_size(), 2);
     ASSERT_EQ(q_src.get_start_index(), 2);
     ASSERT_EQ(q_src.get_end_index(), 1);
 
     // copy the number of elements in the queue
-    q_src.copy_multiple(q_dst, 2);
+    q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)),
@@ -843,7 +884,7 @@ TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
               std::string(new_elt + 3 * fd.frame_size()));
 
     // copy more elements than the current size
-    q_src.copy_multiple(q_dst, 3);
+    q_src.copy_multiple(q_dst, 3, stream);
     ASSERT_EQ(q_dst.get_start_index(), 1);
     ASSERT_EQ(q_dst.get_size(), 3);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)),
@@ -876,16 +917,16 @@ TEST(CircularDstCopyMultiple, QueueCopyMultiple)
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
     // Make the source queue full
-    q_src.enqueue_multiple(new_elt, 3, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 3, stream, cudaMemcpyHostToDevice);
 
     // Change index of the destination queue
-    q_dst.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q_dst.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     q_dst.dequeue();
     q_dst.dequeue();
     ASSERT_EQ(q_dst.get_size(), 0);
     ASSERT_EQ(q_dst.get_start_index(), 2);
 
-    q_src.copy_multiple(q_dst, 2);
+    q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(q_dst.get_start_index(), 2);
     ASSERT_EQ(q_dst.get_end_index(), 1);
@@ -918,23 +959,25 @@ TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
     char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
 
     // Change index of the source queue
-    q_src.enqueue_multiple(new_elt, 2, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     q_src.dequeue();
     q_src.dequeue();
-    q_src.enqueue_multiple(new_elt, 3, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 3, stream, cudaMemcpyHostToDevice);
 
     // Change index of the destination queue
     q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(),
                            2,
+                           stream,
                            cudaMemcpyHostToDevice);
     q_dst.dequeue();
     q_dst.dequeue();
     q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(),
                            2,
+                           stream,
                            cudaMemcpyHostToDevice);
 
     // Copy all elements
-    q_src.copy_multiple(q_dst, q_src.get_size());
+    q_src.copy_multiple(q_dst, q_src.get_size(), stream);
     ASSERT_EQ(q_dst.get_start_index(), 1);
     ASSERT_EQ(q_dst.get_size(), 3);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)),
@@ -969,11 +1012,12 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
     char* new_elt = "a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0";
 
     // Make the queue full
-    q_src.enqueue_multiple(new_elt, 11, cudaMemcpyHostToDevice);
+    q_src.enqueue_multiple(new_elt, 11, stream, cudaMemcpyHostToDevice);
 
     // Change indices
     q_dst.enqueue_multiple(new_elt + 11 * fd.frame_size(),
                            2,
+                           stream,
                            cudaMemcpyHostToDevice);
     q_dst.dequeue();
     q_dst.dequeue();
@@ -983,8 +1027,7 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
 
     // Copy multiple (10 elements).
     // The size of the destination queue is only 3
-    // This case is currently not handled so this test is disabled
-    q_src.copy_multiple(q_dst, 10);
+    q_src.copy_multiple(q_dst, 10, stream);
 
     // Expected. Not handle but should be fixed
     ASSERT_EQ(q_dst.get_start_index(), 2);

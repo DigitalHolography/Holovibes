@@ -24,7 +24,7 @@ class SliceWindow : public BasicOpenGLWindow
   public:
     SliceWindow(QPoint p,
                 QSize s,
-                Queue* q,
+                DisplayQueue* q,
                 KindOfView k,
                 MainWindow* main_window = nullptr);
     virtual ~SliceWindow();

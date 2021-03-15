@@ -42,7 +42,8 @@ class FourierTransform
                      holovibes::ComputeDescriptor& cd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      const BatchEnv& batch_env,
-                     TimeTransformationEnv& time_transformation_env);
+                     TimeTransformationEnv& time_transformation_env,
+                     const cudaStream_t& stream);
 
     /*! \brief enqueue functions relative to spatial fourier transforms.
 
@@ -112,6 +113,11 @@ class FourierTransform
     //! Filter 2D buffer. Contains one frame.
     cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_buffer_;
 
+    //! Size of the buffer needed by cusolver for internal use
+    int cusolver_work_buffer_size_;
+    //! Buffer needed by cusolver for internal use
+    cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
+
     /// Vector function in which we insert the processing
     FunctionVector& fn_compute_vect_;
     //! Main buffers
@@ -126,6 +132,8 @@ class FourierTransform
     const BatchEnv& batch_env_;
     //! Time transformation environment.
     TimeTransformationEnv& time_transformation_env_;
+    /// Compute stream to perform  pipe computation
+    const cudaStream_t& stream_;
 };
 } // namespace compute
 } // namespace holovibes
