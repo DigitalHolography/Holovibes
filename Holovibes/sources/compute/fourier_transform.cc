@@ -113,7 +113,6 @@ void FourierTransform::insert_fft1()
 {
     const float z = cd_.zdistance;
 
-
     fft1_lens(gpu_lens_.get(),
               lens_side_size_,
               fd_.height,
@@ -209,6 +208,18 @@ void FourierTransform::enqueue_lens()
 
 void FourierTransform::insert_eigenvalue_filter()
 {
+    cusolver_work_buffer_size_ = 0;
+    cusolverSafeCall(
+        cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
+                                    CUSOLVER_EIG_MODE_VECTOR,
+                                    CUBLAS_FILL_MODE_LOWER,
+                                    cd_.time_transformation_size,
+                                    nullptr,
+                                    cd_.time_transformation_size,
+                                    nullptr,
+                                    &cusolver_work_buffer_size_));
+    cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
+
     fn_compute_vect_.conditional_push_back([=]() {
         unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
         unsigned short p = cd_.pindex;
@@ -246,23 +257,8 @@ void FourierTransform::insert_eigenvalue_filter()
                                    cov,
                                    cd_.time_transformation_size));
 
-        // Setup eigen values parameters
-        float* W = time_transformation_env_.pca_eigen_values.get();
-        int lwork = 0;
-        cusolverSafeCall(
-            cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
-                                        CUSOLVER_EIG_MODE_VECTOR,
-                                        CUBLAS_FILL_MODE_LOWER,
-                                        cd_.time_transformation_size,
-                                        cov,
-                                        cd_.time_transformation_size,
-                                        W,
-                                        &lwork));
-
-        cuda_tools::UniquePtr<cuComplex> work(lwork);
-
         // Find eigen values and eigen vectors of cov
-        // W will contain sorted eigen values
+        // pca_eigen_values will contain sorted eigen values
         // cov will contain eigen vectors
         cusolverSafeCall(
             cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
@@ -271,9 +267,9 @@ void FourierTransform::insert_eigenvalue_filter()
                              cd_.time_transformation_size,
                              cov,
                              cd_.time_transformation_size,
-                             W,
-                             work.get(),
-                             lwork,
+                             time_transformation_env_.pca_eigen_values.get(),
+                             cusolver_work_buffer_.get(),
+                             cusolver_work_buffer_size_,
                              time_transformation_env_.pca_dev_info.get()));
 
         // eigen vectors

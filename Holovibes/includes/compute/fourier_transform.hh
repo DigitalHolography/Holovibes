@@ -113,6 +113,11 @@ class FourierTransform
     //! Filter 2D buffer. Contains one frame.
     cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_buffer_;
 
+    //! Size of the buffer needed by cusolver for internal use
+    int cusolver_work_buffer_size_;
+    //! Buffer needed by cusolver for internal use
+    cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
+
     /// Vector function in which we insert the processing
     FunctionVector& fn_compute_vect_;
     //! Main buffers

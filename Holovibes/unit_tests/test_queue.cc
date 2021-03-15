@@ -825,13 +825,8 @@ TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 
     // Copy all elements from q_src to q_dst
     // But the size of q_dst is lower than q_dst
-<<<<<<< HEAD
-    // This case is currently not handled so this test is disabled
-    q_src.copy_multiple(q_dst, q_src.get_size());
-=======
     // This case needs to be correctly handled
     q_src.copy_multiple(q_dst, q_src.get_size(), stream);
->>>>>>> feat-input-queue
 
     ASSERT_EQ(q_dst.get_size(), 3); // destination queue max size
     ASSERT_EQ(q_dst.get_start_index(), 0);
