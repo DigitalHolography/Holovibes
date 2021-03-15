@@ -5,11 +5,7 @@
 #define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-<<<<<<< HEAD
-#define MyAppVersion "9.0"
-=======
-#define MyAppVersion "2000"
->>>>>>> feat-input-queue
+#define MyAppVersion "9.0.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"

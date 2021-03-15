@@ -1,5 +1,10 @@
 ## Changelog
 
+### 9.0.2
+
+* Merge batch input queue
+* Pre allocate cusolver work buffer
+
 ### 9.0
 
 * Upgrade to 9.0 for final release
