@@ -449,9 +449,12 @@ void MainWindow::on_notify()
     ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2DTypeComboBox->setEnabled(!is_raw);
-    ui.Filter2DTypeComboBox->setCurrentIndex(
-        static_cast<int>(cd_.filter_2d_type.load()));
+    ui.Filter2D->setEnabled(!is_raw);
+    ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui.Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
+    ui.Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    // TODO set maximum to window width or height? / 2
 
     // Composite
     const int time_transformation_size_max = cd_.time_transformation_size - 1;
@@ -1153,8 +1156,8 @@ void MainWindow::close_critical_compute()
 
     cancel_time_transformation_cuts();
 
-    if (cd_.filter_2d_type != Filter2DType::None)
-        cancel_filter2D();
+    if (cd_.filter2d_enabled)
+        cancel_filter2d();
 
     holovibes_.stop_compute();
 }
@@ -1717,8 +1720,8 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
     {
         try
         {
-            if (cd_.filter_2d_type != Filter2DType::None)
-                cancel_filter2D();
+            if (cd_.filter2d_enabled)
+                cancel_filter2d();
             holovibes_.get_compute_pipe()->create_stft_slice_queue();
             // set positions of new windows according to the position of the
             // main GL window
@@ -1823,51 +1826,39 @@ void MainWindow::toggle_renormalize(bool value)
     pipe_refresh();
 }
 
-void MainWindow::set_filter2D()
+void MainWindow::set_filter2d(bool checked)
 {
-    if (!is_raw_mode())
-    {
-        mainDisplay->resetTransform();
-        mainDisplay->getOverlayManager().create_overlay<Filter2D>();
-        cd_.log_scale_slice_xy_enabled = true;
-        cd_.fft_shift_enabled = true;
-        if (auto pipe =
-                dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-        notify();
-    }
+    cd_.filter2d_enabled = checked;
+    notify();
+    // if (!is_raw_mode())
+    // {
+    //     mainDisplay->resetTransform();
+    //     mainDisplay->getOverlayManager().create_overlay<Filter2D>();
+    //     cd_.log_scale_slice_xy_enabled = true;
+    //     cd_.fft_shift_enabled = true;
+    //     if (auto pipe =
+    //             dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+    //         pipe->autocontrast_end_pipe(WindowKind::XYview);
+    //     notify();
+    // }
 }
 
-void MainWindow::set_filter2D_type(const QString& filter2Dtype)
+void MainWindow::update_filter2d_view(bool checked)
 {
-    const std::string& type_str = filter2Dtype.toStdString();
-
-    Filter2DType old_type = cd_.filter_2d_type;
-    Filter2DType type = Filter2DType::LowPass;
-    if (type_str == "Low pass")
-        type = Filter2DType::LowPass;
-    else if (type_str == "High pass")
-        type = Filter2DType::HighPass;
-    else if (type_str == "Band pass")
-        type = Filter2DType::BandPass;
-    else
-        type = Filter2DType::None;
-    cd_.filter_2d_type = type;
-
-    if (cd_.filter_2d_type == Filter2DType::None)
-    {
-        cancel_filter2D();
-        return;
-    }
-
-    if (old_type == Filter2DType::None)
-        set_filter2D();
-
-    pipe_refresh();
     notify();
 }
 
-void MainWindow::cancel_filter2D()
+void MainWindow::set_filter2d_n1(int n)
+{
+    notify();
+}
+
+void MainWindow::set_filter2d_n2(int n)
+{
+    notify();
+}
+
+void MainWindow::cancel_filter2d()
 {
     if (!is_raw_mode())
     {

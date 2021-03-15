@@ -31,8 +31,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/selections/interfaces/square_overlay.cc
     gui/selections/overlays/composite_area_overlay.cc
     gui/selections/overlays/cross_overlay.cc
-    gui/selections/overlays/filter2d_overlay.cc
-    gui/selections/overlays/filter2d_subzone_overlay.cc
     gui/selections/overlays/noise_overlay.cc
     gui/selections/overlays/rainbow_overlay.cc
     gui/selections/overlays/reticle_overlay.cc

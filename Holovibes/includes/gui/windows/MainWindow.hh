@@ -121,9 +121,11 @@ class MainWindow : public QMainWindow, public Observer
     void toggle_renormalize(bool value);
     bool is_raw_mode();
     void reset();
-    void set_filter2D();
-    void set_filter2D_type(const QString& filter2Dtype);
-    void cancel_filter2D();
+    void update_filter2d_view(bool);
+    void set_filter2d(bool);
+    void set_filter2d_n1(int);
+    void set_filter2d_n2(int);
+    void cancel_filter2d();
     void set_time_transformation_size();
     void update_lens_view(bool value);
     void disable_lens_view();

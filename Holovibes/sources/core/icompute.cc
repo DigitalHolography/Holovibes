@@ -359,23 +359,6 @@ void ICompute::request_autocontrast(WindowKind kind)
         autocontrast_slice_yz_requested_ = true;
 }
 
-void ICompute::request_filter2D_roi_update()
-{
-    stft_update_roi_requested_ = true;
-    request_update_time_transformation_size();
-}
-
-void ICompute::request_filter2D_roi_end()
-{
-    stft_update_roi_requested_ = false;
-    request_update_time_transformation_size();
-    cd_.log_scale_slice_xy_enabled = false;
-    notify_observers();
-
-    if (auto pipe = dynamic_cast<Pipe*>(this))
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-}
-
 void ICompute::request_update_time_transformation_size()
 {
     update_time_transformation_size_requested_ = true;

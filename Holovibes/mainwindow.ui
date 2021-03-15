@@ -290,36 +290,60 @@
             <number>6</number>
            </property>
            <item row="1" column="1">
-            <widget class="QComboBox" name="Filter2DTypeComboBox">
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Low pass</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>High pass</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Band pass</string>
-              </property>
-             </item>
+            <widget class="QCheckBox" name="Filter2DView">
+             <property name="text">
+              <string>View</string>
+             </property>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="Filter2DTypeLabel">
+            <widget class="QCheckBox" name="Filter2D">
              <property name="text">
               <string>Filter2D</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QSpinBox" name="Filter2DN1SpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="Filter2DN2SpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -2957,7 +2981,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -4216,22 +4240,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RawDisplayingCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_raw_view(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>142</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>809</x>
-     <y>254</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SpinBox_hue_freq_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -4548,22 +4556,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Filter2DTypeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_filter2D_type(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -5031,6 +5023,70 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Filter2DN1SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2d_n1(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DN2SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2d_n2(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2D</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_filter2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Filter2DView</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_filter2d_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5093,7 +5149,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_stft(bool)</slot>
   <slot>reload_ini()</slot>
   <slot>set_feature()</slot>
-  <slot>set_filter2D_type(Qstring)</slot>
   <slot>write_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>
@@ -5142,5 +5197,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_record_mode(QString)</slot>
   <slot>set_record_file_extension(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
+  <slot>update_filter2d_view(bool)</slot>
+  <slot>set_filter2d_n1(int)</slot>
+  <slot>set_filter2d_n2(int)</slot>
+  <slot>set_filter2d(bool)</slot>
  </slots>
 </ui>

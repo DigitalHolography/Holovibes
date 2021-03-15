@@ -22,7 +22,6 @@
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
 #include "enum_img_type.hh"
-#include "enum_filter_2d.hh"
 #include "enum_access_mode.hh"
 #include "enum_window_kind.hh"
 #include "enum_composite_kind.hh"
@@ -249,8 +248,8 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> contrast_enabled{false};
     //! enables auto refresh of the contrast
     std::atomic<bool> contrast_auto_refresh{true};
-    //! type of filter 2D
-    std::atomic<Filter2DType> filter_2d_type{Filter2DType::None};
+    //! enables filter 2D
+    std::atomic<bool> filter2d_enabled{false};
 
     //! are slices YZ and XZ enabled
     std::atomic<bool> time_transformation_cuts_enabled{false};

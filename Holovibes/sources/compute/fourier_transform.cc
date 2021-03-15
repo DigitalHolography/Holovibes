@@ -58,12 +58,12 @@ FourierTransform::FourierTransform(
 void FourierTransform::insert_fft()
 {
     filter2d_zone_ = cd_.getStftZone();
-    if (cd_.filter_2d_type != Filter2DType::None)
+    if (cd_.filter2d_enabled)
         insert_filter2d();
 
     // In filter 2D: Applying fresnel transform only when filter2d overlay is
     // release
-    if (cd_.filter_2d_type == Filter2DType::None || filter2d_zone_.area())
+    if (cd_.filter2d_enabled == false || filter2d_zone_.area())
     {
         if (cd_.space_transformation == SpaceTransformation::FFT1)
             insert_fft1();
@@ -77,7 +77,7 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
-    if (cd_.filter_2d_type == Filter2DType::BandPass)
+    if (cd_.filter2d_enabled == true) //if (cd_.filter_2d_type == Filter2DType::BandPass)
     {
         filter2d_subzone_ = cd_.getFilter2DSubZone();
         fn_compute_vect_.push_back([=]() {
@@ -92,7 +92,7 @@ void FourierTransform::insert_filter2d()
     }
     else // Low pass or High pass
     {
-        bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
+        bool exclude_roi = cd_.filter2d_enabled;//cd_.filter_2d_type == Filter2DType::HighPass;
         fn_compute_vect_.push_back([=]() {
             filter2D(buffers_.gpu_spatial_transformation_buffer,
                      gpu_filter2d_buffer_,
