@@ -67,7 +67,7 @@ if __name__ == "__main__":
         # Build command
         cmd = ["cmake", "--build", config.build_dir, "--config", config.conf] + config.remain + ["--", "/verbosity:normal"]
         log("CMD", cmd)
-        subprocess.call(cmd)
+        exit(subprocess.call(cmd))
     else: # If the build system generator is Ninja or NMake
         # Create environment
         cmd = ["cmd.exe", "/c", "call", "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\" + config.vs_version + "\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&"]
@@ -76,4 +76,5 @@ if __name__ == "__main__":
         # Build command
         cmd += ["cmake", "--build", config.build_dir] + config.remain
         log("CMD", cmd)
-        subprocess.call(cmd)
+        exit(subprocess.call(cmd))
+    exit(0)
