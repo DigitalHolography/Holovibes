@@ -134,3 +134,35 @@ void batched_crop_into_square(const char* input,
                               const uint elm_size,
                               const uint batch_size,
                               const cudaStream_t stream);
+
+/*! \brief Subsamples the input image into a smaller output image
+ * output_width == input_width / sample_step
+ * output_height == input_height / sample_step
+ * input_width % sample_step == 0
+ * input_height % sample_step == 0
+ *
+ * input_width == input_height == 8 && sample_step == 2:
+ * #...#...
+ * ..#...#.
+ * .#...#..
+ * ...#...#
+ * #...#...
+ * ..#...#.
+ * .#...#..
+ * ...#...#
+ *
+ * \param input The input image
+ * \param input_width The input image's width
+ * \param input_height The input image's height
+ * \param output The output image
+ * \param sample_step The number of pixels to skip while subsampling
+ * \param elm_size The size of one element (pixel) in bytes
+ * \param stream The cuda Stream
+ */
+void subsample_frame(const char* input,
+                     const uint input_width,
+                     const uint input_height,
+                     char* output,
+                     const uint sample_step,
+                     const uint elm_size,
+                     const cudaStream_t stream);

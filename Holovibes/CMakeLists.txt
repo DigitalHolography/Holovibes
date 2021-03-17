@@ -142,6 +142,7 @@ set(SRC_TESTS
     unit_tests/test_reduce.cc
     unit_tests/test_map.cc
     unit_tests/test_batch_input_queue.cc
+    unit_tests/test_subsample_frame.cc
     # Add your test files here
 )
 
