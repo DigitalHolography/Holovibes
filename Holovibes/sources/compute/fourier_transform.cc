@@ -231,31 +231,32 @@ void FourierTransform::insert_eigenvalue_filter()
         constexpr cuComplex alpha{1, 0};
         constexpr cuComplex beta{0, 0};
 
-        cudaXMemcpyAsync(
-            time_transformation_env_.gpu_p_acc_buffer.get(),
-            time_transformation_env_.gpu_time_transformation_queue->get_data(),
-            fd_.frame_res() * cd_.time_transformation_size * sizeof(cuComplex),
-            cudaMemcpyDeviceToDevice,
-            stream_);
+        // cudaXMemcpyAsync(
+        //     time_transformation_env_.gpu_p_acc_buffer.get(),
+        //     time_transformation_env_.gpu_time_transformation_queue->get_data(),
+        //     fd_.frame_res() * cd_.time_transformation_size *
+        //     sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream_);
 
-        cuComplex* H = time_transformation_env_.gpu_p_acc_buffer.get();
+        cuComplex* H = static_cast<cuComplex*>(
+            time_transformation_env_.gpu_time_transformation_queue->get_data());
+        // cuComplex* H = time_transformation_env_.gpu_p_acc_buffer.get();
         cuComplex* cov = time_transformation_env_.pca_cov.get();
 
         // cov = H' * H
-        cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
-                                   CUBLAS_OP_C,
-                                   CUBLAS_OP_N,
-                                   cd_.time_transformation_size,
-                                   cd_.time_transformation_size,
-                                   fd_.frame_res(),
-                                   &alpha,
-                                   H,
-                                   fd_.frame_res(),
-                                   H,
-                                   fd_.frame_res(),
-                                   &beta,
-                                   cov,
-                                   cd_.time_transformation_size));
+        cublasSafeCall(cublasCgemm3m(cuda_tools::CublasHandle::instance(),
+                                     CUBLAS_OP_C,
+                                     CUBLAS_OP_N,
+                                     cd_.time_transformation_size,
+                                     cd_.time_transformation_size,
+                                     fd_.frame_res(),
+                                     &alpha,
+                                     H,
+                                     fd_.frame_res(),
+                                     H,
+                                     fd_.frame_res(),
+                                     &beta,
+                                     cov,
+                                     cd_.time_transformation_size));
 
         // Find eigen values and eigen vectors of cov
         // pca_eigen_values will contain sorted eigen values
@@ -276,20 +277,21 @@ void FourierTransform::insert_eigenvalue_filter()
         cuComplex* V = cov;
 
         // H = H * V
-        cublasSafeCall(cublasCgemm(cuda_tools::CublasHandle::instance(),
-                                   CUBLAS_OP_N,
-                                   CUBLAS_OP_N,
-                                   fd_.frame_res(),
-                                   cd_.time_transformation_size,
-                                   cd_.time_transformation_size,
-                                   &alpha,
-                                   H,
-                                   fd_.frame_res(),
-                                   V,
-                                   cd_.time_transformation_size,
-                                   &beta,
-                                   H,
-                                   fd_.frame_res()));
+        cublasSafeCall(
+            cublasCgemm3m(cuda_tools::CublasHandle::instance(),
+                          CUBLAS_OP_N,
+                          CUBLAS_OP_N,
+                          fd_.frame_res(),
+                          cd_.time_transformation_size,
+                          cd_.time_transformation_size,
+                          &alpha,
+                          H,
+                          fd_.frame_res(),
+                          V,
+                          cd_.time_transformation_size,
+                          &beta,
+                          time_transformation_env_.gpu_p_acc_buffer.get(),
+                          fd_.frame_res()));
     });
 }
 
