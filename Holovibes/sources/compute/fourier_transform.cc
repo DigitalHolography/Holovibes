@@ -21,6 +21,7 @@
 #include "fft2.cuh"
 #include "transforms.cuh"
 #include "stft.cuh"
+#include "frame_reshape.cuh"
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
 #include "queue.hh"
@@ -208,6 +209,7 @@ void FourierTransform::enqueue_lens()
 
 void FourierTransform::insert_eigenvalue_filter()
 {
+    constexpr uint sample_step = 16;
     cusolver_work_buffer_size_ = 0;
     cusolverSafeCall(
         cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
@@ -220,6 +222,9 @@ void FourierTransform::insert_eigenvalue_filter()
                                     &cusolver_work_buffer_size_));
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
+    subsample_pca_buffer_.resize(cd_.time_transformation_size *
+                                 fd_.frame_res() / (sample_step * sample_step));
+
     fn_compute_vect_.conditional_push_back([=]() {
         unsigned short p_acc = cd_.p_accu_enabled ? cd_.p_acc_level + 1 : 1;
         unsigned short p = cd_.pindex;
@@ -231,15 +236,22 @@ void FourierTransform::insert_eigenvalue_filter()
         constexpr cuComplex alpha{1, 0};
         constexpr cuComplex beta{0, 0};
 
-        // cudaXMemcpyAsync(
-        //     time_transformation_env_.gpu_p_acc_buffer.get(),
-        //     time_transformation_env_.gpu_time_transformation_queue->get_data(),
-        //     fd_.frame_res() * cd_.time_transformation_size *
-        //     sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream_);
-
-        cuComplex* H = static_cast<cuComplex*>(
+        cuComplex* image_data = static_cast<cuComplex*>(
             time_transformation_env_.gpu_time_transformation_queue->get_data());
-        // cuComplex* H = time_transformation_env_.gpu_p_acc_buffer.get();
+
+        cuComplex* subsample_data = subsample_pca_buffer_.get();
+        subsample_frame_complex_batched(image_data,
+                                        fd_.width,
+                                        fd_.height,
+                                        subsample_data,
+                                        sample_step,
+                                        cd_.time_transformation_size,
+                                        stream_);
+
+        // cuComplex* H = image_data;
+        // uint frame_res = fd_.frame_res();
+        cuComplex* H = subsample_data;
+        uint frame_res = fd_.frame_res() / (sample_step * sample_step);
         cuComplex* cov = time_transformation_env_.pca_cov.get();
 
         // cov = H' * H
@@ -248,12 +260,12 @@ void FourierTransform::insert_eigenvalue_filter()
                                      CUBLAS_OP_N,
                                      cd_.time_transformation_size,
                                      cd_.time_transformation_size,
-                                     fd_.frame_res(),
+                                     frame_res,
                                      &alpha,
                                      H,
-                                     fd_.frame_res(),
+                                     frame_res,
                                      H,
-                                     fd_.frame_res(),
+                                     frame_res,
                                      &beta,
                                      cov,
                                      cd_.time_transformation_size));
@@ -285,7 +297,7 @@ void FourierTransform::insert_eigenvalue_filter()
                           cd_.time_transformation_size,
                           cd_.time_transformation_size,
                           &alpha,
-                          H,
+                          image_data,
                           fd_.frame_res(),
                           V,
                           cd_.time_transformation_size,

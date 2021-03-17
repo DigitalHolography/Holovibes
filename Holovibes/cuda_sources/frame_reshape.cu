@@ -325,7 +325,7 @@ static __global__ void kernel_subsample_frame(const char* input,
 
     for (uint i = 0; i < elm_size; ++i)
     {
-        output[index + i] = input[input_index + i];
+        output[index * elm_size + i] = input[input_index * elm_size + i];
     }
 }
 
@@ -355,4 +355,65 @@ void subsample_frame(const char* input,
                                                            output_height,
                                                            sample_step,
                                                            elm_size);
+}
+
+static __global__ void
+kernel_subsample_frame_complex_batched(const cuComplex* input,
+                                       const uint input_width,
+                                       const uint input_height,
+                                       cuComplex* output,
+                                       const uint output_width,
+                                       const uint output_height,
+                                       const uint sample_step,
+                                       const uint batch_size)
+{
+    uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index >= output_width * output_height)
+        return;
+
+    index *= batch_size;
+    const uint half_sample_step = sample_step / 2;
+
+    for (uint i = 0; i < batch_size; ++i)
+    {
+        uint input_index = (index + i) * sample_step * sample_step;
+        if ((input_index / input_width) % 2 != 0)
+        {
+            input_index += half_sample_step;
+        }
+        output[index + i] = input[input_index];
+    }
+}
+
+void subsample_frame_complex_batched(const cuComplex* input,
+                                     const uint input_width,
+                                     const uint input_height,
+                                     cuComplex* output,
+                                     const uint sample_step,
+                                     const uint batch_size,
+                                     const cudaStream_t stream)
+{
+    assert(input_width % sample_step == 0);
+    assert(input_height % sample_step == 0);
+
+    assert(input_width % sample_step == 0);
+    assert(input_height % sample_step == 0);
+
+    uint output_width = input_width / sample_step;
+    uint output_height = input_height / sample_step;
+    uint output_size = output_width * output_height;
+
+    size_t threads = get_max_threads_1d();
+    size_t blocks = map_blocks_to_problem(output_size, threads);
+
+    kernel_subsample_frame_complex_batched<<<blocks, threads, 0, stream>>>(
+        input,
+        input_width,
+        input_height,
+        output,
+        output_width,
+        output_height,
+        sample_step,
+        batch_size);
 }

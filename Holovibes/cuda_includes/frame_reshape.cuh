@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cuComplex.h"
+
 using uint = unsigned int;
 
 /*! \brief Copies whole input image into output at position (output_srcx,
@@ -166,3 +168,11 @@ void subsample_frame(const char* input,
                      const uint sample_step,
                      const uint elm_size,
                      const cudaStream_t stream);
+
+void subsample_frame_complex_batched(const cuComplex* input,
+                                     const uint input_width,
+                                     const uint input_height,
+                                     cuComplex* output,
+                                     const uint sample_step,
+                                     const uint batch_size,
+                                     const cudaStream_t stream);
