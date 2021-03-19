@@ -65,7 +65,7 @@ class ComputeDescriptor : public Observable
     units::RectFd noise_zone;
     /*! \brief	Limits the computation to only this zone. Also called Filter
      * 2D*/
-    units::RectFd stft_roi_zone;
+    units::RectFd filter2D_zone;
     /*! \brief	The subzone of the filter2D area in band-pass mode */
     units::RectFd filter2D_sub_zone;
     /*! \brief	The area on which we'll normalize the colors*/
@@ -108,7 +108,7 @@ class ComputeDescriptor : public Observable
      *
      */
 
-    units::RectFd getStftZone() const;
+    units::RectFd getFilter2DZone() const;
     units::RectFd getFilter2DSubZone() const;
     units::RectFd getCompositeZone() const;
     units::RectFd getZoomedZone() const;
@@ -122,7 +122,7 @@ class ComputeDescriptor : public Observable
      * \brief	Setter of the overlay positions.
      *
      */
-    void setStftZone(const units::RectFd& rect);
+    void setFilter2DZone(const units::RectFd& rect);
     void setFilter2DSubZone(const units::RectFd& rect);
     void setCompositeZone(const units::RectFd& rect);
     void setZoomedZone(const units::RectFd& rect);
@@ -250,6 +250,8 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> contrast_auto_refresh{true};
     //! enables filter 2D
     std::atomic<bool> filter2d_enabled{false};
+    //! enables filter 2D View
+    std::atomic<bool> filter2d_view_enabled{false};
 
     //! are slices YZ and XZ enabled
     std::atomic<bool> time_transformation_cuts_enabled{false};

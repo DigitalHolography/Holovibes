@@ -449,12 +449,13 @@ void MainWindow::on_notify()
     ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2D->setEnabled(!is_raw);
+    ui.Filter2D->setEnabled(!is_raw && cd_.space_transformation != SpaceTransformation::None);
+    ui.Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
     ui.Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
     ui.Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
-    // TODO set maximum to window width or height? / 2
 
     // Composite
     const int time_transformation_size_max = cd_.time_transformation_size - 1;
@@ -1153,8 +1154,7 @@ void MainWindow::close_critical_compute()
 
     cancel_time_transformation_cuts();
 
-    if (cd_.filter2d_enabled)
-        cancel_filter2d();
+    set_filter2d(false);
 
     holovibes_.stop_compute();
 }
@@ -1717,8 +1717,6 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
     {
         try
         {
-            if (cd_.filter2d_enabled)
-                cancel_filter2d();
             holovibes_.get_compute_pipe()->create_stft_slice_queue();
             // set positions of new windows according to the position of the
             // main GL window
@@ -1825,50 +1823,99 @@ void MainWindow::toggle_renormalize(bool value)
 
 void MainWindow::set_filter2d(bool checked)
 {
-    cd_.filter2d_enabled = checked;
-    notify();
-    // if (!is_raw_mode())
-    // {
-    //     mainDisplay->resetTransform();
-    //     mainDisplay->getOverlayManager().create_overlay<Filter2D>();
-    //     cd_.log_scale_slice_xy_enabled = true;
-    //     cd_.fft_shift_enabled = true;
-    //     if (auto pipe =
-    //             dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    //         pipe->autocontrast_end_pipe(WindowKind::XYview);
-    //     notify();
-    // }
+    if (!is_raw_mode())
+    {
+        cd_.log_scale_slice_xy_enabled = true;
+
+        if (checked == false)
+        {
+            cancel_filter2d();
+            cd_.filter2d_enabled = checked;
+        }
+        else
+        {
+            const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+            ui.Filter2DN2SpinBox->setMaximum(fmin(fd.get_width(), fd.get_height()) / 2);
+            set_filter2d_n2(ui.Filter2DN2SpinBox->value());
+            set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+            if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+                pipe->autocontrast_end_pipe(WindowKind::XYview);
+            cd_.filter2d_enabled = checked;
+        }
+        pipe_refresh();
+        notify();
+    }
 }
 
 void MainWindow::update_filter2d_view(bool checked)
 {
-    notify();
+    if (!is_raw_mode())
+    {
+        cd_.filter2d_view_enabled = checked;
+        pipe_refresh();
+        notify();
+    }
 }
 
 void MainWindow::set_filter2d_n1(int n)
 {
-    notify();
+    if (!is_raw_mode())
+    {
+        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+        int middle = static_cast<int>(fmin(fd.get_width(), fd.get_height()) / 2);
+
+        units::RectFd zone;
+        units::Point<units::FDPixel> dst;
+        units::Point<units::FDPixel> src;
+
+        dst.x().set(middle + n);
+        dst.y().set(middle + n);
+        zone.setBottomRight(dst);
+
+        src.x().set(middle - n);
+        src.y().set(middle - n);
+        zone.setTopLeft(src);
+
+        cd_.setFilter2DSubZone(zone);
+
+        pipe_refresh();
+        notify();
+    }
 }
 
 void MainWindow::set_filter2d_n2(int n)
 {
-    notify();
+    if (!is_raw_mode())
+    {
+        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+        int middle = static_cast<int>(fmin(fd.get_width(), fd.get_height()) / 2);
+
+        units::RectFd zone;
+        units::Point<units::FDPixel> dst;
+        units::Point<units::FDPixel> src;
+
+        dst.x().set(middle + n - 1);
+        dst.y().set(middle + n - 1);
+        zone.setBottomRight(dst);
+
+        src.x().set(middle - n);
+        src.y().set(middle - n);
+        zone.setTopLeft(src);
+
+        cd_.setFilter2DZone(zone);
+
+        pipe_refresh();
+        notify();
+    }
 }
 
 void MainWindow::cancel_filter2d()
 {
     if (!is_raw_mode())
     {
+        if (cd_.filter2d_view_enabled == true)
+            update_filter2d_view(false);
         cd_.log_scale_slice_xy_enabled = false;
-        auto zone = units::RectFd({0, 0}, {0, 0});
-        cd_.setStftZone(zone);
-        cd_.setFilter2DSubZone(zone);
-        if (mainDisplay)
-        {
-            mainDisplay->getOverlayManager().disable_all(Filter2D);
-            mainDisplay->getOverlayManager().create_default();
-            mainDisplay->resetTransform();
-        }
         set_auto_contrast();
         pipe_refresh();
         notify();

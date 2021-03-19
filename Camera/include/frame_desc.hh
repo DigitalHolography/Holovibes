@@ -25,6 +25,10 @@ struct FrameDescriptor
     unsigned int frame_size() const { return width * height * depth; }
     //! \brief Return the frame resolution (number of pixels).
     unsigned int frame_res() const { return width * height; }
+    //! \brief Return the frame width.
+    unsigned int get_width() const { return width; }
+    //! \brief Return the frame height.
+    unsigned int get_height() const { return height; }
 
     unsigned short width;  //!< Width of the frame in pixels.
     unsigned short height; //!< Height of the frame in pixels.

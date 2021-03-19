@@ -69,7 +69,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     stft_slice_cursor = cd.stft_slice_cursor;
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
-    stft_roi_zone = cd.stft_roi_zone;
+    filter2D_zone = cd.filter2D_zone;
     filter2D_sub_zone = cd.filter2D_sub_zone;
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
@@ -115,16 +115,16 @@ void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
     }
 }
 
-units::RectFd ComputeDescriptor::getStftZone() const
+units::RectFd ComputeDescriptor::getFilter2DZone() const
 {
     LockGuard g(mutex_);
-    return stft_roi_zone;
+    return filter2D_zone;
 }
 
-void ComputeDescriptor::setStftZone(const units::RectFd& rect)
+void ComputeDescriptor::setFilter2DZone(const units::RectFd& rect)
 {
     LockGuard g(mutex_);
-    stft_roi_zone = rect;
+    filter2D_zone = rect;
 }
 
 units::RectFd ComputeDescriptor::getFilter2DSubZone() const
