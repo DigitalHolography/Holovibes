@@ -239,19 +239,19 @@ void FourierTransform::insert_eigenvalue_filter()
         cuComplex* image_data = static_cast<cuComplex*>(
             time_transformation_env_.gpu_time_transformation_queue->get_data());
 
-        cuComplex* subsample_data = subsample_pca_buffer_.get();
-        subsample_frame_complex_batched(image_data,
-                                        fd_.width,
-                                        fd_.height,
-                                        subsample_data,
-                                        sample_step,
-                                        cd_.time_transformation_size,
-                                        stream_);
+        // cuComplex* subsample_data = subsample_pca_buffer_.get();
+        // subsample_frame_complex_batched(image_data,
+        //                                 fd_.width,
+        //                                 fd_.height,
+        //                                 subsample_data,
+        //                                 sample_step,
+        //                                 cd_.time_transformation_size,
+        //                                 stream_);
 
-        // cuComplex* H = image_data;
-        // uint frame_res = fd_.frame_res();
-        cuComplex* H = subsample_data;
-        uint frame_res = fd_.frame_res() / (sample_step * sample_step);
+        cuComplex* H = image_data;
+        uint frame_res = fd_.frame_res();
+        // cuComplex* H = subsample_data;
+        // uint frame_res = fd_.frame_res() / (sample_step * sample_step);
         cuComplex* cov = time_transformation_env_.pca_cov.get();
 
         // cov = H' * H
