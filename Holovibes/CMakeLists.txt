@@ -1,5 +1,8 @@
 project(Holovibes CXX CUDA)
 
+# compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Packages
 find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
