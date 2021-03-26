@@ -889,7 +889,7 @@
                     <double>100.000000000000000</double>
                    </property>
                    <property name="singleStep">
-                    <double>0.100000000000000</double>
+                    <double>0.020000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -911,7 +911,7 @@
                     <double>100.000000000000000</double>
                    </property>
                    <property name="singleStep">
-                    <double>0.100000000000000</double>
+                    <double>0.020000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -3018,7 +3018,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
