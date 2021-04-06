@@ -9,6 +9,7 @@
 #include "file_frame_read_worker.hh"
 #include "queue.hh"
 #include "cuda_memory.cuh"
+#include "unpack_12_to_16bit.cuh"
 #include "input_frame_file_factory.hh"
 #include "config.hh"
 #include "holovibes.hh"
@@ -35,6 +36,7 @@ FileFrameReadWorker::FileFrameReadWorker(
     , frame_size_(0)
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
+    , gpu_12bit_buffer_(nullptr)
 {
 }
 
@@ -94,6 +96,7 @@ void FileFrameReadWorker::run()
     info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
     info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
 
+    cudaXFree(gpu_12bit_buffer_);
     cudaXFree(gpu_frame_buffer_);
     cudaXFreeHost(cpu_frame_buffer_);
 }
@@ -137,6 +140,23 @@ bool FileFrameReadWorker::init_frame_buffers()
         LOG_ERROR(error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
+        return false;
+    }
+
+    error_code = cudaMalloc(&gpu_12bit_buffer_, 393216);
+
+    if (error_code != cudaSuccess)
+    {
+        std::string error_message = "[READER] Not enough GPU DRAM to read file";
+
+        if (load_file_in_gpu_)
+            error_message +=
+                " (consider disabling \"Load file in GPU\" option)";
+
+        LOG_ERROR(error_message);
+
+        cudaXFreeHost(cpu_frame_buffer_);
+        cudaXFreeHost(gpu_frame_buffer_);
         return false;
     }
 
@@ -203,18 +223,42 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
     try
     {
+        bool flag_12bit = false;
         frames_read =
-            input_file_->read_frames(cpu_frame_buffer_, frames_to_read);
+            input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_12bit);
         size_t frames_total_size = frames_read * frame_size_;
 
-        // Memcopy in the gpu buffer
-        cudaXMemcpyAsync(gpu_frame_buffer_,
-                         cpu_frame_buffer_,
-                         frames_total_size,
-                         cudaMemcpyHostToDevice,
-                         stream_);
+        if (flag_12bit == true)
+        {
+            for (size_t i = 0; i < frames_read; ++i)
+            {
+                // Memcopy in the gpu buffer
+                cudaXMemcpyAsync(gpu_12bit_buffer_,
+                                cpu_frame_buffer_ + i * 393216,
+                                393216 /* hardcoded frame_size 12bit 512x512 */,
+                                cudaMemcpyHostToDevice,
+                                stream_);
+
+                // Convert 12bit data to 16bit
+                unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                frame_size_ / 2,
+                                (unsigned char *)gpu_12bit_buffer_,
+                                393216,
+                                stream_);
+            }
+        }
+        else
+        {
+            // Memcopy in the gpu buffer
+            cudaXMemcpyAsync(gpu_frame_buffer_,
+                            cpu_frame_buffer_,
+                            frames_total_size,
+                            cudaMemcpyHostToDevice,
+                            stream_);
+        }
 
         cudaStreamSynchronize(stream_);
+
     }
     catch (const io_files::FileException& e)
     {

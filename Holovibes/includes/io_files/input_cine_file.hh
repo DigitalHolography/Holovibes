@@ -50,7 +50,7 @@ class InputCineFile : public InputFrameFile, public CineFile
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    size_t read_frames(char* buffer, size_t frames_to_read) override;
+    size_t read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit) override;
 
   private:
     // Give access to private members to the factory

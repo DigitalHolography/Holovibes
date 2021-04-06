@@ -11,7 +11,7 @@
 
 namespace holovibes::io_files
 {
-size_t InputFrameFile::read_frames(char* buffer, size_t frames_to_read)
+size_t InputFrameFile::read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit)
 {
     size_t frames_read = std::fread(buffer, frame_size_, frames_to_read, file_);
 

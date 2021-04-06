@@ -48,7 +48,7 @@ class InputFrameFile : public FrameFile
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    virtual size_t read_frames(char* buffer, size_t frames_to_read);
+    virtual size_t read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit);
 
   protected:
     // Give access to protected members to the handler
@@ -68,6 +68,8 @@ class InputFrameFile : public FrameFile
     //! The size in bytes of a frame
     //! Stored here to avoid computation at each call to read_frames
     size_t frame_size_;
+
+    int    bit_depth_;
 };
 } // namespace io_files
 } // namespace holovibes
