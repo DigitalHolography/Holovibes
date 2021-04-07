@@ -42,13 +42,17 @@ class InputFrameFile : public FrameFile
      *  \brief    Read frames in the file
      *
      *  \param    buffer            The allocated buffer in which the frames
-     * should be stored \param    frames_to_read    The number of frames to read
+     * should be stored
+     *
+     *  \param    frames_to_read    The number of frames to read
+     *
+     *  \param    flag_12bit        'true' if data is 12bit packed. 'false' otherwise
      *
      *  \return   The actual number of frames read
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    virtual size_t read_frames(char* buffer, size_t frames_to_read);
+    virtual size_t read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit);
 
   protected:
     // Give access to protected members to the handler
