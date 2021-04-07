@@ -1,5 +1,9 @@
 ## Changelog
 
+### 9.0.3
+
+* PCA: fix horizontal bars bug when #img > 32
+
 ### 9.0.2
 
 * Merge batch input queue
