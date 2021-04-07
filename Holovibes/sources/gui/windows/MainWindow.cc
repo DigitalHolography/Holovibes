@@ -407,8 +407,6 @@ void MainWindow::on_notify()
 
     const uint input_queue_capacity =
         global::global_config.input_queue_max_size;
-    if (cd_.time_transformation_stride > input_queue_capacity)
-        cd_.time_transformation_stride = input_queue_capacity;
 
     ui.TimeTransformationStrideSpinBox->setValue(
         cd_.time_transformation_stride);
