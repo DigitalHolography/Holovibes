@@ -6,6 +6,7 @@
 /*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
 /* ________________________________________________________ */
 
+#include "common.cuh"
 #include "unpack_12_to_16bit.cuh"
 
 __global__ void kernel_unpack_12_to_16bit(short* output,

@@ -93,7 +93,7 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, bool *fla
                                 std::to_string(frames_to_read) + " frames");
 
         frames_read +=
-            std::fread(buffer + i * bitmap_info_header_.bi_size_image, bitmap_info_header_.bi_size_image, 1, file_);
+            std::fread(buffer + i * frame_size_, frame_size_, 1, file_);
 
         if (ferror(file_))
             throw FileException("Unable to read " +

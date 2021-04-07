@@ -44,7 +44,10 @@ class InputCineFile : public InputFrameFile, public CineFile
      *  \brief    Read frames in the file
      *
      *  \param    buffer            The allocated buffer in which the frames
-     * should be stored \param    frames_to_read    The number of frames to read
+     *                              should be stored
+     *  \param    frames_to_read    The number of frames to read
+     *
+     *  \param    flag_12bit        'true' if data is 12bit packed. 'false' otherwise
      *
      *  \return   The actual number of frames read
      *

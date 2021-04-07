@@ -42,7 +42,11 @@ class InputFrameFile : public FrameFile
      *  \brief    Read frames in the file
      *
      *  \param    buffer            The allocated buffer in which the frames
-     * should be stored \param    frames_to_read    The number of frames to read
+     * should be stored
+     *
+     *  \param    frames_to_read    The number of frames to read
+     *
+     *  \param    flag_12bit        'true' if data is 12bit packed. 'false' otherwise
      *
      *  \return   The actual number of frames read
      *
@@ -68,8 +72,6 @@ class InputFrameFile : public FrameFile
     //! The size in bytes of a frame
     //! Stored here to avoid computation at each call to read_frames
     size_t frame_size_;
-
-    int    bit_depth_;
 };
 } // namespace io_files
 } // namespace holovibes
