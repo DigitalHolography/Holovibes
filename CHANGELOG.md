@@ -1,5 +1,9 @@
 ## Changelog
 
+### 9.0.4
+
+* Cine file now read 12bit packed images
+
 ### 9.0.3
 
 * PCA: fix horizontal bars bug when #img > 32
