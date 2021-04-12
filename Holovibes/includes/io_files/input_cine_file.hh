@@ -47,13 +47,13 @@ class InputCineFile : public InputFrameFile, public CineFile
      *                              should be stored
      *  \param    frames_to_read    The number of frames to read
      *
-     *  \param    flag_12bit        'true' if data is 12bit packed. 'false' otherwise
+     *  \param    flag_packed       Return number of bit packed.
      *
      *  \return   The actual number of frames read
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    size_t read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit) override;
+    size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
 
   private:
     // Give access to private members to the factory

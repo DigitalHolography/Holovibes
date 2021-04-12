@@ -46,13 +46,13 @@ class InputFrameFile : public FrameFile
      *
      *  \param    frames_to_read    The number of frames to read
      *
-     *  \param    flag_12bit        'true' if data is 12bit packed. 'false' otherwise
+     *  \param    flag_packed       Return number of bit packed.
      *
      *  \return   The actual number of frames read
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    virtual size_t read_frames(char* buffer, size_t frames_to_read, bool* flag_12bit);
+    virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
   protected:
     // Give access to protected members to the handler
@@ -72,6 +72,9 @@ class InputFrameFile : public FrameFile
     //! The size in bytes of a frame
     //! Stored here to avoid computation at each call to read_frames
     size_t frame_size_;
+
+    //! The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...)
+    size_t packed_frame_size_;
 };
 } // namespace io_files
 } // namespace holovibes

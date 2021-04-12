@@ -36,7 +36,7 @@ FileFrameReadWorker::FileFrameReadWorker(
     , frame_size_(0)
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
-    , gpu_12bit_buffer_(nullptr)
+    , gpu_packed_buffer_(nullptr)
 {
 }
 
@@ -96,7 +96,7 @@ void FileFrameReadWorker::run()
     info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
     info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
 
-    cudaXFree(gpu_12bit_buffer_);
+    cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
     cudaXFreeHost(cpu_frame_buffer_);
 }
@@ -143,9 +143,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         return false;
     }
 
-    const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    size_t  frame_size_12bit = ceil(fd.width * fd.height * 12 / (float)8);
-    error_code = cudaMalloc(&gpu_12bit_buffer_, frame_size_12bit);
+    error_code = cudaMalloc(&gpu_packed_buffer_, frame_size_);
 
     if (error_code != cudaSuccess)
     {
@@ -222,33 +220,40 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 {
     // Read
     size_t frames_read = 0;
-    bool   flag_12bit;
-    const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    size_t  frame_size_12bit = ceil(fd.width * fd.height * 12 / (float)8);
+    int    flag_packed;
 
     try
     {
         frames_read =
-            input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_12bit);
+            input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
-        if (flag_12bit == true)
+        if (flag_packed != 8 && flag_packed != 16)
         {
+            const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+            size_t  packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
                 // Memcopy in the gpu buffer
-                cudaXMemcpyAsync(gpu_12bit_buffer_,
-                                cpu_frame_buffer_ + i * frame_size_12bit,
-                                frame_size_12bit,
+                cudaXMemcpyAsync(gpu_packed_buffer_,
+                                cpu_frame_buffer_ + i * packed_frame_size,
+                                packed_frame_size,
                                 cudaMemcpyHostToDevice,
                                 stream_);
 
                 // Convert 12bit frame to 16bit
-                unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
-                                frame_size_ / 2,
-                                (unsigned char *)gpu_12bit_buffer_,
-                                frame_size_12bit,
-                                stream_);
+                if (flag_packed == 12)
+                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                    frame_size_ / 2,
+                                    (unsigned char *)gpu_packed_buffer_,
+                                    packed_frame_size,
+                                    stream_);
+                else if (flag_packed == 10)
+                    unpack_10_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                    frame_size_ / 2,
+                                    (unsigned char *)gpu_packed_buffer_,
+                                    packed_frame_size,
+                                    stream_);
                 cudaStreamSynchronize(stream_);
             }
         }
