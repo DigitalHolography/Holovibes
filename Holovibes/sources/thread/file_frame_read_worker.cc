@@ -61,7 +61,7 @@ void FileFrameReadWorker::run()
     std::string input_descriptor_info =
         std::to_string(fd.width) + std::string("x") +
         std::to_string(fd.height) + std::string(" - ") +
-        std::to_string(fd.depth * 8) + std::string("bits");
+        std::to_string(fd.depth * 8) + std::string("bit");
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_indication(InformationContainer::IndicationType::IMG_SOURCE,
