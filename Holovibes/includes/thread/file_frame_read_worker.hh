@@ -153,8 +153,8 @@ class FileFrameReadWorker : public FrameReadWorker
     char* cpu_frame_buffer_;
     //! GPU buffer in which the frames are temporarly stored
     char* gpu_frame_buffer_;
-    //! Tmp GPU buffer in which the frames are temporarly stored to convert data from 12bit to 16bit
-    char* gpu_12bit_buffer_;
+    //! Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit
+    char* gpu_packed_buffer_;
 };
 } // namespace worker
 } // namespace holovibes

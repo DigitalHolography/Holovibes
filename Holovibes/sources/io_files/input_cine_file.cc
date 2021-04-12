@@ -46,7 +46,8 @@ InputCineFile::InputCineFile(const std::string& file_path)
     fd_.depth = bitmap_info_header_.bi_bit_count / 8;
     fd_.byteEndian = camera::Endianness::LittleEndian;
 
-    frame_size_ = bitmap_info_header_.bi_size_image;
+    frame_size_ = fd_.frame_size();
+    packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
 void InputCineFile::import_compute_settings(
@@ -75,12 +76,11 @@ void InputCineFile::set_pos_to_frame(size_t frame_id)
     }
 }
 
-size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, bool *flag_12bit)
+size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int *flag_packed)
 {
     size_t frames_read = 0;
 
-    if ((bitmap_info_header_.bi_width * bitmap_info_header_.bi_height * 12) / 8 == bitmap_info_header_.bi_size_image)
-        *flag_12bit = true;
+    *flag_packed = (packed_frame_size_ / (float)(fd_.width * fd_.height)) * 8;
 
     for (size_t i = 0; i < frames_to_read; i++)
     {
@@ -93,7 +93,7 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, bool *fla
                                 std::to_string(frames_to_read) + " frames");
 
         frames_read +=
-            std::fread(buffer + i * frame_size_, frame_size_, 1, file_);
+            std::fread(buffer + i * packed_frame_size_, packed_frame_size_, 1, file_);
 
         if (ferror(file_))
             throw FileException("Unable to read " +
