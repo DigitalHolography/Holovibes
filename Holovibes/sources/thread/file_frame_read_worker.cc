@@ -9,7 +9,7 @@
 #include "file_frame_read_worker.hh"
 #include "queue.hh"
 #include "cuda_memory.cuh"
-#include "unpack_12_to_16bit.cuh"
+#include "unpack.cuh"
 #include "input_frame_file_factory.hh"
 #include "config.hh"
 #include "holovibes.hh"

@@ -7,7 +7,7 @@
 /* ________________________________________________________ */
 
 #include "common.cuh"
-#include "unpack_12_to_16bit.cuh"
+#include "unpack.cuh"
 
 __global__ void kernel_unpack_12_to_16bit(short* output,
                                           const size_t output_size,
