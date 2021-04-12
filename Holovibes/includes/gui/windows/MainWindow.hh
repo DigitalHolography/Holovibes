@@ -287,7 +287,7 @@ class MainWindow : public QMainWindow, public Observer
     int yzFlip = 0;
 
     bool is_enabled_camera_ = false;
-    double z_step_ = 0.02f;
+    double z_step_ = 0.005f;
 
     bool is_recording_ = false;
     unsigned record_frame_step_ = 512;
