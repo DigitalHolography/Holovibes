@@ -167,15 +167,21 @@ int main(int argc, char* argv[])
 
     holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
-    if (opts.input_path)
+    int ret = 0;
+    try
     {
-        if (opts.output_path)
-            start_cli(holovibes, opts);
-        else // start gui
-            start_gui(holovibes, argc, argv, opts.input_path.value());
-
-        return 0;
+        if (opts.input_path)
+        {
+            if (opts.output_path)
+                start_cli(holovibes, opts);
+            else // start gui
+                ret = start_gui(holovibes, argc, argv, opts.input_path.value());
+        }
+        ret = start_gui(holovibes, argc, argv);
     }
-
-    return start_gui(holovibes, argc, argv);
+    catch (const std::exception& e)
+    {
+        std::cerr << "Uncaught exception: " << e.what() << std::endl;
+    }
+    return ret;
 }

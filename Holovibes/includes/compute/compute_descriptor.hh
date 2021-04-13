@@ -30,7 +30,7 @@
 namespace holovibes
 {
 /*!< Current version of this project. */
-const static std::string version = "v9.0.4";
+const static std::string version = "v9.0.5";
 
 /*! \brief Contains compute parameters.
  *

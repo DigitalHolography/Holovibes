@@ -1,5 +1,12 @@
 ## Changelog
 
+### 9.0.5
+
+* Cine: 10bit packed cine file support
+* Fix: input queue size is not reduced when changing batch size a lot
+* Fix: crash when importing a footer-less holofile
+* GUI: Change sinbox scroll default values
+
 ### 9.0.4
 
 * Cine file now read 12bit packed images
