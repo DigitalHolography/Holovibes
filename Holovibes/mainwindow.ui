@@ -1252,7 +1252,7 @@
               <string>Accumulate n images</string>
              </property>
              <property name="text">
-              <string>Phase unwrap 2D</string>
+              <string>Unwrap 2D</string>
              </property>
              <property name="checked">
               <bool>false</bool>
@@ -1278,7 +1278,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>STFT/PCA cuts</string>
+              <string>3D cuts</string>
              </property>
             </widget>
            </item>
