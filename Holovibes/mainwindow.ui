@@ -487,6 +487,11 @@
                <string>PCA</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="7" column="0">
