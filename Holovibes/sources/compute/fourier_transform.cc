@@ -192,6 +192,22 @@ void FourierTransform::insert_time_transform()
     {
         insert_pca();
     }
+    else // TimeTransformation::None
+    {
+        // Just copy data to the next buffer
+        fn_compute_vect_.conditional_push_back([=]() {
+            cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
+            auto& q = time_transformation_env_.gpu_time_transformation_queue;
+            size_t size = cd_.time_transformation_size * fd_.frame_res() *
+                          sizeof(cuComplex);
+
+            cudaXMemcpyAsync(buf,
+                             q->get_data(),
+                             size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
+        });
+    }
 }
 
 void FourierTransform::insert_stft()
