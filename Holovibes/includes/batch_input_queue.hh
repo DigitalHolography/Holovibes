@@ -175,8 +175,12 @@ class BatchInputQueue : public DisplayQueue
     ** batch_size_ * size_ + curr_batch_counter
     */
     std::atomic<uint> curr_nb_frames_{0};
-    //! It is atomic for the design of the information container
+    /*! The total number of frames that can be contained in the queue
+    ** with respect to batch size (batch_size_ * max_size_)
+    */
     std::atomic<uint> total_nb_frames_{0};
+    /*! The total number of frames that can be contained in the queue */
+    std::atomic<uint> frame_capacity_{0};
 
     /*! Current number of full batches
     ** Can concurrently be modified by the producer (enqueue)

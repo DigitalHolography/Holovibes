@@ -44,13 +44,16 @@ class InputCineFile : public InputFrameFile, public CineFile
      *  \brief    Read frames in the file
      *
      *  \param    buffer            The allocated buffer in which the frames
-     * should be stored \param    frames_to_read    The number of frames to read
+     *                              should be stored
+     *  \param    frames_to_read    The number of frames to read
+     *
+     *  \param    flag_packed       Return number of bit packed.
      *
      *  \return   The actual number of frames read
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    size_t read_frames(char* buffer, size_t frames_to_read) override;
+    size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
 
   private:
     // Give access to private members to the factory

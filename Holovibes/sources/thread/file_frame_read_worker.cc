@@ -9,6 +9,7 @@
 #include "file_frame_read_worker.hh"
 #include "queue.hh"
 #include "cuda_memory.cuh"
+#include "unpack.cuh"
 #include "input_frame_file_factory.hh"
 #include "config.hh"
 #include "holovibes.hh"
@@ -35,6 +36,7 @@ FileFrameReadWorker::FileFrameReadWorker(
     , frame_size_(0)
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
+    , gpu_packed_buffer_(nullptr)
 {
 }
 
@@ -59,7 +61,7 @@ void FileFrameReadWorker::run()
     std::string input_descriptor_info =
         std::to_string(fd.width) + std::string("x") +
         std::to_string(fd.height) + std::string(" - ") +
-        std::to_string(fd.depth * 8) + std::string("bits");
+        std::to_string(fd.depth * 8) + std::string("bit");
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_indication(InformationContainer::IndicationType::IMG_SOURCE,
@@ -94,6 +96,7 @@ void FileFrameReadWorker::run()
     info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
     info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
 
+    cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
     cudaXFreeHost(cpu_frame_buffer_);
 }
@@ -137,6 +140,23 @@ bool FileFrameReadWorker::init_frame_buffers()
         LOG_ERROR(error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
+        return false;
+    }
+
+    error_code = cudaMalloc(&gpu_packed_buffer_, frame_size_);
+
+    if (error_code != cudaSuccess)
+    {
+        std::string error_message = "[READER] Not enough GPU DRAM to read file";
+
+        if (load_file_in_gpu_)
+            error_message +=
+                " (consider disabling \"Load file in GPU\" option)";
+
+        LOG_ERROR(error_message);
+
+        cudaXFreeHost(cpu_frame_buffer_);
+        cudaXFree(gpu_frame_buffer_);
         return false;
     }
 
@@ -200,21 +220,55 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 {
     // Read
     size_t frames_read = 0;
+    int    flag_packed;
 
     try
     {
         frames_read =
-            input_file_->read_frames(cpu_frame_buffer_, frames_to_read);
+            input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
-        // Memcopy in the gpu buffer
-        cudaXMemcpyAsync(gpu_frame_buffer_,
-                         cpu_frame_buffer_,
-                         frames_total_size,
-                         cudaMemcpyHostToDevice,
-                         stream_);
+        if (flag_packed != 8 && flag_packed != 16)
+        {
+            const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+            size_t  packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
+            for (size_t i = 0; i < frames_read; ++i)
+            {
+                // Memcopy in the gpu buffer
+                cudaXMemcpyAsync(gpu_packed_buffer_,
+                                cpu_frame_buffer_ + i * packed_frame_size,
+                                packed_frame_size,
+                                cudaMemcpyHostToDevice,
+                                stream_);
 
-        cudaStreamSynchronize(stream_);
+                // Convert 12bit frame to 16bit
+                if (flag_packed == 12)
+                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                    frame_size_ / 2,
+                                    (unsigned char *)gpu_packed_buffer_,
+                                    packed_frame_size,
+                                    stream_);
+                else if (flag_packed == 10)
+                    unpack_10_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                    frame_size_ / 2,
+                                    (unsigned char *)gpu_packed_buffer_,
+                                    packed_frame_size,
+                                    stream_);
+                cudaStreamSynchronize(stream_);
+            }
+        }
+        else
+        {
+            // Memcopy in the gpu buffer
+            cudaXMemcpyAsync(gpu_frame_buffer_,
+                            cpu_frame_buffer_,
+                            frames_total_size,
+                            cudaMemcpyHostToDevice,
+                            stream_);
+            cudaStreamSynchronize(stream_);
+        }
+
+
     }
     catch (const io_files::FileException& e)
     {

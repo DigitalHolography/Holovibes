@@ -70,6 +70,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     uintmax_t meta_data_size = file_size - meta_data_offset;
 
     // retrieve the meta data
+    meta_data_ = json::parse("{}");
     if (meta_data_size > 0)
     {
         std::string meta_data_str;
@@ -97,7 +98,6 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
             // because they are not essential
             LOG_WARN("An error occurred while retrieving the meta data. Meta "
                      "data skipped");
-            meta_data_ = json();
         }
     }
 }

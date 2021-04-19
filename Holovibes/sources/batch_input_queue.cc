@@ -29,6 +29,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
     , frame_res_(fd_.frame_res())
     , frame_size_(fd_.frame_size())
     , total_nb_frames_(total_nb_frames)
+    , frame_capacity_(total_nb_frames)
     , data_(nullptr)
 {
     // Set priority of streams
@@ -55,7 +56,7 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     assert(new_batch_size > 0 && "Batch size cannot be 0.");
 
     batch_size_ = new_batch_size;
-    total_nb_frames_ -= total_nb_frames_ % batch_size_;
+    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
 
     assert(total_nb_frames_ > 0 &&
            "There must be more at least a frame in the queue.");
