@@ -80,6 +80,10 @@ class Rendering
 
     */
     void insert_slice_log();
+    /** \brief insert the log10 on the Filter2D view
+
+    */
+    void insert_filter2d_log();
 
     /** \brief insert the autocontrast computation
 

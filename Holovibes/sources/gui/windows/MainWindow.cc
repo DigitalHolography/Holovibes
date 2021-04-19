@@ -1909,6 +1909,7 @@ void MainWindow::update_filter2d_view(bool checked)
                             SIGNAL(destroyed()),
                             this,
                             SLOT(disable_filter2d_view()));
+                    cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
                     pipe->autocontrast_end_pipe(WindowKind::Filter2D);
                 }
             }
@@ -1989,7 +1990,6 @@ void MainWindow::cancel_filter2d()
     {
         if (cd_.filter2d_view_enabled == true)
             update_filter2d_view(false);
-        cd_.log_scale_slice_xy_enabled = false;
         set_auto_contrast();
         pipe_refresh();
         notify();
@@ -3535,7 +3535,7 @@ void MainWindow::secret_filter2d(int value)
     if (filter2d_secret_ >= 5 && first)
     {
         first = 0;
-        printf("Filter2D activated !");
+        printf("Filter2D activated !\n");
     }
 }
 #pragma endregion

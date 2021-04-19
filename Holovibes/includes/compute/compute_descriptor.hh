@@ -246,6 +246,8 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> log_scale_slice_xz_enabled{false};
     //! is log scale in slice YZ enabled
     std::atomic<bool> log_scale_slice_yz_enabled{false};
+    //! is log scale in Filter2D view enabled
+    std::atomic<bool> log_scale_filter2d_enabled{false};
     //! is shift fft enabled (switching representation diagram)
     std::atomic<bool> fft_shift_enabled{false};
     //! enables the contrast for the slice xy, yz and xz

@@ -36,6 +36,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
     log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
     log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
+    log_scale_filter2d_enabled = cd.log_scale_filter2d_enabled.load();
     fft_shift_enabled = cd.fft_shift_enabled.load();
     contrast_enabled = cd.contrast_enabled.load();
     convolution_enabled = cd.convolution_enabled.load();
@@ -193,7 +194,8 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
         return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load()
                                           : log10(contrast_min_slice_yz);
     case WindowKind::Filter2D:
-        return log10(contrast_min_filter2d.load());
+        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load()
+                                          : log10(contrast_min_filter2d);
     }
     return 0;
 }
@@ -212,7 +214,8 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
         return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load()
                                           : log10(contrast_max_slice_yz);
     case WindowKind::Filter2D:
-        return log10(contrast_max_filter2d.load());
+        return log_scale_filter2d_enabled ? contrast_max_filter2d.load()
+                                          : log10(contrast_max_filter2d);
     }
     return 0;
 }
@@ -243,6 +246,8 @@ bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const
         return log_scale_slice_xz_enabled;
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled;
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled;
     }
     return false;
 }
@@ -292,7 +297,8 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
-        contrast_min_filter2d = pow(10, value);
+        contrast_min_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
         break;
     }
 }
@@ -314,7 +320,8 @@ void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
-        contrast_max_filter2d = pow(10, value);
+        contrast_max_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
         break;
     }
 }
@@ -331,6 +338,9 @@ void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
         break;
     case WindowKind::YZview:
         log_scale_slice_yz_enabled = value;
+        break;
+    case WindowKind::Filter2D:
+        log_scale_filter2d_enabled = value;
         break;
     }
 }

@@ -115,6 +115,8 @@ void Rendering::insert_log()
         insert_main_log();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_log();
+    if (cd_.filter2d_enabled)
+        insert_filter2d_log();
 }
 
 void Rendering::insert_contrast(
@@ -174,6 +176,19 @@ void Rendering::insert_slice_log()
             map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                       buffers_.gpu_postprocess_frame_yz.get(),
                       fd_.height * cd_.time_transformation_size,
+                      stream_);
+        });
+    }
+}
+
+void Rendering::insert_filter2d_log()
+{
+    if (cd_.log_scale_filter2d_enabled)
+    {
+        fn_compute_vect_.conditional_push_back([=]() {
+            map_log10(buffers_.gpu_float_filter2d_frame.get(),
+                      buffers_.gpu_float_filter2d_frame.get(),
+                      fd_.width * fd_.height,
                       stream_);
         });
     }
