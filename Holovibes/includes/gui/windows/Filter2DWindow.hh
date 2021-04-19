@@ -21,19 +21,15 @@ namespace gui
 class MainWindow;
 using SharedPipe = std::shared_ptr<ICompute>;
 
-class HoloWindow : public RawWindow
+class Filter2DWindow : public RawWindow
 {
   public:
-    HoloWindow(QPoint p,
+    Filter2DWindow(QPoint p,
                QSize s,
                DisplayQueue* q,
                SharedPipe ic,
-               std::unique_ptr<SliceWindow>& xz,
-               std::unique_ptr<SliceWindow>& yz,
                MainWindow* main_window = nullptr);
-    virtual ~HoloWindow();
-
-    void update_slice_transforms();
+    virtual ~Filter2DWindow();
 
     SharedPipe getPipe();
 
@@ -49,9 +45,6 @@ class HoloWindow : public RawWindow
 
   private:
     MainWindow* main_window_;
-
-    std::unique_ptr<SliceWindow>& xz_slice_;
-    std::unique_ptr<SliceWindow>& yz_slice_;
 };
 } // namespace gui
 } // namespace holovibes

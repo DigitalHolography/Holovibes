@@ -29,6 +29,7 @@ using json = ::nlohmann::json;
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
+#include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
 
 #define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
@@ -122,6 +123,7 @@ class MainWindow : public QMainWindow, public Observer
     bool is_raw_mode();
     void reset();
     void update_filter2d_view(bool);
+    void disable_filter2d_view();
     void set_filter2d(bool);
     void set_filter2d_n1(int);
     void set_filter2d_n2(int);
@@ -274,6 +276,7 @@ class MainWindow : public QMainWindow, public Observer
     std::unique_ptr<SliceWindow> sliceYZ = nullptr;
     std::unique_ptr<RawWindow> lens_window = nullptr;
     std::unique_ptr<RawWindow> raw_window = nullptr;
+    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
     std::unique_ptr<PlotWindow> plot_window_ = nullptr;
 
     uint window_max_size = 768;

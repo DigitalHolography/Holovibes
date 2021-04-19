@@ -208,6 +208,10 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_min_slice_yz{1.f};
     //! maximum constrast value in yz view
     std::atomic<float> contrast_max_slice_yz{65535.f};
+    //! minimum constrast value in Filter2D view
+    std::atomic<float> contrast_min_filter2d{1.f};
+    //! maximum constrast value in Filter2D view
+    std::atomic<float> contrast_max_filter2d{65535.f};
     //! invert contrast
     std::atomic<bool> contrast_invert{false};
 

@@ -35,7 +35,8 @@ enum class KindOfView
                  frames */
     Lens,     /**< Displaying the FFT1/FFT2 lens view */
     SliceXZ,  /**< Displaying the XZ view of the hologram */
-    SliceYZ   /**< Displaying the YZ view of the hologram */
+    SliceYZ,  /**< Displaying the YZ view of the hologram */
+    Filter2D, /**< Displaying the Filter2D view of the hologram */
 };
 
 class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions

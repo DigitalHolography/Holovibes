@@ -47,6 +47,8 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
     contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
     contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
+    contrast_min_filter2d = cd.contrast_min_filter2d.load();
+    contrast_max_filter2d = cd.contrast_max_filter2d.load();
     contrast_invert = cd.contrast_invert.load();
     convo_matrix_width = cd.convo_matrix_width.load();
     convo_matrix_height = cd.convo_matrix_height.load();
@@ -69,6 +71,8 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     stft_slice_cursor = cd.stft_slice_cursor;
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
+    filter2d_enabled = cd.filter2d_enabled.load();
+    filter2d_view_enabled = cd.filter2d_view_enabled.load();
     filter2D_zone = cd.filter2D_zone;
     filter2D_sub_zone = cd.filter2D_sub_zone;
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
@@ -188,6 +192,8 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load()
                                           : log10(contrast_min_slice_yz);
+    case WindowKind::Filter2D:
+        return log10(contrast_min_filter2d.load());
     }
     return 0;
 }
@@ -205,6 +211,8 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load()
                                           : log10(contrast_max_slice_yz);
+    case WindowKind::Filter2D:
+        return log10(contrast_max_filter2d.load());
     }
     return 0;
 }
@@ -283,6 +291,9 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
         contrast_min_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
+    case WindowKind::Filter2D:
+        contrast_min_filter2d = pow(10, value);
+        break;
     }
 }
 
@@ -301,6 +312,9 @@ void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
     case WindowKind::YZview:
         contrast_max_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
+        break;
+    case WindowKind::Filter2D:
+        contrast_max_filter2d = pow(10, value);
         break;
     }
 }

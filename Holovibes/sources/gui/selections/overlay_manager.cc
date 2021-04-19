@@ -229,6 +229,7 @@ void OverlayManager::create_default()
 {
     switch (parent_->getKindOfView())
     {
+    case KindOfView::Filter2D:
     case KindOfView::Raw:
     case KindOfView::Hologram:
         create_overlay<Zoom>();

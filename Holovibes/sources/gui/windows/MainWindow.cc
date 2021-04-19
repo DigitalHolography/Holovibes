@@ -449,7 +449,7 @@ void MainWindow::on_notify()
     ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2D->setEnabled(!is_raw && cd_.space_transformation != SpaceTransformation::None);
+    ui.Filter2D->setEnabled(!is_raw);
     ui.Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
@@ -1189,6 +1189,9 @@ void MainWindow::close_windows()
     lens_window.reset(nullptr);
     cd_.gpu_lens_display_enabled = false;
 
+    filter2d_window.reset(nullptr);
+    cd_.filter2d_view_enabled = false;
+
     /* Raw view & recording */
     raw_window.reset(nullptr);
     cd_.raw_view_enabled = false;
@@ -1825,8 +1828,6 @@ void MainWindow::set_filter2d(bool checked)
 {
     if (!is_raw_mode())
     {
-        cd_.log_scale_slice_xy_enabled = true;
-
         if (checked == false)
         {
             cancel_filter2d();
@@ -1835,6 +1836,8 @@ void MainWindow::set_filter2d(bool checked)
         else
         {
             const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+
+            cd_.fft_shift_enabled = false;
             ui.Filter2DN2SpinBox->setMaximum(fmin(fd.get_width(), fd.get_height()) / 2);
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
@@ -1847,11 +1850,81 @@ void MainWindow::set_filter2d(bool checked)
     }
 }
 
+void MainWindow::disable_filter2d_view()
+{
+    if (filter2d_window)
+    {
+        disconnect(filter2d_window.get(),
+                   SIGNAL(destroyed()),
+                   this,
+                   SLOT(disable_filter2d_view()));
+    }
+
+    auto pipe = holovibes_.get_compute_pipe();
+    pipe->request_disable_filter2d_view();
+    while (pipe->get_disable_filter2d_view_requested())
+        continue;
+
+    notify();
+}
+
 void MainWindow::update_filter2d_view(bool checked)
 {
     if (!is_raw_mode())
     {
-        cd_.filter2d_view_enabled = checked;
+        if (checked)
+        {
+            try
+            {
+                // set positions of new windows according to the position of the
+                // main GL window
+                QPoint pos = mainDisplay->framePosition() +
+                            QPoint(mainDisplay->width() + 310, 0);
+                auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+                if (pipe)
+                {
+                    pipe->request_filter2d_view();
+
+                    const FrameDescriptor& fd =
+                        holovibes_.get_gpu_input_queue()->get_fd();
+                    ushort filter2d_window_width = fd.width;
+                    ushort filter2d_window_height = fd.height;
+                    get_good_size(filter2d_window_width,
+                                filter2d_window_height,
+                                auxiliary_window_max_size);
+
+                    while (pipe->get_filter2d_view_requested())
+                        continue;
+
+                    filter2d_window.reset(
+                        new Filter2DWindow(pos,
+                                    QSize(filter2d_window_width, filter2d_window_height),
+                                    pipe->get_filter2d_view_queue().get(),
+                                    holovibes_.get_compute_pipe(),
+                                    this));
+
+                    filter2d_window->setTitle("Filter2D view");
+                    filter2d_window->setCd(&cd_);
+
+                    connect(filter2d_window.get(),
+                            SIGNAL(destroyed()),
+                            this,
+                            SLOT(disable_filter2d_view()));
+                    pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+                }
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
+        }
+
+        else
+        {
+            disable_filter2d_view();
+            filter2d_window.reset(nullptr);
+        }
+
         pipe_refresh();
         notify();
     }
@@ -1862,18 +1935,19 @@ void MainWindow::set_filter2d_n1(int n)
     if (!is_raw_mode())
     {
         const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-        int middle = static_cast<int>(fmin(fd.get_width(), fd.get_height()) / 2);
+        int middle_x = static_cast<int>(fd.get_width() / 2);
+        int middle_y = static_cast<int>(fd.get_height() / 2);
 
         units::RectFd zone;
         units::Point<units::FDPixel> dst;
         units::Point<units::FDPixel> src;
 
-        dst.x().set(middle + n);
-        dst.y().set(middle + n);
+        dst.x().set(middle_x + n);
+        dst.y().set(middle_y + n);
         zone.setBottomRight(dst);
 
-        src.x().set(middle - n);
-        src.y().set(middle - n);
+        src.x().set(middle_x - n);
+        src.y().set(middle_y - n);
         zone.setTopLeft(src);
 
         cd_.setFilter2DSubZone(zone);
@@ -1888,18 +1962,19 @@ void MainWindow::set_filter2d_n2(int n)
     if (!is_raw_mode())
     {
         const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-        int middle = static_cast<int>(fmin(fd.get_width(), fd.get_height()) / 2);
+        int middle_x = static_cast<int>(fd.get_width() / 2);
+        int middle_y = static_cast<int>(fd.get_height() / 2);
 
         units::RectFd zone;
         units::Point<units::FDPixel> dst;
         units::Point<units::FDPixel> src;
 
-        dst.x().set(middle + n - 1);
-        dst.y().set(middle + n - 1);
+        dst.x().set(middle_x + n - 1);
+        dst.y().set(middle_y + n - 1);
         zone.setBottomRight(dst);
 
-        src.x().set(middle - n);
-        src.y().set(middle - n);
+        src.x().set(middle_x - n);
+        src.y().set(middle_y - n);
         zone.setTopLeft(src);
 
         cd_.setFilter2DZone(zone);

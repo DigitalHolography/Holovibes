@@ -112,6 +112,15 @@ ICompute::ICompute(BatchInputQueue& input,
             buffers_.gpu_postprocess_frame_size))
         err++;
 
+    if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+        err++;
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
@@ -256,6 +265,11 @@ std::unique_ptr<Queue>& ICompute::get_raw_view_queue()
     return gpu_raw_view_queue_;
 }
 
+std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue()
+{
+    return gpu_filter2d_view_queue_;
+}
+
 std::unique_ptr<ConcurrentDeque<ChartPoint>>&
 ICompute::get_chart_display_queue()
 {
@@ -330,6 +344,18 @@ void ICompute::request_raw_view()
     request_refresh();
 }
 
+void ICompute::request_disable_filter2d_view()
+{
+    disable_filter2d_view_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_filter2d_view()
+{
+    filter2d_view_requested_ = true;
+    request_refresh();
+}
+
 void ICompute::request_hologram_record(
     std::optional<unsigned int> nb_frames_to_record)
 {
@@ -360,8 +386,10 @@ void ICompute::request_autocontrast(WindowKind kind)
         autocontrast_requested_ = true;
     else if (kind == WindowKind::XZview)
         autocontrast_slice_xz_requested_ = true;
-    else
+    else if (kind == WindowKind::YZview)
         autocontrast_slice_yz_requested_ = true;
+    else if (kind == WindowKind::Filter2D)
+        autocontrast_filter2d_requested_ = true;
 }
 
 void ICompute::request_update_time_transformation_size()

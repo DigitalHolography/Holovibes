@@ -38,9 +38,6 @@ enum KindOfOverlay
     // Cross
     Cross,
     SliceCross,
-    // -------
-    Filter2D,
-    Filter2DSubZone,
     // Composite overlays
     CompositeArea,
     Rainbow

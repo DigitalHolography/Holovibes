@@ -85,6 +85,8 @@ void Converts::insert_to_ushort()
     insert_main_ushort();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_ushort();
+    if (cd_.filter2d_view_enabled)
+        insert_filter2d_ushort();
 }
 
 void Converts::insert_compute_p_accu()
@@ -303,6 +305,17 @@ void Converts::insert_slice_ushort()
             buffers_.gpu_postprocess_frame_yz.get(),
             buffers_.gpu_output_frame_yz.get(),
             time_transformation_env_.gpu_output_queue_yz->get_fd().frame_res(),
+            stream_);
+    });
+}
+
+void Converts::insert_filter2d_ushort()
+{
+    fn_compute_vect_.conditional_push_back([=]() {
+        float_to_ushort(
+            buffers_.gpu_float_filter2d_frame.get(),
+            buffers_.gpu_filter2d_frame.get(),
+            buffers_.gpu_postprocess_frame_size,
             stream_);
     });
 }
