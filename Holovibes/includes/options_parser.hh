@@ -25,8 +25,8 @@ struct OptionsDescriptor
     bool print_help;
     bool print_version;
     bool disable_gui;
-    std::optional<unsigned int> input_fps;
-    std::optional<unsigned int> output_nb_frames;
+    std::optional<unsigned int> fps;
+    std::optional<unsigned int> n_rec;
     std::optional<std::string> input_path;
     std::optional<std::string> output_path;
     bool record_raw;
