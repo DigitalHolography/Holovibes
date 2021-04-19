@@ -12,6 +12,13 @@ namespace holovibes
 {
 namespace ini
 {
+void load_ini(ComputeDescriptor& cd)
+{
+    boost::property_tree::ptree ptree;
+    boost::property_tree::ini_parser::read_ini(GLOBAL_INI_PATH, ptree);
+    load_ini(ptree, cd);
+}
+
 void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
     Config& config = global::global_config;

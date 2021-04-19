@@ -44,17 +44,17 @@ OptionsParser::OptionsParser()
     (
         "fps,f",
         po::value<unsigned int>(),
-        "Input file fps"
+        "Input file fps (default = 60)"
     )
     (
         "n_rec,n",
         po::value<unsigned int>(),
-        "Number of frames to record"
+        "Number of frames to record (default = same as input file)"
     )
     (
         "raw",
         po::bool_switch()->default_value(false),
-        "Enable raw recording (false by default)"
+        "Enable raw recording (default = false)"
     );
     // clang-format on
 

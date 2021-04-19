@@ -31,7 +31,6 @@ using json = ::nlohmann::json;
 #include "PlotWindow.hh"
 #include "ui_mainwindow.h"
 
-#define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
 Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace holovibes

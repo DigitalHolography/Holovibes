@@ -100,7 +100,7 @@ void FrameRecordWorker::run()
 
         if (stop_requested_)
         {
-            LOG_INFO("[RECORDER] Written frames: " +
+            LOG_INFO("[RECORDER] Recording stopped, written frames: " +
                      std::to_string(nb_frames_recorded));
 
             output_frame_file->correct_number_of_frames(nb_frames_recorded);
