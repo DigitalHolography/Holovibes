@@ -174,6 +174,8 @@ void BatchInputQueue::enqueue(const void* const input_frame,
         // End of critical section between enqueue (producer) & resize
         // (consumer)
         m_producer_busy_.unlock();
+
+        cudaXStreamSynchronize(batch_streams_[prev_end_index]);
     }
 }
 

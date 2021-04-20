@@ -2328,7 +2328,6 @@ void MainWindow::set_contrast_min(const double value)
             {
                 cd_.set_contrast_min(cd_.current_window, value);
                 pipe_refresh();
-                notify();
             }
         }
     }
@@ -2349,7 +2348,6 @@ void MainWindow::set_contrast_max(const double value)
             {
                 cd_.set_contrast_max(cd_.current_window, value);
                 pipe_refresh();
-                notify();
             }
         }
     }
