@@ -2130,6 +2130,8 @@ void MainWindow::set_time_transformation(QString value)
             cd_.time_transformation = TimeTransformation::STFT;
         else if (value == "PCA")
             cd_.time_transformation = TimeTransformation::PCA;
+        else if (value == "None")
+            cd_.time_transformation = TimeTransformation::NONE;
         set_holographic_mode();
     }
 }

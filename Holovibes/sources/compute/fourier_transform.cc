@@ -158,31 +158,6 @@ void FourierTransform::insert_fft2()
     });
 }
 
-void FourierTransform::insert_store_p_frame()
-{
-    fn_compute_vect_.conditional_push_back([=]() {
-        const int frame_res = fd_.frame_res();
-
-        /* Copies with DeviceToDevice (which is the case here) are asynchronous
-         * with respect to the host but never overlap with kernel execution*/
-        cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
-                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                             cd_.pindex * frame_res,
-                         sizeof(cuComplex) * frame_res,
-                         cudaMemcpyDeviceToDevice,
-                         stream_);
-    });
-}
-
-void FourierTransform::insert_stft()
-{
-    fn_compute_vect_.conditional_push_back([=]() {
-        stft(time_transformation_env_.gpu_time_transformation_queue.get(),
-             time_transformation_env_.gpu_p_acc_buffer,
-             time_transformation_env_.stft_plan);
-    });
-}
-
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
     if (!gpu_lens_queue_ && cd_.gpu_lens_display_enabled)
@@ -207,7 +182,44 @@ void FourierTransform::enqueue_lens()
     }
 }
 
-void FourierTransform::insert_eigenvalue_filter()
+void FourierTransform::insert_time_transform()
+{
+    if (cd_.time_transformation == TimeTransformation::STFT)
+    {
+        insert_stft();
+    }
+    else if (cd_.time_transformation == TimeTransformation::PCA)
+    {
+        insert_pca();
+    }
+    else // TimeTransformation::None
+    {
+        // Just copy data to the next buffer
+        fn_compute_vect_.conditional_push_back([=]() {
+            cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
+            auto& q = time_transformation_env_.gpu_time_transformation_queue;
+            size_t size = cd_.time_transformation_size * fd_.frame_res() *
+                          sizeof(cuComplex);
+
+            cudaXMemcpyAsync(buf,
+                             q->get_data(),
+                             size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
+        });
+    }
+}
+
+void FourierTransform::insert_stft()
+{
+    fn_compute_vect_.conditional_push_back([=]() {
+        stft(time_transformation_env_.gpu_time_transformation_queue.get(),
+             time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.stft_plan);
+    });
+}
+
+void FourierTransform::insert_pca()
 {
     constexpr uint sample_step = 16;
     cusolver_work_buffer_size_ = 0;
@@ -304,6 +316,22 @@ void FourierTransform::insert_eigenvalue_filter()
                           &beta,
                           time_transformation_env_.gpu_p_acc_buffer.get(),
                           fd_.frame_res()));
+    });
+}
+
+void FourierTransform::insert_store_p_frame()
+{
+    fn_compute_vect_.conditional_push_back([=]() {
+        const int frame_res = fd_.frame_res();
+
+        /* Copies with DeviceToDevice (which is the case here) are asynchronous
+         * with respect to the host but never overlap with kernel execution*/
+        cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
+                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
+                             cd_.pindex * frame_res,
+                         sizeof(cuComplex) * frame_res,
+                         cudaMemcpyDeviceToDevice,
+                         stream_);
     });
 }
 

@@ -54,7 +54,7 @@ class FourierTransform
        transformation.
 
     */
-    void FourierTransform::insert_store_p_frame();
+    void insert_store_p_frame();
 
     /*! \brief Get Lens Queue used to display the Fresnel lens.
 
@@ -64,12 +64,7 @@ class FourierTransform
     /*! \brief enqueue functions relative to temporal fourier transforms.
 
     */
-    void insert_stft();
-
-    /*! \brief Enqueue functions relative to filtering using diagonalization and
-       eigen values. This should eventually replace stft
-    */
-    void insert_eigenvalue_filter();
+    void insert_time_transform();
 
     /*! \brief Enqueue functions relative to time transformation cuts display
        when there are activated
@@ -99,6 +94,16 @@ class FourierTransform
        correctly later.
     */
     void enqueue_lens();
+
+   /*! \brief Enqueue stft time filtering.
+
+    */
+    void insert_stft();
+
+    /*! \brief Enqueue functions relative to filtering using diagonalization and
+       eigen values. This should eventually replace stft
+    */
+    void insert_pca();
 
     //! Roi zone of Filter 2D
     units::RectFd filter2d_zone_;

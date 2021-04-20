@@ -356,15 +356,7 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // time transform
-    if (cd_.time_transformation == TimeTransformation::STFT)
-    {
-        fourier_transforms_->insert_stft();
-    }
-    else if (cd_.time_transformation == TimeTransformation::PCA)
-    {
-        fourier_transforms_->insert_eigenvalue_filter();
-    }
-
+    fourier_transforms_->insert_time_transform();
     fourier_transforms_->insert_time_transformation_cuts_view();
 
     // Used for phase increase
