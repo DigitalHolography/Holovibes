@@ -22,7 +22,7 @@
 #include "compute_descriptor.hh"
 #include "input_frame_file_factory.hh"
 #include "logger.hh"
-
+#include "ini_config.hh"
 #include "frame_record_worker.hh"
 
 static void check_cuda_graphic_card(bool gui)
@@ -84,10 +84,11 @@ static int start_gui(holovibes::Holovibes& holovibes,
     return app.exec();
 }
 
-static void start_cli(holovibes::Holovibes& holovibes,
-                      const holovibes::OptionsDescriptor& opts)
+static int start_cli(holovibes::Holovibes& holovibes,
+                     const holovibes::OptionsDescriptor& opts)
 {
     check_cuda_graphic_card(false);
+    holovibes::ini::load_ini(holovibes.get_cd());
     holovibes.start_information_display(true);
 
     std::string input_path = opts.input_path.value();
@@ -102,38 +103,45 @@ static void start_cli(holovibes::Holovibes& holovibes,
     catch (const holovibes::io_files::FileException& e)
     {
         LOG_ERROR(e.what());
-        return;
+        return 1;
     }
 
     const camera::FrameDescriptor& fd =
         input_frame_file->get_frame_descriptor();
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
 
-    const unsigned int input_fps = opts.input_fps.value_or(60);
+    const unsigned int fps = opts.fps.value_or(60);
     holovibes.init_input_queue(fd);
     holovibes.start_file_frame_read(input_path,
                                     true,
-                                    input_fps,
+                                    fps,
                                     0,
                                     input_nb_frames,
                                     false);
 
     input_frame_file->import_compute_settings(holovibes.get_cd());
 
-    holovibes.update_cd_for_cli(input_fps);
+    // holovibes.update_cd_for_cli(fps);
+    holovibes.get_cd().compute_mode = holovibes::Computation::Hologram;
+    holovibes.get_cd().frame_record_enabled = true;
+
     holovibes.start_compute();
 
-    // Start recording.
-    holovibes::worker::FrameRecordWorker frame_record_worker(
-        opts.output_path.value(),
-        opts.output_nb_frames.value_or(input_nb_frames),
-        opts.record_raw,
-        false);
-    frame_record_worker.run();
+    holovibes.get_compute_pipe()->request_refresh();
+
+    holovibes.start_frame_record(opts.output_path.value(),
+                                 opts.n_rec.value_or(input_nb_frames),
+                                 opts.record_raw,
+                                 false);
+
+    while (holovibes.get_cd().frame_record_enabled)
+        continue;
 
     holovibes.stop_all_worker_controller();
 
     delete input_frame_file;
+
+    return 0;
 }
 
 static void print_version()
@@ -170,14 +178,18 @@ int main(int argc, char* argv[])
     int ret = 0;
     try
     {
-        if (opts.input_path)
+        if (opts.input_path && opts.output_path)
         {
-            if (opts.output_path)
-                start_cli(holovibes, opts);
-            else // start gui
-                ret = start_gui(holovibes, argc, argv, opts.input_path.value());
+            ret = start_cli(holovibes, opts);
         }
-        ret = start_gui(holovibes, argc, argv);
+        else if (opts.input_path)
+        {
+            ret = start_gui(holovibes, argc, argv, opts.input_path.value());
+        }
+        else
+        {
+            ret = start_gui(holovibes, argc, argv);
+        }
     }
     catch (const std::exception& e)
     {

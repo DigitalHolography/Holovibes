@@ -29,6 +29,7 @@
 #include "pipe.hh"
 #include "logger.hh"
 #include "config.hh"
+#include "ini_config.hh"
 #include "tools.hh"
 #include "input_frame_file_factory.hh"
 
@@ -721,26 +722,10 @@ void MainWindow::load_ini(const std::string& path)
 
     if (!ptree.empty())
     {
-        Config& config = global::global_config;
-        // Config
-        config.file_buffer_size =
-            ptree.get<int>("config.file_buffer_size", config.file_buffer_size);
-        config.input_queue_max_size =
-            ptree.get<int>("config.input_buffer_size",
-                           config.input_queue_max_size);
-        config.frame_record_queue_max_size =
-            ptree.get<int>("config.record_buffer_size",
-                           config.frame_record_queue_max_size);
-        config.output_queue_max_size =
-            ptree.get<int>("config.output_buffer_size",
-                           config.output_queue_max_size);
-        config.time_transformation_cuts_output_buffer_size =
-            ptree.get<int>("config.time_transformation_cuts_output_buffer_size",
-                           config.time_transformation_cuts_output_buffer_size);
-        config.frame_timeout =
-            ptree.get<int>("config.frame_timeout", config.frame_timeout);
+        // Load general compute data
+        ini::load_ini(ptree, cd_);
 
-        // Loaded Directories
+        // Load window specific data
         default_output_filename_ =
             ptree.get<std::string>("files.default_output_filename",
                                    default_output_filename_);
@@ -754,125 +739,23 @@ void MainWindow::load_ini(const std::string& path)
             ptree.get<std::string>("files.batch_input_directory",
                                    batch_input_directory_);
 
-        cd_.img_acc_slice_xy_level =
-            ptree.get<uint>("config.accumulation_buffer_size",
-                            cd_.img_acc_slice_xy_level);
-        cd_.display_rate =
-            ptree.get<float>("config.display_rate", cd_.display_rate);
-
-        // Renormalize
-        cd_.renorm_enabled =
-            ptree.get<bool>("view.renorm_enabled", cd_.renorm_enabled);
-        cd_.renorm_constant =
-            ptree.get<uint>("view.renorm_constant", cd_.renorm_constant);
-
-        // Image rendering
         image_rendering_action->setChecked(
             !ptree.get<bool>("image_rendering.hidden",
                              image_rendering_group_box->isHidden()));
-
-        cd_.square_input_mode = static_cast<SquareInputMode>(
-            ptree.get<int>("image_rendering.square_input_mode",
-                           static_cast<int>(cd_.square_input_mode.load())));
-        cd_.batch_size =
-            ptree.get<ushort>("image_rendering.batch_size", cd_.batch_size);
-
-        const ushort p_time_transformation_size =
-            ptree.get<ushort>("image_rendering.time_transformation_size",
-                              cd_.time_transformation_size);
-        if (p_time_transformation_size < 1)
-            cd_.time_transformation_size = 1;
-        else
-            cd_.time_transformation_size = p_time_transformation_size;
-        const ushort p_index =
-            ptree.get<ushort>("image_rendering.p_index", cd_.pindex);
-        if (p_index >= 0 && p_index < cd_.time_transformation_size)
-            cd_.pindex = p_index;
-
-        cd_.lambda = ptree.get<float>("image_rendering.lambda", cd_.lambda);
-
-        cd_.zdistance =
-            ptree.get<float>("image_rendering.z_distance", cd_.zdistance);
 
         const float z_step =
             ptree.get<float>("image_rendering.z_step", z_step_);
         if (z_step > 0.0f)
             set_z_step(z_step);
 
-        cd_.space_transformation = static_cast<SpaceTransformation>(
-            ptree.get<int>("image_rendering.space_transformation",
-                           static_cast<int>(cd_.space_transformation.load())));
-        cd_.time_transformation = static_cast<TimeTransformation>(
-            ptree.get<int>("image_rendering.time_transformation",
-                           static_cast<int>(cd_.time_transformation.load())));
-
-        cd_.raw_bitshift =
-            ptree.get<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
-
-        cd_.time_transformation_stride =
-            ptree.get<int>("image_rendering.time_transformation_stride",
-                           cd_.time_transformation_stride);
-
-        // View
         view_action->setChecked(
             !ptree.get<bool>("view.hidden", view_group_box->isHidden()));
 
-        cd_.img_type.exchange(static_cast<ImgType>(
-            ptree.get<int>("view.view_mode",
-                           static_cast<int>(cd_.img_type.load()))));
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image"
                                                             : last_img_type_;
-        // Displaying mode
+
         ui.ViewModeComboBox->setCurrentIndex(
             static_cast<int>(cd_.img_type.load()));
-
-        cd_.log_scale_slice_xy_enabled =
-            ptree.get<bool>("view.log_scale_enabled",
-                            cd_.log_scale_slice_xy_enabled);
-        cd_.log_scale_slice_xz_enabled =
-            ptree.get<bool>("view.log_scale_enabled_cut_xz",
-                            cd_.log_scale_slice_xz_enabled);
-        cd_.log_scale_slice_yz_enabled =
-            ptree.get<bool>("view.log_scale_enabled_cut_yz",
-                            cd_.log_scale_slice_yz_enabled);
-
-        cd_.fft_shift_enabled =
-            ptree.get<bool>("view.fft_shift_enabled", cd_.fft_shift_enabled);
-
-        cd_.p_accu_enabled =
-            ptree.get<bool>("view.p_accu_enabled", cd_.p_accu_enabled);
-        cd_.x_accu_enabled =
-            ptree.get<bool>("view.x_accu_enabled", cd_.x_accu_enabled);
-        cd_.y_accu_enabled =
-            ptree.get<bool>("view.y_accu_enabled", cd_.y_accu_enabled);
-        cd_.p_acc_level = ptree.get<short>("view.p_acc_level", cd_.p_acc_level);
-        cd_.x_acc_level = ptree.get<short>("view.x_acc_level", cd_.x_acc_level);
-        cd_.y_acc_level = ptree.get<short>("view.y_acc_level", cd_.y_acc_level);
-
-        cd_.contrast_enabled =
-            ptree.get<bool>("view.contrast_enabled", cd_.contrast_enabled);
-        cd_.contrast_lower_threshold =
-            ptree.get<float>("view.contrast_lower_threshold",
-                             cd_.contrast_lower_threshold);
-        cd_.contrast_upper_threshold =
-            ptree.get<float>("view.contrast_upper_threshold",
-                             cd_.contrast_upper_threshold);
-
-        cd_.contrast_min_slice_xy =
-            ptree.get<float>("view.contrast_min", cd_.contrast_min_slice_xy);
-        cd_.contrast_max_slice_xy =
-            ptree.get<float>("view.contrast_max", cd_.contrast_max_slice_xy);
-        cd_.cuts_contrast_p_offset =
-            ptree.get<ushort>("view.cuts_contrast_p_offset",
-                              cd_.cuts_contrast_p_offset);
-        if (cd_.cuts_contrast_p_offset < 0)
-            cd_.cuts_contrast_p_offset = 0;
-        else if (cd_.cuts_contrast_p_offset > cd_.time_transformation_size - 1)
-            cd_.cuts_contrast_p_offset = cd_.time_transformation_size - 1;
-
-        cd_.img_acc_slice_xy_enabled =
-            ptree.get<bool>("view.accumulation_enabled",
-                            cd_.img_acc_slice_xy_enabled);
 
         displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
         xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
@@ -880,9 +763,7 @@ void MainWindow::load_ini(const std::string& path)
         displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
         xzFlip = ptree.get("view.xCut_flip", xzFlip);
         yzFlip = ptree.get("view.yCut_flip", yzFlip);
-        cd_.reticle_scale = ptree.get<float>("view.reticle_scale", 0.5f);
 
-        // Chart
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold",
                               auto_scale_point_threshold_);
@@ -891,74 +772,16 @@ void MainWindow::load_ini(const std::string& path)
             ptree.get<uint>("record.record_frame_step", record_frame_step_);
         set_record_frame_step(record_frame_step);
 
-        // Import
         import_export_action->setChecked(
             !ptree.get<bool>("import_export.hidden",
                              import_group_box->isHidden()));
-        cd_.pixel_size = ptree.get<float>("import.pixel_size", cd_.pixel_size);
+
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
-        // Info
         info_action->setChecked(
             !ptree.get<bool>("info.hidden", info_group_box->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
-        // Reset button
-        config.set_cuda_device =
-            ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
-        config.auto_device_number = ptree.get<bool>("reset.auto_device_number",
-                                                    config.auto_device_number);
-        config.device_number =
-            ptree.get<int>("reset.device_number", config.device_number);
-
-        // Composite
-        cd_.composite_p_red = ptree.get<ushort>("composite.p_red", 1);
-        cd_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 1);
-        cd_.weight_r = ptree.get<float>("composite.weight_r", 1);
-        cd_.weight_g = ptree.get<float>("composite.weight_g", 1);
-        cd_.weight_b = ptree.get<float>("composite.weight_b", 1);
-
-        cd_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 1);
-        cd_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 1);
-        cd_.slider_h_threshold_min =
-            ptree.get<float>("composite.slider_h_threshold_min", 0);
-        cd_.slider_h_threshold_max =
-            ptree.get<float>("composite.slider_h_threshold_max", 1.0f);
-        cd_.composite_low_h_threshold =
-            ptree.get<float>("composite.low_h_threshold", 0.2f);
-        cd_.composite_high_h_threshold =
-            ptree.get<float>("composite.high_h_threshold", 99.8f);
-
-        cd_.composite_p_activated_s =
-            ptree.get<bool>("composite.p_activated_s", false);
-        cd_.composite_p_min_s = ptree.get<ushort>("composite.p_min_s", 1);
-        cd_.composite_p_max_s = ptree.get<ushort>("composite.p_max_s", 1);
-        cd_.slider_s_threshold_min =
-            ptree.get<float>("composite.slider_s_threshold_min", 0);
-        cd_.slider_s_threshold_max =
-            ptree.get<float>("composite.slider_s_threshold_max", 1.0f);
-        cd_.composite_low_s_threshold =
-            ptree.get<float>("composite.low_s_threshold", 0.2f);
-        cd_.composite_high_s_threshold =
-            ptree.get<float>("composite.high_s_threshold", 99.8f);
-
-        cd_.composite_p_activated_v =
-            ptree.get<bool>("composite.p_activated_v", false);
-        cd_.composite_p_min_v = ptree.get<ushort>("composite.p_min_v", 1);
-        cd_.composite_p_max_v = ptree.get<ushort>("composite.p_max_v", 1);
-        cd_.slider_v_threshold_min =
-            ptree.get<float>("composite.slider_v_threshold_min", 0);
-        cd_.slider_v_threshold_max =
-            ptree.get<float>("composite.slider_v_threshold_max", 1.0f);
-        cd_.composite_low_v_threshold =
-            ptree.get<float>("composite.low_v_threshold", 0.2f);
-        cd_.composite_high_v_threshold =
-            ptree.get<float>("composite.high_v_threshold", 99.8f);
-
-        cd_.composite_auto_weights_ =
-            ptree.get<bool>("composite.auto_weights", false);
-
-        // Display
         window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
         time_transformation_cuts_window_max_size =
             ptree.get<uint>("display.time_transformation_cuts_window_max_size",
@@ -979,21 +802,10 @@ void MainWindow::save_ini(const std::string& path)
     GroupBox* info_group_box = ui.InfoGroupBox;
     Config& config = global::global_config;
 
-    // Config
-    ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
-    ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
-    ptree.put<uint>("config.record_buffer_size",
-                    config.frame_record_queue_max_size);
-    ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-    ptree.put<uint>("config.time_transformation_cuts_output_buffer_size",
-                    config.time_transformation_cuts_output_buffer_size);
-    ptree.put<uint>("config.accumulation_buffer_size",
-                    cd_.img_acc_slice_xy_level);
-    ptree.put<uint>("config.frame_timeout", config.frame_timeout);
-    ptree.put<ushort>("config.display_rate",
-                      static_cast<ushort>(cd_.display_rate));
+    // Save general compute data
+    ini::save_ini(ptree, cd_);
 
-    // Default files
+    // Save window specific data
     ptree.put<std::string>("files.default_output_filename",
                            default_output_filename_);
     ptree.put<std::string>("files.record_output_directory",
@@ -1002,129 +814,32 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<std::string>("files.batch_input_directory",
                            batch_input_directory_);
 
-    // Image rendering
     ptree.put<bool>("image_rendering.hidden",
                     image_rendering_group_box->isHidden());
-    ptree.put<int>("image_rendering.square_input_mode",
-                   static_cast<int>(cd_.square_input_mode.load()));
-    ptree.put<ushort>("image_rendering.batch_size", cd_.batch_size);
-    ptree.put<ushort>("image_rendering.time_transformation_stride",
-                      cd_.time_transformation_stride);
-    ptree.put<int>("image_rendering.space_transformation",
-                   static_cast<int>(cd_.space_transformation.load()));
-    ptree.put<int>("image_rendering.time_transformation",
-                   static_cast<int>(cd_.time_transformation.load()));
-    ptree.put<ushort>("image_rendering.time_transformation_size",
-                      cd_.time_transformation_size);
+
     ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
-    ptree.put<ushort>("image_rendering.p_index", cd_.pindex);
-    ptree.put<float>("image_rendering.lambda", cd_.lambda);
-    ptree.put<float>("image_rendering.z_distance", cd_.zdistance);
+
     ptree.put<double>("image_rendering.z_step", z_step_);
-    ptree.put<ushort>("image_rendering.raw_bitshift", cd_.raw_bitshift);
 
-    // View
     ptree.put<bool>("view.hidden", view_group_box->isHidden());
-    ptree.put<int>("view.view_mode", static_cast<int>(cd_.img_type.load()));
-    ptree.put<bool>("view.log_scale_enabled", cd_.log_scale_slice_xy_enabled);
-    ptree.put<bool>("view.log_scale_enabled_cut_xz",
-                    cd_.log_scale_slice_xz_enabled);
-    ptree.put<bool>("view.log_scale_enabled_cut_yz",
-                    cd_.log_scale_slice_yz_enabled);
-    ptree.put<bool>("view.fft_shift_enabled", cd_.fft_shift_enabled);
-    ptree.put<bool>("view.contrast_enabled", cd_.contrast_enabled);
-    ptree.put<float>("view.contrast_lower_threshold",
-                     cd_.contrast_lower_threshold);
-    ptree.put<float>("view.contrast_upper_threshold",
-                     cd_.contrast_upper_threshold);
 
-    ptree.put<bool>("view.p_accu_enabled", cd_.p_accu_enabled);
-    ptree.put<bool>("view.x_accu_enabled", cd_.x_accu_enabled);
-    ptree.put<bool>("view.y_accu_enabled", cd_.y_accu_enabled);
-    ptree.put<short>("view.p_acc_level", cd_.p_acc_level);
-    ptree.put<short>("view.x_acc_level", cd_.x_acc_level);
-    ptree.put<short>("view.y_acc_level", cd_.y_acc_level);
-
-    ptree.put<float>("view.contrast_min", cd_.contrast_min_slice_xy);
-    ptree.put<float>("view.contrast_max", cd_.contrast_max_slice_xy);
-    ptree.put<ushort>("view.cuts_contrast_p_offset",
-                      cd_.cuts_contrast_p_offset);
-    ptree.put<bool>("view.accumulation_enabled", cd_.img_acc_slice_xy_enabled);
     ptree.put<float>("view.mainWindow_rotate", displayAngle);
     ptree.put<float>("view.xCut_rotate", xzAngle);
     ptree.put<float>("view.yCut_rotate", yzAngle);
     ptree.put<int>("view.mainWindow_flip", displayFlip);
     ptree.put<int>("view.xCut_flip", xzFlip);
     ptree.put<int>("view.yCut_flip", yzFlip);
-    ptree.put<float>("view.reticle_scale", cd_.reticle_scale);
 
-    ptree.put<bool>("view.renorm_enabled", cd_.renorm_enabled);
-    ptree.put<uint>("view.renorm_constant", cd_.renorm_constant);
-
-    // Chart
     ptree.put<size_t>("chart.auto_scale_point_threshold",
                       auto_scale_point_threshold_);
 
-    // Record
     ptree.put<uint>("record.record_frame_step", record_frame_step_);
 
-    // Import
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
-    ptree.put<float>("import.pixel_size", cd_.pixel_size);
 
-    // Info
     ptree.put<bool>("info.hidden", info_group_box->isHidden());
     ptree.put<ushort>("info.theme_type", theme_index_);
 
-    // Composite
-    ptree.put<ushort>("composite.p_red", cd_.composite_p_red);
-    ptree.put<ushort>("composite.p_blue", cd_.composite_p_blue);
-    ptree.put<float>("composite.weight_r", cd_.weight_r);
-    ptree.put<float>("composite.weight_g", cd_.weight_g);
-    ptree.put<float>("composite.weight_b", cd_.weight_b);
-
-    ptree.put<ushort>("composite.p_min_h", cd_.composite_p_min_h);
-    ptree.put<ushort>("composite.p_max_h", cd_.composite_p_max_h);
-    ptree.put<float>("composite.slider_h_threshold_min",
-                     cd_.slider_h_threshold_min);
-    ptree.put<float>("composite.slider_h_threshold_max",
-                     cd_.slider_h_threshold_max);
-    ptree.put<float>("composite.low_h_threshold",
-                     cd_.composite_low_h_threshold);
-    ptree.put<float>("composite.high_h_threshold",
-                     cd_.composite_high_h_threshold);
-
-    ptree.put<bool>("composite.p_activated_s", cd_.composite_p_activated_s);
-    ptree.put<ushort>("composite.p_min_s", cd_.composite_p_min_s);
-    ptree.put<ushort>("composite.p_max_s", cd_.composite_p_max_s);
-    ptree.put<float>("composite.slider_s_threshold_min",
-                     cd_.slider_s_threshold_min);
-    ptree.put<float>("composite.slider_s_threshold_max",
-                     cd_.slider_s_threshold_max);
-    ptree.put<float>("composite.low_s_threshold",
-                     cd_.composite_low_s_threshold);
-    ptree.put<float>("composite.high_s_threshold",
-                     cd_.composite_high_s_threshold);
-
-    ptree.put<bool>("composite.p_activated_v", cd_.composite_p_activated_v);
-    ptree.put<ushort>("composite.p_min_v", cd_.composite_p_min_v);
-    ptree.put<ushort>("composite.p_max_v", cd_.composite_p_max_v);
-    ptree.put<float>("composite.slider_v_threshold_min",
-                     cd_.slider_v_threshold_min);
-    ptree.put<float>("composite.slider_v_threshold_max",
-                     cd_.slider_v_threshold_max);
-    ptree.put<float>("composite.low_v_threshold",
-                     cd_.composite_low_v_threshold);
-    ptree.put<float>("composite.high_v_threshold",
-                     cd_.composite_high_v_threshold);
-    ptree.put<bool>("composite.auto_weights", cd_.composite_auto_weights_);
-
-    // Reset
-    ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
-    ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
-    ptree.put<uint>("reset.device_number", config.device_number);
-
-    // Display
     ptree.put<uint>("display.main_window_max_size", window_max_size);
     ptree.put<uint>("display.time_transformation_cuts_window_max_size",
                     time_transformation_cuts_window_max_size);

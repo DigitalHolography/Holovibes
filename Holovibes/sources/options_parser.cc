@@ -17,27 +17,46 @@ namespace holovibes
 OptionsParser::OptionsParser()
     : vm_()
 {
+    // clang-format off
     po::options_description general_opts_desc("General");
-    general_opts_desc.add_options()("version,v",
-                                    "Print the version number and exit.")(
+    general_opts_desc.add_options()
+    (
+        "version,v",
+        "Print the version number and exit"
+    )
+    (
         "help,h",
-        "Print a summary of CLI options and exit.");
+        "Print a summary of CLI options and exit"
+    );
 
     po::options_description run_opts_desc("Run");
-    run_opts_desc.add_options()("input,i",
-                                po::value<std::string>(),
-                                "Import a .holo file.")(
+    run_opts_desc.add_options()
+    (
+        "input,i",
+        po::value<std::string>(),
+        "Input file path"
+    )
+    (
         "output,o",
         po::value<std::string>(),
-        "Export a .holo file.")("input-fps",
-                                po::value<unsigned int>(),
-                                "Set holo file input FPS.")(
-        "output-nb-frames",
+        "Output file path"
+    )
+    (
+        "fps,f",
         po::value<unsigned int>(),
-        "Set number of frames for the output file.")(
-        "record-raw",
+        "Input file fps (default = 60)"
+    )
+    (
+        "n_rec,n",
+        po::value<unsigned int>(),
+        "Number of frames to record (default = same as input file)"
+    )
+    (
+        "raw",
         po::bool_switch()->default_value(false),
-        "Set flag to record raw (false by default)");
+        "Enable raw recording (default = false)"
+    );
+    // clang-format on
 
     opts_desc_.add(general_opts_desc).add(run_opts_desc);
 }
@@ -64,13 +83,13 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("output"))
             options_.output_path =
                 boost::any_cast<std::string>(vm_["output"].value());
-        if (vm_.count("input-fps"))
-            options_.input_fps =
-                boost::any_cast<unsigned int>(vm_["input-fps"].value());
-        if (vm_.count("output-nb-frames"))
-            options_.output_nb_frames =
-                boost::any_cast<unsigned int>(vm_["output-nb-frames"].value());
-        options_.record_raw = vm_["record-raw"].as<bool>();
+        if (vm_.count("fps"))
+            options_.fps =
+                boost::any_cast<unsigned int>(vm_["fps"].value());
+        if (vm_.count("n_rec"))
+            options_.n_rec =
+                boost::any_cast<unsigned int>(vm_["n_rec"].value());
+        options_.record_raw = vm_["raw"].as<bool>();
     }
     catch (std::exception& e)
     {
