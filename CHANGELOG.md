@@ -1,5 +1,13 @@
 ## Changelog
 
+### 9.1
+
+* Time Transform: add None mode
+* Fix: stutters in raw view
+* Fix: weird contrast spinbox behavior
+* GUI: rename some labels
+* CLI: rework cli to handle different types of files and load .ini config
+
 ### 9.0.5
 
 * Cine: 10bit packed cine file support
