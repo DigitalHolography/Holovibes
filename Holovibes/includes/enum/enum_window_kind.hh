@@ -18,6 +18,7 @@ enum class WindowKind
 {
     XYview = 0, /*!< Main view */
     XZview,     /*!< view slice */
-    YZview      /*!< YZ view slice */
+    YZview,     /*!< YZ view slice */
+    Filter2D,   /*!< Filter2D view */
 };
 } // namespace holovibes

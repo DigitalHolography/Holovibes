@@ -60,54 +60,33 @@ FourierTransform::FourierTransform(
 
 void FourierTransform::insert_fft()
 {
-    filter2d_zone_ = cd_.getStftZone();
-    if (cd_.filter_2d_type != Filter2DType::None)
+    if (cd_.filter2d_enabled)
         insert_filter2d();
 
-    // In filter 2D: Applying fresnel transform only when filter2d overlay is
-    // release
-    if (cd_.filter_2d_type == Filter2DType::None || filter2d_zone_.area())
-    {
-        if (cd_.space_transformation == SpaceTransformation::FFT1)
-            insert_fft1();
-        else if (cd_.space_transformation == SpaceTransformation::FFT2)
-            insert_fft2();
-        if (cd_.space_transformation == SpaceTransformation::FFT1 ||
-            cd_.space_transformation == SpaceTransformation::FFT2)
-            fn_compute_vect_.push_back([=]() { enqueue_lens(); });
-    }
+    if (cd_.space_transformation == SpaceTransformation::FFT1)
+        insert_fft1();
+    else if (cd_.space_transformation == SpaceTransformation::FFT2)
+        insert_fft2();
+    if (cd_.space_transformation == SpaceTransformation::FFT1 ||
+        cd_.space_transformation == SpaceTransformation::FFT2)
+        fn_compute_vect_.push_back([=]() { enqueue_lens(); });
 }
 
 void FourierTransform::insert_filter2d()
 {
-    if (cd_.filter_2d_type == Filter2DType::BandPass)
-    {
-        filter2d_subzone_ = cd_.getFilter2DSubZone();
-        fn_compute_vect_.push_back([=]() {
-            filter2D_BandPass(buffers_.gpu_spatial_transformation_buffer,
-                              gpu_filter2d_buffer_,
-                              cd_.batch_size,
-                              spatial_transformation_plan_,
-                              filter2d_zone_,
-                              filter2d_subzone_,
-                              fd_,
-                              stream_);
-        });
-    }
-    else // Low pass or High pass
-    {
-        bool exclude_roi = cd_.filter_2d_type == Filter2DType::HighPass;
-        fn_compute_vect_.push_back([=]() {
-            filter2D(buffers_.gpu_spatial_transformation_buffer,
-                     gpu_filter2d_buffer_,
-                     cd_.batch_size,
-                     spatial_transformation_plan_,
-                     filter2d_zone_,
-                     fd_,
-                     exclude_roi,
-                     stream_);
-        });
-    }
+    filter2d_zone_ = cd_.getFilter2DZone();
+    filter2d_subzone_ = cd_.getFilter2DSubZone();
+
+    fn_compute_vect_.push_back([=]() {
+        filter2D(buffers_.gpu_spatial_transformation_buffer,
+                 gpu_filter2d_buffer_,
+                 cd_.batch_size,
+                 spatial_transformation_plan_,
+                 filter2d_zone_,
+                 filter2d_subzone_,
+                 fd_,
+                 stream_);
+    });
 }
 
 void FourierTransform::insert_fft1()

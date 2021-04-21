@@ -36,6 +36,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
     log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
     log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
+    log_scale_filter2d_enabled = cd.log_scale_filter2d_enabled.load();
     fft_shift_enabled = cd.fft_shift_enabled.load();
     contrast_enabled = cd.contrast_enabled.load();
     convolution_enabled = cd.convolution_enabled.load();
@@ -47,6 +48,8 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
     contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
     contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
+    contrast_min_filter2d = cd.contrast_min_filter2d.load();
+    contrast_max_filter2d = cd.contrast_max_filter2d.load();
     contrast_invert = cd.contrast_invert.load();
     convo_matrix_width = cd.convo_matrix_width.load();
     convo_matrix_height = cd.convo_matrix_height.load();
@@ -69,8 +72,12 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     stft_slice_cursor = cd.stft_slice_cursor;
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
-    stft_roi_zone = cd.stft_roi_zone;
+    filter2d_enabled = cd.filter2d_enabled.load();
+    filter2d_view_enabled = cd.filter2d_view_enabled.load();
+    filter2D_zone = cd.filter2D_zone;
     filter2D_sub_zone = cd.filter2D_sub_zone;
+    filter2d_n1 = cd.filter2d_n1.load();
+    filter2d_n2 = cd.filter2d_n2.load();
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
@@ -115,16 +122,16 @@ void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
     }
 }
 
-units::RectFd ComputeDescriptor::getStftZone() const
+units::RectFd ComputeDescriptor::getFilter2DZone() const
 {
     LockGuard g(mutex_);
-    return stft_roi_zone;
+    return filter2D_zone;
 }
 
-void ComputeDescriptor::setStftZone(const units::RectFd& rect)
+void ComputeDescriptor::setFilter2DZone(const units::RectFd& rect)
 {
     LockGuard g(mutex_);
-    stft_roi_zone = rect;
+    filter2D_zone = rect;
 }
 
 units::RectFd ComputeDescriptor::getFilter2DSubZone() const
@@ -188,6 +195,9 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load()
                                           : log10(contrast_min_slice_yz);
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load()
+                                          : log10(contrast_min_filter2d);
     }
     return 0;
 }
@@ -205,6 +215,9 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load()
                                           : log10(contrast_max_slice_yz);
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled ? contrast_max_filter2d.load()
+                                          : log10(contrast_max_filter2d);
     }
     return 0;
 }
@@ -235,6 +248,8 @@ bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const
         return log_scale_slice_xz_enabled;
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled;
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled;
     }
     return false;
 }
@@ -283,6 +298,10 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
         contrast_min_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
+    case WindowKind::Filter2D:
+        contrast_min_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
+        break;
     }
 }
 
@@ -302,6 +321,10 @@ void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
         contrast_max_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
+    case WindowKind::Filter2D:
+        contrast_max_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
+        break;
     }
 }
 
@@ -317,6 +340,9 @@ void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
         break;
     case WindowKind::YZview:
         log_scale_slice_yz_enabled = value;
+        break;
+    case WindowKind::Filter2D:
+        log_scale_filter2d_enabled = value;
         break;
     }
 }

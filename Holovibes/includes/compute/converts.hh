@@ -87,6 +87,9 @@ class Converts
     /** \brief Insert the convertion Float => Unsigned Short in slices. */
     void insert_slice_ushort();
 
+    /** \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
+    void insert_filter2d_ushort();
+
     //! pindex.
     unsigned short pmin_;
     //! maximum value of p accumulation

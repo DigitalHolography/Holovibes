@@ -14,11 +14,10 @@
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
 #include "slice_cross_overlay.hh"
-#include "filter2d_overlay.hh"
-#include "filter2d_subzone_overlay.hh"
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
+#include "filter2d_reticle_overlay.hh"
 
 namespace holovibes
 {
@@ -48,26 +47,6 @@ void OverlayManager::create_overlay<Zoom>()
 {
     if (!set_current(Zoom))
         create_overlay(std::make_shared<ZoomOverlay>(parent_));
-}
-
-template <>
-void OverlayManager::create_overlay<Filter2D>()
-{
-    if (!set_current(Filter2D))
-        create_overlay(std::make_shared<Filter2DOverlay>(parent_));
-}
-
-template <>
-void OverlayManager::create_overlay<Filter2DSubZone>()
-{
-    if (!set_current(Filter2DSubZone))
-    {
-        auto& filter2d_overlay =
-            std::dynamic_pointer_cast<Filter2DOverlay>(current_overlay_);
-        create_overlay(std::make_shared<Filter2DSubZoneOverlay>(parent_));
-        std::dynamic_pointer_cast<Filter2DSubZoneOverlay>(overlays_.back())
-            ->setFilter2dOverlay(filter2d_overlay);
-    }
 }
 
 template <>
@@ -126,6 +105,13 @@ void OverlayManager::create_overlay<Reticle>()
 {
     if (!set_current(KindOfOverlay::Reticle))
         create_overlay(std::make_shared<ReticleOverlay>(parent_));
+}
+
+template <>
+void OverlayManager::create_overlay<Filter2DReticle>()
+{
+    if (!set_current(KindOfOverlay::Filter2DReticle))
+        create_overlay(std::make_shared<Filter2DReticleOverlay>(parent_));
 }
 
 void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
@@ -194,9 +180,6 @@ void OverlayManager::release(ushort frame)
             create_overlay<Signal>();
         else if (current_overlay_->getKind() == Signal)
             create_overlay<Noise>();
-        else if (current_overlay_->getKind() == Filter2D &&
-                 parent_->getCd()->filter_2d_type == Filter2DType::BandPass)
-            create_overlay<Filter2DSubZone>();
     }
 }
 
@@ -254,6 +237,8 @@ void OverlayManager::create_default()
 {
     switch (parent_->getKindOfView())
     {
+    case KindOfView::Filter2D:
+        create_overlay<Filter2DReticle>();
     case KindOfView::Raw:
     case KindOfView::Hologram:
         create_overlay<Zoom>();

@@ -135,6 +135,11 @@ class Pipe : public ICompute
     void insert_output_enqueue_hologram_mode();
 
     /*!
+    ** \brief Enqueue the output frame in the filter2d view queue
+    */
+    void insert_filter2d_view();
+
+    /*!
     ** \brief Request the computation of a autocontrast if the contrast and
     ** the contrast refresh is enabled
     */

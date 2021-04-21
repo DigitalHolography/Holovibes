@@ -177,10 +177,7 @@ void convert_frame_for_display(const void* input,
                                const ushort shift,
                                const cudaStream_t stream);
 
-/*! \brief Converts frame in complex
-** \param frame_res Size of frame in input
-*/
-void frame_to_complex(void* input,
-                      cufftComplex* output,
-                      const uint frame_res,
-                      const uint depth);
+void float_to_complex(cuComplex* output,
+                      const float* input,
+                      size_t size,
+                      const cudaStream_t stream);

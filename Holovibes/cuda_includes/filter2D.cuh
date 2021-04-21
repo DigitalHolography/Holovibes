@@ -10,23 +10,11 @@
 
 #include "common.cuh"
 
-/*! \brief Function handling the stft algorithm which steps are \n
-
-*/
 void filter2D(cuComplex* input,
               cuComplex* tmp_buffer,
               const uint batch_size,
               const cufftHandle plan2d,
-              const holovibes::units::RectFd& r,
-              const camera::FrameDescriptor& fd,
-              const bool exclude_roi,
+              const holovibes::units::RectFd& zone,
+              const holovibes::units::RectFd& subzone,
+              const camera::FrameDescriptor& desc,
               const cudaStream_t stream);
-
-void filter2D_BandPass(cuComplex* input,
-                       cuComplex* tmp_buffer,
-                       const uint batch_size,
-                       const cufftHandle plan2d,
-                       const holovibes::units::RectFd& zone,
-                       const holovibes::units::RectFd& subzone,
-                       const camera::FrameDescriptor& desc,
-                       const cudaStream_t stream);

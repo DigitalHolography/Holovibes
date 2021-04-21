@@ -22,7 +22,6 @@
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
 #include "enum_img_type.hh"
-#include "enum_filter_2d.hh"
 #include "enum_access_mode.hh"
 #include "enum_window_kind.hh"
 #include "enum_composite_kind.hh"
@@ -66,7 +65,7 @@ class ComputeDescriptor : public Observable
     units::RectFd noise_zone;
     /*! \brief	Limits the computation to only this zone. Also called Filter
      * 2D*/
-    units::RectFd stft_roi_zone;
+    units::RectFd filter2D_zone;
     /*! \brief	The subzone of the filter2D area in band-pass mode */
     units::RectFd filter2D_sub_zone;
     /*! \brief	The area on which we'll normalize the colors*/
@@ -109,7 +108,7 @@ class ComputeDescriptor : public Observable
      *
      */
 
-    units::RectFd getStftZone() const;
+    units::RectFd getFilter2DZone() const;
     units::RectFd getFilter2DSubZone() const;
     units::RectFd getCompositeZone() const;
     units::RectFd getZoomedZone() const;
@@ -123,7 +122,7 @@ class ComputeDescriptor : public Observable
      * \brief	Setter of the overlay positions.
      *
      */
-    void setStftZone(const units::RectFd& rect);
+    void setFilter2DZone(const units::RectFd& rect);
     void setFilter2DSubZone(const units::RectFd& rect);
     void setCompositeZone(const units::RectFd& rect);
     void setZoomedZone(const units::RectFd& rect);
@@ -209,6 +208,10 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_min_slice_yz{1.f};
     //! maximum constrast value in yz view
     std::atomic<float> contrast_max_slice_yz{65535.f};
+    //! minimum constrast value in Filter2D view
+    std::atomic<float> contrast_min_filter2d{1.f};
+    //! maximum constrast value in Filter2D view
+    std::atomic<float> contrast_max_filter2d{65535.f};
     //! invert contrast
     std::atomic<bool> contrast_invert{false};
 
@@ -243,14 +246,22 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> log_scale_slice_xz_enabled{false};
     //! is log scale in slice YZ enabled
     std::atomic<bool> log_scale_slice_yz_enabled{false};
+    //! is log scale in Filter2D view enabled
+    std::atomic<bool> log_scale_filter2d_enabled{false};
     //! is shift fft enabled (switching representation diagram)
     std::atomic<bool> fft_shift_enabled{false};
     //! enables the contrast for the slice xy, yz and xz
     std::atomic<bool> contrast_enabled{false};
     //! enables auto refresh of the contrast
     std::atomic<bool> contrast_auto_refresh{true};
-    //! type of filter 2D
-    std::atomic<Filter2DType> filter_2d_type{Filter2DType::None};
+    //! enables filter 2D
+    std::atomic<bool> filter2d_enabled{false};
+    //! enables filter 2D View
+    std::atomic<bool> filter2d_view_enabled{false};
+    //! Filter2D inner square radius
+    std::atomic<int> filter2d_n1{0};
+    //! Filter2D outer square radius
+    std::atomic<int> filter2d_n2{1};
 
     //! are slices YZ and XZ enabled
     std::atomic<bool> time_transformation_cuts_enabled{false};

@@ -8,28 +8,33 @@
 
 /*! \file
  *
- * Overlay ending the band-pass filtering ROI procedure. */
+ * Overlay used to display a reticle in the center of the window. */
 #pragma once
 
-#include "square_overlay.hh"
-#include <memory>
-#include "filter2d_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {
 namespace gui
 {
-class Filter2DSubZoneOverlay : public RectOverlay
+class Filter2DReticleOverlay : public Overlay
 {
   public:
-    Filter2DSubZoneOverlay(BasicOpenGLWindow* parent);
+    Filter2DReticleOverlay(BasicOpenGLWindow* parent);
+    virtual ~Filter2DReticleOverlay() {}
 
-    void release(ushort frameSide) override;
+    void init() override;
+    void draw() override;
 
-    void setFilter2dOverlay(std::shared_ptr<Filter2DOverlay> rhs);
+    virtual void move(QMouseEvent* e) override {}
+    virtual void release(ushort frameside) override {}
 
-  private:
-    std::shared_ptr<Filter2DOverlay> filter2d_overlay_;
+  protected:
+    void setBuffer() override;
+
+    //! Transparency of the lines
+    float alpha_;
 };
 } // namespace gui
 } // namespace holovibes

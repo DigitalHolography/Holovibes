@@ -29,6 +29,7 @@ using json = ::nlohmann::json;
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
+#include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
 
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -120,9 +121,12 @@ class MainWindow : public QMainWindow, public Observer
     void toggle_renormalize(bool value);
     bool is_raw_mode();
     void reset();
-    void set_filter2D();
-    void set_filter2D_type(const QString& filter2Dtype);
-    void cancel_filter2D();
+    void update_filter2d_view(bool);
+    void disable_filter2d_view();
+    void set_filter2d(bool);
+    void set_filter2d_n1(int);
+    void set_filter2d_n2(int);
+    void cancel_filter2d();
     void set_time_transformation_size();
     void update_lens_view(bool value);
     void disable_lens_view();
@@ -215,6 +219,8 @@ class MainWindow : public QMainWindow, public Observer
     void start_chart_display();
     void stop_chart_display();
 
+    void secret_filter2d(int value);
+
 #pragma endregion
     /* ---------- */
   signals:
@@ -271,6 +277,7 @@ class MainWindow : public QMainWindow, public Observer
     std::unique_ptr<SliceWindow> sliceYZ = nullptr;
     std::unique_ptr<RawWindow> lens_window = nullptr;
     std::unique_ptr<RawWindow> raw_window = nullptr;
+    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
     std::unique_ptr<PlotWindow> plot_window_ = nullptr;
 
     uint window_max_size = 768;
@@ -313,6 +320,9 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* gl_normal_screen_;
 
 #pragma endregion
+
+    /* Secret var used to activate the Filter2D */
+    int filter2d_secret_;
 };
 } // namespace gui
 } // namespace holovibes
