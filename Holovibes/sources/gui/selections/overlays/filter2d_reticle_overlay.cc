@@ -48,8 +48,8 @@ void Filter2DReticleOverlay::setBuffer()
 {
     Program_->bind();
     Vao_.bind();
-    float w = parent_->size().width();
-    float h = parent_->size().height();
+    float w = parent_->getFd().width;
+    float h = parent_->getFd().height;
     float dimension_min = fmin(w, h);
     float scale_n1 = (parent_->getCd()->filter2d_n1.load() * 2) / dimension_min;
     float scale_n2 = (parent_->getCd()->filter2d_n2.load() * 2) / dimension_min;
