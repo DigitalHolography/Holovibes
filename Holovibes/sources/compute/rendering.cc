@@ -389,7 +389,7 @@ void Rendering::autocontrast_caller(float* input,
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled,
+                                   false,
                                    stream_);
         set_contrast_min_max(percent_min_max_,
                              cd_.contrast_min_filter2d,

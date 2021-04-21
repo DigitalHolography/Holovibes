@@ -8,37 +8,33 @@
 
 /*! \file
  *
- * Qt window containing the Filter2D view of the hologram. */
+ * Overlay used to display a reticle in the center of the window. */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {
 namespace gui
 {
-class MainWindow;
-
-class Filter2DWindow : public BasicOpenGLWindow
+class Filter2DReticleOverlay : public Overlay
 {
   public:
-    Filter2DWindow(QPoint p,
-                QSize s,
-                DisplayQueue* q,
-                MainWindow* main_window = nullptr);
-    virtual ~Filter2DWindow();
+    Filter2DReticleOverlay(BasicOpenGLWindow* parent);
+    virtual ~Filter2DReticleOverlay() {}
+
+    void init() override;
+    void draw() override;
+
+    virtual void move(QMouseEvent* e) override {}
+    virtual void release(ushort frameside) override {}
 
   protected:
-    cudaArray_t cuArray;
-    cudaResourceDesc cuArrRD;
-    cudaSurfaceObject_t cuSurface;
-    MainWindow* main_window_;
+    void setBuffer() override;
 
-    virtual void initShaders() override;
-    virtual void initializeGL() override;
-    virtual void paintGL() override;
-
-    void focusInEvent(QFocusEvent*) override;
+    //! Transparency of the lines
+    float alpha_;
 };
 } // namespace gui
 } // namespace holovibes

@@ -258,6 +258,10 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> filter2d_enabled{false};
     //! enables filter 2D View
     std::atomic<bool> filter2d_view_enabled{false};
+    //! Filter2D inner square radius
+    std::atomic<int> filter2d_n1{0};
+    //! Filter2D outer square radius
+    std::atomic<int> filter2d_n2{1};
 
     //! are slices YZ and XZ enabled
     std::atomic<bool> time_transformation_cuts_enabled{false};

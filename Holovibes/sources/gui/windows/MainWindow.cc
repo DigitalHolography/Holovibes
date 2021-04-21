@@ -1899,7 +1899,6 @@ void MainWindow::update_filter2d_view(bool checked)
                         new Filter2DWindow(pos,
                                     QSize(filter2d_window_width, filter2d_window_height),
                                     pipe->get_filter2d_view_queue().get(),
-                                    holovibes_.get_compute_pipe(),
                                     this));
 
                     filter2d_window->setTitle("Filter2D view");
@@ -1951,6 +1950,7 @@ void MainWindow::set_filter2d_n1(int n)
         zone.setTopLeft(src);
 
         cd_.setFilter2DSubZone(zone);
+        cd_.filter2d_n1 = n;
 
         pipe_refresh();
         notify();
@@ -1978,6 +1978,7 @@ void MainWindow::set_filter2d_n2(int n)
         zone.setTopLeft(src);
 
         cd_.setFilter2DZone(zone);
+        cd_.filter2d_n2 = n;
 
         pipe_refresh();
         notify();
