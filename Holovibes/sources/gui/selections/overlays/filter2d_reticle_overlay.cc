@@ -94,22 +94,14 @@ void Filter2DReticleOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     const float colorData[] = {
-        // 1, 1, 1,
-        // 1, 1, 0,
-        // 1, 0, 1,
-        // 1, 0, 0,
-        // 0, 1, 1,
-        // 0, 1, 0,
-        // 0, 0, 1,
-        // 0, 0, 0,
+        1, 1, 1,
+        1, 1, 0,
+        1, 0, 1,
         1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
+        0, 1, 1,
+        0, 1, 0,
+        0, 0, 1,
+        0, 0, 0,
     };
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);

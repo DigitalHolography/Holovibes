@@ -1706,7 +1706,6 @@ void MainWindow::cancel_filter2d()
     {
         if (cd_.filter2d_view_enabled == true)
             update_filter2d_view(false);
-        set_auto_contrast();
         pipe_refresh();
         notify();
     }
