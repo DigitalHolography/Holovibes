@@ -42,6 +42,11 @@ OptionsParser::OptionsParser()
         "Output file path"
     )
     (
+        "ini",
+        po::value<std::string>(),
+        ".ini config file path (default = holovibes.ini)"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = 60)"
@@ -83,6 +88,9 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("output"))
             options_.output_path =
                 boost::any_cast<std::string>(vm_["output"].value());
+        if (vm_.count("ini"))
+            options_.ini_path =
+                boost::any_cast<std::string>(vm_["ini"].value());
         if (vm_.count("fps"))
             options_.fps =
                 boost::any_cast<unsigned int>(vm_["fps"].value());

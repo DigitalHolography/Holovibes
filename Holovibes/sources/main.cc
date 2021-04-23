@@ -133,6 +133,7 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         std::cerr << "Uncaught exception: " << e.what() << std::endl;
+        ret = 1;
     }
     return ret;
 }

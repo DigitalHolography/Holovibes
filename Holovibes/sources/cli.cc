@@ -8,6 +8,7 @@
 
 #include "cli.hh"
 
+#include "tools.hh"
 #include "icompute.hh"
 #include "ini_config.hh"
 #include "input_frame_file_factory.hh"
@@ -34,23 +35,14 @@ static void progress_bar(int current, int total, int length)
 int start_cli(holovibes::Holovibes& holovibes,
               const holovibes::OptionsDescriptor& opts)
 {
-    holovibes::ini::load_ini(holovibes.get_cd());
+    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
     holovibes.start_information_display(true);
 
     std::string input_path = opts.input_path.value();
 
-    holovibes::io_files::InputFrameFile* input_frame_file = nullptr;
-
-    try
-    {
-        input_frame_file =
-            holovibes::io_files::InputFrameFileFactory::open(input_path);
-    }
-    catch (const holovibes::io_files::FileException& e)
-    {
-        LOG_ERROR(e.what());
-        return 1;
-    }
+    holovibes::io_files::InputFrameFile* input_frame_file =
+        holovibes::io_files::InputFrameFileFactory::open(input_path);
 
     const camera::FrameDescriptor& fd =
         input_frame_file->get_frame_descriptor();

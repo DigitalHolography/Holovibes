@@ -12,10 +12,10 @@ namespace holovibes
 {
 namespace ini
 {
-void load_ini(ComputeDescriptor& cd)
+void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
 {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(GLOBAL_INI_PATH, ptree);
+    boost::property_tree::ini_parser::read_ini(ini_path, ptree);
     load_ini(ptree, cd);
 }
 

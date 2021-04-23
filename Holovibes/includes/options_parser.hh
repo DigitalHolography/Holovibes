@@ -29,6 +29,7 @@ struct OptionsDescriptor
     std::optional<unsigned int> n_rec;
     std::optional<std::string> input_path;
     std::optional<std::string> output_path;
+    std::optional<std::string> ini_path;
     bool record_raw;
 };
 
