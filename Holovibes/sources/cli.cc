@@ -8,6 +8,8 @@
 
 #include "cli.hh"
 
+#include <chrono>
+
 #include "tools.hh"
 #include "icompute.hh"
 #include "ini_config.hh"
@@ -32,9 +34,30 @@ static void progress_bar(int current, int total, int length)
     std::cout.flush();
 }
 
+static void print_verbose(const holovibes::OptionsDescriptor& opts)
+{
+    std::cout << "Input file: " << opts.input_path.value() << "\n";
+    std::cout << "Output file: " << opts.output_path.value() << "\n";
+    std::cout << "FPS: " << opts.fps.value_or(60) << "\n";
+    std::cout << "Number of frames to record: ";
+    if (opts.n_rec)
+        std::cout << opts.n_rec.value() << "\n";
+    else
+        std::cout << "full file\n";
+    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw
+              << std::dec << "\n";
+
+    std::cout << std::endl;
+}
+
 int start_cli(holovibes::Holovibes& holovibes,
               const holovibes::OptionsDescriptor& opts)
 {
+    if (opts.verbose)
+    {
+        print_verbose(opts);
+    }
+
     std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
     holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
     holovibes.start_information_display(true);
@@ -75,6 +98,8 @@ int start_cli(holovibes::Holovibes& holovibes,
     auto progress_opt = info.get_progress_index(
         holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
+    auto begin = std::chrono::steady_clock::now();
+
     while (holovibes.get_cd().frame_record_enabled)
     {
         if (!progress_opt)
@@ -86,6 +111,13 @@ int start_cli(holovibes::Holovibes& holovibes,
             progress_bar(progress.first->load(), progress.second->load(), 40);
         }
     }
+
+    auto end = std::chrono::steady_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - begin)
+            .count();
+
+    printf(" Time: %.3fs\n", duration / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

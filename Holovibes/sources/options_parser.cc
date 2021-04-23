@@ -21,7 +21,7 @@ OptionsParser::OptionsParser()
     po::options_description general_opts_desc("General");
     general_opts_desc.add_options()
     (
-        "version,v",
+        "version",
         "Print the version number and exit"
     )
     (
@@ -31,6 +31,11 @@ OptionsParser::OptionsParser()
 
     po::options_description run_opts_desc("Run");
     run_opts_desc.add_options()
+    (
+        "verbose,v",
+        po::bool_switch()->default_value(false),
+        "Verbose mode (default = false)"
+    )
     (
         "input,i",
         po::value<std::string>(),
@@ -98,6 +103,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.n_rec =
                 boost::any_cast<unsigned int>(vm_["n_rec"].value());
         options_.record_raw = vm_["raw"].as<bool>();
+        options_.verbose = vm_["verbose"].as<bool>();
     }
     catch (std::exception& e)
     {
