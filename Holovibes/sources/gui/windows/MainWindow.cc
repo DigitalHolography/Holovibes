@@ -2937,7 +2937,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
-    ui.BatchSizeSpinBox->setEnabled(true);
+    ui.BatchSizeSpinBox->setEnabled(cd_.compute_mode == Computation::Hologram);
     is_recording_ = false;
 }
 
