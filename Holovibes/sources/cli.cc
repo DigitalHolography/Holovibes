@@ -25,10 +25,18 @@ static void progress_bar(int current, int total, int length)
     float ratio = (current * 1.0f) / total;
     int n = length * ratio;
 
-    text += '|';
-    text.append(n, '#');
-    text.append(length - n, '-');
-    text += '|';
+    text += '[';
+    if (n == length)
+    {
+        text.append(n, '=');
+    }
+    else if (n > 0)
+    {
+        text.append(n - 1, '=');
+        text.append(1, '>');
+    }
+    text.append(length - n, ' ');
+    text += ']';
 
     std::cout << '\r' << text;
     std::cout.flush();
@@ -115,7 +123,9 @@ int start_cli(holovibes::Holovibes& holovibes,
             const auto& progress = progress_opt.value();
             progress_bar(progress.first->load(), progress.second->load(), 40);
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    progress_bar(1, 1, 40); // show 100% completion to avoid rounding errors
 
     auto end = std::chrono::steady_clock::now();
     auto duration =
