@@ -124,6 +124,7 @@ void input_queue_to_input_buffer(void* const output,
      * To pass lambda like that, we need to add the --extended-lambda  flag
      */
     static const auto convert_8_bit = [] __device__(const uchar input_pixel) {
+        // max uchar value is 255, multiplied by 257 you have 65535 which is max ushort
         return static_cast<float>(input_pixel * 257);
     };
     static const auto convert_16_bit = [] __device__(const ushort input_pixel) {
