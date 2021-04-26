@@ -114,6 +114,10 @@ class BatchInputQueue : public DisplayQueue
     */
     void stop_producer();
 
+    void sync_current_batch() const;
+
+    bool is_current_batch_full();
+
     inline void* get_last_image() const override;
 
     inline bool is_empty() const;

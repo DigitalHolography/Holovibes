@@ -14,14 +14,14 @@ namespace holovibes
 {
 inline void* BatchInputQueue::get_last_image() const
 {
+    sync_current_batch();
     // Return the previous enqueued frame
     return data_.get() +
            ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) *
                frame_size_;
 }
 
-inline uint
-BatchInputQueue::wait_and_lock(const std::atomic<uint>& index)
+inline uint BatchInputQueue::wait_and_lock(const std::atomic<uint>& index)
 {
     uint tmp_index;
     while (true)
