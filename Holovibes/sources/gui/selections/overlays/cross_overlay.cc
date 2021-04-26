@@ -200,6 +200,12 @@ void CrossOverlay::draw()
     Vao_.release();
 }
 
+void CrossOverlay::onSetCurrent()
+{
+    mouse_position_ = parent_->getCd()->getStftCursor();
+    printPosition();
+}
+
 void CrossOverlay::press(QMouseEvent* e) {}
 
 void CrossOverlay::keyPress(QKeyEvent* e)
@@ -219,11 +225,7 @@ void CrossOverlay::move(QMouseEvent* e)
         mouse_position_ = pos;
 
         // Updating infos Tab
-        std::stringstream ss;
-        ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
-        Holovibes::instance().get_info_container().add_indication(
-            InformationContainer::IndicationType::CUTS_SLICE_CURSOR,
-            ss.str());
+        printPosition();
 
         auto cd = parent_->getCd();
         cd->setStftCursor(pos);
@@ -306,6 +308,16 @@ void CrossOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     Program_->release();
+}
+
+void CrossOverlay::printPosition() const
+{
+    auto pos = mouse_position_;
+    std::stringstream ss;
+    ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
+    Holovibes::instance().get_info_container().add_indication(
+        InformationContainer::IndicationType::CUTS_SLICE_CURSOR,
+        ss.str());
 }
 } // namespace gui
 } // namespace holovibes

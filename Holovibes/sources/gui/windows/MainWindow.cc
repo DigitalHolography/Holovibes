@@ -1422,10 +1422,6 @@ void MainWindow::update_time_transformation_stride()
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)
 {
-    Holovibes::instance().get_info_container().add_indication(
-        InformationContainer::IndicationType::CUTS_SLICE_CURSOR,
-        "(Y,X) = (0,0)");
-
     QComboBox* winSelection = ui.WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0

@@ -49,6 +49,11 @@ const bool Overlay::isDisplayed() const { return display_; }
 
 const bool Overlay::isActive() const { return active_; }
 
+void Overlay::onSetCurrent()
+{
+    // Do nothing
+}
+
 void Overlay::disable()
 {
     active_ = false;
