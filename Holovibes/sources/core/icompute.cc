@@ -164,6 +164,10 @@ bool ICompute::update_time_transformation_size(
             time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
+    else if (cd_.time_transformation == TimeTransformation::NONE)
+    {
+        // Nothing to do
+    }
     else // Should not happend or be handled (if add more time transformation)
         assert(false);
 
