@@ -36,6 +36,11 @@ static void progress_bar(int current, int total, int length)
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
+    std::cout << "Config:\n";
+    auto ini_data =
+        read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
+    std::cout << ini_data << "\n\n";
+
     std::cout << "Input file: " << opts.input_path.value() << "\n";
     std::cout << "Output file: " << opts.output_path.value() << "\n";
     std::cout << "FPS: " << opts.fps.value_or(60) << "\n";
