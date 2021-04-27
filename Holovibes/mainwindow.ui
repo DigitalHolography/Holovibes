@@ -3047,7 +3047,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -4918,7 +4918,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImportStartIndexSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
    <slot>import_start_spinbox_update()</slot>
    <hints>
@@ -4934,7 +4934,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImportEndIndexSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
    <slot>import_end_spinbox_update()</slot>
    <hints>

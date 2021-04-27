@@ -136,6 +136,7 @@ bool OverlayManager::set_current(KindOfOverlay ko)
 void OverlayManager::set_current(std::shared_ptr<Overlay> new_overlay)
 {
     current_overlay_ = new_overlay;
+    current_overlay_->onSetCurrent();
     parent_->getCd()->notify_observers();
 }
 

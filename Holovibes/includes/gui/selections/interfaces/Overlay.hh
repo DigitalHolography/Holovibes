@@ -82,6 +82,11 @@ class Overlay : protected QOpenGLFunctions
     */
     void enable();
 
+    /*! \brief Called when the overlay is set as current
+
+    */
+    virtual void onSetCurrent();
+
     /*! \brief Initialize shaders and Vao/Vbo of the overlay
 
     */

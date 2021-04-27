@@ -39,6 +39,8 @@ class CrossOverlay : public Overlay
     void init() override;
     void draw() override;
 
+    void onSetCurrent() override;
+
     void press(QMouseEvent* e) override;
     void keyPress(QKeyEvent* e) override;
     void move(QMouseEvent* e) override;
@@ -51,6 +53,8 @@ class CrossOverlay : public Overlay
      */
     void computeZone();
 
+    void printPosition() const;
+
     //! Transparency of the borders
     float line_alpha_;
 
@@ -61,7 +65,7 @@ class CrossOverlay : public Overlay
     bool locked_;
 
     //! Actual mouse position
-    units::PointFd mouse_position_;
+    units::PointFd mouse_position_{0, 0};
 
     //! Horizontal area. zone_ corresponds to the vertical area
     units::RectFd horizontal_zone_;
