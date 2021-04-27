@@ -21,7 +21,7 @@ OptionsParser::OptionsParser()
     po::options_description general_opts_desc("General");
     general_opts_desc.add_options()
     (
-        "version,v",
+        "version",
         "Print the version number and exit"
     )
     (
@@ -32,6 +32,11 @@ OptionsParser::OptionsParser()
     po::options_description run_opts_desc("Run");
     run_opts_desc.add_options()
     (
+        "verbose,v",
+        po::bool_switch()->default_value(false),
+        "Verbose mode (default = false)"
+    )
+    (
         "input,i",
         po::value<std::string>(),
         "Input file path"
@@ -40,6 +45,11 @@ OptionsParser::OptionsParser()
         "output,o",
         po::value<std::string>(),
         "Output file path"
+    )
+    (
+        "ini",
+        po::value<std::string>(),
+        ".ini config file path (default = holovibes.ini)"
     )
     (
         "fps,f",
@@ -83,6 +93,9 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("output"))
             options_.output_path =
                 boost::any_cast<std::string>(vm_["output"].value());
+        if (vm_.count("ini"))
+            options_.ini_path =
+                boost::any_cast<std::string>(vm_["ini"].value());
         if (vm_.count("fps"))
             options_.fps =
                 boost::any_cast<unsigned int>(vm_["fps"].value());
@@ -90,6 +103,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.n_rec =
                 boost::any_cast<unsigned int>(vm_["n_rec"].value());
         options_.record_raw = vm_["raw"].as<bool>();
+        options_.verbose = vm_["verbose"].as<bool>();
     }
     catch (std::exception& e)
     {

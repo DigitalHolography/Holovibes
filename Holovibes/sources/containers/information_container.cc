@@ -114,4 +114,16 @@ void InformationContainer::clear()
     queue_size_map_.clear();
     progress_index_map_.clear();
 }
+
+std::optional<std::pair<const std::atomic<unsigned int>*,
+                        const std::atomic<unsigned int>*>>
+InformationContainer::get_progress_index(ProgressType progress_type) const
+{
+    if (progress_index_map_.contains(progress_type))
+    {
+        return progress_index_map_.at(progress_type);
+    }
+    return std::nullopt;
+}
+
 } // namespace holovibes
