@@ -1,5 +1,12 @@
 ## Changelog
 
+### 9.2
+
+* Filter2D: rework filter2D
+* CLI: add progress bar and other info
+* Fix: minor gui bugfixes
+* Fix: batch_input_queue async copy and input file gpu_frame_buffer synchro
+
 ### 9.1
 
 * Time Transform: add None mode
