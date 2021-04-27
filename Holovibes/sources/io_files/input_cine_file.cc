@@ -76,7 +76,9 @@ void InputCineFile::set_pos_to_frame(size_t frame_id)
     }
 }
 
-size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int *flag_packed)
+size_t InputCineFile::read_frames(char* buffer,
+                                  size_t frames_to_read,
+                                  int* flag_packed)
 {
     size_t frames_read = 0;
 
@@ -92,8 +94,10 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int *flag
             throw FileException("Unable to read " +
                                 std::to_string(frames_to_read) + " frames");
 
-        frames_read +=
-            std::fread(buffer + i * packed_frame_size_, packed_frame_size_, 1, file_);
+        frames_read += std::fread(buffer + i * packed_frame_size_,
+                                  packed_frame_size_,
+                                  1,
+                                  file_);
 
         if (ferror(file_))
             throw FileException("Unable to read " +
