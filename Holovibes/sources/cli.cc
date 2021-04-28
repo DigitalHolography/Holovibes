@@ -93,10 +93,14 @@ int start_cli(holovibes::Holovibes& holovibes,
                                     input_nb_frames,
                                     false);
 
-    input_frame_file->import_compute_settings(holovibes.get_cd());
+    auto& cd = holovibes.get_cd();
+    input_frame_file->import_compute_settings(cd);
 
-    holovibes.get_cd().compute_mode = holovibes::Computation::Hologram;
-    holovibes.get_cd().frame_record_enabled = true;
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+
+    // Start measuring time
+    auto begin = std::chrono::steady_clock::now();
 
     holovibes.start_compute();
 
@@ -107,13 +111,13 @@ int start_cli(holovibes::Holovibes& holovibes,
                                  opts.record_raw,
                                  false);
 
+    // The the current recording progress to print the progress bar
     const auto& info = holovibes.get_info_container();
     auto progress_opt = info.get_progress_index(
         holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
-    auto begin = std::chrono::steady_clock::now();
-
-    while (holovibes.get_cd().frame_record_enabled)
+    bool requested_autocontrast = false;
+    while (cd.frame_record_enabled)
     {
         if (!progress_opt)
             progress_opt = info.get_progress_index(
@@ -122,10 +126,24 @@ int start_cli(holovibes::Holovibes& holovibes,
         {
             const auto& progress = progress_opt.value();
             progress_bar(progress.first->load(), progress.second->load(), 40);
+
+            // Very dirty hack
+            // Request auto contrast once we have accumualated enough images
+            // Otherwise the autocontrast is computed at the beginning and we
+            // end up with black images ...
+            if (progress.first->load() >= cd.img_acc_slice_xy_level &&
+                !requested_autocontrast)
+            {
+                holovibes.get_compute_pipe()->request_autocontrast(
+                    cd.current_window);
+                requested_autocontrast = true;
+            }
         }
+        // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    progress_bar(1, 1, 40); // show 100% completion to avoid rounding errors
+    // Show 100% completion to avoid rounding errors
+    progress_bar(1, 1, 40);
 
     auto end = std::chrono::steady_clock::now();
     auto duration =
