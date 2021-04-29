@@ -158,9 +158,6 @@ class Holovibes
 
     void stop_frame_read();
 
-    /*! \brief Clear values related to convolution matrix */
-    void clear_convolution_matrix();
-
     void start_frame_record(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
