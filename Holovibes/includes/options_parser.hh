@@ -30,6 +30,8 @@ struct OptionsDescriptor
     std::optional<std::string> input_path;
     std::optional<std::string> output_path;
     std::optional<std::string> ini_path;
+    std::optional<std::string> convo_path;
+    bool divide_convo;
     bool record_raw;
     bool verbose;
 };

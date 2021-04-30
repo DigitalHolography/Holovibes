@@ -52,6 +52,16 @@ OptionsParser::OptionsParser()
         ".ini config file path (default = holovibes.ini)"
     )
     (
+        "convolution,c",
+        po::value<std::string>(),
+        "Convolution matrix path (default = no convolution)"
+    )
+    (
+        "divide,d",
+        po::bool_switch()->default_value(false),
+        "Divide by convolution matrix (default = false)"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = 60)"
@@ -96,6 +106,9 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("ini"))
             options_.ini_path =
                 boost::any_cast<std::string>(vm_["ini"].value());
+        if (vm_.count("convolution"))
+            options_.convo_path =
+                boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
             options_.fps =
                 boost::any_cast<unsigned int>(vm_["fps"].value());
@@ -104,6 +117,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
                 boost::any_cast<unsigned int>(vm_["n_rec"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
+        options_.divide_convo = vm_["divide"].as<bool>();
     }
     catch (std::exception& e)
     {

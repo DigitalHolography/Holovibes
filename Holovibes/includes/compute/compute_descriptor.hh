@@ -350,6 +350,7 @@ class ComputeDescriptor : public Observable
     //! \}
 
     void set_convolution(bool enable, const std::string& file);
+    void set_divide_by_convo(bool enable);
     void load_convolution_matrix();
     //! convolution file used when convolution_enabled
     std::string convolution_file{""};

@@ -57,24 +57,21 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         std::cout << opts.n_rec.value() << "\n";
     else
         std::cout << "full file\n";
-    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw
-              << std::dec << "\n";
-
+    if (opts.record_raw)
+        std::cout << "Raw recording enabled\n";
+    if (opts.convo_path.has_value())
+    {
+        std::cout << "Convolution matrix: " << opts.convo_path.value() << "\n";
+        std::cout << "Divide by convolution matrix: " << std::boolalpha
+                  << opts.divide_convo << std::dec << "\n";
+    }
     std::cout << std::endl;
 }
 
-int start_cli(holovibes::Holovibes& holovibes,
-              const holovibes::OptionsDescriptor& opts)
+static std::pair<holovibes::io_files::InputFrameFile*, size_t>
+open_input_file(holovibes::Holovibes& holovibes,
+                const holovibes::OptionsDescriptor& opts)
 {
-    if (opts.verbose)
-    {
-        print_verbose(opts);
-    }
-
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
-    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
-    holovibes.start_information_display(true);
-
     std::string input_path = opts.input_path.value();
 
     holovibes::io_files::InputFrameFile* input_frame_file =
@@ -93,17 +90,45 @@ int start_cli(holovibes::Holovibes& holovibes,
                                     input_nb_frames,
                                     false);
 
-    auto& cd = holovibes.get_cd();
-    input_frame_file->import_compute_settings(cd);
+    input_frame_file->import_compute_settings(holovibes.get_cd());
 
-    cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
+    return std::make_pair(input_frame_file, input_nb_frames);
+}
+
+int start_cli(holovibes::Holovibes& holovibes,
+              const holovibes::OptionsDescriptor& opts)
+{
+    if (opts.verbose)
+    {
+        print_verbose(opts);
+    }
+
+    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
+    holovibes.start_information_display(true);
+
+    auto [input_frame_file, input_nb_frames] = open_input_file(holovibes, opts);
 
     // Start measuring time
     auto begin = std::chrono::steady_clock::now();
 
     holovibes.start_compute();
 
+    auto& cd = holovibes.get_cd();
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+    if (opts.convo_path.has_value())
+    {
+        auto convo_path =
+            std::filesystem::path(opts.convo_path.value()).filename().string();
+        cd.set_convolution(true, convo_path);
+        cd.set_divide_by_convo(opts.divide_convo);
+        holovibes.get_compute_pipe()->request_convolution();
+    }
+
+    holovibes.get_compute_pipe()->request_update_batch_size();
+    holovibes.get_compute_pipe()->request_update_time_transformation_stride();
+    holovibes.get_compute_pipe()->request_update_time_transformation_size();
     holovibes.get_compute_pipe()->request_refresh();
 
     holovibes.start_frame_record(opts.output_path.value(),

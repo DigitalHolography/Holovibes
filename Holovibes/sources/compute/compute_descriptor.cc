@@ -372,6 +372,11 @@ void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
     }
 }
 
+void ComputeDescriptor::set_divide_by_convo(bool enable)
+{
+    divide_convolution_enabled = enable && convolution_enabled;
+}
+
 void ComputeDescriptor::load_convolution_matrix()
 {
     auto& holo = Holovibes::instance();
