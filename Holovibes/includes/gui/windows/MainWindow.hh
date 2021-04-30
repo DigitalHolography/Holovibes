@@ -112,7 +112,7 @@ class MainWindow : public QMainWindow, public Observer
     **
     ** \param value true for raw mode, false for hologram mode.
     */
-    void set_image_mode();
+    void set_image_mode(QString mode);
     void reset_input();
     void set_square_input_mode(const QString& name);
     void refreshViewMode();

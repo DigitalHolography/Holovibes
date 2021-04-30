@@ -124,34 +124,43 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_25">
+          <layout class="QHBoxLayout" name="squareInputModeLayout">
            <item>
-            <widget class="QRadioButton" name="DirectRadioButton">
-             <property name="toolTip">
-              <string/>
-             </property>
+            <widget class="QLabel" name="SquareInputModeLabel">
              <property name="text">
-              <string>Raw</string>
+              <string>Square Input</string>
              </property>
-             <property name="checked">
-              <bool>true</bool>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="HologramRadioButton">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="toolTipDuration">
-              <number>-3</number>
-             </property>
-             <property name="text">
-              <string>Hologram</string>
-             </property>
-             <property name="checked">
+            <widget class="QComboBox" name="SquareInputModeComboBox">
+             <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <item>
+              <property name="text">
+               <string>Default</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Zero Padded</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Cropped</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
