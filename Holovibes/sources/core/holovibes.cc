@@ -46,14 +46,6 @@ void Holovibes::update_cd_for_cli(const unsigned int input_fps)
     cd_.contrast_enabled = false;
 }
 
-void Holovibes::clear_convolution_matrix()
-{
-    cd_.convo_matrix_width = 0;
-    cd_.convo_matrix_height = 0;
-    cd_.convo_matrix_z = 0;
-    cd_.convo_matrix.clear();
-}
-
 const float Holovibes::get_boundary()
 {
     if (gpu_input_queue_.load())

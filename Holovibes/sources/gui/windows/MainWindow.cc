@@ -2501,7 +2501,9 @@ void MainWindow::update_convo_kernel(const QString& value)
 {
     if (cd_.convolution_enabled)
     {
-        load_convo_matrix();
+        cd_.set_convolution(
+            true,
+            ui.KernelQuickSelectComboBox->currentText().toStdString());
 
         try
         {
@@ -2519,109 +2521,11 @@ void MainWindow::update_convo_kernel(const QString& value)
     }
 }
 
-void MainWindow::load_convo_matrix()
-{
-    holovibes_.clear_convolution_matrix();
-
-    try
-    {
-        std::filesystem::path dir(get_exe_dir());
-        dir = dir / "convolution_kernels" /
-              ui.KernelQuickSelectComboBox->currentText().toStdString();
-        std::string path = dir.string();
-
-        std::vector<float> matrix;
-        uint matrix_width = 0;
-        uint matrix_height = 0;
-        uint matrix_z = 1;
-
-        // Doing this the C way cause it's faster
-        FILE* c_file;
-        fopen_s(&c_file, path.c_str(), "r");
-
-        if (c_file == nullptr)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid file path");
-        }
-
-        // Read kernel dimensions
-        if (fscanf_s(c_file,
-                     "%u %u %u;",
-                     &matrix_width,
-                     &matrix_height,
-                     &matrix_z) != 3)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid kernel dimensions");
-        }
-
-        size_t matrix_size = matrix_width * matrix_height * matrix_z;
-        matrix.resize(matrix_size);
-
-        // Read kernel values
-        for (size_t i = 0; i < matrix_size; ++i)
-        {
-            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-            {
-                fclose(c_file);
-                throw std::runtime_error("Missing values");
-            }
-        }
-
-        fclose(c_file);
-
-        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-        const uint output_width =
-            holovibes_.get_gpu_output_queue()->get_fd().width;
-        const uint output_height =
-            holovibes_.get_gpu_output_queue()->get_fd().height;
-        const uint size = output_width * output_height;
-
-        // The convo matrix is centered and padded with 0 since the kernel is
-        // usally smaller than the output Example: kernel size is (2, 2) and
-        // output size is (4, 4) The kernel is represented by 'x' and
-        //  | 0 | 0 | 0 | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | 0 | 0 | 0 |
-        const uint first_col = (output_width / 2) - (matrix_width / 2);
-        const uint last_col = (output_width / 2) + (matrix_width / 2);
-        const uint first_row = (output_height / 2) - (matrix_height / 2);
-        const uint last_row = (output_height / 2) + (matrix_height / 2);
-
-        std::vector<float> convo_matrix(size, 0.0f);
-
-        uint kernel_indice = 0;
-        for (uint i = first_row; i < last_row; i++)
-        {
-            for (uint j = first_col; j < last_col; j++)
-            {
-                convo_matrix[i * output_width + j] = matrix[kernel_indice];
-                kernel_indice++;
-            }
-        }
-
-        // Update convo matrix parameters
-        cd_.convo_matrix_width = output_width;
-        cd_.convo_matrix_height = output_height;
-        cd_.convo_matrix_z = matrix_z;
-        cd_.convo_matrix = convo_matrix;
-    }
-    catch (std::exception& e)
-    {
-        holovibes_.clear_convolution_matrix();
-        display_error("Couldn't load file\n" + std::string(e.what()));
-    }
-}
-
 void MainWindow::set_convolution_mode(const bool value)
 {
-    if (!value && cd_.convolution_enabled)
-        set_divide_convolution_mode(false);
-
-    if (value)
-        load_convo_matrix();
+    cd_.set_convolution(
+        value,
+        ui.KernelQuickSelectComboBox->currentText().toStdString());
 
     try
     {

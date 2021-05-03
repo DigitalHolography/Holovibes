@@ -222,12 +222,6 @@ class ComputeDescriptor : public Observable
     std::atomic<ushort> cuts_contrast_p_offset{2};
     //! Size of a pixel in micron
     std::atomic<float> pixel_size;
-    //! Width of the matrix used for convolution
-    std::atomic<uint> convo_matrix_width{0};
-    //! Height of the matrix used for convolution
-    std::atomic<uint> convo_matrix_height{0};
-    //! Z of the matrix used for convolution
-    std::atomic<uint> convo_matrix_z{0};
     //! Number of pipe iterations between two temporal demodulation.
     std::atomic<uint> time_transformation_stride{1};
 
@@ -365,6 +359,12 @@ class ComputeDescriptor : public Observable
     */
     std::atomic<bool> frame_record_enabled{false};
     //! \}
+
+    void set_convolution(bool enable, const std::string& file);
+    void set_divide_by_convo(bool enable);
+    void load_convolution_matrix();
+    //! convolution file used when convolution_enabled
+    std::string convolution_file{""};
 
 #pragma endregion
 };
