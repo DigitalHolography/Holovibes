@@ -25,15 +25,6 @@ Holovibes& Holovibes::instance()
     return instance;
 }
 
-Queue* Holovibes::get_current_window_output_queue()
-{
-    if (cd_.current_window == WindowKind::XYview)
-        return gpu_output_queue_.load().get();
-    else if (cd_.current_window == WindowKind::XZview)
-        return get_compute_pipe()->get_stft_slice_queue(0).get();
-    return get_compute_pipe()->get_stft_slice_queue(1).get();
-}
-
 void Holovibes::update_cd_for_cli(const unsigned int input_fps)
 {
     // Compute time filter stride such as output fps = 20
