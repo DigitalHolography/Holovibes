@@ -1524,6 +1524,8 @@ void MainWindow::change_window()
         cd_.current_window = WindowKind::XZview;
     else if (window_cbox->currentIndex() == 2)
         cd_.current_window = WindowKind::YZview;
+    else if (window_cbox->currentIndex() == 3)
+        cd_.current_window = WindowKind::Filter2D;
     pipe_refresh();
     notify();
 }

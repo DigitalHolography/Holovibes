@@ -1228,7 +1228,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>105</width>
              <height>0</height>
             </size>
            </property>
@@ -1257,6 +1257,11 @@
            <item>
             <property name="text">
              <string>YZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Filter2D view</string>
             </property>
            </item>
           </widget>
