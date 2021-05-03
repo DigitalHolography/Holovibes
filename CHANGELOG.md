@@ -1,5 +1,11 @@
 ## Changelog
 
+### 9.3
+
+* Fix: CLI contrast and recording
+* Fix: Camera frame copy
+* GUI: Change names on frontend
+
 ### 9.2
 
 * Filter2D: rework filter2D
