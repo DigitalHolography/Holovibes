@@ -78,7 +78,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     , holovibes_(holovibes)
     , cd_(holovibes_.get_cd())
 {
-    filter2d_secret_ = 0;
     ui.setupUi(this);
 
     qRegisterMetaType<std::function<void()>>();
@@ -451,7 +450,7 @@ void MainWindow::on_notify()
     ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2D->setEnabled(!is_raw && (filter2d_secret_ >= 5));
+    ui.Filter2D->setEnabled(!is_raw);
     ui.Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
@@ -3099,8 +3098,6 @@ void MainWindow::import_stop()
 
 void MainWindow::import_start()
 {
-    if (filter2d_secret_ < 5)
-        filter2d_secret_ = 0;
     if (!cd_.is_computation_stopped)
         import_stop();
 
@@ -3239,22 +3236,6 @@ void MainWindow::update_file_reader_index(int n)
 {
     auto lambda = [this, n]() { ui.FileReaderProgressBar->setValue(n); };
     synchronize_thread(lambda);
-}
-
-void MainWindow::secret_filter2d(int value)
-{
-    static int first = 1;
-
-    if (is_enabled_camera_)
-        return;
-
-    if (value)
-        filter2d_secret_++;
-    if (filter2d_secret_ >= 5 && first)
-    {
-        first = 0;
-        printf("Filter2D activated !\n");
-    }
 }
 #pragma endregion
 } // namespace gui

@@ -5106,22 +5106,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>LoadFileInGpuCheckBox</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>secret_filter2d(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>855</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SquareInputModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
