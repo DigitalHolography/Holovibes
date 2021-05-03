@@ -520,6 +520,11 @@
                <string>None</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>SSA_STFT</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="7" column="0">

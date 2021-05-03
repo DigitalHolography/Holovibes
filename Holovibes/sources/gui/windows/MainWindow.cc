@@ -2251,6 +2251,8 @@ void MainWindow::set_time_transformation(QString value)
             cd_.time_transformation = TimeTransformation::PCA;
         else if (value == "None")
             cd_.time_transformation = TimeTransformation::NONE;
+        else if (value == "SSA_STFT")
+            cd_.time_transformation = TimeTransformation::SSA_STFT;
         set_holographic_mode();
     }
 }

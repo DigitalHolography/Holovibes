@@ -193,6 +193,15 @@ void FourierTransform::insert_time_transform()
     {
         insert_pca();
     }
+    else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
+    {
+        insert_pca();
+        fn_compute_vect_.conditional_push_back([=]() {
+            stft(time_transformation_env_.gpu_p_acc_buffer,
+                 time_transformation_env_.gpu_p_acc_buffer,
+                 time_transformation_env_.stft_plan);
+        });
+    }
     else // TimeTransformation::None
     {
         // Just copy data to the next buffer
@@ -214,7 +223,9 @@ void FourierTransform::insert_time_transform()
 void FourierTransform::insert_stft()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        stft(time_transformation_env_.gpu_time_transformation_queue.get(),
+        stft(reinterpret_cast<cuComplex*>(
+                 time_transformation_env_.gpu_time_transformation_queue.get()
+                     ->get_data()),
              time_transformation_env_.gpu_p_acc_buffer,
              time_transformation_env_.stft_plan);
     });

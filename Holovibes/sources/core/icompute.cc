@@ -174,6 +174,36 @@ bool ICompute::update_time_transformation_size(
     {
         // Nothing to do
     }
+    else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
+    {
+        /* CUFFT plan1d realloc */
+        int inembed_stft[1] = {time_transformation_size};
+
+        int zone_size = gpu_input_queue_.get_frame_res();
+
+        time_transformation_env_.stft_plan.planMany(1,
+                                                    inembed_stft,
+                                                    inembed_stft,
+                                                    zone_size,
+                                                    1,
+                                                    inembed_stft,
+                                                    zone_size,
+                                                    1,
+                                                    CUFFT_C2C,
+                                                    zone_size);
+
+        // Pre allocate all the buffer only when n changes to avoid 1 allocation
+        // every frame Static cast to avoid ushort overflow
+        time_transformation_env_.pca_cov.resize(
+            static_cast<const uint>(time_transformation_size) *
+            time_transformation_size);
+        time_transformation_env_.pca_tmp_buffer.resize(
+            static_cast<const uint>(time_transformation_size) *
+            time_transformation_size);
+        time_transformation_env_.pca_eigen_values.resize(
+            time_transformation_size);
+        time_transformation_env_.pca_dev_info.resize(1);
+    }
     else // Should not happend or be handled (if add more time transformation)
         assert(false);
 
