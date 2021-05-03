@@ -1550,7 +1550,6 @@ void MainWindow::set_filter2d(bool checked)
             const camera::FrameDescriptor& fd =
                 holovibes_.get_gpu_input_queue()->get_fd();
 
-            cd_.fft_shift_enabled = false;
             ui.Filter2DN2SpinBox->setMaximum(
                 fmin(fd.get_width(), fd.get_height()) / 2);
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
