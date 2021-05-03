@@ -114,6 +114,10 @@ int start_cli(holovibes::Holovibes& holovibes,
 
     auto [input_frame_file, input_nb_frames] = open_input_file(holovibes, opts);
 
+    // Force hologram mode if .holo reset compute mode to raw
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+
     // Start measuring time
     auto begin = std::chrono::steady_clock::now();
 
