@@ -78,7 +78,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     , holovibes_(holovibes)
     , cd_(holovibes_.get_cd())
 {
-    filter2d_secret_ = 0;
     ui.setupUi(this);
 
     qRegisterMetaType<std::function<void()>>();
@@ -121,7 +120,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     ui.FileReaderProgressBar->hide();
     ui.RecordProgressBar->hide();
 
-    set_record_mode(QString::fromUtf8("Raw"));
+    set_record_mode(QString::fromUtf8("Raw Image"));
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -280,15 +279,17 @@ void MainWindow::on_notify()
 
     if (is_raw)
     {
-        ui.RecordComboBox->removeItem(ui.RecordComboBox->findText("Hologram"));
-        ui.RecordComboBox->removeItem(ui.RecordComboBox->findText("Chart"));
+        ui.RecordImageModeComboBox->removeItem(
+            ui.RecordImageModeComboBox->findText("Processed Image"));
+        ui.RecordImageModeComboBox->removeItem(
+            ui.RecordImageModeComboBox->findText("Chart"));
     }
     else // Hologram mode
     {
-        if (ui.RecordComboBox->findText("Hologram") == -1)
-            ui.RecordComboBox->insertItem(1, "Hologram");
-        if (ui.RecordComboBox->findText("Chart") == -1)
-            ui.RecordComboBox->insertItem(2, "Chart");
+        if (ui.RecordImageModeComboBox->findText("Processed Image") == -1)
+            ui.RecordImageModeComboBox->insertItem(1, "Processed Image");
+        if (ui.RecordImageModeComboBox->findText("Chart") == -1)
+            ui.RecordImageModeComboBox->insertItem(2, "Chart");
     }
 
     // Raw view
@@ -449,7 +450,7 @@ void MainWindow::on_notify()
     ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2D->setEnabled(!is_raw && (filter2d_secret_ >= 5));
+    ui.Filter2D->setEnabled(!is_raw);
     ui.Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
@@ -989,7 +990,7 @@ void MainWindow::change_camera(CameraKind c)
 
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
-            set_image_mode();
+            set_image_mode(nullptr);
             import_type_ = ImportType::Camera;
             kCamera = c;
             QAction* settings = ui.actionSettings;
@@ -1162,11 +1163,11 @@ void MainWindow::set_holographic_mode()
 
 void MainWindow::set_computation_mode()
 {
-    if (ui.DirectRadioButton->isChecked())
+    if (ui.ImageModeComboBox->currentIndex() == 0)
     {
         cd_.compute_mode = Computation::Raw;
     }
-    else if (ui.HologramRadioButton->isChecked())
+    else if (ui.ImageModeComboBox->currentIndex() == 1)
     {
         cd_.compute_mode = Computation::Hologram;
     }
@@ -1307,19 +1308,20 @@ void MainWindow::set_view_mode(const QString value)
 
 bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
 
-void MainWindow::set_image_mode()
+void MainWindow::set_image_mode(QString mode)
 {
-    if (cd_.compute_mode == Computation::Raw)
-        set_raw_mode();
-    else if (cd_.compute_mode == Computation::Hologram)
-        set_holographic_mode();
-    else
+    if (mode != nullptr)
     {
-        if (ui.DirectRadioButton->isChecked())
+        // Call comes from ui
+        if (ui.ImageModeComboBox->currentIndex() == 0)
             set_raw_mode();
         else
             set_holographic_mode();
     }
+    else if (cd_.compute_mode == Computation::Raw)
+        set_raw_mode();
+    else if (cd_.compute_mode == Computation::Hologram)
+        set_holographic_mode();
 }
 #pragma endregion
 
@@ -1522,6 +1524,8 @@ void MainWindow::change_window()
         cd_.current_window = WindowKind::XZview;
     else if (window_cbox->currentIndex() == 2)
         cd_.current_window = WindowKind::YZview;
+    else if (window_cbox->currentIndex() == 3)
+        cd_.current_window = WindowKind::Filter2D;
     pipe_refresh();
     notify();
 }
@@ -1545,13 +1549,15 @@ void MainWindow::set_filter2d(bool checked)
         }
         else
         {
-            const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+            const camera::FrameDescriptor& fd =
+                holovibes_.get_gpu_input_queue()->get_fd();
 
-            cd_.fft_shift_enabled = false;
-            ui.Filter2DN2SpinBox->setMaximum(fmin(fd.get_width(), fd.get_height()) / 2);
+            ui.Filter2DN2SpinBox->setMaximum(
+                fmin(fd.get_width(), fd.get_height()) / 2);
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
-            if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+            if (auto pipe =
+                    dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
                 pipe->autocontrast_end_pipe(WindowKind::XYview);
             cd_.filter2d_enabled = checked;
         }
@@ -1589,8 +1595,9 @@ void MainWindow::update_filter2d_view(bool checked)
                 // set positions of new windows according to the position of the
                 // main GL window
                 QPoint pos = mainDisplay->framePosition() +
-                            QPoint(mainDisplay->width() + 310, 0);
-                auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+                             QPoint(mainDisplay->width() + 310, 0);
+                auto pipe =
+                    dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
                 if (pipe)
                 {
                     pipe->request_filter2d_view();
@@ -1600,17 +1607,17 @@ void MainWindow::update_filter2d_view(bool checked)
                     ushort filter2d_window_width = fd.width;
                     ushort filter2d_window_height = fd.height;
                     get_good_size(filter2d_window_width,
-                                filter2d_window_height,
-                                auxiliary_window_max_size);
+                                  filter2d_window_height,
+                                  auxiliary_window_max_size);
 
                     while (pipe->get_filter2d_view_requested())
                         continue;
 
-                    filter2d_window.reset(
-                        new Filter2DWindow(pos,
-                                    QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get(),
-                                    this));
+                    filter2d_window.reset(new Filter2DWindow(
+                        pos,
+                        QSize(filter2d_window_width, filter2d_window_height),
+                        pipe->get_filter2d_view_queue().get(),
+                        this));
 
                     filter2d_window->setTitle("Filter2D view");
                     filter2d_window->setCd(&cd_);
@@ -1644,7 +1651,8 @@ void MainWindow::set_filter2d_n1(int n)
 {
     if (!is_raw_mode())
     {
-        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd =
+            holovibes_.get_gpu_input_queue()->get_fd();
         int middle_x = static_cast<int>(fd.get_width() / 2);
         int middle_y = static_cast<int>(fd.get_height() / 2);
 
@@ -1672,7 +1680,8 @@ void MainWindow::set_filter2d_n2(int n)
 {
     if (!is_raw_mode())
     {
-        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd =
+            holovibes_.get_gpu_input_queue()->get_fd();
         int middle_x = static_cast<int>(fd.get_width() / 2);
         int middle_y = static_cast<int>(fd.get_height() / 2);
 
@@ -2735,9 +2744,9 @@ void MainWindow::set_record_mode(const QString& value)
 
     if (text == "Chart")
         record_mode_ = RecordMode::CHART;
-    else if (text == "Hologram")
+    else if (text == "Processed Image")
         record_mode_ = RecordMode::HOLOGRAM;
-    else if (text == "Raw")
+    else if (text == "Raw Image")
         record_mode_ = RecordMode::RAW;
     else
         throw std::exception("Record mode not handled");
@@ -2994,17 +3003,13 @@ void MainWindow::import_stop()
 
 void MainWindow::import_start()
 {
-    if (filter2d_secret_ < 5)
-        filter2d_secret_ = 0;
     if (!cd_.is_computation_stopped)
         import_stop();
 
     cd_.is_computation_stopped = false;
     init_holovibes_import_mode();
 
-    bool is_raw = is_raw_mode();
-    ui.DirectRadioButton->setChecked(is_raw);
-    ui.HologramRadioButton->setChecked(!is_raw);
+    ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
 }
 
 void MainWindow::init_holovibes_import_mode()
@@ -3058,7 +3063,7 @@ void MainWindow::init_holovibes_import_mode()
     }
 
     is_enabled_camera_ = true;
-    set_image_mode();
+    set_image_mode(nullptr);
 
     QAction* settings = ui.actionSettings;
     settings->setEnabled(false);
@@ -3136,22 +3141,6 @@ void MainWindow::update_file_reader_index(int n)
 {
     auto lambda = [this, n]() { ui.FileReaderProgressBar->setValue(n); };
     synchronize_thread(lambda);
-}
-
-void MainWindow::secret_filter2d(int value)
-{
-    static int first = 1;
-
-    if (is_enabled_camera_)
-        return ;
-
-    if (value)
-        filter2d_secret_++;
-    if (filter2d_secret_ >= 5 && first)
-    {
-        first = 0;
-        printf("Filter2D activated !\n");
-    }
 }
 #pragma endregion
 } // namespace gui

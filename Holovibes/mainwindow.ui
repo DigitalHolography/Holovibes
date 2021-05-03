@@ -124,34 +124,38 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_25">
+          <layout class="QHBoxLayout" name="ImageModeLayout">
            <item>
-            <widget class="QRadioButton" name="DirectRadioButton">
-             <property name="toolTip">
-              <string/>
-             </property>
+            <widget class="QLabel" name="ImageModeLabel">
              <property name="text">
-              <string>Raw</string>
+              <string>Image</string>
              </property>
-             <property name="checked">
-              <bool>true</bool>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="HologramRadioButton">
-             <property name="toolTip">
-              <string/>
+            <widget class="QComboBox" name="ImageModeComboBox">
+             <property name="enabled">
+              <bool>true</bool>
              </property>
-             <property name="toolTipDuration">
-              <number>-3</number>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="text">
-              <string>Hologram</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
+             <item>
+              <property name="text">
+               <string>Raw</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Processed</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -225,7 +229,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
              <property name="text">
-              <string>Batch size</string>
+              <string>Batch Size</string>
              </property>
              <property name="scaledContents">
               <bool>false</bool>
@@ -241,7 +245,7 @@
               <enum>Qt::LeftToRight</enum>
              </property>
              <property name="text">
-              <string>Time stride</string>
+              <string>Time Stride</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -357,7 +361,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="SpaceTransformationLabel">
              <property name="text">
-              <string>Space transform</string>
+              <string>Space Transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -377,7 +381,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="TimeTransformationLabel">
              <property name="text">
-              <string>Time transform</string>
+              <string>Time Transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -645,7 +649,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>210</width>
+          <width>228</width>
           <height>0</height>
          </size>
         </property>
@@ -1154,7 +1158,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Img. type:</string>
+              <string>Img. Type:</string>
              </property>
             </widget>
            </item>
@@ -1224,7 +1228,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>105</width>
              <height>0</height>
             </size>
            </property>
@@ -1253,6 +1257,11 @@
            <item>
             <property name="text">
              <string>YZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Filter2D view</string>
             </property>
            </item>
           </widget>
@@ -1331,7 +1340,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Display reticle</string>
+              <string>Display Reticle</string>
              </property>
             </widget>
            </item>
@@ -2274,7 +2283,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>210</width>
+          <width>221</width>
           <height>16777215</height>
          </size>
         </property>
@@ -2313,7 +2322,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>210</width>
+             <width>252</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2374,7 +2383,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="placeholderText">
-                 <string>Select file</string>
+                 <string>Select File</string>
                 </property>
                </widget>
               </item>
@@ -2516,7 +2525,7 @@
                  <locale language="French" country="France"/>
                 </property>
                 <property name="text">
-                 <string>Load file in GPU</string>
+                 <string>Load File In GPU</string>
                 </property>
                </widget>
               </item>
@@ -2559,7 +2568,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>210</width>
+             <width>255</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2581,51 +2590,78 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_10">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="sizeConstraint">
-             <enum>QLayout::SetNoConstraint</enum>
-            </property>
-            <property name="leftMargin">
-             <number>9</number>
-            </property>
-            <property name="topMargin">
-             <number>9</number>
-            </property>
-            <property name="rightMargin">
-             <number>9</number>
-            </property>
-            <property name="bottomMargin">
-             <number>9</number>
-            </property>
-            <item>
-             <widget class="QComboBox" name="RecordComboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
-               <property name="text">
-                <string>Raw</string>
-               </property>
+               <widget class="QComboBox" name="RecordImageModeComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>126</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Raw Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Processed Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Chart</string>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>Hologram</string>
-               </property>
+               <widget class="QComboBox" name="RecordDataTypeComboBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>71</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>0</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Uint16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Float32</string>
+                 </property>
+                </item>
+               </widget>
               </item>
-              <item>
-               <property name="text">
-                <string>Chart</string>
-               </property>
-              </item>
-             </widget>
+             </layout>
             </item>
-            <item>
+            <item row="1" column="0">
              <widget class="QFrame" name="RecordFrame">
               <property name="maximumSize">
                <size>
@@ -3047,7 +3083,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3332,8 +3368,6 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
-  <tabstop>DirectRadioButton</tabstop>
-  <tabstop>HologramRadioButton</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>TimeTransformationCutsCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
@@ -3733,22 +3767,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>DirectRadioButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reset_input()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>91</x>
-     <y>63</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>3</x>
-     <y>47</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionInfo</sender>
    <signal>changed()</signal>
    <receiver>InfoGroupBox</receiver>
@@ -3937,22 +3955,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>328</x>
      <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>HologramRadioButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reset_input()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>63</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>222</x>
-     <y>44</y>
     </hint>
    </hints>
   </connection>
@@ -4661,10 +4663,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SquareInputModeComboBox</sender>
+   <sender>ImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_square_input_mode(QString)</slot>
+   <slot>set_image_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4773,7 +4775,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RecordComboBox</sender>
+   <sender>RecordImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_record_mode(QString)</slot>
@@ -5109,14 +5111,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>LoadFileInGpuCheckBox</sender>
-   <signal>stateChanged(int)</signal>
+   <sender>SquareInputModeComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>secret_filter2d(int)</slot>
+   <slot>set_square_input_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>176</y>
+     <x>170</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>
@@ -5126,7 +5128,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(bool)</slot>
+  <slot>set_image_mode(QString)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>

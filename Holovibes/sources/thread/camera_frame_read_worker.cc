@@ -48,6 +48,7 @@ void CameraFrameReadWorker::run()
             gpu_input_queue_.load()->enqueue(
                 res.data,
                 res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
+            gpu_input_queue_.load()->sync_current_batch();
             processed_fps_ += res.count;
         }
 

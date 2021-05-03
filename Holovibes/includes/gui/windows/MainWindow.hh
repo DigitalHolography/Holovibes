@@ -112,7 +112,7 @@ class MainWindow : public QMainWindow, public Observer
     **
     ** \param value true for raw mode, false for hologram mode.
     */
-    void set_image_mode();
+    void set_image_mode(QString mode);
     void reset_input();
     void set_square_input_mode(const QString& name);
     void refreshViewMode();
@@ -219,8 +219,6 @@ class MainWindow : public QMainWindow, public Observer
     void start_chart_display();
     void stop_chart_display();
 
-    void secret_filter2d(int value);
-
 #pragma endregion
     /* ---------- */
   signals:
@@ -320,9 +318,6 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* gl_normal_screen_;
 
 #pragma endregion
-
-    /* Secret var used to activate the Filter2D */
-    int filter2d_secret_;
 };
 } // namespace gui
 } // namespace holovibes
