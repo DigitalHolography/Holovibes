@@ -1569,6 +1569,12 @@ void MainWindow::set_filter2d(bool checked)
 
 void MainWindow::disable_filter2d_view()
 {
+
+    auto pipe = holovibes_.get_compute_pipe();
+    pipe->request_disable_filter2d_view();
+    while (pipe->get_disable_filter2d_view_requested())
+        continue;
+
     if (filter2d_window)
     {
         disconnect(filter2d_window.get(),
@@ -1576,11 +1582,6 @@ void MainWindow::disable_filter2d_view()
                    this,
                    SLOT(disable_filter2d_view()));
     }
-
-    auto pipe = holovibes_.get_compute_pipe();
-    pipe->request_disable_filter2d_view();
-    while (pipe->get_disable_filter2d_view_requested())
-        continue;
 
     notify();
 }
