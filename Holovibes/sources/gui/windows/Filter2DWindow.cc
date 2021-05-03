@@ -21,24 +21,24 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(
-    QPoint p, QSize s, DisplayQueue* q, MainWindow* main_window)
+Filter2DWindow::Filter2DWindow(QPoint p,
+                               QSize s,
+                               DisplayQueue* q,
+                               MainWindow* main_window)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
     , main_window_(main_window)
 {
     setMinimumSize(s);
 }
 
-Filter2DWindow::~Filter2DWindow()
-{
-}
+Filter2DWindow::~Filter2DWindow() {}
 
 void Filter2DWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(
         QOpenGLShader::Vertex,
-        create_absolute_qt_path("shaders/vertex.raw.glsl"));
+        create_absolute_qt_path("shaders/vertex.holo.glsl"));
     Program->addShaderFromSourceFile(
         QOpenGLShader::Fragment,
         create_absolute_qt_path("shaders/fragment.tex.glsl"));

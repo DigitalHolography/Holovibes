@@ -39,7 +39,7 @@ void Filter2DReticleOverlay::draw()
 
     glDisableVertexAttribArray(verticesShader_);
     glDisableVertexAttribArray(colorShader_);
-    
+
     Program_->release();
     Vao_.release();
 }
@@ -70,15 +70,23 @@ void Filter2DReticleOverlay::setBuffer()
     */
 
     const float vertices[] = {
-        -w_border_n1, -h_border_n1,
-        w_border_n1, -h_border_n1,
-        w_border_n1, h_border_n1,
-        -w_border_n1, h_border_n1,
+        -w_border_n1,
+        -h_border_n1,
+        w_border_n1,
+        -h_border_n1,
+        w_border_n1,
+        h_border_n1,
+        -w_border_n1,
+        h_border_n1,
 
-        -w_border_n2, -h_border_n2,
-        w_border_n2, -h_border_n2,
-        w_border_n2, h_border_n2,
-        -w_border_n2, h_border_n2,
+        -w_border_n2,
+        -h_border_n2,
+        w_border_n2,
+        -h_border_n2,
+        w_border_n2,
+        h_border_n2,
+        -w_border_n2,
+        h_border_n2,
     };
     glGenBuffers(1, &verticesIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
@@ -94,14 +102,7 @@ void Filter2DReticleOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     const float colorData[] = {
-        1, 1, 1,
-        1, 1, 0,
-        1, 0, 1,
-        1, 0, 0,
-        0, 1, 1,
-        0, 1, 0,
-        0, 0, 1,
-        0, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
     };
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
@@ -120,15 +121,23 @@ void Filter2DReticleOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     const GLuint elements[] = {
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        0,
 
-        4, 5,
-        5, 6,
-        6, 7,
-        7, 4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        7,
+        4,
     };
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
