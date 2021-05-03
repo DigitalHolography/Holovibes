@@ -79,6 +79,7 @@ open_input_file(holovibes::Holovibes& holovibes,
 
     const camera::FrameDescriptor& fd =
         input_frame_file->get_frame_descriptor();
+
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
 
     const unsigned int fps = opts.fps.value_or(60);
@@ -107,6 +108,10 @@ int start_cli(holovibes::Holovibes& holovibes,
     holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
     holovibes.start_information_display(true);
 
+    auto& cd = holovibes.get_cd();
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+
     auto [input_frame_file, input_nb_frames] = open_input_file(holovibes, opts);
 
     // Start measuring time
@@ -114,9 +119,6 @@ int start_cli(holovibes::Holovibes& holovibes,
 
     holovibes.start_compute();
 
-    auto& cd = holovibes.get_cd();
-    cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
     if (opts.convo_path.has_value())
     {
         auto convo_path =
