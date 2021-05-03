@@ -530,6 +530,7 @@ void MainWindow::on_notify()
     ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 
     // Convolution
+    ui.ConvoCheckBox->setEnabled(cd_.compute_mode == Computation::Hologram);
     ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
     ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled &&
                                        cd_.divide_convolution_enabled);
