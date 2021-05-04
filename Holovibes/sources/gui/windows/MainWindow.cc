@@ -1545,8 +1545,8 @@ void MainWindow::set_filter2d(bool checked)
     {
         if (checked == false)
         {
-            cancel_filter2d();
             cd_.filter2d_enabled = checked;
+            cancel_filter2d();
         }
         else
         {
