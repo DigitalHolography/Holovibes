@@ -49,7 +49,7 @@ class Rendering
               ICompute* Ic,
               const cudaStream_t& stream);
 
-     ~Rendering();
+    ~Rendering();
 
     /** \brief insert the functions relative to the fft shift.
 
@@ -83,7 +83,7 @@ class Rendering
     /** \brief insert the log10 on the Filter2D view
 
     */
-    void insert_filter2d_log();
+    void insert_filter2d_view_log();
 
     /** \brief insert the autocontrast computation
 

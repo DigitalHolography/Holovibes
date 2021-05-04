@@ -112,13 +112,20 @@ ICompute::ICompute(BatchInputQueue& input,
             buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_complex_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_float_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_filter2d_shift_buffer.resize(
+            gpu_input_queue_.get_frame_res() * cd_.batch_size))
         err++;
 
     if (err != 0)
@@ -211,6 +218,9 @@ void ICompute::update_spatial_transformation_parameters()
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(
         cd_.batch_size * gpu_input_queue_fd.frame_res());
+
+    buffers_.gpu_filter2d_shift_buffer.resize(cd_.batch_size *
+                                              gpu_input_queue_fd.frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
