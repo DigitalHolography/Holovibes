@@ -1673,6 +1673,10 @@ void MainWindow::set_filter2d_n1(int n)
         cd_.setFilter2DSubZone(zone);
         cd_.filter2d_n1 = n;
 
+        if (auto pipe =
+                dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+
         pipe_refresh();
         notify();
     }
@@ -1701,6 +1705,10 @@ void MainWindow::set_filter2d_n2(int n)
 
         cd_.setFilter2DZone(zone);
         cd_.filter2d_n2 = n;
+
+        if (auto pipe =
+                dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
 
         pipe_refresh();
         notify();
