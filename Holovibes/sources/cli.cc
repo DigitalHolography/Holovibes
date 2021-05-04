@@ -147,7 +147,8 @@ int start_cli(holovibes::Holovibes& holovibes,
     auto progress_opt = info.get_progress_index(
         holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
-    bool requested_autocontrast = false;
+    // Request auto contrast once if auto refresh is enabled
+    bool requested_autocontrast = !cd.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
         if (!progress_opt)
