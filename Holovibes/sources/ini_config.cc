@@ -41,8 +41,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.img_acc_slice_xy_level =
         ptree.get<uint>("config.accumulation_buffer_size",
                         cd.img_acc_slice_xy_level);
-    cd.display_rate =
-        ptree.get<float>("config.display_rate", cd.display_rate);
+    cd.display_rate = ptree.get<float>("config.display_rate", cd.display_rate);
 
     // Renormalize
     cd.renorm_enabled =
@@ -71,8 +70,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
-    cd.zdistance =
-        ptree.get<float>("image_rendering.z_distance", cd.zdistance);
+    cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
 
     cd.space_transformation = static_cast<SpaceTransformation>(
         ptree.get<int>("image_rendering.space_transformation",
@@ -119,6 +117,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     cd.contrast_enabled =
         ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
+    cd.contrast_auto_refresh =
+        ptree.get<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
     cd.contrast_lower_threshold =
         ptree.get<float>("view.contrast_lower_threshold",
                          cd.contrast_lower_threshold);
@@ -130,17 +130,15 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         ptree.get<float>("view.contrast_min", cd.contrast_min_slice_xy);
     cd.contrast_max_slice_xy =
         ptree.get<float>("view.contrast_max", cd.contrast_max_slice_xy);
-    cd.cuts_contrast_p_offset =
-        ptree.get<ushort>("view.cuts_contrast_p_offset",
-                          cd.cuts_contrast_p_offset);
+    cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset",
+                                                  cd.cuts_contrast_p_offset);
     if (cd.cuts_contrast_p_offset < 0)
         cd.cuts_contrast_p_offset = 0;
     else if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 
-    cd.img_acc_slice_xy_enabled =
-        ptree.get<bool>("view.accumulation_enabled",
-                        cd.img_acc_slice_xy_enabled);
+    cd.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled",
+                                                  cd.img_acc_slice_xy_enabled);
 
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", 0.5f);
 
@@ -247,6 +245,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                     cd.log_scale_slice_yz_enabled);
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
     ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
+    ptree.put<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
     ptree.put<float>("view.contrast_lower_threshold",
                      cd.contrast_lower_threshold);
     ptree.put<float>("view.contrast_upper_threshold",
@@ -261,8 +260,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 
     ptree.put<float>("view.contrast_min", cd.contrast_min_slice_xy);
     ptree.put<float>("view.contrast_max", cd.contrast_max_slice_xy);
-    ptree.put<ushort>("view.cuts_contrast_p_offset",
-                      cd.cuts_contrast_p_offset);
+    ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
     ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
@@ -285,8 +283,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                      cd.slider_h_threshold_min);
     ptree.put<float>("composite.slider_h_threshold_max",
                      cd.slider_h_threshold_max);
-    ptree.put<float>("composite.low_h_threshold",
-                     cd.composite_low_h_threshold);
+    ptree.put<float>("composite.low_h_threshold", cd.composite_low_h_threshold);
     ptree.put<float>("composite.high_h_threshold",
                      cd.composite_high_h_threshold);
 
@@ -297,8 +294,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                      cd.slider_s_threshold_min);
     ptree.put<float>("composite.slider_s_threshold_max",
                      cd.slider_s_threshold_max);
-    ptree.put<float>("composite.low_s_threshold",
-                     cd.composite_low_s_threshold);
+    ptree.put<float>("composite.low_s_threshold", cd.composite_low_s_threshold);
     ptree.put<float>("composite.high_s_threshold",
                      cd.composite_high_s_threshold);
 
@@ -309,8 +305,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                      cd.slider_v_threshold_min);
     ptree.put<float>("composite.slider_v_threshold_max",
                      cd.slider_v_threshold_max);
-    ptree.put<float>("composite.low_v_threshold",
-                     cd.composite_low_v_threshold);
+    ptree.put<float>("composite.low_v_threshold", cd.composite_low_v_threshold);
     ptree.put<float>("composite.high_v_threshold",
                      cd.composite_high_v_threshold);
     ptree.put<bool>("composite.auto_weights", cd.composite_auto_weights_);
