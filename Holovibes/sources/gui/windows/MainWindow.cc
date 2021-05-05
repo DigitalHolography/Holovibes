@@ -1675,7 +1675,11 @@ void MainWindow::set_filter2d_n1(int n)
 
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        {
             pipe->autocontrast_end_pipe(WindowKind::XYview);
+            if (cd_.filter2d_view_enabled)
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
 
         pipe_refresh();
         notify();
@@ -1708,7 +1712,11 @@ void MainWindow::set_filter2d_n2(int n)
 
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        {
             pipe->autocontrast_end_pipe(WindowKind::XYview);
+            if (cd_.filter2d_view_enabled)
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
 
         pipe_refresh();
         notify();
