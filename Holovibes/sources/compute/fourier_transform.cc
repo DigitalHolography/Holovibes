@@ -42,7 +42,6 @@ FourierTransform::FourierTransform(
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
-    , gpu_filter2d_buffer_(nullptr)
     , fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , fd_(fd)
@@ -53,9 +52,6 @@ FourierTransform::FourierTransform(
     , stream_(stream)
 {
     gpu_lens_.resize(fd_.frame_res());
-    // static cast in size_t to avoid uint overflow
-    gpu_filter2d_buffer_.resize(static_cast<const size_t>(fd_.frame_res()) *
-                                cd_.batch_size);
 }
 
 void FourierTransform::insert_fft()
@@ -79,7 +75,7 @@ void FourierTransform::insert_filter2d()
 
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
-                 gpu_filter2d_buffer_,
+                 buffers_.gpu_filter2d_shift_buffer,
                  cd_.batch_size,
                  spatial_transformation_plan_,
                  filter2d_zone_,

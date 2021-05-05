@@ -47,10 +47,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
 }
 
-Rendering::~Rendering()
-{
-    cudaXFreeHost(percent_min_max_);
-}
+Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
@@ -115,8 +112,8 @@ void Rendering::insert_log()
         insert_main_log();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_log();
-    if (cd_.filter2d_enabled)
-        insert_filter2d_log();
+    if (cd_.log_scale_filter2d_enabled)
+        insert_filter2d_view_log();
 }
 
 void Rendering::insert_contrast(
@@ -181,9 +178,9 @@ void Rendering::insert_slice_log()
     }
 }
 
-void Rendering::insert_filter2d_log()
+void Rendering::insert_filter2d_view_log()
 {
-    if (cd_.log_scale_filter2d_enabled)
+    if (cd_.filter2d_view_enabled)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_float_filter2d_frame.get(),

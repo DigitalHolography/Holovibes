@@ -18,6 +18,9 @@
 #include <chrono>
 #include <thread>
 
+#define BOOST_STACKTRACE_USE_ADDR2LINE
+#include <boost/stacktrace.hpp>
+
 #include "cusolverDn.h"
 
 #include "tools.cuh"
@@ -87,6 +90,9 @@ gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
                 cudaGetErrorString(code),
                 file,
                 line);
+
+        std::cerr << boost::stacktrace::stacktrace() << std::endl;
+
         if (abort)
             exit(code);
     }
