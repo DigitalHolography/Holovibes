@@ -250,7 +250,7 @@ bool Pipe::make_requests()
 
     if (filter2d_view_requested_)
     {
-        auto fd = gpu_input_queue_.get_fd();
+        auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(
             new Queue(fd, global::global_config.output_queue_max_size));
         cd_.filter2d_view_enabled = true;
