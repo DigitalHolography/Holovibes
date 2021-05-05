@@ -1,5 +1,12 @@
 ## Changelog
 
+### 9.3.1
+
+* Fix: filter2D crash due to batch size
+* Fix: filter2D view crash with 8bit files
+* Fix: cine file number of frames
+* CLI: better contrast handling
+
 ### 9.3
 
 * Fix: CLI contrast and recording
