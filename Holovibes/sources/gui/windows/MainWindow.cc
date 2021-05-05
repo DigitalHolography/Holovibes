@@ -530,6 +530,7 @@ void MainWindow::on_notify()
     ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 
     // Convolution
+    ui.ConvoCheckBox->setEnabled(cd_.compute_mode == Computation::Hologram);
     ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
     ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled &&
                                        cd_.divide_convolution_enabled);
@@ -1544,8 +1545,8 @@ void MainWindow::set_filter2d(bool checked)
     {
         if (checked == false)
         {
-            cancel_filter2d();
             cd_.filter2d_enabled = checked;
+            cancel_filter2d();
         }
         else
         {
@@ -1568,6 +1569,12 @@ void MainWindow::set_filter2d(bool checked)
 
 void MainWindow::disable_filter2d_view()
 {
+
+    auto pipe = holovibes_.get_compute_pipe();
+    pipe->request_disable_filter2d_view();
+    while (pipe->get_disable_filter2d_view_requested())
+        continue;
+
     if (filter2d_window)
     {
         disconnect(filter2d_window.get(),
@@ -1575,11 +1582,6 @@ void MainWindow::disable_filter2d_view()
                    this,
                    SLOT(disable_filter2d_view()));
     }
-
-    auto pipe = holovibes_.get_compute_pipe();
-    pipe->request_disable_filter2d_view();
-    while (pipe->get_disable_filter2d_view_requested())
-        continue;
 
     notify();
 }
@@ -1671,6 +1673,14 @@ void MainWindow::set_filter2d_n1(int n)
         cd_.setFilter2DSubZone(zone);
         cd_.filter2d_n1 = n;
 
+        if (auto pipe =
+                dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        {
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+            if (cd_.filter2d_view_enabled)
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
+
         pipe_refresh();
         notify();
     }
@@ -1699,6 +1709,14 @@ void MainWindow::set_filter2d_n2(int n)
 
         cd_.setFilter2DZone(zone);
         cd_.filter2d_n2 = n;
+
+        if (auto pipe =
+                dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        {
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+            if (cd_.filter2d_view_enabled)
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
 
         pipe_refresh();
         notify();

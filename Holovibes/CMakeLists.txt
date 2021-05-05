@@ -43,6 +43,7 @@ set(HOLO_INCLUDES
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${OpenCV_INCLUDE_DIRS}"
+    "${Boost_INCLUDE_DIRS}"
 )
 
 

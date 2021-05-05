@@ -31,7 +31,11 @@ Filter2DWindow::Filter2DWindow(QPoint p,
     setMinimumSize(s);
 }
 
-Filter2DWindow::~Filter2DWindow() {}
+Filter2DWindow::~Filter2DWindow()
+{
+    if (cuResource)
+        cudaGraphicsUnregisterResource(cuResource);
+}
 
 void Filter2DWindow::initShaders()
 {

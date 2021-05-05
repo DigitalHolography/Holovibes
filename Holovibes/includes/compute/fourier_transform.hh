@@ -95,9 +95,9 @@ class FourierTransform
     */
     void enqueue_lens();
 
-   /*! \brief Enqueue stft time filtering.
+    /*! \brief Enqueue stft time filtering.
 
-    */
+     */
     void insert_stft();
 
     /*! \brief Enqueue functions relative to filtering using diagonalization and
@@ -115,8 +115,6 @@ class FourierTransform
     uint lens_side_size_ = {0};
     //! Lens Queue. Used for displaying the lens.
     std::unique_ptr<Queue> gpu_lens_queue_;
-    //! Filter 2D buffer. Contains one frame.
-    cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_buffer_;
 
     //! Size of the buffer needed by cusolver for internal use
     int cusolver_work_buffer_size_;

@@ -106,8 +106,6 @@ class Holovibes
 
     /*! Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
-
-    Queue* get_current_window_output_queue();
     /*! \} */
 
     /*! \{ \name Getters/Setters */

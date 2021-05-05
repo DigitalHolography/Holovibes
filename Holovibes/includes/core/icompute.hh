@@ -67,15 +67,17 @@ struct CoreBuffersEnv
     /** Contains only one frame used only for convolution */
     cuda_tools::UniquePtr<float> gpu_convolution_buffer = nullptr;
 
-    /** Complex filter2d frame. Contains only one frame. We fill it with the output_frame*/
-    cuda_tools::UniquePtr<cufftComplex> gpu_complex_filter2d_frame =
-        nullptr;
-    /** Float Filter2d frame. Contains only one frame. We fill it with the gpu_complex_filter2d_frame*/
-    cuda_tools::UniquePtr<float> gpu_float_filter2d_frame =
-        nullptr;
-    /** Filter2d frame. Contains only one frame. We fill it with the gpu_float_filter2d_frame*/
-    cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame =
-        nullptr;
+    /** Complex filter2d frame. Contains only one frame. We fill it with the
+     * output_frame*/
+    cuda_tools::UniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
+    /** Float Filter2d frame. Contains only one frame. We fill it with the
+     * gpu_complex_filter2d_frame*/
+    cuda_tools::UniquePtr<float> gpu_float_filter2d_frame = nullptr;
+    /** Filter2d frame. Contains only one frame. We fill it with the
+     * gpu_float_filter2d_frame*/
+    cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
+    /** Filter2d shift tmp buffer.*/
+    cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_shift_buffer = nullptr;
 };
 
 /*! \brief Struct containing variables related to the batch in the pipe */
@@ -170,7 +172,10 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input,
+             Queue& output,
+             ComputeDescriptor& cd,
+             const cudaStream_t& stream);
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -256,7 +261,10 @@ class ICompute : public Observable
     {
         return disable_raw_view_requested_;
     }
-    bool get_filter2d_view_requested() const { return filter2d_view_requested_; }
+    bool get_filter2d_view_requested() const
+    {
+        return filter2d_view_requested_;
+    }
     bool get_disable_filter2d_view_requested() const
     {
         return disable_filter2d_view_requested_;
