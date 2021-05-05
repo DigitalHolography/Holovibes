@@ -11,7 +11,6 @@
 #include "common.cuh"
 
 void filter2D(cuComplex* input,
-              cuComplex* tmp_buffer,
               const uint batch_size,
               const cufftHandle plan2d,
               const holovibes::units::RectFd& zone,

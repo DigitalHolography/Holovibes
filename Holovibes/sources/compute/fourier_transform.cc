@@ -75,7 +75,6 @@ void FourierTransform::insert_filter2d()
 
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
-                 buffers_.gpu_filter2d_shift_buffer,
                  cd_.batch_size,
                  spatial_transformation_plan_,
                  filter2d_zone_,

@@ -51,7 +51,6 @@ __global__ void kernel_filter2D(cuComplex* input,
 }
 
 void filter2D(cuComplex* input,
-              cuComplex* tmp_buffer,
               const uint batch_size,
               const cufftHandle plan2d,
               const holovibes::units::RectFd& zone,
@@ -67,6 +66,7 @@ void filter2D(cuComplex* input,
 
     shift_corners(input, batch_size, desc.width, desc.height, stream);
 
+    // fft + mask + fft = filter2d => misuse of language
     kernel_filter2D<<<blocks, threads, 0, stream>>>(input,
                                                     batch_size,
                                                     zone.topLeft().x().get(),
@@ -81,17 +81,7 @@ void filter2D(cuComplex* input,
                                                     size);
     cudaCheckError();
 
-    shift_corners(input, tmp_buffer, batch_size, desc.width, desc.height, stream);
-
-    circ_shift<<<blocks, threads, 0, stream>>>(tmp_buffer,
-                                               input,
-                                               batch_size,
-                                               zone.center().x().get(),
-                                               zone.center().y().get(),
-                                               desc.width,
-                                               desc.height,
-                                               size);
-    cudaCheckError();
+    shift_corners(input, batch_size, desc.width, desc.height, stream);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }
