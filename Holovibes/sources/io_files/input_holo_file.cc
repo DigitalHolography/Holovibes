@@ -120,8 +120,8 @@ void InputHoloFile::import_compute_settings(
         meta_data_.value("time_filter", TimeTransformation::STFT);
     cd.time_transformation_size = meta_data_.value("#img", 1);
     cd.pindex = meta_data_.value("p", 0);
-    cd.lambda = meta_data_.value("lambda", 0.0f);
-    cd.pixel_size = meta_data_.value("pixel_size", 12.0);
+    cd.lambda = meta_data_.value("lambda", 5.32e-7f);
+    cd.pixel_size = meta_data_.value("pixel_size", 12.0f);
     cd.zdistance = meta_data_.value("z", 0.0f);
     cd.log_scale_slice_xy_enabled = meta_data_.value("log_scale", false);
     cd.contrast_min_slice_xy = meta_data_.value("contrast_min", 0.0f);
