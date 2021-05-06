@@ -508,7 +508,7 @@ void Pipe::insert_filter2d_view()
 {
     if (cd_.filter2d_enabled == true && cd_.filter2d_view_enabled == true)
     {
-        fn_compute_vect_.push_back([&]() {
+        fn_compute_vect_.conditional_push_back([&]() {
             float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
                              buffers_.gpu_postprocess_frame.get(),
                              buffers_.gpu_postprocess_frame_size,
@@ -519,19 +519,20 @@ void Pipe::insert_filter2d_view()
             CufftHandle handle{width, height, CUFFT_C2C};
 
             cufftExecC2C(handle,
-                        buffers_.gpu_complex_filter2d_frame.get(),
-                        buffers_.gpu_complex_filter2d_frame.get(), CUFFT_FORWARD);
+                         buffers_.gpu_complex_filter2d_frame.get(),
+                         buffers_.gpu_complex_filter2d_frame.get(),
+                         CUFFT_FORWARD);
             shift_corners(buffers_.gpu_complex_filter2d_frame.get(),
-                            1,
-                            width,
-                            height,
-                            stream_);
+                          1,
+                          width,
+                          height,
+                          stream_);
             complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
-                        buffers_.gpu_complex_filter2d_frame.get(),
-                        0,
-                        0,
-                        buffers_.gpu_postprocess_frame_size,
-                        stream_);
+                               buffers_.gpu_complex_filter2d_frame.get(),
+                               0,
+                               0,
+                               buffers_.gpu_postprocess_frame_size,
+                               stream_);
         });
     }
 }
