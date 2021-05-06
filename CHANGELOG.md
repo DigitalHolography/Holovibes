@@ -1,5 +1,9 @@
 ## Changelog
 
+### 9.3.2
+
+* Fix: filter2D optimisation
+
 ### 9.3.1
 
 * Fix: filter2D crash due to batch size
