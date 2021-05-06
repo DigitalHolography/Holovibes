@@ -1553,8 +1553,7 @@ void MainWindow::set_filter2d(bool checked)
             const camera::FrameDescriptor& fd =
                 holovibes_.get_gpu_input_queue()->get_fd();
 
-            ui.Filter2DN2SpinBox->setMaximum(
-                fmin(fd.get_width(), fd.get_height()) / 2);
+            ui.Filter2DN2SpinBox->setMaximum(fmin(fd.width, fd.height) / 2);
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
             if (auto pipe =
@@ -1654,9 +1653,9 @@ void MainWindow::set_filter2d_n1(int n)
     if (!is_raw_mode())
     {
         const camera::FrameDescriptor& fd =
-            holovibes_.get_gpu_input_queue()->get_fd();
-        int middle_x = static_cast<int>(fd.get_width() / 2);
-        int middle_y = static_cast<int>(fd.get_height() / 2);
+            holovibes_.get_gpu_output_queue()->get_fd();
+        int middle_x = static_cast<int>(fd.width / 2);
+        int middle_y = static_cast<int>(fd.height / 2);
 
         units::RectFd zone;
         units::Point<units::FDPixel> dst;
@@ -1676,6 +1675,7 @@ void MainWindow::set_filter2d_n1(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
+            pipe->request_gen_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.filter2d_view_enabled)
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
@@ -1691,9 +1691,9 @@ void MainWindow::set_filter2d_n2(int n)
     if (!is_raw_mode())
     {
         const camera::FrameDescriptor& fd =
-            holovibes_.get_gpu_input_queue()->get_fd();
-        int middle_x = static_cast<int>(fd.get_width() / 2);
-        int middle_y = static_cast<int>(fd.get_height() / 2);
+            holovibes_.get_gpu_output_queue()->get_fd();
+        int middle_x = static_cast<int>(fd.width / 2);
+        int middle_y = static_cast<int>(fd.height / 2);
 
         units::RectFd zone;
         units::Point<units::FDPixel> dst;
@@ -1713,6 +1713,7 @@ void MainWindow::set_filter2d_n2(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
+            pipe->request_gen_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.filter2d_view_enabled)
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);

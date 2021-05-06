@@ -124,6 +124,9 @@ ICompute::ICompute(BatchInputQueue& input,
             buffers_.gpu_postprocess_frame_size))
         err++;
 
+    if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
+        err++;
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
@@ -348,6 +351,12 @@ void ICompute::request_disable_raw_view()
 void ICompute::request_raw_view()
 {
     raw_view_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_gen_filter2d_mask()
+{
+    gen_filter2d_mask_requested_ = true;
     request_refresh();
 }
 

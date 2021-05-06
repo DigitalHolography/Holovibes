@@ -14,6 +14,7 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
+#include "filter2d.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -246,6 +247,17 @@ bool Pipe::make_requests()
             new Queue(fd, global::global_config.output_queue_max_size));
         cd_.raw_view_enabled = true;
         raw_view_requested_ = false;
+    }
+
+    if (gen_filter2d_mask_requested_)
+    {
+        gen_filter2d_squares_mask(buffers_.gpu_filter2d_mask,
+                                  gpu_input_queue_.get_fd().width,
+                                  gpu_input_queue_.get_fd().height,
+                                  cd_.filter2d_n1,
+                                  cd_.filter2d_n2,
+                                  stream_);
+        gen_filter2d_mask_requested_ = false;
     }
 
     if (filter2d_view_requested_)
