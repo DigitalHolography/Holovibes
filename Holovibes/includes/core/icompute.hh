@@ -68,16 +68,17 @@ struct CoreBuffersEnv
     cuda_tools::UniquePtr<float> gpu_convolution_buffer = nullptr;
 
     /** Complex filter2d frame. Contains only one frame. We fill it with the
-     * output_frame*/
+     * output_frame */
     cuda_tools::UniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
     /** Float Filter2d frame. Contains only one frame. We fill it with the
-     * gpu_complex_filter2d_frame*/
+     * gpu_complex_filter2d_frame */
     cuda_tools::UniquePtr<float> gpu_float_filter2d_frame = nullptr;
     /** Filter2d frame. Contains only one frame. We fill it with the
-     * gpu_float_filter2d_frame*/
+     * gpu_float_filter2d_frame */
     cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
-    /** Filter2d shift tmp buffer.*/
-    cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_shift_buffer = nullptr;
+    /** Filter2d mask. Contains only one frame. We apply this mask to
+     * gpu_spatial_transformation_buffer */
+    cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
 };
 
 /*! \brief Struct containing variables related to the batch in the pipe */
@@ -193,6 +194,7 @@ class ICompute : public Observable
     void request_disable_lens_view();
     void request_raw_view();
     void request_disable_raw_view();
+    void request_gen_filter2d_mask();
     void request_filter2d_view();
     void request_disable_filter2d_view();
     void
@@ -400,6 +402,7 @@ class ICompute : public Observable
         std::nullopt};
     std::atomic<bool> raw_view_requested_{false};
     std::atomic<bool> disable_raw_view_requested_{false};
+    std::atomic<bool> gen_filter2d_mask_requested_{false};
     std::atomic<bool> filter2d_view_requested_{false};
     std::atomic<bool> disable_filter2d_view_requested_{false};
     std::atomic<bool> termination_requested_{false};

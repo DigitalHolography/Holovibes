@@ -61,9 +61,13 @@ class Pipe : public ICompute
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
      * \param desc ComputeDescriptor that contains computation parameters.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the computations are
+     * processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input,
+         Queue& output,
+         ComputeDescriptor& desc,
+         const cudaStream_t& stream);
 
     /*! \brief Get the lens queue to display it.
 

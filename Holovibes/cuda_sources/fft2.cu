@@ -132,6 +132,7 @@ void fft_2(cuComplex* input,
                                                       frame_resolution,
                                                       lens,
                                                       frame_resolution);
+    // kernel_apply_mask
     cudaCheckError();
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));

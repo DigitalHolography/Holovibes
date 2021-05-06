@@ -124,8 +124,7 @@ ICompute::ICompute(BatchInputQueue& input,
             buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_filter2d_shift_buffer.resize(
-            gpu_input_queue_.get_frame_res() * cd_.batch_size))
+    if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
         err++;
 
     if (err != 0)
@@ -218,9 +217,6 @@ void ICompute::update_spatial_transformation_parameters()
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(
         cd_.batch_size * gpu_input_queue_fd.frame_res());
-
-    buffers_.gpu_filter2d_shift_buffer.resize(cd_.batch_size *
-                                              gpu_input_queue_fd.frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
@@ -355,6 +351,12 @@ void ICompute::request_disable_raw_view()
 void ICompute::request_raw_view()
 {
     raw_view_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_gen_filter2d_mask()
+{
+    gen_filter2d_mask_requested_ = true;
     request_refresh();
 }
 

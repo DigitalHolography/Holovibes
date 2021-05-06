@@ -11,10 +11,15 @@
 #include "common.cuh"
 
 void filter2D(cuComplex* input,
-              cuComplex* tmp_buffer,
+              const float* mask,
               const uint batch_size,
               const cufftHandle plan2d,
-              const holovibes::units::RectFd& zone,
-              const holovibes::units::RectFd& subzone,
               const camera::FrameDescriptor& desc,
               const cudaStream_t stream);
+
+void gen_filter2d_squares_mask(float *in_out,
+                               const uint width,
+                               const uint height,
+                               const uint sq_in_radius,
+                               const uint sq_out_radius,
+                               const cudaStream_t stream);
