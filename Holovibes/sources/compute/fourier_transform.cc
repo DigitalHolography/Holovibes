@@ -56,7 +56,8 @@ FourierTransform::FourierTransform(
 
 void FourierTransform::insert_fft()
 {
-    if (cd_.filter2d_enabled)
+    if (cd_.space_transformation != SpaceTransformation::FFT2 &&
+        cd_.filter2d_enabled)
         insert_filter2d();
 
     if (cd_.space_transformation == SpaceTransformation::FFT1)
@@ -70,15 +71,12 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
-    filter2d_zone_ = cd_.getFilter2DZone();
-    filter2d_subzone_ = cd_.getFilter2DSubZone();
-
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
                  buffers_.gpu_filter2d_mask,
                  cd_.batch_size,
                  spatial_transformation_plan_,
-                 fd_,
+                 fd_.width * fd_.height,
                  stream_);
     });
 }
@@ -124,6 +122,8 @@ void FourierTransform::insert_fft2()
         fft_2(buffers_.gpu_spatial_transformation_buffer,
               buffers_.gpu_spatial_transformation_buffer,
               cd_.batch_size,
+              buffers_.gpu_filter2d_mask,
+              cd_.filter2d_enabled,
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_,

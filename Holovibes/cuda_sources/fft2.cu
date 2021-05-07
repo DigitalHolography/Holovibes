@@ -10,6 +10,7 @@
 #include "transforms.cuh"
 #include "tools_compute.cuh"
 #include "cuda_memory.cuh"
+#include "apply_mask.cuh"
 
 #include <cufftXt.h>
 
@@ -113,6 +114,8 @@ void fft2_lens(cuComplex* lens,
 void fft_2(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
+           const float* filter2d_mask,
+           const bool filter2d_enabled,
            const cuComplex* lens,
            const cufftHandle plan2d,
            const FrameDescriptor& fd,
@@ -125,6 +128,9 @@ void fft_2(cuComplex* input,
     fft_2_dc(fd.width, frame_resolution, input, 0, batch_size, stream);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
+
+    if (filter2d_enabled)
+        apply_mask(input, filter2d_mask, input, frame_resolution, batch_size, stream);
 
     kernel_apply_lens<<<blocks, threads, 0, stream>>>(input,
                                                       output,
