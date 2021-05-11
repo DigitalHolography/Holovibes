@@ -8,7 +8,9 @@
 
 #pragma once
 
-#include <cufft.h>
+#include "cusolver_handle.hh"
+#include "cublas_handle.hh"
+#include "common.cuh"
 
 namespace holovibes
 {
@@ -30,8 +32,9 @@ void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov);
 int eigen_values_vectors_work_buffer_size(int side);
 
 /*! \brief Compute the eigen values and vectors of a given triangular matrix
+ *         At the end of this function: /!\ matrix == *eigen_vectors /!\
  *
- *  \param matrix input (triangular) matrix
+ *  \param matrix input (triangular) matrix, contains eigen vectors at the end
  *  \param side length of a matrix side
  *  \param eigen_values float array that will contain the eigen values (pre
  *                      allocated)
@@ -57,12 +60,16 @@ void eigen_values_vectors(cuComplex* matrix,
  *  \param B_width width of matrix B
  *  \param A_width_B_height width of matrix A and height of matrix B
  *  \param C output matrix
+ *  \param op_A operation to apply on matrix A
+ *  \param op_B operation to apply on matrix B
  */
 void matrix_multiply(const cuComplex* A,
                      const cuComplex* B,
                      int A_height,
                      int B_width,
                      int A_width_B_height,
-                     cuComplex* C);
+                     cuComplex* C,
+                     cublasOperation_t op_A = CUBLAS_OP_N,
+                     cublasOperation_t op_B = CUBLAS_OP_N);
 } // namespace compute
 } // namespace holovibes

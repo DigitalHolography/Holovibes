@@ -8,10 +8,6 @@
 
 #include "svd.hh"
 
-#include "cusolver_handle.hh"
-#include "cublas_handle.hh"
-#include "common.cuh"
-
 namespace holovibes
 {
 namespace compute
@@ -79,11 +75,13 @@ void matrix_multiply(const cuComplex* A,
                      int A_height,
                      int B_width,
                      int A_width_B_height,
-                     cuComplex* C)
+                     cuComplex* C,
+                     cublasOperation_t op_A,
+                     cublasOperation_t op_B)
 {
     cublasSafeCall(cublasCgemm3m(cuda_tools::CublasHandle::instance(),
-                                 CUBLAS_OP_N,
-                                 CUBLAS_OP_N,
+                                 op_A,
+                                 op_B,
                                  A_height,
                                  B_width,
                                  A_width_B_height,

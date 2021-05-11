@@ -199,33 +199,7 @@ void FourierTransform::insert_time_transform()
     }
     else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
     {
-        /*
-        function H = svd_filter(H, f1, fs)
-        % SVD filtering
-        %
-        % H: an frame batch already propagated to the distance of reconstruction
-        % f1: frequency
-        % fs: sampling frequency
-        [width, height, batch_size] = size(H);
-        H = reshape(H, width*height, batch_size);
-
-        threshold = round(f1 * batch_size / fs)*2 + 1;
-
-        % SVD of spatio-temporal features
-        cov = H'*H;
-        [V,S] = eig(cov);
-        [~, sort_idx] = sort(diag(S), 'descend');
-        V = V(:,sort_idx);
-        H_tissue = H * V(:,1:threshold) * V(:,1:threshold)';
-        H = reshape(H - H_tissue, width, height, batch_size);
-        end
-        */
-        insert_pca();
-        fn_compute_vect_.conditional_push_back([=]() {
-            stft(time_transformation_env_.gpu_p_acc_buffer,
-                 time_transformation_env_.gpu_p_acc_buffer,
-                 time_transformation_env_.stft_plan);
-        });
+        insert_ssa_stft();
     }
     else // TimeTransformation::None
     {
@@ -289,6 +263,72 @@ void FourierTransform::insert_pca()
                         cd_.time_transformation_size,
                         cd_.time_transformation_size,
                         time_transformation_env_.gpu_p_acc_buffer);
+    });
+}
+
+void FourierTransform::insert_ssa_stft()
+{
+    cusolver_work_buffer_size_ =
+        eigen_values_vectors_work_buffer_size(cd_.time_transformation_size);
+    cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
+
+    static cuda_tools::UniquePtr<cuComplex> tmp_matrix = nullptr;
+    tmp_matrix.resize(cd_.time_transformation_size *
+                      cd_.time_transformation_size);
+
+    fn_compute_vect_.conditional_push_back([=]() {
+        cuComplex* H = static_cast<cuComplex*>(
+            time_transformation_env_.gpu_time_transformation_queue->get_data());
+        cuComplex* cov = time_transformation_env_.pca_cov.get();
+        cuComplex* V = nullptr;
+
+        // cov = H' * H
+        cov_matrix(H, fd_.frame_res(), cd_.time_transformation_size, cov);
+
+        // pca_eigen_values = sorted eigen values of cov
+        // cov and V = eigen vectors of cov
+        eigen_values_vectors(cov,
+                             cd_.time_transformation_size,
+                             time_transformation_env_.pca_eigen_values,
+                             &V,
+                             cusolver_work_buffer_,
+                             cusolver_work_buffer_size_,
+                             time_transformation_env_.pca_dev_info);
+
+        int p = 0;
+        int p_acc = cd_.time_transformation_size * 0.6f;
+        // int p_acc = cd_.time_transformation_size;
+        int p_index = p * cd_.time_transformation_size;
+        int p_acc_index = p_acc * cd_.time_transformation_size;
+        cudaXMemsetAsync(V, 0, p_index * sizeof(cuComplex), stream_);
+        int copy_size = cd_.time_transformation_size *
+                        (cd_.time_transformation_size - (p + p_acc));
+        cudaXMemsetAsync(V + p_index + p_acc_index,
+                         0,
+                         copy_size * sizeof(cuComplex),
+                         stream_);
+
+        // tmp = V * V'
+        matrix_multiply(V,
+                        V,
+                        cd_.time_transformation_size,
+                        cd_.time_transformation_size,
+                        cd_.time_transformation_size,
+                        tmp_matrix,
+                        CUBLAS_OP_N,
+                        CUBLAS_OP_C);
+
+        // H = H * tmp
+        matrix_multiply(H,
+                        tmp_matrix,
+                        fd_.frame_res(),
+                        cd_.time_transformation_size,
+                        cd_.time_transformation_size,
+                        time_transformation_env_.gpu_p_acc_buffer);
+
+        stft(time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.stft_plan);
     });
 }
 

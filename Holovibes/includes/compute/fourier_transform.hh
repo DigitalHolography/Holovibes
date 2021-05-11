@@ -105,6 +105,12 @@ class FourierTransform
     */
     void insert_pca();
 
+    void insert_ssa_stft();
+
+    //! Roi zone of Filter 2D
+    units::RectFd filter2d_zone_;
+    units::RectFd filter2d_subzone_;
+
     //! Lens used for fresnel transform (During FFT1 and FFT2)
     cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
     //! Size of a size of the lens (lens is always a square)
