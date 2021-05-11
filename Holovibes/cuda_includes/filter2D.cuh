@@ -14,7 +14,7 @@ void filter2D(cuComplex* input,
               const float* mask,
               const uint batch_size,
               const cufftHandle plan2d,
-              const camera::FrameDescriptor& desc,
+              const uint size,
               const cudaStream_t stream);
 
 void gen_filter2d_squares_mask(float *in_out,
