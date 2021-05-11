@@ -18,16 +18,13 @@ void filter2D(cuComplex* input,
               const float* mask,
               const uint batch_size,
               const cufftHandle plan2d,
-              const FrameDescriptor& desc,
+              const uint size,
               const cudaStream_t stream)
 {
-    uint threads = THREADS_128;
-    uint blocks = map_blocks_to_problem(desc.frame_res(), threads);
-    uint size = desc.width * desc.height;
-
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
-    // Mask already shifted, thus we do not have to shift the 'input' buffer
+    // Mask already shifted in gen_filter2d_squares_mask()
+    // thus we don't have to shift the 'input' buffer each time
     apply_mask(input, mask, input, size, batch_size, stream);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
