@@ -17,6 +17,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/postprocessing.cc
     compute/rendering.cc
     compute/image_accumulation.cc
+    compute/svd.cc
 
     containers/information_container.cc
 
