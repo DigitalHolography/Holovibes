@@ -126,9 +126,9 @@ bool Queue::enqueue(void* elt,
                                        stream);
         break;
     default:
-        assert(false);
         LOG_ERROR(
             "Missing switch case for square input mode. Could not enqueue!");
+        assert(false);
         return false;
     }
 

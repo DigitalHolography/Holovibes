@@ -153,6 +153,11 @@ void FourierTransform::enqueue_lens()
         cuComplex* copied_lens_ptr =
             static_cast<cuComplex*>(gpu_lens_queue_->get_end());
         gpu_lens_queue_->enqueue(gpu_lens_, stream_);
+
+        // For optimisation purposes, when FFT2 is activated, lens is shifted
+        // We have to shift it again to ensure a good display
+        if (cd_.space_transformation == SpaceTransformation::FFT2)
+            shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.frame_res(), stream_);
     }
