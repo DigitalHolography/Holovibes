@@ -248,6 +248,7 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
+    const auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
     ui.InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
 
     // Tabs
@@ -404,6 +405,15 @@ void MainWindow::on_notify()
     ui.XAccSpinBox->setValue(cd_.x_acc_level);
     ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
     ui.YAccSpinBox->setValue(cd_.y_acc_level);
+
+    ui.XSpinBox->blockSignals(true);
+    ui.YSpinBox->blockSignals(true);
+    ui.XSpinBox->setMaximum(fd.width - 1);
+    ui.YSpinBox->setMaximum(fd.height - 1);
+    ui.XSpinBox->setValue(cd_.x_cuts);
+    ui.YSpinBox->setValue(cd_.y_cuts);
+    ui.XSpinBox->blockSignals(false);
+    ui.YSpinBox->blockSignals(false);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
@@ -1373,9 +1383,6 @@ void MainWindow::update_batch_size()
 #pragma region STFT
 void MainWindow::cancel_stft_slice_view()
 {
-    Holovibes::instance().get_info_container().remove_indication(
-        InformationContainer::IndicationType::CUTS_SLICE_CURSOR);
-
     cd_.contrast_max_slice_xz = false;
     cd_.contrast_max_slice_yz = false;
     cd_.log_scale_slice_xz_enabled = false;
@@ -1907,6 +1914,19 @@ void MainWindow::set_y_accu()
     cd_.y_acc_level = box->value();
     pipe_refresh();
     notify();
+}
+
+void MainWindow::set_x_y()
+{
+    auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
+    uint x = ui.XSpinBox->value();
+    uint y = ui.YSpinBox->value();
+
+    if (x < fd.width)
+        cd_.x_cuts = x;
+
+    if (y < fd.height)
+        cd_.y_cuts = y;
 }
 
 void MainWindow::set_p(int value)

@@ -53,8 +53,6 @@ class CrossOverlay : public Overlay
      */
     void computeZone();
 
-    void printPosition() const;
-
     //! Transparency of the borders
     float line_alpha_;
 

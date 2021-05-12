@@ -358,30 +358,10 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
-           <item row="1" column="0">
-            <widget class="QLabel" name="SpaceTransformationLabel">
-             <property name="text">
-              <string>Space Transform</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
            <item row="4" column="0">
-            <widget class="QLabel" name="PLabel">
+            <widget class="QLabel" name="WaveLengthLabel">
              <property name="text">
-              <string>p</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="TimeTransformationLabel">
-             <property name="text">
-              <string>Time Transform</string>
+              <string>λ (nm)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -392,6 +372,16 @@
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="text">
               <string># img</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
+             <property name="text">
+              <string>Boundary (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -421,70 +411,6 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>reconstruction distance of the hologram</string>
-             </property>
-             <property name="showGroupSeparator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>5</number>
-             </property>
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.005000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>10000</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="WaveLengthLabel">
-             <property name="text">
-              <string>λ (nm)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ZLabel">
-             <property name="text">
-              <string>z (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
             <widget class="QLineEdit" name="BoundaryLineEdit">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -527,27 +453,81 @@
              </item>
             </widget>
            </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="BoundaryLabel">
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>reconstruction distance of the hologram</string>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>5</number>
+             </property>
+             <property name="minimum">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.005000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="ZLabel">
              <property name="text">
-              <string>Boundary (m)</string>
+              <string>z (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="PSpinBox">
-             <property name="toolTip">
-              <string>index of the image displayed</string>
+           <item row="1" column="0">
+            <widget class="QLabel" name="SpaceTransformationLabel">
+             <property name="text">
+              <string>Space Transform</string>
              </property>
-             <property name="minimum">
-              <number>0</number>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="2" column="0">
+            <widget class="QLabel" name="TimeTransformationLabel">
+             <property name="text">
+              <string>Time Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
             <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -1005,48 +985,19 @@
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0">
+          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
            <property name="verticalSpacing">
             <number>1</number>
            </property>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="XAccuCheckBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="YAccuCheckBox">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
+           <item row="2" column="4">
             <widget class="QSpinBox" name="PAccSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>90</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
-               <height>16777206</height>
+               <width>55</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="minimum">
@@ -1060,18 +1011,92 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="YAccuCheckBox">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_9">
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_20">
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="2">
-            <widget class="QSpinBox" name="XAccSpinBox">
+            <widget class="QCheckBox" name="XAccuCheckBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
+             <property name="maximumSize">
               <size>
-               <width>90</width>
-               <height>0</height>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QSpinBox" name="XAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>55</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="minimum">
@@ -1085,18 +1110,33 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>x Acc.</string>
+           <item row="1" column="4">
+            <widget class="QSpinBox" name="YAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>55</width>
+               <height>16777215</height>
+              </size>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="1" column="3">
             <widget class="QLabel" name="label_19">
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="layoutDirection">
               <enum>Qt::RightToLeft</enum>
              </property>
@@ -1104,46 +1144,73 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>y Acc.</string>
+              <string>Acc.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string>p Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QSpinBox" name="YAccSpinBox">
-             <property name="minimumSize">
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="XSpinBox">
+             <property name="maximumSize">
               <size>
-               <width>90</width>
-               <height>0</height>
+               <width>55</width>
+               <height>16777215</height>
               </size>
              </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
              <property name="maximum">
-              <number>65536</number>
+              <number>999999999</number>
              </property>
-             <property name="value">
-              <number>0</number>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>y</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>p</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="YSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>55</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
             <widget class="QCheckBox" name="PAccuCheckBox">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
               <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="PSpinBox">
+             <property name="toolTip">
+              <string>index of the image displayed</string>
+             </property>
+             <property name="minimum">
+              <number>0</number>
              </property>
             </widget>
            </item>
@@ -3088,7 +3155,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3884,22 +3951,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>284</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>143</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -3960,38 +4011,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>328</x>
      <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>YAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>182</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>205</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>222</x>
-     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -4120,22 +4139,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>644</x>
      <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>XAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_x_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>324</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
     </hint>
    </hints>
   </connection>
@@ -5131,6 +5134,102 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>PAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>XAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_x_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>YAccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_y_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>XSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_x_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>YSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_x_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>168</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5208,6 +5307,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_integer_visible(bool)</slot>
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
+  <slot>set_x_y()</slot>
   <slot>set_composite_weights()</slot>
   <slot>set_composite_weights_hsv_s()</slot>
   <slot>set_composite_auto_weights(bool)</slot>

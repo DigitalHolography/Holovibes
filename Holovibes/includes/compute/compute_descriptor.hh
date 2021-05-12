@@ -360,6 +360,11 @@ class ComputeDescriptor : public Observable
     //! convolution file used when convolution_enabled
     std::string convolution_file{""};
 
+    //! x cursor position (used in 3D cuts)
+    std::atomic<uint> x_cuts;
+    //! y cursor position (used in 3D cuts)
+    std::atomic<uint> y_cuts;
+
 #pragma endregion
 };
 } // namespace holovibes

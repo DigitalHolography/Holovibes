@@ -34,8 +34,6 @@ class InformationContainer
 
         INPUT_FORMAT,
         OUTPUT_FORMAT,
-
-        CUTS_SLICE_CURSOR,
     };
 
     /*!
