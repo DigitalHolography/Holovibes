@@ -455,8 +455,10 @@ void MainWindow::on_notify()
     ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
     ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
     ui.Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui.Filter2DN1SpinBox->setValue(cd_.filter2d_n1);
     ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
     ui.Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui.Filter2DN2SpinBox->setValue(cd_.filter2d_n2);
 
     // Composite
     const int time_transformation_size_max = cd_.time_transformation_size - 1;
