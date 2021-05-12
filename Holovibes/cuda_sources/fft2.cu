@@ -17,12 +17,6 @@
 
 using camera::FrameDescriptor;
 
-enum mode
-{
-    APPLY_PHASE_FORWARD,
-    APPLY_PHASE_INVERSE
-};
-
 void fft2_lens(cuComplex* lens,
                const uint lens_side_size,
                const uint frame_height,
@@ -56,11 +50,11 @@ void fft2_lens(cuComplex* lens,
     if (frame_height != frame_width)
     {
         cudaXMemcpyAsync(lens,
-                    square_lens +
-                        ((lens_side_size - frame_height) / 2) * frame_width,
-                    frame_width * frame_height * sizeof(cuComplex),
-                    cudaMemcpyDeviceToDevice,
-                    stream);
+                         square_lens + ((lens_side_size - frame_height) / 2) *
+                                           frame_width,
+                         frame_width * frame_height * sizeof(cuComplex),
+                         cudaMemcpyDeviceToDevice,
+                         stream);
         cudaXFree(square_lens);
     }
 }
@@ -81,9 +75,8 @@ void fft_2(cuComplex* input,
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
-    // Tester avec fft_shift()
-    shift_corners(input, batch_size, fd.width, fd.height, stream);
-
+    // Lens and Mask already shifted
+    // thus we don't have to shift the 'input' buffer each time
     kernel_apply_lens<<<blocks, threads, 0, stream>>>(input,
                                                       output,
                                                       batch_size,
@@ -91,11 +84,13 @@ void fft_2(cuComplex* input,
                                                       lens,
                                                       frame_resolution);
 
-    // Tester avec fft_shift()
-    shift_corners(input, batch_size, fd.width, fd.height, stream);
-
     if (filter2d_enabled)
-        apply_mask(input, filter2d_mask, input, frame_resolution, batch_size, stream);
+        apply_mask(input,
+                   filter2d_mask,
+                   input,
+                   frame_resolution,
+                   batch_size,
+                   stream);
 
     cudaCheckError();
 

@@ -25,6 +25,7 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
 #include "queue.hh"
+#include "shift_corners.cuh"
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
@@ -117,6 +118,8 @@ void FourierTransform::insert_fft2()
               z,
               cd_.pixel_size,
               stream_);
+
+    shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
     fn_compute_vect_.push_back([=]() {
         fft_2(buffers_.gpu_spatial_transformation_buffer,
