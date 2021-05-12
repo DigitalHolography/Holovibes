@@ -107,9 +107,6 @@ class ComputeDescriptor : public Observable
      * \brief	Getter of the overlay positions.
      *
      */
-
-    units::RectFd getFilter2DZone() const;
-    units::RectFd getFilter2DSubZone() const;
     units::RectFd getCompositeZone() const;
     units::RectFd getZoomedZone() const;
     units::PointFd getStftCursor() const;
@@ -122,8 +119,6 @@ class ComputeDescriptor : public Observable
      * \brief	Setter of the overlay positions.
      *
      */
-    void setFilter2DZone(const units::RectFd& rect);
-    void setFilter2DSubZone(const units::RectFd& rect);
     void setCompositeZone(const units::RectFd& rect);
     void setZoomedZone(const units::RectFd& rect);
     void setStftCursor(const units::PointFd& rect);

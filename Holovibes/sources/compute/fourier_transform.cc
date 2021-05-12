@@ -25,6 +25,7 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
 #include "queue.hh"
+#include "shift_corners.cuh"
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
@@ -118,6 +119,8 @@ void FourierTransform::insert_fft2()
               cd_.pixel_size,
               stream_);
 
+    shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
+
     fn_compute_vect_.push_back([=]() {
         fft_2(buffers_.gpu_spatial_transformation_buffer,
               buffers_.gpu_spatial_transformation_buffer,
@@ -150,6 +153,11 @@ void FourierTransform::enqueue_lens()
         cuComplex* copied_lens_ptr =
             static_cast<cuComplex*>(gpu_lens_queue_->get_end());
         gpu_lens_queue_->enqueue(gpu_lens_, stream_);
+
+        // For optimisation purposes, when FFT2 is activated, lens is shifted
+        // We have to shift it again to ensure a good display
+        if (cd_.space_transformation == SpaceTransformation::FFT2)
+            shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.frame_res(), stream_);
     }

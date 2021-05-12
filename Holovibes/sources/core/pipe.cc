@@ -249,15 +249,15 @@ bool Pipe::make_requests()
         raw_view_requested_ = false;
     }
 
-    if (gen_filter2d_mask_requested_)
+    if (update_filter2d_mask_requested_)
     {
-        gen_filter2d_squares_mask(buffers_.gpu_filter2d_mask,
-                                  gpu_input_queue_.get_fd().width,
-                                  gpu_input_queue_.get_fd().height,
-                                  cd_.filter2d_n1,
-                                  cd_.filter2d_n2,
-                                  stream_);
-        gen_filter2d_mask_requested_ = false;
+        update_filter2d_squares_mask(buffers_.gpu_filter2d_mask,
+                                     gpu_input_queue_.get_fd().width,
+                                     gpu_input_queue_.get_fd().height,
+                                     cd_.filter2d_n1,
+                                     cd_.filter2d_n2,
+                                     stream_);
+        update_filter2d_mask_requested_ = false;
     }
 
     if (filter2d_view_requested_)

@@ -194,7 +194,7 @@ class ICompute : public Observable
     void request_disable_lens_view();
     void request_raw_view();
     void request_disable_raw_view();
-    void request_gen_filter2d_mask();
+    void request_update_filter2d_mask();
     void request_filter2d_view();
     void request_disable_filter2d_view();
     void
@@ -402,7 +402,7 @@ class ICompute : public Observable
         std::nullopt};
     std::atomic<bool> raw_view_requested_{false};
     std::atomic<bool> disable_raw_view_requested_{false};
-    std::atomic<bool> gen_filter2d_mask_requested_{false};
+    std::atomic<bool> update_filter2d_mask_requested_{false};
     std::atomic<bool> filter2d_view_requested_{false};
     std::atomic<bool> disable_filter2d_view_requested_{false};
     std::atomic<bool> termination_requested_{false};
