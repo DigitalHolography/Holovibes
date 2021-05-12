@@ -136,6 +136,8 @@ class MainWindow : public QMainWindow, public Observer
     void set_x_accu();
     void set_y_accu();
     void set_x_y();
+    void set_q(int value);
+    void set_q_acc();
     void set_composite_intervals();
     void set_composite_intervals_hsv_h_min();
     void set_composite_intervals_hsv_h_max();

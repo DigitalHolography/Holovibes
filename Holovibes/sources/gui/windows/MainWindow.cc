@@ -400,6 +400,34 @@ void MainWindow::on_notify()
     }
     ui.PSpinBox->setEnabled(!is_raw);
 
+    // q accu
+    bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
+    ui.Q_AccuCheckBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_AccSpinBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_SpinBox->setEnabled(!is_raw && is_ssa_stft);
+
+    ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
+    ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    if (cd_.q_acc > cd_.time_transformation_size - 1)
+        cd_.q_acc = cd_.time_transformation_size - 1;
+    ui.Q_AccSpinBox->setValue(cd_.q_acc);
+    if (cd_.q_acc_enabled)
+    {
+        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc - 1);
+        if (cd_.q_index > cd_.time_transformation_size - cd_.q_acc - 1)
+            cd_.q_index = cd_.time_transformation_size - cd_.q_acc - 1;
+        ui.Q_SpinBox->setValue(cd_.q_index);
+        ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index -
+                                    1);
+    }
+    else
+    {
+        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
+        if (cd_.q_index > cd_.time_transformation_size - 1)
+            cd_.q_index = cd_.time_transformation_size - 1;
+        ui.Q_SpinBox->setValue(cd_.q_index);
+    }
+
     // XY accu
     ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
     ui.XAccSpinBox->setValue(cd_.x_acc_level);
@@ -1927,6 +1955,21 @@ void MainWindow::set_x_y()
 
     if (y < fd.height)
         cd_.y_cuts = y;
+}
+
+void MainWindow::set_q(int value)
+{
+    cd_.q_index = value;
+    notify();
+}
+
+void MainWindow::set_q_acc()
+{
+    auto spinbox = ui.Q_AccSpinBox;
+    auto checkBox = ui.Q_AccuCheckBox;
+    cd_.q_acc_enabled = checkBox->isChecked();
+    cd_.q_acc = spinbox->value();
+    notify();
 }
 
 void MainWindow::set_p(int value)

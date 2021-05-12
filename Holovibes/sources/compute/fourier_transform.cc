@@ -295,15 +295,15 @@ void FourierTransform::insert_ssa_stft()
                              cusolver_work_buffer_size_,
                              time_transformation_env_.pca_dev_info);
 
-        int p = 0;
-        int p_acc = cd_.time_transformation_size * 0.6f;
-        // int p_acc = cd_.time_transformation_size;
-        int p_index = p * cd_.time_transformation_size;
-        int p_acc_index = p_acc * cd_.time_transformation_size;
-        cudaXMemsetAsync(V, 0, p_index * sizeof(cuComplex), stream_);
+        int q = cd_.q_acc_enabled ? cd_.q_index.load() : 0;
+        int q_acc = cd_.q_acc_enabled ? cd_.q_acc.load()
+                                      : cd_.time_transformation_size.load();
+        int q_index = q * cd_.time_transformation_size;
+        int q_acc_index = q_acc * cd_.time_transformation_size;
+        cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
         int copy_size = cd_.time_transformation_size *
-                        (cd_.time_transformation_size - (p + p_acc));
-        cudaXMemsetAsync(V + p_index + p_acc_index,
+                        (cd_.time_transformation_size - (q + q_acc));
+        cudaXMemsetAsync(V + q_index + q_acc_index,
                          0,
                          copy_size * sizeof(cuComplex),
                          stream_);

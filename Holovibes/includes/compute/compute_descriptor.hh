@@ -365,6 +365,12 @@ class ComputeDescriptor : public Observable
     //! y cursor position (used in 3D cuts)
     std::atomic<uint> y_cuts;
 
+    //! svd eigen vectors filtering index
+    std::atomic<uint> q_index;
+    std::atomic<bool> q_acc_enabled;
+    //! svd eigen vectors filtering size
+    std::atomic<uint> q_acc;
+
 #pragma endregion
 };
 } // namespace holovibes

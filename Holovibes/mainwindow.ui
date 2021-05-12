@@ -985,87 +985,43 @@
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0">
+          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
            <property name="verticalSpacing">
             <number>1</number>
            </property>
-           <item row="2" column="4">
-            <widget class="QSpinBox" name="PAccSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>55</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>999999999</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="maximumSize">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>x</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="2">
             <widget class="QCheckBox" name="YAccuCheckBox">
              <property name="maximumSize">
               <size>
-               <width>15</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLabel" name="label_9">
-             <property name="maximumSize">
-              <size>
-               <width>25</width>
+               <width>50</width>
                <height>16777215</height>
               </size>
              </property>
              <property name="text">
               <string>Acc.</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
             </widget>
            </item>
-           <item row="2" column="3">
-            <widget class="QLabel" name="label_20">
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="XSpinBox">
              <property name="maximumSize">
               <size>
-               <width>25</width>
+               <width>63</width>
                <height>16777215</height>
               </size>
              </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QCheckBox" name="Q_AccuCheckBox">
              <property name="text">
               <string>Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -1079,7 +1035,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>15</width>
+               <width>42</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1087,107 +1043,7 @@
               <enum>Qt::LeftToRight</enum>
              </property>
              <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <widget class="QSpinBox" name="XAccSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>55</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
-            <widget class="QSpinBox" name="YAccSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>55</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLabel" name="label_19">
-             <property name="maximumSize">
-              <size>
-               <width>25</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
               <string>Acc.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="XSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>55</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="maximum">
-              <number>999999999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>y</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>p</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="YSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>55</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="maximum">
-              <number>999999999</number>
              </property>
             </widget>
            </item>
@@ -1195,22 +1051,158 @@
             <widget class="QCheckBox" name="PAccuCheckBox">
              <property name="maximumSize">
               <size>
-               <width>15</width>
+               <width>50</width>
                <height>16777215</height>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>Acc.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="YLabel">
+             <property name="text">
+              <string>y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="YSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QSpinBox" name="XAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="PLabel">
+             <property name="text">
+              <string>p</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="Q_SpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="XLabel">
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>x</string>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
             <widget class="QSpinBox" name="PSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>index of the image displayed</string>
              </property>
              <property name="minimum">
               <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="Q_Label">
+             <property name="text">
+              <string>q</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QSpinBox" name="PAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="YAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QSpinBox" name="Q_AccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>63</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>9999999</number>
              </property>
             </widget>
            </item>
@@ -4079,22 +4071,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>208</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -5230,6 +5206,70 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>PAccuCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Q_SpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_q(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>311</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Q_AccuCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_q_acc()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>370</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Q_AccSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_q_acc()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5308,6 +5348,8 @@ p, li { white-space: pre-wrap; }
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
   <slot>set_x_y()</slot>
+  <slot>set_q(int)</slot>
+  <slot>set_q_acc()</slot>
   <slot>set_composite_weights()</slot>
   <slot>set_composite_weights_hsv_s()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
