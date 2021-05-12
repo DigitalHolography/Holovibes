@@ -191,9 +191,9 @@ void Queue::enqueue_multiple_aux(void* out,
                                  stream);
         break;
     default:
-        assert(false);
         LOG_ERROR(
             "Missing switch case for square input mode. Could not enqueue!");
+        assert(false);
     }
 
     if (is_big_endian_)
