@@ -11,6 +11,7 @@
 #include "tools_compute.cuh"
 #include "cuda_memory.cuh"
 #include "apply_mask.cuh"
+#include "shift_corners.cuh"
 
 #include <cufftXt.h>
 
@@ -21,53 +22,6 @@ enum mode
     APPLY_PHASE_FORWARD,
     APPLY_PHASE_INVERSE
 };
-
-__global__ static void kernel_fft2_dc(const cuComplex* const input,
-                                      cuComplex* const output,
-                                      const ushort width,
-                                      const uint frame_res,
-                                      const uint batch_size,
-                                      const bool mode)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < frame_res)
-    {
-        for (uint i = 0; i < batch_size; ++i)
-        {
-            const uint batch_index = index + i * frame_res;
-
-            const float pi_pxl = M_PI * (index / width + index % width);
-            if (mode == APPLY_PHASE_FORWARD)
-                output[batch_index] =
-                    cuCmulf(input[batch_index],
-                            make_cuComplex(cosf(pi_pxl), sinf(pi_pxl)));
-            else if (mode == APPLY_PHASE_INVERSE)
-                output[batch_index] =
-                    cuCmulf(input[batch_index],
-                            make_cuComplex(cosf(-pi_pxl), sinf(-pi_pxl)));
-        }
-    }
-}
-
-static void fft_2_dc(const ushort width,
-                     const uint frame_res,
-                     cuComplex* pframe,
-                     const bool mode,
-                     const uint batch_size,
-                     const cudaStream_t stream)
-{
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(frame_res, threads);
-
-    kernel_fft2_dc<<<blocks, threads, 0, stream>>>(pframe,
-                                                   pframe,
-                                                   width,
-                                                   frame_res,
-                                                   batch_size,
-                                                   mode);
-    cudaCheckError();
-}
 
 void fft2_lens(cuComplex* lens,
                const uint lens_side_size,
@@ -125,12 +79,10 @@ void fft_2(cuComplex* input,
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_resolution, threads);
 
-    fft_2_dc(fd.width, frame_resolution, input, 0, batch_size, stream);
-
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
-    if (filter2d_enabled)
-        apply_mask(input, filter2d_mask, input, frame_resolution, batch_size, stream);
+    // Tester avec fft_shift()
+    shift_corners(input, batch_size, fd.width, fd.height, stream);
 
     kernel_apply_lens<<<blocks, threads, 0, stream>>>(input,
                                                       output,
@@ -138,12 +90,16 @@ void fft_2(cuComplex* input,
                                                       frame_resolution,
                                                       lens,
                                                       frame_resolution);
-    // kernel_apply_mask
+
+    // Tester avec fft_shift()
+    shift_corners(input, batch_size, fd.width, fd.height, stream);
+
+    if (filter2d_enabled)
+        apply_mask(input, filter2d_mask, input, frame_resolution, batch_size, stream);
+
     cudaCheckError();
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
-
-    fft_2_dc(fd.width, frame_resolution, input, 1, batch_size, stream);
 
     kernel_complex_divide<<<blocks, threads, 0, stream>>>(
         input,
