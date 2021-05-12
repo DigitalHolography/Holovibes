@@ -354,9 +354,9 @@ void ICompute::request_raw_view()
     request_refresh();
 }
 
-void ICompute::request_gen_filter2d_mask()
+void ICompute::request_update_filter2d_mask()
 {
-    gen_filter2d_mask_requested_ = true;
+    update_filter2d_mask_requested_ = true;
     request_refresh();
 }
 
