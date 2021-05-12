@@ -251,12 +251,12 @@ bool Pipe::make_requests()
 
     if (update_filter2d_mask_requested_)
     {
-        gen_filter2d_squares_mask(buffers_.gpu_filter2d_mask,
-                                  gpu_input_queue_.get_fd().width,
-                                  gpu_input_queue_.get_fd().height,
-                                  cd_.filter2d_n1,
-                                  cd_.filter2d_n2,
-                                  stream_);
+        update_filter2d_squares_mask(buffers_.gpu_filter2d_mask,
+                                     gpu_input_queue_.get_fd().width,
+                                     gpu_input_queue_.get_fd().height,
+                                     cd_.filter2d_n1,
+                                     cd_.filter2d_n2,
+                                     stream_);
         update_filter2d_mask_requested_ = false;
     }
 

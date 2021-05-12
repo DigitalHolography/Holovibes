@@ -17,9 +17,9 @@ void filter2D(cuComplex* input,
               const uint size,
               const cudaStream_t stream);
 
-void gen_filter2d_squares_mask(float *in_out,
-                               const uint width,
-                               const uint height,
-                               const uint sq_in_radius,
-                               const uint sq_out_radius,
-                               const cudaStream_t stream);
+void update_filter2d_squares_mask(float* in_out,
+                                  const uint width,
+                                  const uint height,
+                                  const uint sq_in_radius,
+                                  const uint sq_out_radius,
+                                  const cudaStream_t stream);
