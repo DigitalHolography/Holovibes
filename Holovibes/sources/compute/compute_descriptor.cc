@@ -122,30 +122,6 @@ void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
     }
 }
 
-units::RectFd ComputeDescriptor::getFilter2DZone() const
-{
-    LockGuard g(mutex_);
-    return filter2D_zone;
-}
-
-void ComputeDescriptor::setFilter2DZone(const units::RectFd& rect)
-{
-    LockGuard g(mutex_);
-    filter2D_zone = rect;
-}
-
-units::RectFd ComputeDescriptor::getFilter2DSubZone() const
-{
-    LockGuard g(mutex_);
-    return filter2D_sub_zone;
-}
-
-void ComputeDescriptor::setFilter2DSubZone(const units::RectFd& rect)
-{
-    LockGuard g(mutex_);
-    filter2D_sub_zone = rect;
-}
-
 units::RectFd ComputeDescriptor::getCompositeZone() const
 {
     LockGuard g(mutex_);
