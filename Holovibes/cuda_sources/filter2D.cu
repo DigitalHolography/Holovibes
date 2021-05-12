@@ -23,19 +23,27 @@ void filter2D(cuComplex* input,
 {
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
-    // Mask already shifted in update_filter2d_squares_mask()
+    // Mask already shifted in update_filter2d_circles_mask()
     // thus we don't have to shift the 'input' buffer each time
     apply_mask(input, mask, input, size, batch_size, stream);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }
 
-__global__ void kernel_update_filter2d_squares_mask(float* in_out,
-                                                    const uint size,
-                                                    const uint middle_x,
-                                                    const uint middle_y,
-                                                    const uint sq_in_radius,
-                                                    const uint sq_out_radius)
+static __device__ float length(const float x, const float y)
+{
+    return (sqrtf(x * x + y * y));
+}
+
+static __global__ void
+kernel_update_filter2d_circles_mask(float* in_out,
+                                    const uint size,
+                                    const uint width,
+                                    const uint height,
+                                    const uint radius_low,
+                                    const uint radius_high,
+                                    const uint smooth_low,
+                                    const uint smooth_high)
 {
     const uint x = blockIdx.x * blockDim.x + threadIdx.x;
     const uint y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -43,43 +51,57 @@ __global__ void kernel_update_filter2d_squares_mask(float* in_out,
 
     if (index < size)
     {
-        const uint zone_tl_x = middle_x - sq_out_radius;
-        const uint zone_tl_y = middle_y - sq_out_radius;
-        const uint zone_br_x = middle_x + sq_out_radius;
-        const uint zone_br_y = middle_y + sq_out_radius;
-        const uint subzone_tl_x = middle_x - sq_in_radius;
-        const uint subzone_tl_y = middle_y - sq_in_radius;
-        const uint subzone_br_x = middle_x + sq_in_radius;
-        const uint subzone_br_y = middle_y + sq_in_radius;
+        float a, b;
 
-        const bool inside_zone = (y >= zone_tl_y && y < zone_br_y &&
-                                  x >= zone_tl_x && x < zone_br_x);
-        const bool inside_sub_zone = (y >= subzone_tl_y && y < subzone_br_y &&
-                                      x >= subzone_tl_x && x < subzone_br_x);
-        const bool outside_selection = !inside_zone || inside_sub_zone;
+        // Relatives values to the center of the image
+        const float r_x = x - width / 2;
+        const float r_y = y - height / 2;
 
-        in_out[index] = !outside_selection;
+        // A: higher circle
+        if (r_x * r_x + r_y * r_y < radius_high * radius_high)
+            a = 1.0f;
+        else if (length(r_x, r_y) < radius_high + smooth_high)
+            a = cosf(((length(r_x, r_y) - radius_high) / (float)(smooth_high)) *
+                     M_PI_2);
+        else
+            a = 0.0f;
+
+        // B: lower circle
+        if (r_x * r_x + r_y * r_y < radius_low * radius_low)
+            b = 1.0f;
+        else if (length(r_x, r_y) < radius_low + smooth_low)
+            b = cosf(((length(r_x, r_y) - radius_low) / (float)(smooth_low)) *
+                     M_PI_2);
+        else
+            b = 0.0f;
+
+        // pixel = A * (1 - B)
+        in_out[index] = a * (1 - b);
     }
 }
 
-void update_filter2d_squares_mask(float* in_out,
+void update_filter2d_circles_mask(float* in_out,
                                   const uint width,
                                   const uint height,
-                                  const uint sq_in_radius,
-                                  const uint sq_out_radius,
+                                  const uint radius_low,
+                                  const uint radius_high,
+                                  const uint smooth_low,
+                                  const uint smooth_high,
                                   const cudaStream_t stream)
 {
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(width / threads_2d, height / threads_2d);
 
-    kernel_update_filter2d_squares_mask<<<lblocks, lthreads, 0, stream>>>(
+    kernel_update_filter2d_circles_mask<<<lblocks, lthreads, 0, stream>>>(
         in_out,
         width * height,
-        width / 2,
-        height / 2,
-        sq_in_radius,
-        sq_out_radius);
+        width,
+        height,
+        radius_low,
+        radius_high,
+        smooth_low,
+        smooth_high);
 
     shift_corners(in_out, 1, width, height, stream);
 }

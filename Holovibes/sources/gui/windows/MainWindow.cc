@@ -1555,7 +1555,8 @@ void MainWindow::set_filter2d(bool checked)
             const camera::FrameDescriptor& fd =
                 holovibes_.get_gpu_input_queue()->get_fd();
 
-            ui.Filter2DN2SpinBox->setMaximum(fmin(fd.width, fd.height) / 2);
+            ui.Filter2DN2SpinBox->setMaximum(
+                floor((fmin(fd.width, fd.height) / 2) * M_SQRT2));
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
             if (auto pipe =
