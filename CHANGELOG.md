@@ -1,5 +1,10 @@
 ## Changelog
 
+### 9.3.4
+
+* Add: Filter2D circles mask
+* Fix: cuts and filter2D color overlays
+
 ### 9.3.2
 
 * Fix: filter2D optimisation
