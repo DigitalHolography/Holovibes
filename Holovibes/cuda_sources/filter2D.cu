@@ -30,9 +30,11 @@ void filter2D(cuComplex* input,
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }
 
+static __device__ float pow2(float x) { return (x * x); }
+
 static __device__ float length(const float x, const float y)
 {
-    return (sqrtf(x * x + y * y));
+    return (sqrtf(pow2(x) + pow2(y)));
 }
 
 static __global__ void
@@ -54,11 +56,11 @@ kernel_update_filter2d_circles_mask(float* in_out,
         float a, b;
 
         // Relatives values to the center of the image
-        const float r_x = x - width / 2;
-        const float r_y = y - height / 2;
+        const float r_x = (float)x - width / 2;
+        const float r_y = (float)y - height / 2;
 
-        // A: higher circle
-        if (r_x * r_x + r_y * r_y < radius_high * radius_high)
+        // A: big disc
+        if (pow2(length(r_x, r_y)) < pow2(radius_high))
             a = 1.0f;
         else if (length(r_x, r_y) < radius_high + smooth_high)
             a = cosf(((length(r_x, r_y) - radius_high) / (float)(smooth_high)) *
@@ -66,8 +68,8 @@ kernel_update_filter2d_circles_mask(float* in_out,
         else
             a = 0.0f;
 
-        // B: lower circle
-        if (r_x * r_x + r_y * r_y < radius_low * radius_low)
+        // B: small disc
+        if (pow2(length(r_x, r_y)) < pow2(radius_low))
             b = 1.0f;
         else if (length(r_x, r_y) < radius_low + smooth_low)
             b = cosf(((length(r_x, r_y) - radius_low) / (float)(smooth_low)) *
