@@ -56,6 +56,21 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.batch_size =
         ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
 
+    cd.filter2d_n2 =
+        ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
+    cd.filter2d_n1 =
+        ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1);
+    if (cd.filter2d_n1 >= cd.filter2d_n2)
+        cd.filter2d_n1 = cd.filter2d_n2 - 1;
+    cd.filter2d_smooth_low =
+        ptree.get<int>("image_rendering.filter2d_smooth_low",
+                       cd.filter2d_smooth_low);
+    cd.filter2d_smooth_high =
+        ptree.get<int>("image_rendering.filter2d_smooth_high",
+                       cd.filter2d_smooth_high);
+    cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled",
+                                          cd.filter2d_enabled);
+
     const ushort p_time_transformation_size =
         ptree.get<ushort>("image_rendering.time_transformation_size",
                           cd.time_transformation_size);
@@ -225,6 +240,14 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride",
                       cd.time_transformation_stride);
+    ptree.put<bool>("image_rendering.filter2d_enabled",
+                    static_cast<int>(cd.filter2d_enabled.load()));
+    ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
+    ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());
+    ptree.put<int>("image_rendering.filter2d_smooth_low",
+                   cd.filter2d_smooth_low.load());
+    ptree.put<int>("image_rendering.filter2d_smooth_high",
+                   cd.filter2d_smooth_high.load());
     ptree.put<int>("image_rendering.space_transformation",
                    static_cast<int>(cd.space_transformation.load()));
     ptree.put<int>("image_rendering.time_transformation",
