@@ -369,7 +369,7 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> q_index;
     std::atomic<bool> q_acc_enabled;
     //! svd eigen vectors filtering size
-    std::atomic<uint> q_acc;
+    std::atomic<uint> q_acc_level;
 
 #pragma endregion
 };

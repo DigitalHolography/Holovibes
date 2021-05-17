@@ -82,6 +82,10 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         ptree.get<ushort>("image_rendering.p_index", cd.pindex);
     if (p_index >= 0 && p_index < cd.time_transformation_size)
         cd.pindex = p_index;
+    const ushort q_index =
+        ptree.get<ushort>("image_rendering.q_index", cd.pindex);
+    if (q_index >= 0 && q_index < cd.time_transformation_size)
+        cd.q_index = q_index;
 
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
@@ -122,11 +126,14 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     cd.p_accu_enabled =
         ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
+    cd.q_acc_enabled =
+        ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
     cd.x_accu_enabled =
         ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
     cd.y_accu_enabled =
         ptree.get<bool>("view.y_accu_enabled", cd.y_accu_enabled);
     cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
+    cd.q_acc_level = ptree.get<short>("view.q_acc_level", cd.q_acc_level);
     cd.x_acc_level = ptree.get<short>("view.x_acc_level", cd.x_acc_level);
     cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
 
@@ -255,6 +262,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<ushort>("image_rendering.time_transformation_size",
                       cd.time_transformation_size);
     ptree.put<ushort>("image_rendering.p_index", cd.pindex);
+    ptree.put<ushort>("image_rendering.q_index", cd.q_index);
     ptree.put<float>("image_rendering.lambda", cd.lambda);
     ptree.put<float>("image_rendering.z_distance", cd.zdistance);
     ptree.put<ushort>("image_rendering.raw_bitshift", cd.raw_bitshift);
@@ -275,9 +283,11 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                      cd.contrast_upper_threshold);
 
     ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
+    ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
     ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
     ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
     ptree.put<short>("view.p_acc_level", cd.p_acc_level);
+    ptree.put<short>("view.q_acc_level", cd.q_acc_level);
     ptree.put<short>("view.x_acc_level", cd.x_acc_level);
     ptree.put<short>("view.y_acc_level", cd.y_acc_level);
 

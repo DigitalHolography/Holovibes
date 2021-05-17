@@ -25,12 +25,9 @@
 #include "cuda_tools/cufft_handle.hh"
 #include "cuda_memory.cuh"
 #include "queue.hh"
-<<<<<<< HEAD
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
-=======
 #include "svd.hh"
->>>>>>> 24604bb5... pca: refactor pca matrix code
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
@@ -295,8 +292,10 @@ void FourierTransform::insert_ssa_stft()
                              cusolver_work_buffer_size_,
                              time_transformation_env_.pca_dev_info);
 
+        // filter eigen vectors
+        // only keep vectors between q and q + q_acc
         int q = cd_.q_acc_enabled ? cd_.q_index.load() : 0;
-        int q_acc = cd_.q_acc_enabled ? cd_.q_acc.load()
+        int q_acc = cd_.q_acc_enabled ? cd_.q_acc_level.load()
                                       : cd_.time_transformation_size.load();
         int q_index = q * cd_.time_transformation_size;
         int q_acc_index = q_acc * cd_.time_transformation_size;
