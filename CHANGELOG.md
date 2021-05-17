@@ -1,5 +1,11 @@
 ## Changelog
 
+### 9.3.5
+
+* Fix: Filter2D with anamorphic images
+* Filter2D with CLI
+* FFT2/Filter2D optimisation
+
 ### 9.3.4
 
 * Add: Filter2D circles mask
