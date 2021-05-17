@@ -870,9 +870,11 @@ void MainWindow::close_critical_compute()
     if (cd_.convolution_enabled)
         set_convolution_mode(false);
 
-    cancel_time_transformation_cuts();
+    if (cd_.time_transformation_cuts_enabled)
+        cancel_time_transformation_cuts();
 
-    set_filter2d(false);
+    if (cd_.filter2d_enabled)
+        set_filter2d(false);
 
     holovibes_.stop_compute();
 }
@@ -1501,16 +1503,18 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 void MainWindow::cancel_time_transformation_cuts()
 {
     if (cd_.time_transformation_cuts_enabled)
+    {
         cancel_stft_slice_view();
-    try
-    {
-        while (holovibes_.get_compute_pipe()->get_refresh_request())
-            continue;
+        try
+        {
+            while (holovibes_.get_compute_pipe()->get_refresh_request())
+                continue;
+        }
+        catch (std::exception&)
+        {
+        }
+        cd_.time_transformation_cuts_enabled = false;
     }
-    catch (std::exception&)
-    {
-    }
-    cd_.time_transformation_cuts_enabled = false;
     notify();
 }
 
@@ -1607,7 +1611,7 @@ void MainWindow::update_filter2d_view(bool checked)
                     pipe->request_filter2d_view();
 
                     const FrameDescriptor& fd =
-                        holovibes_.get_gpu_input_queue()->get_fd();
+                        holovibes_.get_gpu_output_queue()->get_fd();
                     ushort filter2d_window_width = fd.width;
                     ushort filter2d_window_height = fd.height;
                     get_good_size(filter2d_window_width,

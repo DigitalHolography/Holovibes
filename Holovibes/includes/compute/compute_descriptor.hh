@@ -63,11 +63,6 @@ class ComputeDescriptor : public Observable
     units::RectFd signal_zone;
     /*! \brief	The zone for the noise chart */
     units::RectFd noise_zone;
-    /*! \brief	Limits the computation to only this zone. Also called Filter
-     * 2D*/
-    units::RectFd filter2D_zone;
-    /*! \brief	The subzone of the filter2D area in band-pass mode */
-    units::RectFd filter2D_sub_zone;
     /*! \brief	The area on which we'll normalize the colors*/
     units::RectFd composite_zone;
     /*! \brief  The area used to limit the stft computations. */
