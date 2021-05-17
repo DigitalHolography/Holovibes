@@ -248,7 +248,6 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
-    const auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
     ui.InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
 
     // Tabs
@@ -436,8 +435,20 @@ void MainWindow::on_notify()
 
     ui.XSpinBox->blockSignals(true);
     ui.YSpinBox->blockSignals(true);
-    ui.XSpinBox->setMaximum(fd.width - 1);
-    ui.YSpinBox->setMaximum(fd.height - 1);
+    int max_width = 0;
+    int max_height = 0;
+    if (holovibes_.get_gpu_input_queue() != nullptr)
+    {
+        max_width = holovibes_.get_gpu_input_queue()->get_fd().width - 1;
+        max_height = holovibes_.get_gpu_input_queue()->get_fd().height - 1;
+    }
+    else
+    {
+        cd_.x_cuts = 0;
+        cd_.y_cuts = 0;
+    }
+    ui.XSpinBox->setMaximum(max_width);
+    ui.YSpinBox->setMaximum(max_height);
     ui.XSpinBox->setValue(cd_.x_cuts);
     ui.YSpinBox->setValue(cd_.y_cuts);
     ui.XSpinBox->blockSignals(false);
