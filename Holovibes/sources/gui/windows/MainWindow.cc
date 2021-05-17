@@ -870,9 +870,8 @@ void MainWindow::close_critical_compute()
     if (cd_.convolution_enabled)
         set_convolution_mode(false);
 
-    cancel_time_transformation_cuts();
-
-    set_filter2d(false);
+    if (cd_.time_transformation_cuts_enabled)
+        cancel_time_transformation_cuts();
 
     holovibes_.stop_compute();
 }
@@ -1153,6 +1152,10 @@ void MainWindow::set_holographic_mode()
             fd_info);
         /* Contrast */
         cd_.contrast_enabled = true;
+
+        /* Filter2D */
+        ui.Filter2DN2SpinBox->setMaximum(
+            floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
         /* Notify */
         notify();
@@ -1501,16 +1504,18 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 void MainWindow::cancel_time_transformation_cuts()
 {
     if (cd_.time_transformation_cuts_enabled)
+    {
         cancel_stft_slice_view();
-    try
-    {
-        while (holovibes_.get_compute_pipe()->get_refresh_request())
-            continue;
+        try
+        {
+            while (holovibes_.get_compute_pipe()->get_refresh_request())
+                continue;
+        }
+        catch (std::exception&)
+        {
+        }
+        cd_.time_transformation_cuts_enabled = false;
     }
-    catch (std::exception&)
-    {
-    }
-    cd_.time_transformation_cuts_enabled = false;
     notify();
 }
 
@@ -1556,7 +1561,7 @@ void MainWindow::set_filter2d(bool checked)
                 holovibes_.get_gpu_input_queue()->get_fd();
 
             ui.Filter2DN2SpinBox->setMaximum(
-                floor((fmin(fd.width, fd.height) / 2) * M_SQRT2));
+                floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
             if (auto pipe =
@@ -1607,7 +1612,7 @@ void MainWindow::update_filter2d_view(bool checked)
                     pipe->request_filter2d_view();
 
                     const FrameDescriptor& fd =
-                        holovibes_.get_gpu_input_queue()->get_fd();
+                        holovibes_.get_gpu_output_queue()->get_fd();
                     ushort filter2d_window_width = fd.width;
                     ushort filter2d_window_height = fd.height;
                     get_good_size(filter2d_window_width,
@@ -1660,7 +1665,6 @@ void MainWindow::set_filter2d_n1(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
-            pipe->request_update_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.time_transformation_cuts_enabled)
             {
@@ -1685,7 +1689,6 @@ void MainWindow::set_filter2d_n2(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
-            pipe->request_update_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.time_transformation_cuts_enabled)
             {

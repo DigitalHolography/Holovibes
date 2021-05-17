@@ -26,6 +26,7 @@
 #include "cuda_memory.cuh"
 #include "queue.hh"
 #include "shift_corners.cuh"
+#include "apply_mask.cuh"
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
@@ -57,9 +58,22 @@ FourierTransform::FourierTransform(
 
 void FourierTransform::insert_fft()
 {
-    if (cd_.space_transformation != SpaceTransformation::FFT2 &&
-        cd_.filter2d_enabled)
-        insert_filter2d();
+    if (cd_.filter2d_enabled)
+    {
+        update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
+                                     fd_.width,
+                                     fd_.height,
+                                     cd_.filter2d_n1,
+                                     cd_.filter2d_n2,
+                                     cd_.filter2d_smooth_low,
+                                     cd_.filter2d_smooth_high,
+                                     stream_);
+
+        // In FFT2 we do an optimisation to compute the filter2d in the same
+        // reciprocal space to reduce the number of fft calculation
+        if (cd_.space_transformation != SpaceTransformation::FFT2)
+            insert_filter2d();
+    }
 
     if (cd_.space_transformation == SpaceTransformation::FFT1)
         insert_fft1();
@@ -72,6 +86,7 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
+
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
                  buffers_.gpu_filter2d_mask,
@@ -121,12 +136,17 @@ void FourierTransform::insert_fft2()
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
+    if (cd_.filter2d_enabled)
+        apply_mask(gpu_lens_.get(),
+                   buffers_.gpu_filter2d_mask.get(),
+                   fd_.width * fd_.height,
+                   1,
+                   stream_);
+
     fn_compute_vect_.push_back([=]() {
         fft_2(buffers_.gpu_spatial_transformation_buffer,
               buffers_.gpu_spatial_transformation_buffer,
               cd_.batch_size,
-              buffers_.gpu_filter2d_mask,
-              cd_.filter2d_enabled,
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_,

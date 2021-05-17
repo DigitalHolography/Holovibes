@@ -354,12 +354,6 @@ void ICompute::request_raw_view()
     request_refresh();
 }
 
-void ICompute::request_update_filter2d_mask()
-{
-    update_filter2d_mask_requested_ = true;
-    request_refresh();
-}
-
 void ICompute::request_disable_filter2d_view()
 {
     disable_filter2d_view_requested_ = true;
