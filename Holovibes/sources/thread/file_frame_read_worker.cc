@@ -296,8 +296,12 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         processed_fps_++;
         frames_enqueued++;
     }
-    // Synchronized forced, because of the cudaMemcpyAsync we have to "empty"
+
+    // Synchronize forced, because of the cudaMemcpyAsync we have to "empty"
     // the gpu_frame_buffer_ before reading in it again
-    gpu_input_queue_.load()->sync_current_batch();
+    // With load_file_in_gpu_ == true, all the file in in the buffer,
+    // so we don't have to sync
+    if (load_file_in_gpu_ == false)
+        gpu_input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker
