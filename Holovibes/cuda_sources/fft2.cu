@@ -75,12 +75,7 @@ void fft_2(cuComplex* input,
 
     // Lens and Mask already shifted
     // thus we don't have to shift the 'input' buffer each time
-    kernel_apply_lens<<<blocks, threads, 0, stream>>>(input,
-                                                      output,
-                                                      batch_size,
-                                                      frame_resolution,
-                                                      lens,
-                                                      frame_resolution);
+    apply_mask(input, lens, output, frame_resolution, batch_size, stream);
 
     cudaCheckError();
 

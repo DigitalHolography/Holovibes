@@ -11,6 +11,7 @@
 #include "unique_ptr.hh"
 #include "common.cuh"
 #include "cuda_memory.cuh"
+#include "apply_mask.cuh"
 
 #include <cufftXt.h>
 
@@ -51,9 +52,12 @@ void fft1_lens(cuComplex* lens,
         // offset and a limited size works
         if (frame_width > frame_height)
             cudaXMemcpyAsync(lens,
-                        square_lens +
-                            ((lens_side_size - frame_height) / 2) * frame_width,
-                        frame_width * frame_height * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
+                             square_lens +
+                                 ((lens_side_size - frame_height) / 2) *
+                                     frame_width,
+                             frame_width * frame_height * sizeof(cuComplex),
+                             cudaMemcpyDeviceToDevice,
+                             stream);
         else
         {
             // For a vertical frame we need memcpy 2d to copy row by row, taking
@@ -82,16 +86,7 @@ void fft_1(cuComplex* input,
            const uint frame_resolution,
            const cudaStream_t stream)
 {
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(frame_resolution, threads);
-
-    // Apply lens on multiple frames.
-    kernel_apply_lens<<<blocks, threads, 0, stream>>>(input,
-                                                      output,
-                                                      batch_size,
-                                                      frame_resolution,
-                                                      lens,
-                                                      frame_resolution);
+    apply_mask(input, lens, output, frame_resolution, batch_size, stream);
 
     // No sync needed between kernel call and cufft call
     cudaCheckError();

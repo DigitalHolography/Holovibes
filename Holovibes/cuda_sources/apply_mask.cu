@@ -18,7 +18,8 @@ __host__ __device__ static cuComplex& operator*=(cuComplex& c, const float& r)
     return c;
 }
 
-__host__ __device__ static cuComplex operator*(const cuComplex& c, const float& r)
+__host__ __device__ static cuComplex operator*(const cuComplex& c,
+                                               const float& r)
 {
     cuComplex n;
 
@@ -28,11 +29,35 @@ __host__ __device__ static cuComplex operator*(const cuComplex& c, const float& 
     return n;
 }
 
+__host__ __device__ static cuComplex operator*(const cuComplex& c1,
+                                               const cuComplex& c2)
+{
+    cuComplex n;
+
+    n.x = c1.x * c2.x - c1.y * c2.y;
+    n.y = c1.y * c2.x + c1.x * c2.y;
+
+    return n;
+}
+
+__host__ __device__ static cuComplex& operator*=(cuComplex& c1,
+                                                 const cuComplex& c2)
+{
+    cuComplex n;
+
+    n.x = c1.x * c2.x - c1.y * c2.y;
+    n.y = c1.y * c2.x + c1.x * c2.y;
+
+    c1 = n;
+
+    return c1;
+}
+
 template <typename T, typename M>
 __global__ static void kernel_apply_mask(T* in_out,
-                                  const M* mask,
-                                  const uint size,
-                                  const uint batch_size)
+                                         const M* mask,
+                                         const uint size,
+                                         const uint batch_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -47,10 +72,10 @@ __global__ static void kernel_apply_mask(T* in_out,
 
 template <typename T, typename M>
 __global__ static void kernel_apply_mask(const T* input,
-                                  const M* mask,
-                                  T* output,
-                                  const uint size,
-                                  const uint batch_size)
+                                         const M* mask,
+                                         T* output,
+                                         const uint size,
+                                         const uint batch_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -58,45 +83,54 @@ __global__ static void kernel_apply_mask(const T* input,
     {
         for (uint i = 0; i < batch_size; ++i)
         {
-            output[(size * i) + index] = input[(size * i) + index] * mask[index];
+            output[(size * i) + index] =
+                input[(size * i) + index] * mask[index];
         }
     }
 }
 
 template <typename T, typename M>
 static void apply_mask_caller(T* in_out,
-                       const M* mask,
-                       const uint size,
-                       const uint batch_size,
-                       const cudaStream_t stream)
+                              const M* mask,
+                              const uint size,
+                              const uint batch_size,
+                              const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    kernel_apply_mask<T, M><<<blocks, threads, 0, stream>>>(in_out,
-                                                              mask,
-                                                              size,
-                                                              batch_size);
+    kernel_apply_mask<T, M>
+        <<<blocks, threads, 0, stream>>>(in_out, mask, size, batch_size);
     cudaCheckError();
 }
 
 template <typename T, typename M>
 static void apply_mask_caller(const T* input,
-                       const M* mask,
-                       T* output,
-                       const uint size,
-                       const uint batch_size,
-                       const cudaStream_t stream)
+                              const M* mask,
+                              T* output,
+                              const uint size,
+                              const uint batch_size,
+                              const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    kernel_apply_mask<T, M><<<blocks, threads, 0, stream>>>(input,
-                                                              mask,
-                                                              output,
-                                                              size,
-                                                              batch_size);
+    kernel_apply_mask<T, M>
+        <<<blocks, threads, 0, stream>>>(input, mask, output, size, batch_size);
     cudaCheckError();
+}
+
+void apply_mask(cuComplex* in_out,
+                const cuComplex* mask,
+                const uint size,
+                const uint batch_size,
+                const cudaStream_t stream)
+{
+    apply_mask_caller<cuComplex, cuComplex>(in_out,
+                                            mask,
+                                            size,
+                                            batch_size,
+                                            stream);
 }
 
 void apply_mask(cuComplex* in_out,
@@ -105,11 +139,7 @@ void apply_mask(cuComplex* in_out,
                 const uint batch_size,
                 const cudaStream_t stream)
 {
-    apply_mask_caller<cuComplex, float>(in_out,
-                                        mask,
-                                        size,
-                                        batch_size,
-                                        stream);
+    apply_mask_caller<cuComplex, float>(in_out, mask, size, batch_size, stream);
 }
 
 void apply_mask(float* in_out,
@@ -118,16 +148,27 @@ void apply_mask(float* in_out,
                 const uint batch_size,
                 const cudaStream_t stream)
 {
-    apply_mask_caller<float, float>(in_out,
-                            mask,
-                            size,
-                            batch_size,
-                            stream);
+    apply_mask_caller<float, float>(in_out, mask, size, batch_size, stream);
+}
+
+void apply_mask(const cuComplex* input,
+                const cuComplex* mask,
+                cuComplex* output,
+                const uint size,
+                const uint batch_size,
+                const cudaStream_t stream)
+{
+    apply_mask_caller<cuComplex, cuComplex>(input,
+                                            mask,
+                                            output,
+                                            size,
+                                            batch_size,
+                                            stream);
 }
 
 void apply_mask(const cuComplex* input,
                 const float* mask,
-                cuComplex *output,
+                cuComplex* output,
                 const uint size,
                 const uint batch_size,
                 const cudaStream_t stream)
@@ -142,15 +183,15 @@ void apply_mask(const cuComplex* input,
 
 void apply_mask(const float* input,
                 const float* mask,
-                float *output,
+                float* output,
                 const uint size,
                 const uint batch_size,
                 const cudaStream_t stream)
 {
     apply_mask_caller<float, float>(input,
-                            mask,
-                            output,
-                            size,
-                            batch_size,
-                            stream);
+                                    mask,
+                                    output,
+                                    size,
+                                    batch_size,
+                                    stream);
 }

@@ -22,30 +22,6 @@ using namespace holovibes;
 using cuda_tools::CufftHandle;
 using cuda_tools::UniquePtr;
 
-__global__ void kernel_apply_lens(cuComplex* input,
-                                  cuComplex* output,
-                                  const uint batch_size,
-                                  const uint input_size,
-                                  const cuComplex* lens,
-                                  const uint lens_size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < input_size)
-    {
-        for (uint i = 0; i < batch_size; ++i)
-        {
-            const uint batch_index = index + i * input_size;
-
-            const float tmp_x = input[batch_index].x;
-            output[batch_index].x = input[batch_index].x * lens[index].x -
-                                    input[batch_index].y * lens[index].y;
-            output[batch_index].y =
-                input[batch_index].y * lens[index].x + tmp_x * lens[index].y;
-        }
-    }
-}
-
 __global__ void kernel_complex_to_modulus(const cuComplex* input,
                                           float* output,
                                           const uint size)
