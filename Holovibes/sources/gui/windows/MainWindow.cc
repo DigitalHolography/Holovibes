@@ -873,9 +873,6 @@ void MainWindow::close_critical_compute()
     if (cd_.time_transformation_cuts_enabled)
         cancel_time_transformation_cuts();
 
-    if (cd_.filter2d_enabled)
-        set_filter2d(false);
-
     holovibes_.stop_compute();
 }
 
@@ -1155,6 +1152,10 @@ void MainWindow::set_holographic_mode()
             fd_info);
         /* Contrast */
         cd_.contrast_enabled = true;
+
+        /* Filter2D */
+        ui.Filter2DN2SpinBox->setMaximum(
+            floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
         /* Notify */
         notify();
@@ -1664,7 +1665,6 @@ void MainWindow::set_filter2d_n1(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
-            pipe->request_update_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.time_transformation_cuts_enabled)
             {
@@ -1689,7 +1689,6 @@ void MainWindow::set_filter2d_n2(int n)
         if (auto pipe =
                 dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
-            pipe->request_update_filter2d_mask();
             pipe->autocontrast_end_pipe(WindowKind::XYview);
             if (cd_.time_transformation_cuts_enabled)
             {

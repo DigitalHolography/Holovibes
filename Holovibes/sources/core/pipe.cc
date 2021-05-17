@@ -249,19 +249,6 @@ bool Pipe::make_requests()
         raw_view_requested_ = false;
     }
 
-    if (update_filter2d_mask_requested_)
-    {
-        update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
-                                     gpu_input_queue_.get_fd().width,
-                                     gpu_input_queue_.get_fd().height,
-                                     cd_.filter2d_n1,
-                                     cd_.filter2d_n2,
-                                     cd_.filter2d_smooth_low,
-                                     cd_.filter2d_smooth_high,
-                                     stream_);
-        update_filter2d_mask_requested_ = false;
-    }
-
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
