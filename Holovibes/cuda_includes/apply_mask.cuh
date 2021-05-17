@@ -24,19 +24,19 @@ using ushort = unsigned short;
  * \param batch_size The number of frames of 'input'
  * \param stream The CUDA stream on which to launch the operation.
  */
-void apply_mask(const float* in_out,
+void apply_mask(float* in_out,
                 const float* mask,
                 const uint size,
                 const uint batch_size,
                 const cudaStream_t stream);
 
-void apply_mask(const cuComplex* in_out,
+void apply_mask(cuComplex* in_out,
                 const float* mask,
                 const uint size,
                 const uint batch_size,
                 const cudaStream_t stream);
 
-void apply_mask(const cuComplex* in_out,
+void apply_mask(cuComplex* in_out,
                 const cuComplex* mask,
                 const uint size,
                 const uint batch_size,

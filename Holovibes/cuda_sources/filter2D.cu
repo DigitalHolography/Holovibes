@@ -25,7 +25,7 @@ void filter2D(cuComplex* input,
 
     // Mask already shifted in update_filter2d_circles_mask()
     // thus we don't have to shift the 'input' buffer each time
-    apply_mask(input, mask, input, size, batch_size, stream);
+    apply_mask(input, mask, size, batch_size, stream);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 }

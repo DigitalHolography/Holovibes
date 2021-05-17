@@ -62,8 +62,6 @@ void fft2_lens(cuComplex* lens,
 void fft_2(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
-           const float* filter2d_mask,
-           const bool filter2d_enabled,
            const cuComplex* lens,
            const cufftHandle plan2d,
            const FrameDescriptor& fd,
@@ -83,14 +81,6 @@ void fft_2(cuComplex* input,
                                                       frame_resolution,
                                                       lens,
                                                       frame_resolution);
-
-    if (filter2d_enabled)
-        apply_mask(input,
-                   filter2d_mask,
-                   input,
-                   frame_resolution,
-                   batch_size,
-                   stream);
 
     cudaCheckError();
 
