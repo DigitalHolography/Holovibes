@@ -357,14 +357,12 @@ void FourierTransform::insert_time_transformation_cuts_view()
 
             // Conservation of the coordinates when cursor is outside of the
             // window
-            units::PointFd cursorPos = cd_.getStftCursor();
             const ushort width = fd_.width;
             const ushort height = fd_.height;
-            if (static_cast<ushort>(cursorPos.x()) < width &&
-                static_cast<ushort>(cursorPos.y()) < height)
+            if (cd_.x_cuts < width && cd_.y_cuts < height)
             {
-                mouse_posx = cursorPos.x();
-                mouse_posy = cursorPos.y();
+                mouse_posx = cd_.x_cuts;
+                mouse_posy = cd_.y_cuts;
             }
             // -----------------------------------------------------
             time_transformation_cuts_begin(

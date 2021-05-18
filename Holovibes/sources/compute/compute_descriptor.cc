@@ -69,7 +69,6 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     display_rate = cd.display_rate.load();
     reticle_enabled = cd.reticle_enabled.load();
     reticle_scale = cd.reticle_scale.load();
-    stft_slice_cursor = cd.stft_slice_cursor;
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
     filter2d_enabled = cd.filter2d_enabled.load();
@@ -82,18 +81,6 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
     return *this;
-}
-
-units::PointFd ComputeDescriptor::getStftCursor() const
-{
-    LockGuard g(mutex_);
-    return stft_slice_cursor;
-}
-
-void ComputeDescriptor::setStftCursor(const units::PointFd& rect)
-{
-    LockGuard g(mutex_);
-    stft_slice_cursor = rect;
 }
 
 void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
