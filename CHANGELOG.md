@@ -1,4 +1,9 @@
 ## Changelog
+ 
+### 9.3.6
+ 
+* Fix 3d cuts black bars
+* Add ssa stft time transform
 
 ### 9.3.5
 
