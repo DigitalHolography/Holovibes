@@ -163,9 +163,6 @@ bool ICompute::update_time_transformation_size(
         time_transformation_env_.pca_cov.resize(
             static_cast<const uint>(time_transformation_size) *
             time_transformation_size);
-        time_transformation_env_.pca_tmp_buffer.resize(
-            static_cast<const uint>(time_transformation_size) *
-            time_transformation_size);
         time_transformation_env_.pca_eigen_values.resize(
             time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
@@ -195,9 +192,6 @@ bool ICompute::update_time_transformation_size(
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         // every frame Static cast to avoid ushort overflow
         time_transformation_env_.pca_cov.resize(
-            static_cast<const uint>(time_transformation_size) *
-            time_transformation_size);
-        time_transformation_env_.pca_tmp_buffer.resize(
             static_cast<const uint>(time_transformation_size) *
             time_transformation_size);
         time_transformation_env_.pca_eigen_values.resize(
