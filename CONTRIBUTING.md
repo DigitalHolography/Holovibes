@@ -13,6 +13,7 @@ For instance, on Visual Studio Code you can install the extension `Clang-format`
 - Always work on separate branches when developing a new feature or fixing a bug.
 - Use `git pull --rebase` to avoids useless merge commits.
 - Use a consistent commit messages convention (e.g. [Angular](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit))
+- Use the pull request feature so that other team members can review your work when you are done.
 
 ### Create a new release
 
