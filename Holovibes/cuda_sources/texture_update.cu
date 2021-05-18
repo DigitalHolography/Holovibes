@@ -17,15 +17,22 @@ updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
     const uint y = blockIdx.y * blockDim.y + threadIdx.y;
     const uint index = y * texDim.x + x;
 
+    if (x >= texDim.x || y >= texDim.y)
+        return;
+
     surf2Dwrite(static_cast<uchar>(frame[index] >> 8), cuSurface, x << 2, y);
 }
 
 __global__ static void
 updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
-    const uint xId = blockIdx.x * blockDim.x + threadIdx.x;
-    const uint yId = blockIdx.y * blockDim.y + threadIdx.y;
-    const uint index = yId * texDim.x + xId;
+    const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= texDim.x || y >= texDim.y)
+        return;
+
+    const uint index = y * texDim.x + x;
 
     if (frame[index].x > 65535.f)
         frame[index].x = 65535.f;
@@ -38,7 +45,7 @@ updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
         frame[index].y = 0.f;
     float pix = hypotf(frame[index].x, frame[index].y);
 
-    surf2Dwrite(pix, cuSurface, xId << 2, yId);
+    surf2Dwrite(pix, cuSurface, x << 2, y);
 }
 
 void textureUpdate(cudaSurfaceObject_t cuSurface,
@@ -46,14 +53,15 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
                    const camera::FrameDescriptor& fd,
                    const cudaStream_t stream)
 {
-
-    const uint fd_width_div_32 = std::max(1u, (unsigned)fd.width / 32u);
-    const uint fd_height_div_32 = std::max(1u, (unsigned)fd.height / 32u);
-    dim3 blocks(fd_width_div_32, fd_height_div_32);
-
     unsigned thread_width = std::min(32u, (unsigned)fd.width);
     unsigned thread_height = std::min(32u, (unsigned)fd.height);
     dim3 threads(thread_width, thread_height);
+
+    const uint fd_width_div_32 =
+        std::ceil(static_cast<float>(fd.width) / threads.x);
+    const uint fd_height_div_32 =
+        std::ceil(static_cast<float>(fd.height) / threads.y);
+    dim3 blocks(fd_width_div_32, fd_height_div_32);
 
     if (fd.depth == 8)
     {
