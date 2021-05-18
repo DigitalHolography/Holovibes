@@ -83,7 +83,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     if (p_index >= 0 && p_index < cd.time_transformation_size)
         cd.pindex = p_index;
     const ushort q_index =
-        ptree.get<ushort>("image_rendering.q_index", cd.pindex);
+        ptree.get<ushort>("image_rendering.q_index", cd.q_index);
     if (q_index >= 0 && q_index < cd.time_transformation_size)
         cd.q_index = q_index;
 
