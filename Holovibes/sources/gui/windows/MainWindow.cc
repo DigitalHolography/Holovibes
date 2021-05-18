@@ -399,11 +399,61 @@ void MainWindow::on_notify()
     }
     ui.PSpinBox->setEnabled(!is_raw);
 
+    // q accu
+    bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
+    ui.Q_AccuCheckBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_AccSpinBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_SpinBox->setEnabled(!is_raw && is_ssa_stft);
+
+    ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
+    ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    if (cd_.q_acc_level > cd_.time_transformation_size - 1)
+        cd_.q_acc_level = cd_.time_transformation_size - 1;
+    ui.Q_AccSpinBox->setValue(cd_.q_acc_level);
+    if (cd_.q_acc_enabled)
+    {
+        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size -
+                                 cd_.q_acc_level - 1);
+        if (cd_.q_index > cd_.time_transformation_size - cd_.q_acc_level - 1)
+            cd_.q_index = cd_.time_transformation_size - cd_.q_acc_level - 1;
+        ui.Q_SpinBox->setValue(cd_.q_index);
+        ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index -
+                                    1);
+    }
+    else
+    {
+        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
+        if (cd_.q_index > cd_.time_transformation_size - 1)
+            cd_.q_index = cd_.time_transformation_size - 1;
+        ui.Q_SpinBox->setValue(cd_.q_index);
+    }
+
     // XY accu
     ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
     ui.XAccSpinBox->setValue(cd_.x_acc_level);
     ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
     ui.YAccSpinBox->setValue(cd_.y_acc_level);
+
+    ui.XSpinBox->blockSignals(true);
+    ui.YSpinBox->blockSignals(true);
+    int max_width = 0;
+    int max_height = 0;
+    if (holovibes_.get_gpu_input_queue() != nullptr)
+    {
+        max_width = holovibes_.get_gpu_input_queue()->get_fd().width - 1;
+        max_height = holovibes_.get_gpu_input_queue()->get_fd().height - 1;
+    }
+    else
+    {
+        cd_.x_cuts = 0;
+        cd_.y_cuts = 0;
+    }
+    ui.XSpinBox->setMaximum(max_width);
+    ui.YSpinBox->setMaximum(max_height);
+    ui.XSpinBox->setValue(cd_.x_cuts);
+    ui.YSpinBox->setValue(cd_.y_cuts);
+    ui.XSpinBox->blockSignals(false);
+    ui.YSpinBox->blockSignals(false);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
@@ -1373,9 +1423,6 @@ void MainWindow::update_batch_size()
 #pragma region STFT
 void MainWindow::cancel_stft_slice_view()
 {
-    Holovibes::instance().get_info_container().remove_indication(
-        InformationContainer::IndicationType::CUTS_SLICE_CURSOR);
-
     cd_.contrast_max_slice_xz = false;
     cd_.contrast_max_slice_yz = false;
     cd_.log_scale_slice_xz_enabled = false;
@@ -1909,6 +1956,34 @@ void MainWindow::set_y_accu()
     notify();
 }
 
+void MainWindow::set_x_y()
+{
+    auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
+    uint x = ui.XSpinBox->value();
+    uint y = ui.YSpinBox->value();
+
+    if (x < fd.width)
+        cd_.x_cuts = x;
+
+    if (y < fd.height)
+        cd_.y_cuts = y;
+}
+
+void MainWindow::set_q(int value)
+{
+    cd_.q_index = value;
+    notify();
+}
+
+void MainWindow::set_q_acc()
+{
+    auto spinbox = ui.Q_AccSpinBox;
+    auto checkBox = ui.Q_AccuCheckBox;
+    cd_.q_acc_enabled = checkBox->isChecked();
+    cd_.q_acc_level = spinbox->value();
+    notify();
+}
+
 void MainWindow::set_p(int value)
 {
     if (!is_raw_mode())
@@ -2251,6 +2326,8 @@ void MainWindow::set_time_transformation(QString value)
             cd_.time_transformation = TimeTransformation::PCA;
         else if (value == "None")
             cd_.time_transformation = TimeTransformation::NONE;
+        else if (value == "SSA_STFT")
+            cd_.time_transformation = TimeTransformation::SSA_STFT;
         set_holographic_mode();
     }
 }

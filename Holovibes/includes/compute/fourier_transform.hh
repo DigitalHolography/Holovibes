@@ -105,6 +105,12 @@ class FourierTransform
     */
     void insert_pca();
 
+    void insert_ssa_stft();
+
+    //! Roi zone of Filter 2D
+    units::RectFd filter2d_zone_;
+    units::RectFd filter2d_subzone_;
+
     //! Lens used for fresnel transform (During FFT1 and FFT2)
     cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
     //! Size of a size of the lens (lens is always a square)
@@ -116,8 +122,6 @@ class FourierTransform
     int cusolver_work_buffer_size_;
     //! Buffer needed by cusolver for internal use
     cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
-    //! Buffer created by sub sampling gpu_time_transformation_queue
-    cuda_tools::UniquePtr<cuComplex> subsample_pca_buffer_;
 
     /// Vector function in which we insert the processing
     FunctionVector& fn_compute_vect_;

@@ -56,9 +56,6 @@ class ComputeDescriptor : public Observable
     /*! \brief The lock used in the zone accessors */
     mutable std::mutex mutex_;
 
-    /*! \brief	The position of the point used to obtain XZ and YZ views */
-    units::PointFd stft_slice_cursor;
-
     /*! \brief	The zone for the signal chart*/
     units::RectFd signal_zone;
     /*! \brief	The zone for the noise chart */
@@ -104,7 +101,6 @@ class ComputeDescriptor : public Observable
      */
     units::RectFd getCompositeZone() const;
     units::RectFd getZoomedZone() const;
-    units::PointFd getStftCursor() const;
     units::RectFd getReticleZone() const;
     //! @}
 
@@ -116,7 +112,6 @@ class ComputeDescriptor : public Observable
      */
     void setCompositeZone(const units::RectFd& rect);
     void setZoomedZone(const units::RectFd& rect);
-    void setStftCursor(const units::PointFd& rect);
     void setReticleZone(const units::RectFd& rect);
     //! @}
 
@@ -359,6 +354,17 @@ class ComputeDescriptor : public Observable
     void load_convolution_matrix();
     //! convolution file used when convolution_enabled
     std::string convolution_file{""};
+
+    //! x cursor position (used in 3D cuts)
+    std::atomic<uint> x_cuts;
+    //! y cursor position (used in 3D cuts)
+    std::atomic<uint> y_cuts;
+
+    //! svd eigen vectors filtering index
+    std::atomic<uint> q_index;
+    std::atomic<bool> q_acc_enabled;
+    //! svd eigen vectors filtering size
+    std::atomic<uint> q_acc_level;
 
 #pragma endregion
 };

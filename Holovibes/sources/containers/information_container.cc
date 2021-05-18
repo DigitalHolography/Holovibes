@@ -22,9 +22,7 @@ const std::unordered_map<IndicationType, std::string>
         {IndicationType::IMG_SOURCE, "Image Source"},
 
         {IndicationType::INPUT_FORMAT, "Input Format"},
-        {IndicationType::OUTPUT_FORMAT, "Output Format"},
-
-        {IndicationType::CUTS_SLICE_CURSOR, "Cuts Slice Cursor"},
+        {IndicationType::OUTPUT_FORMAT, "Output Format"}
 };
 
 const std::unordered_map<FpsType, std::string>

@@ -123,7 +123,6 @@ struct TimeTransformationEnv
 
     // The following are used for the PCA time transformation
     cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
-    cuda_tools::UniquePtr<cuComplex> pca_tmp_buffer = nullptr;
     cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
     cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
 };

@@ -202,8 +202,9 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    mouse_position_ = parent_->getCd()->getStftCursor();
-    printPosition();
+    auto cd = parent_->getCd();
+    mouse_position_ =
+        units::PointFd(units::ConversionData(parent_), cd->x_cuts, cd->y_cuts);
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -224,12 +225,9 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        // Updating infos Tab
-        printPosition();
-
         auto cd = parent_->getCd();
-        cd->setStftCursor(pos);
-        // ---------------
+        cd->x_cuts = mouse_position_.x();
+        cd->y_cuts = mouse_position_.y();
         cd->notify_observers();
     }
 }
@@ -241,14 +239,12 @@ void CrossOverlay::computeZone()
     auto cd = parent_->getCd();
     units::PointFd topLeft;
     units::PointFd bottomRight;
-    units::PointFd cursor = cd->getStftCursor();
 
     // Computing min/max coordinates in function of the frame_descriptor
-    units::PointFd cursorPos = cd->getStftCursor();
-    int x_min = cursorPos.x();
-    int x_max = cursorPos.x();
-    int y_min = cursorPos.y();
-    int y_max = cursorPos.y();
+    int x_min = cd->x_cuts;
+    int x_max = cd->x_cuts;
+    int y_min = cd->y_cuts;
+    int y_max = cd->y_cuts;
     if (cd->x_accu_enabled)
         (cd->x_acc_level < 0 ? x_min : x_max) += cd->x_acc_level;
     if (cd->y_accu_enabled)
@@ -260,13 +256,13 @@ void CrossOverlay::computeZone()
     // Setting the zone_
     if (!cd->x_accu_enabled)
     {
-        min.x().set(cursor.x());
-        max.x().set(cursor.x());
+        min.x().set(cd->x_cuts);
+        max.x().set(cd->x_cuts);
     }
     if (!cd->y_accu_enabled)
     {
-        min.y().set(cursor.y());
-        max.y().set(cursor.y());
+        min.y().set(cd->y_cuts);
+        max.y().set(cd->y_cuts);
     }
     max.x() += 1;
     max.y() += 1;
@@ -308,16 +304,6 @@ void CrossOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     Program_->release();
-}
-
-void CrossOverlay::printPosition() const
-{
-    auto pos = mouse_position_;
-    std::stringstream ss;
-    ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
-    Holovibes::instance().get_info_container().add_indication(
-        InformationContainer::IndicationType::CUTS_SLICE_CURSOR,
-        ss.str());
 }
 } // namespace gui
 } // namespace holovibes
