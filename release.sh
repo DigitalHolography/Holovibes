@@ -20,14 +20,61 @@ iss_version_line_identifier="#define MyAppVersion \""
 cd_version_line=`cat $compute_descriptor_path | grep "$cd_version_line_identifier"`
 iss_version_line=`cat $setup_creator_path | grep "$iss_version_line_identifier"`
 
-release_branch="bugfixes-936"
+release_branch="develop"
+
+####################################
+## Checking commands and versions ##
+####################################
+
+has_it=`which git > /dev/null; echo $?`
+has_iscc=`which iscc.exe > /dev/null; echo $?`
+has_python=`which python > /dev/null; echo $?`
+has_python3=`which python3 > /dev/null; echo $?`
+
+# Git
+if [ "$has_python3" != "0" ]
+then
+    echo "Git not found !"
+    exit 1
+fi
+
+# Python3
+if [ "$has_python3" != "0" ] && [ "$has_python" = "0" ]
+then
+    python_version=`python --version | cut -d. -f1`
+    if [ "$python_version" != "Python 3" ]
+    then
+        echo "Python version not supported ! ($python_version)"
+        exit 1
+    fi
+elif [ "$has_python3" != "0" ] && [ "$has_python" != "0" ]
+then
+    echo "Python not found !"
+    exit 1
+fi
+
+# Iscc
+if [ "$has_iscc" != "0" ]
+then
+    echo "iscc.exe not found. If you already downloaded innoSetup, add the installed folder to the PATH"
+    exit 1
+fi
 
 ####################################################
 ## Checking if we are on branch '$release_branch' ##
 ####################################################
 
+# Check if we're on the good branch
+current_branch=`git rev-parse --abbrev-ref HEAD`
+if [ "$current_branch" != "$release_branch" ]
+then
+    echo "You can only release on branch '$release_branch'"
+    echo "Commit your changes, merge if necessary to '$release_branch' and execute again this script"
+    exit 1
+fi
+
 # Warning message if not sync with remote
-echo "Verifying if current branch is up to date"
+echo "Verifying if '$current_branch' is up to date"
 is_branch_sync=`git fetch --dry-run 2>&1`
 if [ "$is_branch_sync" != "" ]
 then
@@ -40,15 +87,6 @@ then
     then
         exit 0
     fi
-fi
-
-# Check if we're on the good branch
-current_branch=`git rev-parse --abbrev-ref HEAD`
-if [ "$current_branch" != "$release_branch" ]
-then
-    echo "You can only release on branch '$release_branch'"
-    echo "Commit your changes, merge if necessary to '$release_branch' and execute again this script"
-    exit 1
 fi
 
 ######################
@@ -108,17 +146,10 @@ done
 ######################
 rm -rf build/
 
-has_python3=`which python3 > /dev/null; echo $?`
 if [ "$has_python3" = "0" ]
 then
     python3 build.py r p 
-else
-    python_version=`python --version | cut -d. -f1`
-    if [ "$python_version" != "Python 3" ]
-    then
-        echo "Python version not supported !"
-        exit 1
-    fi
+elif [ "$has_python" = "0" ]
     python build.py r p
 fi
 
