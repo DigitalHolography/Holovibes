@@ -30,6 +30,14 @@ has_it=`which git > /dev/null; echo $?`
 has_iscc=`which iscc.exe > /dev/null; echo $?`
 has_python=`which python > /dev/null; echo $?`
 has_python3=`which python3 > /dev/null; echo $?`
+has_wget=`which wget > /dev/null; echo $?`
+
+# Wget
+if [ "$has_wget" != "0" ]
+then
+    echo "Wget not found !"
+    exit 1
+fi
 
 # Git
 if [ "$has_python3" != "0" ]
