@@ -25,7 +25,7 @@ release_branch="develop"
 ####################################
 ## Checking commands and versions ##
 ####################################
-has_it=`which git > /dev/null; echo $?`
+has_git=`which git > /dev/null; echo $?`
 has_iscc=`which iscc.exe > /dev/null; echo $?`
 has_python=`which python > /dev/null; echo $?`
 has_python3=`which python3 > /dev/null; echo $?`
@@ -39,7 +39,7 @@ then
 fi
 
 # Git
-if [ "$has_python3" != "0" ]
+if [ "$has_git" != "0" ]
 then
     echo "Git not found !"
     exit 1
