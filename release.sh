@@ -195,4 +195,8 @@ then
     wget $vc_redist_url -O $vc_redist_path
 fi
 iscc.exe $setup_creator_path
-./Output/holovibes_setup_$new_version.exe
+ret=`echo "$?"`
+if [ "$ret" = "0" ]
+then
+    ./Output/holovibes_setup_$new_version.exe
+fi
