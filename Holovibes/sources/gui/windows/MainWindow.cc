@@ -1207,6 +1207,12 @@ void MainWindow::set_holographic_mode()
         ui.Filter2DN2SpinBox->setMaximum(
             floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
+        /* Record Frame Calculation */
+        ui.NumberOfFramesSpinBox->setValue(
+            ceil((ui.ImportEndIndexSpinBox->value() -
+                  ui.ImportStartIndexSpinBox->value()) /
+                 (float)ui.TimeTransformationStrideSpinBox->value()));
+
         /* Notify */
         notify();
     }
@@ -1467,6 +1473,10 @@ void MainWindow::update_time_transformation_stride()
                 adapt_time_transformation_stride_to_batch_size(cd_);
                 holovibes_.get_compute_pipe()
                     ->request_update_time_transformation_stride();
+                ui.NumberOfFramesSpinBox->setValue(
+                    ceil((ui.ImportEndIndexSpinBox->value() -
+                          ui.ImportStartIndexSpinBox->value()) /
+                         (float)ui.TimeTransformationStrideSpinBox->value()));
                 notify();
             });
         }
