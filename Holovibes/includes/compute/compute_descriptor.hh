@@ -175,7 +175,7 @@ class ComputeDescriptor : public Observable
     std::atomic<ushort> pindex{0};
 
     //! wave length of the laser
-    std::atomic<float> lambda{532e-9f};
+    std::atomic<float> lambda{852e-9f};
     //! Input matrix used for convolution
     std::vector<float> convo_matrix;
     //! z value used by fresnel transform
