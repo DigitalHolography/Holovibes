@@ -1637,6 +1637,8 @@ void MainWindow::disable_filter2d_view()
                    SLOT(disable_filter2d_view()));
     }
 
+    change_window();
+
     notify();
 }
 
