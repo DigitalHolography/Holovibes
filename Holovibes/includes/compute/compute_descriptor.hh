@@ -206,7 +206,7 @@ class ComputeDescriptor : public Observable
 
     std::atomic<ushort> cuts_contrast_p_offset{2};
     //! Size of a pixel in micron
-    std::atomic<float> pixel_size;
+    std::atomic<float> pixel_size{12.0f};
     //! Number of pipe iterations between two temporal demodulation.
     std::atomic<uint> time_transformation_stride{1};
 
