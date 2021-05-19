@@ -25,7 +25,6 @@ release_branch="develop"
 ####################################
 ## Checking commands and versions ##
 ####################################
-
 has_it=`which git > /dev/null; echo $?`
 has_iscc=`which iscc.exe > /dev/null; echo $?`
 has_python=`which python > /dev/null; echo $?`
@@ -68,10 +67,9 @@ then
     exit 1
 fi
 
-####################################################
-## Checking if we are on branch '$release_branch' ##
-####################################################
-
+################################
+## Checking '$release_branch' ##
+################################
 # Check if we're on the good branch
 current_branch=`git rev-parse --abbrev-ref HEAD`
 if [ "$current_branch" != "$release_branch" ]
@@ -158,6 +156,7 @@ if [ "$has_python3" = "0" ]
 then
     python3 build.py r p 
 elif [ "$has_python" = "0" ]
+then
     python build.py r p
 fi
 
