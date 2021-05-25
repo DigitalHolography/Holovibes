@@ -114,7 +114,6 @@ class MainWindow : public QMainWindow, public Observer
     */
     void set_image_mode(QString mode);
     void reset_input();
-    void set_square_input_mode(const QString& name);
     void refreshViewMode();
     void set_convolution_mode(const bool enable);
     void set_divide_convolution_mode(const bool value);
@@ -234,7 +233,6 @@ class MainWindow : public QMainWindow, public Observer
     void set_raw_mode();
     void set_holographic_mode();
     void set_computation_mode();
-    void set_correct_square_input_mode();
     void set_camera_timeout();
     void change_camera(CameraKind c);
     void display_error(std::string msg);

@@ -18,7 +18,6 @@
 
 // enum
 #include "enum_space_transformation.hh"
-#include "enum_square_input_mode.hh"
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
 #include "enum_img_type.hh"
@@ -174,9 +173,6 @@ class ComputeDescriptor : public Observable
     //! Time transformation to apply in hologram mode
     std::atomic<TimeTransformation> time_transformation{
         TimeTransformation::STFT};
-    //! Square conversion mode of the input
-    std::atomic<SquareInputMode> square_input_mode{
-        SquareInputMode::NO_MODIFICATION};
     //! type of the image displayed
     std::atomic<ImgType> img_type{ImgType::Modulus};
 

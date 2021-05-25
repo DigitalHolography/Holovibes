@@ -1035,10 +1035,7 @@ void MainWindow::change_camera(CameraKind c)
 
             set_camera_timeout();
 
-            // Needed for correct read of SquareInputMode during allocation of
-            // buffers
             set_computation_mode();
-            set_correct_square_input_mode();
 
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
@@ -1095,7 +1092,6 @@ void MainWindow::set_raw_mode()
 {
     close_windows();
     close_critical_compute();
-    ui.SquareInputModeComboBox->setEnabled(false);
 
     if (is_enabled_camera_)
     {
@@ -1183,8 +1179,6 @@ void MainWindow::set_holographic_mode()
     close_windows();
     close_critical_compute();
 
-    ui.SquareInputModeComboBox->setEnabled(true);
-
     /* ---------- */
     try
     {
@@ -1235,52 +1229,9 @@ void MainWindow::set_computation_mode()
     }
 }
 
-SquareInputMode get_square_input_mode_from_string(const std::string& name)
-{
-    if (name == "Zero Padded")
-    {
-        return SquareInputMode::ZERO_PADDED_SQUARE;
-    }
-    else if (name == "Cropped")
-    {
-        return SquareInputMode::CROPPED_SQUARE;
-    }
-    else if (name == "Default")
-    {
-        return SquareInputMode::NO_MODIFICATION;
-    }
-    else
-    {
-        LOG_WARN(std::string("Unsupported square input mode : ") + name);
-        return SquareInputMode::NO_MODIFICATION;
-    }
-}
-
-void MainWindow::set_correct_square_input_mode()
-{
-    if (cd_.compute_mode == Computation::Raw)
-    {
-        cd_.square_input_mode = SquareInputMode::NO_MODIFICATION;
-    }
-    else if (cd_.compute_mode == Computation::Hologram)
-    {
-        cd_.square_input_mode = get_square_input_mode_from_string(
-            ui.SquareInputModeComboBox->currentText().toStdString());
-    }
-}
-
 void MainWindow::set_camera_timeout()
 {
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
-}
-
-void MainWindow::set_square_input_mode(const QString& name)
-{
-    auto mode = get_square_input_mode_from_string(name.toStdString());
-    cd_.square_input_mode = mode;
-    // Need to reset the whole computation process since we change the size of
-    // the different buffers
-    reset_input();
 }
 
 void MainWindow::refreshViewMode()
@@ -3121,8 +3072,6 @@ void MainWindow::init_holovibes_import_mode()
         size_t first_frame = start_spinbox->value();
         size_t last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
-
-        set_correct_square_input_mode();
 
         holovibes_.init_input_queue(file_fd_);
         holovibes_.start_file_frame_read(

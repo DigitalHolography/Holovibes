@@ -161,48 +161,6 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="squareInputModeLayout">
-           <item>
-            <widget class="QLabel" name="SquareInputModeLabel">
-             <property name="text">
-              <string>Square Input</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="SquareInputModeComboBox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <item>
-              <property name="text">
-               <string>Default</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Zero Padded</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Cropped</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
           <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
            <property name="verticalSpacing">
             <number>1</number>
@@ -5095,22 +5053,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SquareInputModeComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_square_input_mode(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>170</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -5315,7 +5257,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>
   <slot>reset_input()</slot>
-  <slot>set_square_input_mode(QString)</slot>
   <slot>set_demodulation_mode()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
