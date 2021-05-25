@@ -176,8 +176,6 @@ class ComputeDescriptor : public Observable
 
     //! wave length of the laser
     std::atomic<float> lambda{852e-9f};
-    //! Input matrix used for convolution
-    std::vector<float> convo_matrix;
     //! z value used by fresnel transform
     std::atomic<float> zdistance{1.50f};
 
@@ -351,9 +349,9 @@ class ComputeDescriptor : public Observable
 
     void set_convolution(bool enable, const std::string& file);
     void set_divide_by_convo(bool enable);
-    void load_convolution_matrix();
-    //! convolution file used when convolution_enabled
-    std::string convolution_file{""};
+    void load_convolution_matrix(const std::string& file);
+    //! Input matrix used for convolution
+    std::vector<float> convo_matrix;
 
     //! x cursor position (used in 3D cuts)
     std::atomic<uint> x_cuts;
