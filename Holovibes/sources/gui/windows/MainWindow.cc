@@ -1393,7 +1393,7 @@ static void
 adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd)
 {
     if (cd.time_transformation_stride < cd.batch_size)
-        cd.time_transformation_stride = cd.batch_size;
+        cd.time_transformation_stride = cd.batch_size.load();
     // Go to lower multiple
     if (cd.time_transformation_stride % cd.batch_size != 0)
         cd.time_transformation_stride -=

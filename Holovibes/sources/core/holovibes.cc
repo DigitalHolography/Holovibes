@@ -31,7 +31,7 @@ void Holovibes::update_cd_for_cli(const unsigned int input_fps)
     const unsigned int expected_output_fps = 20;
     cd_.time_transformation_stride =
         std::max(input_fps / expected_output_fps, static_cast<unsigned int>(1));
-    cd_.batch_size = cd_.time_transformation_stride;
+    cd_.batch_size = cd_.time_transformation_stride.load();
 
     // We force the contrast to not be enable in CLI mode
     cd_.contrast_enabled = false;
