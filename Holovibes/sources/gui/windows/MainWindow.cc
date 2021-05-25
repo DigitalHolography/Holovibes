@@ -434,8 +434,6 @@ void MainWindow::on_notify()
     ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
     ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
-    ui.XSpinBox->blockSignals(true);
-    ui.YSpinBox->blockSignals(true);
     int max_width = 0;
     int max_height = 0;
     if (holovibes_.get_gpu_input_queue() != nullptr)
@@ -450,10 +448,8 @@ void MainWindow::on_notify()
     }
     ui.XSpinBox->setMaximum(max_width);
     ui.YSpinBox->setMaximum(max_height);
-    ui.XSpinBox->setValue(cd_.x_cuts);
-    ui.YSpinBox->setValue(cd_.y_cuts);
-    ui.XSpinBox->blockSignals(false);
-    ui.YSpinBox->blockSignals(false);
+    QSpinBoxQuietSetValue(ui.XSpinBox, cd_.x_cuts);
+    QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
@@ -744,26 +740,6 @@ void MainWindow::reload_ini()
     notify();
 }
 
-void MainWindow::reset_input()
-{
-    if (import_type_ == ImportType::File)
-    {
-        set_computation_mode();
-        import_start();
-    }
-    else if (import_type_ == ImportType::Camera)
-    {
-        close_windows();
-        close_critical_compute();
-        camera_none();
-        remove_infos();
-        change_camera(kCamera);
-    }
-
-    cd_.is_computation_stopped = false;
-    notify();
-}
-
 void MainWindow::load_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
@@ -1035,10 +1011,7 @@ void MainWindow::change_camera(CameraKind c)
 
             set_camera_timeout();
 
-            // Needed for correct read of SquareInputMode during allocation of
-            // buffers
             set_computation_mode();
-            set_correct_square_input_mode();
 
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
@@ -1095,7 +1068,6 @@ void MainWindow::set_raw_mode()
 {
     close_windows();
     close_critical_compute();
-    ui.SquareInputModeComboBox->setEnabled(false);
 
     if (is_enabled_camera_)
     {
@@ -1183,8 +1155,6 @@ void MainWindow::set_holographic_mode()
     close_windows();
     close_critical_compute();
 
-    ui.SquareInputModeComboBox->setEnabled(true);
-
     /* ---------- */
     try
     {
@@ -1206,6 +1176,12 @@ void MainWindow::set_holographic_mode()
         /* Filter2D */
         ui.Filter2DN2SpinBox->setMaximum(
             floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+
+        /* Record Frame Calculation */
+        ui.NumberOfFramesSpinBox->setValue(
+            ceil((ui.ImportEndIndexSpinBox->value() -
+                  ui.ImportStartIndexSpinBox->value()) /
+                 (float)ui.TimeTransformationStrideSpinBox->value()));
 
         /* Notify */
         notify();
@@ -1229,52 +1205,9 @@ void MainWindow::set_computation_mode()
     }
 }
 
-SquareInputMode get_square_input_mode_from_string(const std::string& name)
-{
-    if (name == "Zero Padded")
-    {
-        return SquareInputMode::ZERO_PADDED_SQUARE;
-    }
-    else if (name == "Cropped")
-    {
-        return SquareInputMode::CROPPED_SQUARE;
-    }
-    else if (name == "Default")
-    {
-        return SquareInputMode::NO_MODIFICATION;
-    }
-    else
-    {
-        LOG_WARN(std::string("Unsupported square input mode : ") + name);
-        return SquareInputMode::NO_MODIFICATION;
-    }
-}
-
-void MainWindow::set_correct_square_input_mode()
-{
-    if (cd_.compute_mode == Computation::Raw)
-    {
-        cd_.square_input_mode = SquareInputMode::NO_MODIFICATION;
-    }
-    else if (cd_.compute_mode == Computation::Hologram)
-    {
-        cd_.square_input_mode = get_square_input_mode_from_string(
-            ui.SquareInputModeComboBox->currentText().toStdString());
-    }
-}
-
 void MainWindow::set_camera_timeout()
 {
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
-}
-
-void MainWindow::set_square_input_mode(const QString& name)
-{
-    auto mode = get_square_input_mode_from_string(name.toStdString());
-    cd_.square_input_mode = mode;
-    // Need to reset the whole computation process since we change the size of
-    // the different buffers
-    reset_input();
 }
 
 void MainWindow::refreshViewMode()
@@ -1387,7 +1320,7 @@ static void
 adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd)
 {
     if (cd.time_transformation_stride < cd.batch_size)
-        cd.time_transformation_stride = cd.batch_size;
+        cd.time_transformation_stride = cd.batch_size.load();
     // Go to lower multiple
     if (cd.time_transformation_stride % cd.batch_size != 0)
         cd.time_transformation_stride -=
@@ -1467,6 +1400,10 @@ void MainWindow::update_time_transformation_stride()
                 adapt_time_transformation_stride_to_batch_size(cd_);
                 holovibes_.get_compute_pipe()
                     ->request_update_time_transformation_stride();
+                ui.NumberOfFramesSpinBox->setValue(
+                    ceil((ui.ImportEndIndexSpinBox->value() -
+                          ui.ImportStartIndexSpinBox->value()) /
+                         (float)ui.TimeTransformationStrideSpinBox->value()));
                 notify();
             });
         }
@@ -2334,26 +2271,6 @@ void MainWindow::set_time_transformation(QString value)
     }
 }
 
-void MainWindow::set_unwrap_history_size(int value)
-{
-    if (!is_raw_mode())
-    {
-        cd_.unwrap_history_size = value;
-        holovibes_.get_compute_pipe()->request_update_unwrap_size(value);
-        notify();
-    }
-}
-
-void MainWindow::set_unwrapping_1d(const bool value)
-{
-    if (!is_raw_mode())
-    {
-        holovibes_.get_compute_pipe()->request_unwrapping_1d(value);
-        pipe_refresh();
-        notify();
-    }
-}
-
 void MainWindow::set_unwrapping_2d(const bool value)
 {
     if (!is_raw_mode())
@@ -3111,8 +3028,6 @@ void MainWindow::init_holovibes_import_mode()
         size_t first_frame = start_spinbox->value();
         size_t last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
-
-        set_correct_square_input_mode();
 
         holovibes_.init_input_queue(file_fd_);
         holovibes_.start_file_frame_read(

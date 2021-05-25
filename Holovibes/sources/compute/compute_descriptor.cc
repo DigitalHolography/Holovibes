@@ -344,19 +344,14 @@ void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
-    convolution_enabled = enable;
-
-    if (file != "")
-    {
-        convolution_file = file;
-    }
-
     if (enable)
     {
-        load_convolution_matrix();
+        load_convolution_matrix(file);
+        convolution_enabled = true;
     }
     else
     {
+        convolution_enabled = false;
         divide_convolution_enabled = false;
     }
 }
@@ -366,7 +361,7 @@ void ComputeDescriptor::set_divide_by_convo(bool enable)
     divide_convolution_enabled = enable && convolution_enabled;
 }
 
-void ComputeDescriptor::load_convolution_matrix()
+void ComputeDescriptor::load_convolution_matrix(const std::string& file)
 {
     auto& holo = Holovibes::instance();
     convo_matrix.clear();
@@ -374,7 +369,7 @@ void ComputeDescriptor::load_convolution_matrix()
     try
     {
         std::filesystem::path dir(get_exe_dir());
-        dir = dir / "convolution_kernels" / convolution_file;
+        dir = dir / "convolution_kernels" / file;
         std::string path = dir.string();
 
         std::vector<float> matrix;

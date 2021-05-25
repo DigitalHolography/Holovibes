@@ -50,9 +50,9 @@ class InformationWorker : public Worker
      * \param record_frame_size Frame size of record images
      */
     void compute_throughput(ComputeDescriptor& cd,
-                            unsigned int output_frame_res,
-                            unsigned int input_frame_size,
-                            unsigned int record_frame_size);
+                            size_t output_frame_res,
+                            size_t input_frame_size,
+                            size_t record_frame_size);
 
     /*!
      * \brief Refresh side informations according to new computations
@@ -67,22 +67,22 @@ class InformationWorker : public Worker
     InformationContainer& info_;
 
     //! Input fps
-    unsigned int input_fps_ = 0;
+    size_t input_fps_ = 0;
 
     //! Output fps
-    unsigned int output_fps_ = 0;
+    size_t output_fps_ = 0;
 
     //! Saving fps
-    unsigned int saving_fps_ = 0;
+    size_t saving_fps_ = 0;
 
     //! Input throughput
-    unsigned int input_throughput_ = 0;
+    size_t input_throughput_ = 0;
 
     //! Output throughput
-    unsigned int output_throughput_ = 0;
+    size_t output_throughput_ = 0;
 
     //! Saving throughput
-    unsigned int saving_throughput_ = 0;
+    size_t saving_throughput_ = 0;
 };
 } // namespace worker
 } // namespace holovibes

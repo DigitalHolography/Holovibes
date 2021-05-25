@@ -32,24 +32,13 @@ __host__ __device__ static cuComplex operator*(const cuComplex& c,
 __host__ __device__ static cuComplex operator*(const cuComplex& c1,
                                                const cuComplex& c2)
 {
-    cuComplex n;
-
-    n.x = c1.x * c2.x - c1.y * c2.y;
-    n.y = c1.y * c2.x + c1.x * c2.y;
-
-    return n;
+    return cuCmulf(c1, c2);
 }
 
 __host__ __device__ static cuComplex& operator*=(cuComplex& c1,
                                                  const cuComplex& c2)
 {
-    cuComplex n;
-
-    n.x = c1.x * c2.x - c1.y * c2.y;
-    n.y = c1.y * c2.x + c1.x * c2.y;
-
-    c1 = n;
-
+    c1 = cuCmulf(c1, c2);
     return c1;
 }
 

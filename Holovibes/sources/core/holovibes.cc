@@ -31,7 +31,7 @@ void Holovibes::update_cd_for_cli(const unsigned int input_fps)
     const unsigned int expected_output_fps = 20;
     cd_.time_transformation_stride =
         std::max(input_fps / expected_output_fps, static_cast<unsigned int>(1));
-    cd_.batch_size = cd_.time_transformation_stride;
+    cd_.batch_size = cd_.time_transformation_stride.load();
 
     // We force the contrast to not be enable in CLI mode
     cd_.contrast_enabled = false;
@@ -51,26 +51,11 @@ const float Holovibes::get_boundary()
 
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd)
 {
-    SquareInputMode mode = cd_.square_input_mode;
-
     camera::FrameDescriptor queue_fd = fd;
-
-    if (mode == SquareInputMode::ZERO_PADDED_SQUARE)
-    {
-        // Set values to the max of the two
-        set_max_of_the_two(queue_fd.width, queue_fd.height);
-    }
-    else if (mode == SquareInputMode::CROPPED_SQUARE)
-    {
-        // Set values to the min of the two
-        set_min_of_the_two(queue_fd.width, queue_fd.height);
-    }
 
     gpu_input_queue_ = std::make_shared<BatchInputQueue>(
         global::global_config.input_queue_max_size,
         queue_fd);
-    // FIXME: Input mode
-    // gpu_input_queue_.load()->set_square_input_mode(mode);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,
