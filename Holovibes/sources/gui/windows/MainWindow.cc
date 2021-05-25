@@ -434,8 +434,6 @@ void MainWindow::on_notify()
     ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
     ui.YAccSpinBox->setValue(cd_.y_acc_level);
 
-    ui.XSpinBox->blockSignals(true);
-    ui.YSpinBox->blockSignals(true);
     int max_width = 0;
     int max_height = 0;
     if (holovibes_.get_gpu_input_queue() != nullptr)
@@ -450,10 +448,8 @@ void MainWindow::on_notify()
     }
     ui.XSpinBox->setMaximum(max_width);
     ui.YSpinBox->setMaximum(max_height);
-    ui.XSpinBox->setValue(cd_.x_cuts);
-    ui.YSpinBox->setValue(cd_.y_cuts);
-    ui.XSpinBox->blockSignals(false);
-    ui.YSpinBox->blockSignals(false);
+    QSpinBoxQuietSetValue(ui.XSpinBox, cd_.x_cuts);
+    QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
@@ -741,26 +737,6 @@ void MainWindow::reload_ini()
     {
         change_camera(kCamera);
     }
-    notify();
-}
-
-void MainWindow::reset_input()
-{
-    if (import_type_ == ImportType::File)
-    {
-        set_computation_mode();
-        import_start();
-    }
-    else if (import_type_ == ImportType::Camera)
-    {
-        close_windows();
-        close_critical_compute();
-        camera_none();
-        remove_infos();
-        change_camera(kCamera);
-    }
-
-    cd_.is_computation_stopped = false;
     notify();
 }
 
@@ -2292,26 +2268,6 @@ void MainWindow::set_time_transformation(QString value)
         else if (value == "SSA_STFT")
             cd_.time_transformation = TimeTransformation::SSA_STFT;
         set_holographic_mode();
-    }
-}
-
-void MainWindow::set_unwrap_history_size(int value)
-{
-    if (!is_raw_mode())
-    {
-        cd_.unwrap_history_size = value;
-        holovibes_.get_compute_pipe()->request_update_unwrap_size(value);
-        notify();
-    }
-}
-
-void MainWindow::set_unwrapping_1d(const bool value)
-{
-    if (!is_raw_mode())
-    {
-        holovibes_.get_compute_pipe()->request_unwrapping_1d(value);
-        pipe_refresh();
-        notify();
     }
 }
 

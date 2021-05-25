@@ -5226,22 +5226,20 @@ p, li { white-space: pre-wrap; }
   <slot>invert_contrast(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
-  <slot>set_number_of_frames(int)</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
+  <slot>camera_adimec()</slot>
+  <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
-  <slot>gl_full_screen()</slot>
-  <slot>cancel_record()</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
   <slot>start_chart_display()</slot>
   <slot>configure_holovibes()</slot>
-  <slot>chart_record()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>start_record()</slot>
@@ -5251,51 +5249,35 @@ p, li { white-space: pre-wrap; }
   <slot>import_stop()</slot>
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
-  <slot>camera_adimec()</slot>
   <slot>layout_toggled()</slot>
-  <slot>set_unwrap_history_size(int)</slot>
-  <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>
-  <slot>reset_input()</slot>
-  <slot>set_demodulation_mode()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
-  <slot>set_import_cine_file(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
-  <slot>set_float_visible(bool)</slot>
-  <slot>set_complex_visible(bool)</slot>
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
-  <slot>set_stft(bool)</slot>
   <slot>reload_ini()</slot>
-  <slot>set_feature()</slot>
   <slot>write_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>
-  <slot>cancel_stft_slice_view()</slot>
-  <slot>stft_signal_trig(bool)</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>set_time_transformation_size()</slot>
   <slot>set_p_accu()</slot>
-  <slot>browse_trigger_config_file()</slot>
-  <slot>set_integer_visible(bool)</slot>
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
   <slot>set_x_y()</slot>
   <slot>set_q(int)</slot>
   <slot>set_q_acc()</slot>
   <slot>set_composite_weights()</slot>
-  <slot>set_composite_weights_hsv_s()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
-  <slot>on_notify()</slot>
   <slot>set_composite_intervals()</slot>
   <slot>set_composite_intervals_hsv_h_min()</slot>
   <slot>set_composite_intervals_hsv_h_max()</slot>
@@ -5313,11 +5295,9 @@ p, li { white-space: pre-wrap; }
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
   <slot>set_composite_area()</slot>
-  <slot>camera_hamamatsu()</slot>
   <slot>update_raw_view(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
-  <slot>holo_file_update()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>

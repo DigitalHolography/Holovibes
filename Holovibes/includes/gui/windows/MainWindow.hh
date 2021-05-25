@@ -113,7 +113,6 @@ class MainWindow : public QMainWindow, public Observer
     ** \param value true for raw mode, false for hologram mode.
     */
     void set_image_mode(QString mode);
-    void reset_input();
     void refreshViewMode();
     void set_convolution_mode(const bool enable);
     void set_divide_convolution_mode(const bool value);
@@ -172,8 +171,6 @@ class MainWindow : public QMainWindow, public Observer
     void update_batch_size();
     void update_time_transformation_stride();
     void set_view_mode(QString value);
-    void set_unwrap_history_size(int value);
-    void set_unwrapping_1d(const bool value);
     void set_unwrapping_2d(const bool value);
     void set_accumulation(bool value);
     void set_accumulation_level(int value);
@@ -248,7 +245,6 @@ class MainWindow : public QMainWindow, public Observer
     void remove_infos();
     void pipe_refresh();
     void set_auto_contrast_cuts();
-    void load_convo_matrix();
 
     // Change the value without triggering any signals
     void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
@@ -315,8 +311,6 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* z_down_shortcut_;
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
-    QShortcut* gl_full_screen_;
-    QShortcut* gl_normal_screen_;
 
 #pragma endregion
 };
