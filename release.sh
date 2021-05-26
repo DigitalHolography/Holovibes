@@ -22,6 +22,8 @@ iss_version_line=`cat $setup_creator_path | grep "$iss_version_line_identifier"`
 
 release_branch="develop"
 
+python_cmd="python3"
+
 ####################################
 ## Checking commands and versions ##
 ####################################
@@ -48,6 +50,7 @@ fi
 # Python3
 if [ "$has_python3" != "0" ] && [ "$has_python" = "0" ]
 then
+    python_cmd="python"
     python_version=`python --version | cut -d. -f1`
     if [ "$python_version" != "Python 3" ]
     then
@@ -122,7 +125,7 @@ echo -n "New Version: v"
 read new_version
 echo ""
 
-# Change version in files
+# Changing version in files
 sed -i "s/\($cd_version_line_identifier\).*\(\".*\)/\1$new_version\2/" $compute_descriptor_path
 sed -i "s/\($iss_version_line_identifier\).*\(\".*\)/\1$new_version\2/" $setup_creator_path
 
@@ -152,24 +155,34 @@ done
 ######################
 rm -rf build/
 
-if [ "$has_python3" = "0" ]
-then
-    python3 build.py r p 
-elif [ "$has_python" = "0" ]
-then
-    python build.py r p
-fi
-
+# Release Build
+$python_cmd build.py r p
 response=`echo $?`
 if [ "$response" != "0" ]
 then
-    echo "Build failed ! Exiting script..."
+    echo "Release build failed ! Exiting script..."
+    exit 1
+fi
+
+# Debug Build (for unit tests)
+$python_cmd build.py d p
+response=`echo $?`
+if [ "$response" != "0" ]
+then
+    echo "Debug build failed ! Exiting script..."
     exit 1
 fi
 
 ####################
 ## Run unit tests ##
 ####################
+$python_cmd run_unit_tests.py
+response=`echo $?`
+if [ "$response" != "0" ]
+then
+    echo "Unit tests failed ! Exiting script..."
+    exit 1
+fi
 
 #################################
 ## Commit Tag and Push version ##
