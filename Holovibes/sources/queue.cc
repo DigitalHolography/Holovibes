@@ -41,7 +41,6 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , input_width_(input_width)
     , input_height_(input_height)
     , bytes_per_pixel(bytes_per_pixel)
-    , square_input_mode_(SquareInputMode::NO_MODIFICATION)
     , has_overridden_(false)
 {
     if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
@@ -95,42 +94,9 @@ bool Queue::enqueue(void* elt,
     char* new_elt_adress = data_.get() + (end_ * frame_size_);
 
     cudaError_t cuda_status;
-    switch (square_input_mode_)
-    {
-    case SquareInputMode::NO_MODIFICATION:
-        // No async needed for Qt buffer
-        cuda_status = cudaMemcpyAsync(new_elt_adress,
-                                      elt,
-                                      frame_size_,
-                                      cuda_kind,
-                                      stream);
-        break;
-    case SquareInputMode::ZERO_PADDED_SQUARE:
-        // The black bands should have been written at the allocation of the
-        // data buffer
-        cuda_status = embed_into_square(static_cast<char*>(elt),
-                                        input_width_,
-                                        input_height_,
-                                        new_elt_adress,
-                                        bytes_per_pixel,
-                                        cuda_kind,
-                                        stream);
-        break;
-    case SquareInputMode::CROPPED_SQUARE:
-        cuda_status = crop_into_square(static_cast<char*>(elt),
-                                       input_width_,
-                                       input_height_,
-                                       new_elt_adress,
-                                       bytes_per_pixel,
-                                       cuda_kind,
-                                       stream);
-        break;
-    default:
-        LOG_ERROR(
-            "Missing switch case for square input mode. Could not enqueue!");
-        assert(false);
-        return false;
-    }
+    // No async needed for Qt buffer
+    cuda_status =
+        cudaMemcpyAsync(new_elt_adress, elt, frame_size_, cuda_kind, stream);
 
     if (cuda_status != CUDA_SUCCESS)
     {
@@ -167,34 +133,7 @@ void Queue::enqueue_multiple_aux(void* out,
                                  const cudaStream_t stream,
                                  cudaMemcpyKind cuda_kind)
 {
-    switch (square_input_mode_)
-    {
-    case SquareInputMode::NO_MODIFICATION:
-        cudaXMemcpyAsync(out, in, nb_elts * frame_size_, cuda_kind, stream);
-        break;
-    case SquareInputMode::ZERO_PADDED_SQUARE:
-        batched_embed_into_square(static_cast<char*>(in),
-                                  input_width_,
-                                  input_height_,
-                                  static_cast<char*>(out),
-                                  bytes_per_pixel,
-                                  nb_elts,
-                                  stream);
-        break;
-    case SquareInputMode::CROPPED_SQUARE:
-        batched_crop_into_square(static_cast<char*>(in),
-                                 input_width_,
-                                 input_height_,
-                                 static_cast<char*>(out),
-                                 bytes_per_pixel,
-                                 nb_elts,
-                                 stream);
-        break;
-    default:
-        LOG_ERROR(
-            "Missing switch case for square input mode. Could not enqueue!");
-        assert(false);
-    }
+    cudaXMemcpyAsync(out, in, nb_elts * frame_size_, cuda_kind, stream);
 
     if (is_big_endian_)
         endianness_conversion(reinterpret_cast<ushort*>(out),

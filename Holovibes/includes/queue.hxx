@@ -44,11 +44,6 @@ inline unsigned int Queue::get_end_index() const
     return (start_index_ + size_) % max_size_;
 }
 
-inline void Queue::set_square_input_mode(SquareInputMode mode)
-{
-    square_input_mode_ = mode;
-}
-
 inline std::mutex& Queue::get_guard() { return mutex_; }
 
 inline bool Queue::has_overridden() const { return has_overridden_; }

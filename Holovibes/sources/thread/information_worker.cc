@@ -115,14 +115,23 @@ void InformationWorker::compute_fps(const long long waited_time)
 }
 
 void InformationWorker::compute_throughput(ComputeDescriptor& cd,
-                                           unsigned int output_frame_res,
-                                           unsigned int input_frame_size,
-                                           unsigned int record_frame_size)
+                                           size_t output_frame_res,
+                                           size_t input_frame_size,
+                                           size_t record_frame_size)
 {
-    input_throughput_ = std::round(input_fps_ * input_frame_size / 1e6f);
-    output_throughput_ = std::round(output_fps_ * output_frame_res *
-                                    cd.time_transformation_size / 1e6f);
-    saving_throughput_ = std::round(saving_fps_ * record_frame_size / 1e6f);
+    input_throughput_ = input_fps_ * input_frame_size;
+    output_throughput_ =
+        output_fps_ * output_frame_res * cd.time_transformation_size;
+    saving_throughput_ = saving_fps_ * record_frame_size;
+}
+
+static std::string format_throughput(size_t throughput, const std::string& unit)
+{
+    float throughput_ = throughput / (throughput > 1e9 ? 1e9 : 1e6);
+    std::string unit_ = (throughput > 1e9 ? " G" : " M") + unit;
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
+    return ss.str();
 }
 
 void InformationWorker::display_gui_information()
@@ -130,6 +139,7 @@ void InformationWorker::display_gui_information()
     MutexGuard m_guard(info_.mutex_);
 
     std::string to_display;
+    to_display.reserve(512);
 
     for (auto const& [key, value] : info_.indication_map_)
         to_display +=
@@ -165,16 +175,17 @@ void InformationWorker::display_gui_information()
 
     if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
     {
-        // if output fps do not exist, the input and output throughputs are 0
-        to_display += "Input Throughput:\n  " +
-                      std::to_string(input_throughput_) + "MB/s\n";
-        to_display += "Output Throughput:\n  " +
-                      std::to_string(output_throughput_) + "MVoxel/s\n";
+        to_display += "Input Throughput\n  " +
+                      format_throughput(input_throughput_, "B/s") + "\n";
+        to_display += "Output Throughput\n  " +
+                      format_throughput(output_throughput_, "Voxels/s") + "\n";
     }
 
     if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
-        to_display += "Saving Throughput:\n  " +
-                      std::to_string(saving_throughput_) + "MB/s\n";
+    {
+        to_display += "Saving Throughput\n  " +
+                      format_throughput(saving_throughput_, "B/s") + "\n";
+    }
 
     size_t free, total;
     cudaMemGetInfo(&free, &total);

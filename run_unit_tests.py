@@ -5,4 +5,4 @@ import subprocess
 
 if __name__ == "__main__":
     os.chdir("build/Ninja/Holovibes/")
-    subprocess.call("ctest --verbose")
+    exit(subprocess.call("cmd.exe /c ctest --verbose", shell=True))

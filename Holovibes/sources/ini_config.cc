@@ -50,9 +50,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         ptree.get<uint>("view.renorm_constant", cd.renorm_constant);
 
     // Image rendering
-    cd.square_input_mode = static_cast<SquareInputMode>(
-        ptree.get<int>("image_rendering.square_input_mode",
-                       static_cast<int>(cd.square_input_mode.load())));
     cd.batch_size =
         ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
 
@@ -242,8 +239,6 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
                       static_cast<ushort>(cd.display_rate));
 
     // Image rendering
-    ptree.put<int>("image_rendering.square_input_mode",
-                   static_cast<int>(cd.square_input_mode.load()));
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride",
                       cd.time_transformation_stride);

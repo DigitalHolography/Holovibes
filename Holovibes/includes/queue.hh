@@ -107,8 +107,6 @@ class Queue : public DisplayQueue
     inline std::mutex& get_guard();
 
     /* Setters */
-    /*! \brief Set the input mode (cropped, no modification, padding) */
-    inline void set_square_input_mode(SquareInputMode mode);
 
     /*! \return if queue has overridden at least a frame during an enqueue */
     inline bool has_overridden() const;
@@ -285,10 +283,6 @@ class Queue : public DisplayQueue
     unsigned int input_height_;
     /*! \brief number of byte(s) to encode a pixel */
     unsigned int bytes_per_pixel;
-    /*! \brief Input mode (NO_MODIFICATION, ZERO_PADDED_SQUARE,
-    ** CROPPED_SQUARE)
-    */
-    SquareInputMode square_input_mode_;
 
     /*! \brief Wheter frames have been overridden during an enqueue. */
     bool has_overridden_;
