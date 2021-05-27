@@ -1,5 +1,13 @@
 ## Changelog
  
+### 9.3.7
+ 
+* Set Lambda default value to 852nm
+* Fix Input Throughput display
+* Fix unit test not working in WSL
+* Automatic calculation of the total frames in relation to time stride to record the entire processed file
+* Launching unit tests with release script
+ 
 ### 9.3.6
  
 * Fix 3d cuts black bars
