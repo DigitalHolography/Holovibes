@@ -16,6 +16,6 @@ inline CineFile::~CineFile() {}
 
 inline size_t CineFile::get_total_nb_frames() const
 {
-    return cine_file_header_.total_image_count;
+    return cine_file_header_.image_count;
 }
 } // namespace holovibes::io_files

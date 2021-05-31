@@ -49,7 +49,7 @@ class Rendering
               ICompute* Ic,
               const cudaStream_t& stream);
 
-     ~Rendering();
+    ~Rendering();
 
     /** \brief insert the functions relative to the fft shift.
 
@@ -68,7 +68,8 @@ class Rendering
     */
     void insert_contrast(std::atomic<bool>& autocontrast_request,
                          std::atomic<bool>& autocontrast_slice_xz_request,
-                         std::atomic<bool>& autocontrast_slice_yz_request);
+                         std::atomic<bool>& autocontrast_slice_yz_request,
+                         std::atomic<bool>& autocontrast_filter2d_request);
 
   private:
     /** \brief insert the log10 on the XY window
@@ -79,6 +80,10 @@ class Rendering
 
     */
     void insert_slice_log();
+    /** \brief insert the log10 on the Filter2D view
+
+    */
+    void insert_filter2d_view_log();
 
     /** \brief insert the autocontrast computation
 
@@ -86,7 +91,8 @@ class Rendering
     void insert_compute_autocontrast(
         std::atomic<bool>& autocontrast_request,
         std::atomic<bool>& autocontrast_slice_xz_request,
-        std::atomic<bool>& autocontrast_slice_yz_request);
+        std::atomic<bool>& autocontrast_slice_yz_request,
+        std::atomic<bool>& autocontrast_filter2d_request);
 
     /** \brief insert the constrast on a view
 

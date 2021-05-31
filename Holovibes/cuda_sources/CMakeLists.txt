@@ -20,4 +20,6 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     frame_reshape.cu
     map.cu
     test_reduce.cu
+    unpack.cu
+    apply_mask.cu
 )

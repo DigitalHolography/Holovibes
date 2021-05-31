@@ -47,10 +47,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
 }
 
-Rendering::~Rendering()
-{
-    cudaXFreeHost(percent_min_max_);
-}
+Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
@@ -115,12 +112,15 @@ void Rendering::insert_log()
         insert_main_log();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_log();
+    if (cd_.log_scale_filter2d_enabled)
+        insert_filter2d_view_log();
 }
 
 void Rendering::insert_contrast(
     std::atomic<bool>& autocontrast_request,
     std::atomic<bool>& autocontrast_slice_xz_request,
-    std::atomic<bool>& autocontrast_slice_yz_request)
+    std::atomic<bool>& autocontrast_slice_yz_request,
+    std::atomic<bool>& autocontrast_filter2d_request)
 {
     // Do not compute contrast or apply contrast if not enabled
     if (!cd_.contrast_enabled)
@@ -129,7 +129,8 @@ void Rendering::insert_contrast(
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
                                 autocontrast_slice_xz_request,
-                                autocontrast_slice_yz_request);
+                                autocontrast_slice_yz_request,
+                                autocontrast_filter2d_request);
 
     // Apply contrast on the main view
     insert_apply_contrast(WindowKind::XYview);
@@ -140,6 +141,9 @@ void Rendering::insert_contrast(
         insert_apply_contrast(WindowKind::XZview);
         insert_apply_contrast(WindowKind::YZview);
     }
+
+    if (cd_.filter2d_view_enabled)
+        insert_apply_contrast(WindowKind::Filter2D);
 }
 
 void Rendering::insert_main_log()
@@ -169,6 +173,19 @@ void Rendering::insert_slice_log()
             map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                       buffers_.gpu_postprocess_frame_yz.get(),
                       fd_.height * cd_.time_transformation_size,
+                      stream_);
+        });
+    }
+}
+
+void Rendering::insert_filter2d_view_log()
+{
+    if (cd_.filter2d_view_enabled)
+    {
+        fn_compute_vect_.conditional_push_back([=]() {
+            map_log10(buffers_.gpu_float_filter2d_frame.get(),
+                      buffers_.gpu_float_filter2d_frame.get(),
+                      fd_.width * fd_.height,
                       stream_);
         });
     }
@@ -210,6 +227,14 @@ void Rendering::insert_apply_contrast(WindowKind view)
             max = cd_.contrast_invert ? cd_.contrast_min_slice_xz
                                       : cd_.contrast_max_slice_xz;
             break;
+        case WindowKind::Filter2D:
+            input = buffers_.gpu_float_filter2d_frame.get();
+            size = fd_.width * fd_.height;
+            min = cd_.contrast_invert ? cd_.contrast_max_filter2d
+                                      : cd_.contrast_min_filter2d;
+            max = cd_.contrast_invert ? cd_.contrast_min_filter2d
+                                      : cd_.contrast_max_filter2d;
+            break;
         }
 
         apply_contrast_correction(input,
@@ -224,7 +249,8 @@ void Rendering::insert_apply_contrast(WindowKind view)
 void Rendering::insert_compute_autocontrast(
     std::atomic<bool>& autocontrast_request,
     std::atomic<bool>& autocontrast_slice_xz_request,
-    std::atomic<bool>& autocontrast_slice_yz_request)
+    std::atomic<bool>& autocontrast_slice_yz_request,
+    std::atomic<bool>& autocontrast_filter2d_request)
 {
     // requested check are inside the lambda so that we don't need to
     // refresh the pipe at each autocontrast
@@ -239,7 +265,7 @@ void Rendering::insert_compute_autocontrast(
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
-            autocontrast_caller(buffers_.gpu_postprocess_frame,
+            autocontrast_caller(buffers_.gpu_postprocess_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
@@ -267,6 +293,15 @@ void Rendering::insert_compute_autocontrast(
                                 cd_.cuts_contrast_p_offset,
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
+        }
+        if (autocontrast_filter2d_request)
+        {
+            autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
+                                fd_.width,
+                                fd_.height,
+                                0,
+                                WindowKind::Filter2D);
+            autocontrast_filter2d_request = false;
         }
     };
 
@@ -341,6 +376,21 @@ void Rendering::autocontrast_caller(float* input,
         set_contrast_min_max(percent_min_max_,
                              cd_.contrast_min_slice_xz,
                              cd_.contrast_max_slice_xz);
+        break;
+    case WindowKind::Filter2D:
+        compute_percentile_xy_view(input,
+                                   width,
+                                   height,
+                                   offset,
+                                   percent_in,
+                                   percent_min_max_,
+                                   percent_size,
+                                   cd_.getReticleZone(),
+                                   false,
+                                   stream_);
+        set_contrast_min_max(percent_min_max_,
+                             cd_.contrast_min_filter2d,
+                             cd_.contrast_max_filter2d);
         break;
     }
     cd_.notify_observers();

@@ -27,7 +27,7 @@ void CameraFrameReadWorker::run()
     std::string input_format =
         std::to_string(camera_fd.width) + std::string("x") +
         std::to_string(camera_fd.height) + std::string(" - ") +
-        std::to_string(camera_fd.depth * 8) + std::string("bits");
+        std::to_string(camera_fd.depth * 8) + std::string("bit");
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_indication(InformationContainer::IndicationType::IMG_SOURCE,
@@ -48,6 +48,7 @@ void CameraFrameReadWorker::run()
             gpu_input_queue_.load()->enqueue(
                 res.data,
                 res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
+            gpu_input_queue_.load()->sync_current_batch();
             processed_fps_ += res.count;
         }
 

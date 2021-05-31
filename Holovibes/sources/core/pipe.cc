@@ -14,9 +14,9 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
+#include "filter2d.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
-#include "filter2D.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
 #include "composite.cuh"
@@ -146,6 +146,13 @@ bool Pipe::make_requests()
         disable_raw_view_requested_ = false;
     }
 
+    if (disable_filter2d_view_requested_)
+    {
+        gpu_filter2d_view_queue_.reset(nullptr);
+        cd_.filter2d_view_enabled = false;
+        disable_filter2d_view_requested_ = false;
+    }
+
     if (request_delete_time_transformation_cuts_)
     {
         dispose_cuts();
@@ -240,6 +247,15 @@ bool Pipe::make_requests()
             new Queue(fd, global::global_config.output_queue_max_size));
         cd_.raw_view_enabled = true;
         raw_view_requested_ = false;
+    }
+
+    if (filter2d_view_requested_)
+    {
+        auto fd = gpu_output_queue_.get_fd();
+        gpu_filter2d_view_queue_.reset(
+            new Queue(fd, global::global_config.output_queue_max_size));
+        cd_.filter2d_view_enabled = true;
+        filter2d_view_requested_ = false;
     }
 
     if (chart_display_requested_)
@@ -356,21 +372,15 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // time transform
-    if (cd_.time_transformation == TimeTransformation::STFT)
-    {
-        fourier_transforms_->insert_stft();
-    }
-    else if (cd_.time_transformation == TimeTransformation::PCA)
-    {
-        fourier_transforms_->insert_eigenvalue_filter();
-    }
-
+    fourier_transforms_->insert_time_transform();
     fourier_transforms_->insert_time_transformation_cuts_view();
 
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
     converts_->insert_to_float(unwrap_2d_requested_);
+
+    insert_filter2d_view();
 
     postprocess_->insert_convolution();
     postprocess_->insert_renormalize();
@@ -384,7 +394,8 @@ void Pipe::refresh()
     insert_request_autocontrast();
     rendering_->insert_contrast(autocontrast_requested_,
                                 autocontrast_slice_xz_requested_,
-                                autocontrast_slice_yz_requested_);
+                                autocontrast_slice_yz_requested_,
+                                autocontrast_filter2d_requested_);
 
     converts_->insert_to_ushort();
 
@@ -483,7 +494,48 @@ void Pipe::insert_output_enqueue_hologram_mode()
                 buffers_.gpu_output_frame_yz.get(),
                 "Can't enqueue the output yz frame in output yz queue");
         }
+
+        if (cd_.filter2d_view_enabled)
+        {
+            safe_enqueue_output(
+                *gpu_filter2d_view_queue_.get(),
+                buffers_.gpu_filter2d_frame.get(),
+                "Can't enqueue the output frame in gpu_filter2d_view_queue");
+        }
     });
+}
+
+void Pipe::insert_filter2d_view()
+{
+    if (cd_.filter2d_enabled == true && cd_.filter2d_view_enabled == true)
+    {
+        fn_compute_vect_.conditional_push_back([&]() {
+            float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
+                             buffers_.gpu_postprocess_frame.get(),
+                             buffers_.gpu_postprocess_frame_size,
+                             stream_);
+
+            int width = gpu_output_queue_.get_fd().width;
+            int height = gpu_output_queue_.get_fd().height;
+            CufftHandle handle{width, height, CUFFT_C2C};
+
+            cufftExecC2C(handle,
+                         buffers_.gpu_complex_filter2d_frame.get(),
+                         buffers_.gpu_complex_filter2d_frame.get(),
+                         CUFFT_FORWARD);
+            shift_corners(buffers_.gpu_complex_filter2d_frame.get(),
+                          1,
+                          width,
+                          height,
+                          stream_);
+            complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
+                               buffers_.gpu_complex_filter2d_frame.get(),
+                               0,
+                               0,
+                               buffers_.gpu_postprocess_frame_size,
+                               stream_);
+        });
+    }
 }
 
 void Pipe::insert_raw_view()

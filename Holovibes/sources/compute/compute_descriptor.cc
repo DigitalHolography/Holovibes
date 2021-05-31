@@ -8,6 +8,9 @@
 
 #include "compute_descriptor.hh"
 
+#include "holovibes.hh"
+#include "tools.hh"
+
 namespace holovibes
 {
 using LockGuard = std::lock_guard<std::mutex>;
@@ -36,6 +39,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
     log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
     log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
+    log_scale_filter2d_enabled = cd.log_scale_filter2d_enabled.load();
     fft_shift_enabled = cd.fft_shift_enabled.load();
     contrast_enabled = cd.contrast_enabled.load();
     convolution_enabled = cd.convolution_enabled.load();
@@ -47,10 +51,9 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
     contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
     contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
+    contrast_min_filter2d = cd.contrast_min_filter2d.load();
+    contrast_max_filter2d = cd.contrast_max_filter2d.load();
     contrast_invert = cd.contrast_invert.load();
-    convo_matrix_width = cd.convo_matrix_width.load();
-    convo_matrix_height = cd.convo_matrix_height.load();
-    convo_matrix_z = cd.convo_matrix_z.load();
     pixel_size = cd.pixel_size.load();
     img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();
     img_acc_slice_xz_enabled = cd.img_acc_slice_xz_enabled.load();
@@ -66,27 +69,18 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     display_rate = cd.display_rate.load();
     reticle_enabled = cd.reticle_enabled.load();
     reticle_scale = cd.reticle_scale.load();
-    stft_slice_cursor = cd.stft_slice_cursor;
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
-    stft_roi_zone = cd.stft_roi_zone;
-    filter2D_sub_zone = cd.filter2D_sub_zone;
+    filter2d_enabled = cd.filter2d_enabled.load();
+    filter2d_view_enabled = cd.filter2d_view_enabled.load();
+    filter2d_n1 = cd.filter2d_n1.load();
+    filter2d_n2 = cd.filter2d_n2.load();
+    filter2d_smooth_low = cd.filter2d_smooth_low.load();
+    filter2d_smooth_high = cd.filter2d_smooth_high.load();
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
     return *this;
-}
-
-units::PointFd ComputeDescriptor::getStftCursor() const
-{
-    LockGuard g(mutex_);
-    return stft_slice_cursor;
-}
-
-void ComputeDescriptor::setStftCursor(const units::PointFd& rect)
-{
-    LockGuard g(mutex_);
-    stft_slice_cursor = rect;
 }
 
 void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
@@ -113,30 +107,6 @@ void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
     {
         noise_zone = rect;
     }
-}
-
-units::RectFd ComputeDescriptor::getStftZone() const
-{
-    LockGuard g(mutex_);
-    return stft_roi_zone;
-}
-
-void ComputeDescriptor::setStftZone(const units::RectFd& rect)
-{
-    LockGuard g(mutex_);
-    stft_roi_zone = rect;
-}
-
-units::RectFd ComputeDescriptor::getFilter2DSubZone() const
-{
-    LockGuard g(mutex_);
-    return filter2D_sub_zone;
-}
-
-void ComputeDescriptor::setFilter2DSubZone(const units::RectFd& rect)
-{
-    LockGuard g(mutex_);
-    filter2D_sub_zone = rect;
 }
 
 units::RectFd ComputeDescriptor::getCompositeZone() const
@@ -188,6 +158,9 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load()
                                           : log10(contrast_min_slice_yz);
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load()
+                                          : log10(contrast_min_filter2d);
     }
     return 0;
 }
@@ -205,6 +178,9 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load()
                                           : log10(contrast_max_slice_yz);
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled ? contrast_max_filter2d.load()
+                                          : log10(contrast_max_filter2d);
     }
     return 0;
 }
@@ -235,6 +211,8 @@ bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const
         return log_scale_slice_xz_enabled;
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled;
+    case WindowKind::Filter2D:
+        return log_scale_filter2d_enabled;
     }
     return false;
 }
@@ -283,6 +261,10 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
         contrast_min_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
+    case WindowKind::Filter2D:
+        contrast_min_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
+        break;
     }
 }
 
@@ -302,6 +284,10 @@ void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
         contrast_max_slice_yz =
             log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
+    case WindowKind::Filter2D:
+        contrast_max_filter2d =
+            log_scale_filter2d_enabled ? value : pow(10, value);
+        break;
     }
 }
 
@@ -317,6 +303,9 @@ void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
         break;
     case WindowKind::YZview:
         log_scale_slice_yz_enabled = value;
+        break;
+    case WindowKind::Filter2D:
+        log_scale_filter2d_enabled = value;
         break;
     }
 }
@@ -352,4 +341,112 @@ void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
         break;
     }
 }
+
+void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
+{
+    if (enable)
+    {
+        load_convolution_matrix(file);
+        convolution_enabled = true;
+    }
+    else
+    {
+        convolution_enabled = false;
+        divide_convolution_enabled = false;
+    }
+}
+
+void ComputeDescriptor::set_divide_by_convo(bool enable)
+{
+    divide_convolution_enabled = enable && convolution_enabled;
+}
+
+void ComputeDescriptor::load_convolution_matrix(const std::string& file)
+{
+    auto& holo = Holovibes::instance();
+    convo_matrix.clear();
+
+    try
+    {
+        std::filesystem::path dir(get_exe_dir());
+        dir = dir / "convolution_kernels" / file;
+        std::string path = dir.string();
+
+        std::vector<float> matrix;
+        uint matrix_width = 0;
+        uint matrix_height = 0;
+        uint matrix_z = 1;
+
+        // Doing this the C way cause it's faster
+        FILE* c_file;
+        fopen_s(&c_file, path.c_str(), "r");
+
+        if (c_file == nullptr)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid file path");
+        }
+
+        // Read kernel dimensions
+        if (fscanf_s(c_file,
+                     "%u %u %u;",
+                     &matrix_width,
+                     &matrix_height,
+                     &matrix_z) != 3)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid kernel dimensions");
+        }
+
+        size_t matrix_size = matrix_width * matrix_height * matrix_z;
+        matrix.resize(matrix_size);
+
+        // Read kernel values
+        for (size_t i = 0; i < matrix_size; ++i)
+        {
+            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+            {
+                fclose(c_file);
+                throw std::runtime_error("Missing values");
+            }
+        }
+
+        fclose(c_file);
+
+        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+        const uint size = output_width * output_height;
+
+        // The convo matrix is centered and padded with 0 since the kernel is
+        // usally smaller than the output Example: kernel size is (2, 2) and
+        // output size is (4, 4) The kernel is represented by 'x' and
+        //  | 0 | 0 | 0 | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | 0 | 0 | 0 |
+        const uint first_col = (output_width / 2) - (matrix_width / 2);
+        const uint last_col = (output_width / 2) + (matrix_width / 2);
+        const uint first_row = (output_height / 2) - (matrix_height / 2);
+        const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+        convo_matrix.resize(size, 0.0f);
+
+        uint kernel_indice = 0;
+        for (uint i = first_row; i < last_row; i++)
+        {
+            for (uint j = first_col; j < last_col; j++)
+            {
+                convo_matrix[i * output_width + j] = matrix[kernel_indice];
+                kernel_indice++;
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        convo_matrix.clear();
+        LOG_ERROR("Couldn't load convolution matrix " + std::string(e.what()));
+    }
+}
+
 } // namespace holovibes

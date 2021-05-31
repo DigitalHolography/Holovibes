@@ -34,8 +34,6 @@ class InformationContainer
 
         INPUT_FORMAT,
         OUTPUT_FORMAT,
-
-        CUTS_SLICE_CURSOR,
     };
 
     /*!
@@ -129,7 +127,7 @@ class InformationContainer
 
     /*!
      * \brief Remove a processed fps from the fps_map_
-     * 
+     *
      * \param fps_type Type of the processed fps to add
      */
     void remove_processed_fps(FpsType fps_type);
@@ -155,6 +153,15 @@ class InformationContainer
      * \details Clear the maps
      */
     void clear();
+
+    /*!
+     * \brief Get the progress pair corresponding to progress_type
+     *
+     * \param progress_type The type of progress to retreive
+     */
+    std::optional<std::pair<const std::atomic<unsigned int>*,
+                            const std::atomic<unsigned int>*>>
+    get_progress_index(ProgressType progress_type) const;
 
   private:
     // Give access to protected members to the InformationWorker

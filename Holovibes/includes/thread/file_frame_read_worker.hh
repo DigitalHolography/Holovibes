@@ -39,13 +39,14 @@ class FileFrameReadWorker : public FrameReadWorker
      *  \param    load_file_in_gpu        Whether the file should be load in gpu
      *  \param    gpu_input_queue         The input queue
      */
-    FileFrameReadWorker(const std::string& file_path,
-                        bool loop,
-                        unsigned int fps,
-                        unsigned int first_frame_id,
-                        unsigned int total_nb_frames_to_read,
-                        bool load_file_in_gpu,
-                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FileFrameReadWorker(
+        const std::string& file_path,
+        bool loop,
+        unsigned int fps,
+        unsigned int first_frame_id,
+        unsigned int total_nb_frames_to_read,
+        bool load_file_in_gpu,
+        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 
@@ -153,6 +154,9 @@ class FileFrameReadWorker : public FrameReadWorker
     char* cpu_frame_buffer_;
     //! GPU buffer in which the frames are temporarly stored
     char* gpu_frame_buffer_;
+    //! Tmp GPU buffer in which the frames are temporarly stored to convert data
+    //! from packed bits to 16bit
+    char* gpu_packed_buffer_;
 };
 } // namespace worker
 } // namespace holovibes

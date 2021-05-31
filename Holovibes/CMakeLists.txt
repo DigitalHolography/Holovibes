@@ -1,5 +1,8 @@
 project(Holovibes CXX CUDA)
 
+# compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Packages
 find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -40,6 +43,7 @@ set(HOLO_INCLUDES
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${OpenCV_INCLUDE_DIRS}"
+    "${Boost_INCLUDE_DIRS}"
 )
 
 

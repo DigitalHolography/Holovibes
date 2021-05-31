@@ -106,8 +106,6 @@ class Holovibes
 
     /*! Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
-
-    Queue* get_current_window_output_queue();
     /*! \} */
 
     /*! \{ \name Getters/Setters */
@@ -157,9 +155,6 @@ class Holovibes
         const std::function<void()>& callback = []() {});
 
     void stop_frame_read();
-
-    /*! \brief Clear values related to convolution matrix */
-    void clear_convolution_matrix();
 
     void start_frame_record(
         const std::string& path,

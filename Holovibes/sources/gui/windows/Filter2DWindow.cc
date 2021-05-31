@@ -13,7 +13,7 @@
 #include <cuda_gl_interop.h>
 
 #include "texture_update.cuh"
-#include "SliceWindow.hh"
+#include "Filter2DWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
 
@@ -21,23 +21,23 @@ namespace holovibes
 {
 namespace gui
 {
-SliceWindow::SliceWindow(
-    QPoint p, QSize s, DisplayQueue* q, KindOfView k, MainWindow* main_window)
-    : BasicOpenGLWindow(p, s, q, k)
-    , cuArray(nullptr)
-    , cuSurface(0)
+Filter2DWindow::Filter2DWindow(QPoint p,
+                               QSize s,
+                               DisplayQueue* q,
+                               MainWindow* main_window)
+    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
     , main_window_(main_window)
 {
     setMinimumSize(s);
 }
 
-SliceWindow::~SliceWindow()
+Filter2DWindow::~Filter2DWindow()
 {
-    cudaDestroySurfaceObject(cuSurface);
-    cudaFreeArray(cuArray);
+    if (cuResource)
+        cudaGraphicsUnregisterResource(cuResource);
 }
 
-void SliceWindow::initShaders()
+void Filter2DWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(
@@ -47,13 +47,10 @@ void SliceWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
-    if (cd_->img_type == ImgType::Composite)
-        overlay_manager_.create_overlay<Rainbow>();
-    else
-        overlay_manager_.create_default();
+    overlay_manager_.create_default();
 }
 
-void SliceWindow::initializeGL()
+void Filter2DWindow::initializeGL()
 {
     makeCurrent();
     initializeOpenGLFunctions();
@@ -182,7 +179,7 @@ void SliceWindow::initializeGL()
     startTimer(1000 / cd_->display_rate);
 }
 
-void SliceWindow::paintGL()
+void Filter2DWindow::paintGL()
 {
     makeCurrent();
     glClear(GL_COLOR_BUFFER_BIT);
@@ -211,29 +208,12 @@ void SliceWindow::paintGL()
     overlay_manager_.draw();
 }
 
-void SliceWindow::mousePressEvent(QMouseEvent* e) { overlay_manager_.press(e); }
-
-void SliceWindow::mouseMoveEvent(QMouseEvent* e) { overlay_manager_.move(e); }
-
-void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
-{
-    overlay_manager_.release(fd_.width);
-    if (e->button() == Qt::RightButton)
-    {
-        resetTransform();
-        if (auto main_display = main_window_->get_main_display())
-            main_display->resetTransform();
-    }
-}
-
-void SliceWindow::focusInEvent(QFocusEvent* e)
+void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->current_window = (kView == KindOfView::SliceXZ)
-                                  ? WindowKind::XZview
-                                  : WindowKind::YZview;
+        cd_->current_window = WindowKind::Filter2D;
         cd_->notify_observers();
     }
 }

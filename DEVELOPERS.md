@@ -22,13 +22,17 @@ Do not forget to restart Visual Studio Code or your terminal before compiling ag
 
 ### Compilation
 
-Use `./build.py` (or `./build.py R` for release mode) and `./run.py` (or `./run.py R` for release mode) in project folder.
+Use `./build.py` (or `./build.py R` for release mode / `./build.py P` if using Visual Studio professional) and `./run.py` (or `./run.py R` for release mode) in project folder.
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./build [generator]`.
 
 Alternatively, you can build from the command line:
-    - **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
-    - **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+* **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
+* **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+
+#### Known issues
+
+2021-05-18: The project does not compile with the latest version of MSVC (14.29). To downgrade to a previous version (14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
 
 ### Test suite
 

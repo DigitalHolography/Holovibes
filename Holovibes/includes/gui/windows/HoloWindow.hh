@@ -28,8 +28,8 @@ class HoloWindow : public RawWindow
                QSize s,
                DisplayQueue* q,
                SharedPipe ic,
-               std::unique_ptr<SliceWindow>& xy,
-               std::unique_ptr<SliceWindow>& yy,
+               std::unique_ptr<SliceWindow>& xz,
+               std::unique_ptr<SliceWindow>& yz,
                MainWindow* main_window = nullptr);
     virtual ~HoloWindow();
 

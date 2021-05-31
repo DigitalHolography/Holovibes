@@ -1,6 +1,8 @@
 target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
+    cli.cc
     config.cc
+    ini_config.cc
     gpib_dll.cc
     options_parser.cc
     function_vector.cc
@@ -15,6 +17,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/postprocessing.cc
     compute/rendering.cc
     compute/image_accumulation.cc
+    compute/svd.cc
 
     containers/information_container.cc
 
@@ -32,8 +35,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/selections/interfaces/square_overlay.cc
     gui/selections/overlays/composite_area_overlay.cc
     gui/selections/overlays/cross_overlay.cc
-    gui/selections/overlays/filter2d_overlay.cc
-    gui/selections/overlays/filter2d_subzone_overlay.cc
+    gui/selections/overlays/filter2d_reticle_overlay.cc
     gui/selections/overlays/noise_overlay.cc
     gui/selections/overlays/rainbow_overlay.cc
     gui/selections/overlays/reticle_overlay.cc
@@ -47,6 +49,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/MainWindow.cc
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
+    gui/windows/Filter2DWindow.cc
 
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc

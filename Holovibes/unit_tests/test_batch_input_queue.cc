@@ -341,8 +341,6 @@ void consumer(holovibes::BatchInputQueue& queue,
         if (stop_requested)
             return;
 
-        dequeue_helper(queue, batch_size);
-
         if (stop_requested)
             return;
 
@@ -354,15 +352,17 @@ void consumer(holovibes::BatchInputQueue& queue,
             queue.copy_multiple(copy_queue);
             queue.resize(batch_size);
         }
+        else
+            dequeue_helper(queue, batch_size);
     }
 }
 
 void consumer_gpu(holovibes::BatchInputQueue& queue,
-              const uint nb_actions,
-              std::atomic<bool>& stop_requested,
-              uint batch_size,
-              float* const d_buff,
-              holovibes::BatchInputQueue::dequeue_func_t dequeue_func)
+                  const uint nb_actions,
+                  std::atomic<bool>& stop_requested,
+                  uint batch_size,
+                  float* const d_buff,
+                  holovibes::BatchInputQueue::dequeue_func_t dequeue_func)
 {
     for (uint i = 0; i < nb_actions && !stop_requested; i++)
     {
@@ -395,9 +395,9 @@ void producer(holovibes::BatchInputQueue& queue,
 }
 
 void producer_gpu(holovibes::BatchInputQueue& queue,
-              const uint nb_actions,
-              const uint frame_res,
-              const float* const d_buff)
+                  const uint nb_actions,
+                  const uint frame_res,
+                  const float* const d_buff)
 {
 
     for (size_t i = 0; i < nb_actions; i++)
@@ -410,10 +410,10 @@ void producer_gpu(holovibes::BatchInputQueue& queue,
 
 TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
 {
-    constexpr uint nb_tests = 100;
+    constexpr uint nb_tests = 50;
     for (uint i = 0; i < nb_tests; i++)
     {
-        constexpr uint total_nb_frames = 4096;
+        constexpr uint total_nb_frames = 1024;
         constexpr uint batch_size = 1;
         constexpr uint max_batch_size = total_nb_frames;
         constexpr camera::FrameDescriptor fd =
@@ -479,8 +479,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
     cudaSafeCall(cudaMalloc((void**)&d_producer, frame_size));
     cudaSafeCall(cudaMalloc((void**)&d_consumer, frame_size * batch_size));
 
-
-    constexpr uint nb_tests = 100;
+    constexpr uint nb_tests = 50;
     for (uint i = 0; i < nb_tests; i++)
     {
         holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
@@ -488,8 +487,8 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
 
         // Consumer will do less actions. It is maximum in case of batch size ==
         // 1
-        constexpr uint consumer_actions = 2000;
-        constexpr uint producer_actions = 2000;
+        constexpr uint consumer_actions = 1000;
+        constexpr uint producer_actions = 1000;
         std::atomic<bool> stop_requested{false};
 
         std::thread consumer_thread(&(consumer_gpu),
@@ -694,7 +693,8 @@ TEST(BatchInputQueueTest, CreateQueueSizeNotMatcingBatchSize)
                                             camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
-    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - total_nb_frames % batch_size);
+    ASSERT_EQ(queue.get_total_nb_frames(),
+              total_nb_frames - total_nb_frames % batch_size);
 }
 
 TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
@@ -711,7 +711,8 @@ TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
 
     constexpr uint new_batch_size = 6;
     queue.resize(new_batch_size);
-    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - (total_nb_frames % new_batch_size));
+    ASSERT_EQ(queue.get_total_nb_frames(),
+              total_nb_frames - (total_nb_frames % new_batch_size));
 }
 
 int main(int argc, char* argv[])

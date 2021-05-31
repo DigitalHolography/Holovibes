@@ -29,9 +29,9 @@ using json = ::nlohmann::json;
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
+#include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
 
-#define GLOBAL_INI_PATH create_absolute_path("holovibes.ini")
 Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace holovibes
@@ -112,18 +112,19 @@ class MainWindow : public QMainWindow, public Observer
     **
     ** \param value true for raw mode, false for hologram mode.
     */
-    void set_image_mode();
-    void reset_input();
-    void set_square_input_mode(const QString& name);
+    void set_image_mode(QString mode);
     void refreshViewMode();
     void set_convolution_mode(const bool enable);
     void set_divide_convolution_mode(const bool value);
     void toggle_renormalize(bool value);
     bool is_raw_mode();
     void reset();
-    void set_filter2D();
-    void set_filter2D_type(const QString& filter2Dtype);
-    void cancel_filter2D();
+    void update_filter2d_view(bool);
+    void disable_filter2d_view();
+    void set_filter2d(bool);
+    void set_filter2d_n1(int);
+    void set_filter2d_n2(int);
+    void cancel_filter2d();
     void set_time_transformation_size();
     void update_lens_view(bool value);
     void disable_lens_view();
@@ -132,6 +133,9 @@ class MainWindow : public QMainWindow, public Observer
     void set_p_accu();
     void set_x_accu();
     void set_y_accu();
+    void set_x_y();
+    void set_q(int value);
+    void set_q_acc();
     void set_composite_intervals();
     void set_composite_intervals_hsv_h_min();
     void set_composite_intervals_hsv_h_max();
@@ -167,8 +171,6 @@ class MainWindow : public QMainWindow, public Observer
     void update_batch_size();
     void update_time_transformation_stride();
     void set_view_mode(QString value);
-    void set_unwrap_history_size(int value);
-    void set_unwrapping_1d(const bool value);
     void set_unwrapping_2d(const bool value);
     void set_accumulation(bool value);
     void set_accumulation_level(int value);
@@ -228,7 +230,6 @@ class MainWindow : public QMainWindow, public Observer
     void set_raw_mode();
     void set_holographic_mode();
     void set_computation_mode();
-    void set_correct_square_input_mode();
     void set_camera_timeout();
     void change_camera(CameraKind c);
     void display_error(std::string msg);
@@ -244,7 +245,6 @@ class MainWindow : public QMainWindow, public Observer
     void remove_infos();
     void pipe_refresh();
     void set_auto_contrast_cuts();
-    void load_convo_matrix();
 
     // Change the value without triggering any signals
     void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
@@ -272,6 +272,7 @@ class MainWindow : public QMainWindow, public Observer
     std::unique_ptr<SliceWindow> sliceYZ = nullptr;
     std::unique_ptr<RawWindow> lens_window = nullptr;
     std::unique_ptr<RawWindow> raw_window = nullptr;
+    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
     std::unique_ptr<PlotWindow> plot_window_ = nullptr;
 
     uint window_max_size = 768;
@@ -310,8 +311,6 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* z_down_shortcut_;
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
-    QShortcut* gl_full_screen_;
-    QShortcut* gl_normal_screen_;
 
 #pragma endregion
 };

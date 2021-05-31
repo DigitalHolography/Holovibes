@@ -1,4 +1,71 @@
 ## Changelog
+ 
+### 9.3.7
+ 
+* Set Lambda default value to 852nm
+* Fix Input Throughput display
+* Fix unit test not working in WSL
+* Automatic calculation of the total frames in relation to time stride to record the entire processed file
+* Launching unit tests with release script
+ 
+### 9.3.6
+ 
+* Fix 3d cuts black bars
+* Add ssa stft time transform
+
+### 9.3.5
+
+* Fix: Filter2D with anamorphic images
+* Filter2D with CLI
+* FFT2/Filter2D optimisation
+
+### 9.3.4
+
+* Add: Filter2D circles mask
+* Fix: cuts and filter2D color overlays
+
+### 9.3.2
+
+* Fix: filter2D optimisation
+
+### 9.3.1
+
+* Fix: filter2D crash due to batch size
+* Fix: filter2D view crash with 8bit files
+* Fix: cine file number of frames
+* CLI: better contrast handling
+
+### 9.3
+
+* Fix: CLI contrast and recording
+* Fix: Camera frame copy
+* GUI: Change names on frontend
+
+### 9.2
+
+* Filter2D: rework filter2D
+* CLI: add progress bar and other info
+* Fix: minor gui bugfixes
+* Fix: batch_input_queue async copy and input file gpu_frame_buffer synchro
+
+### 9.1
+
+* Time Transform: add None mode
+* Fix: stutters in raw view
+* Fix: weird contrast spinbox behavior
+* GUI: rename some labels
+* CLI: rework cli to handle different types of files and load .ini config
+
+### 9.0.5
+
+* Cine: 10bit packed cine file support
+* Fix: input queue size is not reduced when changing batch size a lot
+* Fix: crash when importing a footer-less holofile
+* GUI: Change sinbox scroll default values
+
+### 9.0.4
+
+* Cine file now read 12bit packed images
 
 ### 9.0.3
 

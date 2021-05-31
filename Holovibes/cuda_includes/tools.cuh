@@ -12,26 +12,6 @@
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
 
-/*! \brief  Apply a previously computed lens to image(s).
- *
- * The input data is multiplied element-wise with each corresponding
- * lens coefficient.
- *
- * \param input The input data to process.
- * \param output The output data processed
- * \param batch_size The number of frames in input
- * \param input_size Total number of elements to process. Should be a multiple
- * of lens_size.
- * \param lens The precomputed lens to apply.
- * \param lens_size The number of elements in the lens matrix.
- */
-__global__ void kernel_apply_lens(cuComplex* input,
-                                  cuComplex* output,
-                                  const uint batch_size,
-                                  const uint input_size,
-                                  const cuComplex* lens,
-                                  const uint lens_size);
-
 /*! \brief Extract a part of the input image to the output.
  *
  * The memcpy is async

@@ -54,7 +54,7 @@ class FourierTransform
        transformation.
 
     */
-    void FourierTransform::insert_store_p_frame();
+    void insert_store_p_frame();
 
     /*! \brief Get Lens Queue used to display the Fresnel lens.
 
@@ -64,12 +64,7 @@ class FourierTransform
     /*! \brief enqueue functions relative to temporal fourier transforms.
 
     */
-    void insert_stft();
-
-    /*! \brief Enqueue functions relative to filtering using diagonalization and
-       eigen values. This should eventually replace stft
-    */
-    void insert_eigenvalue_filter();
+    void insert_time_transform();
 
     /*! \brief Enqueue functions relative to time transformation cuts display
        when there are activated
@@ -100,6 +95,18 @@ class FourierTransform
     */
     void enqueue_lens();
 
+    /*! \brief Enqueue stft time filtering.
+
+     */
+    void insert_stft();
+
+    /*! \brief Enqueue functions relative to filtering using diagonalization and
+       eigen values. This should eventually replace stft
+    */
+    void insert_pca();
+
+    void insert_ssa_stft();
+
     //! Roi zone of Filter 2D
     units::RectFd filter2d_zone_;
     units::RectFd filter2d_subzone_;
@@ -110,15 +117,11 @@ class FourierTransform
     uint lens_side_size_ = {0};
     //! Lens Queue. Used for displaying the lens.
     std::unique_ptr<Queue> gpu_lens_queue_;
-    //! Filter 2D buffer. Contains one frame.
-    cuda_tools::UniquePtr<cufftComplex> gpu_filter2d_buffer_;
 
     //! Size of the buffer needed by cusolver for internal use
     int cusolver_work_buffer_size_;
     //! Buffer needed by cusolver for internal use
     cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
-    //! Buffer created by sub sampling gpu_time_transformation_queue
-    cuda_tools::UniquePtr<cuComplex> subsample_pca_buffer_;
 
     /// Vector function in which we insert the processing
     FunctionVector& fn_compute_vect_;

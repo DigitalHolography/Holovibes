@@ -61,9 +61,13 @@ class Pipe : public ICompute
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
      * \param desc ComputeDescriptor that contains computation parameters.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the computations are
+     * processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input,
+         Queue& output,
+         ComputeDescriptor& desc,
+         const cudaStream_t& stream);
 
     /*! \brief Get the lens queue to display it.
 
@@ -133,6 +137,11 @@ class Pipe : public ICompute
     ** \brief Enqueue the output frame in the output queue in hologram mode
     */
     void insert_output_enqueue_hologram_mode();
+
+    /*!
+    ** \brief Enqueue the output frame in the filter2d view queue
+    */
+    void insert_filter2d_view();
 
     /*!
     ** \brief Request the computation of a autocontrast if the contrast and

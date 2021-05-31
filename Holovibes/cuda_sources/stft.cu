@@ -17,16 +17,10 @@ using holovibes::ImgType;
 using holovibes::Queue;
 
 // Short-Time Fourier Transform
-void stft(Queue* gpu_time_transformation_queue,
-          cuComplex* gpu_p_acc_buffer,
-          const cufftHandle plan1d)
+void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
 {
     // FFT 1D
-    cufftSafeCall(cufftExecC2C(
-        plan1d,
-        static_cast<cuComplex*>(gpu_time_transformation_queue->get_data()),
-        gpu_p_acc_buffer,
-        CUFFT_FORWARD));
+    cufftSafeCall(cufftExecC2C(plan1d, input, output, CUFFT_FORWARD));
 
     // No sync needed since all the kernels are executed on stream compute
 }

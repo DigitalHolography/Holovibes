@@ -112,6 +112,21 @@ ICompute::ICompute(BatchInputQueue& input,
             buffers_.gpu_postprocess_frame_size))
         err++;
 
+    if (!buffers_.gpu_complex_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_float_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_filter2d_frame.resize(
+            buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
+        err++;
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
@@ -148,7 +163,35 @@ bool ICompute::update_time_transformation_size(
         time_transformation_env_.pca_cov.resize(
             static_cast<const uint>(time_transformation_size) *
             time_transformation_size);
-        time_transformation_env_.pca_tmp_buffer.resize(
+        time_transformation_env_.pca_eigen_values.resize(
+            time_transformation_size);
+        time_transformation_env_.pca_dev_info.resize(1);
+    }
+    else if (cd_.time_transformation == TimeTransformation::NONE)
+    {
+        // Nothing to do
+    }
+    else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
+    {
+        /* CUFFT plan1d realloc */
+        int inembed_stft[1] = {time_transformation_size};
+
+        int zone_size = gpu_input_queue_.get_frame_res();
+
+        time_transformation_env_.stft_plan.planMany(1,
+                                                    inembed_stft,
+                                                    inembed_stft,
+                                                    zone_size,
+                                                    1,
+                                                    inembed_stft,
+                                                    zone_size,
+                                                    1,
+                                                    CUFFT_C2C,
+                                                    zone_size);
+
+        // Pre allocate all the buffer only when n changes to avoid 1 allocation
+        // every frame Static cast to avoid ushort overflow
+        time_transformation_env_.pca_cov.resize(
             static_cast<const uint>(time_transformation_size) *
             time_transformation_size);
         time_transformation_env_.pca_eigen_values.resize(
@@ -256,6 +299,11 @@ std::unique_ptr<Queue>& ICompute::get_raw_view_queue()
     return gpu_raw_view_queue_;
 }
 
+std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue()
+{
+    return gpu_filter2d_view_queue_;
+}
+
 std::unique_ptr<ConcurrentDeque<ChartPoint>>&
 ICompute::get_chart_display_queue()
 {
@@ -330,6 +378,18 @@ void ICompute::request_raw_view()
     request_refresh();
 }
 
+void ICompute::request_disable_filter2d_view()
+{
+    disable_filter2d_view_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_filter2d_view()
+{
+    filter2d_view_requested_ = true;
+    request_refresh();
+}
+
 void ICompute::request_hologram_record(
     std::optional<unsigned int> nb_frames_to_record)
 {
@@ -360,25 +420,10 @@ void ICompute::request_autocontrast(WindowKind kind)
         autocontrast_requested_ = true;
     else if (kind == WindowKind::XZview)
         autocontrast_slice_xz_requested_ = true;
-    else
+    else if (kind == WindowKind::YZview)
         autocontrast_slice_yz_requested_ = true;
-}
-
-void ICompute::request_filter2D_roi_update()
-{
-    stft_update_roi_requested_ = true;
-    request_update_time_transformation_size();
-}
-
-void ICompute::request_filter2D_roi_end()
-{
-    stft_update_roi_requested_ = false;
-    request_update_time_transformation_size();
-    cd_.log_scale_slice_xy_enabled = false;
-    notify_observers();
-
-    if (auto pipe = dynamic_cast<Pipe*>(this))
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
+    else if (kind == WindowKind::Filter2D)
+        autocontrast_filter2d_requested_ = true;
 }
 
 void ICompute::request_update_time_transformation_size()

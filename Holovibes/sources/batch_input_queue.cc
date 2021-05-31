@@ -29,6 +29,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
     , frame_res_(fd_.frame_res())
     , frame_size_(fd_.frame_size())
     , total_nb_frames_(total_nb_frames)
+    , frame_capacity_(total_nb_frames)
     , data_(nullptr)
 {
     // Set priority of streams
@@ -55,7 +56,7 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     assert(new_batch_size > 0 && "Batch size cannot be 0.");
 
     batch_size_ = new_batch_size;
-    total_nb_frames_ -= total_nb_frames_ % batch_size_;
+    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
 
     assert(total_nb_frames_ > 0 &&
            "There must be more at least a frame in the queue.");
@@ -79,9 +80,26 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
     */
     for (uint i = 0; i < max_size_; ++i)
-        cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
+        cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]),
+                                                  cudaStreamDefault,
+                                                  CUDA_STREAM_QUEUE_PRIORITY));
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * frame_size_);
+}
+
+void BatchInputQueue::sync_current_batch() const
+{
+    if (curr_batch_counter_ > 0) // A batch is currently enqueued
+        cudaXStreamSynchronize(batch_streams_[end_index_]);
+    else if (end_index_ > 0) // No batch is enqueued, sync the last one
+        cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
+    else // if end_index_ == 0: sync the last index in queue (max_size_ - 1)
+        cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
+}
+
+bool BatchInputQueue::is_current_batch_full()
+{
+    return (curr_batch_counter_ == 0);
 }
 
 void BatchInputQueue::destroy_mutexes_streams()
@@ -192,7 +210,8 @@ void BatchInputQueue::dequeue(void* const dest,
 
     // From the queue
     const char* const src =
-        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * frame_size_);
+        data_.get() +
+        (static_cast<size_t>(start_index_locked) * batch_size_ * frame_size_);
     func(src,
          dest,
          batch_size_,
@@ -266,7 +285,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
            "greater than number of elements to copy.");
     assert(frame_size_ == dest.frame_size_);
     assert(nb_elts <= batch_size_ && "Copy multiple: cannot copy more "
-            "than a batch of frames");
+                                     "than a batch of frames");
 
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -278,8 +297,8 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     // Determine source region info
     struct Queue::QueueRegion src;
     // Get the start of the starting batch
-    src.first =
-        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * frame_size_);
+    src.first = data_.get() + (static_cast<size_t>(start_index_locked) *
+                               batch_size_ * frame_size_);
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 

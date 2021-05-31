@@ -66,6 +66,19 @@ struct CoreBuffersEnv
 
     /** Contains only one frame used only for convolution */
     cuda_tools::UniquePtr<float> gpu_convolution_buffer = nullptr;
+
+    /** Complex filter2d frame. Contains only one frame. We fill it with the
+     * output_frame */
+    cuda_tools::UniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
+    /** Float Filter2d frame. Contains only one frame. We fill it with the
+     * gpu_complex_filter2d_frame */
+    cuda_tools::UniquePtr<float> gpu_float_filter2d_frame = nullptr;
+    /** Filter2d frame. Contains only one frame. We fill it with the
+     * gpu_float_filter2d_frame */
+    cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
+    /** Filter2d mask. Contains only one frame. We apply this mask to
+     * gpu_spatial_transformation_buffer */
+    cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
 };
 
 /*! \brief Struct containing variables related to the batch in the pipe */
@@ -110,7 +123,6 @@ struct TimeTransformationEnv
 
     // The following are used for the PCA time transformation
     cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
-    cuda_tools::UniquePtr<cuComplex> pca_tmp_buffer = nullptr;
     cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
     cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
 };
@@ -160,12 +172,13 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input,
+             Queue& output,
+             ComputeDescriptor& cd,
+             const cudaStream_t& stream);
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
-    void request_filter2D_roi_update();
-    void request_filter2D_roi_end();
     void request_update_time_transformation_size();
     void request_update_unwrap_size(const unsigned size);
     void request_unwrapping_1d(const bool value);
@@ -180,6 +193,8 @@ class ICompute : public Observable
     void request_disable_lens_view();
     void request_raw_view();
     void request_disable_raw_view();
+    void request_filter2d_view();
+    void request_disable_filter2d_view();
     void
     request_hologram_record(std::optional<unsigned int> nb_frames_to_record);
     void request_raw_record(std::optional<unsigned int> nb_frames_to_record);
@@ -246,6 +261,14 @@ class ICompute : public Observable
     {
         return disable_raw_view_requested_;
     }
+    bool get_filter2d_view_requested() const
+    {
+        return filter2d_view_requested_;
+    }
+    bool get_disable_filter2d_view_requested() const
+    {
+        return disable_filter2d_view_requested_;
+    }
     bool get_chart_display_requested() const
     {
         return chart_display_requested_;
@@ -284,6 +307,8 @@ class ICompute : public Observable
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
     virtual std::unique_ptr<Queue>& get_raw_view_queue();
+
+    virtual std::unique_ptr<Queue>& get_filter2d_view_queue();
 
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>&
     get_chart_display_queue();
@@ -337,6 +362,9 @@ class ICompute : public Observable
     /*! \brief Queue storing raw frames used by raw view */
     std::unique_ptr<Queue> gpu_raw_view_queue_{nullptr};
 
+    /*! \brief Queue storing filter2d frames */
+    std::unique_ptr<Queue> gpu_filter2d_view_queue_{nullptr};
+
     /** Pland 2D. Used for spatial fft performed on the complex input frame. */
     cuda_tools::CufftHandle spatial_transformation_plan_;
 
@@ -359,6 +387,7 @@ class ICompute : public Observable
     std::atomic<bool> autocontrast_requested_{false};
     std::atomic<bool> autocontrast_slice_xz_requested_{false};
     std::atomic<bool> autocontrast_slice_yz_requested_{false};
+    std::atomic<bool> autocontrast_filter2d_requested_{false};
     std::atomic<bool> refresh_requested_{false};
     std::atomic<bool> update_time_transformation_size_requested_{false};
     std::atomic<bool> stft_update_roi_requested_{false};
@@ -371,6 +400,8 @@ class ICompute : public Observable
         std::nullopt};
     std::atomic<bool> raw_view_requested_{false};
     std::atomic<bool> disable_raw_view_requested_{false};
+    std::atomic<bool> filter2d_view_requested_{false};
+    std::atomic<bool> disable_filter2d_view_requested_{false};
     std::atomic<bool> termination_requested_{false};
     std::atomic<bool> request_time_transformation_cuts_{false};
     std::atomic<bool> request_delete_time_transformation_cuts_{false};
