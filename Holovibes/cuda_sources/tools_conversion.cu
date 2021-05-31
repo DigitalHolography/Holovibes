@@ -124,7 +124,8 @@ void input_queue_to_input_buffer(void* const output,
      * To pass lambda like that, we need to add the --extended-lambda  flag
      */
     static const auto convert_8_bit = [] __device__(const uchar input_pixel) {
-        // max uchar value is 255, multiplied by 257 you have 65535 which is max ushort
+        // max uchar value is 255, multiplied by 257 you have 65535 which is max
+        // ushort
         return static_cast<float>(input_pixel * 257);
     };
     static const auto convert_16_bit = [] __device__(const ushort input_pixel) {
@@ -138,27 +139,30 @@ void input_queue_to_input_buffer(void* const output,
     {
     case 1:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
-                                  reinterpret_cast<const uchar* const>(input),
-                                  convert_8_bit,
-                                  frame_res,
-                                  batch_size);
+            <<<blocks, threads, 0, stream>>>(
+                reinterpret_cast<cuComplex* const>(output),
+                reinterpret_cast<const uchar* const>(input),
+                convert_8_bit,
+                frame_res,
+                batch_size);
         break;
     case 2:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
-                                  reinterpret_cast<const ushort* const>(input),
-                                  convert_16_bit,
-                                  frame_res,
-                                  batch_size);
+            <<<blocks, threads, 0, stream>>>(
+                reinterpret_cast<cuComplex* const>(output),
+                reinterpret_cast<const ushort* const>(input),
+                convert_16_bit,
+                frame_res,
+                batch_size);
         break;
     case 4:
         kernel_input_queue_to_input_buffer<cuComplex, float>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
-                                  reinterpret_cast<const float* const>(input),
-                                  convert_32_bit,
-                                  frame_res,
-                                  batch_size);
+            <<<blocks, threads, 0, stream>>>(
+                reinterpret_cast<cuComplex* const>(output),
+                reinterpret_cast<const float* const>(input),
+                convert_32_bit,
+                frame_res,
+                batch_size);
         break;
     }
     cudaCheckError();
@@ -277,7 +281,11 @@ void rescale_float(const float* input,
     const uint blocks = map_blocks_to_problem(size, threads);
 
     // TODO : See if gpu_postprocess_frame could be used directly.
-    cudaXMemcpyAsync(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(output,
+                     input,
+                     sizeof(float) * size,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     // Computing minimum and maximum values, in order to rescale properly.
     float* gpu_local_min;
@@ -286,9 +294,7 @@ void rescale_float(const float* input,
     cudaXMalloc(&gpu_local_min, float_blocks);
     cudaXMalloc(&gpu_local_max, float_blocks);
 
-    /* We have to hardcode the template parameter, unfortunately.
-     * It must be equal to the number of threads per block. */
-    kernel_minmax<128>
+    kernel_minmax<threads>
         <<<blocks, threads, threads << 1, stream>>>(output,
                                                     size,
                                                     gpu_local_min,
@@ -300,13 +306,15 @@ void rescale_float(const float* input,
     cudaXMallocHost(&cpu_local_min, sizeof(float) * blocks);
     cudaXMallocHost(&cpu_local_max, sizeof(float) * blocks);
     cudaXMemcpyAsync(cpu_local_min,
-                gpu_local_min,
-                float_blocks,
-                cudaMemcpyDeviceToHost, stream);
+                     gpu_local_min,
+                     float_blocks,
+                     cudaMemcpyDeviceToHost,
+                     stream);
     cudaXMemcpyAsync(cpu_local_max,
-                gpu_local_max,
-                float_blocks,
-                cudaMemcpyDeviceToHost, stream);
+                     gpu_local_max,
+                     float_blocks,
+                     cudaMemcpyDeviceToHost,
+                     stream);
     cudaXStreamSynchronize(stream);
 
     constexpr float max_intensity = max_ushort_value_to_float;
@@ -336,10 +344,13 @@ void rescale_float_unwrap2d(float* input,
 {
     float min = 0;
     float max = 0;
-    const uint threads = THREADS_128;
-    const uint blocks = map_blocks_to_problem(frame_res, threads);
+
     uint float_frame_res = sizeof(float) * frame_res;
-    cudaXMemcpyAsync(cpu_buffer, input, float_frame_res, cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(cpu_buffer,
+                     input,
+                     float_frame_res,
+                     cudaMemcpyDeviceToHost,
+                     stream);
     cudaXStreamSynchronize(stream);
     auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
     min = *minmax.first;
@@ -563,9 +574,7 @@ void convert_frame_for_display(const void* input,
 
 /* Simply transfers values from float buffer to cuComplex buffer */
 static __global__ void
-kernel_float_to_complex(cuComplex* output,
-                        const float* input,
-                        size_t size)
+kernel_float_to_complex(cuComplex* output, const float* input, size_t size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -583,6 +592,8 @@ void float_to_complex(cuComplex* output,
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
 
-    kernel_float_to_complex<<<blocks, threads, 0, stream>>>(output, input, size);
+    kernel_float_to_complex<<<blocks, threads, 0, stream>>>(output,
+                                                            input,
+                                                            size);
     cudaCheckError();
 }
