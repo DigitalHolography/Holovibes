@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "reduce.cuh"
 #include "map.cuh"
 
@@ -94,9 +86,9 @@ void gpu_normalize(float* const input,
     auto map_function = [multiplier, frame_res, result_reduce] __device__(
                             const float input_pixel) -> float {
         /* Computing on double is really slow on a GPU, in our case
-        *result_reduce can never overflow
-        ** Thus it can be casted to a float
-        */
+         *result_reduce can never overflow
+         ** Thus it can be casted to a float
+         */
         return input_pixel * multiplier *
                (frame_res / static_cast<const float>(*result_reduce));
     };

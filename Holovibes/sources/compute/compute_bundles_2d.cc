@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <exception>
 
 #include <cuda_runtime.h>
@@ -50,7 +42,7 @@ UnwrappingResources_2d::~UnwrappingResources_2d()
     cudaXFree(gpu_z_);
     cudaXFree(gpu_grad_eq_x_);
     cudaXFree(gpu_grad_eq_y_);
-    cudaXFreeHost(minmax_buffer_ );
+    cudaXFreeHost(minmax_buffer_);
 }
 
 void UnwrappingResources_2d::cudaRealloc(void* ptr, const size_t size)

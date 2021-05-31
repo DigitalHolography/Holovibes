@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <thrust/copy.h>
 #include <thrust/device_vector.h>
 #include <thrust/fill.h>
@@ -25,7 +17,8 @@ void fill_percentile_float_in_case_of_error(float* const out_percent,
     }
 }
 
-thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream_t stream)
+thrust::device_ptr<float> allocate_thrust(const uint frame_res,
+                                          const cudaStream_t stream)
 {
     float* raw_gpu_input_copy;
     // TODO: cudaXMallocAsync with the stream
@@ -47,12 +40,18 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
                         const uint size_percent,
                         const cudaStream_t stream)
 {
-    thrust::sort(thrust::cuda::par.on(stream), thrust_gpu_input_copy, thrust_gpu_input_copy + frame_res);
+    thrust::sort(thrust::cuda::par.on(stream),
+                 thrust_gpu_input_copy,
+                 thrust_gpu_input_copy + frame_res);
 
     for (uint i = 0; i < size_percent; ++i)
     {
         const uint index = h_percent[i] / 100 * frame_res;
-        cudaXMemcpyAsync(h_out_percent + i, thrust_gpu_input_copy.get() + index, sizeof(float), cudaMemcpyDeviceToHost, stream);
+        cudaXMemcpyAsync(h_out_percent + i,
+                         thrust_gpu_input_copy.get() + index,
+                         sizeof(float),
+                         cudaMemcpyDeviceToHost,
+                         stream);
     }
     cudaXStreamSynchronize(stream);
 }
@@ -182,14 +181,14 @@ void compute_percentile_yz_view(const float* gpu_input,
 
         // Copy sub array (skip the 2 first columns and the 2 last columns)
         cudaSafeCall(
-            cudaMemcpy2DAsync(thrust_gpu_input_copy.get(),     // dst
-                         (width - 2 * offset) * sizeof(float), // dpitch
-                         gpu_input + offset,                   // src
-                         width * sizeof(float),                // spitch
-                         (width - 2 * offset) * sizeof(float), // dwidth
-                         height,                               // dheight
-                         cudaMemcpyDeviceToDevice,             // kind
-                         stream));                             // stream
+            cudaMemcpy2DAsync(thrust_gpu_input_copy.get(),          // dst
+                              (width - 2 * offset) * sizeof(float), // dpitch
+                              gpu_input + offset,                   // src
+                              width * sizeof(float),                // spitch
+                              (width - 2 * offset) * sizeof(float), // dwidth
+                              height,                               // dheight
+                              cudaMemcpyDeviceToDevice,             // kind
+                              stream));                             // stream
 
         compute_percentile(thrust_gpu_input_copy,
                            frame_res,

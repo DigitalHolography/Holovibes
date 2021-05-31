@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "cuda.h"
 #include "cuda_runtime.h"
 
@@ -147,7 +139,10 @@ __global__ void kernel_reduce(const T* const __restrict__ input,
         atomicAdd(result, sdata[tid]);
 }
 
-void gpu_reduce(const float* const input, double* const result, const uint size, const cudaStream_t stream)
+void gpu_reduce(const float* const input,
+                double* const result,
+                const uint size,
+                const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
     constexpr uint optimal_nb_blocks = 1024;
@@ -167,9 +162,10 @@ void gpu_reduce(const float* const input, double* const result, const uint size,
 
     // Each thread works at least on 2 pixels
     kernel_reduce<float, double, optimal_block_size * 2>
-        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), 0, stream>>>(
-            input,
-            result,
-            size);
+        <<<nb_blocks,
+           optimal_block_size,
+           optimal_block_size * sizeof(float),
+           0,
+           stream>>>(input, result, size);
     cudaCheckError();
 }

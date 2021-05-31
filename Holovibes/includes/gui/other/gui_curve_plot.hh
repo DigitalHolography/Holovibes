@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Widget wrapping for a QtChart. Used to display Chart computations. */
@@ -89,12 +81,12 @@ class CurvePlot : public QWidget
     void load_data_vector();
 
     /*! \brief Reajust the scale according to max and min values contained in
-    *deque.
-    **
-    ** Look for current min and max values in the data Deque then adjust the
-    *chart
-    ** scale according to these values and replot.
-    */
+     *deque.
+     **
+     ** Look for current min and max values in the data Deque then adjust the
+     *chart
+     ** scale according to these values and replot.
+     */
     void auto_scale();
 
     /*! \brief Starts the chart drawing

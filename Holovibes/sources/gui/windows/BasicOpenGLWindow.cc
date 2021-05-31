@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QRect>
@@ -26,7 +18,10 @@ namespace holovibes
 using camera::FrameDescriptor;
 namespace gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(QPoint p,
+                                     QSize s,
+                                     DisplayQueue* q,
+                                     KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
@@ -53,7 +48,9 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
+    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream,
+                                              cudaStreamDefault,
+                                              CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));

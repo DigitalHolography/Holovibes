@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
 
   Implmentation of the conversions between buffers.*/
@@ -87,7 +79,8 @@ class Converts
     /** \brief Insert the convertion Float => Unsigned Short in slices. */
     void insert_slice_ushort();
 
-    /** \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
+    /** \brief Insert the convertion Float => Unsigned Short of Filter2D View.
+     */
     void insert_filter2d_ushort();
 
     //! pindex.

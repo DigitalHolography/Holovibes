@@ -1,19 +1,8 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #version 450
 
-in		vec2		texCoord;
-uniform sampler2D	tex;
+in vec2 texCoord;
+uniform sampler2D tex;
 
-out		vec4		outColor;
+out vec4 outColor;
 
-void main()
-{
-	outColor = texture(tex, texCoord);
-}
+void main() { outColor = texture(tex, texCoord); }

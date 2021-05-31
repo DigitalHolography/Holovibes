@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "worker.hh"
@@ -19,7 +11,8 @@ namespace holovibes::worker
 class FrameReadWorker : public Worker
 {
   public:
-    FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FrameReadWorker(
+        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     /*!
      *  \brief    Constructor

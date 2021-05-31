@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Qt window containing the Filter2D view of the hologram. */
@@ -23,9 +15,9 @@ class Filter2DWindow : public BasicOpenGLWindow
 {
   public:
     Filter2DWindow(QPoint p,
-                QSize s,
-                DisplayQueue* q,
-                MainWindow* main_window = nullptr);
+                   QSize s,
+                   DisplayQueue* q,
+                   MainWindow* main_window = nullptr);
     virtual ~Filter2DWindow();
 
   protected:

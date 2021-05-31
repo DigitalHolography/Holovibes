@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options/parsers.hpp>
 
@@ -110,8 +102,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.convo_path =
                 boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
-            options_.fps =
-                boost::any_cast<unsigned int>(vm_["fps"].value());
+            options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
             options_.n_rec =
                 boost::any_cast<unsigned int>(vm_["n_rec"].value());

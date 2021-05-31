@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "cufft_handle.hh"
 
 #include "common.cuh"
@@ -81,7 +73,6 @@ void CufftHandle::XtplanMany(int rank,
     reset();
     val_.reset(new cufftHandle);
 
-
     cufftSafeCall(cufftCreate(val_.get()));
 
     size_t ws;
@@ -122,7 +113,4 @@ CufftHandle::operator cufftHandle&() { return get(); }
 
 CufftHandle::operator cufftHandle*() { return val_.get(); }
 
-void CufftHandle::set_stream(const cudaStream_t& stream)
-{
-    stream_ = stream;
-}
+void CufftHandle::set_stream(const cudaStream_t& stream) { stream_ = stream; }

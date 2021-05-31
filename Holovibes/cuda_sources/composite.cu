@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "cuda_memory.cuh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
@@ -202,32 +194,32 @@ void rgb(cuComplex* input,
 
     if (normalize)
         kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
-                                                            red,
-                                                            blue,
-                                                            min,
-                                                            max,
-                                                            range,
-                                                            1,
-                                                            1,
-                                                            1);
+                                                                 red,
+                                                                 blue,
+                                                                 min,
+                                                                 max,
+                                                                 range,
+                                                                 1,
+                                                                 1,
+                                                                 1);
     else
         kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
-                                                            red,
-                                                            blue,
-                                                            min,
-                                                            max,
-                                                            range,
-                                                            weight_r,
-                                                            weight_g,
-                                                            weight_b);
+                                                                 red,
+                                                                 blue,
+                                                                 min,
+                                                                 max,
+                                                                 range,
+                                                                 weight_r,
+                                                                 weight_g,
+                                                                 weight_b);
 
     kernel_composite<<<blocks, threads, 0, stream>>>(input,
-                                                output,
-                                                frame_res,
-                                                min,
-                                                max,
-                                                range,
-                                                colors.get());
+                                                     output,
+                                                     frame_res,
+                                                     min,
+                                                     max,
+                                                     range,
+                                                     colors.get());
     cudaCheckError();
 }
 
@@ -258,31 +250,32 @@ void postcolor_normalize(float* output,
 
     blocks = map_blocks_to_problem(lines * pixel_depth, threads);
     kernel_sum_one_line<<<blocks, threads, 0, stream>>>(output,
-                                                   frame_res,
-                                                   pixel_depth,
-                                                   real_line_size,
-                                                   zone,
-                                                   sums_per_line);
+                                                        frame_res,
+                                                        pixel_depth,
+                                                        real_line_size,
+                                                        zone,
+                                                        sums_per_line);
     cudaCheckError();
 
     blocks = map_blocks_to_problem(pixel_depth, threads);
     kernel_average_float_array<<<blocks, threads, 0, stream>>>(sums_per_line,
-                                                          lines,
-                                                          lines * line_size,
-                                                          pixel_depth,
-                                                          averages);
+                                                               lines,
+                                                               lines *
+                                                                   line_size,
+                                                               pixel_depth,
+                                                               averages);
     cudaCheckError();
 
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
     kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages,
-                                            weight_r,
-                                            weight_g,
-                                            weight_b);
+                                                 weight_r,
+                                                 weight_g,
+                                                 weight_b);
     cudaCheckError();
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(output,
-                                                      frame_res,
-                                                      pixel_depth,
-                                                      averages);
+                                                           frame_res,
+                                                           pixel_depth,
+                                                           averages);
     cudaCheckError();
     cudaXFree(averages);
     cudaXFree(sums_per_line);

@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 #include "convolution.cuh"
 #include "fft1.cuh"
@@ -57,10 +49,11 @@ void convolution_kernel(float* gpu_input,
                                CUFFT_FORWARD));
     // At this point, cuComplex_buffer is the FFT of the input
 
-    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                        gpu_kernel,
-                                                        cuComplex_buffer,
-                                                        size);
+    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(
+        cuComplex_buffer,
+        gpu_kernel,
+        cuComplex_buffer,
+        size);
     cudaCheckError();
     // At this point, cuComplex_buffer is the FFT of the input multiplied by the
     // FFT of the kernel
@@ -72,20 +65,23 @@ void convolution_kernel(float* gpu_input,
 
     if (divide_convolution_enabled)
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                       gpu_convolved_buffer,
-                                                       size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(
+            cuComplex_buffer,
+            gpu_convolved_buffer,
+            size);
         cudaCheckError();
-        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(gpu_input,
-                                                        gpu_convolved_buffer,
-                                                        gpu_input,
-                                                        size);
+        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(
+            gpu_input,
+            gpu_convolved_buffer,
+            gpu_input,
+            size);
     }
     else
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                       gpu_input,
-                                                       size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(
+            cuComplex_buffer,
+            gpu_input,
+            size);
     }
     cudaCheckError();
 }

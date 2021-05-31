@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "information_container.hh"
 #include "queue.hh"
 
@@ -22,8 +14,7 @@ const std::unordered_map<IndicationType, std::string>
         {IndicationType::IMG_SOURCE, "Image Source"},
 
         {IndicationType::INPUT_FORMAT, "Input Format"},
-        {IndicationType::OUTPUT_FORMAT, "Output Format"}
-};
+        {IndicationType::OUTPUT_FORMAT, "Output Format"}};
 
 const std::unordered_map<FpsType, std::string>
     InformationContainer::fps_type_to_string_ = {

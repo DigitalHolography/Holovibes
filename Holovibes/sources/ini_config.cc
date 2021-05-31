@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "ini_config.hh"
 
 namespace holovibes
@@ -123,8 +115,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     cd.p_accu_enabled =
         ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    cd.q_acc_enabled =
-        ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
+    cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
     cd.x_accu_enabled =
         ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
     cd.y_accu_enabled =
