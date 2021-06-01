@@ -58,8 +58,8 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         std::cout << "Divide by convolution matrix: " << std::boolalpha
                   << opts.divide_convo << std::dec << "\n";
     }
-    std::cout << "Skip accumulation frames: " << std::boolalpha << opts.skip_acc
-              << std::dec << "\n";
+    std::cout << "Skip accumulation frames: " << std::boolalpha
+              << !opts.noskip_acc << std::dec << "\n";
     std::cout << std::endl;
 }
 
@@ -115,7 +115,7 @@ static void start_record(holovibes::Holovibes& holovibes,
     auto& cd = holovibes.get_cd();
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (opts.skip_acc && cd.img_acc_slice_xy_enabled)
+    if (!opts.noskip_acc && cd.img_acc_slice_xy_enabled)
     {
         nb_frames_skip = cd.img_acc_slice_xy_level;
     }

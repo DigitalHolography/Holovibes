@@ -54,9 +54,9 @@ OptionsParser::OptionsParser()
         "Divide by convolution matrix (default = false)"
     )
     (
-        "skip_acc,s",
+        "noskip_acc",
         po::bool_switch()->default_value(false),
-        "Skip img acc frames to avoid early black frames (default = false)"
+        "Don't skip img acc frames at the beginning (default = false)"
     )
     (
         "fps,f",
@@ -114,7 +114,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
-        options_.skip_acc = vm_["skip_acc"].as<bool>();
+        options_.noskip_acc = vm_["noskip_acc"].as<bool>();
     }
     catch (std::exception& e)
     {

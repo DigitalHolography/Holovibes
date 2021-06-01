@@ -24,7 +24,7 @@ struct OptionsDescriptor
     std::optional<std::string> ini_path;
     std::optional<std::string> convo_path;
     bool divide_convo;
-    bool skip_acc;
+    bool noskip_acc;
     bool record_raw;
     bool verbose;
 };
