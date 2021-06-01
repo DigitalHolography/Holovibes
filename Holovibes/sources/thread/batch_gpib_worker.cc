@@ -80,7 +80,8 @@ void BatchGPIBWorker::run()
                         formatted_path,
                         nb_frames_to_record_,
                         raw_record,
-                        square_output_);
+                        square_output_,
+                        0);
                     frame_record_worker_->run();
                 }
 

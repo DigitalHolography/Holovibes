@@ -2903,6 +2903,7 @@ void MainWindow::start_record()
                                           nb_frames_to_record,
                                           false,
                                           square_output,
+                                          0,
                                           callback);
         }
         else if (record_mode_ == RecordMode::RAW)
@@ -2911,6 +2912,7 @@ void MainWindow::start_record()
                                           nb_frames_to_record,
                                           true,
                                           false,
+                                          0,
                                           callback);
         }
     }

@@ -1,6 +1,7 @@
 #include "cli.hh"
 
-#include <chrono>
+// #include <chrono>
+#include "chrono.hh"
 
 #include "tools.hh"
 #include "icompute.hh"
@@ -57,10 +58,12 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         std::cout << "Divide by convolution matrix: " << std::boolalpha
                   << opts.divide_convo << std::dec << "\n";
     }
+    std::cout << "Skip accumulation frames: " << std::boolalpha << opts.skip_acc
+              << std::dec << "\n";
     std::cout << std::endl;
 }
 
-static std::pair<holovibes::io_files::InputFrameFile*, size_t>
+static holovibes::io_files::InputFrameFile*
 open_input_file(holovibes::Holovibes& holovibes,
                 const holovibes::OptionsDescriptor& opts)
 {
@@ -72,49 +75,24 @@ open_input_file(holovibes::Holovibes& holovibes,
     const camera::FrameDescriptor& fd =
         input_frame_file->get_frame_descriptor();
 
-    size_t input_nb_frames = input_frame_file->get_total_nb_frames();
-
     const unsigned int fps = opts.fps.value_or(60);
     holovibes.init_input_queue(fd);
     holovibes.start_file_frame_read(input_path,
                                     true,
                                     fps,
                                     0,
-                                    input_nb_frames,
+                                    input_frame_file->get_total_nb_frames(),
                                     false);
 
     input_frame_file->import_compute_settings(holovibes.get_cd());
 
-    return std::make_pair(input_frame_file, input_nb_frames);
+    return input_frame_file;
 }
 
-int start_cli(holovibes::Holovibes& holovibes,
-              const holovibes::OptionsDescriptor& opts)
+static void set_parameters(holovibes::Holovibes& holovibes,
+                           const holovibes::OptionsDescriptor& opts)
 {
-    if (opts.verbose)
-    {
-        print_verbose(opts);
-    }
-
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
-    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
-    holovibes.start_information_display(true);
-
     auto& cd = holovibes.get_cd();
-    cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
-
-    auto [input_frame_file, input_nb_frames] = open_input_file(holovibes, opts);
-
-    // Force hologram mode if .holo reset compute mode to raw
-    cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
-
-    // Start measuring time
-    auto begin = std::chrono::steady_clock::now();
-
-    holovibes.start_compute();
-
     if (opts.convo_path.has_value())
     {
         auto convo_path =
@@ -128,27 +106,44 @@ int start_cli(holovibes::Holovibes& holovibes,
     holovibes.get_compute_pipe()->request_update_time_transformation_stride();
     holovibes.get_compute_pipe()->request_update_time_transformation_size();
     holovibes.get_compute_pipe()->request_refresh();
+}
 
+static void start_record(holovibes::Holovibes& holovibes,
+                         const holovibes::OptionsDescriptor& opts,
+                         size_t input_nb_frames)
+{
+    auto& cd = holovibes.get_cd();
+    uint nb_frames_skip = 0;
+    // Skip img acc frames to avoid early black frames
+    if (opts.skip_acc && cd.img_acc_slice_xy_enabled)
+    {
+        nb_frames_skip = cd.img_acc_slice_xy_level;
+    }
     holovibes.start_frame_record(opts.output_path.value(),
                                  opts.n_rec.value_or(input_nb_frames),
                                  opts.record_raw,
-                                 false);
+                                 false,
+                                 nb_frames_skip);
+}
 
-    // The the current recording progress to print the progress bar
+static void main_loop(holovibes::Holovibes& holovibes)
+{
+    auto& cd = holovibes.get_cd();
     const auto& info = holovibes.get_info_container();
-    auto progress_opt = info.get_progress_index(
+    // Recording progress (used by the progress bar)
+    auto record_progress = info.get_progress_index(
         holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !cd.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
-        if (!progress_opt)
-            progress_opt = info.get_progress_index(
+        if (!record_progress)
+            record_progress = info.get_progress_index(
                 holovibes::InformationContainer::ProgressType::FRAME_RECORD);
         else
         {
-            const auto& progress = progress_opt.value();
+            const auto& progress = record_progress.value();
             progress_bar(progress.first->load(), progress.second->load(), 40);
 
             // Very dirty hack
@@ -168,13 +163,42 @@ int start_cli(holovibes::Holovibes& holovibes,
     }
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
+}
 
-    auto end = std::chrono::steady_clock::now();
-    auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - begin)
-            .count();
+int start_cli(holovibes::Holovibes& holovibes,
+              const holovibes::OptionsDescriptor& opts)
+{
+    if (opts.verbose)
+    {
+        print_verbose(opts);
+    }
 
-    printf(" Time: %.3fs\n", duration / 1000.0f);
+    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
+    holovibes.start_information_display(true);
+
+    auto& cd = holovibes.get_cd();
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+
+    auto input_frame_file = open_input_file(holovibes, opts);
+    size_t input_nb_frames = input_frame_file->get_total_nb_frames();
+
+    // Force hologram mode :
+    // .holo meta data can reset compute mode to raw
+    cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
+
+    Chrono chrono;
+
+    holovibes.start_compute();
+    set_parameters(holovibes, opts);
+    start_record(holovibes, opts, input_nb_frames);
+    main_loop(holovibes);
+
+    chrono.stop();
+
+    printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

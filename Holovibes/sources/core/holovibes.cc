@@ -124,6 +124,7 @@ void Holovibes::start_frame_record(
     std::optional<unsigned int> nb_frames_to_record,
     bool raw_record,
     bool square_output,
+    unsigned int nb_frames_skip,
     const std::function<void()>& callback)
 {
     frame_record_worker_controller_.set_callback(callback);
@@ -131,7 +132,8 @@ void Holovibes::start_frame_record(
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
                                           raw_record,
-                                          square_output);
+                                          square_output,
+                                          nb_frames_skip);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }

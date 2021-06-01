@@ -10,10 +10,12 @@ FrameRecordWorker::FrameRecordWorker(
     const std::string& file_path,
     std::optional<unsigned int> nb_frames_to_record,
     bool raw_record,
-    bool square_output)
+    bool square_output,
+    unsigned int nb_frames_skip)
     : Worker()
     , file_path_(get_record_filename(file_path))
     , nb_frames_to_record_(nb_frames_to_record)
+    , nb_frames_skip_(nb_frames_skip)
     , processed_fps_(0)
     , raw_record_(raw_record)
     , square_output_(square_output)
@@ -75,19 +77,26 @@ void FrameRecordWorker::run()
         const size_t output_frame_size = record_queue.get_frame_size();
         frame_buffer = new char[output_frame_size];
 
-        for (; nb_frames_to_record_ == std::nullopt ||
+        while (nb_frames_to_record_ == std::nullopt ||
                nb_frames_recorded < nb_frames_to_record_.value() &&
-                   !stop_requested_;
-             ++nb_frames_recorded)
+                   !stop_requested_)
         {
             wait_for_frames(record_queue, pipe);
 
             if (stop_requested_)
                 break;
 
+            if (nb_frames_skip_ > 0)
+            {
+                record_queue.dequeue();
+                --nb_frames_skip_;
+                continue;
+            }
+
             record_queue.dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
-            processed_fps_++;
+            ++processed_fps_;
+            ++nb_frames_recorded;
         }
 
         if (stop_requested_)

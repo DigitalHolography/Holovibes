@@ -122,7 +122,6 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    std::optional<unsigned int> remaining_frames_to_record = 0;
     bool raw_record_enabled = false;
 };
 

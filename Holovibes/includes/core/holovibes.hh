@@ -153,6 +153,7 @@ class Holovibes
         std::optional<unsigned int> nb_frames_to_record,
         bool raw_record,
         bool square_output,
+        unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 
     void stop_frame_record();
