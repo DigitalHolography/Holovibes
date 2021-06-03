@@ -119,8 +119,10 @@ static void start_record(holovibes::Holovibes& holovibes,
     {
         nb_frames_skip = cd.img_acc_slice_xy_level;
     }
+    uint nrec =
+        opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
     holovibes.start_frame_record(opts.output_path.value(),
-                                 opts.n_rec.value_or(input_nb_frames),
+                                 nrec,
                                  opts.record_raw,
                                  false,
                                  nb_frames_skip);
