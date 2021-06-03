@@ -874,6 +874,8 @@ void MainWindow::save_ini(const std::string& path)
                     auxiliary_window_max_size);
 
     boost::property_tree::write_ini(path, ptree);
+
+    LOG_INFO("Configuration file holovibes.ini overwritten");
 }
 
 void MainWindow::open_file(const std::string& path)
