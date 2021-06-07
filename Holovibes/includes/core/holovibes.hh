@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Core class to use HoloVibes  */
@@ -161,6 +153,7 @@ class Holovibes
         std::optional<unsigned int> nb_frames_to_record,
         bool raw_record,
         bool square_output,
+        unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 
     void stop_frame_record();

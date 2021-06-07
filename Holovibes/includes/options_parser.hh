@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Options parser for the command-line. */
@@ -32,6 +24,7 @@ struct OptionsDescriptor
     std::optional<std::string> ini_path;
     std::optional<std::string> convo_path;
     bool divide_convo;
+    bool noskip_acc;
     bool record_raw;
     bool verbose;
 };

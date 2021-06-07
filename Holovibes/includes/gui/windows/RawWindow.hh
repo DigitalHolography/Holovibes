@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Qt window used to display the input frames. */
@@ -21,7 +13,10 @@ class SliceWindow;
 class RawWindow : public BasicOpenGLWindow
 {
   public:
-    RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k = KindOfView::Raw);
+    RawWindow(QPoint p,
+              QSize s,
+              DisplayQueue* q,
+              KindOfView k = KindOfView::Raw);
     virtual ~RawWindow();
 
     void zoomInRect(units::RectOpengl zone);

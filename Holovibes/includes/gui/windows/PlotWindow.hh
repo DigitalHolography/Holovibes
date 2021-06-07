@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Qt main window class containing a plot of computed chart values  */
@@ -67,10 +59,10 @@ class PlotWindow : public QMainWindow
 
   public slots:
     /*! \brief Reajust the scale according to max and min values contained in
-    *deque.
-    **
-    ** See CurvePLot::auto_scale()
-    */
+     *deque.
+     **
+     ** See CurvePLot::auto_scale()
+     */
     void auto_scale();
 
     /*! \brief Change number of points of chart displayed.

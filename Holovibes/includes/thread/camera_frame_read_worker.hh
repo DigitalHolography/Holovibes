@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "frame_read_worker.hh"
@@ -32,8 +24,9 @@ class CameraFrameReadWorker : public FrameReadWorker
      *  \param    camera            The camera used
      *  \param    gpu_input_queue   The input queue
      */
-    CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
-                          std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    CameraFrameReadWorker(
+        std::shared_ptr<camera::ICamera> camera,
+        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 

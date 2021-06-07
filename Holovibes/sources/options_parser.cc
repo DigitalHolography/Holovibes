@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options/parsers.hpp>
 
@@ -62,6 +54,11 @@ OptionsParser::OptionsParser()
         "Divide by convolution matrix (default = false)"
     )
     (
+        "noskip_acc",
+        po::bool_switch()->default_value(false),
+        "Don't skip img acc frames at the beginning (default = false)"
+    )
+    (
         "fps,f",
         po::value<unsigned int>(),
         "Input file fps (default = 60)"
@@ -110,14 +107,14 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.convo_path =
                 boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
-            options_.fps =
-                boost::any_cast<unsigned int>(vm_["fps"].value());
+            options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
             options_.n_rec =
                 boost::any_cast<unsigned int>(vm_["n_rec"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
+        options_.noskip_acc = vm_["noskip_acc"].as<bool>();
     }
     catch (std::exception& e)
     {

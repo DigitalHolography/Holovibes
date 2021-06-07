@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "converts.hh"
 #include "frame_desc.hh"
 #include "compute_descriptor.hh"
@@ -312,26 +304,35 @@ void Converts::insert_slice_ushort()
 void Converts::insert_filter2d_ushort()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        float_to_ushort(
-            buffers_.gpu_float_filter2d_frame.get(),
-            buffers_.gpu_filter2d_frame.get(),
-            buffers_.gpu_postprocess_frame_size,
-            stream_);
+        float_to_ushort(buffers_.gpu_float_filter2d_frame.get(),
+                        buffers_.gpu_filter2d_frame.get(),
+                        buffers_.gpu_postprocess_frame_size,
+                        stream_);
     });
 }
 
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
     fn_compute_vect_.push_back([&]() {
+        static const BatchInputQueue::dequeue_func_t convert_to_complex =
+            [](const void* const src,
+               void* const dest,
+               const uint batch_size,
+               const uint frame_res,
+               const uint depth,
+               const cudaStream_t stream) {
+                input_queue_to_input_buffer(dest,
+                                            src,
+                                            frame_res,
+                                            batch_size,
+                                            depth,
+                                            stream);
+            };
 
-        static const BatchInputQueue::dequeue_func_t convert_to_complex = []
-        (const void* const src, void* const dest, const uint batch_size,
-        const uint frame_res, const uint depth, const cudaStream_t stream)
-        {
-            input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream);
-        };
-
-        gpu_input_queue.dequeue(buffers_.gpu_spatial_transformation_buffer.get(), fd_.depth, convert_to_complex);
+        gpu_input_queue.dequeue(
+            buffers_.gpu_spatial_transformation_buffer.get(),
+            fd_.depth,
+            convert_to_complex);
     });
 }
 } // namespace compute

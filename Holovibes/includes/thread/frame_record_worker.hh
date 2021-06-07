@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "worker.hh"
@@ -31,11 +23,13 @@ class FrameRecordWorker : public Worker
      *  \param    nb_frames_to_record   The number of frames to record
      *  \param    raw_record            Whether raw images are recorded
      *  \param    square_output         Whether the output should be a square
+     *  \param    nb_frames_skip        Number of frames to skip before starting
      */
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
                       bool raw_record,
-                      bool square_output);
+                      bool square_output,
+                      unsigned int nb_frames_skip);
 
     void run() override;
 
@@ -67,6 +61,8 @@ class FrameRecordWorker : public Worker
     const std::string file_path_;
     //! The number of frames to record
     std::optional<unsigned int> nb_frames_to_record_;
+    //! The number of frames to skip before starting the recording
+    unsigned int nb_frames_skip_;
     //! The current fps
     std::atomic<unsigned int> processed_fps_;
     //! Whether the raw images are recorded

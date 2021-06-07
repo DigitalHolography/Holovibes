@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include <cassert>
@@ -67,18 +59,6 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     batch_streams_ =
         std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
 
-    /*
-    FIXME: On my GTX 770 leastPriority = greatestPriority = 0
-    current context's device does not support stream priorities?
-    Which value of priority should we choose?
-    Note: If the specified priority is outside the numerical range returned by
-          cudaDeviceGetStreamPriorityRange, it will automatically be clamped to
-          the lowest or the highest number in the range.
-
-    int leastPriority = 0;
-    int greatestPriority = 0;
-    cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
-    */
     for (uint i = 0; i < max_size_; ++i)
         cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]),
                                                   cudaStreamDefault,

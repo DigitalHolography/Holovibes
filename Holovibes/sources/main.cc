@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \mainpage Holovibes
 
     Documentation for developpers. \n
@@ -25,14 +17,33 @@
 
 static void check_cuda_graphic_card(bool gui)
 {
+    std::string error_message;
+    int device;
     int nDevices;
-    cudaError_t status = cudaGetDeviceCount(&nDevices);
-    if (status == cudaSuccess)
-        return;
+    int min_compute_capability = 35;
+    int max_compute_capability = 86;
+    int compute_capability;
+    cudaError_t status;
+    cudaDeviceProp props;
 
-    std::string error_message = "No CUDA graphic card detected.\n"
-                                "You will not be able to run Holovibes.\n\n"
-                                "Try to update your graphic drivers.";
+    /* Checking for Compute Capability */
+    if ((status = cudaGetDeviceCount(&nDevices)) == cudaSuccess)
+    {
+        cudaGetDevice(&device);
+        cudaGetDeviceProperties(&props, device);
+
+        compute_capability = props.major * 10 + props.minor;
+
+        if (compute_capability >= min_compute_capability &&
+            compute_capability <= max_compute_capability)
+            return;
+        else
+            error_message = "CUDA graphic card not supported.\n";
+    }
+    else
+        error_message = "No CUDA graphic card detected.\n"
+                        "You will not be able to run Holovibes.\n\n"
+                        "Try to update your graphic drivers.";
 
     if (gui)
     {

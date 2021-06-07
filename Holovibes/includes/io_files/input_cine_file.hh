@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "input_frame_file.hh"
@@ -53,7 +45,8 @@ class InputCineFile : public InputFrameFile, public CineFile
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
+    size_t
+    read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
 
   private:
     // Give access to private members to the factory

@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "tools_unwrap.cuh"
 
 #include "cuda_memory.cuh"
@@ -268,16 +260,16 @@ void phase_increase(const cuComplex* cur,
                     const size_t image_size,
                     const cudaStream_t stream)
 {
-    const uint threads =
-        THREADS_128; // 3072 cuda cores / 24 SMM = 128 Threads per SMM
+    const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(image_size, threads);
     static bool first_time = true;
     if (first_time)
     {
         cudaXMemcpyAsync(resources->gpu_predecessor_,
-                    cur,
-                    sizeof(cuComplex) * image_size,
-                    cudaMemcpyDeviceToDevice, stream);
+                         cur,
+                         sizeof(cuComplex) * image_size,
+                         cudaMemcpyDeviceToDevice,
+                         stream);
         first_time = false;
     }
 
@@ -290,22 +282,25 @@ void phase_increase(const cuComplex* cur,
     cudaCheckError();
     // Updating predecessor (complex image) for the next iteration
     cudaXMemcpyAsync(resources->gpu_predecessor_,
-                cur,
-                sizeof(cuComplex) * image_size,
-                cudaMemcpyDeviceToDevice, stream);
+                     cur,
+                     sizeof(cuComplex) * image_size,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     /* Copying in order to later enqueue the (not summed up with values
      * in gpu_unwrap_buffer_) phase image. */
     cudaXMemcpyAsync(resources->gpu_angle_copy_,
-                resources->gpu_angle_current_,
-                sizeof(float) * image_size,
-                cudaMemcpyDeviceToDevice, stream);
+                     resources->gpu_angle_current_,
+                     sizeof(float) * image_size,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     // Applying history on the latest phase image
-    kernel_correct_angles<<<blocks, threads, 0, stream>>>(resources->gpu_angle_current_,
-                                               resources->gpu_unwrap_buffer_,
-                                               image_size,
-                                               resources->size_);
+    kernel_correct_angles<<<blocks, threads, 0, stream>>>(
+        resources->gpu_angle_current_,
+        resources->gpu_unwrap_buffer_,
+        image_size,
+        resources->size_);
     cudaCheckError();
 
     /* Store the new phase image in the next buffer position.
@@ -313,9 +308,10 @@ void phase_increase(const cuComplex* cur,
     float* next_unwrap =
         resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
     cudaXMemcpyAsync(next_unwrap,
-                resources->gpu_angle_copy_,
-                sizeof(float) * image_size,
-                cudaMemcpyDeviceToDevice, stream);
+                     resources->gpu_angle_copy_,
+                     sizeof(float) * image_size,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
     if (resources->size_ < resources->capacity_)
         ++resources->size_;
     resources->next_index_ =
@@ -332,9 +328,6 @@ void unwrap_2d(float* input,
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
-    const uint threads = THREADS_128;
-    const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
-
     kernel_init_unwrap_2d<<<lblocks, lthreads, 0, stream>>>(fd.width,
                                                             fd.height,
                                                             fd.frame_res(),
@@ -345,6 +338,8 @@ void unwrap_2d(float* input,
     cudaCheckError();
     ushort middlex = fd.width >> 1;
     ushort middley = fd.height >> 1;
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
     circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fx_,
                                                      res->gpu_shift_fx_,
                                                      1,
@@ -373,7 +368,7 @@ void gradient_unwrap_2d(const cufftHandle plan2d,
                         const FrameDescriptor& fd,
                         const cudaStream_t stream)
 {
-    const uint threads = THREADS_128;
+    const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
     cuComplex single_complex = make_cuComplex(0.f, static_cast<float>(M_2PI));
 
@@ -407,7 +402,7 @@ void eq_unwrap_2d(const cufftHandle plan2d,
                   const FrameDescriptor& fd,
                   const cudaStream_t stream)
 {
-    const uint threads = THREADS_128;
+    const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
     cuComplex single_complex = make_cuComplex(0, 1);
 
@@ -450,7 +445,7 @@ void phi_unwrap_2d(const cufftHandle plan2d,
                    float* output,
                    const cudaStream_t stream)
 {
-    const uint threads = THREADS_128;
+    const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
     kernel_add_complex_frames<<<blocks, threads, 0, stream>>>(

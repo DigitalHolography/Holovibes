@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <filesystem>
 #include <algorithm>
 #include <list>
@@ -882,6 +874,8 @@ void MainWindow::save_ini(const std::string& path)
                     auxiliary_window_max_size);
 
     boost::property_tree::write_ini(path, ptree);
+
+    LOG_INFO("Configuration file holovibes.ini overwritten");
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -2911,6 +2905,7 @@ void MainWindow::start_record()
                                           nb_frames_to_record,
                                           false,
                                           square_output,
+                                          0,
                                           callback);
         }
         else if (record_mode_ == RecordMode::RAW)
@@ -2919,6 +2914,7 @@ void MainWindow::start_record()
                                           nb_frames_to_record,
                                           true,
                                           false,
+                                          0,
                                           callback);
         }
     }

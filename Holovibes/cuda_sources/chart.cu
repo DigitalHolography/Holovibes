@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "chart.cuh"
 #include "tools_conversion.cuh"
 #include "units/rect.hh"
@@ -220,10 +212,10 @@ static double compute_average(float* input,
 
     double cpu_avg_zone;
     cudaXMemcpyAsync(&cpu_avg_zone,
-                gpu_sum_zone,
-                sizeof(double),
-                cudaMemcpyDeviceToHost,
-                stream);
+                     gpu_sum_zone,
+                     sizeof(double),
+                     cudaMemcpyDeviceToHost,
+                     stream);
     // Needs to synchronize since host memory is used after
     cudaXStreamSynchronize(stream);
 
@@ -269,10 +261,10 @@ static double compute_std(float* input,
 
     double cpu_std_zone;
     cudaXMemcpyAsync(&cpu_std_zone,
-                gpu_std_sum_zone,
-                sizeof(double),
-                cudaMemcpyDeviceToHost,
-                stream);
+                     gpu_std_sum_zone,
+                     sizeof(double),
+                     cudaMemcpyDeviceToHost,
+                     stream);
     // Needs to synchronize since host memory is used after
     cudaXStreamSynchronize(stream);
     cpu_std_zone = sqrt(cpu_std_zone / (zone.height() * zone.width()));

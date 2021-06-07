@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "pipe.hh"
 #include "config.hh"
 #include "compute_descriptor.hh"
@@ -178,7 +170,6 @@ bool Pipe::make_requests()
     {
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         cd_.frame_record_enabled = false;
-        frame_record_env_.remaining_frames_to_record = 0;
         disable_frame_record_requested_ = false;
     }
 
@@ -284,8 +275,6 @@ bool Pipe::make_requests()
                       global::global_config.frame_record_queue_max_size,
                       Queue::QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
-        frame_record_env_.remaining_frames_to_record =
-            hologram_record_requested_.load().value();
         frame_record_env_.raw_record_enabled = false;
         hologram_record_requested_ = std::nullopt;
     }
@@ -297,8 +286,6 @@ bool Pipe::make_requests()
                       global::global_config.frame_record_queue_max_size,
                       Queue::QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
-        frame_record_env_.remaining_frames_to_record =
-            raw_record_requested_.load().value();
         frame_record_env_.raw_record_enabled = true;
         raw_record_requested_ = std::nullopt;
     }
@@ -557,41 +544,9 @@ void Pipe::insert_raw_record()
     if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.push_back([&]() {
-            if (frame_record_env_.remaining_frames_to_record.has_value() &&
-                frame_record_env_.remaining_frames_to_record.value() == 0)
-                return;
-
-            unsigned int nb_frames_to_transfer = 1;
-
-            if (cd_.compute_mode == Computation::Hologram)
-            {
-                if (frame_record_env_.remaining_frames_to_record ==
-                    std::nullopt)
-                {
-                    nb_frames_to_transfer =
-                        static_cast<unsigned int>(cd_.batch_size.load());
-                }
-                else
-                {
-                    nb_frames_to_transfer = std::min(
-                        static_cast<unsigned int>(cd_.batch_size.load()),
-                        frame_record_env_.remaining_frames_to_record.value());
-                }
-            }
-
-            // Copy frames from the input queue to the record queue
-            // nb_frames_to_transfer might be lower than batch_size for the
-            // last copy multiple.
-            // Later, when the input queue is dequeued it dequeues batch_size
-            // frames. Thus, the recording is consistent but the compute is not
-            // for only the last batch.
             gpu_input_queue_.copy_multiple(
                 *frame_record_env_.gpu_frame_record_queue_,
-                nb_frames_to_transfer);
-
-            if (frame_record_env_.remaining_frames_to_record.has_value())
-                frame_record_env_.remaining_frames_to_record.value() -=
-                    nb_frames_to_transfer;
+                cd_.batch_size.load());
         });
     }
 }
@@ -601,10 +556,6 @@ void Pipe::insert_hologram_record()
     if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.conditional_push_back([&]() {
-            if (frame_record_env_.remaining_frames_to_record.has_value() &&
-                frame_record_env_.remaining_frames_to_record.value() == 0)
-                return;
-
             if (gpu_output_queue_.get_fd().depth == 6)
                 frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(
                     buffers_.gpu_output_frame.get(),
@@ -613,9 +564,6 @@ void Pipe::insert_hologram_record()
                 frame_record_env_.gpu_frame_record_queue_->enqueue(
                     buffers_.gpu_output_frame.get(),
                     stream_);
-
-            if (frame_record_env_.remaining_frames_to_record.has_value())
-                frame_record_env_.remaining_frames_to_record.value() -= 1;
         });
     }
 }

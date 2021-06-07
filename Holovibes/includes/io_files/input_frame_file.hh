@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "frame_file.hh"
@@ -52,7 +44,8 @@ class InputFrameFile : public FrameFile
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
+    virtual size_t
+    read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
   protected:
     // Give access to protected members to the handler
@@ -73,7 +66,8 @@ class InputFrameFile : public FrameFile
     //! Stored here to avoid computation at each call to read_frames
     size_t frame_size_;
 
-    //! The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...)
+    //! The true size in bytes of a frame if image is packed (e.g. 10bit or
+    //! 12bit ...)
     size_t packed_frame_size_;
 };
 } // namespace io_files
