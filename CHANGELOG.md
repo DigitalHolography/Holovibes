@@ -1,5 +1,11 @@
 ## Changelog
  
+### 9.3.8
+ 
+* cli: record total frames / time stride by default
+* record: an arbitrary number of frames can now be skipped at the beginning of a recording
+* cuda: check for compute capabilities
+ 
 ### 9.3.7
  
 * Set Lambda default value to 852nm
