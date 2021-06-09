@@ -175,21 +175,18 @@ int start_cli(holovibes::Holovibes& holovibes,
         print_verbose(opts);
     }
 
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
-    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
-    holovibes.start_information_display(true);
-
-    auto& cd = holovibes.get_cd();
-    cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
-
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
 
-    // Force hologram mode :
-    // .holo meta data can reset compute mode to raw
+    auto& cd = holovibes.get_cd();
+    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
+
+    // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
     cd.frame_record_enabled = true;
+
+    holovibes.start_information_display(true);
 
     Chrono chrono;
 
