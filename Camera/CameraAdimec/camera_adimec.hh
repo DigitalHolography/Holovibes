@@ -69,7 +69,7 @@ class CameraAdimec : public Camera
     //! Some of the board's registers.
     /*! Contains the addresses of the Cyton board's registers
      * that we manually set to override some configuration data, at runtime. */
-    enum RegAdress
+    enum RegAddress
     {
         ROI_WIDTH = 0x8118,
         ROI_HEIGHT = 0x811C,

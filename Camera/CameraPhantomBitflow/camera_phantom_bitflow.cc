@@ -3,39 +3,45 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "camera_adimec.hh"
+#include "camera_phantom_bitflow.hh"
 
 namespace camera
 {
-CameraAdimec::CameraAdimec()
+void CameraPhantomBitflow::err_check(const BFRC status,
+                                     const std::string err_mess,
+                                     const CameraException cam_ex,
+                                     const int flag)
+{
+    if (status != CI_OK)
+    {
+        std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
+        if (flag & CloseFlag::BUFFER)
+            BiBufferFree(board_, info_);
+        if (flag & CloseFlag::BOARD)
+            BiBrdClose(board_);
+        throw cam_ex;
+    }
+}
+
+CameraPhantomBitflow::CameraPhantomBitflow()
     : Camera("adimec.ini")
     , board_(nullptr)
     , info_(new BIBA())
     , last_buf(0)
     , quad_bank_(BFQTabBank0)
 {
-    name_ = "Adimec Quartz-2A750 M";
-    /* Dimensions are initialized as there were no ROI; they will be updated
-     * later if needed. */
-    fd_.width = 1440;
-    fd_.height = 1440;
-    // Technically the camera is 11-bits, but each pixel value is encoded on 16
-    // bits.
+    name_ = "Phantom S710";
+
+    fd_.width = 512;
+    fd_.height = 512;
     fd_.depth = 2;
-    fd_.byteEndian = Endianness::LittleEndian;
-    pixel_size_ = 12;
+    fd_.byteEndian = Endianness::BigEndian;
 
     load_default_params();
-    if (ini_file_is_open())
-    {
-        load_ini_params();
-        ini_file_.close();
-    }
-
     init_camera();
 }
 
-void CameraAdimec::init_camera()
+void CameraPhantomBitflow::init_camera()
 {
     /* We don't want a specific type of board; there should not
      * be more than one anyway. */
@@ -50,7 +56,7 @@ void CameraAdimec::init_camera()
     bind_params();
 }
 
-void CameraAdimec::start_acquisition()
+void CameraPhantomBitflow::start_acquisition()
 {
     /* Asking the frame size (width * height * depth) to the board.
      * Such a method is more robust than hardcoding known values.*/
@@ -100,7 +106,7 @@ void CameraAdimec::start_acquisition()
               CloseFlag::ALL);
 }
 
-void CameraAdimec::stop_acquisition()
+void CameraPhantomBitflow::stop_acquisition()
 {
     /* Free resources taken by BiCircAqSetup, in a single function call.
      * Allocated memory is freed separately, through BiBufferFree. */
@@ -114,20 +120,19 @@ void CameraAdimec::stop_acquisition()
     }
 }
 
-void CameraAdimec::shutdown_camera()
+void CameraPhantomBitflow::shutdown_camera()
 {
     // Make sure the camera is closed at program end.
     BiBrdClose(board_);
 }
 
-CapturedFramesDescriptor CameraAdimec::get_frames()
+CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
 {
     // Mark the previously read buffer as available for writing, for the board.
     BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE);
 
     // Wait for a freshly written image to be readable.
     BiCirHandle hd;
-    // TODO: Use timeout of global config
     BiCirWaitDoneFrame(board_,
                        info_,
                        static_cast<BFU32>(camera::FRAME_TIMEOUT),
@@ -148,49 +153,19 @@ CapturedFramesDescriptor CameraAdimec::get_frames()
     return CapturedFramesDescriptor(hd.pBufData);
 }
 
-void CameraAdimec::err_check(const BFRC status,
-                             const std::string err_mess,
-                             const CameraException cam_ex,
-                             const int flag)
-{
-    if (status != CI_OK)
-    {
-        std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
-        if (flag & CloseFlag::BUFFER)
-            BiBufferFree(board_, info_);
-        if (flag & CloseFlag::BOARD)
-            BiBrdClose(board_);
-        throw cam_ex;
-    }
-}
+void CameraPhantomBitflow::load_ini_params() {}
 
-void CameraAdimec::load_default_params()
+void CameraPhantomBitflow::load_default_params()
 {
-    /* Values here are hardcoded to avoid being dependent on a default .bfml
-     * file, which may be modified accidentally. When possible, these default
-     * values were taken from the default mode for the Adimec-A2750 camera. */
+    pixel_size_ = 12;
     queue_size_ = 64;
-
-    exposure_time_ = 0x0539;
-    frame_period_ = 0x056C;
-
-    roi_x_ = 0;
-    roi_y_ = 0;
-    roi_width_ = 1440;
-    roi_height_ = 1440;
+    exposure_time_ = 100;
+    frame_rate_ = 300;
+    roi_width_ = 512;
+    roi_height_ = 512;
 }
 
-void CameraAdimec::load_ini_params()
-{
-    const boost::property_tree::ptree& pt = get_ini_pt();
-    queue_size_ = pt.get<BFU32>("bitflow.queue_size", queue_size_);
-    exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
-    frame_period_ = pt.get<BFU32>("adimec.frame_period", frame_period_);
-    roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
-    roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
-}
-
-void CameraAdimec::bind_params()
+void CameraPhantomBitflow::bind_params()
 {
     /* We use a CoaXPress-specific register writing function to set parameters.
      * The register address parameter can be found in any .bfml configuration
@@ -202,9 +177,9 @@ void CameraAdimec::bind_params()
     /* Frame period should be set before exposure time, because the latter
      * depends of the former. */
 
-    if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_PERIOD, frame_period_) !=
+    if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_RATE, frame_rate_) !=
         BF_OK)
-        std::cerr << "[CAMERA] Could not set frame period to " << frame_period_
+        std::cerr << "[CAMERA] Could not set frame rate to " << frame_rate_
                   << std::endl;
 
     if (BFCXPWriteReg(board_,
@@ -214,8 +189,8 @@ void CameraAdimec::bind_params()
         std::cerr << "[CAMERA] Could not set exposure time to "
                   << exposure_time_ << std::endl;
 
-    /* After setting up the profile of the camera in SysReg, we read into the
-     * registers of the camera to set width and height */
+    /* After setting up the profile of the camera in SysReg, we read into
+     * the registers of the camera to set width and height */
     if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_WIDTH, &roi_width_) != BF_OK)
         std::cerr << "[CAMERA] Cannot read the roi width of the registers of "
                      "the camera "
@@ -226,9 +201,10 @@ void CameraAdimec::bind_params()
         std::cerr << "[CAMERA] Cannot read the roi height of the registers of "
                      "the camera "
                   << std::endl;
+
     fd_.width = roi_width_;
     fd_.height = roi_height_;
 }
 
-ICamera* new_camera_device() { return new CameraAdimec(); }
+ICamera* new_camera_device() { return new CameraPhantomBitflow(); }
 } // namespace camera
