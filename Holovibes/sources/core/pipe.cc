@@ -352,7 +352,12 @@ void Pipe::refresh()
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
     // time_transformation_stride)
-    insert_transfer_for_time_transformation();
+    if (!cd_.fast_pipe)
+    {
+        insert_transfer_for_time_transformation();
+    }
+
+    update_batch_index();
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
@@ -427,6 +432,12 @@ void Pipe::insert_transfer_for_time_transformation()
             ->enqueue_multiple(buffers_.gpu_spatial_transformation_buffer.get(),
                                cd_.batch_size,
                                stream_);
+    });
+}
+
+void Pipe::update_batch_index()
+{
+    fn_compute_vect_.push_back([&]() {
         batch_env_.batch_index += cd_.batch_size;
         assert(batch_env_.batch_index <= cd_.time_transformation_stride);
     });

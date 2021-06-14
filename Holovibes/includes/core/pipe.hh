@@ -116,6 +116,11 @@ class Pipe : public ICompute
     void insert_transfer_for_time_transformation();
 
     /*!
+    ** \brief Increase batch_index by batch_size
+    */
+    void update_batch_index();
+
+    /*!
     ** \brief Wait that there are at least a batch of frames in input queue
     */
     void insert_wait_frames();
