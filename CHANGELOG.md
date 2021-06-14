@@ -1,5 +1,9 @@
 ## Changelog
  
+### 9.3.9
+ 
+* CLI: load input file before .ini (avoid overriding parameters)[1;5D[1;5D[1;5D[1;5D[1;5D[1;3D[D[D[D[D[D[D config[3~[3~[3~[3~[3~ parameters)
+ 
 ### 9.3.8
  
 * cli: record total frames / time stride by default
