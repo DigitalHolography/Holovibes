@@ -38,6 +38,13 @@ class CameraPhantomBitflow : public Camera
         STOP = 0x601C
     };
 
+    enum PixelFormat
+    {
+        MONO_8 = 0x01080001,
+        MONO_12 = 0x010C0047,
+        MONO_16 = 0x01100007
+    };
+
     enum CloseFlag
     {
         NO_BOARD = 0x00, //!< Nothing to close
@@ -57,6 +64,7 @@ class CameraPhantomBitflow : public Camera
     BFU32 frame_rate_;    //!< Frame period of the camera
     BFU32 roi_width_;     //!< ROI width in pixels.
     BFU32 roi_height_;    //!< ROI height in pixels.
+    BFU32 pixel_format_;
 
     void err_check(const BFRC status,
                    const std::string err_mess,

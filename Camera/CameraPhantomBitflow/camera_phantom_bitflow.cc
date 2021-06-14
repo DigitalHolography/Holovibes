@@ -76,6 +76,10 @@ void CameraPhantomBitflow::start_acquisition()
               CameraException::CANT_START_ACQUISITION,
               CloseFlag::BOARD);
 
+    std::cout << "width: " << width << std::endl;
+    std::cout << "height: " << height << std::endl;
+    std::cout << "depth: " << depth << std::endl;
+
     // Aligned allocation ensures fast memory transfers.
     const BFSIZET alignment = 4096;
     err_check(BiBufferAllocAligned(board_,
@@ -167,30 +171,6 @@ void CameraPhantomBitflow::load_default_params()
 
 void CameraPhantomBitflow::bind_params()
 {
-    /* We use a CoaXPress-specific register writing function to set parameters.
-     * The register address parameter can be found in any .bfml configuration
-     * file provided by Bitflow; here, it has been put into the RegAddress enum
-     * for clarity.
-     *
-     * Whenever a parameter setting fails, setup fallbacks to default value. */
-
-    /* Frame period should be set before exposure time, because the latter
-     * depends of the former. */
-
-    if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_RATE, frame_rate_) !=
-        BF_OK)
-        std::cerr << "[CAMERA] Could not set frame rate to " << frame_rate_
-                  << std::endl;
-
-    if (BFCXPWriteReg(board_,
-                      0xFF,
-                      RegAddress::EXPOSURE_TIME,
-                      exposure_time_) != BF_OK)
-        std::cerr << "[CAMERA] Could not set exposure time to "
-                  << exposure_time_ << std::endl;
-
-    /* After setting up the profile of the camera in SysReg, we read into
-     * the registers of the camera to set width and height */
     if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_WIDTH, &roi_width_) != BF_OK)
         std::cerr << "[CAMERA] Cannot read the roi width of the registers of "
                      "the camera "
@@ -202,8 +182,24 @@ void CameraPhantomBitflow::bind_params()
                      "the camera "
                   << std::endl;
 
+    if (BFCXPReadReg(board_, 0xFF, RegAddress::PIXEL_FORMAT, &pixel_format_) !=
+        BF_OK)
+        std::cerr
+            << "[CAMERA] Cannot read the pixel format of the registers of "
+               "the camera "
+            << std::endl;
+
     fd_.width = roi_width_;
     fd_.height = roi_height_;
+    if (pixel_format_ == PixelFormat::MONO_8)
+    {
+        fd_.depth = 1;
+    }
+    else if (pixel_format_ == PixelFormat::MONO_12 ||
+             pixel_format_ == PixelFormat::MONO_16)
+    {
+        fd_.depth = 2;
+    }
 }
 
 ICamera* new_camera_device() { return new CameraPhantomBitflow(); }
