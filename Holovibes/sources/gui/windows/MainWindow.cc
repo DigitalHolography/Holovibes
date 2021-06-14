@@ -2559,6 +2559,12 @@ void MainWindow::set_divide_convolution_mode(const bool value)
     pipe_refresh();
     notify();
 }
+
+void MainWindow::set_fast_pipe(bool value)
+{
+    std::cout << "set_fast_pipe(" << value << ")" << std::endl;
+}
+
 #pragma endregion
 /* ------------ */
 #pragma region Reticle
