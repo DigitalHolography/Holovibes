@@ -1,5 +1,10 @@
 ## Changelog
  
+### 9.3.10
+ 
+* CLI: fix segfault
+* Holofile: fix exception when a field is empty
+ 
 ### 9.3.9
  
 * CLI: load input file before .ini (avoid overriding parameters)[1;5D[1;5D[1;5D[1;5D[1;5D[1;3D[D[D[D[D[D[D config[3~[3~[3~[3~[3~ parameters)
