@@ -102,56 +102,71 @@ void InputHoloFile::set_pos_to_frame(size_t frame_id)
         throw FileException("Unable to seek the frame requested");
 }
 
+template <typename T>
+T get_value(const json& json, const std::string& key, const T& default_value)
+{
+    if (!json.contains(key) || json[key].is_null())
+    {
+        return default_value;
+    }
+    return json[key];
+}
+
 void InputHoloFile::import_compute_settings(
     holovibes::ComputeDescriptor& cd) const
 {
-    cd.compute_mode = meta_data_.value("mode", cd.compute_mode.load());
+    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
     cd.space_transformation =
-        meta_data_.value("algorithm", cd.space_transformation.load());
+        get_value(meta_data_, "algorithm", cd.space_transformation.load());
     cd.time_transformation =
-        meta_data_.value("time_filter", cd.time_transformation.load());
+        get_value(meta_data_, "time_filter", cd.time_transformation.load());
     cd.time_transformation_size =
-        meta_data_.value("#img", cd.time_transformation_size.load());
-    cd.pindex = meta_data_.value("p", cd.pindex.load());
-    cd.lambda = meta_data_.value("lambda", cd.lambda.load());
-    cd.pixel_size = meta_data_.value("pixel_size", cd.pixel_size.load());
-    cd.zdistance = meta_data_.value("z", cd.zdistance.load());
+        get_value(meta_data_, "#img", cd.time_transformation_size.load());
+    cd.pindex = get_value(meta_data_, "p", cd.pindex.load());
+    cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
+    cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
+    cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
     cd.log_scale_slice_xy_enabled =
-        meta_data_.value("log_scale", cd.log_scale_slice_xy_enabled.load());
+        get_value(meta_data_,
+                  "log_scale",
+                  cd.log_scale_slice_xy_enabled.load());
     cd.contrast_min_slice_xy =
-        meta_data_.value("contrast_min", cd.contrast_min_slice_xy.load());
+        get_value(meta_data_, "contrast_min", cd.contrast_min_slice_xy.load());
     cd.contrast_max_slice_xy =
-        meta_data_.value("contrast_max", cd.contrast_max_slice_xy.load());
+        get_value(meta_data_, "contrast_max", cd.contrast_max_slice_xy.load());
     cd.fft_shift_enabled =
-        meta_data_.value("fft_shift_enabled", cd.fft_shift_enabled.load());
+        get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
     cd.x_accu_enabled =
-        meta_data_.value("x_acc_enabled", cd.x_accu_enabled.load());
-    cd.x_acc_level = meta_data_.value("x_acc_level", cd.x_acc_level.load());
+        get_value(meta_data_, "x_acc_enabled", cd.x_accu_enabled.load());
+    cd.x_acc_level =
+        get_value(meta_data_, "x_acc_level", cd.x_acc_level.load());
     cd.y_accu_enabled =
-        meta_data_.value("y_acc_enabled", cd.y_accu_enabled.load());
-    cd.y_acc_level = meta_data_.value("y_acc_level", cd.y_acc_level.load());
+        get_value(meta_data_, "y_acc_enabled", cd.y_accu_enabled.load());
+    cd.y_acc_level =
+        get_value(meta_data_, "y_acc_level", cd.y_acc_level.load());
     cd.p_accu_enabled =
-        meta_data_.value("p_acc_enabled", cd.p_accu_enabled.load());
-    cd.p_acc_level = meta_data_.value("p_acc_level", cd.p_acc_level.load());
-    cd.img_acc_slice_xy_enabled =
-        meta_data_.value("img_acc_slice_xy_enabled",
-                         cd.img_acc_slice_xy_enabled.load());
-    cd.img_acc_slice_xz_enabled =
-        meta_data_.value("img_acc_slice_xz_enabled",
-                         cd.img_acc_slice_xz_enabled.load());
-    cd.img_acc_slice_yz_enabled =
-        meta_data_.value("img_acc_slice_yz_enabled",
-                         cd.img_acc_slice_yz_enabled.load());
-    cd.img_acc_slice_xy_level =
-        meta_data_.value("img_acc_slice_xy_level",
-                         cd.img_acc_slice_xy_level.load());
-    cd.img_acc_slice_xz_level =
-        meta_data_.value("img_acc_slice_xz_level",
-                         cd.img_acc_slice_xz_level.load());
-    cd.img_acc_slice_yz_level =
-        meta_data_.value("img_acc_slice_yz_level",
-                         cd.img_acc_slice_yz_level.load());
+        get_value(meta_data_, "p_acc_enabled", cd.p_accu_enabled.load());
+    cd.p_acc_level =
+        get_value(meta_data_, "p_acc_level", cd.p_acc_level.load());
+    cd.img_acc_slice_xy_enabled = get_value(meta_data_,
+                                            "img_acc_slice_xy_enabled",
+                                            cd.img_acc_slice_xy_enabled.load());
+    cd.img_acc_slice_xz_enabled = get_value(meta_data_,
+                                            "img_acc_slice_xz_enabled",
+                                            cd.img_acc_slice_xz_enabled.load());
+    cd.img_acc_slice_yz_enabled = get_value(meta_data_,
+                                            "img_acc_slice_yz_enabled",
+                                            cd.img_acc_slice_yz_enabled.load());
+    cd.img_acc_slice_xy_level = get_value(meta_data_,
+                                          "img_acc_slice_xy_level",
+                                          cd.img_acc_slice_xy_level.load());
+    cd.img_acc_slice_xz_level = get_value(meta_data_,
+                                          "img_acc_slice_xz_level",
+                                          cd.img_acc_slice_xz_level.load());
+    cd.img_acc_slice_yz_level = get_value(meta_data_,
+                                          "img_acc_slice_yz_level",
+                                          cd.img_acc_slice_yz_level.load());
     cd.renorm_enabled =
-        meta_data_.value("renorm_enabled", cd.renorm_enabled.load());
+        get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
 }
 } // namespace holovibes::io_files
