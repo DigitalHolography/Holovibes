@@ -90,7 +90,8 @@ open_input_file(holovibes::Holovibes& holovibes,
 }
 
 static void set_parameters(holovibes::Holovibes& holovibes,
-                           const holovibes::OptionsDescriptor& opts)
+                           const holovibes::OptionsDescriptor& opts,
+                           uint record_nb_frames)
 {
     auto& cd = holovibes.get_cd();
     if (opts.convo_path.has_value())
@@ -102,15 +103,19 @@ static void set_parameters(holovibes::Holovibes& holovibes,
         holovibes.get_compute_pipe()->request_convolution();
     }
 
-    holovibes.get_compute_pipe()->request_update_batch_size();
-    holovibes.get_compute_pipe()->request_update_time_transformation_stride();
-    holovibes.get_compute_pipe()->request_update_time_transformation_size();
-    holovibes.get_compute_pipe()->request_refresh();
+    auto pipe = holovibes.get_compute_pipe();
+    pipe->request_update_batch_size();
+    pipe->request_update_time_transformation_stride();
+    pipe->request_update_time_transformation_size();
+    pipe->request_refresh();
+
+    while (pipe->get_refresh_request())
+        continue;
 }
 
 static void start_record(holovibes::Holovibes& holovibes,
                          const holovibes::OptionsDescriptor& opts,
-                         size_t input_nb_frames)
+                         uint record_nb_frames)
 {
     auto& cd = holovibes.get_cd();
     uint nb_frames_skip = 0;
@@ -119,10 +124,9 @@ static void start_record(holovibes::Holovibes& holovibes,
     {
         nb_frames_skip = cd.img_acc_slice_xy_level;
     }
-    uint nrec =
-        opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
+    cd.frame_record_enabled = true;
     holovibes.start_frame_record(opts.output_path.value(),
-                                 nrec,
+                                 record_nb_frames,
                                  opts.record_raw,
                                  false,
                                  nb_frames_skip);
@@ -175,24 +179,25 @@ int start_cli(holovibes::Holovibes& holovibes,
         print_verbose(opts);
     }
 
+    auto& cd = holovibes.get_cd();
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
 
-    auto& cd = holovibes.get_cd();
     std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
     holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
+    uint record_nb_frames =
+        opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
-    cd.frame_record_enabled = true;
 
     holovibes.start_information_display(true);
 
     Chrono chrono;
 
     holovibes.start_compute();
-    set_parameters(holovibes, opts);
-    start_record(holovibes, opts, input_nb_frames);
+    set_parameters(holovibes, opts, record_nb_frames);
+    start_record(holovibes, opts, record_nb_frames);
     main_loop(holovibes);
 
     chrono.stop();
