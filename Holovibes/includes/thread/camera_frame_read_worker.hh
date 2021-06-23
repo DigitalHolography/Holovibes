@@ -6,6 +6,7 @@
 namespace camera
 {
 class ICamera;
+struct CapturedFramesDescriptor;
 }
 
 namespace holovibes
@@ -33,6 +34,9 @@ class CameraFrameReadWorker : public FrameReadWorker
   private:
     //! The camera giving the images
     std::shared_ptr<camera::ICamera> camera_;
+
+    void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
+                      const camera::FrameDescriptor& camera_fd);
 };
 } // namespace worker
 } // namespace holovibes

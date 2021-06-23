@@ -7,24 +7,8 @@
 
 namespace camera
 {
-void CameraPhantomBitflow::err_check(const BFRC status,
-                                     const std::string err_mess,
-                                     const CameraException cam_ex,
-                                     const int flag)
-{
-    if (status != CI_OK)
-    {
-        std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
-        if (flag & CloseFlag::BUFFER)
-            BiBufferFree(board_, info_);
-        if (flag & CloseFlag::BOARD)
-            BiBrdClose(board_);
-        throw cam_ex;
-    }
-}
-
 CameraPhantomBitflow::CameraPhantomBitflow()
-    : Camera("adimec.ini")
+    : Camera("phantom.ini")
     , board_(nullptr)
     , info_(new BIBA())
     , last_buf(0)
@@ -43,85 +27,101 @@ CameraPhantomBitflow::CameraPhantomBitflow()
 
 void CameraPhantomBitflow::init_camera()
 {
-    /* We don't want a specific type of board; there should not
-     * be more than one anyway. */
-    BFU32 type = BiTypeAny;
-    BFU32 number = 0;
-
-    err_check(BiBrdOpen(type, number, &board_),
+    err_check(BiBrdOpen(BiTypeAny, number, &board_),
               "Could not open board.",
               CameraException::NOT_INITIALIZED,
               CloseFlag::NO_BOARD);
 
     bind_params();
+
+    /* --- */
+
+    BiBrdInquire(board_, BiCamInqFrameSize0, &BitmapSize);
+    TotalMemorySize = NumBuffers * BitmapSize + PAGE_SIZE;
+
+    /* Allocate memory for the array of buffer pointers */
+    pMemArray = (PBFU32*)malloc(NumBuffers * sizeof(BFUPTR));
+    if (pMemArray == NULL)
+    {
+        printf("Memory allocation error\n");
+        throw CameraException::NOT_INITIALIZED;
+    }
+
+    /* Allocate memory for buffers */
+    pMemory = (PBFU32)malloc(TotalMemorySize);
+    if (pMemory == NULL)
+    {
+        printf("Memory allocation error\n");
+        throw CameraException::NOT_INITIALIZED;
+    }
+
+    /* Create an array of the pointers to each buffer that has been allocated */
+    for (BFU32 i = 0; i < NumBuffers; i++)
+    {
+        /* Div by sizeof(BFU32) because BitmapSize is in bytes */
+        pMemArray[i] = pMemory + (i * (BitmapSize / sizeof(BFU32)));
+    }
+
+    /* Assign the array of pointers to buffin's array of pointers */
+    RV = BiBufferAssign(board_, &BufArray, pMemArray, NumBuffers);
+    if (RV != BI_OK)
+    {
+        BiErrorShow(board_, RV);
+        throw CameraException::NOT_INITIALIZED;
+    }
 }
 
 void CameraPhantomBitflow::start_acquisition()
 {
-    /* Asking the frame size (width * height * depth) to the board.
-     * Such a method is more robust than hardcoding known values.*/
-    BFU32 width;
-    err_check(BiBrdInquire(board_, BiCamInqXSize, &width),
-              "Could not get frame size",
-              CameraException::CANT_START_ACQUISITION,
-              CloseFlag::BOARD);
-    BFU32 height;
-    err_check(BiBrdInquire(board_, BiCamInqYSize0, &height),
-              "Could not get frame size",
-              CameraException::CANT_START_ACQUISITION,
-              CloseFlag::BOARD);
-    BFU32 depth;
-    err_check(BiBrdInquire(board_, BiCamInqBitsPerPix, &depth),
-              "Could not get frame depth",
-              CameraException::CANT_START_ACQUISITION,
-              CloseFlag::BOARD);
+    /* Setup for circular buffers */
+    RV = BiCircAqSetup(board_, &BufArray, ErrorMode, CirSetupOptions);
+    if (RV != BI_OK)
+    {
+        BiErrorShow(board_, RV);
+        throw CameraException::CANT_START_ACQUISITION;
+    }
 
-    std::cout << "width: " << width << std::endl;
-    std::cout << "height: " << height << std::endl;
-    std::cout << "depth: " << depth << std::endl;
+    /* create signal for DMA done notification */
+    if (CiSignalCreate(board_, CiIntTypeEOD, &EODSignal))
+    {
+        BFErrorShow(board_);
+        throw CameraException::CANT_START_ACQUISITION;
+    }
 
-    // Aligned allocation ensures fast memory transfers.
-    const BFSIZET alignment = 4096;
-    err_check(BiBufferAllocAligned(board_,
-                                   info_,
-                                   width,
-                                   height,
-                                   depth,
-                                   queue_size_,
-                                   alignment),
-              "Could not allocate buffer memory",
-              CameraException::MEMORY_PROBLEM,
-              CloseFlag::BOARD);
+    /* Start acquisition of images */
+    RV = BiCirControl(board_, &BufArray, BISTART, BiWait);
+    if (RV != BI_OK)
+    {
+        if (RV < BI_WARNINGS)
+        {
+            throw CameraException::CANT_START_ACQUISITION;
+        }
+    }
 
-    /* If the board does not find any buffer marked AVAILABLE by the user,
-     * it will overwrite them. */
-    BFU32 error_handling = CirErIgnore;
-    BFU32 options = BiAqEngJ;
-    err_check(BiCircAqSetup(board_, info_, error_handling, options),
-              "Could not setup board for acquisition",
-              CameraException::CANT_START_ACQUISITION,
-              CloseFlag::ALL);
-
-    /* Acquisition is started without interruption. */
-    options = BiWait;
-    err_check(BiCirControl(board_, info_, BISTART, options),
-              "Could not start acquisition",
-              CameraException::CANT_START_ACQUISITION,
-              CloseFlag::ALL);
+    BFTick(&T0);
 }
 
 void CameraPhantomBitflow::stop_acquisition()
 {
-    /* Free resources taken by BiCircAqSetup, in a single function call.
-     * Allocated memory is freed separately, through BiBufferFree. */
-    BiBufferFree(board_, info_);
-    if (BiCircCleanUp(board_, info_) != BI_OK)
-    {
-        std::cerr << "[CAMERA] Could not stop acquisition cleanly."
-                  << std::endl;
-        shutdown_camera();
-        throw CameraException(CameraException::CANT_STOP_ACQUISITION);
-    }
+    /* Stop acquisition of images */
+    RV = BiCirControl(board_, &BufArray, BISTOP, BiWait);
+    if (RV != BI_OK)
+        BiErrorShow(board_, RV);
+
+    /* Clean things up */
+    RV = BiCircCleanUp(board_, &BufArray);
+    if (RV != BI_OK)
+        BiErrorShow(board_, RV);
+
+    /* cancel the signal */
+    CiSignalCancel(board_, &EODSignal);
+
+    /* Free memory */
+    RV = BiBufferUnassign(board_, &BufArray);
+    if (RV != BI_OK)
+        BiErrorShow(board_, RV);
+    free(pMemory);
+    free(pMemArray);
 }
 
 void CameraPhantomBitflow::shutdown_camera()
@@ -132,29 +132,44 @@ void CameraPhantomBitflow::shutdown_camera()
 
 CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
 {
-    // Mark the previously read buffer as available for writing, for the board.
-    BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE);
+    /* Get update on the total number of images  */
+    CiSignalQueueSize(board_, &EODSignal, &Captured);
 
-    // Wait for a freshly written image to be readable.
-    BiCirHandle hd;
-    BiCirWaitDoneFrame(board_,
-                       info_,
-                       static_cast<BFU32>(camera::FRAME_TIMEOUT),
-                       &hd);
-
-    BFU32 status;
-    BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
-    // Checking buffer status is correct. TODO : Log error in other cases.
-    if (status == BINEW)
+    BFU32 NbFrames = Captured - OldCaptured;
+    if (Captured < OldCaptured)
     {
-        last_buf = hd.BufferNumber;
-        BiCirBufferStatusSet(board_, info_, last_buf, BIHOLD);
+        NbFrames = 0xffffffff - OldCaptured + Captured;
+    }
+    if (NbFrames >= NumBuffers)
+    {
+        OldCaptured = Captured;
+        return CapturedFramesDescriptor(nullptr, 0);
     }
 
-    if (hd.pBufData == reinterpret_cast<void*>(0xcccccccccccccccc))
-        return get_frames();
+    /* get loop time */
+    Delta = BFTickDelta(&T0, BFTick(&T1));
 
-    return CapturedFramesDescriptor(hd.pBufData);
+    /* If 1 second has passed, update FPS */
+    if (Delta > 1000)
+    {
+        FPS = (BFU32)((BFDOUBLE)(Captured - LastTime) /
+                      ((BFDOUBLE)Delta / 1000.0));
+        LastTime = Captured;
+        BFTick(&T0);
+        std::cout << "FPS: " << FPS << std::endl;
+    }
+
+    BFU32 idx = OldCaptured % NumBuffers;
+    CapturedFramesDescriptor ret;
+    ret.region1 = pMemArray[idx];
+    ret.count1 = min(NbFrames, NumBuffers - idx);
+    ret.region2 = pMemArray[0];
+    ret.count2 = NbFrames - ret.count1;
+
+    /* Keep old total */
+    OldCaptured = Captured;
+
+    return ret;
 }
 
 void CameraPhantomBitflow::load_ini_params() {}

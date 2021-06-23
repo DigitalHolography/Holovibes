@@ -66,6 +66,29 @@ class CameraPhantomBitflow : public Camera
     BFU32 roi_height_;    //!< ROI height in pixels.
     BFU32 pixel_format_;
 
+    /* ----- */
+
+    BFU32 BitmapSize;
+    BFU32 NumBuffers = 256;
+    BFU32 TotalMemorySize;
+    PBFU32* pMemArray;
+    PBFU32 pMemory;
+    BIBA BufArray;
+    BFRC RV;
+    BFU32 CirSetupOptions = BiAqEngJ | NoResetOnError | HighFrameRateMode;
+    BFU32 ErrorMode = CirErIgnore;
+
+    BFU32 Captured = 0;
+    BFU32 OldCaptured = 0;
+    BFU32 LastTime = 0;
+    BFU32 FPS = 0;
+    BFTickRec T0, T1;
+    BFU32 Delta;
+    BFU32 NewImages;
+    BFU32 NewMax = 0;
+    CiSIGNAL EODSignal;
+    PBFU8 pMem8;
+
     void err_check(const BFRC status,
                    const std::string err_mess,
                    const CameraException cam_ex,
