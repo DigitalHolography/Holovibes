@@ -32,7 +32,6 @@ void CameraFrameReadWorker::run()
     try
     {
         camera_->start_acquisition();
-        assert(camera_fd.frame_size() == 512 * 512);
 
         while (!stop_requested_)
         {

@@ -7,66 +7,74 @@
 
 namespace camera
 {
+static void print_BiError(Bd board, BFRC status)
+{
+    if (status == BI_OK)
+    {
+        return;
+    }
+
+    constexpr BFU32 const_error_text_size = 512;
+    BFU32 error_text_size = const_error_text_size;
+    char error_text[const_error_text_size];
+    BiErrorTextGet(board, status, error_text, &error_text_size);
+    fprintf(stderr, "%.*s\n", error_text_size, error_text);
+    fflush(stderr);
+}
+
 CameraPhantomBitflow::CameraPhantomBitflow()
     : Camera("phantom.ini")
-    , board_(nullptr)
-    , info_(new BIBA())
-    , last_buf(0)
-    , quad_bank_(BFQTabBank0)
 {
     name_ = "Phantom S710";
-
-    fd_.width = 512;
-    fd_.height = 512;
-    fd_.depth = 2;
-    fd_.byteEndian = Endianness::BigEndian;
-
     load_default_params();
     init_camera();
 }
 
 void CameraPhantomBitflow::init_camera()
 {
-    err_check(BiBrdOpen(BiTypeAny, number, &board_),
-              "Could not open board.",
-              CameraException::NOT_INITIALIZED,
-              CloseFlag::NO_BOARD);
+    RV = BiBrdOpen(BiTypeAny, 0, &board_);
+    if (RV != BI_OK)
+    {
+        print_BiError(board_, RV);
+        throw CameraException::NOT_INITIALIZED;
+    }
 
     bind_params();
 
-    /* --- */
-
-    BiBrdInquire(board_, BiCamInqFrameSize0, &BitmapSize);
-    TotalMemorySize = NumBuffers * BitmapSize + PAGE_SIZE;
+    BiBrdInquire(board_, BiCamInqFrameSize0, &bitmap_size);
+    total_mem_size = nb_buffers * bitmap_size + PAGE_SIZE;
 
     /* Allocate memory for the array of buffer pointers */
-    pMemArray = (PBFU32*)malloc(NumBuffers * sizeof(BFUPTR));
-    if (pMemArray == NULL)
+    frames = (PBFU32*)malloc(nb_buffers * sizeof(BFUPTR));
+    if (frames == NULL)
     {
-        printf("Memory allocation error\n");
+        std::cerr << "Could not allocate pointers buffer" << std::endl;
         throw CameraException::NOT_INITIALIZED;
     }
 
     /* Allocate memory for buffers */
-    pMemory = (PBFU32)malloc(TotalMemorySize);
-    if (pMemory == NULL)
+    data = (PBFU32)malloc(total_mem_size);
+    if (data == NULL)
     {
-        printf("Memory allocation error\n");
+        std::cerr << "Could not allocate data buffer" << std::endl;
+        free(frames);
         throw CameraException::NOT_INITIALIZED;
     }
 
     /* Create an array of the pointers to each buffer that has been allocated */
-    for (BFU32 i = 0; i < NumBuffers; i++)
+    for (BFU32 i = 0; i < nb_buffers; i++)
     {
-        /* Div by sizeof(BFU32) because BitmapSize is in bytes */
-        pMemArray[i] = pMemory + (i * (BitmapSize / sizeof(BFU32)));
+        /* Div by sizeof(BFU32) because bitmap_size is in bytes */
+        frames[i] = data + (i * (bitmap_size / sizeof(BFU32)));
     }
 
     /* Assign the array of pointers to buffin's array of pointers */
-    RV = BiBufferAssign(board_, &BufArray, pMemArray, NumBuffers);
+    RV = BiBufferAssign(board_, &buf_array, frames, nb_buffers);
     if (RV != BI_OK)
     {
-        BiErrorShow(board_, RV);
+        print_BiError(board_, RV);
+        free(data);
+        free(frames);
         throw CameraException::NOT_INITIALIZED;
     }
 }
@@ -74,54 +82,62 @@ void CameraPhantomBitflow::init_camera()
 void CameraPhantomBitflow::start_acquisition()
 {
     /* Setup for circular buffers */
-    RV = BiCircAqSetup(board_, &BufArray, ErrorMode, CirSetupOptions);
+    BFU32 circ_setup_options = BiAqEngJ | NoResetOnError | HighFrameRateMode;
+    BFU32 error_mode = CirErIgnore;
+    RV = BiCircAqSetup(board_, &buf_array, error_mode, circ_setup_options);
     if (RV != BI_OK)
     {
-        BiErrorShow(board_, RV);
+        print_BiError(board_, RV);
         throw CameraException::CANT_START_ACQUISITION;
     }
 
     /* create signal for DMA done notification */
-    if (CiSignalCreate(board_, CiIntTypeEOD, &EODSignal))
+    RV = CiSignalCreate(board_, CiIntTypeEOD, &eod_signal);
+    if (RV != BI_OK)
     {
-        BFErrorShow(board_);
+        print_BiError(board_, RV);
         throw CameraException::CANT_START_ACQUISITION;
     }
 
     /* Start acquisition of images */
-    RV = BiCirControl(board_, &BufArray, BISTART, BiWait);
+    RV = BiCirControl(board_, &buf_array, BISTART, BiWait);
     if (RV != BI_OK)
     {
         if (RV < BI_WARNINGS)
         {
+            print_BiError(board_, RV);
             throw CameraException::CANT_START_ACQUISITION;
         }
     }
-
-    BFTick(&T0);
 }
 
 void CameraPhantomBitflow::stop_acquisition()
 {
     /* Stop acquisition of images */
-    RV = BiCirControl(board_, &BufArray, BISTOP, BiWait);
+    RV = BiCirControl(board_, &buf_array, BISTOP, BiWait);
     if (RV != BI_OK)
-        BiErrorShow(board_, RV);
+    {
+        print_BiError(board_, RV);
+    }
 
     /* Clean things up */
-    RV = BiCircCleanUp(board_, &BufArray);
+    RV = BiCircCleanUp(board_, &buf_array);
     if (RV != BI_OK)
-        BiErrorShow(board_, RV);
+    {
+        print_BiError(board_, RV);
+    }
 
     /* cancel the signal */
-    CiSignalCancel(board_, &EODSignal);
+    CiSignalCancel(board_, &eod_signal);
 
     /* Free memory */
-    RV = BiBufferUnassign(board_, &BufArray);
+    RV = BiBufferUnassign(board_, &buf_array);
     if (RV != BI_OK)
-        BiErrorShow(board_, RV);
-    free(pMemory);
-    free(pMemArray);
+    {
+        print_BiError(board_, RV);
+    }
+    free(data);
+    free(frames);
 }
 
 void CameraPhantomBitflow::shutdown_camera()
@@ -133,41 +149,28 @@ void CameraPhantomBitflow::shutdown_camera()
 CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
 {
     /* Get update on the total number of images  */
-    CiSignalQueueSize(board_, &EODSignal, &Captured);
+    CiSignalQueueSize(board_, &eod_signal, &captured);
 
-    BFU32 NbFrames = Captured - OldCaptured;
-    if (Captured < OldCaptured)
+    BFU32 nb_frames = captured - old_captured;
+    if (captured < old_captured)
     {
-        NbFrames = 0xffffffff - OldCaptured + Captured;
+        nb_frames = 0xffffffff - old_captured + captured;
     }
-    if (NbFrames >= NumBuffers)
+    if (nb_frames >= nb_buffers || nb_frames == 0)
     {
-        OldCaptured = Captured;
+        old_captured = captured;
         return CapturedFramesDescriptor(nullptr, 0);
     }
 
-    /* get loop time */
-    Delta = BFTickDelta(&T0, BFTick(&T1));
-
-    /* If 1 second has passed, update FPS */
-    if (Delta > 1000)
-    {
-        FPS = (BFU32)((BFDOUBLE)(Captured - LastTime) /
-                      ((BFDOUBLE)Delta / 1000.0));
-        LastTime = Captured;
-        BFTick(&T0);
-        std::cout << "FPS: " << FPS << std::endl;
-    }
-
-    BFU32 idx = OldCaptured % NumBuffers;
+    BFU32 idx = old_captured % nb_buffers;
     CapturedFramesDescriptor ret;
-    ret.region1 = pMemArray[idx];
-    ret.count1 = min(NbFrames, NumBuffers - idx);
-    ret.region2 = pMemArray[0];
-    ret.count2 = NbFrames - ret.count1;
+    ret.region1 = frames[idx];
+    ret.count1 = min(nb_frames, nb_buffers - idx);
+    ret.region2 = frames[0];
+    ret.count2 = nb_frames - ret.count1;
 
     /* Keep old total */
-    OldCaptured = Captured;
+    old_captured = captured;
 
     return ret;
 }
@@ -176,45 +179,29 @@ void CameraPhantomBitflow::load_ini_params() {}
 
 void CameraPhantomBitflow::load_default_params()
 {
-    pixel_size_ = 12;
-    queue_size_ = 64;
-    exposure_time_ = 100;
-    frame_rate_ = 300;
-    roi_width_ = 512;
-    roi_height_ = 512;
+    fd_.byteEndian = Endianness::BigEndian;
 }
 
 void CameraPhantomBitflow::bind_params()
 {
-    if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_WIDTH, &roi_width_) != BF_OK)
-        std::cerr << "[CAMERA] Cannot read the roi width of the registers of "
-                     "the camera "
-                  << std::endl;
+    BFU32 width = 0;
+    BFU32 height = 0;
+    BFU32 depth = 0;
 
-    if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_HEIGHT, &roi_height_) !=
-        BF_OK)
-        std::cerr << "[CAMERA] Cannot read the roi height of the registers of "
-                     "the camera "
-                  << std::endl;
+    BFRC rc = BI_OK;
+    rc |= BiBrdInquire(board_, BiCamInqXSize, &width);
+    rc |= BiBrdInquire(board_, BiCamInqYSize0, &height);
+    rc |= BiBrdInquire(board_, BiCamInqBytesPerPix, &depth);
 
-    if (BFCXPReadReg(board_, 0xFF, RegAddress::PIXEL_FORMAT, &pixel_format_) !=
-        BF_OK)
-        std::cerr
-            << "[CAMERA] Cannot read the pixel format of the registers of "
-               "the camera "
-            << std::endl;
-
-    fd_.width = roi_width_;
-    fd_.height = roi_height_;
-    if (pixel_format_ == PixelFormat::MONO_8)
+    if (rc != BI_OK)
     {
-        fd_.depth = 1;
+        std::cerr << "Could not read frame description" << std::endl;
+        throw CameraException::NOT_INITIALIZED;
     }
-    else if (pixel_format_ == PixelFormat::MONO_12 ||
-             pixel_format_ == PixelFormat::MONO_16)
-    {
-        fd_.depth = 2;
-    }
+
+    fd_.width = width;
+    fd_.height = height;
+    fd_.depth = depth;
 }
 
 ICamera* new_camera_device() { return new CameraPhantomBitflow(); }
