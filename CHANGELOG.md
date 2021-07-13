@@ -1,5 +1,10 @@
 ## Changelog
  
+### 9.4
+ 
+* Camera: add phantom 710 + bitflow camera (should be able to handle any camera with a bitflow framegrabber)
+* Fast pipe (experimental): pipe speed up when batch size == time stride == time size
+ 
 ### 9.3.10
  
 * CLI: fix segfault
