@@ -1033,6 +1033,11 @@ void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
 void MainWindow::camera_phantom() { change_camera(CameraKind::Phantom); }
 
+void MainWindow::camera_phantom_bitflow()
+{
+    change_camera(CameraKind::PhantomBitflow);
+}
+
 void MainWindow::camera_hamamatsu() { change_camera(CameraKind::Hamamatsu); }
 
 void MainWindow::camera_adimec() { change_camera(CameraKind::Adimec); }

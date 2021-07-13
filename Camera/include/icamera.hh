@@ -14,11 +14,15 @@ struct FrameDescriptor;
 */
 struct CapturedFramesDescriptor
 {
-    CapturedFramesDescriptor(void* data_,
-                             unsigned int count_,
+    CapturedFramesDescriptor(void* region1_,
+                             unsigned count1_,
+                             void* region2_,
+                             unsigned count2_,
                              bool on_gpu_ = false)
-        : data(data_)
-        , count(count_)
+        : region1(region1_)
+        , count1(count1_)
+        , region2(region2_)
+        , count2(count2_)
         , on_gpu(on_gpu_)
     {
     }
@@ -27,16 +31,34 @@ struct CapturedFramesDescriptor
         : CapturedFramesDescriptor(nullptr, 0)
     {
     }
-    CapturedFramesDescriptor(void* data_)
-        : CapturedFramesDescriptor(data_, 1)
+    CapturedFramesDescriptor(void* data)
+        : CapturedFramesDescriptor(data, 1)
     {
     }
 
-    /*! \brief The pointer at the data location. */
-    void* data;
+    CapturedFramesDescriptor(void* data,
+                             unsigned int count,
+                             bool on_gpu_ = false)
+        : CapturedFramesDescriptor(data, count, nullptr, 0)
+    {
+    }
 
-    /*! \brief The number of frames stored in data. */
-    unsigned int count;
+    /*! \brief Pointer to the first region containing data. */
+    void* region1;
+
+    /*! \brief The number of frames stored in region1. */
+    unsigned int count1;
+
+    /* 2 data regions are needed when getting data from a ringbuffer */
+    /* the data can be located at the end and beginning of the buffer */
+    /*  region2<-       ->region1  */
+    /* [XXXXXXX<-.......->XXXXXXX] */
+
+    /*! \brief Pointer to the second region containing data. */
+    void* region2 = nullptr;
+
+    /*! \brief The number of frames stored in region2. */
+    unsigned int count2 = 0;
 
     /*! \brief Whether data is located in host or device memory (GPU). */
     bool on_gpu;

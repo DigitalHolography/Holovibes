@@ -35,13 +35,8 @@ void CameraFrameReadWorker::run()
 
         while (!stop_requested_)
         {
-            camera::CapturedFramesDescriptor res = camera_->get_frames();
-            // res.count == 1 always
-            gpu_input_queue_.load()->enqueue(
-                res.data,
-                res.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
-            gpu_input_queue_.load()->sync_current_batch();
-            processed_fps_ += res.count;
+            auto captured_fd = camera_->get_frames();
+            enqueue_loop(captured_fd, camera_fd);
         }
 
         gpu_input_queue_.load()->stop_producer();
@@ -59,4 +54,28 @@ void CameraFrameReadWorker::run()
 
     camera_.reset();
 }
+
+void CameraFrameReadWorker::enqueue_loop(
+    const camera::CapturedFramesDescriptor& captured_fd,
+    const camera::FrameDescriptor& camera_fd)
+{
+    auto copy_kind =
+        captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+
+    for (unsigned i = 0; i < captured_fd.count1; ++i)
+    {
+        auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.frame_size();
+        gpu_input_queue_.load()->enqueue(ptr, copy_kind);
+    }
+
+    for (unsigned i = 0; i < captured_fd.count2; ++i)
+    {
+        auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.frame_size();
+        gpu_input_queue_.load()->enqueue(ptr, copy_kind);
+    }
+
+    processed_fps_ += captured_fd.count1 + captured_fd.count2;
+    gpu_input_queue_.load()->sync_current_batch();
+}
+
 } // namespace holovibes::worker

@@ -3138,6 +3138,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
      <addaction name="actionPhantom_S710"/>
+     <addaction name="actionPhantom_S710_Bitflow"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
     </widget>
@@ -3365,6 +3366,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionPhantom_S710">
    <property name="text">
     <string>Phantom S710 (Euresys)</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710_Bitflow">
+   <property name="text">
+    <string>Phantom S710 (Bitflow)</string>
    </property>
   </action>
  </widget>
@@ -5235,6 +5241,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPhantom_S710_Bitflow</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_phantom_bitflow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5253,6 +5275,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
+  <slot>camera_phantom_bitflow()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>
