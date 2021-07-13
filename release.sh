@@ -27,11 +27,11 @@ python_cmd="python3"
 ####################################
 ## Checking commands and versions ##
 ####################################
-has_git=`which git > /dev/null; echo $?`
-has_iscc=`which iscc.exe > /dev/null; echo $?`
-has_python=`which python > /dev/null; echo $?`
-has_python3=`which python3 > /dev/null; echo $?`
-has_curl=`which curl > /dev/null; echo $?`
+has_git=`which git > /dev/null 2>&1; echo $?`
+has_iscc=`which iscc.exe > /dev/null 2>&1; echo $?`
+has_python=`which python > /dev/null 2>&1; echo $?`
+has_python3=`which python3 > /dev/null 2>&1; echo $?`
+has_curl=`which curl > /dev/null 2>&1; echo $?`
 
 # Curl
 if [ "$has_curl" != "0" ]
