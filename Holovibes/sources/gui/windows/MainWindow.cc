@@ -2563,8 +2563,6 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 
 void MainWindow::set_fast_pipe(bool value)
 {
-    cd_.fast_pipe = value;
-
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
     if (pipe && value)
     {
@@ -2573,11 +2571,17 @@ void MainWindow::set_fast_pipe(bool value)
             cd_.time_transformation_size = cd_.batch_size.load();
             pipe->request_update_time_transformation_stride();
             pipe->request_update_time_transformation_size();
+            cd_.fast_pipe = true;
+            pipe_refresh();
+            notify();
         });
     }
-
-    pipe_refresh();
-    notify();
+    else
+    {
+        cd_.fast_pipe = false;
+        pipe_refresh();
+        notify();
+    }
 }
 
 #pragma endregion
