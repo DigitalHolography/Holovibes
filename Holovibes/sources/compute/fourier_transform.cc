@@ -103,9 +103,14 @@ void FourierTransform::insert_fft1()
               cd_.pixel_size,
               stream_);
 
+    void* input_output =
+        cd_.fast_pipe
+            ? time_transformation_env_.gpu_time_transformation_queue->get_data()
+            : buffers_.gpu_spatial_transformation_buffer.get();
+
     fn_compute_vect_.push_back([=]() {
-        fft_1(buffers_.gpu_spatial_transformation_buffer,
-              buffers_.gpu_spatial_transformation_buffer,
+        fft_1(static_cast<cuComplex*>(input_output),
+              static_cast<cuComplex*>(input_output),
               cd_.batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
@@ -136,9 +141,14 @@ void FourierTransform::insert_fft2()
                    1,
                    stream_);
 
+    void* input_output =
+        cd_.fast_pipe
+            ? time_transformation_env_.gpu_time_transformation_queue->get_data()
+            : buffers_.gpu_spatial_transformation_buffer.get();
+
     fn_compute_vect_.push_back([=]() {
-        fft_2(buffers_.gpu_spatial_transformation_buffer,
-              buffers_.gpu_spatial_transformation_buffer,
+        fft_2(static_cast<cuComplex*>(input_output),
+              static_cast<cuComplex*>(input_output),
               cd_.batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,

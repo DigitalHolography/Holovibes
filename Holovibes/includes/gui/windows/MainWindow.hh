@@ -108,6 +108,7 @@ class MainWindow : public QMainWindow, public Observer
     void refreshViewMode();
     void set_convolution_mode(const bool enable);
     void set_divide_convolution_mode(const bool value);
+    void set_fast_pipe(bool value);
     void toggle_renormalize(bool value);
     bool is_raw_mode();
     void reset();

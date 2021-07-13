@@ -329,10 +329,12 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
                                             stream);
             };
 
-        gpu_input_queue.dequeue(
-            buffers_.gpu_spatial_transformation_buffer.get(),
-            fd_.depth,
-            convert_to_complex);
+        void* output = cd_.fast_pipe
+                           ? time_transformation_env_
+                                 .gpu_time_transformation_queue->get_data()
+                           : buffers_.gpu_spatial_transformation_buffer.get();
+
+        gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
     });
 }
 } // namespace compute
