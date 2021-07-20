@@ -1,5 +1,9 @@
 ## Changelog
  
+### 9.4.1
+ 
+* CLI: add load in GPU option
+ 
 ### 9.4
  
 * Camera: add phantom 710 + bitflow camera (should be able to handle any camera with a bitflow framegrabber)
