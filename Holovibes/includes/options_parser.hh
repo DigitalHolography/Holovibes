@@ -27,6 +27,7 @@ struct OptionsDescriptor
     bool noskip_acc;
     bool record_raw;
     bool verbose;
+    bool gpu;
 };
 
 /*! \brief Options parser for the command-line. */

@@ -50,8 +50,8 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         std::cout << opts.n_rec.value() << "\n";
     else
         std::cout << "full file\n";
-    if (opts.record_raw)
-        std::cout << "Raw recording enabled\n";
+    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw
+              << std::dec << "\n";
     if (opts.convo_path.has_value())
     {
         std::cout << "Convolution matrix: " << opts.convo_path.value() << "\n";
@@ -60,6 +60,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     }
     std::cout << "Skip accumulation frames: " << std::boolalpha
               << !opts.noskip_acc << std::dec << "\n";
+    std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
     std::cout << std::endl;
 }
 
@@ -82,7 +83,7 @@ open_input_file(holovibes::Holovibes& holovibes,
                                     fps,
                                     0,
                                     input_frame_file->get_total_nb_frames(),
-                                    false);
+                                    opts.gpu);
 
     input_frame_file->import_compute_settings(holovibes.get_cd());
 

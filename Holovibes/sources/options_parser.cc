@@ -72,6 +72,11 @@ OptionsParser::OptionsParser()
         "raw",
         po::bool_switch()->default_value(false),
         "Enable raw recording (default = false)"
+    )
+    (
+        "gpu",
+        po::bool_switch()->default_value(false),
+        "Load file in GPU (default = false)"
     );
     // clang-format on
 
@@ -115,6 +120,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
+        options_.gpu = vm_["gpu"].as<bool>();
     }
     catch (std::exception& e)
     {
