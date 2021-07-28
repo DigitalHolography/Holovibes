@@ -107,7 +107,6 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind,
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
         stop_frame_read();
         throw;
     }
