@@ -181,11 +181,11 @@ int start_cli(holovibes::Holovibes& holovibes,
     }
 
     auto& cd = holovibes.get_cd();
+    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    holovibes::ini::load_ini(cd, ini_path);
+
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
-
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
-    holovibes::ini::load_ini(holovibes.get_cd(), ini_path);
     uint record_nb_frames =
         opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
 
