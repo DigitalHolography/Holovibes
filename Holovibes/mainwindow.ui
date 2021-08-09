@@ -3044,7 +3044,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3105,7 +3105,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3127,11 +3127,11 @@ p, li { white-space: pre-wrap; }
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionBitflowCyton"/>
      <addaction name="actionAdimec"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
      <addaction name="actionPhantom_S710"/>
-     <addaction name="actionPhantom_S710_Bitflow"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
     </widget>
@@ -3361,9 +3361,9 @@ p, li { white-space: pre-wrap; }
     <string>Phantom S710 (Euresys)</string>
    </property>
   </action>
-  <action name="actionPhantom_S710_Bitflow">
+  <action name="actionBitflowCyton">
    <property name="text">
-    <string>Phantom S710 (Bitflow)</string>
+    <string>Bitflow Cyton frame grabber</string>
    </property>
   </action>
  </widget>
@@ -5219,10 +5219,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionPhantom_S710_Bitflow</sender>
+   <sender>actionBitflowCyton</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>camera_phantom_bitflow()</slot>
+   <slot>camera_bitflow_cyton()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5252,7 +5252,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
-  <slot>camera_phantom_bitflow()</slot>
+  <slot>camera_bitflow_cyton()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>

@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cuda_runtime.h>
 
-#include "camera_phantom_bitflow.hh"
+#include "bitflow_cyton.hh"
 
 namespace camera
 {

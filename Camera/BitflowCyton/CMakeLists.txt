@@ -1,7 +1,7 @@
-project (CameraPhantomBitflow CXX CUDA)
+project (BitflowCyton CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
-    camera_phantom_bitflow.cc
+    bitflow_cyton.cc
 )
 
 set(BITFLOW_SDK "C:/BitFlow SDK 6.40/")

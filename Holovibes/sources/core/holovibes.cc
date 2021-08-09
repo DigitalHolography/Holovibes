@@ -83,9 +83,8 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind,
         else if (camera_kind == CameraKind::Phantom)
             active_camera_ =
                 camera::CameraDLL::load_camera("CameraPhantom.dll");
-        else if (camera_kind == CameraKind::PhantomBitflow)
-            active_camera_ =
-                camera::CameraDLL::load_camera("CameraPhantomBitflow.dll");
+        else if (camera_kind == CameraKind::BitflowCyton)
+            active_camera_ = camera::CameraDLL::load_camera("BitflowCyton.dll");
         else if (camera_kind == CameraKind::Hamamatsu)
             active_camera_ =
                 camera::CameraDLL::load_camera("CameraHamamatsu.dll");
