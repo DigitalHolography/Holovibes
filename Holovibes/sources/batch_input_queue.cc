@@ -69,12 +69,16 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
 
 void BatchInputQueue::sync_current_batch() const
 {
-    if (curr_batch_counter_ > 0) // A batch is currently enqueued
-        cudaXStreamSynchronize(batch_streams_[end_index_]);
-    else if (end_index_ > 0) // No batch is enqueued, sync the last one
-        cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
-    else // if end_index_ == 0: sync the last index in queue (max_size_ - 1)
-        cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
+    if (m_producer_busy_.try_lock())
+    {
+        if (curr_batch_counter_ > 0) // A batch is currently enqueued
+            cudaXStreamSynchronize(batch_streams_[end_index_]);
+        else if (end_index_ > 0) // No batch is enqueued, sync the last one
+            cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
+        else // if end_index_ == 0: sync the last index in queue (max_size_ - 1)
+            cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
+        m_producer_busy_.unlock();
+    }
 }
 
 bool BatchInputQueue::is_current_batch_full()

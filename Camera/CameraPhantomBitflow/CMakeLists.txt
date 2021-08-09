@@ -1,4 +1,4 @@
-project (CameraPhantomBitflow CXX)
+project (CameraPhantomBitflow CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_phantom_bitflow.cc
@@ -8,10 +8,13 @@ set(BITFLOW_SDK "C:/BitFlow SDK 6.40/")
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"
+    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
 
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
 )
+
+find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
 
 target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/BFD.lib"
@@ -30,6 +33,7 @@ target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/clserbit.lib"
 
     Boost::boost
+    ${CUDART_LIBRARY}
 )
 
 # Generate the dll file in build/Debug or build/Release

@@ -30,9 +30,10 @@ class CameraPhantomBitflow : public Camera
     void create_buffers();
     BFU32 get_circ_options(size_t i);
 
-    size_t nb_boards = 1; //!< Number of boards to use  (1, 2, 4)
-    Bd boards[4];         //!< Handle to the opened BitFlow board.
-    BIBA buf_arrays[4];   //!< BufArray containing Bitflow related data
+    int nb_boards = 0;  //!< Number of boards to use  (1, 2, 4)
+    int board_nums[4];  //!< Board numbers to open
+    Bd boards[4];       //!< Handle to the opened BitFlow board.
+    BIBA buf_arrays[4]; //!< BufArray containing Bitflow related data
 
     BFU32 bitmap_size;      //!< Size of 1 frame in bytes
     BFU32 nb_buffers = 256; //!< Number of allocated buffers (frames)

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <cuda_runtime.h>
 
 #include "camera_phantom_bitflow.hh"
 
@@ -24,53 +25,36 @@ static void print_BiError(Bd board, BFRC status)
 }
 
 CameraPhantomBitflow::CameraPhantomBitflow()
-    : Camera("phantom.ini")
+    : Camera("bitflow.ini")
 {
-    name_ = "Phantom S710";
-    load_default_params();
+    name_ = "Bitflow Cyton";
+
     if (ini_file_is_open())
     {
         load_ini_params();
         ini_file_.close();
     }
+    else
+    {
+        std::cerr << "Could not open bitflow.ini config file" << std::endl;
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
+    load_default_params();
     init_camera();
+}
+
+void CameraPhantomBitflow::init_camera()
+{
+    open_boards();
+    bind_params();
+    create_buffers();
 }
 
 void CameraPhantomBitflow::open_boards()
 {
-    constexpr size_t answer_size = 4;
-    char answer[answer_size];
-    std::memset(answer, 0, answer_size);
-    answer[0] = '1';
-    do
-    {
-        /* Let the user choose between 1, 2 and 4 boards */
-        if (!DisplayQuestionDialog("Number of boards to use: (1, 2, 4)",
-                                   answer,
-                                   answer_size))
-        {
-            throw CameraException(CameraException::NOT_INITIALIZED);
-        }
-        nb_boards = std::atoll(answer);
-    } while (nb_boards != 1 && nb_boards != 2 && nb_boards != 4);
-
-    BFU32 board_type, init, ser_num;
-    BFU32 board_num = 0;
-
     for (size_t i = 0; i < nb_boards; ++i)
     {
-        /* Let the user select which boards to open */
-        if (DoBrdOpenDialog(TRUE,
-                            FF_BITFLOW_MODERN,
-                            &board_type,
-                            &board_num,
-                            &init,
-                            &ser_num) == IDCANCEL)
-        {
-            throw CameraException(CameraException::NOT_INITIALIZED);
-        }
-
-        RV = BiBrdOpen(BiTypeAny, board_num, &boards[i]);
+        RV = BiBrdOpen(BiTypeAny, board_nums[i], &boards[i]);
         if (RV != BI_OK)
         {
             print_BiError(boards[i], RV);
@@ -92,9 +76,9 @@ void CameraPhantomBitflow::create_buffers()
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
-    /* Allocate memory for buffers */
-    data = (PBFU32)malloc(total_mem_size);
-    if (data == NULL)
+    /* Allocate memory for buffers (in pinned memory) */
+    cudaError_t status = cudaMallocHost(&data, total_mem_size);
+    if (status != cudaSuccess || data == NULL)
     {
         std::cerr << "Could not allocate data buffer" << std::endl;
         free(frames);
@@ -116,18 +100,11 @@ void CameraPhantomBitflow::create_buffers()
         if (RV != BI_OK)
         {
             print_BiError(boards[i], RV);
-            free(data);
+            cudaFreeHost(data);
             free(frames);
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
-}
-
-void CameraPhantomBitflow::init_camera()
-{
-    open_boards();
-    bind_params();
-    create_buffers();
 }
 
 BFU32 CameraPhantomBitflow::get_circ_options(size_t i)
@@ -229,11 +206,10 @@ void CameraPhantomBitflow::shutdown_camera()
         {
             print_BiError(boards[i], RV);
         }
-
         BiBrdClose(boards[i]);
     }
 
-    free(data);
+    cudaFreeHost(data);
     free(frames);
 }
 
@@ -266,7 +242,31 @@ CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
     return ret;
 }
 
-void CameraPhantomBitflow::load_ini_params() {}
+void CameraPhantomBitflow::load_ini_params()
+{
+    const boost::property_tree::ptree& pt = get_ini_pt();
+
+    nb_boards = pt.get<int>("bitflow.number_of_boards", 0);
+
+    if (nb_boards != 1 && nb_boards != 2 && nb_boards != 4)
+    {
+        std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4"
+                  << std::endl;
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
+
+    for (size_t i = 0; i < nb_boards; ++i)
+    {
+        board_nums[i] = pt.get<int>("bitflow.board" + std::to_string(i), -1);
+
+        if (board_nums[i] == -1)
+        {
+            std::cerr << "bitflow.ini: board" << i << " has an invalid value"
+                      << std::endl;
+            throw CameraException(CameraException::NOT_INITIALIZED);
+        }
+    }
+}
 
 void CameraPhantomBitflow::load_default_params()
 {
