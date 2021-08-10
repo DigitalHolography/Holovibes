@@ -1,5 +1,10 @@
 ## Changelog
  
+### 9.5
+ 
+* Camera: bitflow is now a standalone camera mode
+* CLI: fix batch size bug
+ 
 ### 9.4.1
  
 * CLI: add load in GPU option
