@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow, public Observer
     void camera_adimec();
     void camera_ids();
     void camera_phantom();
-    void camera_phantom_bitflow();
+    void camera_bitflow_cyton();
     void camera_hamamatsu();
     void camera_xiq();
     void camera_xib();

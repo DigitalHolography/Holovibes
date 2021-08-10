@@ -202,7 +202,7 @@ class BatchInputQueue : public DisplayQueue
     std::atomic<uint> curr_batch_counter_{0};
 
     /* Synchronization attributes */
-    std::mutex m_producer_busy_;
+    mutable std::mutex m_producer_busy_;
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
 };

@@ -1033,9 +1033,9 @@ void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
 void MainWindow::camera_phantom() { change_camera(CameraKind::Phantom); }
 
-void MainWindow::camera_phantom_bitflow()
+void MainWindow::camera_bitflow_cyton()
 {
-    change_camera(CameraKind::PhantomBitflow);
+    change_camera(CameraKind::BitflowCyton);
 }
 
 void MainWindow::camera_hamamatsu() { change_camera(CameraKind::Hamamatsu); }
