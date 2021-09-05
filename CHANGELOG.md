@@ -1,5 +1,9 @@
 ## Changelog
  
+### 10
+ 
+* Bump version
+ 
 ### 9.5
  
 * Camera: bitflow is now a standalone camera mode
