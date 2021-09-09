@@ -1,0 +1,45 @@
+# =========================
+# General
+# =========================
+
+# Ignore Visual Studio config files
+.vscode
+
+# python cache from scripts
+__pycache__/
+
+# =========================
+# Windows
+# =========================
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac desktop service store files
+.DS_Store
+
+# =========================
+# Holovibes
+# =========================
+
+# Build results
+build/
+Testing/
+
+# Folders for setup creation
+setup_creator_files
+Output
+
+# Do not ignore .lib and .dll files in libs directory
+!libs/**/*.lib
+!libs/**/*.dll
+
+# Holovibes global configuration file
+Holovibes/holovibes.ini

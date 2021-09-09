@@ -1,0 +1,25 @@
+target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
+    chart.cu
+    composite.cu
+    contrast_correction.cu
+    convolution.cu
+    fft1.cu
+    fft2.cu
+    filter2D.cu
+    hsv.cu
+    percentile.cu
+    stft.cu
+    texture_update.cu
+    tools.cu
+    tools_compute.cu
+    tools_conversion.cu
+    tools_unwrap.cu
+    transforms.cu
+    cuda_memory.cu
+    shift_corners.cu
+    frame_reshape.cu
+    map.cu
+    test_reduce.cu
+    unpack.cu
+    apply_mask.cu
+)

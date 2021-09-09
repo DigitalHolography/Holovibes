@@ -1,0 +1,86 @@
+target_sources("${PROJECT_NAME}_lib" PRIVATE
+    camera_dll.cc
+    cli.cc
+    config.cc
+    ini_config.cc
+    gpib_dll.cc
+    options_parser.cc
+    function_vector.cc
+    queue.cc
+    batch_input_queue.cc
+
+    compute/compute_bundles.cc
+    compute/compute_bundles_2d.cc
+    compute/compute_descriptor.cc
+    compute/converts.cc
+    compute/fourier_transform.cc
+    compute/postprocessing.cc
+    compute/rendering.cc
+    compute/image_accumulation.cc
+    compute/svd.cc
+
+    containers/information_container.cc
+
+    core/holovibes.cc
+    core/icompute.cc
+    core/pipe.cc
+
+    gui/other/gui_curve_plot.cc
+    gui/other/gui_drag_drop_lineedit.cc
+    gui/other/gui_frame.cc
+    gui/other/gui_group_box.cc
+    gui/other/popup_error.cc
+    gui/selections/interfaces/Overlay.cc
+    gui/selections/interfaces/rect_overlay.cc
+    gui/selections/interfaces/square_overlay.cc
+    gui/selections/overlays/composite_area_overlay.cc
+    gui/selections/overlays/cross_overlay.cc
+    gui/selections/overlays/filter2d_reticle_overlay.cc
+    gui/selections/overlays/noise_overlay.cc
+    gui/selections/overlays/rainbow_overlay.cc
+    gui/selections/overlays/reticle_overlay.cc
+    gui/selections/overlays/signal_overlay.cc
+    gui/selections/overlays/slice_cross_overlay.cc
+    gui/selections/overlays/zoom_overlay.cc
+    gui/selections/overlay_manager.cc
+    gui/windows/BasicOpenGLWindow.cc
+    gui/windows/RawWindow.cc
+    gui/windows/HoloWindow.cc
+    gui/windows/MainWindow.cc
+    gui/windows/PlotWindow.cc
+    gui/windows/SliceWindow.cc
+    gui/windows/Filter2DWindow.cc
+
+    io_files/input_frame_file.cc
+    io_files/input_cine_file.cc
+    io_files/input_holo_file.cc
+    io_files/input_frame_file_factory.cc
+    io_files/frame_file.cc
+    io_files/output_avi_file.cc
+    io_files/output_mp4_file.cc
+    io_files/output_holo_file.cc
+    io_files/output_frame_file_factory.cc
+
+    thread/batch_gpib_worker.cc
+    thread/camera_frame_read_worker.cc
+    thread/chart_record_worker.cc
+    thread/compute_worker.cc
+    thread/file_frame_read_worker.cc
+    thread/frame_read_worker.cc
+    thread/frame_record_worker.cc
+    thread/information_worker.cc
+    thread/worker.cc
+
+    tools/cuda_tools/cublas_handle.cc
+    tools/cuda_tools/cufft_handle.cc
+    tools/cuda_tools/cusolver_handle.cc
+    tools/hardware_limits.cc
+    tools/power_of_two.cc
+    tools/tools.cc
+    tools/units/conversion_data.cc
+    tools/units/fd_pixel.cc
+    tools/units/opengl_position.cc
+    tools/units/real_position.cc
+    tools/units/window_pixel.cc
+    tools/tools_debug.cc
+)

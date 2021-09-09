@@ -1,0 +1,13 @@
+#pragma once
+
+template <typename T>
+void cudaXMalloc(T** devPtr, size_t size)
+{
+    cudaSafeCall(cudaMalloc(devPtr, size));
+}
+
+template <typename T>
+void cudaXMallocHost(T** devPtr, size_t size)
+{
+    cudaSafeCall(cudaMallocHost(devPtr, size));
+}

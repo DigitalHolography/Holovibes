@@ -1,0 +1,20 @@
+/*! \file
+ *
+ * Overlay selecting the signal zone to chart. */
+#pragma once
+
+#include "rect_overlay.hh"
+
+namespace holovibes
+{
+namespace gui
+{
+class SignalOverlay : public RectOverlay
+{
+  public:
+    SignalOverlay(BasicOpenGLWindow* parent);
+
+    void release(ushort frameSide) override;
+};
+} // namespace gui
+} // namespace holovibes

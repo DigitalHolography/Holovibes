@@ -1,0 +1,20 @@
+/*! \file
+ *  Enum for kind of camera
+ */
+#pragma once
+
+namespace holovibes
+{
+//! \brief	Difference kind of camera supported by Holovibes
+enum class CameraKind
+{
+    NONE = 0,       /*!< No camera */
+    Adimec,         /*!< Adimec camera */
+    IDS,            /*!< IDS camera */
+    Phantom,        /*!< Phantom S710 camera */
+    PhantomBitflow, /*!< Phantom S710 camera with Bitflow frame grabber */
+    Hamamatsu,      /*!< Hamamatsu camera */
+    xiQ,            /*!< xiQ camera */
+    xiB             /*!< xiB camera */
+};
+} // namespace holovibes
