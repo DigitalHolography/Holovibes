@@ -1,6 +1,7 @@
 /*! \file
  *
- * Utility functions and types used in ICompute-based classes. */
+ * \brief Utility functions and types used in ICompute-based classes.
+ */
 #pragma once
 
 #include <vector>

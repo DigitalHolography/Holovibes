@@ -1,6 +1,7 @@
 /*! \file
  *
- * Options parser for the command-line. */
+ * \brief Options parser for the command-line.
+ */
 #pragma once
 
 #include <optional>

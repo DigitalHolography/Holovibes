@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of the Observer design pattern. */
+ * \brief Implementation of the Observer design pattern.
+ */
 #pragma once
 
 namespace holovibes

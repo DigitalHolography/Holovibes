@@ -1,6 +1,6 @@
 /*! \file
  *
- * Implementation of a Unit with its cast between different coordinates system
+ * \brief Implementation of a Unit with its cast between different coordinates system
  */
 #pragma once
 

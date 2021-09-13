@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief Wrapper around the chrono library
+ */
 #pragma once
 
 #include <chrono>

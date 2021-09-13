@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window used to display the input frames. */
+ * \brief Qt window used to display the input frames.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"

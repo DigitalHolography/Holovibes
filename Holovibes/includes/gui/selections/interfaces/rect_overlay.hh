@@ -1,6 +1,7 @@
 /*! \file
  *
- * Interface for all rectangular overlays. */
+ * \brief Interface for all rectangular overlays.
+ */
 #pragma once
 
 #include "Overlay.hh"

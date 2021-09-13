@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay used to display a reticle in the center of the window. */
+ * \brief Overlay used to display a reticle in the center of the window.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"

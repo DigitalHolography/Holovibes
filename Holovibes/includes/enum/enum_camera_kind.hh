@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for kind of camera
+ *
+ * \brief Enum for kind of camera
  */
 #pragma once
 

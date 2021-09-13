@@ -1,6 +1,7 @@
 /*! \file
  *
- * Interface for all overlays.*/
+ * \brief Interface for all overlays.
+ */
 #pragma once
 
 #include <array>

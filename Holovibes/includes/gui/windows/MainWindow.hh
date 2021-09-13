@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt main class containing the GUI. */
+ * \brief Qt main class containing the GUI.
+ */
 #pragma once
 
 // without namespace

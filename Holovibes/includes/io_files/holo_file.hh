@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 /*!
  *
  * Holovibes file format

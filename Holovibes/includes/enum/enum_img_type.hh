@@ -1,6 +1,7 @@
 
 /*! \file
- *  Enum for the different type of displaying images
+ *
+ * \brief Enum for the different type of displaying images
  */
 #pragma once
 

@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for kind of composite
+ *
+ * \brief Enum for kind of composite
  */
 #pragma once
 

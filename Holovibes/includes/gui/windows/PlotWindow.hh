@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt main window class containing a plot of computed chart values  */
+ * \brief Qt main window class containing a plot of computed chart values
+ */
 #pragma once
 
 #include "ui_plotwindow.h"

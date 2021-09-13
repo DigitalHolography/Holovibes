@@ -1,7 +1,10 @@
 /*! \file
-*
-* Precompiled header. Put here all the external includes that aren't used in a
-cuda file to avoid recompiling it each time. */
+ *
+ * \brief List of precompiled headers
+ *
+ * Precompiled header. Put here all the external includes that aren't used in a
+ * cuda file to avoid recompiling it each time.
+ */
 
 #pragma once
 // First, sort all the line

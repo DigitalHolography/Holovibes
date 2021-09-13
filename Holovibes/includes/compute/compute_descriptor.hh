@@ -1,6 +1,7 @@
 /*! \file
  *
- * Contains compute parameters. */
+ * \brief Contains compute parameters.
+ */
 #pragma once
 
 #include <atomic>

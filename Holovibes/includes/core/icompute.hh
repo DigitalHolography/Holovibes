@@ -1,6 +1,7 @@
 /*! \file
  *
- * Stores functions helping the editing of the images. */
+ * \brief Stores functions helping the editing of the images.
+ */
 #pragma once
 
 #include <atomic>

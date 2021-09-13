@@ -1,20 +1,20 @@
 /*! \file cuda_memory.cuh
-    \brief Contains all the safe call wrappers around cuda calls.
-
-    Not all cuda calls were included in this file, only the most used ones
-    To make a safe call, use our wrapper, if it's not in the list you can
-   either:
-     - Wrap it by adding it here
-     - Directly use 'cudaSafeCall' in your code
-
-    The behavior in case of error can be found in the common.cuh file
-    Currently details about the file, line, error will be logged and the
-   programm will abort
-
-    IMPORTANT NOTE : SAFECALLS ARE ONLY ENABLED IN DEBUG MODE
-    (you can again modify this behavior if you wish in the common.cuh file)
-*/
-
+ *
+ * \brief Contains all the safe call wrappers around cuda calls.
+ *
+ * Not all cuda calls were included in this file, only the most used ones
+ * To make a safe call, use our wrapper, if it's not in the list you can
+ * either:
+ * - Wrap it by adding it here
+ * - Directly use 'cudaSafeCall' in your code
+ *
+ * The behavior in case of error can be found in the common.cuh file
+ * Currently details about the file, line, error will be logged and the
+ * programm will abort
+ *
+ * IMPORTANT NOTE : SAFECALLS ARE ONLY ENABLED IN DEBUG MODE
+ * (you can again modify this behavior if you wish in the common.cuh file)
+ */
 #pragma once
 
 #include "common.cuh"

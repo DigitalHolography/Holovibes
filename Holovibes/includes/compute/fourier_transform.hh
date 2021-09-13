@@ -1,6 +1,7 @@
 /*! \file
-
- Implementation of FFT1, FFT2 and STFT algorithms. */
+ *
+ * \brief Implementation of FFT1, FFT2 and STFT algorithms.
+ */
 #pragma once
 
 #include <cufft.h>

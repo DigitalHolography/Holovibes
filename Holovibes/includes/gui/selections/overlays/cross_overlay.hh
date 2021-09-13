@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay used to compute the side views. */
+ * \brief Overlay used to compute the side views.*
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"

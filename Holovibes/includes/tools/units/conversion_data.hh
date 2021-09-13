@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of the conversion from a unit to another */
+ * \brief Implementation of the conversion from a unit to another
+ */
 #pragma once
 
 namespace holovibes

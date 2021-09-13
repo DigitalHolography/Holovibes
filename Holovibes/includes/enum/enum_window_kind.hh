@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for kind of window
+ *
+ * \brief Enum for kind of window
  */
 #pragma once
 

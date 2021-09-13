@@ -1,6 +1,7 @@
 /*! \file
  *
- * Various fast functions to find powers of two. */
+ * \brief Various fast functions to find powers of two.
+ */
 #pragma once
 
 /* \brief check if x is power of two

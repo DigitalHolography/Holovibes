@@ -1,6 +1,7 @@
 /*! \file
-
-   Implementation of the rendering features. */
+ *
+ * \brief Implementation of the rendering features.
+ */
 #pragma once
 
 #include <atomic>

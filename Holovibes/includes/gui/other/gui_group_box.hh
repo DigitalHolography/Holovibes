@@ -1,6 +1,7 @@
 /*! \file
  *
- * Contains the overloading of QGroupBox. */
+ * \brief Contains the overloading of QGroupBox.
+ */
 #pragma once
 
 #include <QGroupBox>
