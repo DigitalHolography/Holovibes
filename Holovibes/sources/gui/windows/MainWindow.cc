@@ -2494,6 +2494,7 @@ void MainWindow::set_log_scale(const bool value)
     if (!is_raw_mode())
     {
         cd_.set_log_scale_slice_enabled(cd_.current_window, value);
+        set_auto_contrast();
         pipe_refresh();
         notify();
     }
