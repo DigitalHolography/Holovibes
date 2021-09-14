@@ -30,9 +30,7 @@ class Chrono
     {
         if (end_)
         {
-            return std::chrono::duration_cast<std::chrono::seconds>(end_ -
-                                                                    start_)
-                .count();
+            return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
         }
     }
 
@@ -45,9 +43,7 @@ class Chrono
     {
         if (end_)
         {
-            return std::chrono::duration_cast<std::chrono::milliseconds>(end_ -
-                                                                         start_)
-                .count();
+            return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
         }
     }
 
@@ -60,9 +56,7 @@ class Chrono
     {
         if (end_)
         {
-            return std::chrono::duration_cast<std::chrono::microseconds>(end_ -
-                                                                         start_)
-                .count();
+            return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
         }
     }
 
@@ -75,9 +69,7 @@ class Chrono
     {
         if (end_)
         {
-            return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ -
-                                                                        start_)
-                .count();
+            return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
         }
     }
 
