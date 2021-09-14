@@ -30,6 +30,17 @@ Alternatively, you can build from the command line:
 * **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
 * **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
 
+### Add an element to Front with __QtCreator__
+
+* On _QtCreator_, load the file `mainwindow.ui`
+* Add the wanted widget with a drag and drop and change its name in the right collumn.
+* Add a slot at the end of the file `mainwindow.ui` opened in edit mode with the prototype of the function.
+* Add a new slot in _QtCreator_ cliking on the green '+' on the middle.
+* Fill the 4 collumns with the name of your function in the last collumn.
+* Add the prototype in `MainWindow.hh`
+* Implement the function in `MainWindow.cc`
+
+
 #### Known issues
 
 2021-05-18: The project does not compile with the latest version of MSVC (14.29). To downgrade to a previous version (14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
