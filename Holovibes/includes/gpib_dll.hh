@@ -11,6 +11,7 @@
 #undef min
 #include "../GPIB/IVisaInterface.hh"
 
+/*! \brief #TODO Add a description for this namespace */
 namespace gpib
 {
 /*! \brief Encapsulate a GPIB DLL ressource.

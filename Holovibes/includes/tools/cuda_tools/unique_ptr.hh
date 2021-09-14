@@ -12,11 +12,13 @@
 #include "logger.hh"
 #include "common.cuh"
 
+/*! \brief #TODO Add a description for this namespace */
 namespace holovibes
 {
 /*! \brief Contains memory handlers for cuda buffers. */
 namespace cuda_tools
 {
+/*! \brief #TODO Add a description for this namespace or remove it */
 namespace _private
 {
 template <typename T>

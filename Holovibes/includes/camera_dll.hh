@@ -12,6 +12,7 @@
 #undef min
 #include "icamera.hh"
 
+/*! \brief #TODO Add a description for this namespace */
 namespace camera
 {
 /*! \brief Encapsulate a camera DLL ressource.

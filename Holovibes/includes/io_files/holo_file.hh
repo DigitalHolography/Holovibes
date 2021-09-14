@@ -31,6 +31,7 @@
 
 using json = ::nlohmann::json;
 
+/*! \brief #TODO Add a description for this namespace */
 namespace holovibes::io_files
 {
 /*!
