@@ -20,7 +20,7 @@
 namespace holovibes
 {
 /*!< Current version of this project. */
-const static std::string version = "v10";
+const static std::string version = "v10.1";
 
 /*! \brief Contains compute parameters.
  *
@@ -374,7 +374,7 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> composite_auto_weights_;
     //! \}
 
-  std::atomic<bool> fast_pipe{false};
+    std::atomic<bool> fast_pipe{false};
 
 #pragma endregion
 };
