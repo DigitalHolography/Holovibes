@@ -92,8 +92,8 @@ Pipe::Pipe(BatchInputQueue& input,
         // If refresh() fails the compute descriptor settings will be
         // changed to something that should make refresh() work
         // (ex: lowering the GPU memory usage)
-        LOG_WARN("Pipe refresh failed, trying one more time with updated "
-                 "compute descriptor");
+        LOG_WARN << "Pipe refresh failed, trying one more time with updated "
+                    "compute descriptor";
         try
         {
             refresh();

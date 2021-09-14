@@ -141,7 +141,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     catch (std::exception&)
     {
         LOG_WARN << GLOBAL_INI_PATH << ": Configuration file not found. "
-                                  << "Initialization with default values.";
+                 << "Initialization with default values.";
         save_ini(GLOBAL_INI_PATH);
     }
 
@@ -639,9 +639,9 @@ void MainWindow::layout_toggled()
     });
 }
 
-void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg); }
+void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg; }
 
-void MainWindow::display_info(const std::string msg) { LOG_INFO(msg); }
+void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
@@ -973,8 +973,8 @@ void MainWindow::reset()
     }
     catch (std::exception&)
     {
-        LOG_WARN << GLOBAL_INI_PATH <<
-                 ": Config file not found. It will use the default values.";
+        LOG_WARN << GLOBAL_INI_PATH
+                 << ": Config file not found. It will use the default values.";
     }
     notify();
 }
@@ -1020,7 +1020,7 @@ void MainWindow::change_camera(CameraKind c)
         }
         catch (camera::CameraException& e)
         {
-            display_error("[CAMERA]" + e.what());
+            display_error("[CAMERA] " + std::string(e.what()));
         }
         catch (std::exception& e)
         {
@@ -1108,7 +1108,7 @@ void MainWindow::createPipe()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR << "cannot create Pipe: " << e.what());
+        LOG_ERROR << "cannot create Pipe: " << e.what();
     }
 }
 
@@ -1188,8 +1188,7 @@ void MainWindow::set_holographic_mode()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR << "cannot set holographic mode: " <<
-                  e.what();
+        LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
 
@@ -1807,8 +1806,8 @@ void MainWindow::update_raw_view(bool value)
         if (cd_.batch_size > global::global_config.output_queue_max_size)
         {
             ui.RawDisplayingCheckBox->setChecked(false);
-            LOG_ERROR << 
-                "[RAW VIEW] Batch size must be lower than output queue size";
+            LOG_ERROR
+                << "[RAW VIEW] Batch size must be lower than output queue size";
             return;
         }
 
@@ -2248,8 +2247,8 @@ void MainWindow::set_space_transformation(const QString value)
         {
             // Shouldn't happen
             cd_.space_transformation = SpaceTransformation::None;
-            LOG_ERROR << "Unknown space transform: " << value.toStdString() <<
-                      ", falling back to None";
+            LOG_ERROR << "Unknown space transform: " << value.toStdString()
+                      << ", falling back to None";
         }
         set_holographic_mode();
     }

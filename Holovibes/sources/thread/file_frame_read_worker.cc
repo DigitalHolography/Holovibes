@@ -129,7 +129,7 @@ bool FileFrameReadWorker::init_frame_buffers()
             error_message +=
                 " (consider disabling \"Load file in GPU\" option)";
 
-        LOG_ERROR << error_message);
+        LOG_ERROR << error_message;
 
         cudaXFreeHost(cpu_frame_buffer_);
         return false;
@@ -267,7 +267,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
     }
     catch (const io_files::FileException& e)
     {
-        LOG_WARN << "[READER] " <<< e.what(;
+        LOG_WARN << "[READER] " << e.what();
     }
 
     return frames_read;
