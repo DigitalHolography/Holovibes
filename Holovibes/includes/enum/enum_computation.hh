@@ -6,7 +6,10 @@
 
 namespace holovibes
 {
-/*! \brief	Input processes, start at 1 to keep compatibility */
+/*! \enum Computation
+ *
+ * \brief Input processes, start at 1 to keep compatibility
+ */
 enum class Computation
 {
     Raw = 1, /*!< Interferogram recorded */

@@ -10,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class ZoomOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class ZoomOverlay : public SquareOverlay
 {
   public:

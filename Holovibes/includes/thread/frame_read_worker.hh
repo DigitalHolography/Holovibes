@@ -9,8 +9,9 @@
 
 namespace holovibes::worker
 {
-/*!
- *  \brief    Abstract class used to read frames
+/*! \class FrameReadWorker
+ *
+ * \brief Abstract class used to read frames
  */
 class FrameReadWorker : public Worker
 {

@@ -11,6 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class ReticleOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class ReticleOverlay : public Overlay
 {
   public:

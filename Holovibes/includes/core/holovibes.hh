@@ -50,14 +50,17 @@ class MainWindow;
 class Queue;
 class BatchInputQueue;
 
-/*! \brief Core class to use HoloVibes
+/*! \class Holovibes
+ *
+ * \brief Core class to use HoloVibes
  *
  * This class does not depends on the user interface (classes under the
  * holovibes namespace can be seen as a library).
  *
  * It contains high-level ressources (Pipe, Camera, Recorder ...). These
  * ressources are shared between threads and should be allocated in threads
- * themselves. */
+ * themselves. 
+ */
 class Holovibes
 {
     struct CudaStreams

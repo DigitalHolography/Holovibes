@@ -8,14 +8,15 @@
 
 namespace holovibes::io_files
 {
-/*!
- *  \brief    Base class of Input and Output files
+/*! \class FrameFile
  *
- *  \details  Some methods, such as the constructors and the destructors,
- *            are protected to prevent the developers to access a file
- *            outside the file system.
- *            An UML diagram, called file_system, is provided in
- *            the documentation folder
+ * \brief Base class of Input and Output files
+ *
+ * \details Some methods, such as the constructors and the destructors,
+ *          are protected to prevent the developers to access a file
+ *          outside the file system.
+ *          An UML diagram, called file_system, is provided in
+ *          the documentation folder
  */
 class FrameFile
 {

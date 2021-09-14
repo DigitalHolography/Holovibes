@@ -16,18 +16,22 @@
 
 namespace holovibes
 {
-/*! \brief Queue class is a custom circular FIFO data structure. It can handle
-** CPU or GPU data. This class is used to store the raw images, provided
-** by the camera, and holograms.
-**
-** This Queue is thread safe, it is impossible to enqueue and dequeue
-*simultaneously.
-** As well as it is impossible to get a value from the class getters while
-*another
-** object is enqueuing or dequeuing.
-**
-** The Queue ensures that all elements it contains are written in little endian.
-*/
+/*! \class Queue
+ *
+ * \brief Circular queue to handle CPU and GPU data
+ * 
+ * Queue class is a custom circular FIFO data structure. It can handle
+ * CPU or GPU data. This class is used to store the raw images, provided
+ * by the camera, and holograms.
+ *
+ * This Queue is thread safe, it is impossible to enqueue and dequeue
+ * simultaneously.
+ * As well as it is impossible to get a value from the class getters while
+ * another
+ * object is enqueuing or dequeuing.
+ *
+ * The Queue ensures that all elements it contains are written in little endian.
+ */
 class Queue : public DisplayQueue
 {
     friend class BatchInputQueue;

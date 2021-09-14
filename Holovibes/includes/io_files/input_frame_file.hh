@@ -13,8 +13,9 @@ class ComputeDescriptor;
 
 namespace io_files
 {
-/*!
- *  \brief    Base class of Input files
+/*! \class InputFrameFile
+ *
+ * \brief Base class of Input files
  */
 class InputFrameFile : public FrameFile
 {

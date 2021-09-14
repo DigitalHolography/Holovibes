@@ -10,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class SignalOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class SignalOverlay : public RectOverlay
 {
   public:

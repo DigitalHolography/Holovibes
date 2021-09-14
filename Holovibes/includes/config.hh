@@ -6,7 +6,9 @@
 
 namespace holovibes
 {
-/*! \brief Store some information that need to be accessed globally.
+/*! \class Config
+ *
+ * \brief Store some information that need to be accessed globally.
  */
 class Config
 {

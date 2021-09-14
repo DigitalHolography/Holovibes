@@ -6,7 +6,10 @@
 
 namespace holovibes
 {
-/*! \brief Describes the access mode of an accessor. */
+/*! \enum AccessMode
+ * 
+ * \brief Describes the access mode of an accessor.
+ */
 enum class AccessMode
 {
     Get = 1, /*!< Get */

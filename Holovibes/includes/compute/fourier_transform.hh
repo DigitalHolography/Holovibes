@@ -23,6 +23,10 @@ struct CoreBuffersEnv;
 
 namespace compute
 {
+/*! \class FourierTransform
+ *
+ * \brief #TODO Add a description for this class
+ */
 class FourierTransform
 {
   public:

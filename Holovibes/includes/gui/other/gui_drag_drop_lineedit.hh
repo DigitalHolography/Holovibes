@@ -11,6 +11,10 @@
 
 namespace holovibes::gui
 {
+/*! \class Drag_drop_lineedit
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Drag_drop_lineedit : public QLineEdit
 {
     Q_OBJECT

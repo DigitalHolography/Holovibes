@@ -9,6 +9,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class OutputHoloFile
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OutputHoloFile : public OutputFrameFile, public HoloFile
 {
   public:

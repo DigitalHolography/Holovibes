@@ -19,8 +19,9 @@ class InputFrameFile;
 
 namespace worker
 {
-/*!
- *  \brief    Class used to read frames from a file
+/*! \class FileFrameReadWorker
+ *
+ * \brief    Class used to read frames from a file
  */
 class FileFrameReadWorker : public FrameReadWorker
 {

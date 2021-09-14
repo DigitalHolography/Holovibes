@@ -10,6 +10,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class OutputMp4File
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OutputMp4File : public OutputFrameFile, public Mp4File
 {
   public:

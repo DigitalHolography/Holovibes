@@ -12,6 +12,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class CrossOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CrossOverlay : public Overlay
 {
   public:

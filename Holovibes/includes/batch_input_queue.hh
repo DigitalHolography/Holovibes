@@ -24,13 +24,17 @@ namespace holovibes
 
 class Queue;
 
-/* Conditons:
-** 2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
-** batch size in the queue must be a submultiple of the queue size
-** The order of operations cannot be guaranteed if the queue is full
-** i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
-** Dequeue, Enqueue
-*/
+/*! \class BatchInputQueue
+ *
+ * \brief #TODO Add a description for this class
+ *
+ * Conditons:
+ *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
+ *   batch size in the queue must be a submultiple of the queue size
+ *   The order of operations cannot be guaranteed if the queue is full
+ *   i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
+ *   Dequeue, Enqueue
+ */
 class BatchInputQueue : public DisplayQueue
 {
   public: /* Public methods */

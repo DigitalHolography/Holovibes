@@ -13,8 +13,9 @@ namespace worker
 class InformationWorker;
 }
 
-/*!
- * \brief Class used to store informations that will be fetch by the info
+/*! \class InformationContainer
+ *
+ * \brief Class used to store informations that will be fetched by the info
  */
 class InformationContainer
 {

@@ -21,12 +21,20 @@ namespace cuda_tools
 /*! \brief #TODO Add a description for this namespace or remove it */
 namespace _private
 {
+/*! \struct element_size<>
+ *
+ * \brief #TODO Add a description for this struct
+ */
 template <typename T>
 struct element_size
 {
     static const size_t value = sizeof(T);
 };
 
+/*! \struct element_size<void>
+ *
+ * \brief #TODO Add a description for this struct
+ */
 template <>
 struct element_size<void>
 {
@@ -34,7 +42,10 @@ struct element_size<void>
 };
 } // namespace _private
 
-/// A smart pointer made for ressources that need to be cudaFreed
+/*! \class UniquePtr
+ *
+ * \brief A smart pointer made for ressources that need to be cudaFreed
+ */
 template <typename T>
 class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
 {

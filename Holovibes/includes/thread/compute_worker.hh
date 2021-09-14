@@ -14,8 +14,9 @@ class BatchInputQueue;
 
 namespace worker
 {
-/*!
- *  \brief Class used for all computations
+/*! \class ComputeWorker
+ *
+ * \brief Class used for all computations
  */
 class ComputeWorker : public Worker
 {

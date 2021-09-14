@@ -21,6 +21,10 @@ namespace holovibes
 namespace gui
 {
 
+/*! \enum KindOfOverlay
+ *
+ * \brief #TODO Add a description for this enum
+ */
 enum KindOfOverlay
 {
     Zoom,
@@ -42,6 +46,10 @@ class BasicOpenGLWindow;
 
 using Color = std::array<float, 3>;
 
+/*! \class Overlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Overlay : protected QOpenGLFunctions
 {
   public:

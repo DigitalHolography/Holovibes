@@ -13,7 +13,9 @@ namespace units
 class FDPixel;
 class WindowPixel;
 
-/*! \brief A position in the OpenGL coordinate system [-1;1]
+/*! \class OpenglPosition
+ *
+ * \brief A position in the OpenGL coordinate system [-1;1]
  */
 class OpenglPosition : public Unit<float>
 {

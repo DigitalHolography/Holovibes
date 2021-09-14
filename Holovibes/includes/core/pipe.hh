@@ -18,7 +18,9 @@
 
 namespace holovibes
 {
-/*! \brief Pipe is a class that applies processing on input frames.
+/*! \class Pipe
+ *
+ * \brief Pipe is a class that applies processing on input frames.
  *
  * # Why doing this way ?
  *

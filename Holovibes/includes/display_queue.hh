@@ -8,6 +8,10 @@
 
 namespace holovibes
 {
+/*! \class DisplayQueue
+ *
+ * \brief #TODO Add a description for this class
+ */
 class DisplayQueue
 {
   public:

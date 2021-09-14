@@ -20,7 +20,10 @@ namespace holovibes
 /*! \brief Contains all function to display the graphical user interface */
 namespace gui
 {
-/*! \brief Describes the kind of window */
+/*! \enum KindOfView
+ *
+ * \brief Describes the kind of window
+ */
 enum class KindOfView
 {
     Raw = 1,  /**< Simply displaying the input frames */
@@ -32,6 +35,10 @@ enum class KindOfView
     Filter2D, /**< Displaying the Filter2D view of the hologram */
 };
 
+/*! \class BasicOpenGLWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
   public:

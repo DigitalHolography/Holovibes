@@ -6,6 +6,10 @@
 
 #include <chrono>
 
+/*! \class Chrono
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Chrono
 {
   public:

@@ -17,8 +17,9 @@ namespace holovibes
 {
 namespace worker
 {
-/*!
- *  \brief    Class used to read frames from a camera
+/*! \class CameraFrameReadWorker
+ *
+ * \brief Class used to read frames from a camera
  */
 class CameraFrameReadWorker : public FrameReadWorker
 {

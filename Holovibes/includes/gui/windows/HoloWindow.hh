@@ -14,6 +14,10 @@ namespace gui
 class MainWindow;
 using SharedPipe = std::shared_ptr<ICompute>;
 
+/*! \class HoloWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class HoloWindow : public RawWindow
 {
   public:

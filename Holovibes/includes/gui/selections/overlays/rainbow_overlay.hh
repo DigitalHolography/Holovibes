@@ -11,6 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class RainbowOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class RainbowOverlay : public Overlay
 {
   public:

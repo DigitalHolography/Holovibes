@@ -16,7 +16,9 @@ namespace units
 
 enum Axis;
 
-/*! \brief Encapsulates the conversion from a unit to another
+/*! \class ConversionData
+ *
+ * \brief Encapsulates the conversion from a unit to another
  *
  * This will be copied a lot, make sure to keep references and pointers inside
  */

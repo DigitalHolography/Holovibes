@@ -17,7 +17,9 @@ namespace holovibes
 namespace units
 {
 
-/*! \brief A point in some specific unit
+/*! \class Point
+ *
+ * \brief A point in some specific unit
  */
 template <class T>
 class Point

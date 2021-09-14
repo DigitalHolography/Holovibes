@@ -6,6 +6,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class FileException
+ *
+ * \brief #TODO Add a description for this class
+ */
 class FileException : public std::exception
 {
   public:

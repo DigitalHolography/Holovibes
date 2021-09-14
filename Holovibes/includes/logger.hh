@@ -15,6 +15,10 @@
 #define LOG_WARN(Msg) Logger::log(std::string("[WARNING] ") + (Msg), __FILE__, __LINE__, __FUNCTION__)
 #define LOG_ERROR(Msg) Logger::log(std::string("[ERROR] ") + (Msg), __FILE__, __LINE__, __FUNCTION__)
 
+/*! \class Logger
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Logger
 {
   public:

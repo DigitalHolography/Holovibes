@@ -13,7 +13,10 @@ namespace holovibes
 {
 namespace cuda_tools
 {
-/// Array class for cuda buffers that ocasionally need to be resized
+/*! \class Array
+ *
+ * \brief Array class for cuda buffers that ocasionally need to be resized
+ */
 template <typename T>
 class Array : public UniquePtr<T>
 {

@@ -6,7 +6,10 @@
 
 namespace holovibes
 {
-/*! \brief	Rendering mode for Hologram (Space transformation) */
+/*! \enum SpaceTransformation
+ *
+ * \brief Rendering mode for Hologram (Space transformation)
+ */
 enum class SpaceTransformation
 {
     None = 0, /*!< Nothing Applied */

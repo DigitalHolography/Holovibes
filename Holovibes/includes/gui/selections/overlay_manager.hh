@@ -12,6 +12,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class OverlayManager
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OverlayManager
 {
   public:

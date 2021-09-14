@@ -25,6 +25,10 @@ namespace compute
 {
 using uint = unsigned int;
 
+/*! \class Rendering
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Rendering
 {
   public:

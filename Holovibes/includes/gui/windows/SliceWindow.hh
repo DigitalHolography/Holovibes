@@ -12,6 +12,10 @@ namespace gui
 {
 class MainWindow;
 
+/*! \class SliceWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class SliceWindow : public BasicOpenGLWindow
 {
   public:

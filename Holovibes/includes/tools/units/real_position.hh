@@ -12,7 +12,9 @@ namespace units
 {
 class FDPixel;
 
-/*! \brief A position in the frame desc coordinate system [0;fd.width]
+/*! \class RealPosition
+ *
+ * \brief A position in the frame desc coordinate system [0;fd.width]
  */
 class RealPosition : public Unit<double>
 {

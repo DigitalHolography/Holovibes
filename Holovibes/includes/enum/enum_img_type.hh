@@ -7,7 +7,10 @@
 
 namespace holovibes
 {
-/*! \brief	Displaying type of the image */
+/*! \enum ImgType
+ *
+ * \brief Displaying type of the image
+ */
 enum class ImgType
 {
     Modulus = 0,    /*!< Modulus of the complex data */

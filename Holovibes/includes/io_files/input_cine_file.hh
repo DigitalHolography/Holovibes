@@ -9,10 +9,16 @@
 
 namespace holovibes::io_files
 {
-// FIXME: this class could and should be improved.
-// It handles the cine files like the previous versions of Holovibes,
-// but it does not handle all the specificities of the cine files (see link in
-// cine_file.hh).
+/*! \class InputCineFile
+ *
+ * \brief #TODO Add a description for this class
+ */
+
+/* FIXME: this class could and should be improved.
+ * It handles the cine files like the previous versions of Holovibes,
+ * but it does not handle all the specificities of the cine files (see link in
+ * cine_file.hh).
+ */
 class InputCineFile : public InputFrameFile, public CineFile
 {
   public:

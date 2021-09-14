@@ -6,7 +6,10 @@
 
 namespace holovibes
 {
-/*! \brief	Time transformation algorithm to apply */
+/*! \enum TimeTransformation
+ *
+ * \brief Time transformation algorithm to apply
+ */
 enum class TimeTransformation
 {
     STFT = 0, /*!< Short-time Fourier transformation */

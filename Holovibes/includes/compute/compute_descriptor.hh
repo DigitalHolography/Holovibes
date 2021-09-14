@@ -23,7 +23,9 @@ namespace holovibes
 /*!< Current version of this project. */
 const static std::string version = "v10";
 
-/*! \brief Contains compute parameters.
+/*! \class ComputeDescriptor
+ *
+ * \brief Contains compute parameters.
  *
  * Theses parameters will be used when the pipe is refresh.
  * It defines parameters for FFT, lens (Fresnel transforms ...),

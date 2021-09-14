@@ -9,11 +9,12 @@
 
 namespace holovibes::io_files
 {
-/*!
- *  \brief    Used to open an input file
+/*! \class InputFrameFileFactory
  *
- *  \details  This class is a factory,
- *            the created input file depends on the file path extension
+ * \brief Used to open an input file
+ *
+ * \details This class is a factory,
+ *          the created input file depends on the file path extension
  */
 class InputFrameFileFactory
 {

@@ -8,10 +8,12 @@
 
 namespace holovibes
 {
-/*! \brief Implementation of custom error class.
+/*! \enum error_kind
  *
- * To create a new kind of error just add your new kind of error to the enum */
-
+ * \brief Implementation of custom error class.
+ *
+ * To create a new kind of error just add your new kind of error to the enum
+ */
 enum error_kind
 {
     fail_update,
@@ -21,6 +23,10 @@ enum error_kind
     fail_enqueue
 };
 
+/*! \class CustomException
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CustomException : public std::exception
 {
   public:

@@ -6,6 +6,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class AviFile
+ *
+ * \brief #TODO Add a description for this class
+ */
 class AviFile
 {
   protected:

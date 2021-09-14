@@ -8,8 +8,9 @@
 
 namespace holovibes::worker
 {
-/*!
- *  \brief Class used to record chart
+/*! \class ChartRecordWorker
+ *
+ * \brief Class used to record chart
  */
 class ChartRecordWorker : public Worker
 {

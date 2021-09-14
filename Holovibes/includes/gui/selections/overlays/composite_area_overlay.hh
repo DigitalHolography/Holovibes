@@ -10,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class CompositeAreaOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CompositeAreaOverlay : public RectOverlay
 {
   public:

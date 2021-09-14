@@ -14,8 +14,9 @@ class ICompute;
 
 namespace worker
 {
-/*!
- *  \brief    Class used to record frames
+/*! \class FrameRecordWorker
+ *
+ * \brief Class used to record frames
  */
 class FrameRecordWorker : public Worker
 {

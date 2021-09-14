@@ -10,6 +10,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class OutputAviFile
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OutputAviFile : public OutputFrameFile, public AviFile
 {
   public:

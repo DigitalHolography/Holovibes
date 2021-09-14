@@ -13,7 +13,9 @@ namespace holovibes
 {
 namespace cuda_tools
 {
-/*! \brief RAII wrapper for cufftHandle
+/*! \class CufftHandle
+ *
+ * \brief RAII wrapper for cufftHandle
  */
 class CufftHandle
 {

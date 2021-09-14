@@ -10,7 +10,10 @@
 
 namespace holovibes
 {
-/*! Regroup all resources used for phase unwrapping.
+/*! \struct UnwrappingResources
+ *
+ * \brief  Regroup all resources used for phase unwrapping.
+ *
  * Takes care of initialization and destruction. */
 struct UnwrappingResources
 {

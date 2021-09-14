@@ -6,6 +6,10 @@
 
 namespace holovibes
 {
+/*! \enum RecordMode
+ *
+ * \brief #TODO Add a description for this enum
+ */
 enum class RecordMode
 {
     RAW,

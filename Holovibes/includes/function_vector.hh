@@ -10,6 +10,10 @@ namespace holovibes
 {
 using ConditionType = std::function<bool()>;
 
+/*! \class FunctionVector
+ *
+ * \brief #TODO Add a description for this class
+ */
 class FunctionVector : public FnVector
 {
   public:

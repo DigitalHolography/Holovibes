@@ -12,8 +12,9 @@ class InformationContainer;
 
 namespace worker
 {
-/*!
- *  \brief Class used to display side information relative to the execution
+/*! \class InformationWorker
+ *
+ * \brief Class used to display side information relative to the execution
  */
 class InformationWorker : public Worker
 {

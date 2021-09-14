@@ -19,6 +19,10 @@ struct CoreBuffersEnv;
 
 namespace compute
 {
+/*! \class Postprocessing
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Postprocessing
 {
   public:

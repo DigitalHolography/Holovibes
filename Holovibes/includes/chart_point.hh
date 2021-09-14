@@ -6,6 +6,10 @@
 
 namespace holovibes
 {
+/*! \class ChartPoint
+ *
+ * \brief #TODO Add a description for this struct
+ */
 struct ChartPoint
 {
     double avg_signal;

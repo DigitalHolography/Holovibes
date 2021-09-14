@@ -14,8 +14,10 @@
 /*! \brief #TODO Add a description for this namespace */
 namespace gpib
 {
-/*! \brief Encapsulate a GPIB DLL ressource.
-
+/*! \class GpibDLL
+ *
+ * \brief Encapsulate a GPIB DLL ressource.
+ *
  * Very similar to camera_dll.hh as it is basically just a copy
  * paste of it with 2 seds. This surely can be improved but due the lack
  * of time, quick'n dirty will do.

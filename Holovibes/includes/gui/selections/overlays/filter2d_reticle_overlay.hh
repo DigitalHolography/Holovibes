@@ -11,6 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class Filter2DReticleOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Filter2DReticleOverlay : public Overlay
 {
   public:
