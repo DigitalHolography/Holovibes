@@ -7,7 +7,7 @@
 * [CUDA 11.2](https://developer.nvidia.com/cuda-downloads)
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/)
-* [BitFlow SDK 6.40](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
+* [BitFlow SDK 6.50](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
 * [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 * [OpenCV 4.5.0](https://opencv.org/releases/)
 
