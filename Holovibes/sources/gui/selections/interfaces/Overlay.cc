@@ -83,7 +83,7 @@ void Overlay::initProgram()
         create_absolute_qt_path("shaders/fragment.color.glsl"));
     Vao_.create();
     if (!Program_->bind())
-        LOG_ERROR(Program_->log().toStdString());
+        LOG_ERROR << Program_->log().toStdString();
     init();
     Program_->release();
 }

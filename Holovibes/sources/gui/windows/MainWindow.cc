@@ -140,8 +140,8 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     }
     catch (std::exception&)
     {
-        LOG_WARN(GLOBAL_INI_PATH + ": Configuration file not found. "
-                                   "Initialization with default values.");
+        LOG_WARN << GLOBAL_INI_PATH << ": Configuration file not found. "
+                                  << "Initialization with default values.";
         save_ini(GLOBAL_INI_PATH);
     }
 
@@ -639,7 +639,7 @@ void MainWindow::layout_toggled()
     });
 }
 
-void MainWindow::display_error(const std::string msg) { LOG_ERROR(msg); }
+void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg); }
 
 void MainWindow::display_info(const std::string msg) { LOG_INFO(msg); }
 
@@ -876,7 +876,7 @@ void MainWindow::save_ini(const std::string& path)
 
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO("Configuration file holovibes.ini overwritten");
+    LOG_INFO << "Configuration file holovibes.ini overwritten";
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -973,8 +973,8 @@ void MainWindow::reset()
     }
     catch (std::exception&)
     {
-        LOG_WARN(GLOBAL_INI_PATH +
-                 ": Config file not found. It will use the default values.");
+        LOG_WARN << GLOBAL_INI_PATH <<
+                 ": Config file not found. It will use the default values.";
     }
     notify();
 }
@@ -1020,7 +1020,7 @@ void MainWindow::change_camera(CameraKind c)
         }
         catch (camera::CameraException& e)
         {
-            display_error("[CAMERA]" + std::string(e.what()));
+            display_error("[CAMERA]" + e.what());
         }
         catch (std::exception& e)
         {
@@ -1108,7 +1108,7 @@ void MainWindow::createPipe()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR(std::string("cannot create Pipe: ") + std::string(e.what()));
+        LOG_ERROR << "cannot create Pipe: " << e.what());
     }
 }
 
@@ -1143,7 +1143,7 @@ void MainWindow::createHoloWindow()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR(std::string("createHoloWindow: ") + std::string(e.what()));
+        LOG_ERROR << "createHoloWindow: " << e.what();
     }
 }
 
@@ -1188,8 +1188,8 @@ void MainWindow::set_holographic_mode()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR(std::string("cannot set holographic mode: ") +
-                  std::string(e.what()));
+        LOG_ERROR << "cannot set holographic mode: " <<
+                  e.what();
     }
 }
 
@@ -1232,7 +1232,7 @@ void MainWindow::refreshViewMode()
     catch (std::runtime_error& e)
     {
         mainDisplay.reset(nullptr);
-        LOG_ERROR(std::string("refreshViewMode: ") + std::string(e.what()));
+        LOG_ERROR << "refreshViewMode: " << e.what();
     }
     notify();
     layout_toggled();
@@ -1807,8 +1807,8 @@ void MainWindow::update_raw_view(bool value)
         if (cd_.batch_size > global::global_config.output_queue_max_size)
         {
             ui.RawDisplayingCheckBox->setChecked(false);
-            LOG_ERROR(
-                "[RAW VIEW] Batch size must be lower than output queue size");
+            LOG_ERROR << 
+                "[RAW VIEW] Batch size must be lower than output queue size";
             return;
         }
 
@@ -2248,8 +2248,8 @@ void MainWindow::set_space_transformation(const QString value)
         {
             // Shouldn't happen
             cd_.space_transformation = SpaceTransformation::None;
-            LOG_ERROR("Unknown space transform: " + value.toStdString() +
-                      ", falling back to None");
+            LOG_ERROR << "Unknown space transform: " << value.toStdString() <<
+                      ", falling back to None";
         }
         set_holographic_mode();
     }
@@ -2860,7 +2860,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     if (ui.BatchGroupBox->isChecked())
         info = "Batch " + info;
 
-    LOG_INFO("[RECORDER] " + info);
+    LOG_INFO << "[RECORDER] " << info;
 
     ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);

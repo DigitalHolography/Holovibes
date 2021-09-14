@@ -29,7 +29,7 @@ void FrameRecordWorker::run()
 
     if (cd.batch_size > global::global_config.frame_record_queue_max_size)
     {
-        LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
+        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
         return;
     }
 
@@ -101,8 +101,7 @@ void FrameRecordWorker::run()
 
         if (stop_requested_)
         {
-            LOG_INFO("[RECORDER] Recording stopped, written frames: " +
-                     std::to_string(nb_frames_recorded));
+            LOG_INFO << "[RECORDER] Recording stopped, written frames: " << nb_frames_recorded;
 
             output_frame_file->correct_number_of_frames(nb_frames_recorded);
         }
@@ -113,7 +112,7 @@ void FrameRecordWorker::run()
     }
     catch (const io_files::FileException& e)
     {
-        LOG_ERROR("[RECORDER] " + std::string(e.what()));
+        LOG_ERROR << "[RECORDER] " + std::string(e.what()));
         delete output_frame_file;
     }
 
@@ -121,8 +120,8 @@ void FrameRecordWorker::run()
 
     if (record_queue.has_overridden())
     {
-        LOG_ERROR("[RECORDER] Record queue overloaded, data has been lost! "
-                  "Try to resize record buffer");
+        LOG_ERROR << "[RECORDER] Record queue overloaded, data has been lost! "
+                  "Try to resize record buffer";
     }
 
     reset_gpu_record_queue(pipe);

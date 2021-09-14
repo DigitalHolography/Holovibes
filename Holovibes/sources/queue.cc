@@ -37,7 +37,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 {
     if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
     {
-        LOG_ERROR("Queue: could not allocate queue");
+        LOG_ERROR << "Queue: could not allocate queue";
         throw std::logic_error("Could not allocate queue");
     }
 
@@ -64,7 +64,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
     {
-        LOG_ERROR("Queue: could not resize queue");
+        LOG_ERROR << "Queue: could not resize queue";
         throw std::logic_error("Could not resize queue");
     }
 
@@ -92,8 +92,7 @@ bool Queue::enqueue(void* elt,
 
     if (cuda_status != CUDA_SUCCESS)
     {
-        LOG_ERROR(std::string("Queue: could not enqueue: ") +
-                  std::string(cudaGetErrorString(cuda_status)));
+        LOG_ERROR << "Queue: could not enqueue: " << std::string(cudaGetErrorString(cuda_status));
         data_.reset();
         return false;
     }

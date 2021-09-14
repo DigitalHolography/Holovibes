@@ -56,7 +56,7 @@ void ComputeWorker::run()
     }
     catch (std::exception& e)
     {
-        LOG_ERROR(e.what());
+        LOG_ERROR << e.what();
         return;
     }
 
