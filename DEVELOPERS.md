@@ -22,6 +22,8 @@ Do not forget to restart Visual Studio Code or your terminal before compiling ag
 
 ### Compilation
 
+After changing element of the front, changing release/debug mode, delete your build folder and recompile.
+
 Use `./build.py` (or `./build.py R` for release mode / `./build.py P` if using Visual Studio professional) and `./run.py` (or `./run.py R` for release mode) in project folder.
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./build [generator]`.
