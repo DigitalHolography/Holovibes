@@ -18,7 +18,11 @@ class Chrono
     /*!
      * \brief Starts the chronometer
      */
-    void start() { start_ = std::chrono::steady_clock::now(); }
+    void start()
+    {
+        end_ = std::chrono::steady_clock::now();
+        start_ = std::chrono::steady_clock::now();
+    }
 
     /*!
      * \brief Stops the chronometer
@@ -30,28 +34,48 @@ class Chrono
      *
      * \return size_t seconds elapsed
      */
-    size_t get_seconds() { return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count(); }
+    size_t get_seconds()
+    {
+        if (end_ <= start)
+            stop();
+        return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
+    }
 
     /*!
      * \brief Get the milliseconds object
      *
      * \return size_t milliseconds elapsed
      */
-    size_t get_milliseconds() { return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count(); }
+    size_t get_milliseconds()
+    {
+        if (end_ <= start)
+            stop();
+        return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
+    }
 
     /*!
      * \brief Get the microseconds object
      *
      * \return size_t microseconds elapsed
      */
-    size_t get_microseconds() { return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count(); }
+    size_t get_microseconds()
+    {
+        if (end_ <= start)
+            stop();
+        return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
+    }
 
     /*!
      * \brief Get the nanoseconds object
      *
      * \return size_t nanoseconds elapsed
      */
-    size_t get_nanoseconds() { return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count(); }
+    size_t get_nanoseconds()
+    {
+        if (end_ <= start)
+            stop();
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
+    }
 
   private:
     //! Current clock time when the Chrono object is started

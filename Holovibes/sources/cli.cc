@@ -38,8 +38,7 @@ static void progress_bar(int current, int total, int length)
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
     std::cout << "Config:\n";
-    auto ini_data =
-        read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
+    auto ini_data = read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
     std::cout << ini_data << "\n\n";
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
@@ -50,55 +49,43 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         std::cout << opts.n_rec.value() << "\n";
     else
         std::cout << "full file\n";
-    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw
-              << std::dec << "\n";
+    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
     if (opts.convo_path.has_value())
     {
         std::cout << "Convolution matrix: " << opts.convo_path.value() << "\n";
-        std::cout << "Divide by convolution matrix: " << std::boolalpha
-                  << opts.divide_convo << std::dec << "\n";
+        std::cout << "Divide by convolution matrix: " << std::boolalpha << opts.divide_convo << std::dec << "\n";
     }
-    std::cout << "Skip accumulation frames: " << std::boolalpha
-              << !opts.noskip_acc << std::dec << "\n";
+    std::cout << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
     std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
     std::cout << std::endl;
 }
 
-static holovibes::io_files::InputFrameFile*
-open_input_file(holovibes::Holovibes& holovibes,
-                const holovibes::OptionsDescriptor& opts)
+static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes& holovibes,
+                                                            const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
 
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
-    const camera::FrameDescriptor& fd =
-        input_frame_file->get_frame_descriptor();
+    const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     const unsigned int fps = opts.fps.value_or(60);
     holovibes.init_input_queue(fd);
-    holovibes.start_file_frame_read(input_path,
-                                    true,
-                                    fps,
-                                    0,
-                                    input_frame_file->get_total_nb_frames(),
-                                    opts.gpu);
+    holovibes.start_file_frame_read(input_path, true, fps, 0, input_frame_file->get_total_nb_frames(), opts.gpu);
 
     input_frame_file->import_compute_settings(holovibes.get_cd());
 
     return input_frame_file;
 }
 
-static void set_parameters(holovibes::Holovibes& holovibes,
-                           const holovibes::OptionsDescriptor& opts,
-                           uint record_nb_frames)
+static void
+set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, uint record_nb_frames)
 {
     auto& cd = holovibes.get_cd();
     if (opts.convo_path.has_value())
     {
-        auto convo_path =
-            std::filesystem::path(opts.convo_path.value()).filename().string();
+        auto convo_path = std::filesystem::path(opts.convo_path.value()).filename().string();
         cd.set_convolution(true, convo_path);
         cd.set_divide_by_convo(opts.divide_convo);
         holovibes.get_compute_pipe()->request_convolution();
@@ -114,9 +101,8 @@ static void set_parameters(holovibes::Holovibes& holovibes,
         continue;
 }
 
-static void start_record(holovibes::Holovibes& holovibes,
-                         const holovibes::OptionsDescriptor& opts,
-                         uint record_nb_frames)
+static void
+start_record(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, uint record_nb_frames)
 {
     auto& cd = holovibes.get_cd();
     uint nb_frames_skip = 0;
@@ -126,11 +112,7 @@ static void start_record(holovibes::Holovibes& holovibes,
         nb_frames_skip = cd.img_acc_slice_xy_level;
     }
     cd.frame_record_enabled = true;
-    holovibes.start_frame_record(opts.output_path.value(),
-                                 record_nb_frames,
-                                 opts.record_raw,
-                                 false,
-                                 nb_frames_skip);
+    holovibes.start_frame_record(opts.output_path.value(), record_nb_frames, opts.record_raw, false, nb_frames_skip);
 }
 
 static void main_loop(holovibes::Holovibes& holovibes)
@@ -138,16 +120,14 @@ static void main_loop(holovibes::Holovibes& holovibes)
     auto& cd = holovibes.get_cd();
     const auto& info = holovibes.get_info_container();
     // Recording progress (used by the progress bar)
-    auto record_progress = info.get_progress_index(
-        holovibes::InformationContainer::ProgressType::FRAME_RECORD);
+    auto record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !cd.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
         if (!record_progress)
-            record_progress = info.get_progress_index(
-                holovibes::InformationContainer::ProgressType::FRAME_RECORD);
+            record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
         else
         {
             const auto& progress = record_progress.value();
@@ -157,11 +137,9 @@ static void main_loop(holovibes::Holovibes& holovibes)
             // Request auto contrast once we have accumualated enough images
             // Otherwise the autocontrast is computed at the beginning and we
             // end up with black images ...
-            if (progress.first->load() >= cd.img_acc_slice_xy_level &&
-                !requested_autocontrast)
+            if (progress.first->load() >= cd.img_acc_slice_xy_level && !requested_autocontrast)
             {
-                holovibes.get_compute_pipe()->request_autocontrast(
-                    cd.current_window);
+                holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
                 requested_autocontrast = true;
             }
         }
@@ -172,8 +150,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     progress_bar(1, 1, 40);
 }
 
-int start_cli(holovibes::Holovibes& holovibes,
-              const holovibes::OptionsDescriptor& opts)
+int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     if (opts.verbose)
     {
@@ -186,8 +163,7 @@ int start_cli(holovibes::Holovibes& holovibes,
 
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
-    uint record_nb_frames =
-        opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
+    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
@@ -200,8 +176,6 @@ int start_cli(holovibes::Holovibes& holovibes,
     set_parameters(holovibes, opts, record_nb_frames);
     start_record(holovibes, opts, record_nb_frames);
     main_loop(holovibes);
-
-    chrono.stop();
 
     printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);
 
