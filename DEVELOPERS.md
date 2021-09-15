@@ -7,7 +7,7 @@
 * [CUDA 11.2](https://developer.nvidia.com/cuda-downloads)
 * [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/)
-* [BitFlow SDK 6.40](http://www.bitflow.com/downloads/bfsdk640.zip) (serial code 2944-8538-8655-8474)
+* [BitFlow SDK 6.50](http://www.bitflow.com/downloads/bfsdk65.zip) (serial code 2944-8538-8655-8474)
 * [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 * [OpenCV 4.5.0](https://opencv.org/releases/)
 
@@ -22,6 +22,8 @@ Do not forget to restart Visual Studio Code or your terminal before compiling ag
 
 ### Compilation
 
+After changing element of the front, changing release/debug mode, delete your build folder and recompile.
+
 Use `./build.py` (or `./build.py R` for release mode / `./build.py P` if using Visual Studio professional) and `./run.py` (or `./run.py R` for release mode) in project folder.
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./build [generator]`.
@@ -29,6 +31,17 @@ By default *Ninja* is used but you can rely on other build systems (*Visual Stud
 Alternatively, you can build from the command line:
 * **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
 * **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+
+### Add an element to Front with __QtCreator__
+
+* On _QtCreator_, load the file `mainwindow.ui`
+* Add the wanted widget with a drag and drop and change its name in the right collumn.
+* Add a slot at the end of the file `mainwindow.ui` opened in edit mode with the prototype of the function.
+* Add a new slot in _QtCreator_ cliking on the green '+' on the middle.
+* Fill the 4 collumns with the name of your function in the last collumn.
+* Add the prototype in `MainWindow.hh`
+* Implement the function in `MainWindow.cc`
+
 
 #### Known issues
 
