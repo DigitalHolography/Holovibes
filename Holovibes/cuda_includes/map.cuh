@@ -57,7 +57,6 @@ void map_generic(const float* const input,
 /*! \brief Map input (ushort) to output (ushort) throughout a mapping function.
  *
  * \see map_generic float version (above)
- *
  */
 template <typename FUNC>
 void map_generic(const ushort* const input,

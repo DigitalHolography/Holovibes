@@ -6,9 +6,7 @@
 
 #include "common.cuh"
 
-/*! \brief Find the right threads and block to call quadratic lens
- * with and call it
- */
+/*! \brief Find the right threads and block to call quadratic lens with and call it */
 void fft1_lens(cuComplex* lens,
                const uint lens_side_size,
                const uint frame_height,
@@ -21,8 +19,7 @@ void fft1_lens(cuComplex* lens,
 /*! \brief Apply a lens and call an fft1 on the image
  *
  * \param lens the lens that will be applied to the image
- * \param plan the first paramater of cufftExecC2C that will be called
- * on the image
+ * \param plan the first paramater of cufftExecC2C that will be called on the image
  */
 void fft_1(cuComplex* input,
            cuComplex* output,

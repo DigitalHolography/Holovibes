@@ -51,7 +51,7 @@ void complex_to_argument(float* output,
                          const uint size,
                          const cudaStream_t stream);
 
-/*! Copy the rescaled angle value of each element of the input.
+/*! \brief Copy the rescaled angle value of each element of the input.
  *
  * The function searches the minimum and maximum values among
  * the *size* elements, and rescales all elements so that the minimum
