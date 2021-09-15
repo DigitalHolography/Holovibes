@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Core class to use HoloVibes
+ * \brief class to use HoloVibes
  */
 #pragma once
 
@@ -64,18 +64,11 @@ class Holovibes
     {
         CudaStreams()
         {
+            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
             cudaSafeCall(
-                cudaStreamCreateWithPriority(&reader_stream,
-                                             cudaStreamDefault,
-                                             CUDA_STREAM_READER_PRIORITY));
+                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
             cudaSafeCall(
-                cudaStreamCreateWithPriority(&compute_stream,
-                                             cudaStreamDefault,
-                                             CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&recorder_stream,
-                                             cudaStreamDefault,
-                                             CUDA_STREAM_RECORDER_PRIORITY));
+                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
         }
 
         ~CudaStreams()
@@ -119,21 +112,51 @@ class Holovibes
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_path() const;
 
-    /* \brief Get zb = N d^2 / lambda
-      Is updated everytime the camera changes or lamdba changes
-      */
+    /*!
+     * \brief Get zb = N d^2 / lambda
+     * Is updated everytime the camera changes or lamdba changes
+     *  N = frame height
+     *  d = pixel size
+     *  lambda = wavelength
+     * \return const float
+     */
+
     const float get_boundary();
 
+    /*!
+     * \brief Get the info container object
+     *
+     * \return InformationContainer&
+     */
     InformationContainer& get_info_container();
 
-    /*! \brief Update the compute descriptor for CLI purpose
+    /*!
+     * \brief Update the compute descriptor for CLI purpose
      * Must be called before the initialization of the thread compute and
      * recorder
+     *
+     * \param input_fps
      */
     void update_cd_for_cli(const unsigned int input_fps);
 
+    /*!
+     * \brief Initializes the input queue
+     *
+     * \param fd frame descriptor of the camera
+     */
     void init_input_queue(const camera::FrameDescriptor& fd);
 
+    /*!
+     * \brief Sets and starts the file_read_worker attribute
+     *
+     * \param file_path
+     * \param loop
+     * \param fps
+     * \param first_frame_id
+     * \param nb_frames_to_read
+     * \param load_file_in_gpu
+     * \param callback
+     */
     void start_file_frame_read(
         const std::string& file_path,
         bool loop,
@@ -143,12 +166,31 @@ class Holovibes
         bool load_file_in_gpu,
         const std::function<void()>& callback = []() {});
 
+    /*!
+     * \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
+     * TODO: refacto (see issue #22)
+     *
+     * \param camera_kind
+     * \param callback
+     */
     void start_camera_frame_read(
-        CameraKind camera_kind,
-        const std::function<void()>& callback = []() {});
+        CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
+    /*!
+     * \brief Stops both read_worker, clears the info_container, resets the active camera and store the gpu_input_queue
+     */
     void stop_frame_read();
 
+    /*!
+     * \brief
+     *
+     * \param path
+     * \param nb_frames_to_record
+     * \param raw_record
+     * \param square_output
+     * \param nb_frames_skip
+     * \param callback
+     */
     void start_frame_record(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
@@ -193,25 +235,18 @@ class Holovibes
 
     InformationContainer info_container_;
 
-    worker::ThreadWorkerController<worker::FileFrameReadWorker>
-        file_read_worker_controller_;
-    worker::ThreadWorkerController<worker::CameraFrameReadWorker>
-        camera_read_worker_controller_;
+    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
+    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker>
-        frame_record_worker_controller_;
-    worker::ThreadWorkerController<worker::ChartRecordWorker>
-        chart_record_worker_controller_;
+    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 
-    worker::ThreadWorkerController<worker::BatchGPIBWorker>
-        batch_gpib_worker_controller_;
+    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;
 
-    worker::ThreadWorkerController<worker::InformationWorker>
-        info_worker_controller_;
+    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
 
-    worker::ThreadWorkerController<worker::ComputeWorker>
-        compute_worker_controller_;
+    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
     std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
 
     /*! \{ \name Frames queue (GPU) */
