@@ -36,7 +36,7 @@ class Chrono
      */
     size_t get_seconds()
     {
-        if (end_ <= start)
+        if (end_ <= start_)
             stop();
         return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
     }
@@ -48,7 +48,7 @@ class Chrono
      */
     size_t get_milliseconds()
     {
-        if (end_ <= start)
+        if (end_ <= start_)
             stop();
         return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
     }
@@ -60,7 +60,7 @@ class Chrono
      */
     size_t get_microseconds()
     {
-        if (end_ <= start)
+        if (end_ <= start_)
             stop();
         return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
     }
@@ -72,7 +72,7 @@ class Chrono
      */
     size_t get_nanoseconds()
     {
-        if (end_ <= start)
+        if (end_ <= start_)
             stop();
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
     }
