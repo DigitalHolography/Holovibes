@@ -468,7 +468,8 @@ void MainWindow::on_notify()
     ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
     // Image rendering
-    ui.SpaceTransformationComboBox->setEnabled(!is_raw);
+    ui.SpaceTransformationComboBox->setEnabled(
+        !is_raw && !cd_.time_transformation_cuts_enabled);
     ui.SpaceTransformationComboBox->setCurrentIndex(
         static_cast<int>(cd_.space_transformation.load()));
     ui.TimeTransformationComboBox->setEnabled(!is_raw);
