@@ -1,15 +1,18 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 namespace holovibes::io_files
 {
-/*!
- *  \brief    Base class of cine files. Used to store data
+/*! \class CineFile
+ * 
+ * \brief Base class of cine files. Used to store data
  *
- *  \details  For more details, see:
- *            http://phantomhighspeed-knowledge.force.com/servlet/fileField?id=0BE1N000000kD2i#:~:text=Cine%20file%20format%20was%20designed,cameras%20from%20Vision%20Research%20Inc.
- *            More structs present in the file format could be added to the
- * class to perform more checks
- *
+ * \details For more details, see:
+ *          http://phantomhighspeed-knowledge.force.com/servlet/fileField?id=0BE1N000000kD2i#:~:text=Cine%20file%20format%20was%20designed,cameras%20from%20Vision%20Research%20Inc.
+ *          More structs present in the file format could be added to the class to perform more checks
  */
 // FIXME: This class may be completed by adding more structures
 class CineFile

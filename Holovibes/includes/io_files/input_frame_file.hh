@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "frame_file.hh"
@@ -9,8 +13,9 @@ class ComputeDescriptor;
 
 namespace io_files
 {
-/*!
- *  \brief    Base class of Input files
+/*! \class InputFrameFile
+ *
+ * \brief Base class of Input files
  */
 class InputFrameFile : public FrameFile
 {

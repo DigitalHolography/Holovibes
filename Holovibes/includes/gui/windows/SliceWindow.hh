@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window containing the XZ or YZ view of the hologram. */
+ * \brief Qt window containing the XZ or YZ view of the hologram.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -11,6 +12,10 @@ namespace gui
 {
 class MainWindow;
 
+/*! \class SliceWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class SliceWindow : public BasicOpenGLWindow
 {
   public:

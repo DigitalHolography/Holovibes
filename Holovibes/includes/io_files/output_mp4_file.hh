@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "output_frame_file.hh"
@@ -6,6 +10,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class OutputMp4File
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OutputMp4File : public OutputFrameFile, public Mp4File
 {
   public:

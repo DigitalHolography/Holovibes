@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of a position in the frame desc coordinate system */
+ * \brief Implementation of a position in the frame desc coordinate system
+ */
 #pragma once
 
 #include "unit.hh"
@@ -11,7 +12,9 @@ namespace units
 {
 class FDPixel;
 
-/*! \brief A position in the frame desc coordinate system [0;fd.width]
+/*! \class RealPosition
+ *
+ * \brief A position in the frame desc coordinate system [0;fd.width]
  */
 class RealPosition : public Unit<double>
 {

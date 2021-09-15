@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window containing the Filter2D view of the hologram. */
+ * \brief Qt window containing the Filter2D view of the hologram.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -11,6 +12,10 @@ namespace gui
 {
 class MainWindow;
 
+/*! \class Filter2DWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Filter2DWindow : public BasicOpenGLWindow
 {
   public:

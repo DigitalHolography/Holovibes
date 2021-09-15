@@ -1,6 +1,7 @@
-/*!
-** \brief Contains functions relative to image accumulation.
-*/
+/*! \file
+ *
+ * \brief Contains functions relative to image accumulation.
+ */
 
 #pragma once
 
@@ -21,11 +22,12 @@ struct ImageAccEnv;
 namespace compute
 {
 /*! \class ImageAccumulation
-**
-** Class that manages the image accumulation
-** It manages its own buffer, initialized when needed
-** It should be a member of the Pipe class
-*/
+ *
+ * \brief Class that manages the image accumulation
+ *
+ * It manages its own buffer, initialized when needed
+ * It should be a member of the Pipe class
+ */
 class ImageAccumulation
 {
   public:

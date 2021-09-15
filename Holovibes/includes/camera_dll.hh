@@ -1,6 +1,7 @@
 /*! \file
  *
- * Encapsulate a camera DLL ressource. */
+ * \brief Encapsulate a camera DLL ressource.
+ */
 #pragma once
 
 #include <memory>
@@ -11,12 +12,16 @@
 #undef min
 #include "icamera.hh"
 
+/*! \brief #TODO Add a description for this namespace */
 namespace camera
 {
-/*! \brief Encapsulate a camera DLL ressource.
+/*! \class CameraDLL
+ *
+ * \brief Encapsulate a camera DLL ressource.
  *
  * Use a custom deleter class (functor) to automatically free the DLL
- * ressource when the ICamera object is destroyed. */
+ * ressource when the ICamera object is destroyed.
+ */
 class CameraDLL
 {
   public:

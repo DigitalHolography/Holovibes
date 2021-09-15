@@ -1,4 +1,8 @@
-/*! \file WARNING This file should only be included in the test_reduce.cu file
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ *
+ * WARNING This file should only be included in the test_reduce.cu file
  *
  * Test files must be .cc
  * To be templatable our reduce_generic needs to be in a .cuhxx file

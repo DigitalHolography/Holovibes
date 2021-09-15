@@ -1,6 +1,7 @@
 /*! \file
  *
- * Contains the overloading of QFrame. */
+ * \brief Contains the overloading of QFrame.
+ */
 #pragma once
 
 #include <QFrame>
@@ -10,7 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
-/*! \brief QFrame overload, used to hide and show parts of the GUI. */
+/*! \class Frame
+ *
+ * \brief QFrame overload, used to hide and show parts of the GUI.
+ */
 class Frame : public QFrame
 {
     Q_OBJECT

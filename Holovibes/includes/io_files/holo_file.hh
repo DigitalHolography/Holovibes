@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 /*!
  *
  * Holovibes file format
@@ -26,10 +31,12 @@
 
 using json = ::nlohmann::json;
 
+/*! \brief #TODO Add a description for this namespace */
 namespace holovibes::io_files
 {
-/*!
- *  \brief    Base class of holo files. Used to store data
+/*! \class HoloFile
+ *
+ * \brief Base class of holo files. Used to store data
  */
 class HoloFile
 {

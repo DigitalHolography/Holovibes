@@ -1,6 +1,7 @@
 /*! \file
-
- Implementation of postprocessing features on complex buffers. */
+ *
+ * \brief Implementation of postprocessing features on complex buffers.
+ */
 #pragma once
 
 #include <vector>
@@ -18,6 +19,10 @@ struct CoreBuffersEnv;
 
 namespace compute
 {
+/*! \class Postprocessing
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Postprocessing
 {
   public:

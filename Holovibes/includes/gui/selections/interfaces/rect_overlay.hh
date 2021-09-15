@@ -1,6 +1,7 @@
 /*! \file
  *
- * Interface for all rectangular overlays. */
+ * \brief Interface for all rectangular overlays.
+ */
 #pragma once
 
 #include "Overlay.hh"
@@ -9,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class RectOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class RectOverlay : public Overlay
 {
   public:

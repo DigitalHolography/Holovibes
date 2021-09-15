@@ -1,6 +1,7 @@
 /*! \file
  *
- * Contains the overloading of QGroupBox. */
+ * \brief Contains the overloading of QGroupBox.
+ */
 #pragma once
 
 #include <QGroupBox>
@@ -10,7 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
-/*! \brief QGroupBox overload, used to hide and show parts of the GUI. */
+/*! \class GroupBox
+ *
+ * \brief QGroupBox overload, used to hide and show parts of the GUI.
+ */
 class GroupBox : public QGroupBox
 {
     Q_OBJECT

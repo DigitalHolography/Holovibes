@@ -1,6 +1,7 @@
 /*! \file
  *
- * A thread safe wrapper on std::deque. */
+ * \brief A thread safe wrapper on std::deque.
+ */
 #pragma once
 
 #include <deque>
@@ -11,7 +12,9 @@ namespace holovibes
 {
 using LockGuard = std::lock_guard<std::mutex>;
 
-/*! \brief This class is a thread safe wrapper on std::deque.
+/*! \class ConcurrentDeque
+ * 
+ * \brief This class is a thread safe wrapper on std::deque.
  *
  * It is used mainly to store Chart values.
  * Every method locks a mutex, do the action and delocks the mutex.

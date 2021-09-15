@@ -1,11 +1,16 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "worker.hh"
 
 namespace holovibes::worker
 {
-/*!
- *  \brief Class used to record chart
+/*! \class ChartRecordWorker
+ *
+ * \brief Class used to record chart
  */
 class ChartRecordWorker : public Worker
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "frame_read_worker.hh"
@@ -15,8 +19,9 @@ class InputFrameFile;
 
 namespace worker
 {
-/*!
- *  \brief    Class used to read frames from a file
+/*! \class FileFrameReadWorker
+ *
+ * \brief    Class used to read frames from a file
  */
 class FileFrameReadWorker : public FrameReadWorker
 {

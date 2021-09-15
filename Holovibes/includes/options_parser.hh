@@ -1,6 +1,7 @@
 /*! \file
  *
- * Options parser for the command-line. */
+ * \brief Options parser for the command-line.
+ */
 #pragma once
 
 #include <optional>
@@ -12,6 +13,10 @@ namespace po = boost::program_options;
 
 namespace holovibes
 {
+/*! \struct OptionsDescriptor
+ *
+ * \brief #TODO Add a description for this stuct
+ */
 struct OptionsDescriptor
 {
     bool print_help;
@@ -30,7 +35,10 @@ struct OptionsDescriptor
     bool gpu;
 };
 
-/*! \brief Options parser for the command-line. */
+/*! \class OptionsParser
+ *
+ * \brief Options parser for the command-line.
+ */
 class OptionsParser
 {
   public:

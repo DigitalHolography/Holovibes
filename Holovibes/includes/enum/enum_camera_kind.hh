@@ -1,11 +1,15 @@
 /*! \file
- *  Enum for kind of camera
+ *
+ * \brief Enum for kind of camera
  */
 #pragma once
 
 namespace holovibes
 {
-//! \brief	Difference kind of camera supported by Holovibes
+/*! \enum CameraKind
+ *
+ * \brief Difference kind of camera supported by Holovibes
+ */
 enum class CameraKind
 {
     NONE = 0,     /*!< No camera */

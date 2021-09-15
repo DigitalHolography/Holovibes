@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "worker.hh"
@@ -5,8 +9,9 @@
 
 namespace holovibes::worker
 {
-/*!
- *  \brief    Abstract class used to read frames
+/*! \class FrameReadWorker
+ *
+ * \brief Abstract class used to read frames
  */
 class FrameReadWorker : public Worker
 {

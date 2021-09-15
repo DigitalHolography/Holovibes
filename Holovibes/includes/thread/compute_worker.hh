@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "worker.hh"
@@ -10,8 +14,9 @@ class BatchInputQueue;
 
 namespace worker
 {
-/*!
- *  \brief Class used for all computations
+/*! \class ComputeWorker
+ *
+ * \brief Class used for all computations
  */
 class ComputeWorker : public Worker
 {

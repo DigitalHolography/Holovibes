@@ -1,6 +1,6 @@
 /*! \file
  *
- * Implementation of a Unit with its cast between different coordinates system
+ * \brief Implementation of a Unit with its cast between different coordinates system
  */
 #pragma once
 
@@ -24,7 +24,9 @@ enum Axis
     VERTICAL
 };
 
-/*! \brief A generic distance unit type
+/*! \class Unit
+ *
+ * \brief A generic distance unit type
  *
  * Used to define implicit conversions between the different units
  * T will be either float or int, defined in the child classes

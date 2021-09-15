@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include <memory>
@@ -9,7 +13,9 @@ namespace holovibes
 {
 namespace cuda_tools
 {
-/*! \brief RAII wrapper for cufftHandle
+/*! \class CufftHandle
+ *
+ * \brief RAII wrapper for cufftHandle
  */
 class CufftHandle
 {

@@ -1,7 +1,9 @@
 /*! \file
  *
- * Wrapper around the vector of overlay. Permitting to manipulate all overlays
- * of a window at once. */
+ * \brief Wrapper around the vector of overlay.
+ *
+ * Permitting to manipulate all overlays of a window at once.
+ */
 #pragma once
 
 #include "Overlay.hh"
@@ -10,6 +12,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class OverlayManager
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OverlayManager
 {
   public:

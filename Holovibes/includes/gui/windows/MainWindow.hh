@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt main class containing the GUI. */
+ * \brief Qt main class containing the GUI.
+ */
 #pragma once
 
 // without namespace
@@ -31,19 +32,19 @@ namespace holovibes
 namespace gui
 {
 /*! \class MainWindow
-**
-** Main class of the GUI. It regroup most of the Qt slots used for user actions.
-** These slots are divided into several sections:
-**
-** * Menu: every action in the menu (e-g: configuration of .ini, camera
-*selection ...).
-** * Image rendering: #img, p, z, lambda ...
-** * View: log scale, shifted corner, contrast ...
-** * Special: image ratio, Chart plot ...
-** * Record: record of raw frames, Chart file ...
-** * Import : making a file of raw data the image source
-** * Info : Various runtime informations on the program's state
-*/
+ *
+ * \brief Main class of the GUI. It regroup most of the Qt slots used for user actions.
+ *
+ * These slots are divided into several sections:
+ *
+ * * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
+ * * Image rendering: #img, p, z, lambda ...
+ * * View: log scale, shifted corner, contrast ...
+ * * Special: image ratio, Chart plot ...
+ * * Record: record of raw frames, Chart file ...
+ * * Import : making a file of raw data the image source
+ * * Info : Various runtime informations on the program's state
+ */
 class MainWindow : public QMainWindow, public Observer
 {
     Q_OBJECT

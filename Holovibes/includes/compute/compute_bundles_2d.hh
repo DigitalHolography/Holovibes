@@ -1,6 +1,7 @@
 /*! \file
  *
- * Regroup all resources used for phase unwrapping 2d. */
+ * \brief Regroup all resources used for phase unwrapping 2d.
+ */
 #pragma once
 
 #include <cufft.h>
@@ -9,6 +10,10 @@
 
 namespace holovibes
 {
+/*! \struct UnwrappingResources_2d
+ *
+ * \brief #TODO Add a description for this struct
+ */
 struct UnwrappingResources_2d
 {
     /*! Initialize the capacity from history_size,

@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window displaying the hologram in XY view. */
+ * \brief Qt window displaying the hologram in XY view.
+ */
 #pragma once
 
 #include "icompute.hh"
@@ -13,6 +14,10 @@ namespace gui
 class MainWindow;
 using SharedPipe = std::shared_ptr<ICompute>;
 
+/*! \class HoloWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class HoloWindow : public RawWindow
 {
   public:

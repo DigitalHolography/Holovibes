@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "frame_read_worker.hh"
@@ -13,8 +17,9 @@ namespace holovibes
 {
 namespace worker
 {
-/*!
- *  \brief    Class used to read frames from a camera
+/*! \class CameraFrameReadWorker
+ *
+ * \brief Class used to read frames from a camera
  */
 class CameraFrameReadWorker : public FrameReadWorker
 {
