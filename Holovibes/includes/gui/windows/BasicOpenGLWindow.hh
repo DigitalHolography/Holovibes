@@ -1,6 +1,7 @@
 /*! \file
  *
- * Interface implemented by each Qt window. */
+ * \brief Interface implemented by each Qt window.
+ */
 #pragma once
 
 #include <glm/glm.hpp>

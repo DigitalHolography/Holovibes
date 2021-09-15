@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window containing the Filter2D view of the hologram. */
+ * \brief Qt window containing the Filter2D view of the hologram.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"

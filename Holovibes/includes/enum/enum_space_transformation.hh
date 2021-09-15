@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for the different space transformations
+ *
+ * \brief Enum for the different space transformations
  */
 #pragma once
 

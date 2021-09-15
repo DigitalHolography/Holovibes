@@ -1,6 +1,7 @@
 /*! \file
  *
- * Encapsulate a GPIB DLL ressource  */
+ * \brief Encapsulate a GPIB DLL ressource
+ */
 #pragma once
 
 #include <memory>

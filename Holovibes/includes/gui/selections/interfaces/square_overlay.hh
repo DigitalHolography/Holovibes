@@ -1,6 +1,7 @@
 /*! \file
  *
- * Interface for all square overlays. */
+ * \brief Interface for all square overlays.
+ */
 #pragma once
 
 #include "rect_overlay.hh"

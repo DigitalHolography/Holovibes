@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay selecting the signal zone to chart. */
+ * \brief Overlay selecting the signal zone to chart.
+ */
 #pragma once
 
 #include "rect_overlay.hh"

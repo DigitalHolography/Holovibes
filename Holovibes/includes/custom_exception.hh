@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of custom error class. */
+ * \brief Implementation of custom error class.
+ */
 #include <exception>
 #include <string>
 #pragma once

@@ -1,6 +1,7 @@
 /*! \file
  *
- * Encapsulate a camera DLL ressource. */
+ * \brief Encapsulate a camera DLL ressource.
+ */
 #pragma once
 
 #include <memory>

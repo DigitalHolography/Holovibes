@@ -1,9 +1,10 @@
 /*! \file
  *
+ * \brief Implementation of a circular queue
+ *
  * Queue class is a custom circular FIFO data structure. It can handle
  * CPU or GPU data. This class is used to store the raw images, provided
  * by the camera, and holograms.
- *
  */
 #pragma once
 

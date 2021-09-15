@@ -1,6 +1,7 @@
 /*! \file
  *
- * cuda_tools::UniquePtr containing an array */
+ * \brief cuda_tools::UniquePtr containing an array
+ */
 #pragma once
 
 #include <cuda_runtime_api.h>

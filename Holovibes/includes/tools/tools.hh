@@ -1,6 +1,7 @@
 /*! \file tools.hh
  *
- * Generic, widely usable functions. */
+ * \brief Generic, widely usable functions.
+ */
 #pragma once
 
 #ifndef _USE_MATH_DEFINES

@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for the different access mode
+ *
+ * \brief Enum for the different access mode
  */
 #pragma once
 

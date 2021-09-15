@@ -1,6 +1,7 @@
-/*!
-** \brief Contains functions relative to image accumulation.
-*/
+/*! \file
+ *
+ * \brief Contains functions relative to image accumulation.
+ */
 
 #pragma once
 

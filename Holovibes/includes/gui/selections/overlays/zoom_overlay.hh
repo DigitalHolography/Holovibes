@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay selecting the zone to zoom in. */
+ * \brief Overlay selecting the zone to zoom in.
+ */
 #pragma once
 
 #include "square_overlay.hh"

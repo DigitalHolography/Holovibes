@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for the different computation mode
+ *
+ * \brief Enum for the different computation mode
  */
 #pragma once
 

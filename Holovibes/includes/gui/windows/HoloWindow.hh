@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window displaying the hologram in XY view. */
+ * \brief Qt window displaying the hologram in XY view.
+ */
 #pragma once
 
 #include "icompute.hh"

@@ -1,6 +1,7 @@
 /*! \file
-
- Implementation of postprocessing features on complex buffers. */
+ *
+ * \brief Implementation of postprocessing features on complex buffers.
+ */
 #pragma once
 
 #include <vector>

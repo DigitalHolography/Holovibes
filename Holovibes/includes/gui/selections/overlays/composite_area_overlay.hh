@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay selecting the zone to normalize colors. */
+ * \brief Overlay selecting the zone to normalize colors.
+ */
 #pragma once
 
 #include "square_overlay.hh"

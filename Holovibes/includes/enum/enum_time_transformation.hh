@@ -1,5 +1,6 @@
 /*! \file
- *  Enum for the different time transformations
+ *
+ * \brief Enum for the different time transformations
  */
 #pragma once
 

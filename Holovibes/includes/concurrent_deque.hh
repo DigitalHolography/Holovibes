@@ -1,6 +1,7 @@
 /*! \file
  *
- * A thread safe wrapper on std::deque. */
+ * \brief A thread safe wrapper on std::deque.
+ */
 #pragma once
 
 #include <deque>

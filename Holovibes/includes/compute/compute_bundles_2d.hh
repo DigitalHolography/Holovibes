@@ -1,6 +1,7 @@
 /*! \file
  *
- * Regroup all resources used for phase unwrapping 2d. */
+ * \brief Regroup all resources used for phase unwrapping 2d.
+ */
 #pragma once
 
 #include <cufft.h>

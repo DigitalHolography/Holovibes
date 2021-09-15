@@ -1,7 +1,9 @@
 /*! \file
  *
- * Wrapper around the vector of overlay. Permitting to manipulate all overlays
- * of a window at once. */
+ * \brief Wrapper around the vector of overlay.
+ *
+ * Permitting to manipulate all overlays of a window at once.
+ */
 #pragma once
 
 #include "Overlay.hh"

@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of the Observable design pattern. */
+ * \brief Implementation of the Observable design pattern.
+ */
 #pragma once
 
 #include <algorithm>

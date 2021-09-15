@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay manipulating z computation for side views. */
+ * \brief Overlay manipulating z computation for side views.
+ */
 #pragma once
 
 #include "rect_overlay.hh"

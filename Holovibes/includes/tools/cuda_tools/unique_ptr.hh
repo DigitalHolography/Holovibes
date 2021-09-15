@@ -1,6 +1,7 @@
 /*! \file
  *
- * std::unique_ptr "specialization" for cudaFree */
+ * \brief std::unique_ptr "specialization" for cudaFree
+ */
 #pragma once
 
 #include <functional>

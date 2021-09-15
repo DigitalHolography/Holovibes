@@ -1,6 +1,7 @@
 /*! \file
-
-  Implmentation of the conversions between buffers.*/
+ *
+ * \brief Implmentation of the conversions between buffers.
+ */
 #pragma once
 
 #include <memory>

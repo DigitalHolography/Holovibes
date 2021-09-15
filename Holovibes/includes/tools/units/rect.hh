@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of a Rectangle */
+ * \brief Implementation of a Rectangle
+ */
 #pragma once
 
 #include "point.hh"

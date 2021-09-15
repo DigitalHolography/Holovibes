@@ -1,6 +1,7 @@
 /*! \file
  *
- * Core class to use HoloVibes  */
+ * \brief Core class to use HoloVibes
+ */
 #pragma once
 
 #include "compute_descriptor.hh"

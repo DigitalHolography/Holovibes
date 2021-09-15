@@ -1,6 +1,7 @@
 /*! \file
  *
- * Contains the overloading of QFrame. */
+ * \brief Contains the overloading of QFrame.
+ */
 #pragma once
 
 #include <QFrame>
