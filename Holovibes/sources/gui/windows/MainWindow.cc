@@ -80,32 +80,35 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     setWindowIcon(QIcon("Holovibes.ico"));
 
-    auto display_info_text_fun = [=](const std::string& text) {
-        synchronize_thread([=]() { ui.InfoTextEdit->setText(text.c_str()); });
-    };
+    auto display_info_text_fun = [=](const std::string& text)
+    { synchronize_thread([=]() { ui.InfoTextEdit->setText(text.c_str()); }); };
     Holovibes::instance().get_info_container().set_display_info_text_function(
         display_info_text_fun);
 
     auto update_progress = [=](InformationContainer::ProgressType type,
                                const size_t value,
-                               const size_t max_size) {
-        synchronize_thread([=]() {
-            switch (type)
+                               const size_t max_size)
+    {
+        synchronize_thread(
+            [=]()
             {
-            case InformationContainer::ProgressType::FILE_READ:
-                ui.FileReaderProgressBar->setMaximum(
-                    static_cast<int>(max_size));
-                ui.FileReaderProgressBar->setValue(static_cast<int>(value));
-                break;
-            case InformationContainer::ProgressType::CHART_RECORD:
-            case InformationContainer::ProgressType::FRAME_RECORD:
-                ui.RecordProgressBar->setMaximum(static_cast<int>(max_size));
-                ui.RecordProgressBar->setValue(static_cast<int>(value));
-                break;
-            default:
-                return;
-            };
-        });
+                switch (type)
+                {
+                case InformationContainer::ProgressType::FILE_READ:
+                    ui.FileReaderProgressBar->setMaximum(
+                        static_cast<int>(max_size));
+                    ui.FileReaderProgressBar->setValue(static_cast<int>(value));
+                    break;
+                case InformationContainer::ProgressType::CHART_RECORD:
+                case InformationContainer::ProgressType::FRAME_RECORD:
+                    ui.RecordProgressBar->setMaximum(
+                        static_cast<int>(max_size));
+                    ui.RecordProgressBar->setValue(static_cast<int>(value));
+                    break;
+                default:
+                    return;
+                };
+            });
     };
     Holovibes::instance().get_info_container().set_update_progress_function(
         update_progress);
@@ -465,7 +468,8 @@ void MainWindow::on_notify()
     ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
     // Image rendering
-    ui.SpaceTransformationComboBox->setEnabled(!is_raw);
+    ui.SpaceTransformationComboBox->setEnabled(
+        !is_raw && !cd_.time_transformation_cuts_enabled);
     ui.SpaceTransformationComboBox->setCurrentIndex(
         static_cast<int>(cd_.space_transformation.load()));
     ui.TimeTransformationComboBox->setEnabled(!is_raw);
@@ -593,7 +597,8 @@ void MainWindow::notify_error(std::exception& e)
     {
         if (err_ptr->get_kind() == error_kind::fail_update)
         {
-            auto lambda = [this] {
+            auto lambda = [this]
+            {
                 // notify will be in close_critical_compute
                 cd_.pindex = 0;
                 cd_.time_transformation_size = 1;
@@ -608,9 +613,9 @@ void MainWindow::notify_error(std::exception& e)
             };
             synchronize_thread(lambda);
         }
-        auto lambda = [this,
-                       accu = err_ptr->get_kind() ==
-                              error_kind::fail_accumulation] {
+        auto lambda =
+            [this, accu = err_ptr->get_kind() == error_kind::fail_accumulation]
+        {
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -632,11 +637,13 @@ void MainWindow::notify_error(std::exception& e)
 void MainWindow::layout_toggled()
 {
 
-    synchronize_thread([=]() {
-        // Resizing to original size, then adjust it to fit the groupboxes
-        resize(baseSize());
-        adjustSize();
-    });
+    synchronize_thread(
+        [=]()
+        {
+            // Resizing to original size, then adjust it to fit the groupboxes
+            resize(baseSize());
+            adjustSize();
+        });
 }
 
 void MainWindow::display_error(const std::string msg) { LOG_ERROR(msg); }
@@ -1279,12 +1286,14 @@ void MainWindow::set_view_mode(const QString value)
 
         auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
 
-        pipe->insert_fn_end_vect([=]() {
-            cd_.img_type =
-                static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
-            notify();
-            layout_toggled();
-        });
+        pipe->insert_fn_end_vect(
+            [=]()
+            {
+                cd_.img_type =
+                    static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
+                notify();
+                layout_toggled();
+            });
         pipe_refresh();
 
         // Force XYview autocontrast
@@ -1339,12 +1348,14 @@ void MainWindow::update_batch_size()
         auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
         if (pipe)
         {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.batch_size = value;
-                adapt_time_transformation_stride_to_batch_size(cd_);
-                holovibes_.get_compute_pipe()->request_update_batch_size();
-                notify();
-            });
+            pipe->insert_fn_end_vect(
+                [=]()
+                {
+                    cd_.batch_size = value;
+                    adapt_time_transformation_stride_to_batch_size(cd_);
+                    holovibes_.get_compute_pipe()->request_update_batch_size();
+                    notify();
+                });
         }
         else
             std::cout << "COULD NOT GET PIPE" << std::endl;
@@ -1373,13 +1384,15 @@ void MainWindow::cancel_stft_slice_view()
     }
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_cuts_enabled = false;
-            pipe->delete_stft_slice_queue();
+        pipe->insert_fn_end_vect(
+            [=]()
+            {
+                cd_.time_transformation_cuts_enabled = false;
+                pipe->delete_stft_slice_queue();
 
-            ui.TimeTransformationCutsCheckBox->setChecked(false);
-            notify();
-        });
+                ui.TimeTransformationCutsCheckBox->setChecked(false);
+                notify();
+            });
     }
 }
 
@@ -1395,17 +1408,19 @@ void MainWindow::update_time_transformation_stride()
         auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
         if (pipe)
         {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.time_transformation_stride = value;
-                adapt_time_transformation_stride_to_batch_size(cd_);
-                holovibes_.get_compute_pipe()
-                    ->request_update_time_transformation_stride();
-                ui.NumberOfFramesSpinBox->setValue(
-                    ceil((ui.ImportEndIndexSpinBox->value() -
-                          ui.ImportStartIndexSpinBox->value()) /
-                         (float)ui.TimeTransformationStrideSpinBox->value()));
-                notify();
-            });
+            pipe->insert_fn_end_vect(
+                [=]()
+                {
+                    cd_.time_transformation_stride = value;
+                    adapt_time_transformation_stride_to_batch_size(cd_);
+                    holovibes_.get_compute_pipe()
+                        ->request_update_time_transformation_stride();
+                    ui.NumberOfFramesSpinBox->setValue(ceil(
+                        (ui.ImportEndIndexSpinBox->value() -
+                         ui.ImportStartIndexSpinBox->value()) /
+                        (float)ui.TimeTransformationStrideSpinBox->value()));
+                    notify();
+                });
         }
         else
             std::cout << "COULD NOT GET PIPE" << std::endl;
@@ -1724,14 +1739,16 @@ void MainWindow::set_time_transformation_size()
         auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
         if (pipe)
         {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.time_transformation_size = time_transformation_size;
-                holovibes_.get_compute_pipe()
-                    ->request_update_time_transformation_size();
-                set_p_accu();
-                // This will not do anything until SliceWindow::changeTexture()
-                // isn't coded.
-            });
+            pipe->insert_fn_end_vect(
+                [=]()
+                {
+                    cd_.time_transformation_size = time_transformation_size;
+                    holovibes_.get_compute_pipe()
+                        ->request_update_time_transformation_size();
+                    set_p_accu();
+                    // This will not do anything until
+                    // SliceWindow::changeTexture() isn't coded.
+                });
         }
     }
 }
@@ -2571,15 +2588,17 @@ void MainWindow::set_fast_pipe(bool value)
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
     if (pipe && value)
     {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_stride = cd_.batch_size.load();
-            cd_.time_transformation_size = cd_.batch_size.load();
-            pipe->request_update_time_transformation_stride();
-            pipe->request_update_time_transformation_size();
-            cd_.fast_pipe = true;
-            pipe_refresh();
-            notify();
-        });
+        pipe->insert_fn_end_vect(
+            [=]()
+            {
+                cd_.time_transformation_stride = cd_.batch_size.load();
+                cd_.time_transformation_size = cd_.batch_size.load();
+                pipe->request_update_time_transformation_stride();
+                pipe->request_update_time_transformation_size();
+                cd_.fast_pipe = true;
+                pipe_refresh();
+                notify();
+            });
     }
     else
     {
@@ -2906,9 +2925,8 @@ void MainWindow::start_record()
     ui.RecordProgressBar->reset();
     ui.RecordProgressBar->show();
 
-    auto callback = [record_mode = record_mode_, this]() {
-        synchronize_thread([=]() { record_finished(record_mode); });
-    };
+    auto callback = [record_mode = record_mode_, this]()
+    { synchronize_thread([=]() { record_finished(record_mode); }); };
 
     bool square_output = ui.SquareOutputCheckBox->isChecked();
 
@@ -3063,11 +3081,14 @@ void MainWindow::init_holovibes_import_mode()
             first_frame - 1,
             last_frame - first_frame + 1,
             load_file_in_gpu,
-            [=]() {
-                synchronize_thread([&]() {
-                    if (cd_.is_computation_stopped)
-                        ui.FileReaderProgressBar->hide();
-                });
+            [=]()
+            {
+                synchronize_thread(
+                    [&]()
+                    {
+                        if (cd_.is_computation_stopped)
+                            ui.FileReaderProgressBar->hide();
+                    });
             });
         ui.FileReaderProgressBar->show();
     }
