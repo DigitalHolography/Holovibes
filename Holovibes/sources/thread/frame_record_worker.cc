@@ -112,7 +112,7 @@ void FrameRecordWorker::run()
     }
     catch (const io_files::FileException& e)
     {
-        LOG_ERROR << "[RECORDER] " + std::string(e.what()));
+        LOG_ERROR << "[RECORDER] " << e.what();
         delete output_frame_file;
     }
 

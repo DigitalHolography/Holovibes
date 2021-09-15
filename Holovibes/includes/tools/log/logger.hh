@@ -5,6 +5,7 @@
 
 #include <exception>
 #include <fstream>
+#include <sstream>
 #include <functional>
 #include <iostream>
 
@@ -28,42 +29,30 @@ class LoggingLine
     {
     }
 
-    void add_data(const std::string& s) { line += s; }
-
-    void add_data(const char& s) { line += s; }
-
-    void add_data(const char* s) { line += s; }
-
-    template <typename T>
-    void add_data(const T& s)
-    {
-        line += std::to_string(s);
-    }
-
     template <typename T>
     LoggingLine& operator<<(const T& data)
     {
-        add_data(data);
+        buffer << data;
         return *this;
     }
 
     template <typename CharT, typename Traits>
     LoggingLine& operator<<(const std::basic_ostream<CharT, Traits>& (*endl)(
-        std::basic_ostream<CharT, Traits>&)
+        std::basic_ostream<CharT, Traits>&))
     {
-        add_data(std::endl);
+        buffer << endl;
         return *this;
     }
 
     ~LoggingLine()
     {
-        if (!line.empty())
-            VLOG_F(level_, "%s", line.c_str());
+        if (!buffer.str().empty())
+            VLOG_F(level_, "%s", buffer.str().c_str());
     }
 
   private:
     loguru::NamedVerbosity level_;
-    std::string line;
+    std::stringstream buffer;
 };
 
 class Logger
