@@ -1,6 +1,7 @@
 /*! \file
-
- Implementation of FFT1, FFT2 and STFT algorithms. */
+ *
+ * \brief Implementation of FFT1, FFT2 and STFT algorithms.
+ */
 #pragma once
 
 #include <cufft.h>
@@ -22,6 +23,10 @@ struct CoreBuffersEnv;
 
 namespace compute
 {
+/*! \class FourierTransform
+ *
+ * \brief #TODO Add a description for this class
+ */
 class FourierTransform
 {
   public:

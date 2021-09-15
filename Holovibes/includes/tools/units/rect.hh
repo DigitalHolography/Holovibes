@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of a Rectangle */
+ * \brief Implementation of a Rectangle
+ */
 #pragma once
 
 #include "point.hh"
@@ -15,7 +16,9 @@ namespace holovibes
 namespace units
 {
 
-/*! \brief A rectangle in some specific unit
+/*! \class Rect
+ *
+ * \brief A rectangle in some specific unit
  *
  * It can be manipulated in two ways:
  * through top / bottom / left / right, making sure left < right and so on

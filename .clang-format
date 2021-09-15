@@ -9,3 +9,4 @@ BinPackParameters: false
 AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializers: BeforeComma
 SortIncludes: false
+ColumnLimit: 120

@@ -1,7 +1,10 @@
 /*! \file
  *
+ * \brief #TODO Add a description for this file
+ *
  * The Pipe is a sequential computing model, storing procedures
- * in a single container. */
+ * in a single container.
+ */
 #pragma once
 
 #include "cuda_tools/unique_ptr.hh"
@@ -15,7 +18,9 @@
 
 namespace holovibes
 {
-/*! \brief Pipe is a class that applies processing on input frames.
+/*! \class Pipe
+ *
+ * \brief Pipe is a class that applies processing on input frames.
  *
  * # Why doing this way ?
  *

@@ -1,11 +1,14 @@
 /*! \file
  *
- * Store some information that need to be accessed globally. */
+ * \brief Store some information that need to be accessed globally.
+ */
 #pragma once
 
 namespace holovibes
 {
-/*! \brief Store some information that need to be accessed globally.
+/*! \class Config
+ *
+ * \brief Store some information that need to be accessed globally.
  */
 class Config
 {

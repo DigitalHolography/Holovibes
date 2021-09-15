@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay used to compute the side views. */
+ * \brief Overlay used to compute the side views.*
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -11,6 +12,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class CrossOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CrossOverlay : public Overlay
 {
   public:

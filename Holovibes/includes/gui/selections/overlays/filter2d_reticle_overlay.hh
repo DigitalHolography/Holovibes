@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay used to display a reticle in the center of the window. */
+ * \brief Overlay used to display a reticle in the center of the window.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -10,6 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class Filter2DReticleOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Filter2DReticleOverlay : public Overlay
 {
   public:

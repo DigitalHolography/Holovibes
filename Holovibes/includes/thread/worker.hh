@@ -1,9 +1,15 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
+/*! \brief #TODO Add a description for this namespace */
 namespace holovibes::worker
 {
-/*!
- *  \brief    Abstract class that represents a worker doing a task
+/*! \class Worker
+ *
+ * \brief    Abstract class that represents a worker doing a task
  */
 class Worker
 {

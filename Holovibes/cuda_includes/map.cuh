@@ -1,4 +1,6 @@
-/*! \file Optimized and generic map operation processed gpu side
+/*! \file
+ *
+ * \brief Optimized and generic map operation processed gpu side
  *
  * The templated functions can only be called from cuda files (.cu*) files.
  * In order to be exported, the templated function must be declared in .cuh

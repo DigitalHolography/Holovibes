@@ -1,11 +1,15 @@
 /*! \file
- *  Enum for the different space transformations
+ *
+ * \brief Enum for the different space transformations
  */
 #pragma once
 
 namespace holovibes
 {
-/*! \brief	Rendering mode for Hologram (Space transformation) */
+/*! \enum SpaceTransformation
+ *
+ * \brief Rendering mode for Hologram (Space transformation)
+ */
 enum class SpaceTransformation
 {
     None = 0, /*!< Nothing Applied */

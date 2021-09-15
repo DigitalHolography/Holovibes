@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of a Point */
+ * \brief Implementation of a Point
+ */
 #pragma once
 
 #include "conversion_data.hh"
@@ -16,7 +17,9 @@ namespace holovibes
 namespace units
 {
 
-/*! \brief A point in some specific unit
+/*! \class Point
+ *
+ * \brief A point in some specific unit
  */
 template <class T>
 class Point

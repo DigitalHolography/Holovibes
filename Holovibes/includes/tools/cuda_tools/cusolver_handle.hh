@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "cusolverDn.h"
@@ -6,6 +10,10 @@ namespace holovibes
 {
 namespace cuda_tools
 {
+/*! \class CusolverHandle
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CusolverHandle
 {
   public:

@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "worker.hh"
@@ -8,8 +12,9 @@ class InformationContainer;
 
 namespace worker
 {
-/*!
- *  \brief Class used to display side information relative to the execution
+/*! \class InformationWorker
+ *
+ * \brief Class used to display side information relative to the execution
  */
 class InformationWorker : public Worker
 {

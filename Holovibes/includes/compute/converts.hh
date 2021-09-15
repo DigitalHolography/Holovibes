@@ -1,6 +1,7 @@
 /*! \file
-
-  Implmentation of the conversions between buffers.*/
+ *
+ * \brief Implmentation of the conversions between buffers.
+ */
 #pragma once
 
 #include <memory>
@@ -24,6 +25,10 @@ struct UnwrappingResources;
 struct UnwrappingResources_2d;
 namespace compute
 {
+/*! \class Converts
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Converts
 {
   public:

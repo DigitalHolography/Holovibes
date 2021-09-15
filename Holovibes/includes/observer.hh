@@ -1,13 +1,17 @@
 /*! \file
  *
- * Implementation of the Observer design pattern. */
+ * \brief Implementation of the Observer design pattern.
+ */
 #pragma once
 
 namespace holovibes
 {
-/*! \brief Implementation of the Observer design pattern.
+/*! \class Observer
  *
- * Set a child class to be observer of an observable object. */
+ * \brief Implementation of the Observer design pattern.
+ *
+ * Set a child class to be observer of an observable object.
+ */
 class Observer
 {
   public:

@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include <deque>
@@ -14,9 +18,9 @@
 
 namespace holovibes::worker
 {
-/*!
- *  \brief Class used for batch functionality (chart or frame record multiple
- * times)
+/*! \class BatchGPIBWorker
+ *
+ * \brief Class used for batch functionality (chart or frame record multiple times)
  */
 class BatchGPIBWorker : public Worker
 {

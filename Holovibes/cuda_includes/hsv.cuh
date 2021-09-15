@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 #include "compute_descriptor.hh"
 #include "cuComplex.h"

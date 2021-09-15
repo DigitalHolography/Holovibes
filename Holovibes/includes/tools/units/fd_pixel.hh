@@ -1,6 +1,7 @@
 /*! \file
  *
- * Implementation of a position in the frame desc coordinate system */
+ * \brief Implementation of a position in the frame desc coordinate system
+ */
 #pragma once
 
 #include "unit.hh"
@@ -13,7 +14,9 @@ class WindowPixel;
 class OpenglPosition;
 class RealPosition;
 
-/*! \brief A position in the frame desc coordinate system [0;fd.width]
+/*! \class FDPixel
+ *
+ * \brief A position in the frame desc coordinate system [0;fd.width]
  */
 class FDPixel : public Unit<int>
 {

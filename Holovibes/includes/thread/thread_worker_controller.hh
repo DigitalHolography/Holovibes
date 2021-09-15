@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 namespace holovibes::worker
@@ -8,10 +12,11 @@ class Worker;
 template <class T, class U>
 concept Derived = std::is_base_of<U, T>::value;
 
-/*!
- *  \brief    Class used to control the execution of a worker inside a thread
+/*! \class ThreadWorkerController
  *
- *  \details  T must derived from the Worker class
+ * \brief    Class used to control the execution of a worker inside a thread
+ *
+ * \details  T must derived from the Worker class
  */
 template <Derived<Worker> T>
 class ThreadWorkerController

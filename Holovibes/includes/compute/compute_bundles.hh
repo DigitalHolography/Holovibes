@@ -1,6 +1,7 @@
 /*! \file
  *
- * Regroup all resources used for phase unwrapping. */
+ * \brief Regroup all resources used for phase unwrapping.
+ */
 #pragma once
 
 #include <cufft.h>
@@ -9,7 +10,10 @@
 
 namespace holovibes
 {
-/*! Regroup all resources used for phase unwrapping.
+/*! \struct UnwrappingResources
+ *
+ * \brief  Regroup all resources used for phase unwrapping.
+ *
  * Takes care of initialization and destruction. */
 struct UnwrappingResources
 {

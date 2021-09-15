@@ -1,6 +1,7 @@
 /*! \file
  *
- * Stores functions helping the editing of the images. */
+ * \brief Stores functions helping the editing of the images.
+ */
 #pragma once
 
 #include <atomic>
@@ -25,7 +26,10 @@ class BatchInputQueue;
 
 namespace holovibes
 {
-/*! \brief Struct containing main buffers used by the pipe. */
+/*! \struct CoreBuffersEnv
+ *
+ * \brief Struct containing main buffers used by the pipe.
+ */
 struct CoreBuffersEnv
 {
     /** Input buffer. Contains only one frame. We fill it with the input frame*/
@@ -73,7 +77,10 @@ struct CoreBuffersEnv
     cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
 };
 
-/*! \brief Struct containing variables related to the batch in the pipe */
+/*! \struct BatchEnv
+ *
+ * \brief Struct containing variables related to the batch in the pipe
+ */
 struct BatchEnv
 {
     /*! \brief Current frames processed in the batch
@@ -89,8 +96,11 @@ struct BatchEnv
     uint batch_index = 0;
 };
 
-/*! \brief Struct containing variables related to STFT shared by multiple
- * features of the pipe. */
+/*! \struct TimeTransformationEnv
+ *
+ * \brief Struct containing variables related to STFT shared by multiple
+ * features of the pipe.
+ */
 struct TimeTransformationEnv
 {
     /** STFT Queue. Constains time_transformation_size frames. It accumulates
@@ -119,14 +129,21 @@ struct TimeTransformationEnv
     cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
 };
 
+/*! \struct FrameRecordEnv
+ *
+ * \brief #TODO Add a description for this struct
+ */
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
     bool raw_record_enabled = false;
 };
 
-/** \brief Structure containing variables related to the chart display and
- * recording. */
+/*! \struct ChartEnv
+ *
+ * \brief Structure containing variables related to the chart display and
+ * recording.
+ */
 struct ChartEnv
 {
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
@@ -134,6 +151,10 @@ struct ChartEnv
     unsigned int nb_chart_points_to_record_ = 0;
 };
 
+/*! \struct ImageAccEnv
+ *
+ * \brief #TODO Add a description for this struct
+ */
 struct ImageAccEnv
 {
     /// Frame to temporaly store the average on XY view
@@ -152,7 +173,9 @@ struct ImageAccEnv
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
 
-/* \brief Stores functions helping the editing of the images.
+/*! \class ICompute
+ *
+ * \brief Stores functions helping the editing of the images.
  *
  * Stores all the functions that will be used before doing
  * any sort of editing to the image (i.e. refresh functions

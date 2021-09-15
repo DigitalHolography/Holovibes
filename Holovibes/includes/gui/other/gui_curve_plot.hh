@@ -1,6 +1,7 @@
 /*! \file
  *
- * Widget wrapping for a QtChart. Used to display Chart computations. */
+ * \brief Widget wrapping for a QtChart. Used to display Chart computations.
+ */
 #pragma once
 
 #include <memory>
@@ -25,7 +26,10 @@ namespace holovibes
 {
 namespace gui
 {
-/*! \brief Widget wrapping for a QtChart. Used to display Chart computations. */
+/*! \class CurvePlot
+ *
+ * \brief Widget wrapping for a QtChart. Used to display Chart computations.
+ */
 class CurvePlot : public QWidget
 {
     Q_OBJECT

@@ -1,11 +1,15 @@
 /*! \file
- *  Enum for kind of window
+ *
+ * \brief Enum for kind of window
  */
 #pragma once
 
 namespace holovibes
 {
-/*! \brief Represents the kind of slice displayed by the window */
+/*! \enum WindowKind
+ * 
+ * \brief Represents the kind of slice displayed by the window
+ */
 enum class WindowKind
 {
     XYview = 0, /*!< Main view */

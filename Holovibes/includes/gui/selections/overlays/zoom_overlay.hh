@@ -1,6 +1,7 @@
 /*! \file
  *
- * Overlay selecting the zone to zoom in. */
+ * \brief Overlay selecting the zone to zoom in.
+ */
 #pragma once
 
 #include "square_overlay.hh"
@@ -9,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class ZoomOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class ZoomOverlay : public SquareOverlay
 {
   public:

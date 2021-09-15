@@ -1,9 +1,17 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "frame_desc.hh"
 
 namespace holovibes
 {
+/*! \class DisplayQueue
+ *
+ * \brief #TODO Add a description for this class
+ */
 class DisplayQueue
 {
   public:

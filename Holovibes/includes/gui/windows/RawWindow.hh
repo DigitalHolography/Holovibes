@@ -1,6 +1,7 @@
 /*! \file
  *
- * Qt window used to display the input frames. */
+ * \brief Qt window used to display the input frames.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -10,6 +11,11 @@ namespace holovibes
 namespace gui
 {
 class SliceWindow;
+
+/*! \class RawWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class RawWindow : public BasicOpenGLWindow
 {
   public:

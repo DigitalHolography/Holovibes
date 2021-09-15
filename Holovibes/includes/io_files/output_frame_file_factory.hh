@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "output_frame_file.hh"
@@ -7,11 +11,12 @@ namespace holovibes::io_files
 {
 class OutputFrameFile;
 
-/*!
- *  \brief    Used to create an output file
+/*! \class OutputFrameFileFactory
  *
- *  \details  This class is a factory,
- *            the created input file depends on the file path extension
+ * \brief Used to create an output file
+ *
+ * \details This class is a factory,
+ *          the created input file depends on the file path extension
  */
 class OutputFrameFileFactory
 {

@@ -1,5 +1,7 @@
-#pragma once
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "cuComplex.h"

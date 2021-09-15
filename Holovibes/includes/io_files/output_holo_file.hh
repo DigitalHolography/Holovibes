@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "output_frame_file.hh"
@@ -5,6 +9,10 @@
 
 namespace holovibes::io_files
 {
+/*! \class OutputHoloFile
+ *
+ * \brief #TODO Add a description for this class
+ */
 class OutputHoloFile : public OutputFrameFile, public HoloFile
 {
   public:
