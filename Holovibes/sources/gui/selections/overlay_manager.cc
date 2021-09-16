@@ -241,6 +241,11 @@ void OverlayManager::create_default()
 
 units::RectWindow OverlayManager::getZone() const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(current_overlay_ != nullptr);
+     */
     assert(current_overlay_);
     return current_overlay_->getZone();
 }

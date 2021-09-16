@@ -19,6 +19,11 @@ ConversionData::ConversionData(const BasicOpenGLWindow* window)
 
 float ConversionData::window_size_to_opengl(int val, Axis axis) const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!window_);
+     */
     assert(window_);
     auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
@@ -26,6 +31,11 @@ float ConversionData::window_size_to_opengl(int val, Axis axis) const
 
 float ConversionData::fd_to_opengl(int val, Axis axis) const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!window_);
+     */
     assert(window_);
     auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
@@ -33,6 +43,11 @@ float ConversionData::fd_to_opengl(int val, Axis axis) const
 
 int ConversionData::opengl_to_window_size(float val, Axis axis) const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!window_);
+     */
     assert(window_);
     if (axis == Axis::VERTICAL)
         val *= -1;
@@ -42,6 +57,11 @@ int ConversionData::opengl_to_window_size(float val, Axis axis) const
 
 int ConversionData::opengl_to_fd(float val, Axis axis) const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!window_);
+     */
     assert(window_);
     if (axis == Axis::VERTICAL)
         val *= -1;
@@ -50,6 +70,11 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 
 double ConversionData::fd_to_real(int val, Axis axis) const
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!window_);
+     */
     assert(window_);
     auto cd = window_->getCd();
     auto fd = window_->getFd();

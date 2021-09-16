@@ -55,7 +55,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
 {
-    assert(gpu_input_queue_.load() != nullptr);
+    CHECK(gpu_input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
@@ -82,7 +82,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         else if (camera_kind == CameraKind::xiB)
             active_camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
         else
-            assert(!"Impossible case");
+            CHECK(false) << "Impossible case";
 
         cd_.pixel_size = active_camera_->get_pixel_size();
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
@@ -160,6 +160,11 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
+     */
     assert(gpu_input_queue_.load() && "Input queue not initialized");
 
     compute_worker_controller_.set_callback(callback);

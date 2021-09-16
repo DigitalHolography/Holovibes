@@ -323,7 +323,7 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
 {
     MutexGuard mGuard(mutex_);
 
-    assert(size_ > 0);
+    CHECK(size_ > 0);
     void* first_img = data_.get() + start_index_ * frame_size_;
     cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream);
 
@@ -341,7 +341,7 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    assert(size_ >= nb_elts);
+    CHECK(size_ >= nb_elts);
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }

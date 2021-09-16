@@ -36,7 +36,6 @@ set(HOLO_INCLUDES
     includes/tools/
     includes/tools/cuda_tools/
     includes/tools/units/
-    includes/tools/check/
     GPIB/
 
     "${CMAKE_SOURCE_DIR}/libs/glm/"
