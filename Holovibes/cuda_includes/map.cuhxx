@@ -10,6 +10,7 @@
 namespace _private
 {
 /*! \brief Basic kernel to apply a map operation.
+ *
  * Apply func on every pixel of the input and store
  * it in output.
  */
@@ -25,6 +26,7 @@ __global__ static void kernel_map_generic(const I* const input, O* const output,
 }
 
 /*! \brief Wrapper to call kernel map generic
+ *
  * This function lauches kernel calls in the most optimized way.
  */
 template <typename I, typename O, typename FUNC>

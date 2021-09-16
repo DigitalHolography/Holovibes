@@ -8,7 +8,7 @@
 
 #include "compute_descriptor.hh"
 
-/// Computes 3 different p slices and put them in each color
+// Computes 3 different p slices and put them in each color
 void rgb(cuComplex* input,
          float* output,
          const uint frame_res,

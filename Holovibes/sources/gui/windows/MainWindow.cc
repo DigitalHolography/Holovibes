@@ -117,7 +117,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     // need the correct dimensions of main windows
     move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
-    show();
 
     // Hide non default tab
     ui.CompositeGroupBox->hide();
@@ -136,8 +135,8 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     }
     catch (std::exception&)
     {
-        LOG_WARN(GLOBAL_INI_PATH + ": Configuration file not found. "
-                                   "Initialization with default values.");
+        LOG_WARN << GLOBAL_INI_PATH << ": Configuration file not found. "
+                 << "Initialization with default values.";
         save_ini(GLOBAL_INI_PATH);
     }
 
@@ -539,8 +538,7 @@ void MainWindow::notify_error(std::exception& e)
     {
         if (err_ptr->get_kind() == error_kind::fail_update)
         {
-            auto lambda = [this]
-            {
+            auto lambda = [this] {
                 // notify will be in close_critical_compute
                 cd_.pindex = 0;
                 cd_.time_transformation_size = 1;
@@ -578,18 +576,16 @@ void MainWindow::notify_error(std::exception& e)
 void MainWindow::layout_toggled()
 {
 
-    synchronize_thread(
-        [=]()
-        {
-            // Resizing to original size, then adjust it to fit the groupboxes
-            resize(baseSize());
-            adjustSize();
-        });
+    synchronize_thread([=]() {
+        // Resizing to original size, then adjust it to fit the groupboxes
+        resize(baseSize());
+        adjustSize();
+    });
 }
 
-void MainWindow::display_error(const std::string msg) { LOG_ERROR(msg); }
+void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg; }
 
-void MainWindow::display_info(const std::string msg) { LOG_INFO(msg); }
+void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
@@ -796,7 +792,7 @@ void MainWindow::save_ini(const std::string& path)
 
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO("Configuration file holovibes.ini overwritten");
+    LOG_INFO << "Configuration file holovibes.ini overwritten";
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -890,7 +886,7 @@ void MainWindow::reset()
     }
     catch (std::exception&)
     {
-        LOG_WARN(GLOBAL_INI_PATH + ": Config file not found. It will use the default values.");
+        LOG_WARN << GLOBAL_INI_PATH << ": Config file not found. It will use the default values.";
     }
     notify();
 }
@@ -936,7 +932,7 @@ void MainWindow::change_camera(CameraKind c)
         }
         catch (camera::CameraException& e)
         {
-            display_error("[CAMERA]" + std::string(e.what()));
+            display_error("[CAMERA] " + std::string(e.what()));
         }
         catch (std::exception& e)
         {
@@ -1016,7 +1012,7 @@ void MainWindow::createPipe()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR(std::string("cannot create Pipe: ") + std::string(e.what()));
+        LOG_ERROR << "cannot create Pipe: " << e.what();
     }
 }
 
@@ -1049,7 +1045,7 @@ void MainWindow::createHoloWindow()
     }
     catch (std::runtime_error& e)
     {
-        LOG_ERROR(std::string("createHoloWindow: ") + std::string(e.what()));
+        LOG_ERROR << "createHoloWindow: " << e.what();
     }
 }
 
@@ -1089,8 +1085,8 @@ void MainWindow::set_holographic_mode()
         notify();
     }
     catch (std::runtime_error& e)
-    {
-        LOG_ERROR(std::string("cannot set holographic mode: ") + std::string(e.what()));
+    {=
+        LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
 
@@ -1130,7 +1126,7 @@ void MainWindow::refreshViewMode()
     catch (std::runtime_error& e)
     {
         mainDisplay.reset(nullptr);
-        LOG_ERROR(std::string("refreshViewMode: ") + std::string(e.what()));
+        LOG_ERROR << "refreshViewMode: " << e.what();
     }
     notify();
     layout_toggled();
@@ -1234,14 +1230,12 @@ void MainWindow::update_batch_size()
         auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
         if (pipe)
         {
-            pipe->insert_fn_end_vect(
-                [=]()
-                {
-                    cd_.batch_size = value;
-                    adapt_time_transformation_stride_to_batch_size(cd_);
-                    holovibes_.get_compute_pipe()->request_update_batch_size();
-                    notify();
-                });
+            pipe->insert_fn_end_vect([=]() {
+                cd_.batch_size = value;
+                adapt_time_transformation_stride_to_batch_size(cd_);
+                holovibes_.get_compute_pipe()->request_update_batch_size();
+                notify();
+            });
         }
         else
             std::cout << "COULD NOT GET PIPE" << std::endl;
@@ -1270,15 +1264,13 @@ void MainWindow::cancel_stft_slice_view()
     }
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
-        pipe->insert_fn_end_vect(
-            [=]()
-            {
-                cd_.time_transformation_cuts_enabled = false;
-                pipe->delete_stft_slice_queue();
+        pipe->insert_fn_end_vect([=]() {
+            cd_.time_transformation_cuts_enabled = false;
+            pipe->delete_stft_slice_queue();
 
-                ui.TimeTransformationCutsCheckBox->setChecked(false);
-                notify();
-            });
+            ui.TimeTransformationCutsCheckBox->setChecked(false);
+            notify();
+        });
     }
 }
 
@@ -1669,7 +1661,7 @@ void MainWindow::update_raw_view(bool value)
         if (cd_.batch_size > global::global_config.output_queue_max_size)
         {
             ui.RawDisplayingCheckBox->setChecked(false);
-            LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
+            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
             return;
         }
 
@@ -2085,7 +2077,8 @@ void MainWindow::set_space_transformation(const QString value)
         {
             // Shouldn't happen
             cd_.space_transformation = SpaceTransformation::None;
-            LOG_ERROR("Unknown space transform: " + value.toStdString() + ", falling back to None");
+            LOG_ERROR << "Unknown space transform: " << value.toStdString()
+                      << ", falling back to None";
         }
         set_holographic_mode();
     }
@@ -2398,17 +2391,15 @@ void MainWindow::set_fast_pipe(bool value)
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
     if (pipe && value)
     {
-        pipe->insert_fn_end_vect(
-            [=]()
-            {
-                cd_.time_transformation_stride = cd_.batch_size.load();
-                cd_.time_transformation_size = cd_.batch_size.load();
-                pipe->request_update_time_transformation_stride();
-                pipe->request_update_time_transformation_size();
-                cd_.fast_pipe = true;
-                pipe_refresh();
-                notify();
-            });
+        pipe->insert_fn_end_vect([=]() {
+            cd_.time_transformation_stride = cd_.batch_size.load();
+            cd_.time_transformation_size = cd_.batch_size.load();
+            pipe->request_update_time_transformation_stride();
+            pipe->request_update_time_transformation_size();
+            cd_.fast_pipe = true;
+            pipe_refresh();
+            notify();
+        });
     }
     else
     {
@@ -2673,7 +2664,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     if (ui.BatchGroupBox->isChecked())
         info = "Batch " + info;
 
-    LOG_INFO("[RECORDER] " + info);
+    LOG_INFO << "[RECORDER] " << info;
 
     ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);
@@ -2717,8 +2708,9 @@ void MainWindow::start_record()
     ui.RecordProgressBar->reset();
     ui.RecordProgressBar->show();
 
-    auto callback = [record_mode = record_mode_, this]()
-    { synchronize_thread([=]() { record_finished(record_mode); }); };
+    auto callback = [record_mode = record_mode_, this]() {
+        synchronize_thread([=]() { record_finished(record_mode); });
+    };
 
     bool square_output = ui.SquareOutputCheckBox->isChecked();
 
@@ -2820,6 +2812,12 @@ void MainWindow::import_stop()
 
 void MainWindow::import_start()
 {
+    // shift main window when camera view appears
+    QRect rec = QGuiApplication::primaryScreen()->geometry();
+    int screen_height = rec.height();
+    int screen_width = rec.width();
+    move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
+
     if (!cd_.is_computation_stopped)
         import_stop();
 

@@ -18,7 +18,11 @@ class Chrono
     /*!
      * \brief Starts the chronometer
      */
-    void start() { start_ = std::chrono::steady_clock::now(); }
+    void start()
+    {
+        end_ = std::chrono::steady_clock::now();
+        start_ = std::chrono::steady_clock::now();
+    }
 
     /*!
      * \brief Stops the chronometer
@@ -32,10 +36,9 @@ class Chrono
      */
     size_t get_seconds()
     {
-        if (end_)
-        {
-            return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
-        }
+        if (end_ <= start_)
+            stop();
+        return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
     }
 
     /*!
@@ -45,10 +48,9 @@ class Chrono
      */
     size_t get_milliseconds()
     {
-        if (end_)
-        {
-            return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
-        }
+        if (end_ <= start_)
+            stop();
+        return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
     }
 
     /*!
@@ -58,10 +60,9 @@ class Chrono
      */
     size_t get_microseconds()
     {
-        if (end_)
-        {
-            return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
-        }
+        if (end_ <= start_)
+            stop();
+        return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
     }
 
     /*!
@@ -71,10 +72,9 @@ class Chrono
      */
     size_t get_nanoseconds()
     {
-        if (end_)
-        {
-            return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
-        }
+        if (end_ <= start_)
+            stop();
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
     }
 
   private:

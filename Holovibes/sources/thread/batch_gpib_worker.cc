@@ -30,7 +30,7 @@ BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
     }
     catch (const std::exception& exception)
     {
-        LOG_ERROR(exception.what());
+        LOG_ERROR << exception.what();
         batch_cmds_.clear();
     }
 }
@@ -103,7 +103,7 @@ void BatchGPIBWorker::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR(e.what());
+        LOG_ERROR << e.what();
         return;
     }
 }

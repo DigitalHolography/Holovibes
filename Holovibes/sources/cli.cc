@@ -177,8 +177,6 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     start_record(holovibes, opts, record_nb_frames);
     main_loop(holovibes);
 
-    chrono.stop();
-
     printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();

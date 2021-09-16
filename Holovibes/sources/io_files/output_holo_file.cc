@@ -73,7 +73,7 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
     catch (const json::exception& e)
     {
         meta_data_ = json();
-        LOG_WARN("An error was encountered while trying to export compute settings");
+        LOG_WARN << "An error was encountered while trying to export compute settings";
     }
 }
 

@@ -20,8 +20,7 @@ void apply_zone_sum(const float* input,
                     const holovibes::units::RectFd& zone,
                     const cudaStream_t stream);
 
-/*! \brief  Make the std sum ( sum of (x_i - x_avg) ** 2 for i in [1, N] ) of
- * input and selected zone
+/*! \brief  Make the std sum ( sum of (x_i - x_avg) ** 2 for i in [1, N] ) of input and selected zone
  *
  * \param height The height of the input image.
  * \param width The width of the input image.

@@ -107,7 +107,7 @@ void compute_percentile_xy_view(const float* gpu_input,
     }
     catch (...)
     {
-        LOG_ERROR("[Thrust] Error while computing a percentile");
+        LOG_ERROR << "[Thrust] Error while computing a percentile";
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)
@@ -171,7 +171,7 @@ void compute_percentile_yz_view(const float* gpu_input,
     }
     catch (...)
     {
-        LOG_ERROR("[Thrust] Error while computing a percentile");
+        LOG_ERROR << "[Thrust] Error while computing a percentile";
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)

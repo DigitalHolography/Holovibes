@@ -12,11 +12,10 @@ using uint = unsigned int;
  * \param size Input size
  * \param reduce_op Operator used for the reduction
  * \param atomic_op Atomic operator used for the write back in result
- * \param identity_elt Identity element needed to initilize data (add needs 0,
- * min needs max...)
+ * \param identity_elt Identity element needed to initilize data (add needs 0, min needs max...)
  *
- * This kernel has been highly tuned in order to maximize the memory bandwidth
- * usage Numerous benches have been done to achieve the best result possible
+ * This kernel has been highly tuned in order to maximize the memory bandwidth usage
+ * Numerous benches have been done to achieve the best result possible
  * Don't modify this kernel unless making benches
  */
 template <typename T, typename U, typename R_OP, typename A_OP>
