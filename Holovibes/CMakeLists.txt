@@ -36,7 +36,6 @@ set(HOLO_INCLUDES
     includes/tools/
     includes/tools/cuda_tools/
     includes/tools/units/
-    includes/tools/log/
     includes/tools/check/
     GPIB/
 

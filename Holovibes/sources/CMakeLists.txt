@@ -10,7 +10,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     batch_input_queue.cc
 
     tools/loguru.cpp
-    tools/log/logger.cc
     tools/check/checker.cc
 
     compute/compute_bundles.cc
