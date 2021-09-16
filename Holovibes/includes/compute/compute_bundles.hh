@@ -20,9 +20,7 @@ struct UnwrappingResources
     /*! Initialize the capacity from history_size,
      * set size and next_index to zero, and buffers pointers to null pointers.
      */
-    UnwrappingResources(const unsigned capacity,
-                        const size_t image_size,
-                        const cudaStream_t& stream);
+    UnwrappingResources(const unsigned capacity, const size_t image_size, const cudaStream_t& stream);
 
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources();
@@ -51,8 +49,7 @@ struct UnwrappingResources
     size_t capacity_; //!< Maximum number of matrices kept in history.
     size_t size_;     //!< Current number of matrices kept in history.
 
-    unsigned
-        next_index_; //!< Index of the next matrix to be overriden (the oldest).
+    unsigned next_index_; //!< Index of the next matrix to be overriden (the oldest).
     /*! Buffer used to cumulate phase images. Phase being an angle, it is one
      * part of a complex information, and can be stored in a float.
      * Phase images stored here are summed up together at each iteration and

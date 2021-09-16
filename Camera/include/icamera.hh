@@ -14,11 +14,7 @@ struct FrameDescriptor;
 */
 struct CapturedFramesDescriptor
 {
-    CapturedFramesDescriptor(void* region1_,
-                             unsigned count1_,
-                             void* region2_,
-                             unsigned count2_,
-                             bool on_gpu_ = false)
+    CapturedFramesDescriptor(void* region1_, unsigned count1_, void* region2_, unsigned count2_, bool on_gpu_ = false)
         : region1(region1_)
         , count1(count1_)
         , region2(region2_)
@@ -36,9 +32,7 @@ struct CapturedFramesDescriptor
     {
     }
 
-    CapturedFramesDescriptor(void* data,
-                             unsigned int count,
-                             bool on_gpu_ = false)
+    CapturedFramesDescriptor(void* data, unsigned int count, bool on_gpu_ = false)
         : CapturedFramesDescriptor(data, count, nullptr, 0)
     {
     }

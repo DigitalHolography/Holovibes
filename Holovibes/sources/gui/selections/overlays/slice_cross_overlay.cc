@@ -32,10 +32,7 @@ void SliceCrossOverlay::init()
 
     glGenBuffers(1, &elemLineIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof(elements),
-                 elements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
@@ -109,11 +106,9 @@ void SliceCrossOverlay::setBuffer()
     units::ConversionData convert(parent_);
 
     pmax = (pmax + 1);
-    topLeft = (kView == KindOfView::SliceXZ) ? units::PointFd(convert, 0, pmin)
-                                             : units::PointFd(convert, pmin, 0);
-    bottomRight = (kView == KindOfView::SliceXZ)
-                      ? units::PointFd(convert, parent_->getFd().width, pmax)
-                      : units::PointFd(convert, pmax, parent_->getFd().height);
+    topLeft = (kView == KindOfView::SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
+    bottomRight = (kView == KindOfView::SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax)
+                                                 : units::PointFd(convert, pmax, parent_->getFd().height);
     zone_ = units::RectFd(topLeft, bottomRight);
 
     // Updating opengl buffer

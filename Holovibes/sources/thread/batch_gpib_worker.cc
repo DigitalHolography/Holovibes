@@ -67,21 +67,18 @@ void BatchGPIBWorker::run()
 
                 if (record_mode_ == RecordMode::CHART)
                 {
-                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(
-                        formatted_path,
-                        nb_frames_to_record_);
+                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_);
                     chart_record_worker_->run();
                 }
                 else // Frame Record
                 {
                     bool raw_record = record_mode_ == RecordMode::RAW;
 
-                    frame_record_worker_ = std::make_unique<FrameRecordWorker>(
-                        formatted_path,
-                        nb_frames_to_record_,
-                        raw_record,
-                        square_output_,
-                        0);
+                    frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
+                                                                               nb_frames_to_record_,
+                                                                               raw_record,
+                                                                               square_output_,
+                                                                               0);
                     frame_record_worker_->run();
                 }
 
@@ -95,8 +92,7 @@ void BatchGPIBWorker::run()
                 while (!stop_requested_)
                 {
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::high_resolution_clock::now() -
-                            starting_time)
+                            std::chrono::high_resolution_clock::now() - starting_time)
                             .count() >= waiting_time)
                         break;
                 }
@@ -144,9 +140,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(
-                    boost::lexical_cast<std::string>(line_num),
-                    gpib::GpibParseError::NoAddress);
+                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoAddress);
             }
         }
         else if (line.compare("#WAIT") == 0)
@@ -164,9 +158,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(
-                    boost::lexical_cast<std::string>(line_num),
-                    gpib::GpibParseError::NoWait);
+                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoWait);
             }
         }
         else if (line.compare("#Capture") == 0)
@@ -183,8 +175,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             for (unsigned i = 0; i < line.size(); ++i)
                 in.unget();
             std::getline(in, line, '\n');
-            line.append(
-                "\n"); // Don't forget the end-of-command character for VISA.
+            line.append("\n"); // Don't forget the end-of-command character for VISA.
 
             cmd.type = gpib::BatchCommand::INSTRUMENT_COMMAND;
             cmd.address = cur_address;
@@ -201,8 +192,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
     }
 }
 
-void BatchGPIBWorker::execute_instrument_command(
-    gpib::BatchCommand instrument_command)
+void BatchGPIBWorker::execute_instrument_command(gpib::BatchCommand instrument_command)
 {
     if (!gpib_interface_)
         gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll");

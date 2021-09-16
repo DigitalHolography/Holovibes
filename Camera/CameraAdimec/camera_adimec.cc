@@ -72,13 +72,7 @@ void CameraAdimec::start_acquisition()
 
     // Aligned allocation ensures fast memory transfers.
     const BFSIZET alignment = 4096;
-    err_check(BiBufferAllocAligned(board_,
-                                   info_,
-                                   width,
-                                   height,
-                                   depth,
-                                   queue_size_,
-                                   alignment),
+    err_check(BiBufferAllocAligned(board_, info_, width, height, depth, queue_size_, alignment),
               "Could not allocate buffer memory",
               CameraException::MEMORY_PROBLEM,
               CloseFlag::BOARD);
@@ -107,8 +101,7 @@ void CameraAdimec::stop_acquisition()
     BiBufferFree(board_, info_);
     if (BiCircCleanUp(board_, info_) != BI_OK)
     {
-        std::cerr << "[CAMERA] Could not stop acquisition cleanly."
-                  << std::endl;
+        std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
         shutdown_camera();
         throw CameraException(CameraException::CANT_STOP_ACQUISITION);
     }
@@ -128,10 +121,7 @@ CapturedFramesDescriptor CameraAdimec::get_frames()
     // Wait for a freshly written image to be readable.
     BiCirHandle hd;
     // TODO: Use timeout of global config
-    BiCirWaitDoneFrame(board_,
-                       info_,
-                       static_cast<BFU32>(camera::FRAME_TIMEOUT),
-                       &hd);
+    BiCirWaitDoneFrame(board_, info_, static_cast<BFU32>(camera::FRAME_TIMEOUT), &hd);
 
     BFU32 status;
     BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
@@ -202,17 +192,11 @@ void CameraAdimec::bind_params()
     /* Frame period should be set before exposure time, because the latter
      * depends of the former. */
 
-    if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_PERIOD, frame_period_) !=
-        BF_OK)
-        std::cerr << "[CAMERA] Could not set frame period to " << frame_period_
-                  << std::endl;
+    if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_PERIOD, frame_period_) != BF_OK)
+        std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
 
-    if (BFCXPWriteReg(board_,
-                      0xFF,
-                      RegAddress::EXPOSURE_TIME,
-                      exposure_time_) != BF_OK)
-        std::cerr << "[CAMERA] Could not set exposure time to "
-                  << exposure_time_ << std::endl;
+    if (BFCXPWriteReg(board_, 0xFF, RegAddress::EXPOSURE_TIME, exposure_time_) != BF_OK)
+        std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
     /* After setting up the profile of the camera in SysReg, we read into the
      * registers of the camera to set width and height */
@@ -221,8 +205,7 @@ void CameraAdimec::bind_params()
                      "the camera "
                   << std::endl;
 
-    if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_HEIGHT, &roi_height_) !=
-        BF_OK)
+    if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_HEIGHT, &roi_height_) != BF_OK)
         std::cerr << "[CAMERA] Cannot read the roi height of the registers of "
                      "the camera "
                   << std::endl;

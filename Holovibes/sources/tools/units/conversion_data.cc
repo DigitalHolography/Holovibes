@@ -20,18 +20,14 @@ ConversionData::ConversionData(const BasicOpenGLWindow* window)
 float ConversionData::window_size_to_opengl(int val, Axis axis) const
 {
     assert(window_);
-    auto res = (static_cast<float>(val) * 2.f /
-                static_cast<float>(get_window_size(axis))) -
-               1.f;
+    auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
 float ConversionData::fd_to_opengl(int val, Axis axis) const
 {
     assert(window_);
-    auto res = (static_cast<float>(val) * 2.f /
-                static_cast<float>(get_fd_size(axis))) -
-               1.f;
+    auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
@@ -59,24 +55,18 @@ double ConversionData::fd_to_real(int val, Axis axis) const
     auto fd = window_->getFd();
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
-    else if (window_->getKindOfView() == gui::KindOfView::SliceXZ &&
-             axis == Axis::HORIZONTAL)
+        pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+    else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+        pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
     }
-    else if (window_->getKindOfView() == gui::KindOfView::SliceYZ &&
-             axis == Axis::VERTICAL)
+    else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
+        pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
     }
     else
     {
-        pix_size =
-            std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
+        pix_size = std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
     }
 
     return val * pix_size;

@@ -88,11 +88,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     try
     {
         // Parse options
-        po::store(po::command_line_parser(argc, argv)
-                      .options(opts_desc_)
-                      .allow_unregistered()
-                      .run(),
-                  vm_);
+        po::store(po::command_line_parser(argc, argv).options(opts_desc_).allow_unregistered().run(), vm_);
         po::notify(vm_);
 
         // Handle general options
@@ -100,22 +96,17 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.print_version = vm_.count("version");
 
         if (vm_.count("input"))
-            options_.input_path =
-                boost::any_cast<std::string>(vm_["input"].value());
+            options_.input_path = boost::any_cast<std::string>(vm_["input"].value());
         if (vm_.count("output"))
-            options_.output_path =
-                boost::any_cast<std::string>(vm_["output"].value());
+            options_.output_path = boost::any_cast<std::string>(vm_["output"].value());
         if (vm_.count("ini"))
-            options_.ini_path =
-                boost::any_cast<std::string>(vm_["ini"].value());
+            options_.ini_path = boost::any_cast<std::string>(vm_["ini"].value());
         if (vm_.count("convolution"))
-            options_.convo_path =
-                boost::any_cast<std::string>(vm_["convolution"].value());
+            options_.convo_path = boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
             options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
-            options_.n_rec =
-                boost::any_cast<unsigned int>(vm_["n_rec"].value());
+            options_.n_rec = boost::any_cast<unsigned int>(vm_["n_rec"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
@@ -131,8 +122,5 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     return options_;
 }
 
-po::options_description OptionsParser::get_opts_desc() const
-{
-    return opts_desc_;
-}
+po::options_description OptionsParser::get_opts_desc() const { return opts_desc_; }
 } // namespace holovibes

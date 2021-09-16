@@ -7,8 +7,7 @@
 
 namespace holovibes
 {
-UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size,
-                                               const cudaStream_t& stream)
+UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size, const cudaStream_t& stream)
     : image_resolution_(image_size)
     , gpu_fx_(nullptr)
     , gpu_fy_(nullptr)

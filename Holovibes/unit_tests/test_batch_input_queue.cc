@@ -5,9 +5,7 @@
 
 #include <thread>
 
-static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q,
-                                size_t pos,
-                                std::string expected)
+static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q, size_t pos, std::string expected)
 {
     // TODO: getter max size
     // if (pos >= q.get_max_size())
@@ -15,14 +13,10 @@ static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q,
 
     size_t frame_size = q.get_frame_size();
 
-    const char* d_buffer =
-        static_cast<const char*>(q.get_data()); // device buffer
-    char* h_buffer = new char[frame_size];      // host buffer
+    const char* d_buffer = static_cast<const char*>(q.get_data()); // device buffer
+    char* h_buffer = new char[frame_size];                         // host buffer
     // Copy one frame from device buffer to host buffer
-    cudaXMemcpy(h_buffer,
-                d_buffer + pos * frame_size,
-                frame_size,
-                cudaMemcpyDeviceToHost);
+    cudaXMemcpy(h_buffer, d_buffer + pos * frame_size, frame_size, cudaMemcpyDeviceToHost);
 
     ASSERT_EQ(std::string(h_buffer), expected);
 }
@@ -30,21 +24,16 @@ static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q,
 static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
 {
     const uint frame_size = q.get_frame_size();
-    static const holovibes::BatchInputQueue::dequeue_func_t lambda =
-        [](const void* const src,
-           void* const dest,
-           const uint batch_size,
-           const uint frame_res,
-           const uint depth,
-           const cudaStream_t stream) {
-            const size_t size =
-                static_cast<size_t>(batch_size) * frame_res * depth;
-            cudaSafeCall(cudaMemcpyAsync(dest,
-                                         src,
-                                         size,
-                                         cudaMemcpyDeviceToHost,
-                                         stream));
-        };
+    static const holovibes::BatchInputQueue::dequeue_func_t lambda = [](const void* const src,
+                                                                        void* const dest,
+                                                                        const uint batch_size,
+                                                                        const uint frame_res,
+                                                                        const uint depth,
+                                                                        const cudaStream_t stream)
+    {
+        const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;
+        cudaSafeCall(cudaMemcpyAsync(dest, src, size, cudaMemcpyDeviceToHost, stream));
+    };
 
     char* d_buff;
     cudaSafeCall(cudaMallocHost((void**)&d_buff, frame_size * batch_size));
@@ -57,10 +46,7 @@ TEST(BatchInputQueueTest, SimpleInstantiation)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
     ASSERT_EQ(queue.get_size(), 0);
@@ -74,10 +60,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -98,10 +81,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueAndDequeueOfThreeElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -129,10 +109,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteElements)
 {
     constexpr uint total_nb_frames = 3;
     constexpr uint batch_size = 1;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -163,10 +140,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteMoreElements)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {4,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {4, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -219,10 +193,7 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -253,10 +224,7 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -289,10 +257,7 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
 {
     constexpr uint total_nb_frames = 4;
     constexpr uint batch_size = 2;
-    constexpr camera::FrameDescriptor fd = {5,
-                                            1,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {5, 1, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
@@ -372,9 +337,7 @@ void consumer_gpu(holovibes::BatchInputQueue& queue,
 }
 
 template <typename T>
-void producer(holovibes::BatchInputQueue& queue,
-              const uint nb_actions,
-              const uint frame_res)
+void producer(holovibes::BatchInputQueue& queue, const uint nb_actions, const uint frame_res)
 {
     const T* frame = new T[frame_res];
 
@@ -408,8 +371,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
         constexpr uint total_nb_frames = 1024;
         constexpr uint batch_size = 1;
         constexpr uint max_batch_size = total_nb_frames;
-        constexpr camera::FrameDescriptor fd =
-            {2, 2, sizeof(float), camera::Endianness::LittleEndian};
+        constexpr camera::FrameDescriptor fd = {2, 2, sizeof(float), camera::Endianness::LittleEndian};
         holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
         uint frame_res = queue.get_frame_res();
 
@@ -427,10 +389,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
                                     true,
                                     max_batch_size);
 
-        std::thread producer_thread(&(producer<float>),
-                                    std::ref(queue),
-                                    producer_actions,
-                                    frame_res);
+        std::thread producer_thread(&(producer<float>), std::ref(queue), producer_actions, frame_res);
 
         producer_thread.join();
         stop_requested = true;
@@ -443,28 +402,20 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlock)
 TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
 {
     // Test with float
-    constexpr camera::FrameDescriptor fd = {1,
-                                            1,
-                                            sizeof(float),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {1, 1, sizeof(float), camera::Endianness::LittleEndian};
     constexpr uint total_nb_frames = 2;
     constexpr uint batch_size = 1;
     const uint frame_size = fd.frame_size();
-    static const holovibes::BatchInputQueue::dequeue_func_t dequeue_func =
-        [](const void* const src,
-           void* const dest,
-           const uint batch_size,
-           const uint frame_res,
-           const uint depth,
-           const cudaStream_t stream) {
-            const size_t size =
-                static_cast<size_t>(batch_size) * frame_res * depth;
-            cudaSafeCall(cudaMemcpyAsync(dest,
-                                         src,
-                                         size,
-                                         cudaMemcpyDeviceToDevice,
-                                         stream));
-        };
+    static const holovibes::BatchInputQueue::dequeue_func_t dequeue_func = [](const void* const src,
+                                                                              void* const dest,
+                                                                              const uint batch_size,
+                                                                              const uint frame_res,
+                                                                              const uint depth,
+                                                                              const cudaStream_t stream)
+    {
+        const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;
+        cudaSafeCall(cudaMemcpyAsync(dest, src, size, cudaMemcpyDeviceToDevice, stream));
+    };
 
     float* d_producer;
     float* d_consumer;
@@ -491,11 +442,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
                                     d_consumer,
                                     dequeue_func);
 
-        std::thread producer_thread(&(producer_gpu),
-                                    std::ref(queue),
-                                    producer_actions,
-                                    frame_res,
-                                    d_producer);
+        std::thread producer_thread(&(producer_gpu), std::ref(queue), producer_actions, frame_res, d_producer);
 
         producer_thread.join();
         stop_requested = true;
@@ -512,10 +459,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationFloat)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(float),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(float), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_res = queue.get_frame_res();
 
@@ -532,10 +476,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationFloat)
                                 batch_size,
                                 false,
                                 max_batch_size);
-    std::thread producer_thread(&(producer<float>),
-                                std::ref(queue),
-                                actions,
-                                frame_res);
+    std::thread producer_thread(&(producer<float>), std::ref(queue), actions, frame_res);
 
     producer_thread.join();
 
@@ -555,10 +496,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationChar)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(char),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(char), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_res = queue.get_frame_res();
 
@@ -575,10 +513,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationChar)
                                 batch_size,
                                 false,
                                 max_batch_size);
-    std::thread producer_thread(&(producer<char>),
-                                std::ref(queue),
-                                actions,
-                                frame_res);
+    std::thread producer_thread(&(producer<char>), std::ref(queue), actions, frame_res);
 
     producer_thread.join();
 
@@ -598,10 +533,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationShort)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(short),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_res = queue.get_frame_res();
 
@@ -618,10 +550,7 @@ TEST(BatchInputQueueTest, FullProducerConsumerSituationShort)
                                 batch_size,
                                 false,
                                 max_batch_size);
-    std::thread producer_thread(&(producer<short>),
-                                std::ref(queue),
-                                actions,
-                                frame_res);
+    std::thread producer_thread(&(producer<short>), std::ref(queue), actions, frame_res);
 
     producer_thread.join();
 
@@ -641,10 +570,7 @@ TEST(BatchInputQueueTest, PartialProducerConsumerSituationShort)
     constexpr uint total_nb_frames = 4096;
     constexpr uint batch_size = 1;
     constexpr uint max_batch_size = total_nb_frames;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(short),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_res = queue.get_frame_res();
 
@@ -662,10 +588,7 @@ TEST(BatchInputQueueTest, PartialProducerConsumerSituationShort)
                                 batch_size,
                                 false,
                                 max_batch_size);
-    std::thread producer_thread(&(producer<short>),
-                                std::ref(queue),
-                                producer_actions,
-                                frame_res);
+    std::thread producer_thread(&(producer<short>), std::ref(queue), producer_actions, frame_res);
 
     producer_thread.join();
 
@@ -679,32 +602,24 @@ TEST(BatchInputQueueTest, CreateQueueSizeNotMatcingBatchSize)
 {
     constexpr uint total_nb_frames = 11;
     constexpr uint batch_size = 5;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(short),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
-    ASSERT_EQ(queue.get_total_nb_frames(),
-              total_nb_frames - total_nb_frames % batch_size);
+    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - total_nb_frames % batch_size);
 }
 
 TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
 {
     constexpr uint total_nb_frames = 10;
     constexpr uint batch_size = 5;
-    constexpr camera::FrameDescriptor fd = {2,
-                                            2,
-                                            sizeof(short),
-                                            camera::Endianness::LittleEndian};
+    constexpr camera::FrameDescriptor fd = {2, 2, sizeof(short), camera::Endianness::LittleEndian};
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
 
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames);
 
     constexpr uint new_batch_size = 6;
     queue.resize(new_batch_size);
-    ASSERT_EQ(queue.get_total_nb_frames(),
-              total_nb_frames - (total_nb_frames % new_batch_size));
+    ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - (total_nb_frames % new_batch_size));
 }
 
 int main(int argc, char* argv[])

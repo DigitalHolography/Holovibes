@@ -49,8 +49,7 @@ class InputFrameFile : public FrameFile
      *
      *  \throw    FileException if an error occurred while reading the file
      */
-    virtual size_t
-    read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
+    virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
   protected:
     // Give access to protected members to the handler

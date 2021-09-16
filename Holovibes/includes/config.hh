@@ -37,8 +37,7 @@ class Config
         this->input_queue_max_size = o.input_queue_max_size;
         this->frame_record_queue_max_size = o.frame_record_queue_max_size;
         this->output_queue_max_size = o.output_queue_max_size;
-        this->time_transformation_cuts_output_buffer_size =
-            o.time_transformation_cuts_output_buffer_size;
+        this->time_transformation_cuts_output_buffer_size = o.time_transformation_cuts_output_buffer_size;
         this->frame_timeout = o.frame_timeout;
         this->file_buffer_size = o.file_buffer_size;
         this->unwrap_history_size = o.unwrap_history_size;

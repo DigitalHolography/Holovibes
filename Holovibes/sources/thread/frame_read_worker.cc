@@ -3,8 +3,7 @@
 
 namespace holovibes::worker
 {
-FrameReadWorker::FrameReadWorker(
-    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : Worker()
     , gpu_input_queue_(gpu_input_queue)
     , processed_fps_(0)

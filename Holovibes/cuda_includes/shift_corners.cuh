@@ -22,23 +22,14 @@ using ushort = unsigned short;
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void shift_corners(float* input,
-                   const uint batch_size,
-                   const uint size_x,
-                   const uint size_y,
-                   const cudaStream_t stream);
+void shift_corners(
+    float* input, const uint batch_size, const uint size_x, const uint size_y, const cudaStream_t stream);
 
-void shift_corners(cuComplex* input,
-                   const uint batch_size,
-                   const uint size_x,
-                   const uint size_y,
-                   const cudaStream_t stream);
+void shift_corners(
+    cuComplex* input, const uint batch_size, const uint size_x, const uint size_y, const cudaStream_t stream);
 
-void shift_corners(float3* input,
-                   const uint batch_size,
-                   const uint size_x,
-                   const uint size_y,
-                   const cudaStream_t stream);
+void shift_corners(
+    float3* input, const uint batch_size, const uint size_x, const uint size_y, const cudaStream_t stream);
 
 /*! \brief Shifts in-place the corners of an image.
  *

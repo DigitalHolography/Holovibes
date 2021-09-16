@@ -39,12 +39,8 @@ RawWindow::~RawWindow()
 void RawWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Vertex,
-        create_absolute_qt_path("shaders/vertex.raw.glsl"));
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Fragment,
-        create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.raw.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
     overlay_manager_.create_default();
 }
@@ -74,18 +70,11 @@ void RawWindow::initializeGL()
     else
         size = fd_.frame_size();
 
-    glBufferData(GL_PIXEL_UNPACK_BUFFER,
-                 size,
-                 nullptr,
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr,
                  GL_STATIC_DRAW); // GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
-    glPixelStorei(GL_UNPACK_SWAP_BYTES,
-                  (fd_.byteEndian == Endianness::BigEndian) ? GL_TRUE
-                                                            : GL_FALSE);
+    glPixelStorei(GL_UNPACK_SWAP_BYTES, (fd_.byteEndian == Endianness::BigEndian) ? GL_TRUE : GL_FALSE);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-    cudaGraphicsGLRegisterBuffer(
-        &cuResource,
-        Pbo,
-        cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+    cudaGraphicsGLRegisterBuffer(&cuResource, Pbo, cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
     /* -------------------------------------------------- */
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
@@ -93,27 +82,16 @@ void RawWindow::initializeGL()
     texType = (fd_.depth == 8) ? GL_RG : GL_RED;
     if (fd_.depth == 6)
         texType = GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 texType,
-                 fd_.width,
-                 fd_.height,
-                 0,
-                 texType,
-                 texDepth,
-                 nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, nullptr);
 
     Program->setUniformValue(Program->uniformLocation("tex"), 0);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MAG_FILTER,
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     if (fd_.depth == 8)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
@@ -156,12 +134,7 @@ void RawWindow::initializeGL()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          4 * sizeof(float),
-                          reinterpret_cast<void*>(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(2 * sizeof(float)));
 
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
@@ -172,10 +145,7 @@ void RawWindow::initializeGL()
     const GLuint elements[6] = {0, 1, 2, 2, 3, 0};
     glGenBuffers(1, &Ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 6 * sizeof(GLuint),
-                 elements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #pragma endregion
 
@@ -200,8 +170,7 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((cd_->compute_mode == Computation::Hologram &&
-         cd_->space_transformation == SpaceTransformation::None) ||
+    if ((cd_->compute_mode == Computation::Hologram && cd_->space_transformation == SpaceTransformation::None) ||
         cd_->compute_mode == Computation::Raw)
     {
         if (w != old_width)
@@ -275,9 +244,7 @@ void RawWindow::paintGL()
     // Map resources for CUDA
     cudaSafeCall(cudaGraphicsMapResources(1, &cuResource, cuStream));
     // Retrive the cuda pointer
-    cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo,
-                                                      &sizeBuffer,
-                                                      cuResource));
+    cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource));
 
     // Get the last image from the ouput queue
     void* frame = output_->get_last_image();
@@ -285,22 +252,12 @@ void RawWindow::paintGL()
     // Put the frame inside the cuda ressrouce
     if (cd_->img_type == ImgType::Composite)
     {
-        cudaXMemcpyAsync(cuPtrToPbo,
-                         frame,
-                         sizeBuffer,
-                         cudaMemcpyDeviceToDevice,
-                         cuStream);
+        cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
     else
     {
-        ushort bitshift =
-            kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
-        convert_frame_for_display(frame,
-                                  cuPtrToPbo,
-                                  fd_.frame_res(),
-                                  fd_.depth,
-                                  bitshift,
-                                  cuStream);
+        ushort bitshift = kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
+        convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, bitshift, cuStream);
     }
 
     // Release resources (needs to be done at each call) and sync
@@ -313,15 +270,7 @@ void RawWindow::paintGL()
     // Binds buffer to texture data source
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
 
-    glTexSubImage2D(GL_TEXTURE_2D,
-                    0,
-                    0,
-                    0,
-                    fd_.width,
-                    fd_.height,
-                    texType,
-                    texDepth,
-                    nullptr);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fd_.width, fd_.height, texType, texDepth, nullptr);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
@@ -411,11 +360,8 @@ void RawWindow::wheelEvent(QWheelEvent* e)
 {
     if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
         return;
-    const float xGL = (static_cast<float>(e->x() - width() / 2)) /
-                      static_cast<float>(width()) * 2.f;
-    const float yGL = -((static_cast<float>(e->y() - height() / 2)) /
-                        static_cast<float>(height())) *
-                      2.f;
+    const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+    const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
     if (e->angleDelta().y() > 0)
     {
         scale_ += 0.1f * scale_;

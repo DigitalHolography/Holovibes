@@ -121,10 +121,8 @@ class ComputeDescriptor : public Observable
     // Qt rounds the value by default.
     // In order to compare the compute descriptor values
     // these values also needs to be round.
-    float get_truncate_contrast_min(WindowKind kind,
-                                    const int precision = 2) const;
-    float get_truncate_contrast_max(WindowKind kind,
-                                    const int precision = 2) const;
+    float get_truncate_contrast_min(WindowKind kind, const int precision = 2) const;
+    float get_truncate_contrast_max(WindowKind kind, const int precision = 2) const;
 
     bool get_img_log_scale_slice_enabled(WindowKind kind) const;
     bool get_img_acc_slice_enabled(WindowKind kind) const;
@@ -163,11 +161,9 @@ class ComputeDescriptor : public Observable
     //! Mode of computation of the image
     std::atomic<Computation> compute_mode{Computation::Raw};
     //! Algorithm to apply in hologram mode
-    std::atomic<SpaceTransformation> space_transformation{
-        SpaceTransformation::None};
+    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
     //! Time transformation to apply in hologram mode
-    std::atomic<TimeTransformation> time_transformation{
-        TimeTransformation::STFT};
+    std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
     //! type of the image displayed
     std::atomic<ImgType> img_type{ImgType::Modulus};
 

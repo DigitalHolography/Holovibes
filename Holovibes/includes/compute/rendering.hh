@@ -85,11 +85,10 @@ class Rendering
     /** \brief insert the autocontrast computation
 
     */
-    void insert_compute_autocontrast(
-        std::atomic<bool>& autocontrast_request,
-        std::atomic<bool>& autocontrast_slice_xz_request,
-        std::atomic<bool>& autocontrast_slice_yz_request,
-        std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
+                                     std::atomic<bool>& autocontrast_slice_xz_request,
+                                     std::atomic<bool>& autocontrast_slice_yz_request,
+                                     std::atomic<bool>& autocontrast_filter2d_request);
 
     /** \brief insert the constrast on a view
 
@@ -99,11 +98,7 @@ class Rendering
     /** \brief Calls autocontrast and set the correct contrast variables
 
     */
-    void autocontrast_caller(float* input,
-                             const uint width,
-                             const uint height,
-                             const uint offset,
-                             WindowKind view);
+    void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
     /** \brief Set the maximum and minimum contrast boundaries (according to the
        percentile)

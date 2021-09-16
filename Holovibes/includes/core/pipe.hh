@@ -61,10 +61,7 @@ class Pipe : public ICompute
      * \param stream The compute stream on which all the computations are
      * processed
      */
-    Pipe(BatchInputQueue& input,
-         Queue& output,
-         ComputeDescriptor& desc,
-         const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
 
     /*! \brief Get the lens queue to display it.
 
@@ -170,9 +167,7 @@ class Pipe : public ICompute
     ** \param frame Frame to enqueue
     ** \param error Error message when an error occurs
     */
-    void safe_enqueue_output(Queue& output_queue,
-                             unsigned short* frame,
-                             const std::string& error);
+    void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
 
   private:
     //! Vector of functions that will be executed in the exec() function.

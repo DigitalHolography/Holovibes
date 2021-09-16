@@ -7,7 +7,7 @@
 namespace holovibes
 {
 /*! \enum WindowKind
- * 
+ *
  * \brief Represents the kind of slice displayed by the window
  */
 enum class WindowKind

@@ -40,9 +40,7 @@ class Point
     /*! \brief Constructs a point from the needed conversion data and two
      * primary types
      */
-    Point(ConversionData data,
-          typename T::primary_type x = 0,
-          typename T::primary_type y = 0)
+    Point(ConversionData data, typename T::primary_type x = 0, typename T::primary_type y = 0)
         : x_(data, Axis::HORIZONTAL, x)
         , y_(data, Axis::VERTICAL, y)
     {
@@ -73,8 +71,7 @@ class Point
     }
 
     // Casting to RealPosition only when we are not already in RealPosition
-    template <
-        typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
+    template <typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
     operator Point<RealPosition>() const
     {
         Point<RealPosition> res(x_, y_);
@@ -101,10 +98,7 @@ class Point
 
     double distance() const { return sqrt(pow(x_, 2) + pow(y_, 2)); }
 
-    bool operator==(const Point<T>& other) const
-    {
-        return x_ == other.x_ && y_ == other.y_;
-    }
+    bool operator==(const Point<T>& other) const { return x_ == other.x_ && y_ == other.y_; }
     /**@}*/
 
   private:

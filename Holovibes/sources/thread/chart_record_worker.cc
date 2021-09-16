@@ -7,8 +7,7 @@
 
 namespace holovibes::worker
 {
-ChartRecordWorker::ChartRecordWorker(const std::string& path,
-                                     const unsigned int nb_frames_to_record)
+ChartRecordWorker::ChartRecordWorker(const std::string& path, const unsigned int nb_frames_to_record)
     : Worker()
     , path_(get_record_filename(path))
     , nb_frames_to_record_(nb_frames_to_record)
@@ -22,9 +21,8 @@ void ChartRecordWorker::run()
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[#img : " << cd.time_transformation_size << ", p : " << cd.pindex
-       << ", lambda : " << cd.lambda << ", z : " << cd.zdistance << "]"
-       << std::endl;
+    of << "[#img : " << cd.time_transformation_size << ", p : " << cd.pindex << ", lambda : " << cd.lambda
+       << ", z : " << cd.zdistance << "]" << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "
@@ -38,17 +36,15 @@ void ChartRecordWorker::run()
 
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_record_chart(nb_frames_to_record_);
-    while (pipe->get_chart_record_requested() != std::nullopt &&
-           !stop_requested_)
+    while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;
 
     auto& chart_queue = *pipe->get_chart_record_queue();
 
     std::atomic<unsigned int> i = 0;
-    Holovibes::instance().get_info_container().add_progress_index(
-        InformationContainer::ProgressType::CHART_RECORD,
-        i,
-        nb_frames_to_record_);
+    Holovibes::instance().get_info_container().add_progress_index(InformationContainer::ProgressType::CHART_RECORD,
+                                                                  i,
+                                                                  nb_frames_to_record_);
 
     for (; i < nb_frames_to_record_; ++i)
     {
@@ -58,20 +54,17 @@ void ChartRecordWorker::run()
             break;
 
         ChartPoint& point = chart_queue[i];
-        of << std::fixed << std::setw(11) << std::setprecision(10)
-           << std::setfill('0') << point.avg_signal << "," << point.avg_noise
-           << "," << point.avg_signal_div_avg_noise << ","
-           << point.log_avg_signal_div_avg_noise << "," << point.std_signal
-           << "," << point.std_signal_div_avg_noise << ","
-           << point.std_signal_div_avg_signal << std::endl;
+        of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0') << point.avg_signal << ","
+           << point.avg_noise << "," << point.avg_signal_div_avg_noise << "," << point.log_avg_signal_div_avg_noise
+           << "," << point.std_signal << "," << point.std_signal_div_avg_noise << "," << point.std_signal_div_avg_signal
+           << std::endl;
     }
 
     pipe->request_disable_record_chart();
     while (pipe->get_disable_chart_record_requested() && !stop_requested_)
         continue;
 
-    Holovibes::instance().get_info_container().remove_progress_index(
-        InformationContainer::ProgressType::CHART_RECORD);
+    Holovibes::instance().get_info_container().remove_progress_index(InformationContainer::ProgressType::CHART_RECORD);
 }
 
 } // namespace holovibes::worker

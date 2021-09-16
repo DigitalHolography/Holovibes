@@ -189,10 +189,7 @@ class Rect
 
     /*! \brief area, abs(width * height)
      */
-    typename T::primary_type area() const
-    {
-        return std::abs(width() * height());
-    }
+    typename T::primary_type area() const { return std::abs(width() * height()); }
 
     /*! \brief Center of the rectangle
      */

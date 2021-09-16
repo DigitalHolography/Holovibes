@@ -4,9 +4,7 @@
 
 namespace holovibes::io_files
 {
-OutputHoloFile::OutputHoloFile(const std::string& file_path,
-                               const camera::FrameDescriptor& fd,
-                               uint64_t img_nb)
+OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , HoloFile()
 {
@@ -29,8 +27,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path,
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd,
-                                             bool record_raw)
+void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
 {
     // export as a json
     try
@@ -40,54 +37,49 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd,
         if (record_raw && cd.compute_mode.load() == Computation::Hologram)
             mode = Computation::Hologram;
 
-        meta_data_ = json{
-            {"mode", mode},
+        meta_data_ = json{{"mode", mode},
 
-            {"algorithm", cd.space_transformation.load()},
-            {"time_filter", cd.time_transformation.load()},
+                          {"algorithm", cd.space_transformation.load()},
+                          {"time_filter", cd.time_transformation.load()},
 
-            {"#img", cd.time_transformation_size.load()},
-            {"p", cd.pindex.load()},
-            {"lambda", cd.lambda.load()},
-            {"pixel_size", cd.pixel_size.load()},
-            {"z", cd.zdistance.load()},
+                          {"#img", cd.time_transformation_size.load()},
+                          {"p", cd.pindex.load()},
+                          {"lambda", cd.lambda.load()},
+                          {"pixel_size", cd.pixel_size.load()},
+                          {"z", cd.zdistance.load()},
 
-            {"fft_shift_enabled", cd.fft_shift_enabled.load()},
+                          {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 
-            {"x_acc_enabled", cd.x_accu_enabled.load()},
-            {"x_acc_level", cd.x_acc_level.load()},
-            {"y_acc_enabled", cd.y_accu_enabled.load()},
-            {"y_acc_level", cd.y_acc_level.load()},
-            {"p_acc_enabled", cd.p_accu_enabled.load()},
-            {"p_acc_level", cd.p_acc_level.load()},
+                          {"x_acc_enabled", cd.x_accu_enabled.load()},
+                          {"x_acc_level", cd.x_acc_level.load()},
+                          {"y_acc_enabled", cd.y_accu_enabled.load()},
+                          {"y_acc_level", cd.y_acc_level.load()},
+                          {"p_acc_enabled", cd.p_accu_enabled.load()},
+                          {"p_acc_level", cd.p_acc_level.load()},
 
-            {"log_scale", cd.log_scale_slice_xy_enabled.load()},
-            {"contrast_min", cd.contrast_min_slice_xy.load()},
-            {"contrast_max", cd.contrast_max_slice_xy.load()},
+                          {"log_scale", cd.log_scale_slice_xy_enabled.load()},
+                          {"contrast_min", cd.contrast_min_slice_xy.load()},
+                          {"contrast_max", cd.contrast_max_slice_xy.load()},
 
-            {"img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load()},
-            {"img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load()},
-            {"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
-            {"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
-            {"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
-            {"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
+                          {"img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load()},
+                          {"img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load()},
+                          {"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
+                          {"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
+                          {"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
+                          {"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
 
-            {"renorm_enabled", cd.renorm_enabled.load()}};
+                          {"renorm_enabled", cd.renorm_enabled.load()}};
     }
     catch (const json::exception& e)
     {
         meta_data_ = json();
-        LOG_WARN(
-            "An error was encountered while trying to export compute settings");
+        LOG_WARN("An error was encountered while trying to export compute settings");
     }
 }
 
 void OutputHoloFile::write_header()
 {
-    if (std::fwrite(&holo_file_header_,
-                    sizeof(char),
-                    sizeof(HoloFileHeader),
-                    file_) != sizeof(HoloFileHeader))
+    if (std::fwrite(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
         throw FileException("Unable to write output holo file header");
 }
 
@@ -106,10 +98,7 @@ void OutputHoloFile::write_footer()
     const std::string& meta_data_str = meta_data_.dump();
     const size_t meta_data_size = meta_data_str.size();
 
-    if (std::fwrite(meta_data_str.data(),
-                    sizeof(char),
-                    meta_data_size,
-                    file_) != meta_data_size)
+    if (std::fwrite(meta_data_str.data(), sizeof(char), meta_data_size, file_) != meta_data_size)
         throw FileException("Unable to write output holo file footer");
 }
 

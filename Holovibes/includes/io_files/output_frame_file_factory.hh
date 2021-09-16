@@ -54,8 +54,6 @@ class OutputFrameFileFactory
      *  \throw    FileException if the OutputFrameFile is not created
      *            or if the file extension is not supported
      */
-    static OutputFrameFile* create(const std::string& file_path,
-                                   const camera::FrameDescriptor& fd,
-                                   uint64_t img_nb);
+    static OutputFrameFile* create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
 };
 } // namespace holovibes::io_files

@@ -17,8 +17,7 @@ namespace holovibes
 {
 namespace ini
 {
-void load_ini(ComputeDescriptor& cd,
-              const std::string& ini_path = GLOBAL_INI_PATH);
+void load_ini(ComputeDescriptor& cd, const std::string& ini_path = GLOBAL_INI_PATH);
 void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd);
 void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd);
 } // namespace ini

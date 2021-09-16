@@ -38,12 +38,9 @@ class Queue;
 class BatchInputQueue : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames,
-                    const uint batch_size,
-                    const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
 
-    BatchInputQueue(const uint total_nb_frames,
-                    const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const camera::FrameDescriptor& fd);
 
     ~BatchInputQueue();
 
@@ -53,8 +50,7 @@ class BatchInputQueue : public DisplayQueue
     ** and exit this critical section when a batch of frames is full
     ** in order to let the resize occure if needed.
     */
-    void enqueue(const void* const input_frame,
-                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
+    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
     ** Called by the consumer.
@@ -73,12 +69,8 @@ class BatchInputQueue : public DisplayQueue
 
     //! \brief Function used when dequeuing a batch of frame
     // src, dst, batch_size, frame_res, depth, stream -> void
-    using dequeue_func_t = std::function<void(const void* const,
-                                              void* const,
-                                              const uint,
-                                              const uint,
-                                              const uint,
-                                              const cudaStream_t)>;
+    using dequeue_func_t =
+        std::function<void(const void* const, void* const, const uint, const uint, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a
     ** full batch of frame.
