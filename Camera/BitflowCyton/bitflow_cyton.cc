@@ -133,10 +133,7 @@ void CameraPhantomBitflow::start_acquisition()
     for (size_t i = 0; i < nb_boards; ++i)
     {
         /* Setup for circular buffers */
-        RV = BiCircAqSetup(boards[i],
-                           &buf_arrays[i],
-                           error_mode,
-                           get_circ_options(i));
+        RV = BiCircAqSetup(boards[i], &buf_arrays[i], error_mode, get_circ_options(i));
         if (RV != BI_OK)
         {
             print_BiError(boards[i], RV);
@@ -250,8 +247,7 @@ void CameraPhantomBitflow::load_ini_params()
 
     if (nb_boards != 1 && nb_boards != 2 && nb_boards != 4)
     {
-        std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4"
-                  << std::endl;
+        std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4" << std::endl;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -261,17 +257,13 @@ void CameraPhantomBitflow::load_ini_params()
 
         if (board_nums[i] == -1)
         {
-            std::cerr << "bitflow.ini: board" << i << " has an invalid value"
-                      << std::endl;
+            std::cerr << "bitflow.ini: board" << i << " has an invalid value" << std::endl;
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
 }
 
-void CameraPhantomBitflow::load_default_params()
-{
-    fd_.byteEndian = Endianness::BigEndian;
-}
+void CameraPhantomBitflow::load_default_params() { fd_.byteEndian = Endianness::BigEndian; }
 
 void CameraPhantomBitflow::bind_params()
 {

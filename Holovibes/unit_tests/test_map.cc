@@ -11,8 +11,7 @@ enum class MAP_OPERATION
 };
 
 template <typename T>
-static bool
-check_result(const T* const h_expected, T* const d_got, const size_t size)
+static bool check_result(const T* const h_expected, T* const d_got, const size_t size)
 {
     T* h_got = new T[size];
     cudaXMemcpy(h_got, d_got, sizeof(T) * size, cudaMemcpyDeviceToHost);

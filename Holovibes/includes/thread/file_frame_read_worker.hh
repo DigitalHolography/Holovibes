@@ -36,14 +36,13 @@ class FileFrameReadWorker : public FrameReadWorker
      *  \param    load_file_in_gpu        Whether the file should be load in gpu
      *  \param    gpu_input_queue         The input queue
      */
-    FileFrameReadWorker(
-        const std::string& file_path,
-        bool loop,
-        unsigned int fps,
-        unsigned int first_frame_id,
-        unsigned int total_nb_frames_to_read,
-        bool load_file_in_gpu,
-        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FileFrameReadWorker(const std::string& file_path,
+                        bool loop,
+                        unsigned int fps,
+                        unsigned int first_frame_id,
+                        unsigned int total_nb_frames_to_read,
+                        bool load_file_in_gpu,
+                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 

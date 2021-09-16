@@ -37,55 +37,48 @@
 #ifndef _DEBUG
 #define cudaCheckError()
 #else
-#define cudaCheckError()                                                       \
-    {                                                                          \
-        auto e = cudaGetLastError();                                           \
-        if (e != cudaSuccess)                                                  \
-        {                                                                      \
-            std::string error = "Cuda failure in ";                            \
-            error += __FILE__;                                                 \
-            error += " at line ";                                              \
-            error += std::to_string(__LINE__);                                 \
-            error += ": ";                                                     \
-            error += cudaGetErrorString(e);                                    \
-            throw holovibes::CustomException(error,                            \
-                                             holovibes::fail_cudaLaunch);      \
-        }                                                                      \
+#define cudaCheckError()                                                                                               \
+    {                                                                                                                  \
+        auto e = cudaGetLastError();                                                                                   \
+        if (e != cudaSuccess)                                                                                          \
+        {                                                                                                              \
+            std::string error = "Cuda failure in ";                                                                    \
+            error += __FILE__;                                                                                         \
+            error += " at line ";                                                                                      \
+            error += std::to_string(__LINE__);                                                                         \
+            error += ": ";                                                                                             \
+            error += cudaGetErrorString(e);                                                                            \
+            throw holovibes::CustomException(error, holovibes::fail_cudaLaunch);                                       \
+        }                                                                                                              \
     }
 #endif
 
 #ifndef _DEBUG
-#define cudaSafeCall(ans)                                                      \
-    {                                                                          \
-        gpuAssertRelease((ans));                                               \
+#define cudaSafeCall(ans)                                                                                              \
+    {                                                                                                                  \
+        gpuAssertRelease((ans));                                                                                       \
     }
 inline void gpuAssertRelease(cudaError_t code)
 {
     if (code != cudaSuccess)
     {
-        holovibes::gui::show_error_and_exit(
-            "Run Holovibes again by reducing buffers size (such as "
-            "input_buffer_size)",
-            static_cast<int>(code));
+        holovibes::gui::show_error_and_exit("Run Holovibes again by reducing buffers size (such as "
+                                            "input_buffer_size)",
+                                            static_cast<int>(code));
     }
 }
 #else
-#define cudaSafeCall(ans)                                                      \
-    {                                                                          \
-        gpuAssertDebug((ans), __FILE__, __LINE__);                             \
+#define cudaSafeCall(ans)                                                                                              \
+    {                                                                                                                  \
+        gpuAssertDebug((ans), __FILE__, __LINE__);                                                                     \
     }
-inline void
-gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
+inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
 {
     if (code != cudaSuccess)
     {
         // FIXME: Print callers stack for a more efficient debug
         // See std::source_location (still not implemented by msvc)
-        fprintf(stderr,
-                "GPUassert: %s %s %d\n",
-                cudaGetErrorString(code),
-                file,
-                line);
+        fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
 
         std::cerr << boost::stacktrace::stacktrace() << std::endl;
 
@@ -127,8 +120,7 @@ static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
     return "Unknown cublas error";
 }
 #define cublasSafeCall(err) __cublasSafeCall(err, __FILE__, __LINE__)
-inline void
-__cublasSafeCall(cublasStatus_t err, const char* file, const int line)
+inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int line)
 {
     if (CUBLAS_STATUS_SUCCESS != err)
     {
@@ -169,8 +161,7 @@ static const char* _cudaGetCusolverErrorEnum(cusolverStatus_t error)
     return "Unknown cusolver error";
 }
 #define cusolverSafeCall(err) __cusolverSafeCall(err, __FILE__, __LINE__)
-inline void
-__cusolverSafeCall(cusolverStatus_t err, const char* file, const int line)
+inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int line)
 {
     if (CUSOLVER_STATUS_SUCCESS != err)
     {
@@ -254,10 +245,7 @@ __device__ double atomicAdd(double* address, double val)
     do
     {
         assumed = old;
-        old = atomicCAS(
-            address_as_ull,
-            assumed,
-            __double_as_longlong(val + __longlong_as_double(assumed)));
+        old = atomicCAS(address_as_ull, assumed, __double_as_longlong(val + __longlong_as_double(assumed)));
 
         // Note: uses integer comparison to avoid hang in case of NaN (since NaN
         // != NaN)
@@ -278,9 +266,7 @@ __device__ float atomicMin(float* address, float val)
     do
     {
         assumed = old;
-        old = atomicCAS(address_as_i,
-                        assumed,
-                        __float_as_int(fminf(val, __int_as_float(assumed))));
+        old = atomicCAS(address_as_i, assumed, __float_as_int(fminf(val, __int_as_float(assumed))));
     } while (assumed != old);
     return __int_as_float(old);
 }
@@ -292,10 +278,7 @@ __device__ double atomicMin(double* address, double val)
     do
     {
         assumed = old;
-        old = atomicCAS(
-            address_as_ull,
-            assumed,
-            __double_as_longlong(fmin(val, __longlong_as_double(assumed))));
+        old = atomicCAS(address_as_ull, assumed, __double_as_longlong(fmin(val, __longlong_as_double(assumed))));
 
         // Note: uses integer comparison to avoid hang in case of NaN (since NaN
         // != NaN)
@@ -316,9 +299,7 @@ __device__ float atomicMax(float* address, float val)
     do
     {
         assumed = old;
-        old = atomicCAS(address_as_i,
-                        assumed,
-                        __float_as_int(fmaxf(val, __int_as_float(assumed))));
+        old = atomicCAS(address_as_i, assumed, __float_as_int(fmaxf(val, __int_as_float(assumed))));
     } while (assumed != old);
     return __int_as_float(old);
 }
@@ -331,10 +312,7 @@ __device__ double atomicMax(double* address, double val)
     do
     {
         assumed = old;
-        old = atomicCAS(
-            address_as_ull,
-            assumed,
-            __double_as_longlong(fmax(val, __longlong_as_double(assumed))));
+        old = atomicCAS(address_as_ull, assumed, __double_as_longlong(fmax(val, __longlong_as_double(assumed))));
 
         // Note: uses integer comparison to avoid hang in case of NaN (since NaN
         // != NaN)

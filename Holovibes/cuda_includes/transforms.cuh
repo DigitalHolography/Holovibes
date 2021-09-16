@@ -14,11 +14,8 @@
  * \param dist z choosen
  * \param pixel_size size of pixels of the input
  */
-__global__ void kernel_quadratic_lens(cuComplex* output,
-                                      const uint lens_side_size,
-                                      const float lambda,
-                                      const float dist,
-                                      const float pixel_size);
+__global__ void kernel_quadratic_lens(
+    cuComplex* output, const uint lens_side_size, const float lambda, const float dist, const float pixel_size);
 
 /*! \brief Compute a lens to apply to an image used by the fft2
  *
@@ -28,8 +25,5 @@ __global__ void kernel_quadratic_lens(cuComplex* output,
  * \param distance z choosen
  * \param pixel_size size of pixels of the input
  */
-__global__ void kernel_spectral_lens(cuComplex* output,
-                                     const uint lens_side_size,
-                                     const float lambda,
-                                     const float distance,
-                                     const float pixel_size);
+__global__ void kernel_spectral_lens(
+    cuComplex* output, const uint lens_side_size, const float lambda, const float distance, const float pixel_size);

@@ -18,10 +18,7 @@ namespace holovibes
 using camera::FrameDescriptor;
 namespace gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p,
-                                     QSize s,
-                                     DisplayQueue* q,
-                                     KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
@@ -48,9 +45,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p,
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream,
-                                              cudaStreamDefault,
-                                              CUDA_STREAM_WINDOW_PRIORITY));
+    cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));
@@ -79,10 +74,7 @@ BasicOpenGLWindow::~BasicOpenGLWindow()
 
 const KindOfView BasicOpenGLWindow::getKindOfView() const { return kView; }
 
-const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const
-{
-    return overlay_manager_.getKind();
-}
+const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const { return overlay_manager_.getKind(); }
 
 ComputeDescriptor* BasicOpenGLWindow::getCd() { return cd_; }
 
@@ -90,20 +82,11 @@ const ComputeDescriptor* BasicOpenGLWindow::getCd() const { return cd_; }
 
 const FrameDescriptor& BasicOpenGLWindow::getFd() const { return fd_; }
 
-OverlayManager& BasicOpenGLWindow::getOverlayManager()
-{
-    return overlay_manager_;
-}
+OverlayManager& BasicOpenGLWindow::getOverlayManager() { return overlay_manager_; }
 
-const glm::mat3x3& BasicOpenGLWindow::getTransformMatrix() const
-{
-    return transform_matrix_;
-}
+const glm::mat3x3& BasicOpenGLWindow::getTransformMatrix() const { return transform_matrix_; }
 
-const glm::mat3x3& BasicOpenGLWindow::getTransformInverseMatrix() const
-{
-    return transform_inverse_matrix_;
-}
+const glm::mat3x3& BasicOpenGLWindow::getTransformInverseMatrix() const { return transform_inverse_matrix_; }
 
 void BasicOpenGLWindow::resizeGL(int width, int height)
 {
@@ -112,10 +95,7 @@ void BasicOpenGLWindow::resizeGL(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void BasicOpenGLWindow::timerEvent(QTimerEvent* e)
-{
-    QPaintDeviceWindow::update();
-}
+void BasicOpenGLWindow::timerEvent(QTimerEvent* e) { QPaintDeviceWindow::update(); }
 
 void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 {
@@ -123,8 +103,7 @@ void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
     switch (e->key())
     {
     case Qt::Key::Key_F11:
-        winState = winState == Qt::WindowFullScreen ? Qt::WindowNoState
-                                                    : Qt::WindowFullScreen;
+        winState = winState == Qt::WindowFullScreen ? Qt::WindowNoState : Qt::WindowFullScreen;
         setWindowState(winState);
         break;
     case Qt::Key::Key_Escape:
@@ -159,10 +138,7 @@ void BasicOpenGLWindow::setTranslate(float x, float y)
     setTransform();
 }
 
-glm::vec2 BasicOpenGLWindow::getTranslate() const
-{
-    return glm::vec2(translate_[0], translate_[1]);
-}
+glm::vec2 BasicOpenGLWindow::getTranslate() const { return glm::vec2(translate_[0], translate_[1]); }
 
 void BasicOpenGLWindow::resetTransform()
 {
@@ -182,12 +158,8 @@ float BasicOpenGLWindow::getScale() const { return scale_; }
 
 void BasicOpenGLWindow::setTransform()
 {
-    const glm::mat4 rotY = glm::rotate(glm::mat4(1.f),
-                                       glm::radians(180.f * (flip_ == 1)),
-                                       glm::vec3(0.f, 1.f, 0.f));
-    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f),
-                                       glm::radians(angle_),
-                                       glm::vec3(0.f, 0.f, 1.f));
+    const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (flip_ == 1)), glm::vec3(0.f, 1.f, 0.f));
+    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));
     glm::mat4 rotYZ = rotY * rotZ;
 
     // Avoid float multiplication imprecision due to glm::rotate
@@ -195,11 +167,9 @@ void BasicOpenGLWindow::setTransform()
         for (int j = 0; j < 4; j++)
             rotYZ[i][j] = std::round(rotYZ[i][j]);
 
-    const glm::mat4 scl =
-        glm::scale(glm::mat4(1.f),
-                   glm::vec3(kView == KindOfView::SliceYZ ? 1 : scale_,
-                             kView == KindOfView::SliceXZ ? 1 : scale_,
-                             1.f));
+    const glm::mat4 scl = glm::scale(
+        glm::mat4(1.f),
+        glm::vec3(kView == KindOfView::SliceYZ ? 1 : scale_, kView == KindOfView::SliceXZ ? 1 : scale_, 1.f));
     glm::mat4 mvp = rotYZ * scl;
 
     for (uint id = 0; id < 2; id++)
@@ -222,12 +192,9 @@ void BasicOpenGLWindow::setTransform()
         Program->bind();
         Program->setUniformValue(Program->uniformLocation("angle"), angle_);
         Program->setUniformValue(Program->uniformLocation("flip"), flip_);
-        Program->setUniformValue(Program->uniformLocation("translate"),
-                                 trs[0],
-                                 trs[1]);
+        Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
         QMatrix4x4 m(glm::value_ptr(mvp));
-        Program->setUniformValue(Program->uniformLocation("mvp"),
-                                 m.transposed());
+        Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
         Program->release();
     }
 }

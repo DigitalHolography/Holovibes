@@ -29,15 +29,14 @@ void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov)
 int eigen_values_vectors_work_buffer_size(int side)
 {
     int size = 0;
-    cusolverSafeCall(
-        cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
-                                    CUSOLVER_EIG_MODE_VECTOR,
-                                    CUBLAS_FILL_MODE_LOWER,
-                                    side,
-                                    nullptr,
-                                    side,
-                                    nullptr,
-                                    &size));
+    cusolverSafeCall(cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
+                                                 CUSOLVER_EIG_MODE_VECTOR,
+                                                 CUBLAS_FILL_MODE_LOWER,
+                                                 side,
+                                                 nullptr,
+                                                 side,
+                                                 nullptr,
+                                                 &size));
     return size;
 }
 

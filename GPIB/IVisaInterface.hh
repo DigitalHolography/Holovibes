@@ -29,8 +29,7 @@ class IVisaInterface
 
     virtual ~IVisaInterface() {}
 
-    virtual void
-    execute_instrument_command(const BatchCommand& instrument_command) = 0;
+    virtual void execute_instrument_command(const BatchCommand& instrument_command) = 0;
 };
 
 /* \brief See icamera.hh to have more information about this */

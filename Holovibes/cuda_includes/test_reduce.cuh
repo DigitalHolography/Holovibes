@@ -16,21 +16,13 @@
 #include "common.cuh"
 
 /*! \brief reduce_add wrapper */
-void test_gpu_reduce_add(const float* const input,
-                         double* const result,
-                         const uint size);
+void test_gpu_reduce_add(const float* const input, double* const result, const uint size);
 
 /*! \brief reduce_min wrapper */
-void test_gpu_reduce_min(const double* const input,
-                         double* const result,
-                         const uint size);
+void test_gpu_reduce_min(const double* const input, double* const result, const uint size);
 
 /*! \brief reduce_max for int values wrapper */
-void test_gpu_reduce_max(const int* const input,
-                         int* const result,
-                         const uint size);
+void test_gpu_reduce_max(const int* const input, int* const result, const uint size);
 
 /*! \brief reduce_max for float values wrapper */
-void test_gpu_reduce_max(const float* const input,
-                         float* const result,
-                         const uint size);
+void test_gpu_reduce_max(const float* const input, float* const result, const uint size);

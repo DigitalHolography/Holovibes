@@ -14,9 +14,7 @@ using namespace holovibes;
 using cuda_tools::CufftHandle;
 using cuda_tools::UniquePtr;
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input,
-                                          float* output,
-                                          const uint size)
+__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -24,14 +22,10 @@ __global__ void kernel_complex_to_modulus(const cuComplex* input,
         output[index] = hypotf(input[index].x, input[index].y);
 }
 
-void frame_memcpy(const float* input,
-                  const units::RectFd& zone,
-                  const uint input_width,
-                  float* output,
-                  const cudaStream_t stream)
+void frame_memcpy(
+    const float* input, const units::RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
 {
-    const float* zone_ptr =
-        input + (zone.topLeft().y() * input_width + zone.topLeft().x());
+    const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,
                                    zone.width() * sizeof(float),
                                    zone_ptr,
@@ -102,12 +96,7 @@ __global__ void circ_shift_float(const float* input,
     }
 }
 
-__global__ void kernel_translation(float* input,
-                                   float* output,
-                                   uint width,
-                                   uint height,
-                                   int shift_x,
-                                   int shift_y)
+__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < width * height)

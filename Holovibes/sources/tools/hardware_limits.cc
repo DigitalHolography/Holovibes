@@ -28,8 +28,7 @@ unsigned int get_max_threads_2d()
     {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, 0);
-        max_threads_per_block_2d =
-            static_cast<unsigned int>(sqrt(prop.maxThreadsPerBlock));
+        max_threads_per_block_2d = static_cast<unsigned int>(sqrt(prop.maxThreadsPerBlock));
         initialized = true;
     }
 

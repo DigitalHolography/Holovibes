@@ -8,14 +8,13 @@
 
 namespace holovibes::worker
 {
-FileFrameReadWorker::FileFrameReadWorker(
-    const std::string& file_path,
-    bool loop,
-    unsigned int fps,
-    unsigned int first_frame_id,
-    unsigned int total_nb_frames_to_read,
-    bool load_file_in_gpu,
-    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
+                                         bool loop,
+                                         unsigned int fps,
+                                         unsigned int first_frame_id,
+                                         unsigned int total_nb_frames_to_read,
+                                         bool load_file_in_gpu,
+                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : FrameReadWorker(gpu_input_queue)
     , file_path_(file_path)
     , loop_(loop)
@@ -50,18 +49,13 @@ void FileFrameReadWorker::run()
     if (!init_frame_buffers())
         return;
 
-    std::string input_descriptor_info =
-        std::to_string(fd.width) + std::string("x") +
-        std::to_string(fd.height) + std::string(" - ") +
-        std::to_string(fd.depth * 8) + std::string("bit");
+    std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
+                                        std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
 
     InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE,
-                        "File");
-    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                        std::ref(input_descriptor_info));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS,
-                           std::ref(processed_fps_));
+    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, "File");
+    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_descriptor_info));
+    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
     info.add_progress_index(InformationContainer::ProgressType::FILE_READ,
                             std::ref(current_nb_frames_read_),
                             std::ref(total_nb_frames_to_read_));
@@ -111,8 +105,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         std::string error_message = "[READER] Not enough CPU RAM to read file";
 
         if (load_file_in_gpu_)
-            error_message +=
-                " (consider disabling \"Load file in GPU\" option)";
+            error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR << error_message;
 
@@ -126,8 +119,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         std::string error_message = "[READER] Not enough GPU DRAM to read file";
 
         if (load_file_in_gpu_)
-            error_message +=
-                " (consider disabling \"Load file in GPU\" option)";
+            error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR << error_message;
 
@@ -142,8 +134,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         std::string error_message = "[READER] Not enough GPU DRAM to read file";
 
         if (load_file_in_gpu_)
-            error_message +=
-                " (consider disabling \"Load file in GPU\" option)";
+            error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR << error_message;
 
@@ -182,9 +173,7 @@ void FileFrameReadWorker::read_file_batch()
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read =
-            std::min(batch_size,
-                     total_nb_frames_to_read_ - current_nb_frames_read_);
+        size_t frames_to_read = std::min(batch_size, total_nb_frames_to_read_ - current_nb_frames_read_);
 
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
@@ -216,17 +205,13 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
     try
     {
-        frames_read = input_file_->read_frames(cpu_frame_buffer_,
-                                               frames_to_read,
-                                               &flag_packed);
+        frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
         if (flag_packed != 8 && flag_packed != 16)
         {
-            const camera::FrameDescriptor& fd =
-                input_file_->get_frame_descriptor();
-            size_t packed_frame_size =
-                fd.width * fd.height * (flag_packed / 8.f);
+            const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+            size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
                 // Memcopy in the gpu buffer
@@ -238,29 +223,23 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
                 // Convert 12bit frame to 16bit
                 if (flag_packed == 12)
-                    unpack_12_to_16bit(
-                        (short*)(gpu_frame_buffer_ + i * frame_size_),
-                        frame_size_ / 2,
-                        (unsigned char*)gpu_packed_buffer_,
-                        packed_frame_size,
-                        stream_);
+                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                       frame_size_ / 2,
+                                       (unsigned char*)gpu_packed_buffer_,
+                                       packed_frame_size,
+                                       stream_);
                 else if (flag_packed == 10)
-                    unpack_10_to_16bit(
-                        (short*)(gpu_frame_buffer_ + i * frame_size_),
-                        frame_size_ / 2,
-                        (unsigned char*)gpu_packed_buffer_,
-                        packed_frame_size,
-                        stream_);
+                    unpack_10_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                                       frame_size_ / 2,
+                                       (unsigned char*)gpu_packed_buffer_,
+                                       packed_frame_size,
+                                       stream_);
             }
         }
         else
         {
             // Memcopy in the gpu buffer
-            cudaXMemcpyAsync(gpu_frame_buffer_,
-                             cpu_frame_buffer_,
-                             frames_total_size,
-                             cudaMemcpyHostToDevice,
-                             stream_);
+            cudaXMemcpyAsync(gpu_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice, stream_);
         }
 
         cudaStreamSynchronize(stream_);
@@ -280,9 +259,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         fps_handler_.wait();
-        gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ +
-                                             frames_enqueued * frame_size_,
-                                         cudaMemcpyDeviceToDevice);
+        gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
         processed_fps_++;

@@ -7,9 +7,7 @@
 
 namespace holovibes
 {
-UnwrappingResources::UnwrappingResources(const unsigned capacity,
-                                         const size_t image_size,
-                                         const cudaStream_t& stream)
+UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t image_size, const cudaStream_t& stream)
     : total_memory_(capacity)
     , capacity_(capacity)
     , size_(0)
@@ -32,10 +30,7 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity,
     cudaXMalloc(&gpu_unwrapped_angle_, sizeof(float) * image_size);
 
     /* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-    cudaXMemsetAsync(gpu_unwrap_buffer_,
-                     0,
-                     sizeof(float) * nb_unwrap_elts,
-                     stream_);
+    cudaXMemsetAsync(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts, stream_);
 }
 
 UnwrappingResources::~UnwrappingResources()
@@ -70,10 +65,7 @@ void UnwrappingResources::reallocate(const size_t image_size)
     cudaRealloc(gpu_angle_current_, sizeof(float) * image_size);
     cudaRealloc(gpu_angle_copy_, sizeof(float) * image_size);
     cudaRealloc(gpu_unwrapped_angle_, sizeof(float) * image_size);
-    cudaXMemsetAsync(gpu_unwrap_buffer_,
-                     0,
-                     sizeof(float) * nb_unwrap_elts,
-                     stream_);
+    cudaXMemsetAsync(gpu_unwrap_buffer_, 0, sizeof(float) * nb_unwrap_elts, stream_);
 }
 
 void UnwrappingResources::reset(const size_t capacity)

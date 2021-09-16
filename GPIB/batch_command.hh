@@ -8,8 +8,8 @@ struct BatchCommand
 {
     enum type_e
     {
-        BLOCK,   // #Block : ignored, just for clarity
-        CAPTURE, // #Capture : Stop issuing commands and acquire a frame
+        BLOCK,              // #Block : ignored, just for clarity
+        CAPTURE,            // #Capture : Stop issuing commands and acquire a frame
         INSTRUMENT_COMMAND, // * : Sent to an instrument as is in a message
                             // buffer
         WAIT                // #WAIT n : Put the thread to sleep n milliseconds

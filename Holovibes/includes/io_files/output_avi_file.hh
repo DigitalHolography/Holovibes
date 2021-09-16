@@ -28,8 +28,7 @@ class OutputAviFile : public OutputFrameFile, public AviFile
      *  \param    cd            The ComputeDescriptor containing the compute
      * settings \param    record_raw    Is the raw record enabled
      */
-    void export_compute_settings(const ComputeDescriptor& cd,
-                                 bool record_raw) override;
+    void export_compute_settings(const ComputeDescriptor& cd, bool record_raw) override;
 
     /*!
      *  \brief    Write the header in the file
@@ -83,9 +82,7 @@ class OutputAviFile : public OutputFrameFile, public AviFile
      *
      *  \throw    FileException if an error occurred while opening the file
      */
-    OutputAviFile(const std::string& file_path,
-                  const camera::FrameDescriptor& fd,
-                  uint64_t img_nb);
+    OutputAviFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
 
     //! The number of images in the file
     size_t img_nb_;

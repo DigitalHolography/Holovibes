@@ -9,6 +9,5 @@
 
 namespace cli
 {
-int start_cli(holovibes::Holovibes& holovibes,
-              const holovibes::OptionsDescriptor& opts);
+int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts);
 }

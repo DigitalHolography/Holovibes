@@ -59,7 +59,7 @@ class BatchInputQueue;
  *
  * It contains high-level ressources (Pipe, Camera, Recorder ...). These
  * ressources are shared between threads and should be allocated in threads
- * themselves. 
+ * themselves.
  */
 class Holovibes
 {

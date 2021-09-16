@@ -7,7 +7,7 @@
 namespace holovibes
 {
 /*! \enum AccessMode
- * 
+ *
  * \brief Describes the access mode of an accessor.
  */
 enum class AccessMode

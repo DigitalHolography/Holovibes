@@ -61,8 +61,7 @@ class Camera : public ICamera
         if (!ini_file_is_open())
         {
             assert(!"Impossible case");
-            throw std::exception(
-                "Attempt to get ini property tree when file is not opened");
+            throw std::exception("Attempt to get ini property tree when file is not opened");
         }
         return ini_pt_;
     }
@@ -107,7 +106,6 @@ class Camera : public ICamera
   private:
     std::string ini_path_; //!< INI configuration file's absolute path.
 
-    boost::property_tree::ptree
-        ini_pt_; //!< INI property tree, containing extracted data.
+    boost::property_tree::ptree ini_pt_; //!< INI property tree, containing extracted data.
 };
 } // namespace camera

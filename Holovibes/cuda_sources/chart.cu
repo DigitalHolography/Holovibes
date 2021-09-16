@@ -26,9 +26,7 @@ using holovibes::units::RectFd;
  * But we need to tag the shared memory as volatile to avoid compiler reordering
  *
  */
-static __device__ void reduce_full_width_tile(volatile float tile[32][32],
-                                              const ushort x_tile,
-                                              const ushort y_tile)
+static __device__ void reduce_full_width_tile(volatile float tile[32][32], const ushort x_tile, const ushort y_tile)
 {
     // Reduce a line of 32 with a stride starting at 16
     if (x_tile < 16)
@@ -46,14 +44,11 @@ static __device__ void reduce_full_width_tile(volatile float tile[32][32],
 /*
  * Specific tile reduction to handle lines that are smaller than 32
  */
-static __device__ void reduce_width_tile(float tile[32][32],
-                                         const ushort x_tile,
-                                         const ushort y_tile,
-                                         const ushort tile_width)
+static __device__ void
+reduce_width_tile(float tile[32][32], const ushort x_tile, const ushort y_tile, const ushort tile_width)
 {
     // Stride should be tile width / 2, odd numbers forces the usage of ceil
-    ushort stride =
-        static_cast<ushort>(ceil(static_cast<float>(tile_width) / 2.0f));
+    ushort stride = static_cast<ushort>(ceil(static_cast<float>(tile_width) / 2.0f));
 
     while (stride > 0)
     {
@@ -160,22 +155,19 @@ void apply_mapped_zone_sum(const float* input,
     constexpr ushort block_height = 32;
     const dim3 block_size(block_width, block_height, 1);
     const dim3 grid_size(
-        static_cast<ushort>(ceil(static_cast<float>(zone.width()) /
-                                 static_cast<float>(block_width))),
-        static_cast<ushort>(ceil(static_cast<float>(zone.height()) /
-                                 static_cast<float>(block_height))),
+        static_cast<ushort>(ceil(static_cast<float>(zone.width()) / static_cast<float>(block_width))),
+        static_cast<ushort>(ceil(static_cast<float>(zone.height()) / static_cast<float>(block_height))),
         1);
 
     // Total sum of the zone
-    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(
-        input,
-        width,
-        output,
-        zone.topLeft().x(),
-        zone.topLeft().y(),
-        zone.width(),
-        zone.height(),
-        element_map);
+    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(input,
+                                                                       width,
+                                                                       output,
+                                                                       zone.topLeft().x(),
+                                                                       zone.topLeft().y(),
+                                                                       zone.width(),
+                                                                       zone.height(),
+                                                                       element_map);
     cudaCheckError();
 }
 
@@ -187,20 +179,11 @@ void apply_zone_sum(const float* input,
                     const cudaStream_t stream)
 {
     static const auto identity_map = [] __device__(float val) { return val; };
-    apply_mapped_zone_sum(input,
-                          height,
-                          width,
-                          output,
-                          zone,
-                          identity_map,
-                          stream);
+    apply_mapped_zone_sum(input, height, width, output, zone, identity_map, stream);
 }
 
-static double compute_average(float* input,
-                              const uint width,
-                              const uint height,
-                              const RectFd& zone,
-                              const cudaStream_t stream)
+static double
+compute_average(float* input, const uint width, const uint height, const RectFd& zone, const cudaStream_t stream)
 {
     holovibes::cuda_tools::UniquePtr<double> gpu_sum_zone;
     if (!gpu_sum_zone.resize(1))
@@ -211,11 +194,7 @@ static double compute_average(float* input,
     apply_zone_sum(input, height, width, gpu_sum_zone, zone, stream);
 
     double cpu_avg_zone;
-    cudaXMemcpyAsync(&cpu_avg_zone,
-                     gpu_sum_zone,
-                     sizeof(double),
-                     cudaMemcpyDeviceToHost,
-                     stream);
+    cudaXMemcpyAsync(&cpu_avg_zone, gpu_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);
     // Needs to synchronize since host memory is used after
     cudaXStreamSynchronize(stream);
 
@@ -232,9 +211,7 @@ void apply_zone_std_sum(const float* input,
                         const double avg_zone,
                         const cudaStream_t stream)
 {
-    const auto std_map = [avg_zone] __device__(float val) {
-        return (val - avg_zone) * (val - avg_zone);
-    };
+    const auto std_map = [avg_zone] __device__(float val) { return (val - avg_zone) * (val - avg_zone); };
     apply_mapped_zone_sum(input, height, width, output, zone, std_map, stream);
 }
 
@@ -251,20 +228,10 @@ static double compute_std(float* input,
 
     cudaXMemsetAsync(gpu_std_sum_zone, 0.f, sizeof(double), stream);
 
-    apply_zone_std_sum(input,
-                       height,
-                       width,
-                       gpu_std_sum_zone,
-                       zone,
-                       cpu_avg_zone,
-                       stream);
+    apply_zone_std_sum(input, height, width, gpu_std_sum_zone, zone, cpu_avg_zone, stream);
 
     double cpu_std_zone;
-    cudaXMemcpyAsync(&cpu_std_zone,
-                     gpu_std_sum_zone,
-                     sizeof(double),
-                     cudaMemcpyDeviceToHost,
-                     stream);
+    cudaXMemcpyAsync(&cpu_std_zone, gpu_std_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);
     // Needs to synchronize since host memory is used after
     cudaXStreamSynchronize(stream);
     cpu_std_zone = sqrt(cpu_std_zone / (zone.height() * zone.width()));
@@ -279,13 +246,10 @@ ChartPoint make_chart_plot(float* input,
                            const RectFd& noise_zone,
                            const cudaStream_t stream)
 {
-    double cpu_avg_signal =
-        compute_average(input, width, height, signal_zone, stream);
-    double cpu_avg_noise =
-        compute_average(input, width, height, noise_zone, stream);
+    double cpu_avg_signal = compute_average(input, width, height, signal_zone, stream);
+    double cpu_avg_noise = compute_average(input, width, height, noise_zone, stream);
 
-    double cpu_std_signal =
-        compute_std(input, width, height, signal_zone, cpu_avg_signal, stream);
+    double cpu_std_signal = compute_std(input, width, height, signal_zone, cpu_avg_signal, stream);
 
     return ChartPoint{
         cpu_avg_signal,

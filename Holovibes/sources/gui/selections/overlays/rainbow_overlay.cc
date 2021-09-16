@@ -39,12 +39,7 @@ void RainbowOverlay::init()
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(verticesShader_);
-    glVertexAttribPointer(verticesShader_,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          2 * sizeof(float),
-                          0);
+    glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     glDisableVertexAttribArray(verticesShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -71,17 +66,9 @@ void RainbowOverlay::init()
     };
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(colorData),
-                 colorData,
-                 GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(colorShader_);
-    glVertexAttribPointer(colorShader_,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          3 * sizeof(float),
-                          0);
+    glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glDisableVertexAttribArray(colorShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -94,10 +81,7 @@ void RainbowOverlay::init()
     const GLuint elements[] = {0, 1, 4, 4, 5, 0, 1, 2, 3, 3, 4, 1};
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof(elements),
-                 elements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     Vao_.release();
 
@@ -209,34 +193,26 @@ void RainbowOverlay::move(QMouseEvent* e)
         {
             if (parent_->getCd()->composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->composite_p_red =
-                    check_interval(zone_.src().x());
-                parent_->getCd()->composite_p_blue =
-                    check_interval(zone_.dst().x());
+                parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
+                parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
             }
             else
             {
-                parent_->getCd()->composite_p_min_h =
-                    check_interval(zone_.src().x());
-                parent_->getCd()->composite_p_max_h =
-                    check_interval(zone_.dst().x());
+                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().x());
+                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().x());
             }
         }
         else
         {
             if (parent_->getCd()->composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->composite_p_red =
-                    check_interval(zone_.src().y());
-                parent_->getCd()->composite_p_blue =
-                    check_interval(zone_.dst().y());
+                parent_->getCd()->composite_p_red = check_interval(zone_.src().y());
+                parent_->getCd()->composite_p_blue = check_interval(zone_.dst().y());
             }
             else
             {
-                parent_->getCd()->composite_p_min_h =
-                    check_interval(zone_.src().y());
-                parent_->getCd()->composite_p_max_h =
-                    check_interval(zone_.dst().y());
+                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().y());
+                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().y());
             }
         }
         parent_->getCd()->notify_observers();

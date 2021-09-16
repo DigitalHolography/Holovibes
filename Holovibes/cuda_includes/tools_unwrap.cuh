@@ -14,8 +14,7 @@
  * form to take the angle value of each element and store it
  * in a floating-point matrix. The resulting angles' values are bound
  * in [-pi; pi]. */
-__global__ void
-kernel_extract_angle(const cuComplex* input, float* output, const size_t size);
+__global__ void kernel_extract_angle(const cuComplex* input, float* output, const size_t size);
 
 /*! \brief Perform element-wise phase adjustment on a pixel matrix.
  *
@@ -23,10 +22,7 @@ kernel_extract_angle(const cuComplex* input, float* output, const size_t size);
  * \param cur Latest phase image.
  * \param output Where to store the unwrapped version of cur.
  * \param size Size of an image in pixels. */
-__global__ void kernel_unwrap(const float* pred,
-                              const float* cur,
-                              float* output,
-                              const size_t size);
+__global__ void kernel_unwrap(const float* pred, const float* cur, float* output, const size_t size);
 
 /*! \brief Use the multiply-with-conjugate method to fill a float (angles) matrix.
  *
@@ -37,10 +33,8 @@ __global__ void kernel_unwrap(const float* pred,
  * \param cur Latest complex image.
  * \param output The matrix which shall store ther resulting angles.
  * \param size The size of an image in pixels. */
-__global__ void kernel_compute_angle_mult(const cuComplex* pred,
-                                          const cuComplex* cur,
-                                          float* output,
-                                          const size_t size);
+__global__ void
+kernel_compute_angle_mult(const cuComplex* pred, const cuComplex* cur, float* output, const size_t size);
 
 /*! \brief Use the subtraction method to fill a float (angles) matrix.
  *
@@ -50,10 +44,8 @@ __global__ void kernel_compute_angle_mult(const cuComplex* pred,
  * \param cur Latest complex image.
  * \param output The matrix which shall store ther resulting angles.
  * \param size The size of an image in pixels. */
-__global__ void kernel_compute_angle_diff(const cuComplex* pred,
-                                          const cuComplex* cur,
-                                          float* output,
-                                          const size_t size);
+__global__ void
+kernel_compute_angle_diff(const cuComplex* pred, const cuComplex* cur, float* output, const size_t size);
 
 /*! \brief Iterate over saved phase corrections and apply them to an image.
  *
@@ -61,10 +53,8 @@ __global__ void kernel_compute_angle_diff(const cuComplex* pred,
  * \param corrections Pointer to the beginning of the phase corrections buffer.
  * \param image_size The number of pixels in a single image.
  * \param history_size The number of past phase corrections used. */
-__global__ void kernel_correct_angles(float* data,
-                                      const float* corrections,
-                                      const size_t image_size,
-                                      const size_t history_size);
+__global__ void
+kernel_correct_angles(float* data, const float* corrections, const size_t image_size, const size_t history_size);
 
 /*! \brief Initialise fx, fy, z matrix for unwrap 2d.
  *
@@ -76,62 +66,50 @@ __global__ void kernel_correct_angles(float* data,
  * \param fy buffer.
  * \param z buffer. */
 
-__global__ void kernel_init_unwrap_2d(const uint width,
-                                      const uint height,
-                                      const uint frame_res,
-                                      const float* input,
-                                      float* fx,
-                                      float* fy,
-                                      cuComplex* z);
+__global__ void kernel_init_unwrap_2d(
+    const uint width, const uint height, const uint frame_res, const float* input, float* fx, float* fy, cuComplex* z);
 
 /*! \brief  Multiply each pixels of a complex frame value by a float.
- *
- *	Done for 2 complexes.
+**	Done for 2 complexes.
+*/
+__global__ void kernel_multiply_complexes_by_floats_(
+    const float* input1, const float* input2, cuComplex* output1, cuComplex* output2, const uint size);
+
+/*! \brief  Multiply each pixels of two complexes frames value by a single
+ * complex.
  */
-__global__ void kernel_multiply_complexes_by_floats_(const float* input1,
-                                                     const float* input2,
-                                                     cuComplex* output1,
-                                                     cuComplex* output2,
-                                                     const uint size);
+__global__ void kernel_multiply_complexes_by_single_complex(cuComplex* output1,
+                                                            cuComplex* output2,
+                                                            const cuComplex input,
+                                                            const uint size);
 
-/*! \brief  Multiply each pixels of two complexes frames value by a single complex. */
-__global__ void
-kernel_multiply_complexes_by_single_complex(cuComplex* output1,
-                                            cuComplex* output2,
-                                            const cuComplex input,
-                                            const uint size);
-
-/*! \brief  Multiply each pixels of complex frames value by a single complex. */
-__global__ void kernel_multiply_complex_by_single_complex(cuComplex* output,
-                                                          const cuComplex input,
-                                                          const uint size);
+/*! \brief  Multiply each pixels of complex frames value by a single complex.
+ */
+__global__ void kernel_multiply_complex_by_single_complex(cuComplex* output, const cuComplex input, const uint size);
 
 /*! \brief  Get conjugate complex frame. */
 __global__ void kernel_conjugate_complex(cuComplex* output, const uint size);
 
-/*! \brief  Multiply a complex frames by a complex frame. */
+/*! \brief  Multiply a complex frames by a complex frame.
+ */
+__global__ void kernel_multiply_complex_frames_by_complex_frame(cuComplex* output1,
+                                                                cuComplex* output2,
+                                                                const cuComplex* input,
+                                                                const uint size);
+
+/*! \brief  Multiply a complex frames by ratio from fx or fy and norm of fx and
+ * fy.
+ */
 __global__ void
-kernel_multiply_complex_frames_by_complex_frame(cuComplex* output1,
-                                                cuComplex* output2,
-                                                const cuComplex* input,
-                                                const uint size);
+kernel_norm_ratio(const float* input1, const float* input2, cuComplex* output1, cuComplex* output2, const uint size);
 
-/*! \brief  Multiply a complex frames by ratio from fx or fy and norm of fx and fy. */
-__global__ void kernel_norm_ratio(const float* input1,
-                                  const float* input2,
-                                  cuComplex* output1,
-                                  cuComplex* output2,
-                                  const uint size);
+/*! \brief  Add two complex frames into one.
+ */
+__global__ void kernel_add_complex_frames(cuComplex* output, const cuComplex* input, const uint size);
 
-/*! \brief  Add two complex frames into one. */
-__global__ void kernel_add_complex_frames(cuComplex* output,
-                                          const cuComplex* input,
-                                          const uint size);
-
-/*! \brief  Calculate phi for a frame. */
-__global__ void kernel_unwrap2d_last_step(float* output,
-                                          const cuComplex* input,
-                                          const uint size);
+/*! \brief  Calculate phi for a frame.
+ */
+__global__ void kernel_unwrap2d_last_step(float* output, const cuComplex* input, const uint size);
 
 /*! \brief Compute arg(H(t) .* H^*(t- T))
  *

@@ -13,8 +13,7 @@ ThreadWorkerController<T>::~ThreadWorkerController()
 }
 
 template <Derived<Worker> T>
-inline void
-ThreadWorkerController<T>::set_callback(std::function<void()> callback)
+inline void ThreadWorkerController<T>::set_callback(std::function<void()> callback)
 {
     callback_ = callback;
 }

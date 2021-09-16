@@ -49,10 +49,7 @@ class CameraAdimec : public Camera
      * used. \param err_mess Error messaege to be printed on standard error.
      * \param cam_ex A CameraException type.
      * \param flag See CloseFlag enum. */
-    void err_check(const BFRC status,
-                   const std::string err_mess,
-                   const CameraException cam_ex,
-                   const int flag);
+    void err_check(const BFRC status, const std::string err_mess, const CameraException cam_ex, const int flag);
 
   private:
     //! Selecting a component to release.
@@ -81,12 +78,12 @@ class CameraAdimec : public Camera
         STOP = 0x8208
     };
 
-    Bd board_;       //!< Handle to the opened BitFlow board.
-    PBIBA info_;     //!< SDK-provided structure containing all kinds of data on
-                     //!< acquisition over time.
-    BFU32 last_buf;  //!< Index of the last buffer that was read by Holovibes in
-                     //!< the circular buffer set.
-    BFU8 quad_bank_; //!< QTabBank used by the camera.
+    Bd board_;            //!< Handle to the opened BitFlow board.
+    PBIBA info_;          //!< SDK-provided structure containing all kinds of data on
+                          //!< acquisition over time.
+    BFU32 last_buf;       //!< Index of the last buffer that was read by Holovibes in
+                          //!< the circular buffer set.
+    BFU8 quad_bank_;      //!< QTabBank used by the camera.
     BFU32 queue_size_;    //!< Queue size of bitflow frame grabber
     BFU32 exposure_time_; //!< Exposure time of the camera
     BFU32 frame_period_;  //!< Frame period of the camera

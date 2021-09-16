@@ -84,12 +84,7 @@ void Filter2DReticleOverlay::setBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(verticesShader_);
-    glVertexAttribPointer(verticesShader_,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          2 * sizeof(float),
-                          0);
+    glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     glDisableVertexAttribArray(verticesShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -98,17 +93,9 @@ void Filter2DReticleOverlay::setBuffer()
     };
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(colorData),
-                 colorData,
-                 GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(colorShader_);
-    glVertexAttribPointer(colorShader_,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          3 * sizeof(float),
-                          0);
+    glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glDisableVertexAttribArray(colorShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -133,10 +120,7 @@ void Filter2DReticleOverlay::setBuffer()
     };
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof(elements),
-                 elements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     Vao_.release();
     Program_->release();

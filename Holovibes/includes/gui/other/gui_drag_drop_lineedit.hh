@@ -23,9 +23,6 @@ class Drag_drop_lineedit : public QLineEdit
 
   public slots:
     void dropEvent(QDropEvent* event) override;
-    void dragEnterEvent(QDragEnterEvent* e) override
-    {
-        e->acceptProposedAction();
-    }
+    void dragEnterEvent(QDragEnterEvent* e) override { e->acceptProposedAction(); }
 };
 } // namespace holovibes::gui

@@ -58,13 +58,7 @@ TEST(ChartTest, SmallCroppedExample)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SmallSimple)
@@ -80,13 +74,7 @@ TEST(ChartTest, SmallSimple)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SuperTinyZone)
@@ -102,13 +90,7 @@ TEST(ChartTest, SuperTinyZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, NonSquareImageAndZone)
@@ -124,13 +106,7 @@ TEST(ChartTest, NonSquareImageAndZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SmallDifferentValuesImage)

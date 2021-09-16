@@ -42,8 +42,7 @@ class ThreadWorkerController
     /*!
      *  \brief    Deleted copy operator
      */
-    ThreadWorkerController&
-    operator=(const ThreadWorkerController<T>&) = delete;
+    ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
 
     /*!
      *  \brief    Set the function executed at the end of the thread

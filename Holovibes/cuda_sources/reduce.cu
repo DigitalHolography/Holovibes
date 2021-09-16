@@ -66,9 +66,7 @@ __device__ void warp_primitive_reduce(T* sdata, const uint tid)
  * We slightly improved performances by tuning it
  */
 template <typename T, typename U, uint pixel_per_block>
-__global__ void kernel_reduce(const T* const __restrict__ input,
-                              U* const __restrict__ result,
-                              const uint size)
+__global__ void kernel_reduce(const T* const __restrict__ input, U* const __restrict__ result, const uint size)
 {
     // Each block is reduced in shared data (avoiding multiple global memory
     // acceses)
@@ -139,33 +137,24 @@ __global__ void kernel_reduce(const T* const __restrict__ input,
         atomicAdd(result, sdata[tid]);
 }
 
-void gpu_reduce(const float* const input,
-                double* const result,
-                const uint size,
-                const cudaStream_t stream)
+void gpu_reduce(const float* const input, double* const result, const uint size, const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
     constexpr uint optimal_nb_blocks = 1024;
     constexpr uint optimal_block_size = 128;
     // Handling block_size smaller than 64 would reduce warp_reduce performances
-    assert(optimal_block_size >= 64 &&
-           "kernel reduce only works with with a block size equal or greater "
-           "than 64 threads (128 pixels)");
+    assert(optimal_block_size >= 64 && "kernel reduce only works with with a block size equal or greater "
+                                       "than 64 threads (128 pixels)");
 
     // We still reduce the number of blocks if this reduce is used for really
     // small input
-    const uint nb_blocks =
-        std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
+    const uint nb_blocks = std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
 
     // Reset result to 0
     cudaXMemsetAsync(result, 0, sizeof(double), stream);
 
     // Each thread works at least on 2 pixels
     kernel_reduce<float, double, optimal_block_size * 2>
-        <<<nb_blocks,
-           optimal_block_size,
-           optimal_block_size * sizeof(float),
-           0,
-           stream>>>(input, result, size);
+        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), 0, stream>>>(input, result, size);
     cudaCheckError();
 }
