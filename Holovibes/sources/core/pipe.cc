@@ -81,8 +81,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         // If refresh() fails the compute descriptor settings will be
         // changed to something that should make refresh() work
         // (ex: lowering the GPU memory usage)
-        LOG_WARN("Pipe refresh failed, trying one more time with updated "
-                 "compute descriptor");
+        LOG_WARN << "Pipe refresh failed, trying one more time with updated "
+                    "compute descriptor";
         try
         {
             refresh();
@@ -91,8 +91,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            LOG_ERROR("Pipe could not be initialized");
-            LOG_ERROR("You might want to restart holovibes");
+            LOG_ERROR << "Pipe could not be initialized";
+            LOG_ERROR << "You might want to restart holovibes";
             throw e;
         }
     }
@@ -186,7 +186,7 @@ bool Pipe::make_requests()
             cd_.pindex = 0;
             cd_.time_transformation_size = 1;
             update_time_transformation_size(1);
-            LOG_WARN("Updating #img failed, #img updated to 1");
+            LOG_WARN << "Updating #img failed, #img updated to 1";
         }
         update_time_transformation_size_requested_ = false;
     }

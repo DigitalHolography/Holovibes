@@ -45,7 +45,7 @@ void CameraFrameReadWorker::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR("[CAPTURE] " + std::string(e.what()));
+        LOG_ERROR << "[CAPTURE] " << e.what();
     }
 
     info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);

@@ -438,7 +438,7 @@ void ComputeDescriptor::load_convolution_matrix(const std::string& file)
     catch (std::exception& e)
     {
         convo_matrix.clear();
-        LOG_ERROR("Couldn't load convolution matrix " + std::string(e.what()));
+        LOG_ERROR << "Couldn't load convolution matrix " << e.what();
     }
 }
 

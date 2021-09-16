@@ -88,8 +88,8 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
         {
             // does not throw an error if the meta data are not parsed
             // because they are not essential
-            LOG_WARN("An error occurred while retrieving the meta data. Meta "
-                     "data skipped");
+            LOG_WARN << "An error occurred while retrieving the meta data. Meta "
+                     << "data skipped";
         }
     }
 }
