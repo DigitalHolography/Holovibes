@@ -6,9 +6,9 @@
 
 #include "common.cuh"
 
-/*! \brief takes input complex buffer and computes a p frame that is stored
- * at output pointer. The output pointer can be another complex buffer or the
- * same as input buffer.
+/*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
+ *
+ * The output pointer can be another complex buffer or the same as input buffer.
  */
 void fft2_lens(cuComplex* lens,
                const uint lens_side_size,
@@ -19,9 +19,9 @@ void fft2_lens(cuComplex* lens,
                const float pixel_size,
                const cudaStream_t stream);
 
-/*! \brief takes input complex buffer and computes a p frame that is stored
- * at output pointer. The output pointer can be another complex buffer or the
- * same as input buffer.
+/*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
+ *
+ * The output pointer can be another complex buffer or the same as input buffer.
  */
 void fft_2(cuComplex* input,
            cuComplex* output,

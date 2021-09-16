@@ -168,10 +168,10 @@ void reduce_generic(const T* const __restrict__ input,
 	const uint nb_blocks = std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
 
 	/* Reset result to identity element
-	** cudaMemset can only set a value for each byte (can't memset to 0xFFFFFFF because of float)
-	** cudaMemcpyHostToDevice is too slow
-	** The fastest & generic option is using a cuda kernel (~2us)
-	*/
+	 * cudaMemset can only set a value for each byte (can't memset to 0xFFFFFFF because of float)
+	 * cudaMemcpyHostToDevice is too slow
+	 * The fastest & generic option is using a cuda kernel (~2us)
+	 */
 	set_cuda_value<<<1, 1, 0, stream>>>(result, static_cast<U>(identity_elt));
 
 	// Each thread works at least on 2 pixels
