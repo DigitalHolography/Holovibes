@@ -24,6 +24,8 @@
 #include "ini_config.hh"
 #include "tools.hh"
 #include "input_frame_file_factory.hh"
+#include "update_exception.hh"
+#include "accumulation_exception.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -534,7 +536,8 @@ void MainWindow::notify_error(std::exception& e)
     CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
     if (err_ptr)
     {
-        if (err_ptr->get_kind() == error_kind::fail_update)
+        UpdateException* err_update_ptr = dynamic_cast<UpdateException*>(err_ptr);
+        if (err_update_ptr)
         {
             auto lambda = [this] {
                 // notify will be in close_critical_compute
@@ -551,7 +554,7 @@ void MainWindow::notify_error(std::exception& e)
             };
             synchronize_thread(lambda);
         }
-        auto lambda = [this, accu = err_ptr->get_kind() == error_kind::fail_accumulation] {
+        auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
