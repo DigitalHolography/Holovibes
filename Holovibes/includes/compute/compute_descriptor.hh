@@ -113,7 +113,7 @@ class ComputeDescriptor : public Observable
     float get_contrast_max(WindowKind kind) const;
 
     /*! \brief Get the rounded value of max contrast for the given WindowKind
-     * 
+     *
      * Qt rounds the value by default.
      * In order to compare the compute descriptor values these values also needs to be rounded.
      */
