@@ -5,6 +5,9 @@
 #include <exception>
 #include <string>
 #pragma once
+#include "logger.hh"
+
+#define THROW(msg, error_kind) throw holovibes::CustomException(msg, error_kind, __LINE__, __FILE__)
 
 namespace holovibes
 {
@@ -34,6 +37,14 @@ class CustomException : public std::exception
         : std::exception(msg.c_str())
         , error_kind_(kind)
     {
+        LOG_ERROR << "CustomException have been thrown";
+    }
+
+    CustomException(std::string msg, const error_kind& kind, const int line, const char* file)
+        : std::exception(msg.c_str())
+        , error_kind_(kind)
+    {
+        LOG_ERROR << msg << " " << file << ':' << line;
     }
 
     ~CustomException() {}
