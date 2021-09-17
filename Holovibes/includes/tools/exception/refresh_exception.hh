@@ -6,6 +6,7 @@
 #include <string>
 #pragma once
 #include "logger.hh"
+#include "custom_exception.hh"
 
 #define THROW_REFRESH_EXCEPTION(msg) throw holovibes::RefreshException("RefreshException: "##msg, __LINE__, __FILE__)
 
@@ -15,13 +16,17 @@ namespace holovibes
  *
  * \brief #TODO Add a description for this class
  */
-class RefreshException : public std::exception
+class RefreshException : public CustomException
 {
   public:
-    RefreshException(std::string msg, const int line, const char* file)
-        : std::exception(msg.c_str())
+    RefreshException(const std::string& msg)
+        : CustomException(msg.c_str())
     {
-        LOG_ERROR << msg << " " << file << ':' << line;
+    }
+
+    RefreshException(const std::string& msg, const int line, const char* file)
+        : CustomException(msg.c_str(), line, file)
+    {
     }
 
     ~RefreshException() {}
