@@ -114,7 +114,7 @@ class Holovibes
 
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_path() const;
-
+    /*! \} */
     /*!
      * \brief Get zb = N d^2 / lambda
      * Is updated everytime the camera changes or lamdba changes
