@@ -6,6 +6,7 @@
 #include <string>
 #pragma once
 #include "logger.hh"
+#include "custom_exception.hh"
 
 #define THROW_ACCUMULATION_EXCEPTION(msg)                                                                              \
     throw holovibes::AccumulationException("AccumulationException: "##msg, __LINE__, __FILE__)
@@ -16,13 +17,17 @@ namespace holovibes
  *
  * \brief #TODO Add a description for this class
  */
-class AccumulationException : public std::exception
+class AccumulationException : public CustomException
 {
   public:
-    AccumulationException(std::string msg, const int line, const char* file)
-        : std::exception(msg.c_str())
+    AccumulationException(const std::string& msg)
+        : CustomException(msg.c_str())
     {
-        LOG_ERROR << msg << " " << file << ':' << line;
+    }
+
+    AccumulationException(const std::string& msg, const int line, const char* file)
+        : CustomException(msg.c_str(), line, file)
+    {
     }
 
     ~AccumulationException() {}

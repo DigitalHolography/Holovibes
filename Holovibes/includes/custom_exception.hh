@@ -33,6 +33,23 @@ enum error_kind
 class CustomException : public std::exception
 {
   public:
+    // NEW
+    CustomException(const std::string& msg)
+        : std::exception(msg.c_str())
+        , error_kind_(error_kind::fail_update)
+    {
+        LOG_ERROR << msg;
+    }
+
+    // NEW
+    CustomException(const std::string& msg, const int line, const char* file)
+        : std::exception(msg.c_str())
+        , error_kind_(error_kind::fail_update)
+    {
+        LOG_ERROR << msg << " " << file << ':' << line;
+    }
+
+    // OLD
     CustomException(std::string msg, const error_kind& kind)
         : std::exception(msg.c_str())
         , error_kind_(kind)
@@ -40,6 +57,7 @@ class CustomException : public std::exception
         LOG_ERROR << "CustomException have been thrown";
     }
 
+    // OLD
     CustomException(std::string msg, const error_kind& kind, const int line, const char* file)
         : std::exception(msg.c_str())
         , error_kind_(kind)

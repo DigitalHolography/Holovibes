@@ -6,6 +6,7 @@
 #include <string>
 #pragma once
 #include "logger.hh"
+#include "custom_exception.hh"
 
 #define THROW_UPDATE_EXCEPTION(msg) throw holovibes::UpdateException("UpdateException: "##msg, __LINE__, __FILE__)
 
@@ -15,13 +16,17 @@ namespace holovibes
  *
  * \brief #TODO Add a description for this class
  */
-class UpdateException : public std::exception
+class UpdateException : public CustomException
 {
   public:
-    UpdateException(std::string msg, const int line, const char* file)
-        : std::exception(msg.c_str())
+    UpdateException(const std::string& msg)
+        : CustomException(msg.c_str())
     {
-        LOG_ERROR << msg << " " << file << ':' << line;
+    }
+
+    UpdateException(const std::string& msg, const int line, const char* file)
+        : CustomException(msg.c_str(), line, file)
+    {
     }
 
     ~UpdateException() {}
