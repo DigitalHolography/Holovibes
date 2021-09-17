@@ -13,7 +13,7 @@
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
-#include "custom_exception.hh"
+#include "update_exception.hh"
 #include "unique_ptr.hh"
 #include "pipe.hh"
 #include "logger.hh"
@@ -167,10 +167,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
 
     if (err_count != 0)
     {
-        pipe_error(err_count,
-                   CustomException("error in "
-                                   "update_time_transformation_size(time_transformation_size)",
-                                   error_kind::fail_update));
+        pipe_error(err_count, UpdateException("error in update_time_transformation_size(time_transformation_size)"));
         return false;
     }
 

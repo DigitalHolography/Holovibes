@@ -21,7 +21,7 @@
 
 #include "tools.cuh"
 #include "compute_descriptor.hh"
-#include "custom_exception.hh"
+#include "cudalaunch_exception.hh"
 #include "popup_error.hh"
 
 #ifndef M_PI
@@ -48,7 +48,7 @@
             error += std::to_string(__LINE__);                                                                         \
             error += ": ";                                                                                             \
             error += cudaGetErrorString(e);                                                                            \
-            throw holovibes::CustomException(error, holovibes::fail_cudaLaunch);                                       \
+            throw holovibes::CudaLaunchException(error);                                                               \
         }                                                                                                              \
     }
 #endif
