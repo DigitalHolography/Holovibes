@@ -15,14 +15,14 @@ class CameraException : public std::exception
     /*! \brief The type of error encountered by the camera. */
     enum camera_error
     {
-        NOT_CONNECTED,          /*!< Camera needs to be powered on.
-        NOT_INITIALIZED,        /*!< Startup failed.
-        MEMORY_PROBLEM,         /*!< Buffer allocation / deallocation.
-        CANT_START_ACQUISITION, /*!< Acquisition setup failed.
-        CANT_STOP_ACQUISITION,  /*!< Acquisition halting failed.
-        CANT_GET_FRAME,         /*!< Current configuration is unusable or a frame was simply missed.
-        CANT_SHUTDOWN,          /*!< Camera cannot power off.
-        CANT_SET_CONFIG,        /*!< Some given configuration option is invalid.
+        NOT_CONNECTED,          /*!< Camera needs to be powered on. */
+        NOT_INITIALIZED,        /*!< Startup failed. */
+        MEMORY_PROBLEM,         /*!< Buffer allocation / deallocation. */
+        CANT_START_ACQUISITION, /*!< Acquisition setup failed. */
+        CANT_STOP_ACQUISITION,  /*!< Acquisition halting failed. */
+        CANT_GET_FRAME,         /*!< Current configuration is unusable or a frame was simply missed. */
+        CANT_SHUTDOWN,          /*!< Camera cannot power off. */
+        CANT_SET_CONFIG,        /*!< Some given configuration option is invalid. */
     };
 
     /*! \brief Copy constructor. */

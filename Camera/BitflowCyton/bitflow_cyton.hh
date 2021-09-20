@@ -29,21 +29,34 @@ class CameraPhantomBitflow : public Camera
     void open_boards();
     void create_buffers();
     BFU32 get_circ_options(size_t i);
+    
+    /*! \brief Number of boards to use  (1, 2, 4) */
+    int nb_boards = 0;
+    /*! \brief Board numbers to open */
+    int board_nums[4];
+    /*! \brief Handle to the opened BitFlow board. */
+    Bd boards[4];
+    /*! \brief BufArray containing Bitflow related data */
+    BIBA buf_arrays[4];
 
-    int nb_boards = 0;  //!< Number of boards to use  (1, 2, 4)
-    int board_nums[4];  //!< Board numbers to open
-    Bd boards[4];       //!< Handle to the opened BitFlow board.
-    BIBA buf_arrays[4]; //!< BufArray containing Bitflow related data
+    /*! \brief Size of 1 frame in bytes */
+    BFU32 bitmap_size;
+    /*! \brief Number of allocated buffers (frames) */
+    BFU32 nb_buffers = 256;
+    /*! \brief nb_buffers * bitmap_size + PAGE_SIZE */
+    BFU32 total_mem_size;
+    /*! \brief Array of pointers to the beginning of frames */
+    PBFU32* frames;
+    /*! \brief Frame data */
+    PBFU32 data;
+    /*! \brief Frame interrupt */
+    CiSIGNAL eod_signal;
+    /*! \brief Bitflow API calls return value */
+    BFRC RV;
 
-    BFU32 bitmap_size;      //!< Size of 1 frame in bytes
-    BFU32 nb_buffers = 256; //!< Number of allocated buffers (frames)
-    BFU32 total_mem_size;   //!< nb_buffers * bitmap_size + PAGE_SIZE
-    PBFU32* frames;         //!< Array of pointers to the beginning of frames
-    PBFU32 data;            //!< Frame data
-    CiSIGNAL eod_signal;    //!< Frame interrupt
-    BFRC RV;                //!< Bitflow API calls return value
-
-    BFU32 captured = 0;     //!< Total number of captured images
-    BFU32 old_captured = 0; //!< previous total number of captured images
+    /*! \brief Total number of captured images */
+    BFU32 captured = 0;
+    /*! \brief Previous total number of captured images */
+    BFU32 old_captured = 0;
 };
 } // namespace camera
