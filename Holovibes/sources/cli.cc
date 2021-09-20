@@ -158,7 +158,15 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     }
 
     auto& cd = holovibes.get_cd();
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    std::string ini_path;
+    if (!opts.ini_path)
+    {
+        ini_path = GLOBAL_INI_PATH;
+        LOG_INFO << "No ini configuration file found, using " << ini_path;
+    }
+    else
+        ini_path = opts.ini_path.value();
+
     holovibes::ini::load_ini(cd, ini_path);
 
     auto input_frame_file = open_input_file(holovibes, opts);
