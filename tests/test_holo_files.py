@@ -69,23 +69,24 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
 
 def find_tests() -> List[str]:
-    return [os.path.join(TESTS_DATA, name) for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
+    return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
 
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 
-    input = os.path.join(folder, INPUT_FILENAME)
-    output = os.path.join(folder, OUTPUT_FILENAME)
-    ref = os.path.join(folder, REF_FILENAME)
-    config = os.path.join(folder, CONFIG_FILENAME)
+    path = os.path.join(TESTS_DATA, folder)
+    input = os.path.join(path, INPUT_FILENAME)
+    output = os.path.join(path, OUTPUT_FILENAME)
+    ref = os.path.join(path, REF_FILENAME)
+    config = os.path.join(path, CONFIG_FILENAME)
 
     if not os.path.isfile(input):
         pytest.skip(
-            "Did not find the input.holo file in folder {}".format(folder))
+            "Did not find the input.holo file in folder {}".format(path))
 
     if not os.path.isfile(ref):
         pytest.skip(
-            "Did not find the ref.holo file in folder {}".format(folder))
+            "Did not find the ref.holo file in folder {}".format(path))
 
     if not os.path.isfile(config):
         config = None
