@@ -165,7 +165,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
      * Here is a suggestion :
      * CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
      */
-    assert(gpu_input_queue_.load() && "Input queue not initialized");
+    CHECK(gpu_input_queue_.load() != nullptr) << "Input queue not initialized";
 
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
