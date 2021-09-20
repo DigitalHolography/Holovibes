@@ -51,12 +51,10 @@ class MainWindow : public QMainWindow, public Observer
 /* ---------- */
 #pragma region Public Methods
   public:
-    /*! \brief Set keyboard shortcuts, set visibility and load default values
-     *from holovibes.ini.
-     **
-     ** \param holovibes holovibes object
-     ** \param parent Qt parent (should be null as it is the GUI hierarchy top
-     *class)
+    /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
+     *
+     * \param holovibes holovibes object
+     * \param parent Qt parent (should be null as it is the GUI hierarchy top class)
      */
     MainWindow(Holovibes& holovibes, QWidget* parent = 0);
     ~MainWindow();
@@ -87,26 +85,30 @@ class MainWindow : public QMainWindow, public Observer
     void credits();
     void documentation();
     void init_image_mode(QPoint& position, QSize& size);
-    /*! \{ \name Image rendering
-    **
-    ** Lots of these methods stick to the following scheme:
-    **
-    ** * Get pipe
-    ** * Set visibility to false
-    ** * Check if value is correct/into slot specific bounds
-    ** * Update a value in FrameDescriptor of the holovibes object
-    ** * Request a pipe refresh
-    ** * Set visibility to true
-    */
+
+    /*! \name Image Rendering
+     * \{
+     *
+     * Lots of these methods stick to the following scheme:
+     *
+     * * Get pipe
+     * * Set visibility to false
+     * * Check if value is correct/into slot specific bounds
+     * * Update a value in FrameDescriptor of the holovibes object
+     * * Request a pipe refresh
+     * * Set visibility to true
+     */
+
     /*! \brief Set image mode either to raw or hologram mode
-    **
-    ** Check if Camera has been enabled, then create a new GuiGLWindow keeping
-    ** its old position and size if it was previously opened, set visibility
-    ** and call notify().
-    **
-    ** \param value true for raw mode, false for hologram mode.
-    */
+     *
+     * Check if Camera has been enabled, then create a new GuiGLWindow keeping
+     * its old position and size if it was previously opened, set visibility
+     * and call notify().
+     *
+     * \param value true for raw mode, false for hologram mode.
+     */
     void set_image_mode(QString mode);
+
     void refreshViewMode();
     void set_convolution_mode(const bool enable);
     void set_divide_convolution_mode(const bool value);
@@ -212,6 +214,7 @@ class MainWindow : public QMainWindow, public Observer
     void activeNoiseZone();
     void start_chart_display();
     void stop_chart_display();
+    /*! \} */
 
 #pragma endregion
     /* ---------- */
@@ -301,7 +304,7 @@ class MainWindow : public QMainWindow, public Observer
     size_t auto_scale_point_threshold_ = 100;
     ushort theme_index_ = 0;
 
-    /* Shortcuts (initialized in constructor) */
+    // Shortcuts (initialized in constructor)
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
     QShortcut* p_left_shortcut_;
