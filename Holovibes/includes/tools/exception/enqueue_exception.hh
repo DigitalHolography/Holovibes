@@ -12,8 +12,9 @@
 
 namespace holovibes
 {
-/*!
- * \class EnqueueException
+/*! \class EnqueueException
+ *
+ * \brief #TODO Add a description for this class
  */
 class EnqueueException : public CustomException
 {
@@ -40,10 +41,7 @@ class EnqueueException : public CustomException
     {
     }
 
-    /*!
-     * \brief Destroy the Enqueue Exception object
-     *
-     */
+    /*! \brief Destroy the Enqueue Exception object */
     ~EnqueueException() {}
 };
 } // namespace holovibes

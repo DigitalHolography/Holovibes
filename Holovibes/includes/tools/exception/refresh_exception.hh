@@ -12,8 +12,9 @@
 
 namespace holovibes
 {
-/*!
- * \class RefreshException
+/*! \class RefreshException
+ *
+ * \brief #TODO Add a description for this class
  */
 class RefreshException : public CustomException
 {
@@ -40,10 +41,7 @@ class RefreshException : public CustomException
     {
     }
 
-    /*!
-     * \brief Destroy the Refresh Exception object
-     *
-     */
+    /*! \brief Destroy the Refresh Exception object */
     ~RefreshException() {}
 };
 } // namespace holovibes

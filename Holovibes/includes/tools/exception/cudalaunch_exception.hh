@@ -13,8 +13,9 @@
 
 namespace holovibes
 {
-/*!
- * \class CudaLaunchException
+/*! \class CudaLaunchException 
+ *
+ * \brief #TODO Add a description for this class
  */
 class CudaLaunchException : public CustomException
 {
@@ -41,10 +42,7 @@ class CudaLaunchException : public CustomException
     {
     }
 
-    /*!
-     * \brief Destroy the Cuda Launch Exception object
-     *
-     */
+    /*! \brief Destroy the Cuda Launch Exception object */
     ~CudaLaunchException() {}
 };
 } // namespace holovibes

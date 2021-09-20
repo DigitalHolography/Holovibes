@@ -43,10 +43,7 @@ class CustomException : public std::exception
         LOG_ERROR << msg << " " << file << ':' << line;
     }
 
-    /*!
-     * \brief Destroy the Custom Exception object
-     *
-     */
+    /*! \brief Destroy the Custom Exception object */
     ~CustomException() {}
 };
 } // namespace holovibes
