@@ -130,7 +130,7 @@ struct TimeTransformationEnv
     cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
     cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
     cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
-    /* \} */
+    /*! \} */
 };
 
 /*! \struct FrameRecordEnv
@@ -347,7 +347,7 @@ class ICompute : public Observable
     virtual void update_spatial_transformation_parameters();
     void init_cuts();
     void dispose_cuts();
-    /* \} */
+    /*! \} */
 
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;

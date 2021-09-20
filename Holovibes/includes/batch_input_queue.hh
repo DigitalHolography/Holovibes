@@ -231,7 +231,7 @@ class BatchInputQueue : public DisplayQueue
     std::mutex m_producer_busy_;
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
-    /* \} */
+    /*! \} */
 };
 } // namespace holovibes
 

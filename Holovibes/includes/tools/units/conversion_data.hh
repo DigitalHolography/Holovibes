@@ -37,7 +37,7 @@ class ConversionData
     int opengl_to_window_size(float val, Axis axis) const;
     int opengl_to_fd(float val, Axis axis) const;
     double fd_to_real(int val, Axis axis) const;
-    /* \} */
+    /*! \} */
 
     void transform_from_fd(float& x, float& y) const;
     void transform_to_fd(float& x, float& y) const;

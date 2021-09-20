@@ -101,7 +101,7 @@ class Point
     {
         return x_ == other.x_ && y_ == other.y_;
     }
-    /* \} */
+    /*! \} */
 
   private:
     T x_;

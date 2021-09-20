@@ -173,7 +173,7 @@ class Rect
     Point<T>& srcRef() { return src_; }
 
     Point<T>& dstRef() { return dst_; }
-    /* \} */
+    /*! \} */
 
     /*! \brief Implicit cast into a rectangle of an other unit*/
     template <typename U>

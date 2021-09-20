@@ -106,7 +106,7 @@ class Unit
         res.val_ *= -1;
         return res;
     }
-    /* \} */
+    /*! \} */
 
   protected:
     /*! \brief Encapsulates the metadata needed for the conversions */
