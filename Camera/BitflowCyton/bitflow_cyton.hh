@@ -29,7 +29,7 @@ class CameraPhantomBitflow : public Camera
     void open_boards();
     void create_buffers();
     BFU32 get_circ_options(size_t i);
-    
+
     /*! \brief Number of boards to use  (1, 2, 4) */
     int nb_boards = 0;
     /*! \brief Board numbers to open */
