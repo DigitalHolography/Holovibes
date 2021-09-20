@@ -10,6 +10,7 @@
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
 #include "filter2d_reticle_overlay.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -250,14 +251,14 @@ KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? curren
 #ifdef _DEBUG
 void OverlayManager::printVector()
 {
-    std::cout << std::endl;
-    std::cout << "Current overlay :" << std::endl;
+    LOG_INFO << std::endl;
+    LOG_INFO << "Current overlay :" << std::endl;
     if (current_overlay_)
         current_overlay_->print();
-    std::cout << std::endl;
+    LOG_INFO << std::endl;
     for (auto o : overlays_)
         o->print();
-    std::cout << std::endl;
+    LOG_INFO << std::endl;
 }
 #endif
 } // namespace gui
