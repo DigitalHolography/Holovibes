@@ -100,6 +100,9 @@ When grouping methods or attributes in the same category, use:
 ```{.cc}
 /*! \name Category Name
  * \{
+ *
+ * (Optional)
+ * Category description
  */
 /*! <Documentation for attribute> */
 int attribute = 1;
