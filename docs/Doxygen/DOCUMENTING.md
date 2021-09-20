@@ -58,7 +58,7 @@ Member,
 
 Or, if you prefer inlining:
 ```{.cc}
-Member, /*!< Member description*/
+Member, /*!< Member description */
 ```
 
 But not both in the same enum.
