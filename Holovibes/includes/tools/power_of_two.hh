@@ -4,7 +4,8 @@
  */
 #pragma once
 
-/* \brief check if x is power of two
+/*! \brief check if x is power of two
+ *
  * http://www.exploringbinary.com/ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c
  * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
  */

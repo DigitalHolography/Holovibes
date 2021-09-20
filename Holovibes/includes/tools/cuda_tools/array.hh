@@ -23,23 +23,24 @@ class Array : public UniquePtr<T>
   public:
     using base = UniquePtr<T>;
 
-    /// Intantiate an empty / nullptr array
+    /*! \brief Intantiate an empty / nullptr array */
     Array()
         : base()
         , size_(0)
     {
     }
 
-    /// Creates an array of size sizeof(T) * size
+    /*! \brief Creates an array of size sizeof(T) * size */
     Array(std::size_t size)
         : base(size)
         , size_(size)
     {
     }
 
-    /// Realloc the array only if needed
-    ///
-    /// \return if the resize succeeded
+    /*! \brief Realloc the array only if needed
+     *
+     * \return if the resize succeeded
+     */
     bool ensure_minimum_size(std::size_t size)
     {
         if (size <= size_)
@@ -54,26 +55,27 @@ class Array : public UniquePtr<T>
         return false;
     }
 
-    /// Is the array size greater or equal to size
+    /*! \brief Is the array size greater or equal to size */
     bool is_large_enough(std::size_t size) const { return size_ >= size; }
 
-    /// Resize the array
+    /*! \brief Resize the array */
     void resize(std::size_t size)
     {
         base::resize(size);
         size_ = size;
     }
 
-    /// Override reset to set the size accordingly
+    /*! Override reset to set the size accordingly */
     void reset(T* ptr = nullptr)
     {
         base::reset(ptr);
         size_ = 0;
     }
 
-    /// Dumps all the array into a file
-    ///
-    /// Slow and inefficient, for debug purpose only
+    /*! \brief Dumps all the array into a file
+     *
+     * Slow and inefficient, for debug purpose only
+     */
     void write_to_file(std::string filename, bool trunc = false)
     {
         auto cpu_buffer = to_cpu();
@@ -84,9 +86,10 @@ class Array : public UniquePtr<T>
         file.write(reinterpret_cast<char*>(cpu_buffer.data()), byte_size);
     }
 
-    /// Dumps all the array into a CPU vector
-    ///
-    /// Slow and inefficient, for debug purpose only
+    /*! \brief Dumps all the array into a CPU vector
+     *
+     * Slow and inefficient, for debug purpose only
+     */
     std::vector<T> to_cpu()
     {
         std::vector<T> cpu_buffer(size_);

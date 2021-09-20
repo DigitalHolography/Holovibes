@@ -20,22 +20,18 @@ namespace cuda_tools
 class CufftHandle
 {
   public:
-    /*! \brief Default constructor
-     */
+    /*! \brief Default constructor */
     CufftHandle();
 
     static void set_stream(const cudaStream_t& stream);
 
-    /*! \brief Constructor calling plan2d
-     */
+    /*! \brief Constructor calling plan2d */
     CufftHandle(const int x, const int y, const cufftType type);
 
-    /*! \brief Destroy the created plan (if any)
-     */
+    /*! \brief Destroy the created plan (if any) */
     ~CufftHandle();
 
-    /*! \brief Destroy the created plan (if any)
-     */
+    /*! \brief Destroy the created plan (if any) */
     void reset();
 
     /*! \brief Calls plan2d
@@ -44,8 +40,7 @@ class CufftHandle
      */
     void plan(const int x, const int y, const cufftType type);
 
-    /*! \brief Calls planMany
-     */
+    /*! \brief Calls planMany */
     void planMany(int rank,
                   int* n,
                   int* inembed,
@@ -80,22 +75,19 @@ class CufftHandle
                                  long long batch,
                                  cudaDataType executiontype);
 
-    /*! \brief Get a reference to the underlying cufftHandle
-     */
+    /*! \brief Get a reference to the underlying cufftHandle */
     cufftHandle& get();
 
-    /*! \brief Implicit cast to the underlying cufftHandle
-     */
+    /*! \brief Implicit cast to the underlying cufftHandle */
     operator cufftHandle&();
 
-    /*! \brief Implicit cast to a ptr to the underlying cufftHandle
-     */
+    /*! \brief Implicit cast to a ptr to the underlying cufftHandle */
     operator cufftHandle*();
 
   private:
     /*! \brief The cufftHandle
      *
-     * we chose a unique_ptr to represent an possibly uninitialized one
+     * We chose a unique_ptr to represent a possibly uninitialized one
      */
     std::unique_ptr<cufftHandle> val_;
 

@@ -8,54 +8,46 @@
 
 /*! \class Chrono
  *
- * \brief #TODO Add a description for this class
+ * \brief Wrapper around the chrono library
  */
 class Chrono
 {
   public:
     Chrono() { start(); }
 
-    /*!
-     * \brief Starts the chronometer
-     */
+    /*! \brief Starts the chronometer */
     void start() { start_ = std::chrono::steady_clock::now(); }
 
-    /*!
-     * \brief Stops the chronometer
-     */
+    /*! \brief Stops the chronometer */
     void stop() { end_ = std::chrono::steady_clock::now(); }
 
-    /*!
-     * \brief Get the seconds object
+    /*! \brief Get the seconds object
      *
      * \return size_t seconds elapsed
      */
     size_t get_seconds() { return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count(); }
 
-    /*!
-     * \brief Get the milliseconds object
+    /*! \brief Get the milliseconds object
      *
      * \return size_t milliseconds elapsed
      */
     size_t get_milliseconds() { return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count(); }
 
-    /*!
-     * \brief Get the microseconds object
+    /*! \brief Get the microseconds object
      *
      * \return size_t microseconds elapsed
      */
     size_t get_microseconds() { return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count(); }
 
-    /*!
-     * \brief Get the nanoseconds object
+    /*! \brief Get the nanoseconds object
      *
      * \return size_t nanoseconds elapsed
      */
     size_t get_nanoseconds() { return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count(); }
 
   private:
-    //! Current clock time when the Chrono object is started
+    /*! \brief Current clock time when the Chrono object is started */
     std::chrono::time_point<std::chrono::steady_clock> start_;
-    //! Current clock time when the Chrono object is stopped
+    /*! \brief Current clock time when the Chrono object is stopped */
     std::chrono::time_point<std::chrono::steady_clock> end_;
 };
