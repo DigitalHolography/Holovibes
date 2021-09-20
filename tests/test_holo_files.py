@@ -33,11 +33,13 @@ def read_holo(path: str) -> Tuple[bytes, bytes, bytes]:
     return data
 
 
-def generate_holo_from(input: str, output: str, config: str) -> time.time:
+def generate_holo_from(input: str, output: str, config: str = None) -> time.time:
     t1 = time.time()
 
     # Run holovibes on file
     cmd = [HOLOVIBES_BIN, "-i", input, "-o", output]
+    if config:
+        cmd += ['--ini', config]
 
     sub = subprocess.run(cmd, stderr=subprocess.PIPE)
     assert sub.returncode == 0, sub.stderr.decode('utf-8')
@@ -86,8 +88,10 @@ def test_holo(folder: str):
             "Did not find the ref.holo file in folder {}".format(folder))
 
     if not os.path.isfile(config):
-        pytest.skip(
-            "Did not find the Holovibes.ini file in folder {}".format(folder))
+        config = None
+
+    if os.path.isfile(output):
+        os.remove(output)
 
     generate_holo_from(input, output, config)
     out = read_holo(output)

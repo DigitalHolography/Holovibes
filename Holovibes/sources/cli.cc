@@ -158,16 +158,18 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     }
 
     auto& cd = holovibes.get_cd();
-    std::string ini_path;
-    if (!opts.ini_path)
-    {
-        ini_path = GLOBAL_INI_PATH;
-        LOG_INFO << "No ini configuration file found, using " << ini_path;
-    }
-    else
-        ini_path = opts.ini_path.value();
 
-    holovibes::ini::load_ini(cd, ini_path);
+    if (opts.ini_path)
+    {
+        try
+        {
+            holovibes::ini::load_ini(cd, opts.ini_path.value());
+        }
+        catch (std::exception&)
+        {
+            LOG_WARN << "Configuration file not found, initialization with default values.";
+        }
+    }
 
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
