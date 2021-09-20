@@ -60,7 +60,7 @@ class InputFrameFile : public FrameFile
     /*! \brief The size in bytes of a frame. Stored here to avoid computation at each call to read_frames */
     size_t frame_size_;
 
-    /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or //! 12bit ...) */
+    /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...) */
     size_t packed_frame_size_;
 };
 } // namespace io_files

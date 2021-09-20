@@ -68,9 +68,9 @@ class OverlayManager
     /*! \brief Deletes from the vector every disabled overlay. */
     void clean();
 
-    //! \brief Containing every created overlay.
+    /*! \brief Containing every created overlay. */
     std::vector<std::shared_ptr<Overlay>> overlays_;
-    //! \brief Current overlay used by the user.
+    /*! \brief Current overlay used by the user. */
     std::shared_ptr<Overlay> current_overlay_;
 
     /*! \brief Parent window

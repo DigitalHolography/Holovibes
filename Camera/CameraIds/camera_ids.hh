@@ -12,7 +12,10 @@
 
 namespace camera
 {
-//!< IDS camera.
+/*! \class CameraIds
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CameraIds : public Camera
 {
   public:

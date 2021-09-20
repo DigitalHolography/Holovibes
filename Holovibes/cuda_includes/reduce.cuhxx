@@ -13,9 +13,9 @@
  * This mask means every thread should be processed
  */
 #define FULL_MASK 0xffffffff
-//! Number of threads handle by an unique warp
+/*! \brief Number of threads handle by an unique warp */
 static constexpr uint warp_size = 32;
-//! Maximum number of threads in one block
+/*! \brief Maximum number of threads in one block */
 static constexpr uint max_block_size = 1024;
 
 /*! \brief Set single device value */
