@@ -14,7 +14,7 @@ enum class TimeTransformation
 {
     STFT = 0, /*!< Short-time Fourier transformation */
     PCA,      /*!< Principal component analysis */
-    NONE,
-    SSA_STFT
+    NONE,     /*!< No transformation */
+    SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
 };
 } // namespace holovibes

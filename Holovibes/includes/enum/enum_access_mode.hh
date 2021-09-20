@@ -12,7 +12,7 @@ namespace holovibes
  */
 enum class AccessMode
 {
-    Get = 1, /*!< Get */
-    Set      /*!< Set */
+    Get = 1, /*!< Get mode */
+    Set      /*!< Set mode */
 };
 } // namespace holovibes
