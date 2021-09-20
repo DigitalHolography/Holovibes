@@ -12,8 +12,9 @@
 
 namespace holovibes
 {
-/*!
- * \class UpdateException
+/*! \class UpdateException
+ *
+ * \brief #TODO Add a description for this class
  */
 class UpdateException : public CustomException
 {
@@ -40,10 +41,7 @@ class UpdateException : public CustomException
     {
     }
 
-    /*!
-     * \brief Destroy the Update Exception object
-     *
-     */
+    /*! \brief Destroy the Update Exception object */
     ~UpdateException() {}
 };
 } // namespace holovibes

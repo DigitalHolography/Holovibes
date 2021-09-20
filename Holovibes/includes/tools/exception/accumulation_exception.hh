@@ -13,8 +13,9 @@
 
 namespace holovibes
 {
-/*!
- * \class AccumulationException
+/*! \class AccumulationException
+ *
+ * \brief #TODO Add a description for this class
  */
 class AccumulationException : public CustomException
 {
@@ -41,10 +42,7 @@ class AccumulationException : public CustomException
     {
     }
 
-    /*!
-     * \brief Destroy the Accumulation Exception object
-     *
-     */
+    /*! \brief Destroy the Accumulation Exception object */
     ~AccumulationException() {}
 };
 } // namespace holovibes
