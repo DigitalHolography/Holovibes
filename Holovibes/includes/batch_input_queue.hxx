@@ -2,7 +2,6 @@
 
 #include "batch_input_queue.hh"
 
-/*! \brief #TODO Add a description for this class */
 namespace holovibes
 {
 inline void* BatchInputQueue::get_last_image() const

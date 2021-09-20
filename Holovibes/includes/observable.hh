@@ -20,7 +20,7 @@ namespace holovibes
 class Observable
 {
   public:
-    /*! \brief add Observer in list*/
+    /*! \brief add Observer in list */
     void register_observer(Observer& o) { observers_.push_back(&o); }
 
     /*! \brief notify all Observer in list */
