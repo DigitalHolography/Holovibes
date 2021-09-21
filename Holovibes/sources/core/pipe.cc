@@ -417,7 +417,7 @@ void Pipe::update_batch_index()
 {
     fn_compute_vect_.push_back([&]() {
         batch_env_.batch_index += cd_.batch_size;
-        assert(batch_env_.batch_index <= cd_.time_transformation_stride);
+        CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
     });
 }
 

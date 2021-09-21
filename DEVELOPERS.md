@@ -65,3 +65,37 @@ Build the project in release mode and run all integration tests with `./run_inte
 ##### Usage
 
 Build the project in debug mode and run all unit tests with `./run_unit_tests.py`.
+
+### Misc
+
+#### Logging
+
+##### Reading
+
+Logs are as follows:
+
+```
+${datetime} <${time from start}> [${Thread ID}] ${filename}:${line_in_file} ${log_level}| ${message}
+```
+
+##### Usage
+
+We have 5 levels of log:
+* Trace (LOG_TRACE)
+* Debug (LOG_DEBUG)
+* Infos (LOG_INFO)
+* Warnings (LOG_WARN)
+* Errors (LOG_ERROR)
+
+They are usable as std:cout and any C++ Stream.
+For instance, if a file named `config.json` is not found, you could write:
+```cpp
+LOG_ERROR << "File named config.json could not be found";
+```
+
+##### Assertions
+
+Assertions are under the same banners as the logs, but here you should use the CHECK macro function as follows:
+```cpp
+CHECK(condition) << "An error occured";
+```

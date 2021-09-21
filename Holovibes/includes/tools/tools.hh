@@ -18,6 +18,7 @@
 #include "hardware_limits.hh"
 #include "frame_desc.hh"
 #include "cufft.h"
+#include "checker.hh"
 
 std::string engineering_notation(double n, int nb_significand_digit);
 
@@ -38,7 +39,7 @@ inline unsigned map_blocks_to_problem(const size_t problem_size, const unsigned 
     unsigned nb_blocks =
         static_cast<unsigned>(std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
 
-    assert(nb_blocks <= get_max_blocks() && "Too many blocks required.");
+    CHECK(nb_blocks <= get_max_blocks()) << "Too many blocks required.";
 
     return nb_blocks;
 }

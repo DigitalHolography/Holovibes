@@ -23,6 +23,7 @@
 #include "compute_descriptor.hh"
 #include "cudalaunch_exception.hh"
 #include "popup_error.hh"
+#include "checker.hh"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846 // pi
@@ -130,7 +131,7 @@ inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int lin
                 __LINE__,
                 _cudaGetCublasErrorEnum(err));
         cudaDeviceReset();
-        assert(0);
+        CHECK(0);
     }
 }
 #endif
@@ -171,7 +172,7 @@ inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int
                 __LINE__,
                 _cudaGetCusolverErrorEnum(err));
         cudaDeviceReset();
-        assert(0);
+        CHECK(0);
     }
 }
 #endif
@@ -228,7 +229,7 @@ inline void __cufftSafeCall(cufftResult err, const char* file, const int line)
                 __LINE__,
                 _cudaGetErrorEnum(err));
         cudaDeviceReset();
-        assert(0);
+        CHECK(0);
     }
 }
 #endif

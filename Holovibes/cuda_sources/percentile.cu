@@ -66,14 +66,14 @@ uint calculate_frame_res(const uint width,
                          const bool compute_on_sub_zone)
 {
     uint frame_res = compute_on_sub_zone ? sub_zone.area() : width * height - 2 * offset * factor;
-    assert(frame_res > 0);
+    CHECK(frame_res > 0);
     return frame_res;
 }
 
 uint calculate_frame_res(const uint width, const uint height, const uint offset, const uint factor)
 {
     uint frame_res = width * height - 2 * offset * factor;
-    assert(frame_res > 0);
+    CHECK(frame_res > 0);
     return frame_res;
 }
 

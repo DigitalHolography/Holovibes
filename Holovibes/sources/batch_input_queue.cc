@@ -40,12 +40,12 @@ BatchInputQueue::~BatchInputQueue()
 
 void BatchInputQueue::create_queue(const uint new_batch_size)
 {
-    assert(new_batch_size > 0 && "Batch size cannot be 0.");
+    CHECK(new_batch_size > 0) << "Batch size cannot be 0.";
 
     batch_size_ = new_batch_size;
     total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
 
-    assert(total_nb_frames_ > 0 && "There must be more at least a frame in the queue.");
+    CHECK(total_nb_frames_ > 0) << "There must be more at least a frame in the queue.";
 
     max_size_ = total_nb_frames_ / batch_size_;
 
@@ -161,7 +161,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    assert(size_ > 0);
+    CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -188,7 +188,7 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
 
 void BatchInputQueue::dequeue()
 {
-    assert(size_ > 0);
+    CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -232,12 +232,12 @@ void BatchInputQueue::copy_multiple(Queue& dest) { copy_multiple(dest, batch_siz
 
 void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
 {
-    assert(size_ > 0 && "Queue is empty. Cannot copy multiple.");
-    assert(dest.get_max_size() >= nb_elts && "Copy multiple: the destination queue must have a size at least "
-                                             "greater than number of elements to copy.");
-    assert(frame_size_ == dest.frame_size_);
-    assert(nb_elts <= batch_size_ && "Copy multiple: cannot copy more "
-                                     "than a batch of frames");
+    CHECK(size_ > 0) << "Queue is empty. Cannot copy multiple.";
+    CHECK(dest.get_max_size() >= nb_elts) << "Copy multiple: the destination queue must have a size at least "
+                                             "greater than number of elements to copy.";
+    CHECK(frame_size_ == dest.frame_size_);
+    CHECK(nb_elts <= batch_size_) << "Copy multiple: cannot copy more "
+                                     "than a batch of frames";
 
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks

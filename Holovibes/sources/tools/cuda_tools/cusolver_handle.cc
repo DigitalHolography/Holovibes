@@ -16,7 +16,7 @@ cusolverDnHandle_t& CusolverHandle::instance()
     if (!initialized_)
     {
         auto status = cusolverDnCreate(&handle_);
-        assert(status == CUSOLVER_STATUS_SUCCESS && "Could not create cusolver handle");
+        CHECK(status == CUSOLVER_STATUS_SUCCESS) << "Could not create cusolver handle";
         initialized_ = true;
     }
     return handle_;
