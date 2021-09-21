@@ -182,13 +182,34 @@ class MainWindow : public QMainWindow, public Observer
     void set_composite_area();
     void update_convo_kernel(const QString& value);
     void set_record_frame_step(int value);
+
+    /*!
+     * \brief Sets the start stop buttons object accessibility
+     *
+     * \param value accessibility
+     */
     void set_start_stop_buttons(bool value);
+
+    /*! \brief Opens file explorer to let the user chose the file he wants to import */
     void import_browse_file();
+
+    /*!
+     * \brief Creates an input file to gather data from it.
+     *
+     * \param filename the chosen file
+     */
     void import_file(const QString& filename);
+
+    /*! \brief Sets ui values and constraints + launch FileReadWroker */
     void init_holovibes_import_mode();
+
+    /*! \brief Setups attributes for launching and launchs*/
     void import_start();
     void import_stop();
+
+    /*! \brief handle the ui input fps */
     void import_start_spinbox_update();
+    /*! \brief handle the ui output fps */
     void import_end_spinbox_update();
     void change_window();
     void reload_ini();

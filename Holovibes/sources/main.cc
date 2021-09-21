@@ -34,8 +34,7 @@ static void check_cuda_graphic_card(bool gui)
 
         compute_capability = props.major * 10 + props.minor;
 
-        if (compute_capability >= min_compute_capability &&
-            compute_capability <= max_compute_capability)
+        if (compute_capability >= min_compute_capability && compute_capability <= max_compute_capability)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";
@@ -48,9 +47,7 @@ static void check_cuda_graphic_card(bool gui)
     if (gui)
     {
         QMessageBox messageBox;
-        messageBox.critical(0,
-                            "No CUDA graphic card detected",
-                            QString::fromUtf8(error_message.c_str()));
+        messageBox.critical(0, "No CUDA graphic card detected", QString::fromUtf8(error_message.c_str()));
         messageBox.setFixedSize(800, 300);
     }
     else
@@ -60,13 +57,12 @@ static void check_cuda_graphic_card(bool gui)
     std::exit(1);
 }
 
-static int start_gui(holovibes::Holovibes& holovibes,
-                     int argc,
-                     char** argv,
-                     const std::string filename = "")
+static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
     QLocale::setDefault(QLocale("en_US"));
+    // Create the Qt app
     QApplication app(argc, argv);
+
     check_cuda_graphic_card(true);
     QSplashScreen splash(QPixmap("holovibes_logo.png"));
     splash.show();
@@ -76,6 +72,7 @@ static int start_gui(holovibes::Holovibes& holovibes,
     HMENU hmenu = GetSystemMenu(hwnd, FALSE);
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
+    // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window(holovibes);
     window.show();
     splash.finish(&window);
@@ -90,13 +87,11 @@ static int start_gui(holovibes::Holovibes& holovibes,
         window.import_start();
     }
 
+    // Launch the Qt app
     return app.exec();
 }
 
-static void print_version()
-{
-    std::cout << "Holovibes " << holovibes::version << std::endl;
-}
+static void print_version() { std::cout << "Holovibes " << holovibes::version << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
