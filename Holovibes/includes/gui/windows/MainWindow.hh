@@ -148,72 +148,429 @@ class MainWindow : public QMainWindow, public Observer
      * \return false we are not in row mode
      */
     bool is_raw_mode();
+
+    /*! \brief Reset the whole program in reload .ini file */
     void reset();
-    void update_filter2d_view(bool);
+
+    /*!
+     * \brief add or remove filter 2d view
+     *
+     * \param checked true: enable, false: disable
+     */
+    void update_filter2d_view(bool checked);
+
+    /*! \brief Deactivate filter2d view */
     void disable_filter2d_view();
-    void set_filter2d(bool);
-    void set_filter2d_n1(int);
-    void set_filter2d_n2(int);
+
+    /*!
+     * \brief Apply or remove 2d filter on display output
+     *
+     * \param checked true: enable, false: disable
+     */
+    void set_filter2d(bool checked);
+
+    /*!
+     * \brief TODO (first input box under 2dfilter checkbox in the ui)
+     *
+     * \param n
+     */
+    void set_filter2d_n1(int n);
+
+    /*!
+     * \brief (second input box under 2dfilter checkbox in the ui)
+     *
+     * \param n
+     */
+    void set_filter2d_n2(int n);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void cancel_filter2d();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_time_transformation_size();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void update_lens_view(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void disable_lens_view();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void update_raw_view(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void disable_raw_view();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_p_accu();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_x_accu();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_y_accu();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_x_y();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_q(int value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_q_acc();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_h_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_h_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_s_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_s_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_v_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_intervals_hsv_v_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_weights();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_composite_auto_weights(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void click_composite_rgb_or_hsv();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_h_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_h_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_s_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_s_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_v_min();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void slide_update_threshold_v_max();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void actualize_frequency_channel_s();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void actualize_frequency_channel_v();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void actualize_checkbox_h_gaussian_blur();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void actualize_kernel_size_blur();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_p(int value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void increment_p();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void decrement_p();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_wavelength(double value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_z(double value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void increment_z();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void decrement_z();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_z_step(double value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_space_transformation(QString value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_time_transformation(QString value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param checked
+     */
     void toggle_time_transformation_cuts(bool checked);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void cancel_stft_slice_view();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void update_batch_size();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void update_time_transformation_stride();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_view_mode(QString value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_unwrapping_2d(const bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_accumulation(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_accumulation_level(int value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_contrast_mode(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_auto_contrast();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_contrast_min(double value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_contrast_max(double value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void invert_contrast(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_auto_refresh_contrast(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_log_scale(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_fft_shift(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_composite_area();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void update_convo_kernel(const QString& value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_record_frame_step(int value);
 
     /*!

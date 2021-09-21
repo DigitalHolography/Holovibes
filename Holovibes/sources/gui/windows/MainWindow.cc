@@ -1429,9 +1429,11 @@ void MainWindow::set_filter2d(bool checked)
         {
             const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
 
+            // Set the input box related to the filter2d
             ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+
             if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
                 pipe->autocontrast_end_pipe(WindowKind::XYview);
             cd_.filter2d_enabled = checked;
@@ -1446,14 +1448,18 @@ void MainWindow::disable_filter2d_view()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_filter2d_view();
+
+    // Wait for the filter2d view deactivation to be enabled for notify
     while (pipe->get_disable_filter2d_view_requested())
         continue;
 
     if (filter2d_window)
     {
+        // Remove the on triggered event
         disconnect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
     }
 
+    // Change the focused window
     change_window();
 
     notify();
@@ -1480,6 +1486,7 @@ void MainWindow::update_filter2d_view(bool checked)
                     ushort filter2d_window_height = fd.height;
                     get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
 
+                    // Wait for the filter2d view to be enabled for notify
                     while (pipe->get_filter2d_view_requested())
                         continue;
 
