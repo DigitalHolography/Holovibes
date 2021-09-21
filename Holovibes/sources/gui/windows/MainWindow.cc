@@ -629,6 +629,8 @@ void MainWindow::credits()
                       "Romain Cancillière\n"
 
                       "Michael Atlan\n";
+
+    // Creation on the fly of the message box to display
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Information);
@@ -648,8 +650,7 @@ void MainWindow::configure_holovibes() { open_file(GLOBAL_INI_PATH); }
 
 void MainWindow::write_ini()
 {
-    /*! \brief Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory */
-
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     save_ini(GLOBAL_INI_PATH);
     notify();
 }
@@ -2392,8 +2393,10 @@ void MainWindow::set_fast_pipe(bool value)
     if (pipe && value)
     {
         pipe->insert_fn_end_vect([=]() {
+            // Constraints linked with fast pipe option
             cd_.time_transformation_stride = cd_.batch_size.load();
             cd_.time_transformation_size = cd_.batch_size.load();
+
             pipe->request_update_time_transformation_stride();
             pipe->request_update_time_transformation_size();
             cd_.fast_pipe = true;
@@ -2927,6 +2930,7 @@ void MainWindow::import_end_spinbox_update()
 #pragma region Themes
 void MainWindow::set_night()
 {
+    // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     QPalette darkPalette;
@@ -2955,6 +2959,7 @@ void MainWindow::set_night()
 void MainWindow::set_classic()
 {
     qApp->setPalette(this->style()->standardPalette());
+    // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
     theme_index_ = 0;

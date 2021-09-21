@@ -82,6 +82,8 @@ class MainWindow : public QMainWindow, public Observer
     void camera_xiq();
     void camera_xib();
     void configure_camera();
+
+    /*! \brief Opens the credit display */
     void credits();
     void documentation();
     void init_image_mode(QPoint& position, QSize& size);
@@ -110,10 +112,41 @@ class MainWindow : public QMainWindow, public Observer
     void set_image_mode(QString mode);
 
     void refreshViewMode();
+
+    /*!
+     * \brief Enable the convolution mode
+     *
+     * \param enable true: enable, false: disable
+     */
     void set_convolution_mode(const bool enable);
+
+    /*!
+     * \brief Enable the divide convolution mode
+     *
+     * \param value true: enable, false: disable
+     */
     void set_divide_convolution_mode(const bool value);
+
+    /*!
+     * \brief Switchs the pipe mode
+     *
+     * \param value true: enable, false: disable
+     */
     void set_fast_pipe(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void toggle_renormalize(bool value);
+
+    /*!
+     * \brief check if we are currently in raw mode
+     *
+     * \return true we are in raw mode
+     * \return false we are not in row mode
+     */
     bool is_raw_mode();
     void reset();
     void update_filter2d_view(bool);
@@ -222,7 +255,11 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Saves the current state of holovibes in .ini file */
     void write_ini();
+
+    /*! \brief change the theme of the ui */
     void set_classic();
+
+    /*! \brief change the theme of the ui */
     void set_night();
     void rotateTexture();
     void flipTexture();
