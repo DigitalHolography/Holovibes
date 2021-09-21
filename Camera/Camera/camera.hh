@@ -65,8 +65,7 @@ class Camera : public ICamera
         if (!ini_file_is_open())
         {
             assert(!"Impossible case");
-            throw std::exception(
-                "Attempt to get ini property tree when file is not opened");
+            throw std::exception("Attempt to get ini property tree when file is not opened");
         }
         return ini_pt_;
     }
@@ -97,7 +96,7 @@ class Camera : public ICamera
     virtual void bind_params() = 0;
 
   protected:
-    /*! \brief Frame descriptor updated by camera
+    /*! \brief Frame descriptor updated by camera */
     FrameDescriptor fd_;
 
     /* Theses parameters are common to all cameras.
