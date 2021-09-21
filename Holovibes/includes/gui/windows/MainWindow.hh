@@ -203,16 +203,24 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Sets ui values and constraints + launch FileReadWroker */
     void init_holovibes_import_mode();
 
-    /*! \brief Setups attributes for launching and launchs*/
+    /*! \brief Setups attributes for launching and launchs the imported file*/
     void import_start();
+    /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
     void import_stop();
 
     /*! \brief handle the ui input fps */
     void import_start_spinbox_update();
+
     /*! \brief handle the ui output fps */
     void import_end_spinbox_update();
+
+    /*! \brief change the focused windows */
     void change_window();
+
+    /*! \brief reloads .ini file that store program's state */
     void reload_ini();
+
+    /*! \brief Saves the current state of holovibes in .ini file */
     void write_ini();
     void set_classic();
     void set_night();
@@ -255,10 +263,18 @@ class MainWindow : public QMainWindow, public Observer
     void display_info(std::string msg);
     void open_file(const std::string& path);
     void load_ini(const std::string& path);
+
+    /*!
+     * \brief Saves the current state of holovibes
+     *
+     * \param path the location of the .ini file saved
+     */
     void save_ini(const std::string& path);
     void cancel_time_transformation_cuts();
     void createPipe();
     void createHoloWindow();
+
+    /*! \brief Closes all the displayed windows */
     void close_windows();
     void close_critical_compute();
     void remove_infos();

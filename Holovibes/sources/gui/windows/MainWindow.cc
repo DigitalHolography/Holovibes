@@ -648,6 +648,8 @@ void MainWindow::configure_holovibes() { open_file(GLOBAL_INI_PATH); }
 
 void MainWindow::write_ini()
 {
+    /*! \brief Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory */
+
     save_ini(GLOBAL_INI_PATH);
     notify();
 }
@@ -657,6 +659,7 @@ void MainWindow::reload_ini()
     import_stop();
     try
     {
+        // reloads holovibes.ini file located in Holovibes.exe directory
         load_ini(GLOBAL_INI_PATH);
     }
     catch (std::exception& e)
@@ -2815,6 +2818,9 @@ void MainWindow::import_stop()
     holovibes_.start_information_display(false);
 
     close_critical_compute();
+
+    // FIXME: import_stop() and camera_none() call same methods
+    // FIXME: camera_none() weird call because we are dealing with imported file
     camera_none();
 
     cd_.is_computation_stopped = true;
