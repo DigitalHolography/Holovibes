@@ -142,28 +142,28 @@ class MainWindow : public QMainWindow, public Observer
     void toggle_renormalize(bool value);
 
     /*!
-     * \brief check if we are currently in raw mode
+     * \brief checks if we are currently in raw mode
      *
      * \return true we are in raw mode
      * \return false we are not in row mode
      */
     bool is_raw_mode();
 
-    /*! \brief Reset the whole program in reload .ini file */
+    /*! \brief Resets the whole program in reload .ini file */
     void reset();
 
     /*!
-     * \brief add or remove filter 2d view
+     * \brief adds or removes filter 2d view
      *
      * \param checked true: enable, false: disable
      */
     void update_filter2d_view(bool checked);
 
-    /*! \brief Deactivate filter2d view */
+    /*! \brief Deactivates filter2d view */
     void disable_filter2d_view();
 
     /*!
-     * \brief Apply or remove 2d filter on display output
+     * \brief Applies or removes 2d filter on output display
      *
      * \param checked true: enable, false: disable
      */
@@ -184,7 +184,7 @@ class MainWindow : public QMainWindow, public Observer
     void set_filter2d_n2(int n);
 
     /*!
-     * \brief TODO
+     * \brief Removes 2d filter on output display
      *
      */
     void cancel_filter2d();
