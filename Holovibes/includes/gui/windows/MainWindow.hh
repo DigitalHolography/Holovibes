@@ -183,79 +183,52 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_filter2d_n2(int n);
 
-    /*!
-     * \brief Removes 2d filter on output display
-     *
-     */
+    /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Changes the time transformation size from ui value */
     void set_time_transformation_size();
 
     /*!
-     * \brief TODO
+     * \brief adds or removes lens view
      *
-     * \param value
+     * \param value true: add, false: remove
      */
     void update_lens_view(bool value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Removes lens view */
     void disable_lens_view();
 
     /*!
-     * \brief TODO
+     * \brief adds or removes raw view
      *
-     * \param value
+     * \param value true: add, false: remove
      */
     void update_raw_view(bool value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Removes raw view */
     void disable_raw_view();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies p accumulation from ui value */
     void set_p_accu();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies x accumulation from ui value */
     void set_x_accu();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies y accumulation from ui value */
     void set_y_accu();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies x and y from ui values */
     void set_x_y();
 
     /*!
-     * \brief TODO
+     * \brief Modifies q accumulation from ui value
      *
-     * \param value
+     * \param value the new q value
      */
     void set_q(int value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies q accumulation from ui value */
     void set_q_acc();
 
     /*!

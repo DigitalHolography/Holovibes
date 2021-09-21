@@ -1449,7 +1449,7 @@ void MainWindow::disable_filter2d_view()
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_filter2d_view();
 
-    // Wait for the filter2d view deactivation to be enabled for notify
+    // Wait for the filter2d view to be disabled for notify
     while (pipe->get_disable_filter2d_view_requested())
         continue;
 
@@ -1636,6 +1636,7 @@ void MainWindow::update_lens_view(bool value)
             lens_window->setTitle("Lens view");
             lens_window->setCd(&cd_);
 
+            // when the window is destoryed, disable_lens_view() will be triggered
             connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
         catch (std::exception& e)
@@ -1676,6 +1677,8 @@ void MainWindow::update_raw_view(bool value)
 
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_raw_view();
+
+        // Wait for the raw view to be enabled for notify
         while (pipe->get_raw_view_requested())
             continue;
 
@@ -1710,6 +1713,8 @@ void MainWindow::disable_raw_view()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_raw_view();
+
+    // Wait for the raw view to be disabled for notify
     while (pipe->get_disable_raw_view_requested())
         continue;
 
