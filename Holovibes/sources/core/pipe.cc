@@ -17,7 +17,7 @@
 #include "tools_compute.cuh"
 #include "tools.hh"
 #include "contrast_correction.cuh"
-#include "custom_exception.hh"
+#include "enqueue_exception.hh"
 #include "pipeline_utils.hh"
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
@@ -424,7 +424,7 @@ void Pipe::update_batch_index()
 void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error)
 {
     if (!output_queue.enqueue(frame, stream_))
-        throw CustomException(error, error_kind::fail_enqueue);
+        throw EnqueueException(error);
 }
 
 void Pipe::insert_dequeue_input()

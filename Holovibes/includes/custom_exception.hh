@@ -5,42 +5,45 @@
 #include <exception>
 #include <string>
 #pragma once
+#include "logger.hh"
+
+#define THROW(msg) throw holovibes::CustomException(msg, __LINE__, __FILE__)
 
 namespace holovibes
 {
-/*! \enum error_kind
- *
- * \brief Implementation of custom error class.
- *
- * To create a new kind of error just add your new kind of error to the enum
- */
-enum error_kind
-{
-    fail_update,
-    fail_refresh,
-    fail_accumulation,
-    fail_cudaLaunch,
-    fail_enqueue
-};
 
 /*! \class CustomException
  *
- * \brief #TODO Add a description for this class
+ * \brief Upper exception class from which every holovibes exceptions should derive
  */
 class CustomException : public std::exception
 {
   public:
-    CustomException(std::string msg, const error_kind& kind)
+    /*!
+     * \brief Construct a new Custom Exception object
+     *
+     * \param msg the message you want to display with the exception
+     */
+    CustomException(const std::string& msg)
         : std::exception(msg.c_str())
-        , error_kind_(kind)
     {
+        LOG_ERROR << msg;
     }
 
+    /*!
+     * \brief Construct a new Custom Exception object
+     *
+     * \param msg the message you want to display with the exception
+     * \param line the line from which the exception is triggered (__LINE__ in macro ONLY)
+     * \param file the file from which the exception is triggered (__FILE__ in macro ONLY)
+     */
+    CustomException(const std::string& msg, const int line, const char* file)
+        : std::exception(msg.c_str())
+    {
+        LOG_ERROR << msg << " " << file << ':' << line;
+    }
+
+    /*! \brief Destroy the Custom Exception object */
     ~CustomException() {}
-
-    const error_kind& get_kind() const { return error_kind_; }
-
-  private:
-    const error_kind& error_kind_;
 };
 } // namespace holovibes
