@@ -61,7 +61,7 @@ def parse_holo(fpath: str) -> (int, int, int, int, int):
 
         # load metadata
         j = json.load(file)
-        
+
         return (w, h, bytes_per_pixel, img_nb, j['endianess']) # typo in encoded data
 
 def new_file_path(fpath: str) -> str:

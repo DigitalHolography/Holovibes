@@ -5,7 +5,7 @@
 *Note: It is recommended to move the `python/` folder from Holovibes installation directory (usually `C:/Program Files/Holovibes/X.X.X/`) to another place to avoid permissions issues.*
 
 1. Have [python3](https://www.python.org/downloads/) installed
-2. Install dependencies with `pip install -r requirements.txt` 
+2. Install dependencies with `pip install -r requirements.txt`
 
 
 
