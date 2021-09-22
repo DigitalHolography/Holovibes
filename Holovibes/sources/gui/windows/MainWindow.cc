@@ -589,7 +589,7 @@ void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
-    std::string msg = "Holovibes " + version +
+    std::string msg = "Holovibes " + std::string(__HOLOVIBES_VERSION__) +
                       "\n\n"
 
                       "Developers:\n\n"

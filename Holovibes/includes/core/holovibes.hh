@@ -4,6 +4,9 @@
  */
 #pragma once
 
+/*!< Current version of this project. */
+#define __HOLOVIBES_VERSION__ "10.1"
+
 #include "compute_descriptor.hh"
 #include "icamera.hh"
 

@@ -11,7 +11,11 @@ std::string get_appdata_holovibes_folder()
     if (!std::filesystem::exists(holovibes_folder))
         std::filesystem::create_directory(holovibes_folder);
 
-    return holovibes_folder;
+    std::string version_folder = holovibes_folder + "\\" + std::string(__HOLOVIBES_VERSION__);
+    if (!std::filesystem::exists(version_folder))
+        std::filesystem::create_directory(version_folder);
+
+    return version_folder;
 }
 
 std::string& get_global_ini_path()
