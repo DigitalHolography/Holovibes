@@ -490,50 +490,44 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
     void import_stop();
 
-    /*! \brief handle the ui input fps */
+    /*! \brief Handles the ui input fps */
     void import_start_spinbox_update();
 
-    /*! \brief handle the ui output fps */
+    /*! \brief Handles the ui output fps */
     void import_end_spinbox_update();
 
-    /*! \brief change the focused windows */
+    /*! \brief Changes the focused windows */
     void change_window();
 
-    /*! \brief reloads .ini file that store program's state */
+    /*! \brief Reloads .ini file that store program's state */
     void reload_ini();
 
     /*! \brief Saves the current state of holovibes in .ini file */
     void write_ini();
 
-    /*! \brief change the theme of the ui */
+    /*! \brief Changes the theme of the ui */
     void set_classic();
 
-    /*! \brief change the theme of the ui */
+    /*! \brief Changes the theme of the ui */
     void set_night();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
     void rotateTexture();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
     void flipTexture();
 
     /*!
-     * \brief TODO
+     * \brief Creates or Removes the reticle overlay
      *
-     * \param value
+     * \param value true: create, false: remove
      */
     void display_reticle(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies reticle scale in ]0, 1[
      *
-     * \param value
+     * \param value the new reticle scale
      */
     void reticle_scale(double value);
 
