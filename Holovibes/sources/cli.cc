@@ -37,27 +37,27 @@ static void progress_bar(int current, int total, int length)
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
-    LOG_INFO << "Config:\n";
+    std::cout << "Config:\n";
     auto ini_data = read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
-    LOG_INFO << ini_data << "\n\n";
+    std::cout << ini_data << "\n\n";
 
-    LOG_INFO << "Input file: " << opts.input_path.value() << "\n";
-    LOG_INFO << "Output file: " << opts.output_path.value() << "\n";
-    LOG_INFO << "FPS: " << opts.fps.value_or(60) << "\n";
-    LOG_INFO << "Number of frames to record: ";
+    std::cout << "Input file: " << opts.input_path.value() << "\n";
+    std::cout << "Output file: " << opts.output_path.value() << "\n";
+    std::cout << "FPS: " << opts.fps.value_or(60) << "\n";
+    std::cout << "Number of frames to record: ";
     if (opts.n_rec)
-        LOG_INFO << opts.n_rec.value() << "\n";
+        std::cout << opts.n_rec.value() << "\n";
     else
-        LOG_INFO << "full file\n";
-    LOG_INFO << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
+        std::cout << "full file\n";
+    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
     if (opts.convo_path.has_value())
     {
-        LOG_INFO << "Convolution matrix: " << opts.convo_path.value() << "\n";
-        LOG_INFO << "Divide by convolution matrix: " << std::boolalpha << opts.divide_convo << std::dec << "\n";
+        std::cout << "Convolution matrix: " << opts.convo_path.value() << "\n";
+        std::cout << "Divide by convolution matrix: " << std::boolalpha << opts.divide_convo << std::dec << "\n";
     }
-    LOG_INFO << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
-    LOG_INFO << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
-    LOG_INFO << std::endl;
+    std::cout << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
+    std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
+    std::cout << std::endl;
 }
 
 static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes& holovibes,
