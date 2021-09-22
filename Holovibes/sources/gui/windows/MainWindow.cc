@@ -131,13 +131,13 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception&)
     {
-        LOG_WARN << GLOBAL_INI_PATH << ": Configuration file not found. "
+        LOG_WARN << ::holovibes::ini::get_global_ini_path() << ": Configuration file not found. "
                  << "Initialization with default values.";
-        save_ini(GLOBAL_INI_PATH);
+        save_ini(::holovibes::ini::get_global_ini_path());
     }
 
     set_z_step(z_step_);
@@ -646,11 +646,11 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(GLOBAL_INI_PATH); }
+void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
 
 void MainWindow::write_ini()
 {
-    save_ini(GLOBAL_INI_PATH);
+    save_ini(::holovibes::ini::get_global_ini_path());
     notify();
 }
 
@@ -659,7 +659,7 @@ void MainWindow::reload_ini()
     import_stop();
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception& e)
     {
@@ -688,6 +688,9 @@ void MainWindow::load_ini(const std::string& path)
     QAction* view_action = ui.actionView;
     QAction* import_export_action = ui.actionImportExport;
     QAction* info_action = ui.actionInfo;
+
+    // if (path.compare(".ini") == 0)
+    //     ini::init_path_ini();
 
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -882,11 +885,12 @@ void MainWindow::reset()
     remove_infos();
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception&)
     {
-        LOG_WARN << GLOBAL_INI_PATH << ": Config file not found. It will use the default values.";
+        LOG_WARN << ::holovibes::ini::get_global_ini_path()
+                 << ": Config file not found. It will use the default values.";
     }
     notify();
 }
@@ -898,7 +902,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         close_critical_compute();
     camera_none();
     remove_infos();
-    save_ini(GLOBAL_INI_PATH);
+    save_ini(::holovibes::ini::get_global_ini_path());
 }
 #pragma endregion
 /* ------------ */

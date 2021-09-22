@@ -4,6 +4,14 @@ namespace holovibes
 {
 namespace ini
 {
+std::string& get_global_ini_path()
+{
+    if (global_ini_path.compare("") == 0)
+        global_ini_path = ::holovibes::create_absolute_path("holovibes.ini");
+
+    return global_ini_path;
+}
+
 void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
 {
     boost::property_tree::ptree ptree;

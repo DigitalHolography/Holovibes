@@ -38,7 +38,7 @@ static void progress_bar(int current, int total, int length)
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
     std::cout << "Config:\n";
-    auto ini_data = read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
+    auto ini_data = read_file<std::string>(opts.ini_path.value_or(::holovibes::ini::get_global_ini_path()));
     std::cout << ini_data << "\n\n";
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
@@ -158,7 +158,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     }
 
     auto& cd = holovibes.get_cd();
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
+    std::string ini_path = opts.ini_path.value_or(::holovibes::ini::get_global_ini_path());
     holovibes::ini::load_ini(cd, ini_path);
 
     auto input_frame_file = open_input_file(holovibes, opts);
