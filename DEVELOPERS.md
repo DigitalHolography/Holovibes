@@ -51,9 +51,27 @@ Alternatively, you can build from the command line:
 
 #### Integration tests
 
+pytest is used for integration testing. For now integration testing is done using the CLI
+and combining an input holo file and a optional configuration file.
+The 2 files are passed as parameters to the CLI to create an output file which is then compared
+to a reference file.
+
+##### How to add tests
+
+An auto-discover function is already implemented.
+Just create a folder in the `tests/data/` folder. This is the name of your test.
+You shall put 2 or 3 files in the folder:
+* a `input.holo` file as input
+* a `ref.holo` file as intended output
+* an optional `holovibes.ini` config file for the parameters
+
 ##### Usage
 
-Build the project in release mode and run all integration tests with `./run_integration_tests.py`.
+Just build the project either in Release or Debug mode, 
+The tool used to run these tests is `pytest`. Just run this from the root of the project
+```sh
+$ python -m pytest -v
+```
 
 #### Unit tests
 

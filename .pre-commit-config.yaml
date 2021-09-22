@@ -1,0 +1,13 @@
+repos:
+- repo: local
+  hooks:
+  - id: clang-format
+    name: coding style
+    entry: clang-format --Werror --dry-run
+    language: system
+    files: \.(cc|hh|hxx|cu|cuh|cuhxx)$
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: trailing-whitespace
+    exclude: ^(libs/|Holovibes/convolution_kernels/)
