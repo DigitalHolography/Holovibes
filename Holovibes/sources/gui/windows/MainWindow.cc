@@ -689,9 +689,6 @@ void MainWindow::load_ini(const std::string& path)
     QAction* import_export_action = ui.actionImportExport;
     QAction* info_action = ui.actionInfo;
 
-    // if (path.compare(".ini") == 0)
-    //     ini::init_path_ini();
-
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
     if (!ptree.empty())

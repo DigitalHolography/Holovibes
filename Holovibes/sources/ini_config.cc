@@ -1,14 +1,26 @@
 #include "ini_config.hh"
 
-namespace holovibes
+namespace holovibes::ini
 {
-namespace ini
+
+std::string get_appdata_holovibes_folder()
 {
+    std::string username = std::string(getenv("username"));
+    std::string holovibes_folder = "C:\\Users\\" + username + "\\AppData\\Roaming\\Holovibes";
+
+    if (!std::filesystem::exists(holovibes_folder))
+        std::filesystem::create_directory(holovibes_folder);
+
+    return holovibes_folder;
+}
+
 std::string& get_global_ini_path()
 {
     if (global_ini_path.compare("") == 0)
-        global_ini_path = ::holovibes::create_absolute_path("holovibes.ini");
-
+    {
+        std::string filename = "holovibes.ini";
+        global_ini_path = get_appdata_holovibes_folder() + "\\" + filename;
+    }
     return global_ini_path;
 }
 
@@ -255,5 +267,4 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
     ptree.put<uint>("reset.device_number", config.device_number);
 }
-} // namespace ini
-} // namespace holovibes
+} // namespace holovibes::ini
