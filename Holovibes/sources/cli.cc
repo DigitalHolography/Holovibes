@@ -31,9 +31,8 @@ static void progress_bar(int current, int total, int length)
     text.append(length - n, ' ');
     text += ']';
 
-    LOG_INFO << '\r' << text;
-    // std::cout << '\r' << text;
-    // std::cout.flush();
+    std::cout << '\r' << text;
+    std::cout.flush();
 }
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
