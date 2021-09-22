@@ -67,22 +67,23 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 {
     try
     {
-        if (camera_kind == CameraKind::Adimec)
-            active_camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
-        else if (camera_kind == CameraKind::IDS)
-            active_camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-        else if (camera_kind == CameraKind::Phantom)
-            active_camera_ = camera::CameraDLL::load_camera("CameraPhantom.dll");
-        else if (camera_kind == CameraKind::BitflowCyton)
-            active_camera_ = camera::CameraDLL::load_camera("BitflowCyton.dll");
-        else if (camera_kind == CameraKind::Hamamatsu)
-            active_camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
-        else if (camera_kind == CameraKind::xiQ)
-            active_camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
-        else if (camera_kind == CameraKind::xiB)
-            active_camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
-        else
-            CHECK(false) << "Impossible case";
+        try
+        {
+            static std::map<CameraKind, std::string> camera_dictionary = {
+                {CameraKind::Adimec, "CameraAdimec.dll"},
+                {CameraKind::IDS, "CameraIds.dll"},
+                {CameraKind::Phantom, "CameraPhantom.dll"},
+                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
+                {CameraKind::xiQ, "CameraXiq.dll"},
+                {CameraKind::xiB, "CameraXib.dll"},
+            };
+            active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
+        }
+        catch (std::exception&)
+        {
+            // Should never happened
+            LOG_ERROR << "This camera is not handled." << std::endl;
+        }
 
         cd_.pixel_size = active_camera_->get_pixel_size();
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
