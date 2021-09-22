@@ -792,7 +792,7 @@ void MainWindow::save_ini(const std::string& path)
 
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO << "Configuration file holovibes.ini overwritten";
+    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
 
 void MainWindow::open_file(const std::string& path)
