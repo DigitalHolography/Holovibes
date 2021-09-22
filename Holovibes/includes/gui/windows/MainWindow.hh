@@ -135,9 +135,9 @@ class MainWindow : public QMainWindow, public Observer
     void set_fast_pipe(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables renormalize image with clear image accumulation pipe
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void toggle_renormalize(bool value);
 
@@ -170,16 +170,16 @@ class MainWindow : public QMainWindow, public Observer
     void set_filter2d(bool checked);
 
     /*!
-     * \brief TODO (first input box under 2dfilter checkbox in the ui)
+     * \brief Modifies filter2d n1 (first value)
      *
-     * \param n
+     * \param n the new filter2d n1 value
      */
     void set_filter2d_n1(int n);
 
     /*!
-     * \brief (second input box under 2dfilter checkbox in the ui)
+     * \brief Modifies filter2d n2 (second value)
      *
-     * \param n
+     * \param n the new filter2d n2 value
      */
     void set_filter2d_n2(int n);
 
@@ -589,7 +589,7 @@ class MainWindow : public QMainWindow, public Observer
     /* ---------- */
   signals:
     /*!
-     * \brief TODO
+     * \brief TODO: comment
      *
      * \param f
      */
@@ -604,62 +604,50 @@ class MainWindow : public QMainWindow, public Observer
     virtual void closeEvent(QCloseEvent* event) override;
 
   private:
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Changes display mode to Raw */
     void set_raw_mode();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Changes display mode to Holographic */
     void set_holographic_mode();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Set computation mode from ui value (Raw or Holographic)*/
     void set_computation_mode();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
     /*!
-     * \brief TODO
+     * \brief Changes camera
      *
-     * \param c
+     * \param c the new camera
      */
     void change_camera(CameraKind c);
 
     /*!
-     * \brief TODO
+     * \brief Logs a message in error scope
      *
-     * \param msg
+     * \param msg the message to log
      */
     void display_error(std::string msg);
 
     /*!
-     * \brief TODO
+     * \brief Logs a message in info scope
      *
-     * \param msg
+     * \param msg the message to log
      */
     void display_info(std::string msg);
 
     /*!
-     * \brief TODO
+     * \brief Opens a file
      *
-     * \param path
+     * \param path the path of the file to open
      */
     void open_file(const std::string& path);
 
     /*!
-     * \brief TODO
+     * \brief Setups program from .ini file
      *
-     * \param path
+     * \param path the path where the .ini file is
      */
     void load_ini(const std::string& path);
 
@@ -670,71 +658,52 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Creates the pipeline */
     void createPipe();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Creates the windows for processed image output */
     void createHoloWindow();
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Stops critical compute */
     void close_critical_compute();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Clears the info container (real time data bench panel) */
     void remove_infos();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
 
-    // Change the value without triggering any signals
+    // Change the value without triggering any signal
     /*!
-     * \brief TODO
+     * \brief Changes Box value without triggering any signal
      *
-     * \param spinBox
-     * \param value
+     * \param spinBox the box to change
+     * \param value the value to set
      */
     void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+
     /*!
-     * \brief TODO
+     * \brief Changes Slider value without triggering any signal
      *
-     * \param slider
-     * \param value
+     * \param slider the slider to change
+     * \param value the value to set
      */
+
     void QSliderQuietSetValue(QSlider* slider, int value);
     /*!
-     * \brief TODO
+     * \brief Changes SpinBox value without triggering any signal
      *
-     * \param spinBox
-     * \param value
+     * \param spinBox the spinbox to change
+     * \param value the value to set
      */
     void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 

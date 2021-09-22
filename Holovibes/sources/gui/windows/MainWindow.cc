@@ -1378,6 +1378,7 @@ void MainWindow::cancel_time_transformation_cuts()
         cancel_stft_slice_view();
         try
         {
+            // Wait for refresh to be enabled for notify
             while (holovibes_.get_compute_pipe()->get_refresh_request())
                 continue;
         }
@@ -2155,6 +2156,10 @@ void MainWindow::pipe_refresh()
     {
         try
         {
+            // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
+            // operation to set a boolean
+            // But maybe a simple read access that create a false condition result is better than simply making a
+            // writting access
             if (!holovibes_.get_compute_pipe()->get_request_refresh())
                 holovibes_.get_compute_pipe()->request_refresh();
         }
