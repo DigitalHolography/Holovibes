@@ -77,7 +77,7 @@ When commenting a function or method, use:
  * (Optional)
  * /param test Test variable
  * /return What is being returned
- *
+ */
 ```
 
 ### Variables and attributes
