@@ -1796,7 +1796,9 @@ void MainWindow::set_p(int value)
 
 void MainWindow::set_composite_intervals()
 {
+    // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
+
     cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
     cd_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
     pipe_refresh();
@@ -1926,14 +1928,19 @@ void slide_update_threshold(QSlider& slider,
                             std::atomic<float>& lower_bound,
                             std::atomic<float>& upper_bound)
 {
+    // Store the slider value in cd_ (ComputeDescriptor)
     receiver = slider.value() / 1000.0f;
+
     char array[10];
     sprintf_s(array, "%d", slider.value());
     fancy_Qslide_text_percent(array);
     to_be_written_in.setText(QString(array));
+
     if (lower_bound > upper_bound)
     {
+        // FIXME bound_to_update = receiver ?
         bound_to_update = slider.value() / 1000.0f;
+
         slider_to_update.setValue(slider.value());
     }
 }

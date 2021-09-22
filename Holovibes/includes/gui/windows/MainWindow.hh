@@ -231,197 +231,131 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies q accumulation from ui value */
     void set_q_acc();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
     void set_composite_intervals();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Hue min frequence */
     void set_composite_intervals_hsv_h_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Hue max frequence*/
     void set_composite_intervals_hsv_h_max();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Saturation min frequence */
     void set_composite_intervals_hsv_s_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Saturation max frequence */
     void set_composite_intervals_hsv_s_max();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Value min frequence */
     void set_composite_intervals_hsv_v_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies HSV Value min frequence */
     void set_composite_intervals_hsv_v_max();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies the RGV from ui values */
     void set_composite_weights();
 
     /*!
-     * \brief TODO
+     * \brief Automatic equalization (Auto-constrast)
      *
-     * \param value
+     * \param value true: Enable, false: disable
      */
     void set_composite_auto_weights(bool value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Switchs between RGB mode and HSV mode */
     void click_composite_rgb_or_hsv();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Hue min threshold and guaratees that Hue min threshold does not exceed Hue max threshold */
     void slide_update_threshold_h_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Hue max threshold and guaratees that Hue max threshold is higher than Hue min threshold */
     void slide_update_threshold_h_max();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Saturation min threshold and guaratees that Saturation min threshold does not exceed Saturation
+     * max threshold */
     void slide_update_threshold_s_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Saturation max threshold and guaratees that Saturation max threshold is higher than Saturation
+     * min threshold */
     void slide_update_threshold_s_max();
 
-    /*!
-     * \brief TODO
-     *
+    /*! \brief Modifies Value min threshold and guaratees that Value min threshold does not exceed Value max threshold
      */
     void slide_update_threshold_v_min();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies Value max threshold and guaratees that Value max threshold is higher than Value min threshold */
     void slide_update_threshold_v_max();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Enables or disables Saturation frequency channel min and max from ui checkbox*/
     void actualize_frequency_channel_s();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Enables or disables Value frequency channel min and max from ui checkbox*/
     void actualize_frequency_channel_v();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Enables or disables Hue gaussian blur from ui checkbox*/
     void actualize_checkbox_h_gaussian_blur();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modified Hue blur size from ui value */
     void actualize_kernel_size_blur();
 
     /*!
-     * \brief TODO
+     * \brief Modifies p from ui value
      *
-     * \param value
+     * \param value the new value of p
      */
     void set_p(int value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Increment p by 1 on key shortcut */
     void increment_p();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Decrement p by 1 on key shortcut */
     void decrement_p();
 
     /*!
-     * \brief TODO
+     * \brief Modifies wave length (lambda)
      *
-     * \param value
+     * \param value the new value of lambda
      */
     void set_wavelength(double value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies z from ui value
      *
-     * \param value
+     * \param value the new value of z
      */
     void set_z(double value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Decrement z by 1 on key shortcut */
     void decrement_z();
 
     /*!
-     * \brief TODO
+     * \brief Modifies the z step on scroll
      *
-     * \param value
+     * \param value the new incrementation/decrementation step
      */
     void set_z_step(double value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies space transform calculation
      *
-     * \param value
+     * \param value The new space transform to apply
      */
     void set_space_transformation(QString value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies time transform calculation
      *
-     * \param value
+     * \param value The new time transform to apply
      */
     void set_time_transformation(QString value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables time transform cuts views
      *
-     * \param checked
+     * \param checked true: enable, false: disable
      */
     void toggle_time_transformation_cuts(bool checked);
 
