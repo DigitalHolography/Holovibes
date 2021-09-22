@@ -2529,6 +2529,7 @@ void MainWindow::browse_record_output_file()
 {
     QString filepath;
 
+    // Open file explorer dialog on the fly depending on the record mode
     if (record_mode_ == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
@@ -2554,16 +2555,31 @@ void MainWindow::browse_record_output_file()
     if (filepath.isEmpty())
         return;
 
+    // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
+
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     record_output_directory_ = path.parent_path().string();
-
+    /*  cppreference: https://en.cppreference.com/w/cpp/filesystem/path/extension
+     *  -> rightmost ".*":
+     *     std::filesystem::path("/foo/bar.mp4.holo.mp4").extension() -> ".mp4"
+     */
     const std::string file_ext = path.extension().string();
     std::string filename = path.filename().string();
+
+    // Get the first file_ext string position in filename
+    /* cppreference: https://www.cplusplus.com/reference/string/string/find/
+     *   std::string(/foo/bar.mp4.holo.mp4).find(".mp4") -> 8 corresponding to : /foo/bar(.mp4).holo.mp4
+     *
+     *  FIXME: Could be an unexpected behaviour
+     *  To conclude, the extension you get with "file_ext = path.extension().string()" is not always
+     *  the string you locate in "filename.find(file_ext)"
+     */
     std::size_t ext_pos = filename.find(file_ext);
     if (ext_pos != std::string::npos)
+        // if file_ext not found in filename
         filename.erase(ext_pos, file_ext.length());
 
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());

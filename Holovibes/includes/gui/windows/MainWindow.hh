@@ -531,10 +531,8 @@ class MainWindow : public QMainWindow, public Observer
      */
     void reticle_scale(double value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
+     * replacement*/
     void browse_record_output_file();
 
     /*!
