@@ -2483,6 +2483,8 @@ void MainWindow::start_chart_display()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_display_chart();
+
+    // Wait for the chart display to be enabled for notify
     while (pipe->get_chart_display_requested())
         continue;
 
@@ -2503,6 +2505,8 @@ void MainWindow::stop_chart_display()
     {
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_disable_display_chart();
+
+        // Wait for the chart display to be disabled for notify
         while (pipe->get_disable_chart_display_requested())
             continue;
     }
@@ -2591,9 +2595,12 @@ void MainWindow::browse_record_output_file()
 
 void MainWindow::browse_batch_input()
 {
+
+    // Open file explorer on the fly
     QString filename =
         QFileDialog::getOpenFileName(this, tr("Batch input file"), batch_input_directory_.c_str(), tr("All files (*)"));
 
+    // Output the file selected in he ui line edit widget
     QLineEdit* batch_input_line_edit = ui.BatchInputPathLineEdit;
     batch_input_line_edit->clear();
     batch_input_line_edit->insert(filename);

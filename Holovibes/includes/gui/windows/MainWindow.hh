@@ -536,73 +536,52 @@ class MainWindow : public QMainWindow, public Observer
     void browse_record_output_file();
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables number of frame restriction for recording
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_nb_frames_mode(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies the record mode
      *
-     * \param value
+     * \param value the new record mode
      */
     void set_record_mode(const QString& value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables square output checkbox depending on extensions
      *
-     * \param value
+     * \param value the given extension
      */
     void set_record_file_extension(const QString& value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Stops the record */
     void stop_record();
 
     /*!
-     * \brief TODO
+     * \brief Resets ui on record finished
      *
-     * \param record_mode
+     * \param record_mode the current record mode
      */
     void record_finished(RecordMode record_mode);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Starts recording */
     void start_record();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Browses output file */
     void browse_batch_input();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Creates Signal overlay */
     void activeSignalZone();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Creates Noise overlay */
     void activeNoiseZone();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Opens Chart window */
     void start_chart_display();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Closes Chart window */
     void stop_chart_display();
     /*! \} */
 
@@ -618,9 +597,9 @@ class MainWindow : public QMainWindow, public Observer
 #pragma region Protected / Private Methods
   protected:
     /*!
-     * \brief TODO
+     * \brief Last call before the program is closed
      *
-     * \param event
+     * \param event unused
      */
     virtual void closeEvent(QCloseEvent* event) override;
 
