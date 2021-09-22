@@ -348,7 +348,7 @@ class MainWindow : public QMainWindow, public Observer
     /*!
      * \brief Modifies time transform calculation
      *
-     * \param value The new time transform to apply
+     * \param value the new time transform to apply
      */
     void set_time_transformation(QString value);
 
@@ -359,124 +359,109 @@ class MainWindow : public QMainWindow, public Observer
      */
     void toggle_time_transformation_cuts(bool checked);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Disables time transform cuts views */
     void cancel_stft_slice_view();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies batch size from ui value */
     void update_batch_size();
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Modifies time transformation stride size from ui value */
     void update_time_transformation_stride();
 
     /*!
-     * \brief TODO
+     * \brief Modifies view image type
      *
-     * \param value
+     * \param value the new image type
      */
     void set_view_mode(QString value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables unwrapping 2d
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
-    void set_unwrapping_2d(const bool value);
+    void set_unwrapping_2d(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables accumulation for the current window
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_accumulation(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies the accumulation level on the current window
      *
-     * \param value
+     * \param value the new level value
      */
     void set_accumulation_level(int value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables the contrast mode and update the current focused window
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Enalbles auto-contrast */
     void set_auto_contrast();
 
     /*!
-     * \brief TODO
+     * \brief Modifies the min contrast value on the current window
      *
-     * \param value
+     * \param value the new min contrast value
      */
     void set_contrast_min(double value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies the max contrast value on the current window
      *
-     * \param value
+     * \param value the new max contrast value
      */
     void set_contrast_max(double value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables contrast invertion
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void invert_contrast(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables auto refresh contrast
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_auto_refresh_contrast(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables log scale on the current window
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_log_scale(bool value);
 
     /*!
-     * \brief TODO
+     * \brief Enables or Disables fft shift mode on the main display window
      *
-     * \param value
+     * \param value true: enable, false: disable
      */
     void set_fft_shift(bool value);
 
-    /*!
-     * \brief TODO
-     *
-     */
+    /*! \brief Make the ui compisite overlay visible */
     void set_composite_area();
 
     /*!
-     * \brief TODO
+     * \brief Modifies convolution kernel
      *
-     * \param value
+     * \param value the new kernel to apply
      */
     void update_convo_kernel(const QString& value);
 
     /*!
-     * \brief TODO
+     * \brief Modifies the z step on scroll
      *
-     * \param value
+     * \param value the new incrementation/decrementation step
      */
     void set_record_frame_step(int value);
 
@@ -525,44 +510,186 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief change the theme of the ui */
     void set_night();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void rotateTexture();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void flipTexture();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void display_reticle(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void reticle_scale(double value);
 
+    /*!
+     * \brief TODO
+     *
+     */
     void browse_record_output_file();
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_nb_frames_mode(bool value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_record_mode(const QString& value);
+
+    /*!
+     * \brief TODO
+     *
+     * \param value
+     */
     void set_record_file_extension(const QString& value);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void stop_record();
+
+    /*!
+     * \brief TODO
+     *
+     * \param record_mode
+     */
     void record_finished(RecordMode record_mode);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void start_record();
 
+    /*!
+     * \brief TODO
+     *
+     */
     void browse_batch_input();
 
+    /*!
+     * \brief TODO
+     *
+     */
     void activeSignalZone();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void activeNoiseZone();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void start_chart_display();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void stop_chart_display();
     /*! \} */
 
 #pragma endregion
     /* ---------- */
   signals:
+    /*!
+     * \brief TODO
+     *
+     * \param f
+     */
     void synchronize_thread_signal(std::function<void()> f);
 #pragma region Protected / Private Methods
   protected:
+    /*!
+     * \brief TODO
+     *
+     * \param event
+     */
     virtual void closeEvent(QCloseEvent* event) override;
 
   private:
+    /*!
+     * \brief TODO
+     *
+     */
     void set_raw_mode();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_holographic_mode();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_computation_mode();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_camera_timeout();
+
+    /*!
+     * \brief TODO
+     *
+     * \param c
+     */
     void change_camera(CameraKind c);
+
+    /*!
+     * \brief TODO
+     *
+     * \param msg
+     */
     void display_error(std::string msg);
+
+    /*!
+     * \brief TODO
+     *
+     * \param msg
+     */
     void display_info(std::string msg);
+
+    /*!
+     * \brief TODO
+     *
+     * \param path
+     */
     void open_file(const std::string& path);
+
+    /*!
+     * \brief TODO
+     *
+     * \param path
+     */
     void load_ini(const std::string& path);
 
     /*!
@@ -571,20 +698,73 @@ class MainWindow : public QMainWindow, public Observer
      * \param path the location of the .ini file saved
      */
     void save_ini(const std::string& path);
+
+    /*!
+     * \brief TODO
+     *
+     */
     void cancel_time_transformation_cuts();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void createPipe();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void createHoloWindow();
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void close_critical_compute();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void remove_infos();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void pipe_refresh();
+
+    /*!
+     * \brief TODO
+     *
+     */
     void set_auto_contrast_cuts();
 
     // Change the value without triggering any signals
+    /*!
+     * \brief TODO
+     *
+     * \param spinBox
+     * \param value
+     */
     void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+    /*!
+     * \brief TODO
+     *
+     * \param slider
+     * \param value
+     */
     void QSliderQuietSetValue(QSlider* slider, int value);
+    /*!
+     * \brief TODO
+     *
+     * \param spinBox
+     * \param value
+     */
     void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
 #pragma endregion

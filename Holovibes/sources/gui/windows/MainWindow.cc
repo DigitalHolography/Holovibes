@@ -2280,6 +2280,7 @@ void MainWindow::set_contrast_min(const double value)
     {
         if (cd_.contrast_enabled)
         {
+            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
             // Get the minimum contrast value rounded for the comparison
             const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
             // Floating number issue: cast to float for the comparison
@@ -2299,6 +2300,7 @@ void MainWindow::set_contrast_max(const double value)
     {
         if (cd_.contrast_enabled)
         {
+            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
             // Get the maximum contrast value rounded for the comparison
             const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
             // Floating number issue: cast to float for the comparison
@@ -2355,6 +2357,7 @@ void MainWindow::update_convo_kernel(const QString& value)
         {
             auto pipe = holovibes_.get_compute_pipe();
             pipe->request_convolution();
+            // Wait for the convolution to be enabled for notify
             while (pipe->get_convolution_requested())
                 continue;
         }
