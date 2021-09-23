@@ -91,7 +91,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { LOG_INFO << "Holovibes " << holovibes::version << std::endl; }
+static void print_version() { LOG_INFO << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
