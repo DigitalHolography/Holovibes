@@ -13,11 +13,10 @@ namespace holovibes::io_files
 class FileException : public std::exception
 {
   public:
-    /*!
-     *  \brief    Default constructor
+    /*! \brief Default constructor
      *
-     *  \param    error_msg        The message error of the exception
-     *  \param    display_errno    Should the error message specify the errno
+     * \param error_msg The message error of the exception
+     * \param display_errno Should the error message specify the errno
      */
     FileException(const std::string& error_msg, bool display_errno = true);
 

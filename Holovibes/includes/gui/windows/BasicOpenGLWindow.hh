@@ -26,13 +26,12 @@ namespace gui
  */
 enum class KindOfView
 {
-    Raw = 1,  /**< Simply displaying the input frames */
-    Hologram, /**< Applying the demodulation and computations on the input
-                 frames */
-    Lens,     /**< Displaying the FFT1/FFT2 lens view */
-    SliceXZ,  /**< Displaying the XZ view of the hologram */
-    SliceYZ,  /**< Displaying the YZ view of the hologram */
-    Filter2D, /**< Displaying the Filter2D view of the hologram */
+    Raw = 1,  /*!< Simply displaying the input frames */
+    Hologram, /*!< Applying the demodulation and computations on the input frames */
+    Lens,     /*!< Displaying the FFT1/FFT2 lens view */
+    SliceXZ,  /*!< Displaying the XZ view of the hologram */
+    SliceYZ,  /*!< Displaying the YZ view of the hologram */
+    Filter2D, /*!< Displaying the Filter2D view of the hologram */
 };
 
 /*! \class BasicOpenGLWindow
@@ -56,7 +55,9 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     const camera::FrameDescriptor& getFd() const;
     OverlayManager& getOverlayManager();
 
-    // Transform functions ------
+    /*! \name Transform functions
+     * \{
+     */
     virtual void resetTransform();
     void setScale(float);
     float getScale() const;
@@ -69,12 +70,13 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     const glm::mat3x3& getTransformMatrix() const;
     const glm::mat3x3& getTransformInverseMatrix() const;
+    /*! \} */
 
   protected:
-    // Fields -------------------
     Qt::WindowState winState;
     QPoint winPos;
-    //! Output queue filled in the computing pipeline
+
+    /*! \brief Output queue filled in the computing pipeline */
     DisplayQueue* output_;
     ComputeDescriptor* cd_;
     const camera::FrameDescriptor& fd_;
@@ -84,34 +86,46 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     virtual void setTransform();
 
-    // CUDA Objects -------------
+    /*! \name CUDA Objects
+     * \{
+     */
     cudaGraphicsResource_t cuResource;
     cudaStream_t cuStream;
+    /*! \} */
 
     void* cuPtrToPbo;
     size_t sizeBuffer;
 
-    // OpenGL Objects -----------
+    /*! \name OpenGL Objects
+     * \{
+     */
     QOpenGLShaderProgram* Program;
     QOpenGLVertexArrayObject Vao;
     GLuint Vbo, Ebo, Pbo;
     GLuint Tex;
+    /*! \} */
 
-    // Virtual Pure Functions ---
+    /*! \name Virtual Pure Functions
+     * \{
+     */
     virtual void initShaders() = 0;
     virtual void initializeGL() = 0;
     virtual void resizeGL(int width, int height);
     virtual void paintGL() = 0;
+    /*! \} */
 
-    // Event functions ----------
+    /*! \name Event functions
+     * \{
+     */
     void timerEvent(QTimerEvent* e);
     virtual void keyPressEvent(QKeyEvent* e);
     virtual bool eventFilter(QObject* obj, QEvent* event) override;
+    /*! \} */
 
   protected:
     glm::vec4 translate_;
     float scale_;
-    /// Angle in degree
+    /*! \brief Angle in degree */
     float angle_;
     bool flip_;
 

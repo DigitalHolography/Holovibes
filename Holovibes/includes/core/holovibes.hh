@@ -88,16 +88,19 @@ class Holovibes
   public:
     static Holovibes& instance();
 
-    /*! \{ \name Queue getters
-     *
-     * Used to record frames */
+    /*! \name Queue getters
+     * \{
+     */
+    /*! \brief Used to record frames */
     std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
 
-    /*! Used to display frames */
+    /*! \brief Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
     /*! \} */
 
-    /*! \{ \name Getters/Setters */
+    /*! \name Getters/Setters
+     * \{
+     */
     std::shared_ptr<ICompute> get_compute_pipe();
 
     /*! \return Common ComputeDescriptor */
@@ -107,34 +110,35 @@ class Holovibes
 
     /*! \brief Set ComputeDescriptor options
      *
-     * \param cd ComputeDescriptor to load
+     * Used when options are loaded from an INI file.
      *
-     * Used when options are loaded from an INI file. */
+     * \param cd ComputeDescriptor to load
+     */
     void set_cd(const ComputeDescriptor& cd);
 
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_path() const;
 
-    /*!
-     * \brief Get zb = N d^2 / lambda
+    /*! \brief Get zb = N d^2 / lambda
+     *
      * Is updated everytime the camera changes or lamdba changes
-     *  N = frame height
-     *  d = pixel size
-     *  lambda = wavelength
+     * N = frame height
+     * d = pixel size
+     * lambda = wavelength
+     *
      * \return const float
      */
-
     const float get_boundary();
 
-    /*!
-     * \brief Get the info container object
+    /*! \brief Get the info container object
      *
      * \return InformationContainer&
      */
     InformationContainer& get_info_container();
+    /*! \} */
 
-    /*!
-     * \brief Update the compute descriptor for CLI purpose
+    /*! \brief Update the compute descriptor for CLI purpose
+     *
      * Must be called before the initialization of the thread compute and
      * recorder
      *
@@ -142,15 +146,13 @@ class Holovibes
      */
     void update_cd_for_cli(const unsigned int input_fps);
 
-    /*!
-     * \brief Initializes the input queue
+    /*! \brief Initializes the input queue
      *
      * \param fd frame descriptor of the camera
      */
     void init_input_queue(const camera::FrameDescriptor& fd);
 
-    /*!
-     * \brief Sets and starts the file_read_worker attribute
+    /*! \brief Sets and starts the file_read_worker attribute
      *
      * \param file_path
      * \param loop
@@ -169,8 +171,7 @@ class Holovibes
         bool load_file_in_gpu,
         const std::function<void()>& callback = []() {});
 
-    /*!
-     * \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
+    /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
      *
      * \param camera_kind
@@ -179,13 +180,13 @@ class Holovibes
     void start_camera_frame_read(
         CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
-    /*!
-     * \brief Stops both read_worker, clears the info_container, resets the active camera and store the gpu_input_queue
+    /*! \brief Handle frame reading interruption
+     *
+     * Stops both read_worker, clears the info_container, resets the active camera and store the gpu_input_queue
      */
     void stop_frame_read();
 
-    /*!
-     * \brief
+    /*! \brief Initialize and start the frame record worker controller
      *
      * \param path
      * \param nb_frames_to_record
@@ -205,9 +206,8 @@ class Holovibes
     void stop_frame_record();
 
     void start_chart_record(
-        const std::string& path,
-        const unsigned int nb_points_to_record,
-        const std::function<void()>& callback = []() {});
+        const std::string& path, const unsigned int nb_points_to_record, const std::function<void()>& callback = []() {
+        });
 
     void stop_chart_record();
 
@@ -252,13 +252,14 @@ class Holovibes
     worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
     std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
 
-    /*! \{ \name Frames queue (GPU) */
+    /*! \name Frames queue (GPU)
+     * \{
+     */
     std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
 
-    /*! \brief Common compute descriptor shared between CLI/GUI and the
-     * Pipe. */
+    /*! \brief Common compute descriptor shared between CLI/GUI and the Pipe. */
     ComputeDescriptor cd_;
 
     CudaStreams cuda_streams_;

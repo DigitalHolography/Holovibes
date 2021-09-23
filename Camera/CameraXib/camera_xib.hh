@@ -20,7 +20,7 @@ class CameraXib : public Camera
 
     virtual ~CameraXib()
     {
-        /* Ensure that the camera is closed in case of exception. */
+        // Ensure that the camera is closed in case of exception.
         try
         {
             shutdown_camera();
@@ -43,28 +43,32 @@ class CameraXib : public Camera
     virtual void bind_params() override;
 
   private:
-    HANDLE device_; //!< Pointer to the camera Xiq object provided by the API.
-
-    XI_IMG frame_; //!< Buffer used for frame acquisition.
-
-    float gain_; //!< Gain in dB.
+    /*! \brief Pointer to the camera Xiq object provided by the API. */
+    HANDLE device_;
+    /*! \brief Buffer used for frame acquisition. */
+    XI_IMG frame_;
+    /*! \brief Gain in dB. */
+    float gain_;
 
     static const int real_width_ = 4704;
     static const int real_height_ = 3424;
 
-    /*!
+    /*! \brief Downsampling rate
+     *
      * * 1: 1x1 sensor pixel  = 1 image pixel
      * * 2: 2x2 sensor pixels = 1 image pixel
-     * * 4: 4x4 sensor pixels = 1 image pixel */
+     * * 4: 4x4 sensor pixels = 1 image pixel
+     */
     unsigned int downsampling_rate_;
 
-    //!< Downsampling method.
-    /*! * XI_BINNING  0: pixels are interpolated - better image
-     * * XI_SKIPPING 1 : pixels are skipped - higher frame rate */
+    /*! \brief Downsampling method.
+     * * XI_BINNING  0: pixels are interpolated - better image
+     * * XI_SKIPPING 1 : pixels are skipped - higher frame rate
+     */
     XI_DOWNSAMPLING_TYPE downsampling_type_;
 
-    //!< RAW, 8/16-bit...
-    /*!
+    /*! \brief RAW, 8/16-bit...
+     *
      * * XI_MONO8
      * * XI_MONO16
      * * XI_RAW8
@@ -72,8 +76,8 @@ class CameraXib : public Camera
      */
     XI_IMG_FORMAT img_format_;
 
-    //!< How the camera should manage its buffer(s).
-    /*!
+    /*! \brief How the camera should manage its buffer(s).
+     *
      * * XI_BP_UNSAFE: User gets pointer to internally allocated circular
      * buffer and data may be overwritten by device.
      * * XI_BP_SAFE: Data from device will be copied to user allocated buffer
@@ -81,22 +85,23 @@ class CameraXib : public Camera
      */
     XI_BP buffer_policy_;
 
-    //!< Activate a hardware/software trigger or not.
-    /*!
-     * * XI_TRG_OFF : Capture of next image is automatically started after
-     * previous.
-     * * XI_TRG_EDGE_RISING: Capture is started on rising edge of selected
-     * input.
-     * * XI_TRG_EDGE_FALLING: Capture is started on falling edge of selected
-     * input.
+    /*! \brief Activate a hardware/software trigger or not.
+     *
+     * * XI_TRG_OFF : Capture of next image is automatically started after previous.
+     * * XI_TRG_EDGE_RISING: Capture is started on rising edge of selected input.
+     * * XI_TRG_EDGE_FALLING: Capture is started on falling edge of selected input.
      * * XI_TRG_SOFTWARE: Capture is started with software trigger.
      */
     XI_TRG_SOURCE trigger_src_;
 
-    int roi_x_;      //!< ROI offset on X axis. Values start from 0.
-    int roi_y_;      //!< ROI offset on Y axis. Values start from 0.
-    int roi_width_;  //!< In pixels.
-    int roi_height_; //!< In pixels.
+    /*! \brief ROI offset on X axis. Values start from 0. */
+    int roi_x_;
+    /*! \brief ROI offset on Y axis. Values start from 0. */
+    int roi_y_;
+    /*! \brief In pixels. */
+    int roi_width_;
+    /*! \brief In pixels. */
+    int roi_height_;
 
     std::vector<char> buffer_rescale_;
 };

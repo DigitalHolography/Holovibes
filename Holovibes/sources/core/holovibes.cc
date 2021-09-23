@@ -55,7 +55,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
 {
-    assert(gpu_input_queue_.load() != nullptr);
+    CHECK(gpu_input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
@@ -67,22 +67,24 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 {
     try
     {
-        if (camera_kind == CameraKind::Adimec)
-            active_camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
-        else if (camera_kind == CameraKind::IDS)
-            active_camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-        else if (camera_kind == CameraKind::Phantom)
-            active_camera_ = camera::CameraDLL::load_camera("CameraPhantom.dll");
-        else if (camera_kind == CameraKind::BitflowCyton)
-            active_camera_ = camera::CameraDLL::load_camera("BitflowCyton.dll");
-        else if (camera_kind == CameraKind::Hamamatsu)
-            active_camera_ = camera::CameraDLL::load_camera("CameraHamamatsu.dll");
-        else if (camera_kind == CameraKind::xiQ)
-            active_camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
-        else if (camera_kind == CameraKind::xiB)
-            active_camera_ = camera::CameraDLL::load_camera("CameraXib.dll");
-        else
-            assert(!"Impossible case");
+        try
+        {
+            static std::map<CameraKind, std::string> camera_dictionary = {
+                {CameraKind::Adimec, "CameraAdimec.dll"},
+                {CameraKind::IDS, "CameraIds.dll"},
+                {CameraKind::Phantom, "CameraPhantom.dll"},
+                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
+                {CameraKind::xiQ, "CameraXiq.dll"},
+                {CameraKind::xiB, "CameraXib.dll"},
+            };
+            active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
+        }
+        catch (std::exception&)
+        {
+            // Should never happen
+            LOG_ERROR << "This camera is not handled." << std::endl;
+            throw;
+        }
 
         cd_.pixel_size = active_camera_->get_pixel_size();
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
@@ -160,7 +162,12 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
-    assert(gpu_input_queue_.load() && "Input queue not initialized");
+    /**
+     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * Here is a suggestion :
+     * CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
+     */
+    CHECK(gpu_input_queue_.load() != nullptr) << "Input queue not initialized";
 
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);

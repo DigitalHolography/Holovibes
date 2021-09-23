@@ -21,8 +21,8 @@ class GroupBox : public QGroupBox
 
   public:
     /*! \brief GroupBox constructor
-    ** \param parent Qt parent
-    */
+     * \param parent Qt parent
+     */
     GroupBox(QWidget* parent = nullptr);
     /*! \brief GroupBox destructor */
     ~GroupBox();

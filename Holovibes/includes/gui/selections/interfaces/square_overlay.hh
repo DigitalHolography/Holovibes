@@ -23,8 +23,7 @@ class SquareOverlay : public RectOverlay
 
     /*! \brief Check if corners don't go out of bounds. */
     void checkCorners() override;
-    /*! \brief Change the rectangular zone to a square zone, using the shortest
-     * side */
+    /*! \brief Change the rectangular zone to a square zone, using the shortest side */
     void make_square();
 
     virtual void move(QMouseEvent* e) override;

@@ -33,10 +33,10 @@ class RawWindow : public BasicOpenGLWindow
 
     int old_width = -1;
     int old_height = -1;
-    // it represents width/height of the Raw window
+    /*! \brief Width/height ratio of the Raw window */
     float ratio = 0.0f;
 
-    // bool represent if we are resizing the window or creating one
+    /*! If we are resizing the window or creating one */
     bool is_resize = true;
 
     const float translation_step_ = 0.05f;

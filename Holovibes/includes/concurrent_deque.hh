@@ -122,10 +122,10 @@ class ConcurrentDeque
     }
 
     /*! \brief Fill a given vector with deque values
-    **
-    ** \param vect Vector to fill
-    ** \param nb_elts Number of elements to copy
-    */
+     *
+     * \param vect Vector to fill
+     * \param nb_elts Number of elements to copy
+     */
     size_t fill_array(std::vector<T>& vect, size_t nb_elts)
     {
         LockGuard guard(mutex_);

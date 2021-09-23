@@ -37,6 +37,7 @@ set(HOLO_INCLUDES
     includes/tools/cuda_tools/
     includes/tools/units/
     includes/tools/check/
+    includes/tools/exception/
     GPIB/
 
     "${CMAKE_SOURCE_DIR}/libs/glm/"
@@ -243,8 +244,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
     # Copy not all but some resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/python/"
-                                               "${BUILD_DIR}/python/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/instruction_file_samples/"
                                                "${BUILD_DIR}/instruction_file_samples/"
 

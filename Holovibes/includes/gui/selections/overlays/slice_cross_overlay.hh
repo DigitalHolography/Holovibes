@@ -30,16 +30,16 @@ class SliceCrossOverlay : public RectOverlay
     void setBuffer() override;
 
   private:
-    //! Transparency of the borders
+    /*! \brief Transparency of the borders */
     float line_alpha_;
 
-    //! Vertices order for lines
+    /*! \brief Vertices order for lines */
     GLuint elemLineIndex_;
 
-    //! Locking line overlay
+    /*! \brief Locking line overlay */
     bool locked_;
 
-    //! pindex of the mouse position
+    /*! \brief pindex of the mouse position */
     units::PointFd pIndex_;
 };
 } // namespace gui

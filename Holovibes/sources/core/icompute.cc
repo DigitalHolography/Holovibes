@@ -13,7 +13,7 @@
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
-#include "custom_exception.hh"
+#include "update_exception.hh"
 #include "unique_ptr.hh"
 #include "pipe.hh"
 #include "logger.hh"
@@ -71,13 +71,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
 
     int output_buffer_size = gpu_input_queue_.get_frame_res();
     if (cd_.img_type == ImgType::Composite)
-        output_buffer_size *= 3;
+        image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_frame_res();
 
     if (cd_.img_type == ImgType::Composite)
-        buffers_.gpu_postprocess_frame_size *= 3;
+        image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
@@ -148,7 +148,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.pca_dev_info.resize(1);
     }
     else // Should not happend or be handled (if add more time transformation)
-        assert(false);
+        CHECK(false);
 
     try
     {
@@ -167,10 +167,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
 
     if (err_count != 0)
     {
-        pipe_error(err_count,
-                   CustomException("error in "
-                                   "update_time_transformation_size(time_transformation_size)",
-                                   error_kind::fail_update));
+        pipe_error(err_count, UpdateException("error in update_time_transformation_size(time_transformation_size)"));
         return false;
     }
 

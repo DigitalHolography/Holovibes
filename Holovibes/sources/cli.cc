@@ -35,11 +35,13 @@ static void progress_bar(int current, int total, int length)
     std::cout.flush();
 }
 
-static void print_verbose(const holovibes::OptionsDescriptor& opts)
+static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovibes::ComputeDescriptor& cd)
 {
     std::cout << "Config:\n";
-    auto ini_data = read_file<std::string>(opts.ini_path.value_or(GLOBAL_INI_PATH));
-    std::cout << ini_data << "\n\n";
+    boost::property_tree::ptree ptree;
+    holovibes::ini::save_ini(ptree, cd);
+    boost::property_tree::write_ini(std::cout, ptree);
+    std::cout << std::endl;
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
     std::cout << "Output file: " << opts.output_path.value() << "\n";
@@ -152,14 +154,19 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-    if (opts.verbose)
-    {
-        print_verbose(opts);
-    }
-
     auto& cd = holovibes.get_cd();
-    std::string ini_path = opts.ini_path.value_or(GLOBAL_INI_PATH);
-    holovibes::ini::load_ini(cd, ini_path);
+
+    if (opts.ini_path)
+    {
+        try
+        {
+            holovibes::ini::load_ini(cd, opts.ini_path.value());
+        }
+        catch (std::exception&)
+        {
+            LOG_WARN << "Configuration file not found, initialization with default values.";
+        }
+    }
 
     auto input_frame_file = open_input_file(holovibes, opts);
     size_t input_nb_frames = input_frame_file->get_total_nb_frames();
@@ -175,6 +182,11 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     holovibes.start_compute();
     set_parameters(holovibes, opts, record_nb_frames);
     start_record(holovibes, opts, record_nb_frames);
+    if (opts.verbose)
+    {
+        print_verbose(opts, cd);
+    }
+
     main_loop(holovibes);
 
     printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);

@@ -48,9 +48,10 @@ class OptionsParser
 
     OptionsParser& operator=(const OptionsParser&) = delete;
 
-    /*! \brief Parse the command line given by the user and
-     * fill the options descriptor. Will automatically call
-     * help/version print and exit. */
+    /*! \brief Parse the command line given by the user and fill the options descriptor.
+     *
+     * Will automatically call help/version print and exit.
+     */
     OptionsDescriptor parse(int argc, char* const argv[]);
 
     po::options_description get_opts_desc() const;

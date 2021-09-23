@@ -24,6 +24,8 @@
 #include "ini_config.hh"
 #include "tools.hh"
 #include "input_frame_file_factory.hh"
+#include "update_exception.hh"
+#include "accumulation_exception.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -129,13 +131,13 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception&)
     {
-        LOG_WARN << GLOBAL_INI_PATH << ": Configuration file not found. "
+        LOG_WARN << ::holovibes::ini::get_global_ini_path() << ": Configuration file not found. "
                  << "Initialization with default values.";
-        save_ini(GLOBAL_INI_PATH);
+        save_ini(::holovibes::ini::get_global_ini_path());
     }
 
     set_z_step(z_step_);
@@ -534,7 +536,8 @@ void MainWindow::notify_error(std::exception& e)
     CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
     if (err_ptr)
     {
-        if (err_ptr->get_kind() == error_kind::fail_update)
+        UpdateException* err_update_ptr = dynamic_cast<UpdateException*>(err_ptr);
+        if (err_update_ptr)
         {
             auto lambda = [this] {
                 // notify will be in close_critical_compute
@@ -551,7 +554,8 @@ void MainWindow::notify_error(std::exception& e)
             };
             synchronize_thread(lambda);
         }
-        auto lambda = [this, accu = err_ptr->get_kind() == error_kind::fail_accumulation] {
+
+        auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -586,7 +590,7 @@ void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
-    std::string msg = "Holovibes " + version +
+    std::string msg = "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
                       "\n\n"
 
                       "Developers:\n\n"
@@ -628,6 +632,8 @@ void MainWindow::credits()
                       "Romain Cancillière\n"
 
                       "Michael Atlan\n";
+
+    // Creation on the fly of the message box to display
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Information);
@@ -643,11 +649,12 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(GLOBAL_INI_PATH); }
+void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
 
 void MainWindow::write_ini()
 {
-    save_ini(GLOBAL_INI_PATH);
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
+    save_ini(holovibes::ini::get_global_ini_path());
     notify();
 }
 
@@ -656,7 +663,7 @@ void MainWindow::reload_ini()
     import_stop();
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception& e)
     {
@@ -789,7 +796,7 @@ void MainWindow::save_ini(const std::string& path)
 
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO << "Configuration file holovibes.ini overwritten";
+    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -818,8 +825,11 @@ void MainWindow::camera_none()
         holovibes_.stop_compute();
     holovibes_.stop_frame_read();
     remove_infos();
+
+    // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);
     is_enabled_camera_ = false;
+
     cd_.is_computation_stopped = true;
     notify();
 }
@@ -879,11 +889,12 @@ void MainWindow::reset()
     remove_infos();
     try
     {
-        load_ini(GLOBAL_INI_PATH);
+        load_ini(::holovibes::ini::get_global_ini_path());
     }
     catch (std::exception&)
     {
-        LOG_WARN << GLOBAL_INI_PATH << ": Config file not found. It will use the default values.";
+        LOG_WARN << ::holovibes::ini::get_global_ini_path()
+                 << ": Config file not found. It will use the default values.";
     }
     notify();
 }
@@ -895,7 +906,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         close_critical_compute();
     camera_none();
     remove_infos();
-    save_ini(GLOBAL_INI_PATH);
+    save_ini(::holovibes::ini::get_global_ini_path());
 }
 #pragma endregion
 /* ------------ */
@@ -922,8 +933,11 @@ void MainWindow::change_camera(CameraKind c)
             set_image_mode(nullptr);
             import_type_ = ImportType::Camera;
             kCamera = c;
+
+            // Make camera's settings menu accessible
             QAction* settings = ui.actionSettings;
             settings->setEnabled(true);
+
             cd_.is_computation_stopped = false;
             notify();
         }
@@ -1083,6 +1097,7 @@ void MainWindow::set_holographic_mode()
     }
     catch (std::runtime_error& e)
     {
+
         LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
@@ -1367,6 +1382,7 @@ void MainWindow::cancel_time_transformation_cuts()
         cancel_stft_slice_view();
         try
         {
+            // Wait for refresh to be enabled for notify
             while (holovibes_.get_compute_pipe()->get_refresh_request())
                 continue;
         }
@@ -1418,9 +1434,11 @@ void MainWindow::set_filter2d(bool checked)
         {
             const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
 
+            // Set the input box related to the filter2d
             ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
             set_filter2d_n2(ui.Filter2DN2SpinBox->value());
             set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+
             if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
                 pipe->autocontrast_end_pipe(WindowKind::XYview);
             cd_.filter2d_enabled = checked;
@@ -1435,14 +1453,19 @@ void MainWindow::disable_filter2d_view()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_filter2d_view();
+
+    // Wait for the filter2d view to be disabled for notify
     while (pipe->get_disable_filter2d_view_requested())
         continue;
 
     if (filter2d_window)
     {
+        // Remove the on triggered event
+
         disconnect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
     }
 
+    // Change the focused window
     change_window();
 
     notify();
@@ -1469,6 +1492,7 @@ void MainWindow::update_filter2d_view(bool checked)
                     ushort filter2d_window_height = fd.height;
                     get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
 
+                    // Wait for the filter2d view to be enabled for notify
                     while (pipe->get_filter2d_view_requested())
                         continue;
 
@@ -1618,6 +1642,7 @@ void MainWindow::update_lens_view(bool value)
             lens_window->setTitle("Lens view");
             lens_window->setCd(&cd_);
 
+            // when the window is destoryed, disable_lens_view() will be triggered
             connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
         catch (std::exception& e)
@@ -1658,6 +1683,8 @@ void MainWindow::update_raw_view(bool value)
 
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_raw_view();
+
+        // Wait for the raw view to be enabled for notify
         while (pipe->get_raw_view_requested())
             continue;
 
@@ -1692,6 +1719,8 @@ void MainWindow::disable_raw_view()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_raw_view();
+
+    // Wait for the raw view to be disabled for notify
     while (pipe->get_disable_raw_view_requested())
         continue;
 
@@ -1773,6 +1802,7 @@ void MainWindow::set_p(int value)
 
 void MainWindow::set_composite_intervals()
 {
+    // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
     cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
     cd_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
@@ -1903,14 +1933,19 @@ void slide_update_threshold(QSlider& slider,
                             std::atomic<float>& lower_bound,
                             std::atomic<float>& upper_bound)
 {
+    // Store the slider value in cd_ (ComputeDescriptor)
     receiver = slider.value() / 1000.0f;
+
     char array[10];
     sprintf_s(array, "%d", slider.value());
     fancy_Qslide_text_percent(array);
     to_be_written_in.setText(QString(array));
+
     if (lower_bound > upper_bound)
     {
+        // FIXME bound_to_update = receiver ?
         bound_to_update = slider.value() / 1000.0f;
+
         slider_to_update.setValue(slider.value());
     }
 }
@@ -2125,6 +2160,10 @@ void MainWindow::pipe_refresh()
     {
         try
         {
+            // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
+            // operation to set a boolean
+            // But maybe a simple read access that create a false condition result is better than simply making a
+            // writting access
             if (!holovibes_.get_compute_pipe()->get_request_refresh())
                 holovibes_.get_compute_pipe()->request_refresh();
         }
@@ -2250,6 +2289,7 @@ void MainWindow::set_contrast_min(const double value)
     {
         if (cd_.contrast_enabled)
         {
+            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
             // Get the minimum contrast value rounded for the comparison
             const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
             // Floating number issue: cast to float for the comparison
@@ -2269,6 +2309,7 @@ void MainWindow::set_contrast_max(const double value)
     {
         if (cd_.contrast_enabled)
         {
+            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
             // Get the maximum contrast value rounded for the comparison
             const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
             // Floating number issue: cast to float for the comparison
@@ -2325,6 +2366,7 @@ void MainWindow::update_convo_kernel(const QString& value)
         {
             auto pipe = holovibes_.get_compute_pipe();
             pipe->request_convolution();
+            // Wait for the convolution to be enabled for notify
             while (pipe->get_convolution_requested())
                 continue;
         }
@@ -2382,6 +2424,7 @@ void MainWindow::set_fast_pipe(bool value)
     if (pipe && value)
     {
         pipe->insert_fn_end_vect([=]() {
+            // Constraints linked with fast pipe option
             cd_.time_transformation_stride = cd_.batch_size.load();
             cd_.time_transformation_size = cd_.batch_size.load();
             pipe->request_update_time_transformation_stride();
@@ -2448,6 +2491,8 @@ void MainWindow::start_chart_display()
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_display_chart();
+
+    // Wait for the chart display to be enabled for notify
     while (pipe->get_chart_display_requested())
         continue;
 
@@ -2468,6 +2513,8 @@ void MainWindow::stop_chart_display()
     {
         auto pipe = holovibes_.get_compute_pipe();
         pipe->request_disable_display_chart();
+
+        // Wait for the chart display to be disabled for notify
         while (pipe->get_disable_chart_display_requested())
             continue;
     }
@@ -2494,6 +2541,7 @@ void MainWindow::browse_record_output_file()
 {
     QString filepath;
 
+    // Open file explorer dialog on the fly depending on the record mode
     if (record_mode_ == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
@@ -2519,16 +2567,31 @@ void MainWindow::browse_record_output_file()
     if (filepath.isEmpty())
         return;
 
+    // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
+
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     record_output_directory_ = path.parent_path().string();
-
+    /*  cppreference: https://en.cppreference.com/w/cpp/filesystem/path/extension
+     *  -> rightmost ".*":
+     *     std::filesystem::path("/foo/bar.mp4.holo.mp4").extension() -> ".mp4"
+     */
     const std::string file_ext = path.extension().string();
     std::string filename = path.filename().string();
+
+    // Get the first file_ext string position in filename
+    /* cppreference: https://www.cplusplus.com/reference/string/string/find/
+     *   std::string(/foo/bar.mp4.holo.mp4).find(".mp4") -> 8 corresponding to : /foo/bar(.mp4).holo.mp4
+     *
+     *  FIXME: Could be an unexpected behaviour
+     *  To conclude, the extension you get with "file_ext = path.extension().string()" is not always
+     *  the string you locate in "filename.find(file_ext)"
+     */
     std::size_t ext_pos = filename.find(file_ext);
     if (ext_pos != std::string::npos)
+        // if file_ext not found in filename
         filename.erase(ext_pos, file_ext.length());
 
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
@@ -2540,9 +2603,12 @@ void MainWindow::browse_record_output_file()
 
 void MainWindow::browse_batch_input()
 {
+
+    // Open file explorer on the fly
     QString filename =
         QFileDialog::getOpenFileName(this, tr("Batch input file"), batch_input_directory_.c_str(), tr("All files (*)"));
 
+    // Output the file selected in he ui line edit widget
     QLineEdit* batch_input_line_edit = ui.BatchInputPathLineEdit;
     batch_input_line_edit->clear();
     batch_input_line_edit->insert(filename);
@@ -2742,18 +2808,23 @@ void MainWindow::import_browse_file()
 {
     QString filename = "";
 
+    // Open the file explorer to let the user pick his file
+    // and store the chosen file in filename
     filename = QFileDialog::getOpenFileName(this,
                                             tr("import file"),
                                             file_input_directory_.c_str(),
                                             tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
                                                "(*.cine)"));
 
+    // Start importing the chosen
     import_file(filename);
 }
 
 void MainWindow::import_file(const QString& filename)
 {
+    // Get the widget (output bar) from the ui linked to the file explorer
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
+    // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
@@ -2761,21 +2832,31 @@ void MainWindow::import_file(const QString& filename)
     {
         try
         {
+            // Will throw if the file format (extension) cannot be handled
             io_files::InputFrameFile* input_file = io_files::InputFrameFileFactory::open(filename.toStdString());
+
+            // Gather data from the newly opened file
             size_t nb_frames = input_file->get_total_nb_frames();
             file_fd_ = input_file->get_frame_descriptor();
             input_file->import_compute_settings(cd_);
+
+            // Don't need the input file anymore
             delete input_file;
 
+            // Update the ui with the gathered data
             ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
             ui.ImportEndIndexSpinBox->setValue(nb_frames);
 
+            // We can now launch holovibes over this file
             set_start_stop_buttons(true);
         }
         catch (const io_files::FileException& e)
         {
+            // In case of bad format, we triggered the user
             QMessageBox messageBox;
             messageBox.critical(nullptr, "File Error", e.what());
+
+            // Holovibes cannot be launched over this file
             set_start_stop_buttons(false);
         }
     }
@@ -2793,6 +2874,9 @@ void MainWindow::import_stop()
     holovibes_.start_information_display(false);
 
     close_critical_compute();
+
+    // FIXME: import_stop() and camera_none() call same methods
+    // FIXME: camera_none() weird call because we are dealing with imported file
     camera_none();
 
     cd_.is_computation_stopped = true;
@@ -2809,9 +2893,11 @@ void MainWindow::import_start()
     move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
 
     if (!cd_.is_computation_stopped)
+        // if computation is running
         import_stop();
 
     cd_.is_computation_stopped = false;
+    // Gather all the usefull data from the ui import panel
     init_holovibes_import_mode();
 
     ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
@@ -2819,19 +2905,23 @@ void MainWindow::import_start()
 
 void MainWindow::init_holovibes_import_mode()
 {
+    // Get all the useful ui items
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
+    // Set the image rendering ui params
     cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
     cd_.batch_size = 1;
 
+    // Because we are in import mode
     is_enabled_camera_ = false;
 
     try
     {
+        // Gather data from import panel
         std::string file_path = import_line_edit->text().toUtf8();
         unsigned int fps = fps_spinbox->value();
         size_t first_frame = start_spinbox->value();
@@ -2866,8 +2956,10 @@ void MainWindow::init_holovibes_import_mode()
     is_enabled_camera_ = true;
     set_image_mode(nullptr);
 
+    // Make camera's settings menu unaccessible
     QAction* settings = ui.actionSettings;
     settings->setEnabled(false);
+
     import_type_ = ImportType::File;
 
     notify();
@@ -2896,6 +2988,7 @@ void MainWindow::import_end_spinbox_update()
 #pragma region Themes
 void MainWindow::set_night()
 {
+    // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     QPalette darkPalette;
@@ -2924,6 +3017,7 @@ void MainWindow::set_night()
 void MainWindow::set_classic()
 {
     qApp->setPalette(this->style()->standardPalette());
+    // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
     theme_index_ = 0;
