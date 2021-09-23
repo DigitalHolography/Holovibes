@@ -94,8 +94,8 @@ units::PointWindow Overlay::getMousePos(const QPoint& pos)
 
 void Overlay::print()
 {
-    std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_ << ", active: " << active_ << ", display: " << display_
-              << std::endl;
+    LOG_INFO << "Kind: " << kOverlay_ << ", zone: " << zone_ << ", active: " << active_ << ", display: " << display_
+             << std::endl;
 }
 } // namespace gui
 } // namespace holovibes

@@ -667,7 +667,7 @@ void MainWindow::reload_ini()
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        LOG_INFO << e.what() << std::endl;
     }
     if (import_type_ == ImportType::File)
     {
@@ -1248,7 +1248,7 @@ void MainWindow::update_batch_size()
             });
         }
         else
-            std::cout << "COULD NOT GET PIPE" << std::endl;
+            LOG_INFO << "COULD NOT GET PIPE" << std::endl;
     }
 }
 
@@ -1307,7 +1307,7 @@ void MainWindow::update_time_transformation_stride()
             });
         }
         else
-            std::cout << "COULD NOT GET PIPE" << std::endl;
+            LOG_INFO << "COULD NOT GET PIPE" << std::endl;
     }
 }
 
@@ -1365,7 +1365,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
         }
         catch (std::logic_error& e)
         {
-            std::cerr << e.what() << std::endl;
+            LOG_ERROR << e.what() << std::endl;
             cancel_stft_slice_view();
         }
     }
@@ -1511,7 +1511,7 @@ void MainWindow::update_filter2d_view(bool checked)
             }
             catch (std::exception& e)
             {
-                std::cerr << e.what() << std::endl;
+                LOG_ERROR << e.what() << std::endl;
             }
         }
 
@@ -1647,7 +1647,7 @@ void MainWindow::update_lens_view(bool value)
         }
         catch (std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            LOG_ERROR << e.what() << std::endl;
         }
     }
 
@@ -2278,7 +2278,7 @@ void MainWindow::set_auto_contrast()
         }
         catch (std::runtime_error& e)
         {
-            std::cerr << e.what() << std::endl;
+            LOG_ERROR << e.what() << std::endl;
         }
     }
 }
