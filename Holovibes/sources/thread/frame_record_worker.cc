@@ -113,8 +113,8 @@ void FrameRecordWorker::run()
 
     if (record_queue.has_overridden())
     {
-        LOG_ERROR << "[RECORDER] Record queue overloaded, data has been lost! "
-                  "Try to resize record buffer";
+        LOG_INFO << "[RECORDER] Record buffer is full! "
+                    "Resize record buffer if more data is needed.";
     }
 
     reset_gpu_record_queue(pipe);

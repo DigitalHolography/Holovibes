@@ -16,17 +16,17 @@ class ChartRecordWorker : public Worker
 {
   public:
     /*!
-     *  \param path Output record path
-     *  \param nb_frames_to_record Number of points to record
+     * \param path Output record path
+     * \param nb_frames_to_record Number of points to record
      */
     ChartRecordWorker(const std::string& path, const unsigned int nb_frames_to_record);
 
     void run() override;
 
   private:
-    //! Output record path
+    /*! \brief Output record path */
     const std::string path_;
-    //! Number of points to record
+    /*! \brief Number of points to record */
     const unsigned int nb_frames_to_record_;
 };
 } // namespace holovibes::worker

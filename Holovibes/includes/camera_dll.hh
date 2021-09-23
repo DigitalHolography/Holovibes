@@ -26,13 +26,17 @@ class CameraDLL
 {
   public:
     /*! \brief Return an specialize instance of ICamera contained in dll file.
-     *  \param dll_filepath Path to the dll file.
-     *  \return shared_ptr on ICamera who FreeLibrary on reset().
+     *
+     * \param dll_filepath Path to the dll file.
+     * \return shared_ptr on ICamera who FreeLibrary on reset().
      */
     static std::shared_ptr<ICamera> load_camera(const std::string& dll_filepath);
 
   private:
-    /*! \brief Custom deleter that will delete the camera and the DLL handle. */
+    /*! \class DeleterDLL
+     *
+     * \brief Custom deleter that will delete the camera and the DLL handle.
+     */
     class DeleterDLL
     {
       public:

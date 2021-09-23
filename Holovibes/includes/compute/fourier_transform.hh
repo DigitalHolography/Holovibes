@@ -30,9 +30,7 @@ namespace compute
 class FourierTransform
 {
   public:
-    /*! \brief Constructor.
-
-    */
+    /*! \brief Constructor */
     FourierTransform(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
@@ -42,99 +40,79 @@ class FourierTransform
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream);
 
-    /*! \brief enqueue functions relative to spatial fourier transforms.
-
-    */
+    /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft();
 
-    /*! \brief enqueue functions that store the p frame after the time
-       transformation.
-
-    */
+    /*! \brief enqueue functions that store the p frame after the time transformation. */
     void insert_store_p_frame();
 
-    /*! \brief Get Lens Queue used to display the Fresnel lens.
-
-    */
+    /*! \brief Get Lens Queue used to display the Fresnel lens. */
     std::unique_ptr<Queue>& get_lens_queue();
 
-    /*! \brief enqueue functions relative to temporal fourier transforms.
-
-    */
+    /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform();
 
-    /*! \brief Enqueue functions relative to time transformation cuts display
-       when there are activated
-
-    */
+    /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view();
 
   private:
-    /*! \brief Enqueue the call to filter2d cuda function.
-
-    */
+    /*! \brief Enqueue the call to filter2d cuda function. */
     void insert_filter2d();
 
-    /*! \brief Compute lens and enqueue the call to fft1 cuda function.
-
-    */
+    /*! \brief Compute lens and enqueue the call to fft1 cuda function. */
     void insert_fft1();
 
-    /*! \brief Compute lens and enqueue the call to fft2 cuda function.
-
-    */
+    /*! \brief Compute lens and enqueue the call to fft2 cuda function. */
     void insert_fft2();
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
-
-            It will enqueue the lens, and normalize it, in order to display it
-       correctly later.
-    */
+     *
+     * It will enqueue the lens, and normalize it, in order to display it correctly later.
+     */
     void enqueue_lens();
 
-    /*! \brief Enqueue stft time filtering.
-
-     */
+    /*! \brief Enqueue stft time filtering. */
     void insert_stft();
 
-    /*! \brief Enqueue functions relative to filtering using diagonalization and
-       eigen values. This should eventually replace stft
-    */
+    /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
+     *
+     * This should eventually replace stft
+     */
     void insert_pca();
 
     void insert_ssa_stft();
 
-    //! Roi zone of Filter 2D
+    /*! \brief Roi zone of Filter 2D */
     units::RectFd filter2d_zone_;
     units::RectFd filter2d_subzone_;
 
-    //! Lens used for fresnel transform (During FFT1 and FFT2)
+    /*! \brief Lens used for fresnel transform (During FFT1 and FFT2) */
     cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
-    //! Size of a size of the lens (lens is always a square)
+    /*! \brief Size of a size of the lens (lens is always a square) */
     uint lens_side_size_ = {0};
-    //! Lens Queue. Used for displaying the lens.
+    /*! \brief Lens Queue. Used for displaying the lens. */
     std::unique_ptr<Queue> gpu_lens_queue_;
 
-    //! Size of the buffer needed by cusolver for internal use
+    /*! \brief Size of the buffer needed by cusolver for internal use */
     int cusolver_work_buffer_size_;
-    //! Buffer needed by cusolver for internal use
+    /*! \brief Buffer needed by cusolver for internal use */
     cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
 
-    /// Vector function in which we insert the processing
+    /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
-    //! Main buffers
+    /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
-    /// Describes the frame size
+    /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
-    //! Compute Descriptor
+    /*! \brief Compute Descriptor */
     ComputeDescriptor& cd_;
-    //! Pland 2D. Used by FFTs (1, 2, filter2D).
+    /*! \brief Pland 2D. Used by FFTs (1, 2, filter2D). */
     cuda_tools::CufftHandle& spatial_transformation_plan_;
-    //! Batch environment.
+    /*! \brief Batch environment. */
     const BatchEnv& batch_env_;
-    //! Time transformation environment.
+    /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
-    /// Compute stream to perform  pipe computation
+    /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 };
 } // namespace compute

@@ -24,11 +24,10 @@ namespace worker
 class CameraFrameReadWorker : public FrameReadWorker
 {
   public:
-    /*!
-     *  \brief    Constructor
+    /*! \brief Constructor
      *
-     *  \param    camera            The camera used
-     *  \param    gpu_input_queue   The input queue
+     * \param camera The camera used
+     * \param gpu_input_queue The input queue
      */
     CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
                           std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
@@ -36,7 +35,7 @@ class CameraFrameReadWorker : public FrameReadWorker
     void run() override;
 
   private:
-    //! The camera giving the images
+    /*! \brief The camera giving the images */
     std::shared_ptr<camera::ICamera> camera_;
 
     void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const camera::FrameDescriptor& camera_fd);

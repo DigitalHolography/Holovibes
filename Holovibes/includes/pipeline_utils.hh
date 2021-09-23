@@ -8,10 +8,10 @@
 
 namespace holovibes
 {
-//!< A single procedure.
+/*! \brief A single procedure. */
 using FnType = std::function<void()>;
-//!< A procedure vector.
+/*! \brief A procedure vector. */
 using FnVector = std::vector<FnType>;
-//!< A procedure deque.
+/*! \brief A procedure deque. */
 using FnDeque = std::deque<FnType>;
 } // namespace holovibes

@@ -21,8 +21,8 @@ class Frame : public QFrame
 
   public:
     /*! \brief Frame constructor
-    ** \param parent Qt parent
-    */
+     * \param parent Qt parent
+     */
     Frame(QWidget* parent = nullptr);
     /*! \brief Frame destructor */
     ~Frame();

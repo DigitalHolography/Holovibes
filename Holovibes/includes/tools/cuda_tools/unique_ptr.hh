@@ -12,7 +12,6 @@
 #include "logger.hh"
 #include "common.cuh"
 
-/*! \brief #TODO Add a description for this namespace */
 namespace holovibes
 {
 /*! \brief Contains memory handlers for cuda buffers. */
@@ -61,21 +60,20 @@ class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
     {
     }
 
-    /// Implicit cast operator
+    /*! \brief Implicit cast operator */
     operator T*() { return get(); }
 
-    /// Implicit cast operator
+    /*! \brief Implicit cast operator */
     operator T*() const { return get(); }
 
-    /// Allocates an array of size sizeof(T) * size
+    /*! \brief Allocates an array of size sizeof(T) * size */
     UniquePtr(const size_t size)
         : base(nullptr, cudaFree)
     {
         resize(size);
     }
 
-    /// Allocates an array of size sizeof(T) * size, free the old pointer if not
-    /// null
+    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
     {
         T* tmp;

@@ -17,8 +17,7 @@ class Observer
   public:
     /*! \brief Notify method called when Observable class change.
      *
-     * Mandatory method that is called when an Observable object has changed of
-     * state.
+     * Mandatory method that is called when an Observable object has changed of state.
      */
     virtual void notify() = 0;
 

@@ -10,7 +10,7 @@
 
 namespace gpib
 {
-//!< A connection is composed of a VISA session and a device address.
+/*! \brief A connection is composed of a VISA session and a device address. */
 using instrument = std::pair<ViSession, unsigned>;
 
 struct VisaInterface::VisaPimpl
@@ -22,13 +22,18 @@ struct VisaInterface::VisaPimpl
     {
     }
 
-    ViStatus status_; //!< Error status
+    /*! \brief Error status */
+    ViStatus status_;
 
-    ViSession default_rm_;             //!< Session used to open/close the VISA driver.
-    std::vector<instrument> sessions_; //!< Active connections.
+    /*! \brief Session used to open/close the VISA driver. */
+    ViSession default_rm_;
+    /*! \brief Active connections. */
+    std::vector<instrument> sessions_;
 
-    ViPUInt32 ret_count_; //!< Counting the number of characters returned by a read.
-    ViPByte buffer_;      //!< Buffer used for writing/reading.
+    /*! \brief Counting the number of characters returned by a read. */
+    ViPUInt32 ret_count_;
+    /*! \brief Buffer used for writing/reading. */
+    ViPByte buffer_;
 };
 
 VisaInterface::VisaInterface()
@@ -94,7 +99,8 @@ void VisaInterface::execute_instrument_command(const BatchCommand& instrument_co
     assert(instrument_command.type == BatchCommand::INSTRUMENT_COMMAND);
 
     /* If this is the first time a command is issued, the connexion
-     * with the VISA interface must be set up. */
+     * with the VISA interface must be set up.
+     */
     if (!pimpl_->buffer_)
     {
         try
@@ -107,7 +113,8 @@ void VisaInterface::execute_instrument_command(const BatchCommand& instrument_co
         }
     }
     /* If a connexion to this instrument address is not opened,
-     * do it and register the new session. */
+     * do it and register the new session.
+     */
     if (std::find_if(pimpl_->sessions_.begin(),
                      pimpl_->sessions_.end(),
                      [&instrument_command](instrument& instr)
@@ -143,7 +150,8 @@ void VisaInterface::initialize_line()
 void VisaInterface::close_line()
 {
     /* VisaPimpl's buffer's allocation assures Visa has been used,
-     * and so that a connection was set up. */
+     * and so that a connection was set up.
+     */
     if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
         std::cerr << "[GPIB] Could not close connection to VISA driver." << std::endl;
 }

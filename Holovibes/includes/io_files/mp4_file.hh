@@ -13,24 +13,16 @@ namespace holovibes::io_files
 class Mp4File
 {
   protected:
-    /*!
-     *  \brief    Default constructor
-     */
+    /*! \brief Default constructor */
     Mp4File() = default;
 
-    /*!
-     *  \brief    Abstract destructor to make class abstract
-     */
+    /*! \brief Abstract destructor to make class abstract */
     virtual ~Mp4File() = 0;
 
-    /*!
-     *  \brief    Default copy constructor
-     */
+    /*! \brief Default copy constructor */
     Mp4File(const Mp4File&) = default;
 
-    /*!
-     *  \brief    Default copy operator
-     */
+    /*! \brief Default copy operator */
     Mp4File& operator=(const Mp4File&) = default;
 };
 } // namespace holovibes::io_files

@@ -14,23 +14,17 @@ namespace holovibes::worker
 class Worker
 {
   public:
-    /*!
-     *  \brief    Default constructor
-     */
+    /*! \brief Default constructor */
     Worker() = default;
 
-    /*!
-     *  \brief    Stop the execution of the worker
-     */
+    /*! \brief Stop the execution of the worker */
     virtual void stop();
 
-    /*!
-     *  \brief    Core method of the worker, main method of its execution
-     */
+    /*! \brief Core method of the worker, main method of its execution */
     virtual void run() = 0;
 
   protected:
-    //! Whether the worker should stop its execution
+    /*! \brief Whether the worker should stop its execution */
     std::atomic<bool> stop_requested_{false};
 };
 } // namespace holovibes::worker

@@ -8,7 +8,7 @@
 
 /*! \class Chrono
  *
- * \brief #TODO Add a description for this class
+ * \brief Wrapper around the chrono library
  */
 class Chrono
 {
@@ -24,13 +24,10 @@ class Chrono
         start_ = std::chrono::steady_clock::now();
     }
 
-    /*!
-     * \brief Stops the chronometer
-     */
+    /*! \brief Stops the chronometer */
     void stop() { end_ = std::chrono::steady_clock::now(); }
 
-    /*!
-     * \brief Get the seconds object
+    /*! \brief Get the seconds object
      *
      * \return size_t seconds elapsed
      */
@@ -41,8 +38,7 @@ class Chrono
         return std::chrono::duration_cast<std::chrono::seconds>(end_ - start_).count();
     }
 
-    /*!
-     * \brief Get the milliseconds object
+    /*! \brief Get the milliseconds object
      *
      * \return size_t milliseconds elapsed
      */
@@ -53,8 +49,7 @@ class Chrono
         return std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
     }
 
-    /*!
-     * \brief Get the microseconds object
+    /*! \brief Get the microseconds object
      *
      * \return size_t microseconds elapsed
      */
@@ -65,8 +60,7 @@ class Chrono
         return std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
     }
 
-    /*!
-     * \brief Get the nanoseconds object
+    /*! \brief Get the nanoseconds object
      *
      * \return size_t nanoseconds elapsed
      */
@@ -78,8 +72,8 @@ class Chrono
     }
 
   private:
-    //! Current clock time when the Chrono object is started
+    /*! \brief Current clock time when the Chrono object is started */
     std::chrono::time_point<std::chrono::steady_clock> start_;
-    //! Current clock time when the Chrono object is stopped
+    /*! \brief Current clock time when the Chrono object is stopped */
     std::chrono::time_point<std::chrono::steady_clock> end_;
 };

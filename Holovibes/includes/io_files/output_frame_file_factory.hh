@@ -21,38 +21,25 @@ class OutputFrameFile;
 class OutputFrameFileFactory
 {
   public:
-    /*!
-     *  \brief    Deleted default constructor
-     */
+    /*! \brief Deleted default constructor */
     OutputFrameFileFactory() = delete;
 
-    /*!
-     *  \brief    Deleted default destructor
-     */
+    /*! \brief Deleted default destructor */
     ~OutputFrameFileFactory() = delete;
 
-    /*!
-     *  \brief    Deleted default copy constructor
-     */
+    /*! \brief Deleted default copy constructor */
     OutputFrameFileFactory(const OutputFrameFileFactory&) = delete;
 
-    /*!
-     *  \brief    Deleted default copy operator
-     */
+    /*! \brief Deleted default copy operator */
     OutputFrameFileFactory& operator=(const OutputFrameFileFactory&) = delete;
 
-    /*!
-     *  \brief    Create an output file
+    /*! \brief    Create an output file
      *
-     *  \details  This methods allocates the output file attribute.
-     *            Thus, it must be called before the other methods
+     * This methods allocates the output file attribute.
+     * Thus, it must be called before the other methods
      *
-     *
-     *  \param    file_path    The path of the file to create,
-     *                         the extension must be supported
-     *
-     *  \throw    FileException if the OutputFrameFile is not created
-     *            or if the file extension is not supported
+     * \param file_path The path of the file to create, the extension must be supported
+     * \throw FileException if the OutputFrameFile is not created or if the file extension is not supported
      */
     static OutputFrameFile* create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
 };
