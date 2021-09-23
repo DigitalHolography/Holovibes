@@ -125,7 +125,7 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 {
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue_output();
+    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(4, stream_);
 
@@ -172,7 +172,7 @@ void FrameRecordWorker::reset_gpu_record_queue(std::shared_ptr<ICompute> pipe)
     while (pipe->get_disable_frame_record_requested() && !stop_requested_)
         continue;
 
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue_output();
+    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(global::global_config.output_queue_max_size, stream_);
 
