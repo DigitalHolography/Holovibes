@@ -169,16 +169,18 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     return 0;
 }
 
-float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind, const int precision) const
+float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind,
+                                                   const int precision) const
 {
-    float value = get_contrast_min(kind);
+    float value = get_contrast_max(kind);
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind, const int precision) const
+float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
+                                                   const int precision) const
 {
-    float value = get_contrast_max(kind);
+    float value = get_contrast_min(kind);
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }

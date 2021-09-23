@@ -23,10 +23,10 @@ class FunctionVector : public FnVector
 
     ~FunctionVector() = default;
 
-    /*!
-    ** \brief Push back the function in the vector.
-    ** Execute it only if the condition is verified.
-    */
+    /*! \brief Push back the function in the vector.
+     *
+     * Execute it only if the condition is verified.
+     */
     void conditional_push_back(const FnType& function);
 
   private:

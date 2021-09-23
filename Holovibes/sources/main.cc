@@ -60,7 +60,9 @@ static void check_cuda_graphic_card(bool gui)
 static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
     QLocale::setDefault(QLocale("en_US"));
+    // Create the Qt app
     QApplication app(argc, argv);
+
     check_cuda_graphic_card(true);
     QSplashScreen splash(QPixmap("holovibes_logo.png"));
     splash.show();
@@ -70,6 +72,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     HMENU hmenu = GetSystemMenu(hwnd, FALSE);
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
+    // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window(holovibes);
     window.show();
     splash.finish(&window);
@@ -84,6 +87,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
         window.import_start();
     }
 
+    // Launch the Qt app
     return app.exec();
 }
 

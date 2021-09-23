@@ -483,7 +483,7 @@ EXTRACT_ALL            = NO
 # be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 
 # If the EXTRACT_PRIV_VIRTUAL tag is set to YES, documented private virtual
 # methods of a class will be included in the documentation.
@@ -871,9 +871,11 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../../Holovibes/includes ../../Holovibes/cuda_includes \
+INPUT                  = ../../Holovibes/includes ../../Holovibes/cuda_includes ../../Camera \
                          ../../README.md ../../AUTHORS.md ../../DEVELOPERS.md \
-                         ../../CONTRIBUTING.md ../../CHANGELOG.md
+                         ../../CONTRIBUTING.md ../../CHANGELOG.md \
+                         ./DOCUMENTING.md
+                         
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1100,7 +1102,7 @@ INLINE_SOURCES         = NO
 # Fortran comments will always remain visible.
 # The default value is: YES.
 
-STRIP_CODE_COMMENTS    = YES
+STRIP_CODE_COMMENTS    = NO
 
 # If the REFERENCED_BY_RELATION tag is set to YES then for each documented
 # entity all documented functions referencing it will be listed.

@@ -37,10 +37,10 @@ class Point
     {
     }
 
-    /*! \brief Constructs a point from the needed conversion data and two
-     * primary types
-     */
-    Point(ConversionData data, typename T::primary_type x = 0, typename T::primary_type y = 0)
+    /*! \brief Constructs a point from the needed conversion data and two primary types */
+    Point(ConversionData data,
+          typename T::primary_type x = 0,
+          typename T::primary_type y = 0)
         : x_(data, Axis::HORIZONTAL, x)
         , y_(data, Axis::VERTICAL, y)
     {
@@ -54,8 +54,7 @@ class Point
 
     T y() const { return y_; }
 
-    /*! \brief Implicit cast into a point of an other unit
-     */
+    /*! \brief Implicit cast into a point of an other unit */
     template <typename U>
     operator Point<U>() const
     {
@@ -70,16 +69,17 @@ class Point
         return res;
     }
 
-    // Casting to RealPosition only when we are not already in RealPosition
+    /*! \brief Casting to RealPosition only when we are not already in RealPosition */
+
     template <typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
     operator Point<RealPosition>() const
     {
         Point<RealPosition> res(x_, y_);
         return res;
     }
-    /*! \brief Operator overloads
+    /*! \name Operator overloads
+     * \{
      */
-    /**@{*/
     Point<T> operator+(const Point<T>& other) const
     {
         Point<T> res(x_, y_);
@@ -98,24 +98,24 @@ class Point
 
     double distance() const { return sqrt(pow(x_, 2) + pow(y_, 2)); }
 
-    bool operator==(const Point<T>& other) const { return x_ == other.x_ && y_ == other.y_; }
-    /**@}*/
+    bool operator==(const Point<T>& other) const
+    {
+        return x_ == other.x_ && y_ == other.y_;
+    }
+    /*! \} */
 
   private:
     T x_;
     T y_;
 };
 
-/*! \brief A point in the OpenGL coordinate system [-1;1]
- */
+/*! \brief A point in the OpenGL coordinate system [-1;1] */
 using PointOpengl = Point<OpenglPosition>;
 
-/*! \brief A point in the frame desc coordinate system [0;fd.width]
- */
+/*! \brief A point in the frame desc coordinate system [0;fd.width] */
 using PointFd = Point<FDPixel>;
 
-/*! \brief A point in the window coordinate system [0;window size]
- */
+/*! \brief A point in the window coordinate system [0;window size] */
 using PointWindow = Point<WindowPixel>;
 
 using PointReal = Point<RealPosition>;

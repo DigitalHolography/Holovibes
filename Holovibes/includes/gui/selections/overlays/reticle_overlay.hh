@@ -30,7 +30,7 @@ class ReticleOverlay : public Overlay
   protected:
     void setBuffer() override;
 
-    //! Transparency of the lines
+    /*! \brief Transparency of the lines */
     float alpha_;
 };
 } // namespace gui

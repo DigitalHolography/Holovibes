@@ -31,9 +31,7 @@ namespace compute
 class ImageAccumulation
 {
   public:
-    /*!
-    ** \brief Constructor.
-    */
+    /*! \brief Constructor */
     ImageAccumulation(FunctionVector& fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
@@ -41,10 +39,10 @@ class ImageAccumulation
                       const holovibes::ComputeDescriptor& cd,
                       const cudaStream_t& stream);
 
-    /*!
-    ** \brief Enqueue the image accumulation.
-    ** Should be called just after gpu_float_buffer is computed
-    */
+    /*! \brief Enqueue the image accumulation.
+     *
+     * Should be called just after gpu_float_buffer is computed
+     */
     void insert_image_accumulation();
 
     /*! \brief Allocate ressources for image accumulation if requested */
@@ -57,48 +55,40 @@ class ImageAccumulation
     void clear();
 
   private:
-    /*!
-    ** \brief Compute average on one view
-    */
+    /*! \brief Compute average on one view */
     void compute_average(std::unique_ptr<Queue>& gpu_accumulation_queue,
                          float* gpu_input_frame,
                          float* gpu_ouput_average_frame,
                          const unsigned int image_acc_level,
                          const size_t frame_res);
 
-    /*!
-    ** \brief Insert the average computation of the float frame.
-    */
+    /*! \brief Insert the average computation of the float frame. */
     void insert_compute_average();
 
-    /*!
-    ** \brief Insert the copy of the corrected buffer into the float buffer.
-    */
+    /*! \brief Insert the copy of the corrected buffer into the float buffer. */
     void insert_copy_accumulation_result();
 
-    /*!
-    ** \brief Handle the allocation of a accumulation queue and average frame
-    */
+    /*! \brief Handle the allocation of a accumulation queue and average frame */
     void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
                                      cuda_tools::UniquePtr<float>& gpu_average_frame,
                                      const unsigned int accumulation_level,
                                      const camera::FrameDescriptor fd);
 
-  private: /* Attributes */
-    /// Image Accumulation environment
+  private:
+    /*! \brief Image Accumulation environment */
     ImageAccEnv& image_acc_env_;
 
-    /// Vector function in which we insert the processing
+    /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
 
-    /// Main buffers
+    /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
 
-    /// Describes the frame size
+    /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
-    /// Compute Descriptor
+    /*! \brief Compute Descriptor */
     const ComputeDescriptor& cd_;
-    /// Compute stream to perform  pipe computation
+    /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 };
 } // namespace compute
