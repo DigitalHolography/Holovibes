@@ -556,7 +556,6 @@ void MainWindow::notify_error(std::exception& e)
         }
 
         auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
-
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -655,7 +654,7 @@ void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_
 void MainWindow::write_ini()
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(GLOBAL_INI_PATH);
+    save_ini(holovibes::ini::get_global_ini_path());
     notify();
 }
 
@@ -1100,7 +1099,6 @@ void MainWindow::set_holographic_mode()
     {
 
         LOG_ERROR << "cannot set holographic mode: " << e.what();
-
     }
 }
 
