@@ -113,47 +113,40 @@ class MainWindow : public QMainWindow, public Observer
 
     void refreshViewMode();
 
-    /*!
-     * \brief Enable the convolution mode
+    /*! \brief Enable the convolution mode
      *
      * \param enable true: enable, false: disable
      */
     void set_convolution_mode(const bool enable);
 
-    /*!
-     * \brief Enable the divide convolution mode
+    /*! \brief Enable the divide convolution mode
      *
      * \param value true: enable, false: disable
      */
     void set_divide_convolution_mode(const bool value);
 
-    /*!
-     * \brief Switchs the pipe mode
+    /*! \brief Switchs the pipe mode
      *
      * \param value true: enable, false: disable
      */
     void set_fast_pipe(bool value);
 
-    /*!
-     * \brief Enables or Disables renormalize image with clear image accumulation pipe
+    /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
      *
      * \param value true: enable, false: disable
      */
     void toggle_renormalize(bool value);
 
-    /*!
-     * \brief checks if we are currently in raw mode
+    /*! \brief Checks if we are currently in raw mode
      *
-     * \return true we are in raw mode
-     * \return false we are not in row mode
+     * \return true if we are in raw mode, false otherwise
      */
     bool is_raw_mode();
 
     /*! \brief Resets the whole program in reload .ini file */
     void reset();
 
-    /*!
-     * \brief adds or removes filter 2d view
+    /*! \brief adds or removes filter 2d view
      *
      * \param checked true: enable, false: disable
      */
@@ -162,24 +155,21 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Deactivates filter2d view */
     void disable_filter2d_view();
 
-    /*!
-     * \brief Applies or removes 2d filter on output display
+    /*! \brief Applies or removes 2d filter on output display
      *
      * \param checked true: enable, false: disable
      */
     void set_filter2d(bool checked);
 
-    /*!
-     * \brief Modifies filter2d n1 (first value)
+    /*! \brief Modifies filter2d n1 (first value)
      *
-     * \param n the new filter2d n1 value
+     * \param n The new filter2d n1 value
      */
     void set_filter2d_n1(int n);
 
-    /*!
-     * \brief Modifies filter2d n2 (second value)
+    /*! \brief Modifies filter2d n2 (second value)
      *
-     * \param n the new filter2d n2 value
+     * \param n The new filter2d n2 value
      */
     void set_filter2d_n2(int n);
 
@@ -189,8 +179,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the time transformation size from ui value */
     void set_time_transformation_size();
 
-    /*!
-     * \brief adds or removes lens view
+    /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove
      */
@@ -199,8 +188,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Removes lens view */
     void disable_lens_view();
 
-    /*!
-     * \brief adds or removes raw view
+    /*! \brief Adds or removes raw view
      *
      * \param value true: add, false: remove
      */
@@ -221,10 +209,9 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies x and y from ui values */
     void set_x_y();
 
-    /*!
-     * \brief Modifies q accumulation from ui value
+    /*! \brief Modifies q accumulation from ui value
      *
-     * \param value the new q value
+     * \param value The new q value
      */
     void set_q(int value);
 
@@ -255,10 +242,9 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies the RGV from ui values */
     void set_composite_weights();
 
-    /*!
-     * \brief Automatic equalization (Auto-constrast)
+    /*! \brief Automatic equalization (Auto-constrast)
      *
-     * \param value true: Enable, false: disable
+     * \param value true: enable, false: disable
      */
     void set_composite_auto_weights(bool value);
 
@@ -271,37 +257,33 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies Hue max threshold and guaratees that Hue max threshold is higher than Hue min threshold */
     void slide_update_threshold_h_max();
 
-    /*! \brief Modifies Saturation min threshold and guaratees that Saturation min threshold does not exceed Saturation
-     * max threshold */
+    /*! \brief Change Saturation min threshold. Saturation min threshold does not exceed max threshold */
     void slide_update_threshold_s_min();
 
-    /*! \brief Modifies Saturation max threshold and guaratees that Saturation max threshold is higher than Saturation
-     * min threshold */
+    /*! \brief Change Saturation max. Saturation max threshold is higher than min threshold */
     void slide_update_threshold_s_max();
 
-    /*! \brief Modifies Value min threshold and guaratees that Value min threshold does not exceed Value max threshold
-     */
+    /*! \brief Change Value min threshold and guaratees that Value min threshold does not exceed Value max threshold */
     void slide_update_threshold_v_min();
 
     /*! \brief Modifies Value max threshold and guaratees that Value max threshold is higher than Value min threshold */
     void slide_update_threshold_v_max();
 
-    /*! \brief Enables or disables Saturation frequency channel min and max from ui checkbox*/
+    /*! \brief Enables or disables Saturation frequency channel min and max from ui checkbox */
     void actualize_frequency_channel_s();
 
-    /*! \brief Enables or disables Value frequency channel min and max from ui checkbox*/
+    /*! \brief Enables or disables Value frequency channel min and max from ui checkbox */
     void actualize_frequency_channel_v();
 
-    /*! \brief Enables or disables Hue gaussian blur from ui checkbox*/
+    /*! \brief Enables or disables Hue gaussian blur from ui checkbox */
     void actualize_checkbox_h_gaussian_blur();
 
     /*! \brief Modified Hue blur size from ui value */
     void actualize_kernel_size_blur();
 
-    /*!
-     * \brief Modifies p from ui value
+    /*! \brief Modifies p from ui value
      *
-     * \param value the new value of p
+     * \param value The new value of p
      */
     void set_p(int value);
 
@@ -311,17 +293,15 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Decrement p by 1 on key shortcut */
     void decrement_p();
 
-    /*!
-     * \brief Modifies wave length (lambda)
+    /*! \brief Modifies wave length (lambda)
      *
-     * \param value the new value of lambda
+     * \param value The new value of lambda
      */
     void set_wavelength(double value);
 
-    /*!
-     * \brief Modifies z from ui value
+    /*! \brief Modifies z from ui value
      *
-     * \param value the new value of z
+     * \param value The new value of z
      */
     void set_z(double value);
 
@@ -331,29 +311,25 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Decrement z by 1 on key shortcut */
     void decrement_z();
 
-    /*!
-     * \brief Modifies the z step on scroll
+    /*! \brief Modifies the z step on scroll
      *
-     * \param value the new incrementation/decrementation step
+     * \param value The new incrementation/decrementation step
      */
     void set_z_step(double value);
 
-    /*!
-     * \brief Modifies space transform calculation
+    /*! \brief Modifies space transform calculation
      *
      * \param value The new space transform to apply
      */
     void set_space_transformation(QString value);
 
-    /*!
-     * \brief Modifies time transform calculation
+    /*! \brief Modifies time transform calculation
      *
-     * \param value the new time transform to apply
+     * \param value The new time transform to apply
      */
     void set_time_transformation(QString value);
 
-    /*!
-     * \brief Enables or Disables time transform cuts views
+    /*! \brief Enables or Disables time transform cuts views
      *
      * \param checked true: enable, false: disable
      */
@@ -368,36 +344,31 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies time transformation stride size from ui value */
     void update_time_transformation_stride();
 
-    /*!
-     * \brief Modifies view image type
+    /*! \brief Modifies view image type
      *
-     * \param value the new image type
+     * \param value The new image type
      */
     void set_view_mode(QString value);
 
-    /*!
-     * \brief Enables or Disables unwrapping 2d
+    /*! \brief Enables or Disables unwrapping 2d
      *
      * \param value true: enable, false: disable
      */
     void set_unwrapping_2d(bool value);
 
-    /*!
-     * \brief Enables or Disables accumulation for the current window
+    /*! \brief Enables or Disables accumulation for the current window
      *
      * \param value true: enable, false: disable
      */
     void set_accumulation(bool value);
 
-    /*!
-     * \brief Modifies the accumulation level on the current window
+    /*! \brief Modifies the accumulation level on the current window
      *
-     * \param value the new level value
+     * \param value The new level value
      */
     void set_accumulation_level(int value);
 
-    /*!
-     * \brief Enables or Disables the contrast mode and update the current focused window
+    /*! \brief Enables or Disables the contrast mode and update the current focused window
      *
      * \param value true: enable, false: disable
      */
@@ -406,43 +377,37 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Enalbles auto-contrast */
     void set_auto_contrast();
 
-    /*!
-     * \brief Modifies the min contrast value on the current window
+    /*! \brief Modifies the min contrast value on the current window
      *
-     * \param value the new min contrast value
+     * \param value The new min contrast value
      */
     void set_contrast_min(double value);
 
-    /*!
-     * \brief Modifies the max contrast value on the current window
+    /*! \brief Modifies the max contrast value on the current window
      *
      * \param value the new max contrast value
      */
     void set_contrast_max(double value);
 
-    /*!
-     * \brief Enables or Disables contrast invertion
+    /*! \brief Enables or Disables contrast invertion
      *
      * \param value true: enable, false: disable
      */
     void invert_contrast(bool value);
 
-    /*!
-     * \brief Enables or Disables auto refresh contrast
+    /*! \brief Enables or Disables auto refresh contrast
      *
      * \param value true: enable, false: disable
      */
     void set_auto_refresh_contrast(bool value);
 
-    /*!
-     * \brief Enables or Disables log scale on the current window
+    /*! \brief Enables or Disables log scale on the current window
      *
      * \param value true: enable, false: disable
      */
     void set_log_scale(bool value);
 
-    /*!
-     * \brief Enables or Disables fft shift mode on the main display window
+    /*! \brief Enables or Disables fft shift mode on the main display window
      *
      * \param value true: enable, false: disable
      */
@@ -451,22 +416,19 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Make the ui compisite overlay visible */
     void set_composite_area();
 
-    /*!
-     * \brief Modifies convolution kernel
+    /*! \brief Modifies convolution kernel
      *
-     * \param value the new kernel to apply
+     * \param value The new kernel to apply
      */
     void update_convo_kernel(const QString& value);
 
-    /*!
-     * \brief Modifies the z step on scroll
+    /*! \brief Modifies the z step on scroll
      *
      * \param value the new incrementation/decrementation step
      */
     void set_record_frame_step(int value);
 
-    /*!
-     * \brief Sets the start stop buttons object accessibility
+    /*! \brief Sets the start stop buttons object accessibility
      *
      * \param value accessibility
      */
@@ -475,17 +437,16 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Opens file explorer to let the user chose the file he wants to import */
     void import_browse_file();
 
-    /*!
-     * \brief Creates an input file to gather data from it.
+    /*! \brief Creates an input file to gather data from it.
      *
-     * \param filename the chosen file
+     * \param filename The chosen file
      */
     void import_file(const QString& filename);
 
     /*! \brief Sets ui values and constraints + launch FileReadWroker */
     void init_holovibes_import_mode();
 
-    /*! \brief Setups attributes for launching and launchs the imported file*/
+    /*! \brief Setups attributes for launching and launchs the imported file */
     void import_start();
     /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
     void import_stop();
@@ -517,17 +478,15 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
     void flipTexture();
 
-    /*!
-     * \brief Creates or Removes the reticle overlay
+    /*! \brief Creates or Removes the reticle overlay
      *
      * \param value true: create, false: remove
      */
     void display_reticle(bool value);
 
-    /*!
-     * \brief Modifies reticle scale in ]0, 1[
+    /*! \brief Modifies reticle scale in ]0, 1[
      *
-     * \param value the new reticle scale
+     * \param value The new reticle scale
      */
     void reticle_scale(double value);
 
@@ -535,34 +494,30 @@ class MainWindow : public QMainWindow, public Observer
      * replacement*/
     void browse_record_output_file();
 
-    /*!
-     * \brief Enables or Disables number of frame restriction for recording
+    /*! \brief Enables or Disables number of frame restriction for recording
      *
      * \param value true: enable, false: disable
      */
     void set_nb_frames_mode(bool value);
 
-    /*!
-     * \brief Modifies the record mode
+    /*! \brief Modifies the record mode
      *
-     * \param value the new record mode
+     * \param value The new record mode
      */
     void set_record_mode(const QString& value);
 
-    /*!
-     * \brief Enables or Disables square output checkbox depending on extensions
+    /*! \brief Enables or Disables square output checkbox depending on extensions
      *
-     * \param value the given extension
+     * \param value The given extension
      */
     void set_record_file_extension(const QString& value);
 
     /*! \brief Stops the record */
     void stop_record();
 
-    /*!
-     * \brief Resets ui on record finished
+    /*! \brief Resets ui on record finished
      *
-     * \param record_mode the current record mode
+     * \param record_mode The current record mode
      */
     void record_finished(RecordMode record_mode);
 
@@ -588,18 +543,16 @@ class MainWindow : public QMainWindow, public Observer
 #pragma endregion
     /* ---------- */
   signals:
-    /*!
-     * \brief TODO: comment
+    /*! \brief TODO: comment
      *
      * \param f
      */
     void synchronize_thread_signal(std::function<void()> f);
 #pragma region Protected / Private Methods
   protected:
-    /*!
-     * \brief Last call before the program is closed
+    /*! \brief Last call before the program is closed
      *
-     * \param event unused
+     * \param event Unused
      */
     virtual void closeEvent(QCloseEvent* event) override;
 
@@ -610,51 +563,45 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes display mode to Holographic */
     void set_holographic_mode();
 
-    /*! \brief Set computation mode from ui value (Raw or Holographic)*/
+    /*! \brief Set computation mode from ui value (Raw or Holographic) */
     void set_computation_mode();
 
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
-    /*!
-     * \brief Changes camera
+    /*! \brief Changes camera
      *
-     * \param c the new camera
+     * \param c The new camera
      */
     void change_camera(CameraKind c);
 
-    /*!
-     * \brief Logs a message in error scope
+    /*! \brief Logs a message in error scope
      *
-     * \param msg the message to log
+     * \param msg The message to log
      */
     void display_error(std::string msg);
 
-    /*!
-     * \brief Logs a message in info scope
+    /*! \brief Logs a message in info scope
      *
-     * \param msg the message to log
+     * \param msg The message to log
      */
     void display_info(std::string msg);
 
-    /*!
-     * \brief Opens a file
+    /*! \brief Opens a file
      *
-     * \param path the path of the file to open
+     * \param path The path of the file to open
      */
     void open_file(const std::string& path);
 
-    /*!
-     * \brief Setups program from .ini file
+    /*! \brief Setups program from .ini file
      *
-     * \param path the path where the .ini file is
+     * \param path The path where the .ini file is
      */
     void load_ini(const std::string& path);
 
-    /*!
-     * \brief Saves the current state of holovibes
+    /*! \brief Saves the current state of holovibes
      *
-     * \param path the location of the .ini file saved
+     * \param path The location of the .ini file saved
      */
     void save_ini(const std::string& path);
 
@@ -683,27 +630,24 @@ class MainWindow : public QMainWindow, public Observer
     void set_auto_contrast_cuts();
 
     // Change the value without triggering any signal
-    /*!
-     * \brief Changes Box value without triggering any signal
+    /*! \brief Changes Box value without triggering any signal
      *
-     * \param spinBox the box to change
-     * \param value the value to set
+     * \param spinBox The box to change
+     * \param value The value to set
      */
     void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
 
-    /*!
-     * \brief Changes Slider value without triggering any signal
+    /*! \brief Changes Slider value without triggering any signal
      *
-     * \param slider the slider to change
-     * \param value the value to set
+     * \param slider The slider to change
+     * \param value The value to set
      */
 
     void QSliderQuietSetValue(QSlider* slider, int value);
-    /*!
-     * \brief Changes SpinBox value without triggering any signal
+    /*! \brief Changes SpinBox value without triggering any signal
      *
-     * \param spinBox the spinbox to change
-     * \param value the value to set
+     * \param spinBox The spinbox to change
+     * \param value The value to set
      */
     void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
