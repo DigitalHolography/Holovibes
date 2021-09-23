@@ -81,8 +81,9 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         }
         catch (std::exception&)
         {
-            // Should never happened
+            // Should never happen
             LOG_ERROR << "This camera is not handled." << std::endl;
+            throw;
         }
 
         cd_.pixel_size = active_camera_->get_pixel_size();

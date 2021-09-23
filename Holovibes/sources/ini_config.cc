@@ -8,11 +8,11 @@ std::string get_appdata_holovibes_folder()
     std::string username = std::string(getenv("username"));
     std::string holovibes_folder = "C:\\Users\\" + username + "\\AppData\\Roaming\\Holovibes";
 
-    // Should never happened if Holovibes has been installed correctly with the installer
+    // Should never happen if Holovibes has been installed correctly with the installer
     if (!std::filesystem::exists(holovibes_folder))
         std::filesystem::create_directory(holovibes_folder);
 
-    // Should happened only if Holovibes version has been changed since last installation using the installer
+    // Should happen only if Holovibes version has been changed since last installation using the installer
     std::string version_folder = holovibes_folder + "\\" + std::string(__HOLOVIBES_VERSION__);
     if (!std::filesystem::exists(version_folder))
         std::filesystem::create_directory(version_folder);
