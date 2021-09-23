@@ -70,6 +70,7 @@ class Point
     }
 
     /*! \brief Casting to RealPosition only when we are not already in RealPosition */
+
     template <typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
     operator Point<RealPosition>() const
     {

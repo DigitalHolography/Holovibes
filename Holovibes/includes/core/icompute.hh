@@ -190,10 +190,7 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(BatchInputQueue& input,
-             Queue& output,
-             ComputeDescriptor& cd,
-             const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -213,8 +210,7 @@ class ICompute : public Observable
     void request_disable_raw_view();
     void request_filter2d_view();
     void request_disable_filter2d_view();
-    void
-    request_hologram_record(std::optional<unsigned int> nb_frames_to_record);
+    void request_hologram_record(std::optional<unsigned int> nb_frames_to_record);
     void request_raw_record(std::optional<unsigned int> nb_frames_to_record);
     void request_disable_frame_record();
     void request_clear_img_acc();
@@ -243,83 +239,31 @@ class ICompute : public Observable
     bool get_unwrap_1d_request() const { return unwrap_1d_requested_; }
     bool get_unwrap_2d_request() const { return unwrap_2d_requested_; }
     bool get_autocontrast_request() const { return autocontrast_requested_; }
-    bool get_autocontrast_slice_xz_request() const
-    {
-        return autocontrast_slice_xz_requested_;
-    }
-    bool get_autocontrast_slice_yz_request() const
-    {
-        return autocontrast_slice_yz_requested_;
-    }
+    bool get_autocontrast_slice_xz_request() const { return autocontrast_slice_xz_requested_; }
+    bool get_autocontrast_slice_yz_request() const { return autocontrast_slice_yz_requested_; }
     bool get_refresh_request() const { return refresh_requested_; }
-    bool get_update_time_transformation_size_request() const
-    {
-        return update_time_transformation_size_requested_;
-    }
-    bool get_stft_update_roi_request() const
-    {
-        return stft_update_roi_requested_;
-    }
+    bool get_update_time_transformation_size_request() const { return update_time_transformation_size_requested_; }
+    bool get_stft_update_roi_request() const { return stft_update_roi_requested_; }
     bool get_termination_request() const { return termination_requested_; }
-    bool get_request_time_transformation_cuts() const
-    {
-        return request_time_transformation_cuts_;
-    }
-    bool get_request_delete_time_transformation_cuts() const
-    {
-        return request_delete_time_transformation_cuts_;
-    }
-    std::optional<unsigned int> get_output_resize_request() const
-    {
-        return output_resize_requested_;
-    }
+    bool get_request_time_transformation_cuts() const { return request_time_transformation_cuts_; }
+    bool get_request_delete_time_transformation_cuts() const { return request_delete_time_transformation_cuts_; }
+    std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
     bool get_raw_view_requested() const { return raw_view_requested_; }
-    bool get_disable_raw_view_requested() const
-    {
-        return disable_raw_view_requested_;
-    }
-    bool get_filter2d_view_requested() const
-    {
-        return filter2d_view_requested_;
-    }
-    bool get_disable_filter2d_view_requested() const
-    {
-        return disable_filter2d_view_requested_;
-    }
-    bool get_chart_display_requested() const
-    {
-        return chart_display_requested_;
-    }
-    std::optional<unsigned int> get_chart_record_requested() const
-    {
-        return chart_record_requested_;
-    }
-    bool get_disable_chart_display_requested() const
-    {
-        return disable_chart_display_requested_;
-    }
-    bool get_disable_chart_record_requested() const
-    {
-        return disable_chart_record_requested_;
-    }
-    std::optional<std::optional<unsigned int>>
-    get_hologram_record_requested() const
+    bool get_disable_raw_view_requested() const { return disable_raw_view_requested_; }
+    bool get_filter2d_view_requested() const { return filter2d_view_requested_; }
+    bool get_disable_filter2d_view_requested() const { return disable_filter2d_view_requested_; }
+    bool get_chart_display_requested() const { return chart_display_requested_; }
+    std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
+    bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
+    bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
+    std::optional<std::optional<unsigned int>> get_hologram_record_requested() const
     {
         return hologram_record_requested_;
     }
-    std::optional<std::optional<unsigned int>> get_raw_record_requested() const
-    {
-        return raw_record_requested_;
-    }
-    bool get_disable_frame_record_requested() const
-    {
-        return disable_frame_record_requested_;
-    }
+    std::optional<std::optional<unsigned int>> get_raw_record_requested() const { return raw_record_requested_; }
+    bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
     bool get_convolution_requested() const { return convolution_requested_; }
-    bool get_disable_convolution_requested() const
-    {
-        return convolution_requested_;
-    }
+    bool get_disable_convolution_requested() const { return convolution_requested_; }
 
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
@@ -327,19 +271,16 @@ class ICompute : public Observable
 
     virtual std::unique_ptr<Queue>& get_filter2d_view_queue();
 
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>&
-    get_chart_display_queue();
+    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
 
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>&
-    get_chart_record_queue();
+    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
     virtual std::unique_ptr<Queue>& get_frame_record_queue();
 
   protected:
     virtual void refresh() = 0;
     virtual void pipe_error(const int& err_count, std::exception& e);
-    virtual bool update_time_transformation_size(
-        const unsigned short time_transformation_size);
+    virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
@@ -414,11 +355,9 @@ class ICompute : public Observable
     std::atomic<bool> stft_update_roi_requested_{false};
     std::atomic<bool> chart_display_requested_{false};
     std::atomic<bool> disable_chart_display_requested_{false};
-    std::atomic<std::optional<unsigned int>> chart_record_requested_{
-        std::nullopt};
+    std::atomic<std::optional<unsigned int>> chart_record_requested_{std::nullopt};
     std::atomic<bool> disable_chart_record_requested_{false};
-    std::atomic<std::optional<unsigned int>> output_resize_requested_{
-        std::nullopt};
+    std::atomic<std::optional<unsigned int>> output_resize_requested_{std::nullopt};
     std::atomic<bool> raw_view_requested_{false};
     std::atomic<bool> disable_raw_view_requested_{false};
     std::atomic<bool> filter2d_view_requested_{false};
@@ -429,10 +368,8 @@ class ICompute : public Observable
     std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_transformation_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<std::optional<std::optional<unsigned int>>>
-        hologram_record_requested_{std::nullopt};
-    std::atomic<std::optional<std::optional<unsigned int>>>
-        raw_record_requested_{std::nullopt};
+    std::atomic<std::optional<std::optional<unsigned int>>> hologram_record_requested_{std::nullopt};
+    std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{std::nullopt};
     std::atomic<bool> disable_frame_record_requested_{false};
     std::atomic<bool> request_clear_img_acc_{false};
     std::atomic<bool> convolution_requested_{false};

@@ -46,10 +46,9 @@ VisaInterface::~VisaInterface()
     if (pimpl_->buffer_)
         delete[] pimpl_->buffer_;
 
-    std::for_each(
-        pimpl_->sessions_.begin(),
-        pimpl_->sessions_.end(),
-        [this](instrument& instr) { close_instrument(instr.second); });
+    std::for_each(pimpl_->sessions_.begin(),
+                  pimpl_->sessions_.end(),
+                  [this](instrument& instr) { close_instrument(instr.second); });
 
     close_line();
 
@@ -72,8 +71,7 @@ void VisaInterface::initialize_instrument(const unsigned address)
                              &(pimpl_->sessions_.back().first));
     if (pimpl_->status_ != VI_SUCCESS)
     {
-        std::cerr << "[GPIB] Could not set up connection with instrument "
-                  << address << std::endl;
+        std::cerr << "[GPIB] Could not set up connection with instrument " << address << std::endl;
         throw GpibInstrError(boost::lexical_cast<std::string>(address));
     }
 
@@ -82,10 +80,9 @@ void VisaInterface::initialize_instrument(const unsigned address)
 
 void VisaInterface::close_instrument(const unsigned address)
 {
-    auto it = std::find_if(
-        pimpl_->sessions_.begin(),
-        pimpl_->sessions_.end(),
-        [address](instrument& instr) { return instr.second == address; });
+    auto it = std::find_if(pimpl_->sessions_.begin(),
+                           pimpl_->sessions_.end(),
+                           [address](instrument& instr) { return instr.second == address; });
 
     if (it != pimpl_->sessions_.end())
     {
@@ -97,8 +94,7 @@ void VisaInterface::close_instrument(const unsigned address)
     }
 }
 
-void VisaInterface::execute_instrument_command(
-    const BatchCommand& instrument_command)
+void VisaInterface::execute_instrument_command(const BatchCommand& instrument_command)
 {
     assert(instrument_command.type == BatchCommand::INSTRUMENT_COMMAND);
 
@@ -121,9 +117,8 @@ void VisaInterface::execute_instrument_command(
      */
     if (std::find_if(pimpl_->sessions_.begin(),
                      pimpl_->sessions_.end(),
-                     [&instrument_command](instrument& instr) {
-                         return instr.second == instrument_command.address;
-                     }) == pimpl_->sessions_.end())
+                     [&instrument_command](instrument& instr)
+                     { return instr.second == instrument_command.address; }) == pimpl_->sessions_.end())
     {
         initialize_instrument(instrument_command.address);
     }
@@ -132,15 +127,12 @@ void VisaInterface::execute_instrument_command(
     auto ses =
         std::find_if(pimpl_->sessions_.begin(),
                      pimpl_->sessions_.end(),
-                     [&instrument_command](instrument& instr) {
-                         return instr.second == instrument_command.address;
-                     });
-    viWrite(
-        ses->first,
-        (ViBuf)(instrument_command.command.c_str()), // ViBuf it's so crap type,
-                                                     // that no c++ cast works
-        static_cast<ViInt32>(instrument_command.command.size()),
-        pimpl_->ret_count_);
+                     [&instrument_command](instrument& instr) { return instr.second == instrument_command.address; });
+    viWrite(ses->first,
+            (ViBuf)(instrument_command.command.c_str()), // ViBuf it's so crap type,
+                                                         // that no c++ cast works
+            static_cast<ViInt32>(instrument_command.command.size()),
+            pimpl_->ret_count_);
 }
 
 void VisaInterface::initialize_line()
@@ -161,8 +153,7 @@ void VisaInterface::close_line()
      * and so that a connection was set up.
      */
     if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
-        std::cerr << "[GPIB] Could not close connection to VISA driver."
-                  << std::endl;
+        std::cerr << "[GPIB] Could not close connection to VISA driver." << std::endl;
 }
 
 IVisaInterface* new_gpib_controller() { return new VisaInterface(); }

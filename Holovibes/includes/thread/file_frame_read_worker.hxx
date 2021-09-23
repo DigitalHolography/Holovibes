@@ -9,10 +9,7 @@ inline FileFrameReadWorker::FpsHandler::FpsHandler(unsigned int fps)
 {
 }
 
-inline void FileFrameReadWorker::FpsHandler::begin()
-{
-    begin_time_ = std::chrono::high_resolution_clock::now();
-}
+inline void FileFrameReadWorker::FpsHandler::begin() { begin_time_ = std::chrono::high_resolution_clock::now(); }
 
 inline void FileFrameReadWorker::FpsHandler::wait()
 {

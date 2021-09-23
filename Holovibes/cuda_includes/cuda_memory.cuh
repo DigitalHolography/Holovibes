@@ -56,10 +56,7 @@ void cudaXMallocHost(T** devPtr, size_t size);
  * \param count Size in bytes to copy.
  * \param kind Type of transfer.
  */
-void cudaXMemcpy(void* dst,
-                 const void* src,
-                 size_t count,
-                 cudaMemcpyKind kind = cudaMemcpyDeviceToDevice);
+void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice);
 
 /*! \brief Wrapper around cudaMemcpyAsync to handle errors
  *
@@ -72,11 +69,7 @@ void cudaXMemcpy(void* dst,
  * \param kind Type of transfer.
  * \param stream Stream identifier.
  */
-void cudaXMemcpyAsync(void* dst,
-                      const void* src,
-                      size_t count,
-                      cudaMemcpyKind kind,
-                      const cudaStream_t stream);
+void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaMemset to handle errors
  *
@@ -98,10 +91,7 @@ void cudaXMemset(void* devPtr, int value, size_t count);
  * \param value Value to set for each byte of specified memory.
  * \param count Size in bytes to set.
  */
-void cudaXMemsetAsync(void* devPtr,
-                      int value,
-                      size_t count,
-                      const cudaStream_t stream);
+void cudaXMemsetAsync(void* devPtr, int value, size_t count, const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaFree to handle errors
  *

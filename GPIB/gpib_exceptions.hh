@@ -10,10 +10,7 @@ class GpibBadAlloc : public std::exception
   public:
     virtual ~GpibBadAlloc() {}
 
-    virtual const char* what() const override
-    {
-        return "Failed to allocate memory for VISA interface";
-    }
+    virtual const char* what() const override { return "Failed to allocate memory for VISA interface"; }
 };
 
 class GpibInvalidPath : public std::exception
@@ -88,10 +85,7 @@ class GpibSetupError : public std::exception
   public:
     virtual ~GpibSetupError() {}
 
-    virtual const char* what() const override
-    {
-        return "Could not setup VISA driver";
-    }
+    virtual const char* what() const override { return "Could not setup VISA driver"; }
 };
 
 class GpibInstrError : public std::exception
@@ -120,9 +114,6 @@ class GpibBlankFileError : public std::exception
   public:
     virtual ~GpibBlankFileError() {}
 
-    virtual const char* what() const override
-    {
-        return "The batch file is empty!";
-    }
+    virtual const char* what() const override { return "The batch file is empty!"; }
 };
 } // namespace gpib

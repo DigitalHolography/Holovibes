@@ -13,7 +13,7 @@
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
-#include "custom_exception.hh"
+#include "update_exception.hh"
 #include "unique_ptr.hh"
 #include "pipe.hh"
 #include "logger.hh"
@@ -24,10 +24,7 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(BatchInputQueue& input,
-                   Queue& output,
-                   ComputeDescriptor& cd,
-                   const cudaStream_t& stream)
+ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream)
     : cd_(cd)
     , gpu_input_queue_(input)
     , gpu_output_queue_(output)
@@ -36,53 +33,40 @@ ICompute::ICompute(BatchInputQueue& input,
 {
     int err = 0;
 
-    plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width,
-                         gpu_input_queue_.get_fd().height,
-                         CUFFT_C2C);
+    plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
 
     const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
     long long int n[] = {fd.height, fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
-    spatial_transformation_plan_.XtplanMany(
-        2, // 2D
-        n, // Dimension of inner most & outer most dimension
-        n, // Storage dimension size
-        1, // Between two inputs (pixels) of same image distance is one
-        fd.frame_res(), // Distance between 2 same index pixels of 2 images
-        CUDA_C_32F,     // Input type
-        n,
-        1,
-        fd.frame_res(), // Ouput layout same as input
-        CUDA_C_32F,     // Output type
-        cd_.batch_size, // Batch size
-        CUDA_C_32F);    // Computation type
+    spatial_transformation_plan_.XtplanMany(2,              // 2D
+                                            n,              // Dimension of inner most & outer most dimension
+                                            n,              // Storage dimension size
+                                            1,              // Between two inputs (pixels) of same image distance is one
+                                            fd.frame_res(), // Distance between 2 same index pixels of 2 images
+                                            CUDA_C_32F,     // Input type
+                                            n,
+                                            1,
+                                            fd.frame_res(), // Ouput layout same as input
+                                            CUDA_C_32F,     // Output type
+                                            cd_.batch_size, // Batch size
+                                            CUDA_C_32F);    // Computation type
 
     int inembed[1];
     int zone_size = gpu_input_queue_.get_frame_res();
 
     inembed[0] = cd_.time_transformation_size;
 
-    time_transformation_env_.stft_plan.planMany(1,
-                                                inembed,
-                                                inembed,
-                                                zone_size,
-                                                1,
-                                                inembed,
-                                                zone_size,
-                                                1,
-                                                CUFFT_C2C,
-                                                zone_size);
+    time_transformation_env_.stft_plan
+        .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
     camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
     new_fd.depth = 8;
-    time_transformation_env_.gpu_time_transformation_queue.reset(
-        new Queue(new_fd, cd_.time_transformation_size));
+    time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size));
 
     // Static cast size_t to avoid overflow
-    if (!buffers_.gpu_spatial_transformation_buffer.resize(
-            static_cast<const size_t>(cd_.batch_size) *
-            gpu_input_queue_.get_fd().frame_res()))
+    if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(cd_.batch_size) *
+                                                           gpu_input_queue_.get_fd().frame_res()))
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_frame_res();
@@ -95,25 +79,20 @@ ICompute::ICompute(BatchInputQueue& input,
     if (cd_.img_type == ImgType::Composite)
         buffers_.gpu_postprocess_frame_size *= 3;
 
-    if (!buffers_.gpu_postprocess_frame.resize(
-            buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
 
     // Init the gpu_p_frame with the size of input image
-    if (!time_transformation_env_.gpu_p_frame.resize(
-            buffers_.gpu_postprocess_frame_size))
+    if (!time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_complex_filter2d_frame.resize(
-            buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_float_filter2d_frame.resize(
-            buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
 
-    if (!buffers_.gpu_filter2d_frame.resize(
-            buffers_.gpu_postprocess_frame_size))
+    if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
         err++;
 
     if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
@@ -123,12 +102,10 @@ ICompute::ICompute(BatchInputQueue& input,
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
 
-bool ICompute::update_time_transformation_size(
-    const unsigned short time_transformation_size)
+bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
     unsigned int err_count = 0;
-    time_transformation_env_.gpu_p_acc_buffer.resize(
-        gpu_input_queue_.get_frame_res() * time_transformation_size);
+    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_frame_res() * time_transformation_size);
 
     if (cd_.time_transformation == TimeTransformation::STFT)
     {
@@ -137,26 +114,16 @@ bool ICompute::update_time_transformation_size(
 
         int zone_size = gpu_input_queue_.get_frame_res();
 
-        time_transformation_env_.stft_plan.planMany(1,
-                                                    inembed_stft,
-                                                    inembed_stft,
-                                                    zone_size,
-                                                    1,
-                                                    inembed_stft,
-                                                    zone_size,
-                                                    1,
-                                                    CUFFT_C2C,
-                                                    zone_size);
+        time_transformation_env_.stft_plan
+            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
     }
     else if (cd_.time_transformation == TimeTransformation::PCA)
     {
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(
-            static_cast<const uint>(time_transformation_size) *
-            time_transformation_size);
-        time_transformation_env_.pca_eigen_values.resize(
-            time_transformation_size);
+        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
+                                                time_transformation_size);
+        time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
     else if (cd_.time_transformation == TimeTransformation::NONE)
@@ -170,36 +137,24 @@ bool ICompute::update_time_transformation_size(
 
         int zone_size = gpu_input_queue_.get_frame_res();
 
-        time_transformation_env_.stft_plan.planMany(1,
-                                                    inembed_stft,
-                                                    inembed_stft,
-                                                    zone_size,
-                                                    1,
-                                                    inembed_stft,
-                                                    zone_size,
-                                                    1,
-                                                    CUFFT_C2C,
-                                                    zone_size);
+        time_transformation_env_.stft_plan
+            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
 
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(
-            static_cast<const uint>(time_transformation_size) *
-            time_transformation_size);
-        time_transformation_env_.pca_eigen_values.resize(
-            time_transformation_size);
+        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
+                                                time_transformation_size);
+        time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
     else // Should not happend or be handled (if add more time transformation)
-        assert(false);
+        CHECK(false);
 
     try
     {
         /* This will resize cuts buffers: Some modifications are to be applied
          * on opengl to work */
-        time_transformation_env_.gpu_time_transformation_queue->resize(
-            time_transformation_size,
-            stream_);
+        time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
     }
     catch (std::exception&)
     {
@@ -212,12 +167,7 @@ bool ICompute::update_time_transformation_size(
 
     if (err_count != 0)
     {
-        pipe_error(
-            err_count,
-            CustomException(
-                "error in "
-                "update_time_transformation_size(time_transformation_size)",
-                error_kind::fail_update));
+        pipe_error(err_count, UpdateException("error in update_time_transformation_size(time_transformation_size)"));
         return false;
     }
 
@@ -231,20 +181,18 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(
-        cd_.batch_size * gpu_input_queue_fd.frame_res());
+    buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_fd.frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
     spatial_transformation_plan_.XtplanMany(
-        2, // 2D
-        n, // Dimension of inner most & outer most dimension
-        n, // Storage dimension size
-        1, // Between two inputs (pixels) of same image distance is one
-        gpu_input_queue_fd
-            .frame_res(), // Distance between 2 same index pixels of 2 images
-        CUDA_C_32F,       // Input type
+        2,                              // 2D
+        n,                              // Dimension of inner most & outer most dimension
+        n,                              // Storage dimension size
+        1,                              // Between two inputs (pixels) of same image distance is one
+        gpu_input_queue_fd.frame_res(), // Distance between 2 same index pixels of 2 images
+        CUDA_C_32F,                     // Input type
         n,
         1,
         gpu_input_queue_fd.frame_res(), // Ouput layout same as input
@@ -262,12 +210,10 @@ void ICompute::init_cuts()
     auto fd_yz = fd_xz;
     fd_xz.height = cd_.time_transformation_size;
     fd_yz.width = cd_.time_transformation_size;
-    time_transformation_env_.gpu_output_queue_xz.reset(new Queue(
-        fd_xz,
-        global::global_config.time_transformation_cuts_output_buffer_size));
-    time_transformation_env_.gpu_output_queue_yz.reset(new Queue(
-        fd_yz,
-        global::global_config.time_transformation_cuts_output_buffer_size));
+    time_transformation_env_.gpu_output_queue_xz.reset(
+        new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size));
+    time_transformation_env_.gpu_output_queue_yz.reset(
+        new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size));
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
 
@@ -286,18 +232,11 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-std::unique_ptr<Queue>& ICompute::get_raw_view_queue()
-{
-    return gpu_raw_view_queue_;
-}
+std::unique_ptr<Queue>& ICompute::get_raw_view_queue() { return gpu_raw_view_queue_; }
 
-std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue()
-{
-    return gpu_filter2d_view_queue_;
-}
+std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue() { return gpu_filter2d_view_queue_; }
 
-std::unique_ptr<ConcurrentDeque<ChartPoint>>&
-ICompute::get_chart_display_queue()
+std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
 {
     return chart_env_.chart_display_queue_;
 }
@@ -307,10 +246,7 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue()
-{
-    return frame_record_env_.gpu_frame_record_queue_;
-}
+std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.gpu_frame_record_queue_; }
 
 void ICompute::delete_stft_slice_queue()
 {
@@ -326,23 +262,18 @@ void ICompute::create_stft_slice_queue()
 
 bool ICompute::get_cuts_request() { return request_time_transformation_cuts_; }
 
-bool ICompute::get_cuts_delete_request()
-{
-    return request_delete_time_transformation_cuts_;
-}
+bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
 
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
-    return slice ? time_transformation_env_.gpu_output_queue_yz
-                 : time_transformation_env_.gpu_output_queue_xz;
+    return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
 
 void ICompute::pipe_error(const int& err_count, std::exception& e)
 {
-    LOG_ERROR(std::string("Pipe error:\n") + std::string("  message: ") +
-              std::string(e.what()) + std::string("\n") +
-              std::string("  err_count: ") + std::to_string(err_count) +
-              std::string("\n\n"));
+    LOG_ERROR << "Pipe error: ";
+    LOG_ERROR << "  message: " << e.what();
+    LOG_ERROR << "  err_count: " << err_count;
     notify_error_observers(e);
 }
 
@@ -382,15 +313,13 @@ void ICompute::request_filter2d_view()
     request_refresh();
 }
 
-void ICompute::request_hologram_record(
-    std::optional<unsigned int> nb_frames_to_record)
+void ICompute::request_hologram_record(std::optional<unsigned int> nb_frames_to_record)
 {
     hologram_record_requested_ = nb_frames_to_record;
     request_refresh();
 }
 
-void ICompute::request_raw_record(
-    std::optional<unsigned int> nb_frames_to_record)
+void ICompute::request_raw_record(std::optional<unsigned int> nb_frames_to_record)
 {
     raw_record_requested_ = nb_frames_to_record;
     request_refresh();
@@ -430,15 +359,9 @@ void ICompute::request_update_unwrap_size(const unsigned size)
     request_refresh();
 }
 
-void ICompute::request_unwrapping_1d(const bool value)
-{
-    unwrap_1d_requested_ = value;
-}
+void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
 
-void ICompute::request_unwrapping_2d(const bool value)
-{
-    unwrap_2d_requested_ = value;
-}
+void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
 
 void ICompute::request_display_chart()
 {

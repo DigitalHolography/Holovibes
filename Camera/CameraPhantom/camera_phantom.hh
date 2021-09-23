@@ -28,12 +28,7 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
                     int dataStreamIndex,
                     gc::DEVICE_ACCESS_FLAGS deviceOpenFlags,
                     bool remoteRequired)
-        : EGrabberCallbackOnDemand(gentl,
-                                   interfaceIndex,
-                                   deviceIndex,
-                                   dataStreamIndex,
-                                   deviceOpenFlags,
-                                   remoteRequired)
+        : EGrabberCallbackOnDemand(gentl, interfaceIndex, deviceIndex, dataStreamIndex, deviceOpenFlags, remoteRequired)
     {
     }
 
@@ -115,19 +110,15 @@ class EHoloGrabber
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
             uint8_t *ptr, *device_ptr;
-            cudaError_t alloc_res =
-                cudaHostAlloc(&ptr, frame_size, cudaHostAllocMapped);
-            cudaError_t device_ptr_res =
-                cudaHostGetDevicePointer(&device_ptr, ptr, 0);
+            cudaError_t alloc_res = cudaHostAlloc(&ptr, frame_size, cudaHostAllocMapped);
+            cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr, 0);
 
             if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-                std::cerr << "[CAMERA] Could not allocate buffers."
-                          << std::endl;
+                std::cerr << "[CAMERA] Could not allocate buffers." << std::endl;
 
             buffers_.push_back(ptr);
             for (size_t ix = 0; ix < grabber_count; ix++)
-                grabbers_[ix]->announceAndQueue(
-                    UserMemory(ptr, frame_size, device_ptr));
+                grabbers_[ix]->announceAndQueue(UserMemory(ptr, frame_size, device_ptr));
         }
     }
 

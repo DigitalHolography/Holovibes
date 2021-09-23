@@ -24,8 +24,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
-    void export_compute_settings(const ComputeDescriptor& cd,
-                                 bool record_raw) override;
+    void export_compute_settings(const ComputeDescriptor& cd, bool record_raw) override;
 
     /*! \brief Write the header in the file
      *
@@ -70,9 +69,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \param img_nb The number of frames in the file
      * \throw FileException if an error occurred while opening the file
      */
-    OutputHoloFile(const std::string& file_path,
-                   const camera::FrameDescriptor& fd,
-                   uint64_t img_nb);
+    OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
 };
 } // namespace holovibes::io_files
 

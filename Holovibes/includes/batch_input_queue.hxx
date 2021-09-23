@@ -8,9 +8,7 @@ inline void* BatchInputQueue::get_last_image() const
 {
     sync_current_batch();
     // Return the previous enqueued frame
-    return data_.get() +
-           ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) *
-               frame_size_;
+    return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * frame_size_;
 }
 
 inline uint BatchInputQueue::wait_and_lock(const std::atomic<uint>& index)
@@ -33,15 +31,9 @@ inline bool BatchInputQueue::has_overridden() const { return has_overridden_; }
 
 inline const void* BatchInputQueue::get_data() const { return data_; }
 
-inline uint BatchInputQueue::get_total_nb_frames() const
-{
-    return total_nb_frames_;
-}
+inline uint BatchInputQueue::get_total_nb_frames() const { return total_nb_frames_; }
 
-inline const camera::FrameDescriptor& BatchInputQueue::get_fd() const
-{
-    return fd_;
-}
+inline const camera::FrameDescriptor& BatchInputQueue::get_fd() const { return fd_; }
 
 inline uint BatchInputQueue::get_frame_size() const { return frame_size_; }
 

@@ -249,7 +249,7 @@ template struct qua<float64, mediump>;
 template struct qua<float32, highp>;
 template struct qua<float64, highp>;
 
-//tdualquat type explicit instantiation
+// tdualquat type explicit instantiation
 template struct tdualquat<float32, lowp>;
 template struct tdualquat<float64, lowp>;
 
@@ -259,5 +259,4 @@ template struct tdualquat<float64, mediump>;
 template struct tdualquat<float32, highp>;
 template struct tdualquat<float64, highp>;
 
-}//namespace glm
-
+} // namespace glm

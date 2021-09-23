@@ -6,6 +6,8 @@ Make sure to configure your IDE to format source code automatically according to
 
 For instance, on Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
 
+If possible, install a pre-commit hook. Install pre-commit with 'pip install pre-commit' and then use 'pre-commit install' at the root of the project.
+
 ### Git
 
 - Branch `master` is only used for stable releases.

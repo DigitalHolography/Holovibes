@@ -159,11 +159,13 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Mode of computation of the image */
     std::atomic<Computation> compute_mode{Computation::Raw};
+
     /*! \brief Algorithm to apply in hologram mode */
     std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
     /*! \brief Time transformation to apply in hologram mode */
     std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
     /*! \brief type of the image displayed */
+
     std::atomic<ImgType> img_type{ImgType::Modulus};
 
     /*! \brief Last window selected */

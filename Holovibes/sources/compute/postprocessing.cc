@@ -46,10 +46,7 @@ void Postprocessing::init()
     cuComplex_buffer_.resize(frame_res);
 
     gpu_kernel_buffer_.resize(frame_res);
-    cudaXMemsetAsync(gpu_kernel_buffer_.get(),
-                     0,
-                     frame_res * sizeof(cuComplex),
-                     stream_);
+    cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
                                    cd_.convo_matrix.data(),
@@ -62,15 +59,8 @@ void Postprocessing::init()
     constexpr uint batch_size = 1; // since only one frame.
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
-    shift_corners(gpu_kernel_buffer_.get(),
-                  batch_size,
-                  fd_.width,
-                  fd_.height,
-                  stream_);
-    cufftSafeCall(cufftExecC2C(convolution_plan_,
-                               gpu_kernel_buffer_.get(),
-                               gpu_kernel_buffer_.get(),
-                               CUFFT_FORWARD));
+    shift_corners(gpu_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
+    cufftSafeCall(cufftExecC2C(convolution_plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
 
     hsv_arr_.resize(frame_res * 3);
 }
@@ -87,11 +77,10 @@ void Postprocessing::convolution_composite()
 {
     const uint frame_res = fd_.frame_res();
 
-    from_interweaved_components_to_distinct_components(
-        buffers_.gpu_postprocess_frame,
-        hsv_arr_.get(),
-        frame_res,
-        stream_);
+    from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
+                                                       hsv_arr_.get(),
+                                                       frame_res,
+                                                       stream_);
 
     convolution_kernel(hsv_arr_.get(),
                        buffers_.gpu_convolution_buffer.get(),
@@ -123,11 +112,10 @@ void Postprocessing::convolution_composite()
                        true,
                        stream_);
 
-    from_distinct_components_to_interweaved_components(
-        hsv_arr_.get(),
-        buffers_.gpu_postprocess_frame,
-        frame_res,
-        stream_);
+    from_distinct_components_to_interweaved_components(hsv_arr_.get(),
+                                                       buffers_.gpu_postprocess_frame,
+                                                       frame_res,
+                                                       stream_);
 }
 
 void Postprocessing::insert_convolution()
@@ -137,22 +125,23 @@ void Postprocessing::insert_convolution()
 
     if (cd_.img_type != ImgType::Composite)
     {
-        fn_compute_vect_.conditional_push_back([=]() {
-            convolution_kernel(buffers_.gpu_postprocess_frame.get(),
-                               buffers_.gpu_convolution_buffer.get(),
-                               cuComplex_buffer_.get(),
-                               &convolution_plan_,
-                               fd_.frame_res(),
-                               gpu_kernel_buffer_.get(),
-                               cd_.divide_convolution_enabled,
-                               true,
-                               stream_);
-        });
+        fn_compute_vect_.conditional_push_back(
+            [=]()
+            {
+                convolution_kernel(buffers_.gpu_postprocess_frame.get(),
+                                   buffers_.gpu_convolution_buffer.get(),
+                                   cuComplex_buffer_.get(),
+                                   &convolution_plan_,
+                                   fd_.frame_res(),
+                                   gpu_kernel_buffer_.get(),
+                                   cd_.divide_convolution_enabled,
+                                   true,
+                                   stream_);
+            });
     }
     else
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]() { convolution_composite(); });
+        fn_compute_vect_.conditional_push_back([=]() { convolution_composite(); });
     }
 }
 
@@ -161,16 +150,18 @@ void Postprocessing::insert_renormalize()
     if (!cd_.renorm_enabled)
         return;
 
-    fn_compute_vect_.conditional_push_back([=]() {
-        uint frame_res = fd_.frame_res();
-        if (cd_.img_type == ImgType::Composite)
-            frame_res *= 3;
-        gpu_normalize(buffers_.gpu_postprocess_frame.get(),
-                      reduce_result_.get(),
-                      frame_res,
-                      cd_.renorm_constant,
-                      stream_);
-    });
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            uint frame_res = fd_.frame_res();
+            if (cd_.img_type == ImgType::Composite)
+                frame_res *= 3;
+            gpu_normalize(buffers_.gpu_postprocess_frame.get(),
+                          reduce_result_.get(),
+                          frame_res,
+                          cd_.renorm_constant,
+                          stream_);
+        });
 }
 } // namespace compute
 } // namespace holovibes

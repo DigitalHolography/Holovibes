@@ -7,7 +7,7 @@
 namespace holovibes::io_files
 {
 /*! \class CineFile
- * 
+ *
  * \brief Base class of cine files. Used to store data
  *
  * \details For more details, see:

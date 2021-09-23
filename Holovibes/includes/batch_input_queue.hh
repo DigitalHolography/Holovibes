@@ -38,12 +38,9 @@ class Queue;
 class BatchInputQueue : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames,
-                    const uint batch_size,
-                    const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
 
-    BatchInputQueue(const uint total_nb_frames,
-                    const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const camera::FrameDescriptor& fd);
 
     ~BatchInputQueue();
 

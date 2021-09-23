@@ -19,25 +19,21 @@ ConversionData::ConversionData(const BasicOpenGLWindow* window)
 
 float ConversionData::window_size_to_opengl(int val, Axis axis) const
 {
-    assert(window_);
-    auto res = (static_cast<float>(val) * 2.f /
-                static_cast<float>(get_window_size(axis))) -
-               1.f;
+    CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
 float ConversionData::fd_to_opengl(int val, Axis axis) const
 {
-    assert(window_);
-    auto res = (static_cast<float>(val) * 2.f /
-                static_cast<float>(get_fd_size(axis))) -
-               1.f;
+    CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
 int ConversionData::opengl_to_window_size(float val, Axis axis) const
 {
-    assert(window_);
+    CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
     if (axis == Axis::VERTICAL)
         val *= -1;
     int res = ((val + 1.f) / 2.f) * get_window_size(axis);
@@ -46,7 +42,7 @@ int ConversionData::opengl_to_window_size(float val, Axis axis) const
 
 int ConversionData::opengl_to_fd(float val, Axis axis) const
 {
-    assert(window_);
+    CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
     if (axis == Axis::VERTICAL)
         val *= -1;
     return ((val + 1.f) / 2.f) * get_fd_size(axis);
@@ -54,29 +50,23 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 
 double ConversionData::fd_to_real(int val, Axis axis) const
 {
-    assert(window_);
+    CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
     auto cd = window_->getCd();
     auto fd = window_->getFd();
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
-    else if (window_->getKindOfView() == gui::KindOfView::SliceXZ &&
-             axis == Axis::HORIZONTAL)
+        pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+    else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+        pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
     }
-    else if (window_->getKindOfView() == gui::KindOfView::SliceYZ &&
-             axis == Axis::VERTICAL)
+    else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
-        pix_size =
-            (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
+        pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
     }
     else
     {
-        pix_size =
-            std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
+        pix_size = std::pow(cd->lambda, 2) / 50E-9; // 50nm is an arbitrary value
     }
 
     return val * pix_size;

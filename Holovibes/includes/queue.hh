@@ -19,7 +19,7 @@ namespace holovibes
 /*! \class Queue
  *
  * \brief Circular queue to handle CPU and GPU data
- * 
+ *
  * Queue class is a custom circular FIFO data structure. It can handle
  * CPU or GPU data. This class is used to store the raw images, provided
  * by the camera, and holograms.
@@ -161,10 +161,9 @@ class Queue : public DisplayQueue
                           const cudaStream_t stream,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
-    void Queue::enqueue_from_48bit(
-        void* src,
-        const cudaStream_t stream,
-        cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void Queue::enqueue_from_48bit(void* src,
+                                   const cudaStream_t stream,
+                                   cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method overload
      *
@@ -219,11 +218,8 @@ class Queue : public DisplayQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
     */
-    void enqueue_multiple_aux(void* out,
-                              void* in,
-                              unsigned int nb_elts,
-                              const cudaStream_t stream,
-                              cudaMemcpyKind cuda_kind);
+    void enqueue_multiple_aux(
+        void* out, void* in, unsigned int nb_elts, const cudaStream_t stream, cudaMemcpyKind cuda_kind);
 
     // Forward declaration
     struct QueueRegion;

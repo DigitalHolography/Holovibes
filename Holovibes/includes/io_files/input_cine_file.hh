@@ -48,8 +48,7 @@ class InputCineFile : public InputFrameFile, public CineFile
      *  \return The actual number of frames read
      *  \throw FileException if an error occurred while reading the file
      */
-    size_t
-    read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
+    size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
 
   private:
     // Give access to private members to the factory

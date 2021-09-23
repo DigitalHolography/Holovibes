@@ -120,5 +120,6 @@ class Camera : public ICamera
 
     /*! \brief INI property tree, containing extracted data. */
     boost::property_tree::ptree ini_pt_;
+
 };
 } // namespace camera

@@ -54,31 +54,27 @@ class InformationContainer
      *
      * \param function Function to set
      */
-    void set_display_info_text_function(
-        const std::function<void(const std::string&)>& function);
+    void set_display_info_text_function(const std::function<void(const std::string&)>& function);
 
     /*! \brief Setter for update_progress_function attribute
      *
      * \param function Function to set
      */
-    void set_update_progress_function(
-        const std::function<void(ProgressType, size_t, size_t)>& function);
+    void set_update_progress_function(const std::function<void(ProgressType, size_t, size_t)>& function);
 
     /*! \brief Add an indication in the indication_map_
      *
      * \param indication_type Type of the indication to add
      * \param indication Indication to add in the map
      */
-    void add_indication(IndicationType indication_type,
-                        const std::string& indication);
+    void add_indication(IndicationType indication_type, const std::string& indication);
 
     /*! \brief Add a new processed fps in the fps_map_
      *
      * \param fps_type Type of the processed fps to add
      * \param processed_fps Processed fps to add
      */
-    void add_processed_fps(FpsType fps_type,
-                           std::atomic<unsigned int>& processed_fps);
+    void add_processed_fps(FpsType fps_type, std::atomic<unsigned int>& processed_fps);
 
     /*! \brief Add a new queue size in the queue_size_map_
      *
@@ -133,8 +129,7 @@ class InformationContainer
      *
      * \param progress_type The type of progress to retreive
      */
-    std::optional<std::pair<const std::atomic<unsigned int>*,
-                            const std::atomic<unsigned int>*>>
+    std::optional<std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>>
     get_progress_index(ProgressType progress_type) const;
 
   private:
@@ -171,8 +166,7 @@ class InformationContainer
                        const std::atomic<unsigned int>*>>
         queue_size_map_;
 
-    std::function<void(const std::string&)> display_info_text_function_ =
-        [](const std::string&) {};
+    std::function<void(const std::string&)> display_info_text_function_ = [](const std::string&) {};
 
     /*! \brief The map associating the progress type with its current progress
      * The first element of the pair is the current progress

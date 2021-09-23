@@ -183,7 +183,7 @@ class Rect
         return res;
     }
 
-    /*! \brief area, abs(width * height) */
+  /*! \brief area, abs(width * height) */
     typename T::primary_type area() const
     {
         return std::abs(width() * height());

@@ -51,9 +51,27 @@ Alternatively, you can build from the command line:
 
 #### Integration tests
 
+pytest is used for integration testing. For now integration testing is done using the CLI
+and combining an input holo file and a optional configuration file.
+The 2 files are passed as parameters to the CLI to create an output file which is then compared
+to a reference file.
+
+##### How to add tests
+
+An auto-discover function is already implemented.
+Just create a folder in the `tests/data/` folder. This is the name of your test.
+You shall put 2 or 3 files in the folder:
+* a `input.holo` file as input
+* a `ref.holo` file as intended output
+* an optional `holovibes.ini` config file for the parameters
+
 ##### Usage
 
-Build the project in release mode and run all integration tests with `./run_integration_tests.py`.
+Just build the project either in Release or Debug mode, 
+The tool used to run these tests is `pytest`. Just run this from the root of the project
+```sh
+$ python -m pytest -v
+```
 
 #### Unit tests
 
@@ -65,3 +83,37 @@ Build the project in release mode and run all integration tests with `./run_inte
 ##### Usage
 
 Build the project in debug mode and run all unit tests with `./run_unit_tests.py`.
+
+### Misc
+
+#### Logging
+
+##### Reading
+
+Logs are as follows:
+
+```
+${datetime} <${time from start}> [${Thread ID}] ${filename}:${line_in_file} ${log_level}| ${message}
+```
+
+##### Usage
+
+We have 5 levels of log:
+* Trace (LOG_TRACE)
+* Debug (LOG_DEBUG)
+* Infos (LOG_INFO)
+* Warnings (LOG_WARN)
+* Errors (LOG_ERROR)
+
+They are usable as std:cout and any C++ Stream.
+For instance, if a file named `config.json` is not found, you could write:
+```cpp
+LOG_ERROR << "File named config.json could not be found";
+```
+
+##### Assertions
+
+Assertions are under the same banners as the logs, but here you should use the CHECK macro function as follows:
+```cpp
+CHECK(condition) << "An error occured";
+```

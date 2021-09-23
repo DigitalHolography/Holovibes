@@ -13,10 +13,8 @@
  * \param divider Divider value for all elements.
  * \param batch_size The number of images
  */
-__global__ void kernel_complex_divide(cuComplex* image,
-                                      const uint frame_res,
-                                      const float divider,
-                                      const uint batch_size);
+__global__ void
+kernel_complex_divide(cuComplex* image, const uint frame_res, const float divider, const uint batch_size);
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
  *
@@ -24,10 +22,8 @@ __global__ void kernel_complex_divide(cuComplex* image,
  * The result is given in output.
  * Output should have the same size of inputs.
  */
-__global__ void kernel_multiply_frames_complex(const cuComplex* input1,
-                                               const cuComplex* input2,
-                                               cuComplex* output,
-                                               const uint size);
+__global__ void
+kernel_multiply_frames_complex(const cuComplex* input1, const cuComplex* input2, cuComplex* output, const uint size);
 
 /*! \brief  divide pixels value of numerator float input images by denominator
  *
@@ -35,10 +31,8 @@ __global__ void kernel_multiply_frames_complex(const cuComplex* input1,
  * The result is given in output.
  * Output should have the same size of inputs.
  */
-__global__ void kernel_divide_frames_float(const float* numerator,
-                                           const float* denominator,
-                                           float* output,
-                                           const uint size);
+__global__ void
+kernel_divide_frames_float(const float* numerator, const float* denominator, float* output, const uint size);
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
  *
@@ -46,11 +40,8 @@ __global__ void kernel_divide_frames_float(const float* numerator,
  * The result is given in output.
  * Output should have the same size of inputs.
  */
-void multiply_frames_complex(const cuComplex* input1,
-                             const cuComplex* input2,
-                             cuComplex* output,
-                             const uint size,
-                             const cudaStream_t stream);
+void multiply_frames_complex(
+    const cuComplex* input1, const cuComplex* input2, cuComplex* output, const uint size, const cudaStream_t stream);
 
 /*! \brief normalize input according to a renormalize constant
  *

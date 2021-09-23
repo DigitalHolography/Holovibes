@@ -52,7 +52,7 @@ static void check_cuda_graphic_card(bool gui)
     }
     else
     {
-        LOG_WARN(error_message);
+        LOG_WARN << error_message;
     }
     std::exit(1);
 }

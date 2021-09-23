@@ -9,8 +9,5 @@ inline DisplayQueue::DisplayQueue(const camera::FrameDescriptor& fd)
 {
 }
 
-inline const camera::FrameDescriptor& DisplayQueue::get_fd() const
-{
-    return fd_;
-}
+inline const camera::FrameDescriptor& DisplayQueue::get_fd() const { return fd_; }
 } // namespace holovibes

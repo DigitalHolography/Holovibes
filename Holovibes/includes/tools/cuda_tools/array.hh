@@ -80,9 +80,7 @@ class Array : public UniquePtr<T>
     {
         auto cpu_buffer = to_cpu();
         const uint byte_size = size_ * sizeof(T);
-        std::ofstream file(filename,
-                           std::ios::binary |
-                               (trunc ? std::ios::trunc : std::ios::app));
+        std::ofstream file(filename, std::ios::binary | (trunc ? std::ios::trunc : std::ios::app));
         file.write(reinterpret_cast<char*>(cpu_buffer.data()), byte_size);
     }
 
@@ -94,10 +92,7 @@ class Array : public UniquePtr<T>
     {
         std::vector<T> cpu_buffer(size_);
         const size_t byte_size = size_ * sizeof(T);
-        cudaXMemcpy(cpu_buffer.data(),
-                    get(),
-                    byte_size,
-                    cudaMemcpyDeviceToHost);
+        cudaXMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
         return cpu_buffer;
     }
 

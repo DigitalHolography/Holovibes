@@ -47,3 +47,6 @@ Holovibes/holovibes.ini
 # Doxygen generated files
 latex
 html
+
+# Testing files
+last_generated_output.holo

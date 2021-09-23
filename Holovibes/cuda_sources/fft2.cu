@@ -20,30 +20,23 @@ void fft2_lens(cuComplex* lens,
 {
     const uint threads_2d = get_max_threads_2d();
     const dim3 lthreads(threads_2d, threads_2d);
-    const dim3 lblocks(lens_side_size / threads_2d,
-                       lens_side_size / threads_2d);
+    const dim3 lblocks(lens_side_size / threads_2d, lens_side_size / threads_2d);
 
     cuComplex* square_lens;
     // In anamorphic mode, the lens is initally a square, it's then cropped to
     // be the same dimension as the frame
     if (frame_height != frame_width)
-        cudaXMalloc(&square_lens,
-                    lens_side_size * lens_side_size * sizeof(cuComplex));
+        cudaXMalloc(&square_lens, lens_side_size * lens_side_size * sizeof(cuComplex));
     else
         square_lens = lens;
 
-    kernel_spectral_lens<<<lblocks, lthreads, 0, stream>>>(square_lens,
-                                                           lens_side_size,
-                                                           lambda,
-                                                           z,
-                                                           pixel_size);
+    kernel_spectral_lens<<<lblocks, lthreads, 0, stream>>>(square_lens, lens_side_size, lambda, z, pixel_size);
     cudaCheckError();
 
     if (frame_height != frame_width)
     {
         cudaXMemcpyAsync(lens,
-                         square_lens + ((lens_side_size - frame_height) / 2) *
-                                           frame_width,
+                         square_lens + ((lens_side_size - frame_height) / 2) * frame_width,
                          frame_width * frame_height * sizeof(cuComplex),
                          cudaMemcpyDeviceToDevice,
                          stream);
@@ -73,10 +66,9 @@ void fft_2(cuComplex* input,
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 
-    kernel_complex_divide<<<blocks, threads, 0, stream>>>(
-        input,
-        frame_resolution,
-        static_cast<float>(frame_resolution),
-        batch_size);
+    kernel_complex_divide<<<blocks, threads, 0, stream>>>(input,
+                                                          frame_resolution,
+                                                          static_cast<float>(frame_resolution),
+                                                          batch_size);
     cudaCheckError();
 }

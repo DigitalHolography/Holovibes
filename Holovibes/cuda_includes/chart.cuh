@@ -42,10 +42,9 @@ void apply_zone_std_sum(const float* input,
  * \param noise_zone Coordinates of the noise zone to use.
  * \return ChartPoint containing all computations for one point of chart
  */
-holovibes::ChartPoint
-make_chart_plot(float* input,
-                const uint width,
-                const uint height,
-                const holovibes::units::RectFd& signal_zone,
-                const holovibes::units::RectFd& noise_zone,
-                const cudaStream_t stream);
+holovibes::ChartPoint make_chart_plot(float* input,
+                                      const uint width,
+                                      const uint height,
+                                      const holovibes::units::RectFd& signal_zone,
+                                      const holovibes::units::RectFd& noise_zone,
+                                      const cudaStream_t stream);

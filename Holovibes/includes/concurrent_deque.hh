@@ -13,7 +13,7 @@ namespace holovibes
 using LockGuard = std::lock_guard<std::mutex>;
 
 /*! \class ConcurrentDeque
- * 
+ *
  * \brief This class is a thread safe wrapper on std::deque.
  *
  * It is used mainly to store Chart values.
@@ -134,9 +134,7 @@ class ConcurrentDeque
         size_t limit = std::min(nb_elts, deque_.size());
         std::advance(q_end, limit);
 
-        std::transform(deque_.rbegin(), q_end, vect.begin(), [](T& elt) {
-            return elt;
-        });
+        std::transform(deque_.rbegin(), q_end, vect.begin(), [](T& elt) { return elt; });
 
         return limit;
     }

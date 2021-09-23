@@ -3,9 +3,8 @@
 
 namespace holovibes::worker
 {
-CameraFrameReadWorker::CameraFrameReadWorker(
-    std::shared_ptr<camera::ICamera> camera,
-    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
+                                             std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : FrameReadWorker(gpu_input_queue)
     , camera_(camera)
 {
@@ -16,18 +15,13 @@ void CameraFrameReadWorker::run()
     const camera::FrameDescriptor& camera_fd = camera_->get_fd();
 
     // Update information container
-    std::string input_format =
-        std::to_string(camera_fd.width) + std::string("x") +
-        std::to_string(camera_fd.height) + std::string(" - ") +
-        std::to_string(camera_fd.depth * 8) + std::string("bit");
+    std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
+                               std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
 
     InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE,
-                        camera_->get_name());
-    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                        std::ref(input_format));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS,
-                           std::ref(processed_fps_));
+    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, camera_->get_name());
+    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_format));
+    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
 
     try
     {
@@ -45,7 +39,7 @@ void CameraFrameReadWorker::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR("[CAPTURE] " + std::string(e.what()));
+        LOG_ERROR << "[CAPTURE] " << e.what();
     }
 
     info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
@@ -55,12 +49,10 @@ void CameraFrameReadWorker::run()
     camera_.reset();
 }
 
-void CameraFrameReadWorker::enqueue_loop(
-    const camera::CapturedFramesDescriptor& captured_fd,
-    const camera::FrameDescriptor& camera_fd)
+void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
+                                         const camera::FrameDescriptor& camera_fd)
 {
-    auto copy_kind =
-        captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+    auto copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
 
     for (unsigned i = 0; i < captured_fd.count1; ++i)
     {
