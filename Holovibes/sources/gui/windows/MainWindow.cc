@@ -556,7 +556,6 @@ void MainWindow::notify_error(std::exception& e)
         }
 
         auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
-
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -1100,7 +1099,6 @@ void MainWindow::set_holographic_mode()
     {
 
         LOG_ERROR << "cannot set holographic mode: " << e.what();
-
     }
 }
 
@@ -2681,21 +2679,6 @@ void MainWindow::set_record_mode(const QString& value)
     ui.SquareOutputCheckBox->setChecked(false);
 
     notify();
-}
-
-void MainWindow::set_record_file_extension(const QString& value)
-{
-    const std::string text = value.toUtf8();
-
-    if (text == ".avi" || text == ".mp4")
-    {
-        ui.SquareOutputCheckBox->show();
-    }
-    else
-    {
-        ui.SquareOutputCheckBox->hide();
-        ui.SquareOutputCheckBox->setChecked(false);
-    }
 }
 
 void MainWindow::stop_record()
