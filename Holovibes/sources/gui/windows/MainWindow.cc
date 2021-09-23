@@ -2675,9 +2675,6 @@ void MainWindow::set_record_mode(const QString& value)
         }
     }
 
-    ui.SquareOutputCheckBox->hide();
-    ui.SquareOutputCheckBox->setChecked(false);
-
     notify();
 }
 
@@ -2752,8 +2749,6 @@ void MainWindow::start_record()
     auto callback = [record_mode = record_mode_, this]() {
         synchronize_thread([=]() { record_finished(record_mode); });
     };
-
-    bool square_output = ui.SquareOutputCheckBox->isChecked();
 
     if (batch_enabled)
     {
