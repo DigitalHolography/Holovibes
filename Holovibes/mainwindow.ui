@@ -2865,17 +2865,6 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="squareOutputLayout">
-                 <item>
-                  <widget class="QCheckBox" name="SquareOutputCheckBox">
-                   <property name="text">
-                    <string>Square Output</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
                 <widget class="QGroupBox" name="BatchGroupBox">
                  <property name="title">
                   <string>Batch</string>
@@ -3051,7 +3040,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3112,7 +3101,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>19</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -4986,22 +4975,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RecordExtComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_record_file_extension(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>891</x>
-     <y>339</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Filter2DN1SpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -5349,7 +5322,6 @@ p, li { white-space: pre-wrap; }
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
   <slot>set_record_mode(QString)</slot>
-  <slot>set_record_file_extension(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>

@@ -660,7 +660,7 @@ void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_
 void MainWindow::write_ini()
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(holovibes::ini::get_global_ini_path());
+    save_ini(::holovibes::ini::get_global_ini_path());
     notify();
 }
 
@@ -2681,25 +2681,7 @@ void MainWindow::set_record_mode(const QString& value)
         }
     }
 
-    ui.SquareOutputCheckBox->hide();
-    ui.SquareOutputCheckBox->setChecked(false);
-
     notify();
-}
-
-void MainWindow::set_record_file_extension(const QString& value)
-{
-    const std::string text = value.toUtf8();
-
-    if (text == ".avi" || text == ".mp4")
-    {
-        ui.SquareOutputCheckBox->show();
-    }
-    else
-    {
-        ui.SquareOutputCheckBox->hide();
-        ui.SquareOutputCheckBox->setChecked(false);
-    }
 }
 
 void MainWindow::stop_record()
@@ -2774,16 +2756,9 @@ void MainWindow::start_record()
         synchronize_thread([=]() { record_finished(record_mode); });
     };
 
-    bool square_output = ui.SquareOutputCheckBox->isChecked();
-
     if (batch_enabled)
     {
-        holovibes_.start_batch_gpib(batch_input_path,
-                                    output_path,
-                                    nb_frames_to_record.value(),
-                                    record_mode_,
-                                    square_output,
-                                    callback);
+        holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(), record_mode_, callback);
     }
     else
     {
@@ -2793,11 +2768,11 @@ void MainWindow::start_record()
         }
         else if (record_mode_ == RecordMode::HOLOGRAM)
         {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, false, square_output, 0, callback);
+            holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
         else if (record_mode_ == RecordMode::RAW)
         {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, true, false, 0, callback);
+            holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }
     }
 }

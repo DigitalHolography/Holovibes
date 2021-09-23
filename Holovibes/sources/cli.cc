@@ -114,7 +114,7 @@ start_record(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor
         nb_frames_skip = cd.img_acc_slice_xy_level;
     }
     cd.frame_record_enabled = true;
-    holovibes.start_frame_record(opts.output_path.value(), record_nb_frames, opts.record_raw, false, nb_frames_skip);
+    holovibes.start_frame_record(opts.output_path.value(), record_nb_frames, opts.record_raw, nb_frames_skip);
 }
 
 static void main_loop(holovibes::Holovibes& holovibes)

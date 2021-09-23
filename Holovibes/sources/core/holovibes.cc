@@ -114,13 +114,12 @@ void Holovibes::stop_frame_read()
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
                                    bool raw_record,
-                                   bool square_output,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record, square_output, nb_frames_skip);
+    frame_record_worker_controller_.start(path, nb_frames_to_record, raw_record, nb_frames_skip);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -140,13 +139,12 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
                                  const std::string& output_path,
                                  unsigned int nb_frames_to_record,
                                  RecordMode record_mode,
-                                 bool square_output,
                                  const std::function<void()>& callback)
 {
     batch_gpib_worker_controller_.stop();
     batch_gpib_worker_controller_.set_callback(callback);
     batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record, record_mode, square_output);
+    batch_gpib_worker_controller_.start(batch_input_path, output_path, nb_frames_to_record, record_mode);
 }
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }

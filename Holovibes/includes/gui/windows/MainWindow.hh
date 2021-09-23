@@ -506,12 +506,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_record_mode(const QString& value);
 
-    /*! \brief Enables or Disables square output checkbox depending on extensions
-     *
-     * \param value The given extension
-     */
-    void set_record_file_extension(const QString& value);
-
     /*! \brief Stops the record */
     void stop_record();
 
