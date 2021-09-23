@@ -14,7 +14,7 @@ std::string get_appdata_holovibes_folder()
     return holovibes_folder;
 }
 
-std::string& get_global_ini_path()
+std::string get_global_ini_path()
 {
     if (global_ini_path.compare("") == 0)
     {
