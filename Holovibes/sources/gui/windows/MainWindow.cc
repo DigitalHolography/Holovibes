@@ -654,7 +654,7 @@ void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_
 void MainWindow::write_ini()
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(GLOBAL_INI_PATH);
+    save_ini(::holovibes::ini::get_global_ini_path());
     notify();
 }
 
@@ -2752,12 +2752,7 @@ void MainWindow::start_record()
 
     if (batch_enabled)
     {
-        holovibes_.start_batch_gpib(batch_input_path,
-                                    output_path,
-                                    nb_frames_to_record.value(),
-                                    record_mode_,
-                                    square_output,
-                                    callback);
+        holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(), record_mode_, callback);
     }
     else
     {
@@ -2767,11 +2762,11 @@ void MainWindow::start_record()
         }
         else if (record_mode_ == RecordMode::HOLOGRAM)
         {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, false, square_output, 0, callback);
+            holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
         else if (record_mode_ == RecordMode::RAW)
         {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, true, false, 0, callback);
+            holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }
     }
 }

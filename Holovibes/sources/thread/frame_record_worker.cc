@@ -9,7 +9,6 @@ namespace holovibes::worker
 FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
                                      std::optional<unsigned int> nb_frames_to_record,
                                      bool raw_record,
-                                     bool square_output,
                                      unsigned int nb_frames_skip)
     : Worker()
     , file_path_(get_record_filename(file_path))
@@ -17,7 +16,6 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
     , nb_frames_skip_(nb_frames_skip)
     , processed_fps_(0)
     , raw_record_(raw_record)
-    , square_output_(square_output)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
 }
@@ -65,7 +63,6 @@ void FrameRecordWorker::run()
             nb_frames_to_record_.has_value() ? nb_frames_to_record_.value() : 0);
 
         output_frame_file->export_compute_settings(cd, raw_record_);
-        output_frame_file->set_make_square_output(square_output_);
 
         output_frame_file->write_header();
 

@@ -191,7 +191,6 @@ class Holovibes
      * \param path
      * \param nb_frames_to_record
      * \param raw_record
-     * \param square_output
      * \param nb_frames_skip
      * \param callback
      */
@@ -199,7 +198,6 @@ class Holovibes
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
         bool raw_record,
-        bool square_output,
         unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 
@@ -216,7 +214,6 @@ class Holovibes
         const std::string& output_path,
         unsigned int nb_frames_to_record,
         RecordMode record_mode,
-        bool square_output,
         const std::function<void()>& callback = []() {});
 
     void stop_batch_gpib();

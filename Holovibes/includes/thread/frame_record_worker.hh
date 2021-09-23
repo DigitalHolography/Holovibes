@@ -26,13 +26,11 @@ class FrameRecordWorker : public Worker
      * \param file_path The path of the file to record
      * \param nb_frames_to_record The number of frames to record
      * \param raw_record Whether raw images are recorded
-     * \param square_output Whether the output should be a square
      * \param nb_frames_skip Number of frames to skip before starting
      */
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
                       bool raw_record,
-                      bool square_output,
                       unsigned int nb_frames_skip);
 
     void run() override;
@@ -68,8 +66,6 @@ class FrameRecordWorker : public Worker
     std::atomic<unsigned int> processed_fps_;
     /*! \brief Whether the raw images are recorded */
     bool raw_record_;
-    /*! \brief Whether the output should be a square */
-    bool square_output_;
 
     const cudaStream_t stream_;
 };
