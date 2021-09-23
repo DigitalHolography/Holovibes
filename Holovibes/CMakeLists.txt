@@ -137,9 +137,15 @@ add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
 # Targets test_* (unit tests)
 # ---
 
-set (GTEST_LIBRARY      "C:/gtest/googletest/msvc/2010/gtest-md/x64-Debug/gtestd.lib")
-set (GTEST_ROOT         "C:/gtest/googletest")
-set (GTEST_MAIN_LIBRARY "C:/gtest/googletest/msvc/2010/gtest-md/x64-Debug/gtestd.lib")
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.11.0 # Specify the commit you depend on and update it regularly.
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
 set(SRC_TESTS
     unit_tests/test_example.cc
@@ -153,9 +159,8 @@ set(SRC_TESTS
 )
 
 enable_testing()
-find_package(GTest)
 find_package (Threads)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${GTEST_FOUND} AND ${THREADS_FOUND})
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
     include_directories(${GTEST_INCLUDE_DIRS})
     message(STATUS "TESTS: Unit tests enabled")
 
@@ -169,7 +174,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${GTEST_FOUND} AND ${THREADS_FOUND})
         add_executable(${TEST_NAME} ${f})
         target_link_libraries(${TEST_NAME} PRIVATE
             "${PROJECT_NAME}_lib"
-            ${GTEST_BOTH_LIBRARIES}
+            gtest
+            gtest_main
         )
 
         set_target_properties(${TEST_NAME} PROPERTIES
