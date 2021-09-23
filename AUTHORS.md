@@ -1,5 +1,10 @@
 ## Authors
 
+- Philippe Bernet
+- Eliott Bouhana
+- Fabien Colmagro
+- Marius Dubosc
+- Guillaume Poisson
 - Anthony Strazzella
 - Ilan Guenet
 - Nicolas Blin

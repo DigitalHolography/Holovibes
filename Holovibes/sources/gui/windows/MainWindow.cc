@@ -595,6 +595,12 @@ void MainWindow::credits()
 
                       "Developers:\n\n"
 
+                      "Philippe Bernet\n"
+                      "Eliott Bouhana\n"
+                      "Fabien Colmagro\n"
+                      "Marius Dubosc\n"
+                      "Guillaume Poisson\n"
+
                       "Anthony Strazzella\n"
                       "Ilan Guenet\n"
                       "Nicolas Blin\n"
