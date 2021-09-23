@@ -125,3 +125,12 @@ std::string create_absolute_path(const std::string& relative_path);
 /*! \brief Returns the absolute path to the user Documents folder */
 std::filesystem::path get_user_documents_path();
 } // namespace holovibes
+
+namespace image
+{
+template <typename T>
+void grey_to_rgb_size(T& buffer_size)
+{
+    buffer_size *= 3;
+}
+} // namespace image

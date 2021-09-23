@@ -20,8 +20,7 @@
 
 namespace holovibes
 {
-/*! \brief Current version of this project. */
-const static std::string version = "v10.1";
+#define __HOLOVIBES_VERSION__ "10.1"
 
 /*! \class ComputeDescriptor
  *
