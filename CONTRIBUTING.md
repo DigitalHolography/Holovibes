@@ -22,8 +22,8 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 1. Merge all your feature branches on `develop`
 2. Change the version number in `compute_descriptor.hh` and `setupCreator.iss`.
 3. Update `CHANGELOG.md`.
-4. Make a clean build in release mode (`rm -rf build && ./build.py R`).
+4. Make a clean build in release mode (`rm -rf build && ./build.py R P`).
 5. Make sure everything works as intended and run test suite (`./build.py && ./run_unit_tests.py`).
-6. Delete the file holovibes.ini from the release build directory
-7. Create a commit for the new version (`git commit -m "vX.X"`).
-8. Tag your commit and push (`git tag -a "vX.X" -m "vX.X" && git push origin develop --tags`).
+6. Create a commit for the new version (`git commit -m "vX.X"`).
+7. Tag your commit and push (`git tag -a "vX.X" -m "vX.X" && git push origin develop --tags`).
+8. Go on *Inno Setup Compiler* choosing `setupCreator.iss` and launch the execution.
