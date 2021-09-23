@@ -91,13 +91,13 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { std::cout << "Holovibes " << holovibes::version << std::endl; }
+static void print_version() { LOG_INFO << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    std::cout << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    std::cout << parser.get_opts_desc();
+    LOG_INFO << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    LOG_INFO << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Uncaught exception: " << e.what() << std::endl;
+        LOG_ERROR << "Uncaught exception: " << e.what() << std::endl;
         ret = 1;
     }
     return ret;

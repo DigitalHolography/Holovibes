@@ -3,6 +3,7 @@
 
 #include "options_parser.hh"
 #include "config.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -115,7 +116,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        LOG_INFO << e.what() << std::endl;
         std::exit(1);
     }
 
