@@ -2577,9 +2577,11 @@ void MainWindow::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
+    // FIXME: path separator should depend from system
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
+    // FIXME Opti: we could be all these 3 operations below on a single string processing
     record_output_directory_ = path.parent_path().string();
     const std::string file_ext = path.extension().string();
     default_output_filename_ = path.stem().string();
