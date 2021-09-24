@@ -9,54 +9,30 @@
 
 #include <cstddef>
 
+#include "cuda_memory.cuh"
 #include "logger.hh"
 #include "common.cuh"
 
-namespace holovibes
-{
 /*! \brief Contains memory handlers for cuda buffers. */
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
-/*! \brief #TODO Add a description for this namespace or remove it */
-namespace _private
-{
-/*! \struct element_size<>
- *
- * \brief #TODO Add a description for this struct
- */
-template <typename T>
-struct element_size
-{
-    static const size_t value = sizeof(T);
-};
-
-/*! \struct element_size<void>
- *
- * \brief #TODO Add a description for this struct
- */
-template <>
-struct element_size<void>
-{
-    static const size_t value = 1;
-};
-} // namespace _private
 
 /*! \class UniquePtr
  *
  * \brief A smart pointer made for ressources that need to be cudaFreed
  */
 template <typename T>
-class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
+class UniquePtr : public std::unique_ptr<T, decltype(cudaXFree)*>
 {
   public:
-    using base = std::unique_ptr<T, std::function<void(T*)>>;
+    using base = std::unique_ptr<T, decltype(cudaXFree)*>;
     UniquePtr()
-        : base(nullptr, cudaFree)
+        : base(nullptr, cudaXFree)
     {
     }
 
     UniquePtr(T* ptr)
-        : base(ptr, cudaFree)
+        : base(ptr, cudaXFree)
     {
     }
 
@@ -68,7 +44,7 @@ class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
 
     /*! \brief Allocates an array of size sizeof(T) * size */
     UniquePtr(const size_t size)
-        : base(nullptr, cudaFree)
+        : base(nullptr, cudaXFree)
     {
         resize(size);
     }
@@ -77,12 +53,11 @@ class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
     bool resize(size_t size)
     {
         T* tmp;
-        size *= _private::element_size<T>::value;
+        size *= sizeof(T);
         reset(nullptr);          // Free itself first
         cudaXMalloc(&tmp, size); // Allocate memory
         reset(tmp);              // Update pointer
         return tmp;
     }
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools
