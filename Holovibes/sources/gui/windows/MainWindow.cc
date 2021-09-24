@@ -242,14 +242,14 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (cd_.compute_mode == Computation::Raw && is_enabled_camera_)
+    if (is_enabled_camera_ && cd_.compute_mode == Computation::Raw)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(false);
         ui.ExportGroupBox->setEnabled(true);
     }
 
-    else if (cd_.compute_mode == Computation::Hologram && is_enabled_camera_)
+    else if (is_enabled_camera_ && cd_.compute_mode == Computation::Hologram)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(true);
@@ -277,13 +277,13 @@ void MainWindow::on_notify()
 
     QPushButton* signalBtn = ui.ChartSignalPushButton;
     signalBtn->setStyleSheet(
-        (signalBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
+        (mainDisplay && signalBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
             ? "QPushButton {color: #8E66D9;}"
             : "");
 
     QPushButton* noiseBtn = ui.ChartNoisePushButton;
     noiseBtn->setStyleSheet(
-        (noiseBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
+        (mainDisplay && noiseBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
             ? "QPushButton {color: #00A4AB;}"
             : "");
 
@@ -360,9 +360,9 @@ void MainWindow::on_notify()
 
     // q accu
     bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
-    ui.Q_AccuCheckBox->setEnabled(!is_raw && is_ssa_stft);
-    ui.Q_AccSpinBox->setEnabled(!is_raw && is_ssa_stft);
-    ui.Q_SpinBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
+    ui.Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui.Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
     ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
     ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
@@ -409,7 +409,7 @@ void MainWindow::on_notify()
     QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
 
     // Time transformation
-    ui.TimeTransformationStrideSpinBox->setEnabled(!cd_.fast_pipe && !is_raw);
+    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw && !cd_.fast_pipe);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
@@ -418,7 +418,7 @@ void MainWindow::on_notify()
     ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!cd_.fast_pipe && !is_raw && !is_recording_);
+    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_ && !cd_.fast_pipe);
 
     if (cd_.batch_size > input_queue_capacity)
         cd_.batch_size = input_queue_capacity;
@@ -435,7 +435,7 @@ void MainWindow::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui.timeTransformationSizeSpinBox->setEnabled(!cd_.fast_pipe && !is_raw && !cd_.time_transformation_cuts_enabled);
+    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.fast_pipe && !cd_.time_transformation_cuts_enabled);
     ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
     ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
                                                   MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
@@ -1583,7 +1583,7 @@ void MainWindow::cancel_filter2d()
     if (is_raw_mode())
         return;
 
-    if (cd_.filter2d_view_enabled == true)
+    if (cd_.filter2d_view_enabled)
         update_filter2d_view(false);
     pipe_refresh();
     notify();
@@ -2353,7 +2353,7 @@ void MainWindow::set_log_scale(const bool value)
         return;
 
     cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-    if (cd_.contrast_enabled && value)
+    if (value && cd_.contrast_enabled)
         set_auto_contrast();
     pipe_refresh();
     notify();
@@ -2426,7 +2426,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 void MainWindow::set_fast_pipe(bool value)
 {
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (pipe && value)
+    if (value && pipe)
     {
         pipe->insert_fn_end_vect([=]() {
             // Constraints linked with fast pipe option
@@ -2726,14 +2726,14 @@ void MainWindow::start_record()
     if (!ui.NumberOfFramesCheckBox->isChecked())
         nb_frames_to_record = std::nullopt;
 
-    if ((record_mode_ == RecordMode::CHART || batch_enabled) && nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
         return display_error("Number of frames must be activated");
 
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
     std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
-    if (batch_enabled && batch_input_path == "")
+    if (batch_enabled && batch_input_path.empty())
         return display_error("No batch input file");
 
     // Start record
@@ -2808,7 +2808,7 @@ void MainWindow::import_file(const QString& filename)
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
-    if (filename != "")
+    if (!filename.isEmpty())
     {
         try
         {
