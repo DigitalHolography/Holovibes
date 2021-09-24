@@ -74,7 +74,7 @@ class Holovibes
                 cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
         }
 
-        /*! \brief Used when the device is reset. Recreate the steams.
+        /*! \brief Used when the device is reset. Recreate the streams.
          *
          * This might cause a small memory leak, but at least it doesn't cause a crash/segfault
          */
