@@ -74,7 +74,7 @@ class Rendering
         std::atomic<bool>& autocontrast_filter2d_request);
 
     /*! \brief insert the constrast on a view */
-    void Rendering::insert_apply_contrast(WindowKind view);
+    void insert_apply_contrast(WindowKind view);
 
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input,

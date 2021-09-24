@@ -60,7 +60,7 @@ class MainWindow : public QMainWindow, public Observer
     ~MainWindow();
 
     void notify() override;
-    void notify_error(std::exception& e) override;
+    void notify_error(const std::exception& e) override;
 
     RawWindow* get_main_display();
 #pragma endregion

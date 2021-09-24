@@ -62,7 +62,7 @@ class CufftHandle
      * It's equal in byte to : frame_width * frame_height * sizeof(T) (in our
      * case cuComplex) * batch_size
      */
-    void CufftHandle::XtplanMany(int rank,
+    void XtplanMany(int rank,
                                  long long* n,
                                  long long* inembed,
                                  long long istride,

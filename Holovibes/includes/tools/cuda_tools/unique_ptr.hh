@@ -22,29 +22,28 @@ namespace holovibes::cuda_tools
  * \brief A smart pointer made for ressources that need to be cudaFreed
  */
 template <typename T>
-class UniquePtr : public std::unique_ptr<T, decltype(cudaXFree)*>
+class UniquePtr
 {
   public:
-    using base = std::unique_ptr<T, decltype(cudaXFree)*>;
     UniquePtr()
-        : base(nullptr, cudaXFree)
+        : val_(nullptr, cudaXFree)
     {
     }
 
     UniquePtr(T* ptr)
-        : base(ptr, cudaXFree)
+        : val_(ptr, cudaXFree)
     {
     }
 
-    /*! \brief Implicit cast operator */
-    operator T*() { return get(); }
+    T* get() const {
+        return val_.get();
+    }
 
     /*! \brief Implicit cast operator */
-    operator T*() const { return get(); }
+    operator T*() const { return &(*val_); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
     UniquePtr(const size_t size)
-        : base(nullptr, cudaXFree)
     {
         resize(size);
     }
@@ -54,10 +53,16 @@ class UniquePtr : public std::unique_ptr<T, decltype(cudaXFree)*>
     {
         T* tmp;
         size *= sizeof(T);
-        reset(nullptr);          // Free itself first
-        cudaXMalloc(&tmp, size); // Allocate memory
-        reset(tmp);              // Update pointer
+        val_.reset(nullptr);          // Free itself first
+        cudaXMalloc(&tmp, size);      // Allocate memory
+        val_.reset(tmp);              // Update pointer
         return tmp;
     }
+
+    void reset(T* ptr) { return val_.reset(ptr); }
+    void reset() { return val_.reset(nullptr); }
+
+protected:
+    std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};
 };
 } // namespace holovibes::cuda_tools

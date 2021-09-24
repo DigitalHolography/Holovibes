@@ -269,7 +269,7 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
 
-void ICompute::pipe_error(const int& err_count, std::exception& e)
+void ICompute::pipe_error(const int& err_count, const std::exception& e)
 {
     LOG_ERROR << "Pipe error: ";
     LOG_ERROR << "  message: " << e.what();
