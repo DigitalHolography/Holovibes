@@ -38,7 +38,7 @@ class UniquePtr
     T* get() const { return val_.get(); }
 
     /*! \brief Implicit cast operator */
-    operator T*() const { return &(*val_); }
+    operator T*() const { return val_.get(); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
     UniquePtr(const size_t size) { resize(size); }
