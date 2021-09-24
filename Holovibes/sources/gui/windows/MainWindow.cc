@@ -531,12 +531,12 @@ void MainWindow::on_notify()
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void MainWindow::notify_error(std::exception& e)
+void MainWindow::notify_error(const std::exception& e)
 {
-    CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
+    const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
-        UpdateException* err_update_ptr = dynamic_cast<UpdateException*>(err_ptr);
+        const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
         if (err_update_ptr)
         {
             auto lambda = [this] {
@@ -555,7 +555,7 @@ void MainWindow::notify_error(std::exception& e)
             synchronize_thread(lambda);
         }
 
-        auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
+        auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -2613,7 +2613,7 @@ void MainWindow::set_record_mode(const QString& value)
 
     stop_record();
 
-    const std::string text = value.toUtf8();
+    const std::string text = value.toStdString();
 
     if (text == "Chart")
         record_mode_ = RecordMode::CHART;
@@ -2719,7 +2719,7 @@ void MainWindow::start_record()
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
-    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
+    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toStdString();
     if (batch_enabled && batch_input_path == "")
         return display_error("No batch input file");
 
@@ -2889,7 +2889,7 @@ void MainWindow::init_holovibes_import_mode()
     try
     {
         // Gather data from import panel
-        std::string file_path = import_line_edit->text().toUtf8();
+        std::string file_path = import_line_edit->text().toStdString();
         unsigned int fps = fps_spinbox->value();
         size_t first_frame = start_spinbox->value();
         size_t last_frame = end_spinbox->value();

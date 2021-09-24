@@ -161,7 +161,7 @@ class Queue : public DisplayQueue
                           const cudaStream_t stream,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
-    void Queue::enqueue_from_48bit(void* src,
+    void enqueue_from_48bit(void* src,
                                    const cudaStream_t stream,
                                    cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 

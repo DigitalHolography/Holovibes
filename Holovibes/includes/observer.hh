@@ -21,7 +21,7 @@ class Observer
      */
     virtual void notify() = 0;
 
-    virtual void notify_error(std::exception& e) = 0;
+    virtual void notify_error(const std::exception& e) = 0;
 
   protected:
     Observer() {}

@@ -292,8 +292,15 @@ void Rendering::set_contrast_min_max(const float* const percent_out,
     contrast_min = percent_out[0];
     contrast_max = percent_out[1];
 
-    contrast_min = ((contrast_min < 1.0f) ? (1.0f) : contrast_min);
-    contrast_max = ((contrast_max < 1.0f) ? (1.0f) : contrast_max);
+    if (contrast_min < 1.0f)
+    {
+        contrast_min = 1.0f;
+    }
+
+    if (contrast_max < 1.0f)
+    {
+        contrast_max = 1.0f;
+    }
 }
 
 void Rendering::autocontrast_caller(
