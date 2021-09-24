@@ -63,7 +63,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueOfThreeElements)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "a\0b\0c\0d\0e\0";
+    const char* data = "a\0b\0c\0d\0e\0";
 
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
     queue.enqueue(data + 1 * frame_size, cudaMemcpyHostToDevice);
@@ -84,7 +84,7 @@ TEST(BatchInputQueueTest, SimpleEnqueueAndDequeueOfThreeElements)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "a\0b\0c\0d\0e\0";
+    const char* data = "a\0b\0c\0d\0e\0";
 
     // Enqueue
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
@@ -112,7 +112,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteElements)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "a\0b\0c\0d\0e\0";
+    const char* data = "a\0b\0c\0d\0e\0";
 
     // Enqueue
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice); // A
@@ -143,7 +143,7 @@ TEST(BatchInputQueueTest, SimpleOverwriteMoreElements)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "abc\0ABC\0def\0DEF\0ghi\0GHI\0";
+    const char* data = "abc\0ABC\0def\0DEF\0ghi\0GHI\0";
 
     // Enqueue ABC
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice); // abc
@@ -196,7 +196,7 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "ilan\0nico\0anto\0kaci\0theo\0";
+    const char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
@@ -227,7 +227,7 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "ilan\0nico\0anto\0kaci\0theo\0";
+    const char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
@@ -260,7 +260,7 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
     holovibes::BatchInputQueue queue(total_nb_frames, batch_size, fd);
     uint frame_size = queue.get_frame_size();
 
-    char* data = "ilan\0nico\0anto\0kaci\0theo\0";
+    const char* data = "ilan\0nico\0anto\0kaci\0theo\0";
 
     // Enqueue "ilan\0nico\0" and "anto\0kaci\0"
     queue.enqueue(data + 0 * frame_size, cudaMemcpyHostToDevice);
