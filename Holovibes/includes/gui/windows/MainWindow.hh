@@ -569,18 +569,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void change_camera(CameraKind c);
 
-    /*! \brief Logs a message in error scope
-     *
-     * \param msg The message to log
-     */
-    void display_error(std::string msg);
-
-    /*! \brief Logs a message in info scope
-     *
-     * \param msg The message to log
-     */
-    void display_info(std::string msg);
-
     /*! \brief Opens a file
      *
      * \param path The path of the file to open

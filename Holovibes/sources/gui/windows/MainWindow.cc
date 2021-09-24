@@ -133,8 +133,9 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_WARN << ::holovibes::ini::get_global_ini_path() << ": Configuration file not found. "
                  << "Initialization with default values.";
         save_ini(::holovibes::ini::get_global_ini_path());
@@ -549,7 +550,7 @@ void MainWindow::notify_error(std::exception& e)
                 }
                 close_windows();
                 close_critical_compute();
-                display_error("GPU computing error occured.\n");
+                LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
             synchronize_thread(lambda);
@@ -563,14 +564,14 @@ void MainWindow::notify_error(std::exception& e)
             }
             close_critical_compute();
 
-            display_error("GPU computing error occured.\n");
+            LOG_ERROR << "GPU computing error occured.";
             notify();
         };
         synchronize_thread(lambda);
     }
     else
     {
-        display_error("Unknown error occured.");
+        LOG_ERROR << "Unknown error occured.";
     }
 }
 
@@ -583,10 +584,6 @@ void MainWindow::layout_toggled()
         adjustSize();
     });
 }
-
-void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg; }
-
-void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
@@ -671,8 +668,9 @@ void MainWindow::reload_ini()
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_INFO << e.what() << std::endl;
     }
     if (import_type_ == ImportType::File)
@@ -897,8 +895,9 @@ void MainWindow::reset()
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_WARN << ::holovibes::ini::get_global_ini_path()
                  << ": Config file not found. It will use the default values.";
     }
@@ -947,13 +946,13 @@ void MainWindow::change_camera(CameraKind c)
             cd_.is_computation_stopped = false;
             notify();
         }
-        catch (camera::CameraException& e)
+        catch (const camera::CameraException& e)
         {
-            display_error("[CAMERA] " + std::string(e.what()));
+            LOG_ERROR << "[CAMERA] " << e.what();
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
-            display_error(e.what());
+            LOG_ERROR << e.what();
         }
     }
 }
@@ -1027,7 +1026,7 @@ void MainWindow::createPipe()
         holovibes_.start_compute();
         holovibes_.get_compute_pipe()->register_observer(*this);
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         LOG_ERROR << "cannot create Pipe: " << e.what();
     }
@@ -1060,7 +1059,7 @@ void MainWindow::createHoloWindow()
         mainDisplay->setFlip(displayFlip);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         LOG_ERROR << "createHoloWindow: " << e.what();
     }
@@ -1101,9 +1100,8 @@ void MainWindow::set_holographic_mode()
         /* Notify */
         notify();
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
-
         LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
@@ -1141,7 +1139,7 @@ void MainWindow::refreshViewMode()
         mainDisplay->setScale(old_scale);
         mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         mainDisplay.reset(nullptr);
         LOG_ERROR << "refreshViewMode: " << e.what();
@@ -1369,7 +1367,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
                 holo->update_slice_transforms();
             notify();
         }
-        catch (std::logic_error& e)
+        catch (const std::logic_error& e)
         {
             LOG_ERROR << e.what() << std::endl;
             cancel_stft_slice_view();
@@ -1392,8 +1390,9 @@ void MainWindow::cancel_time_transformation_cuts()
             while (holovibes_.get_compute_pipe()->get_refresh_request())
                 continue;
         }
-        catch (std::exception&)
+        catch (const std::exception& e)
         {
+            LOG_ERROR << e.what();
         }
         cd_.time_transformation_cuts_enabled = false;
     }
@@ -1516,7 +1515,7 @@ void MainWindow::update_filter2d_view(bool checked)
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
             }
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             LOG_ERROR << e.what() << std::endl;
         }
@@ -1651,7 +1650,7 @@ void MainWindow::update_lens_view(bool value)
             // when the window is destoryed, disable_lens_view() will be triggered
             connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             LOG_ERROR << e.what() << std::endl;
         }
@@ -1803,7 +1802,7 @@ void MainWindow::set_p(int value)
         notify();
     }
     else
-        display_error("p param has to be between 1 and #img");
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_composite_intervals()
@@ -2034,7 +2033,7 @@ void MainWindow::increment_p()
         notify();
     }
     else
-        display_error("p param has to be between 1 and #img");
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::decrement_p()
@@ -2049,7 +2048,7 @@ void MainWindow::decrement_p()
         notify();
     }
     else
-        display_error("p param has to be between 1 and #img");
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_wavelength(const double value)
@@ -2173,8 +2172,9 @@ void MainWindow::pipe_refresh()
         if (!holovibes_.get_compute_pipe()->get_request_refresh())
             holovibes_.get_compute_pipe()->request_refresh();
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
+        LOG_ERROR << e.what();
     }
 }
 
@@ -2282,7 +2282,7 @@ void MainWindow::set_auto_contrast()
         if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
             pipe->autocontrast_end_pipe(cd_.current_window);
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         LOG_ERROR << e.what() << std::endl;
     }
@@ -2375,9 +2375,10 @@ void MainWindow::update_convo_kernel(const QString& value)
             while (pipe->get_convolution_requested())
                 continue;
         }
-        catch (const std::exception&)
+        catch (const std::exception& e)
         {
             cd_.convolution_enabled = false;
+            LOG_ERROR << e.what();
         }
 
         notify();
@@ -2407,9 +2408,10 @@ void MainWindow::set_convolution_mode(const bool value)
                 continue;
         }
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
         cd_.convolution_enabled = false;
+        LOG_ERROR << e.what();
     }
 
     notify();
@@ -2523,8 +2525,9 @@ void MainWindow::stop_chart_display()
         while (pipe->get_disable_chart_display_requested())
             continue;
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
     }
 
     plot_window_.reset(nullptr);
@@ -2727,14 +2730,20 @@ void MainWindow::start_record()
         nb_frames_to_record = std::nullopt;
 
     if ((batch_enabled || record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
-        return display_error("Number of frames must be activated");
+    {
+        LOG_ERROR << "Number of frames must be activated";
+        return;
+    }
 
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
     std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
     if (batch_enabled && batch_input_path.empty())
-        return display_error("No batch input file");
+    {
+        LOG_ERROR << "No batch input file";
+        return;
+    }
 
     // Start record
 
@@ -2835,6 +2844,7 @@ void MainWindow::import_file(const QString& filename)
             // In case of bad format, we triggered the user
             QMessageBox messageBox;
             messageBox.critical(nullptr, "File Error", e.what());
+            LOG_ERROR << e.what();
 
             // Holovibes cannot be launched over this file
             set_start_stop_buttons(false);
@@ -2923,9 +2933,9 @@ void MainWindow::init_holovibes_import_mode()
                                          });
         ui.FileReaderProgressBar->show();
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
-        display_error(e.what());
+        LOG_ERROR << e.what();
         is_enabled_camera_ = false;
         mainDisplay.reset(nullptr);
         holovibes_.stop_compute();
