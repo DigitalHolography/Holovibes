@@ -191,4 +191,6 @@ void Holovibes::stop_all_worker_controller()
     stop_compute();
     stop_frame_read();
 }
+
+void Holovibes::reload_streams() { cuda_streams_.reload(); }
 } // namespace holovibes

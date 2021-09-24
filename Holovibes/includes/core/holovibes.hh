@@ -74,6 +74,19 @@ class Holovibes
                 cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
         }
 
+        /*! \brief Used when the device is reset. Recreate the steams.
+         *
+         * This might cause a small memory leak, but at least it doesn't cause a crash/segfault
+         */
+        void reload()
+        {
+            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
+        }
+
         ~CudaStreams()
         {
             cudaSafeCall(cudaStreamDestroy(reader_stream));
@@ -231,6 +244,9 @@ class Holovibes
     void stop_compute();
 
     void stop_all_worker_controller();
+
+    /*! \brief Reload the cuda streams when the device is reset */
+    void reload_streams();
 
   private:
     /*! \brief Construct the holovibes object. */

@@ -893,6 +893,7 @@ void MainWindow::reset()
     cudaDeviceReset();
     close_windows();
     remove_infos();
+    holovibes_.reload_streams();
     try
     {
         load_ini(::holovibes::ini::get_global_ini_path());
