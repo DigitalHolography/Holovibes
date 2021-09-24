@@ -29,8 +29,7 @@ static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
                                                                         const uint batch_size,
                                                                         const uint frame_res,
                                                                         const uint depth,
-                                                                        const cudaStream_t stream)
-    {
+                                                                        const cudaStream_t stream) {
         const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;
         cudaSafeCall(cudaMemcpyAsync(dest, src, size, cudaMemcpyDeviceToHost, stream));
     };
@@ -411,8 +410,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
                                                                               const uint batch_size,
                                                                               const uint frame_res,
                                                                               const uint depth,
-                                                                              const cudaStream_t stream)
-    {
+                                                                              const cudaStream_t stream) {
         const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;
         cudaSafeCall(cudaMemcpyAsync(dest, src, size, cudaMemcpyDeviceToDevice, stream));
     };

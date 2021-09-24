@@ -35,8 +35,7 @@ class ThreadWorkerController
     ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
 
     /*! \brief Deleted copy operator */
-    ThreadWorkerController&
-    operator=(const ThreadWorkerController<T>&) = delete;
+    ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
 
     /*! \brief Set the function executed at the end of the thread
      *
@@ -70,7 +69,8 @@ class ThreadWorkerController
   private:
     /*! \brief Method run in the thread
      *
-     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the worker
+     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the
+     * worker
      */
     void run();
 

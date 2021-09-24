@@ -140,8 +140,7 @@ class InformationContainer
     mutable std::mutex mutex_;
 
     /*! \brief The map associating an indication type with its name */
-    static const std::unordered_map<IndicationType, std::string>
-        indication_type_to_string_;
+    static const std::unordered_map<IndicationType, std::string> indication_type_to_string_;
 
     /*! \brief The map associating an indication type with its information */
     std::map<IndicationType, std::string> indication_map_;
@@ -153,18 +152,14 @@ class InformationContainer
     std::map<FpsType, std::atomic<unsigned int>*> fps_map_;
 
     /*! \brief The map associating a queue type with its name */
-    static const std::unordered_map<QueueType, std::string>
-        queue_type_to_string_;
+    static const std::unordered_map<QueueType, std::string> queue_type_to_string_;
 
     /*! \brief The map associating the queue type with its current size
      *
      * The first element of the pair is the current size
      * The second element of the pair is the capacity
      */
-    std::map<QueueType,
-             std::pair<const std::atomic<unsigned int>*,
-                       const std::atomic<unsigned int>*>>
-        queue_size_map_;
+    std::map<QueueType, std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>> queue_size_map_;
 
     std::function<void(const std::string&)> display_info_text_function_ = [](const std::string&) {};
 
@@ -172,14 +167,11 @@ class InformationContainer
      * The first element of the pair is the current progress
      * The second element of the pair is the max progress
      */
-    std::unordered_map<ProgressType,
-                       std::pair<const std::atomic<unsigned int>*,
-                                 const std::atomic<unsigned int>*>>
+    std::unordered_map<ProgressType, std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>>
         progress_index_map_;
 
     /*! \brief The function used to update the progress displayed */
-    std::function<void(ProgressType, size_t, size_t)>
-        update_progress_function_ = [](ProgressType, size_t, size_t) {};
+    std::function<void(ProgressType, size_t, size_t)> update_progress_function_ = [](ProgressType, size_t, size_t) {};
 };
 } // namespace holovibes
 
