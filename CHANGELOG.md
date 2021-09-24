@@ -1,5 +1,10 @@
 ## Changelog
 
+### 10.2
+
+* Installer: creates a folder in AppData/Roaming
+* Prevent crash when 3D cuts is active and space transformation is changed
+
 ### 10.1
 
 * Changed BitFlow version: 6.40 -> 6.50
