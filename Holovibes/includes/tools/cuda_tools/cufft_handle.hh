@@ -63,17 +63,17 @@ class CufftHandle
      * case cuComplex) * batch_size
      */
     void XtplanMany(int rank,
-                                 long long* n,
-                                 long long* inembed,
-                                 long long istride,
-                                 long long idist,
-                                 cudaDataType inputtype,
-                                 long long* onembed,
-                                 long long ostride,
-                                 long long odist,
-                                 cudaDataType outputtype,
-                                 long long batch,
-                                 cudaDataType executiontype);
+                    long long* n,
+                    long long* inembed,
+                    long long istride,
+                    long long idist,
+                    cudaDataType inputtype,
+                    long long* onembed,
+                    long long ostride,
+                    long long odist,
+                    cudaDataType outputtype,
+                    long long batch,
+                    cudaDataType executiontype);
 
     /*! \brief Get a reference to the underlying cufftHandle */
     cufftHandle& get();

@@ -35,34 +35,29 @@ class UniquePtr
     {
     }
 
-    T* get() const {
-        return val_.get();
-    }
+    T* get() const { return val_.get(); }
 
     /*! \brief Implicit cast operator */
     operator T*() const { return &(*val_); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
-    UniquePtr(const size_t size)
-    {
-        resize(size);
-    }
+    UniquePtr(const size_t size) { resize(size); }
 
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
     {
         T* tmp;
         size *= sizeof(T);
-        val_.reset(nullptr);          // Free itself first
-        cudaXMalloc(&tmp, size);      // Allocate memory
-        val_.reset(tmp);              // Update pointer
+        val_.reset(nullptr);     // Free itself first
+        cudaXMalloc(&tmp, size); // Allocate memory
+        val_.reset(tmp);         // Update pointer
         return tmp;
     }
 
     void reset(T* ptr) { return val_.reset(ptr); }
     void reset() { return val_.reset(nullptr); }
 
-protected:
+  protected:
     std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};
 };
 } // namespace holovibes::cuda_tools
