@@ -71,7 +71,6 @@ class Pipe : public ICompute
     /*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view */
     void autocontrast_end_pipe(WindowKind kind);
 
-  protected:
     /*! \brief Execute one processing iteration.
      *
      * Checks the number of frames in input queue, that must at least be 1.
@@ -90,6 +89,7 @@ class Pipe : public ICompute
      */
     virtual void exec();
 
+  protected:
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     virtual void refresh();
 

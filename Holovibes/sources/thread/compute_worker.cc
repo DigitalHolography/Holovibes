@@ -9,7 +9,7 @@
 
 namespace holovibes::worker
 {
-ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<ICompute>>& pipe,
+ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe,
                              std::atomic<std::shared_ptr<BatchInputQueue>>& input,
                              std::atomic<std::shared_ptr<Queue>>& output)
     : Worker()
