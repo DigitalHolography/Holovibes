@@ -338,24 +338,19 @@ void MainWindow::on_notify()
     ui.PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
     ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
-    if (cd_.p_acc_level > cd_.time_transformation_size - 1)
-        cd_.p_acc_level = cd_.time_transformation_size - 1;
+
+    cd_.check_p_limits();
     ui.PAccSpinBox->setValue(cd_.p_acc_level);
+    ui.PSpinBox->setValue(cd_.pindex);
     ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     if (cd_.p_accu_enabled)
     {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        if (cd_.pindex > cd_.time_transformation_size - cd_.p_acc_level - 1)
-            cd_.pindex = cd_.time_transformation_size - cd_.p_acc_level - 1;
-        ui.PSpinBox->setValue(cd_.pindex);
         ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
     }
     else
     {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - 1);
-        if (cd_.pindex > cd_.time_transformation_size - 1)
-            cd_.pindex = cd_.time_transformation_size - 1;
-        ui.PSpinBox->setValue(cd_.pindex);
     }
     ui.PSpinBox->setEnabled(!is_raw);
 
@@ -367,23 +362,18 @@ void MainWindow::on_notify()
 
     ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
     ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
-    if (cd_.q_acc_level > cd_.time_transformation_size - 1)
-        cd_.q_acc_level = cd_.time_transformation_size - 1;
+
+    cd_.check_q_limits();
     ui.Q_AccSpinBox->setValue(cd_.q_acc_level);
+    ui.Q_SpinBox->setValue(cd_.q_index);
     if (cd_.q_acc_enabled)
     {
         ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
-        if (cd_.q_index > cd_.time_transformation_size - cd_.q_acc_level - 1)
-            cd_.q_index = cd_.time_transformation_size - cd_.q_acc_level - 1;
-        ui.Q_SpinBox->setValue(cd_.q_index);
         ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
     }
     else
     {
         ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
-        if (cd_.q_index > cd_.time_transformation_size - 1)
-            cd_.q_index = cd_.time_transformation_size - 1;
-        ui.Q_SpinBox->setValue(cd_.q_index);
     }
 
     // XY accu
