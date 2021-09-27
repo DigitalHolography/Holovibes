@@ -49,15 +49,15 @@ class ComputeDescriptor : public Observable
     /*! \brief The lock used in the zone accessors */
     mutable std::mutex mutex_;
 
-    /*! \brief	The zone for the signal chart */
+    /*! \brief The zone for the signal chart */
     units::RectFd signal_zone;
-    /*! \brief	The zone for the noise chart */
+    /*! \brief The zone for the noise chart */
     units::RectFd noise_zone;
-    /*! \brief	The area on which we'll normalize the colors */
+    /*! \brief The area on which we'll normalize the colors */
     units::RectFd composite_zone;
-    /*! \brief  The area used to limit the stft computations. */
+    /*! \brief The area used to limit the stft computations. */
     units::RectFd zoomed_zone;
-    /*! \brief	The zone of the reticle area */
+    /*! \brief The zone of the reticle area */
     units::RectFd reticle_zone;
 
   public:
@@ -70,7 +70,8 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Assignment operator
      * The assignment operator is explicitely defined because std::atomic type
-     * does not allow to generate assignments operator automatically. */
+     * does not allow to generate assignments operator automatically.
+     */
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
     /*! \name Accessor to the selected zone
@@ -131,6 +132,11 @@ class ComputeDescriptor : public Observable
     void set_log_scale_slice_enabled(WindowKind kind, bool value);
     void set_accumulation(WindowKind kind, bool value);
     void set_accumulation_level(WindowKind kind, float value);
+
+    /*! \brief Limit the value of pindex and p_acc according to time transformation size */
+    void check_p_limits();
+    /*! \brief Limit the value of q_index and q_acc according to time transformation size */
+    void check_q_limits();
     /*! \} */
 
     /*! \name Convolution related operations
@@ -350,7 +356,7 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> x_accu_enabled{false};
     /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
     std::atomic<bool> y_accu_enabled{false};
-    /*! \brief Is q_acc enabled (svd eigen vectors filtering) */
+    /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
     std::atomic<bool> q_acc_enabled;
 
     /*! \brief Display the raw interferogram when we are in hologram mode. */

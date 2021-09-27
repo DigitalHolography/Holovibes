@@ -316,6 +316,34 @@ void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
     }
 }
 
+void ComputeDescriptor::check_p_limits()
+{
+    uint upper_bound = time_transformation_size - 1;
+
+    if (p_acc_level > upper_bound)
+        p_acc_level = upper_bound;
+
+    if (p_accu_enabled)
+        upper_bound -= p_acc_level;
+
+    if (pindex > upper_bound)
+        pindex = upper_bound;
+}
+
+void ComputeDescriptor::check_q_limits()
+{
+    uint upper_bound = time_transformation_size - 1;
+
+    if (q_acc_level > upper_bound)
+        q_acc_level = upper_bound;
+
+    if (q_acc_enabled)
+        upper_bound -= q_acc_level;
+
+    if (q_index > upper_bound)
+        q_index = upper_bound;
+}
+
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
     if (enable)
