@@ -82,7 +82,7 @@ static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes
 }
 
 static void
-set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, uint record_nb_frames)
+set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, const size_t& nb_frames)
 {
     auto& cd = holovibes.get_cd();
     if (opts.convo_path.has_value())
@@ -92,6 +92,14 @@ set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescript
         cd.set_divide_by_convo(opts.divide_convo);
         holovibes.get_compute_pipe()->request_convolution();
     }
+
+    if (opts.start_index.has_value())
+        cd.start_index = opts.start_index.value();
+
+    if (opts.end_index.has_value())
+        cd.start_index = opts.start_index.value();
+    else
+        cd.end_index = nb_frames;
 
     auto pipe = holovibes.get_compute_pipe();
     pipe->request_update_batch_size();
@@ -180,7 +188,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     Chrono chrono;
 
     holovibes.start_compute();
-    set_parameters(holovibes, opts, record_nb_frames);
+    set_parameters(holovibes, opts, input_nb_frames);
     start_record(holovibes, opts, record_nb_frames);
     if (opts.verbose)
     {

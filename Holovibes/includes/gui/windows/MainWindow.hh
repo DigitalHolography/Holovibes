@@ -706,6 +706,9 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
 
+    QSpinBox* start_spinbox;
+    QSpinBox* end_spinbox;
+
 #pragma endregion
 };
 } // namespace gui

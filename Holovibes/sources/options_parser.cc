@@ -78,10 +78,21 @@ OptionsParser::OptionsParser()
         "gpu",
         po::bool_switch()->default_value(false),
         "Load file in GPU (default = false)"
-    );
-    // clang-format on
+    )
+    (
+        "start_index,s",
+        po::value<unsigned int>(),
+        "Start index (default = 1)"
+    )
+    (
+        "end_index,e",
+        po::value<unsigned int>(),
+        "End index (default = eof)"
+    )
+        // clang-format on
 
-    opts_desc_.add(general_opts_desc).add(run_opts_desc);
+        opts_desc_.add(general_opts_desc)
+        .add(run_opts_desc);
 }
 
 OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
@@ -108,6 +119,10 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
             options_.n_rec = boost::any_cast<unsigned int>(vm_["n_rec"].value());
+        if (vm_.count("start_index"))
+            options_.n_rec = boost::any_cast<unsigned int>(vm_["start_index"].value());
+        if (vm_.count("end_index"))
+            options_.n_rec = boost::any_cast<unsigned int>(vm_["end_index"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
