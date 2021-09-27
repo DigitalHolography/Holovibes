@@ -16,8 +16,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-# --extended-lambda: enable __device__ lambda
-string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda")
+# "--extended-lambda"                                      : enable __device__ lambda
+# "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
+string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
 
 set(HOLO_INCLUDES
     cuda_includes/

@@ -13,7 +13,7 @@
 
 namespace holovibes
 {
-/*! \class CudaLaunchException 
+/*! \class CudaLaunchException
  *
  * \brief #TODO Add a description for this class
  */

@@ -114,7 +114,7 @@ class Queue : public DisplayQueue
      *
      * \param size The new size of the Queue
      * \param stream
-    */
+     */
     void resize(const unsigned int size, const cudaStream_t stream);
 
     /*! \brief Enqueue method
@@ -130,9 +130,7 @@ class Queue : public DisplayQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
      */
-    bool enqueue(void* elt,
-                 const cudaStream_t stream,
-                 cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    bool enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy elements (no dequeue) and enqueue in dest.
      *
@@ -161,9 +159,7 @@ class Queue : public DisplayQueue
                           const cudaStream_t stream,
                           cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
-    void Queue::enqueue_from_48bit(void* src,
-                                   const cudaStream_t stream,
-                                   cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void enqueue_from_48bit(void* src, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method overload
      *
@@ -174,9 +170,7 @@ class Queue : public DisplayQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
      */
-    void dequeue(void* dest,
-                 const cudaStream_t stream,
-                 cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Dequeue method
      *
@@ -217,7 +211,7 @@ class Queue : public DisplayQueue
      * \param nb_elts The number of elements to enqueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
-    */
+     */
     void enqueue_multiple_aux(
         void* out, void* in, unsigned int nb_elts, const cudaStream_t stream, cudaMemcpyKind cuda_kind);
 
@@ -233,10 +227,7 @@ class Queue : public DisplayQueue
      * \param frame_size Size of the frame in bytes
      * \param stream Stream perfoming the copy
      */
-    static void copy_multiple_aux(QueueRegion& src,
-                                  QueueRegion& dst,
-                                  const uint frame_size,
-                                  const cudaStream_t stream);
+    static void copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const uint frame_size, const cudaStream_t stream);
 
   private: /* Attributes */
     /*! \brief Mutex to lock the queue */

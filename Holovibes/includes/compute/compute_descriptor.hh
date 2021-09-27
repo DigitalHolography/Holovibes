@@ -20,7 +20,7 @@
 
 namespace holovibes
 {
-#define __HOLOVIBES_VERSION__ "10.1"
+#define __HOLOVIBES_VERSION__ "10.2"
 
 /*! \class ComputeDescriptor
  *
@@ -88,7 +88,6 @@ class ComputeDescriptor : public Observable
     void noiseZone(units::RectFd& rect, AccessMode m);
     /*! \} */
 
-
     /*! \name Getter of the overlay positions
      * \{
      */
@@ -116,14 +115,12 @@ class ComputeDescriptor : public Observable
      * Qt rounds the value by default.
      * In order to compare the compute descriptor values these values also needs to be rounded.
      */
-    float get_truncate_contrast_max(WindowKind kind,
-                                    const int precision = 2) const;
+    float get_truncate_contrast_max(WindowKind kind, const int precision = 2) const;
     /*! \brief Get the rounded value of min contrast for the given WindowKind
      *
      * \see get_truncate_contrast_max()
      */
-    float get_truncate_contrast_min(WindowKind kind,
-                                    const int precision = 2) const;
+    float get_truncate_contrast_min(WindowKind kind, const int precision = 2) const;
 
     bool get_img_log_scale_slice_enabled(WindowKind kind) const;
     bool get_img_acc_slice_enabled(WindowKind kind) const;

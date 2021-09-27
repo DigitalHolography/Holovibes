@@ -279,7 +279,7 @@ class ICompute : public Observable
 
   protected:
     virtual void refresh() = 0;
-    virtual void pipe_error(const int& err_count, std::exception& e);
+    virtual void pipe_error(const int& err_count, const std::exception& e);
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
@@ -337,7 +337,7 @@ class ICompute : public Observable
 
     /*! \brief Chrono counting time between two iteration
      *
-     * Taking into account steps, since it is executing at the end of pipe. 
+     * Taking into account steps, since it is executing at the end of pipe.
      */
     std::chrono::time_point<std::chrono::steady_clock> past_time_;
 

@@ -102,7 +102,7 @@ void cudaXMemsetAsync(void* devPtr, int value, size_t count, const cudaStream_t 
  */
 void cudaXFree(void* devPtr);
 
-/*! \brief Wrapper around cudaFree to handle errors
+/*! \brief Wrapper around cudaFreeHost to handle errors
  *
  * This function uses the error handling from common.cuh (cudaSafeCall)
  * A program built in error WILL abort in case of error

@@ -46,7 +46,7 @@ class Array : public UniquePtr<T>
         if (size <= size_)
             return true;
         resize(size);
-        if (get())
+        if (base::get())
         {
             size_ = size;
             return true;
@@ -92,7 +92,7 @@ class Array : public UniquePtr<T>
     {
         std::vector<T> cpu_buffer(size_);
         const size_t byte_size = size_ * sizeof(T);
-        cudaXMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
+        cudaXMemcpy(cpu_buffer.data(), base::get(), byte_size, cudaMemcpyDeviceToHost);
         return cpu_buffer;
     }
 

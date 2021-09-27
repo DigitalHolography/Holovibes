@@ -9,80 +9,55 @@
 
 #include <cstddef>
 
+#include "cuda_memory.cuh"
 #include "logger.hh"
 #include "common.cuh"
 
-namespace holovibes
-{
 /*! \brief Contains memory handlers for cuda buffers. */
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
-/*! \brief #TODO Add a description for this namespace or remove it */
-namespace _private
-{
-/*! \struct element_size<>
- *
- * \brief #TODO Add a description for this struct
- */
-template <typename T>
-struct element_size
-{
-    static const size_t value = sizeof(T);
-};
-
-/*! \struct element_size<void>
- *
- * \brief #TODO Add a description for this struct
- */
-template <>
-struct element_size<void>
-{
-    static const size_t value = 1;
-};
-} // namespace _private
 
 /*! \class UniquePtr
  *
  * \brief A smart pointer made for ressources that need to be cudaFreed
  */
 template <typename T>
-class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
+class UniquePtr
 {
   public:
-    using base = std::unique_ptr<T, std::function<void(T*)>>;
     UniquePtr()
-        : base(nullptr, cudaFree)
+        : val_(nullptr, cudaXFree)
     {
     }
 
     UniquePtr(T* ptr)
-        : base(ptr, cudaFree)
+        : val_(ptr, cudaXFree)
     {
     }
 
-    /*! \brief Implicit cast operator */
-    operator T*() { return get(); }
+    T* get() const { return val_.get(); }
 
     /*! \brief Implicit cast operator */
-    operator T*() const { return get(); }
+    operator T*() const { return val_.get(); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
-    UniquePtr(const size_t size)
-        : base(nullptr, cudaFree)
-    {
-        resize(size);
-    }
+    UniquePtr(const size_t size) { resize(size); }
 
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
     {
         T* tmp;
-        size *= _private::element_size<T>::value;
-        reset(nullptr);          // Free itself first
+        size *= sizeof(T);
+        val_.reset(nullptr);     // Free itself first
         cudaXMalloc(&tmp, size); // Allocate memory
-        reset(tmp);              // Update pointer
+        val_.reset(tmp);         // Update pointer
         return tmp;
     }
+
+    void reset(T* ptr) { return val_.reset(ptr); }
+    void reset() { return val_.reset(nullptr); }
+
+  protected:
+    std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

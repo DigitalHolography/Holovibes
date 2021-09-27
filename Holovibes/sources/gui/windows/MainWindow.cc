@@ -532,12 +532,12 @@ void MainWindow::on_notify()
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void MainWindow::notify_error(std::exception& e)
+void MainWindow::notify_error(const std::exception& e)
 {
-    CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
+    const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
-        UpdateException* err_update_ptr = dynamic_cast<UpdateException*>(err_ptr);
+        const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
         if (err_update_ptr)
         {
             auto lambda = [this] {
@@ -556,7 +556,7 @@ void MainWindow::notify_error(std::exception& e)
             synchronize_thread(lambda);
         }
 
-        auto lambda = [this, accu = (dynamic_cast<AccumulationException*>(err_ptr) != nullptr)] {
+        auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
                 cd_.img_acc_slice_xy_enabled = false;
@@ -891,6 +891,7 @@ void MainWindow::reset()
     cudaDeviceReset();
     close_windows();
     remove_infos();
+    holovibes_.reload_streams();
     try
     {
         load_ini(::holovibes::ini::get_global_ini_path());
@@ -2550,6 +2551,7 @@ void MainWindow::browse_record_output_file()
     QString filepath;
 
     // Open file explorer dialog on the fly depending on the record mode
+    // Add the matched extension to the file if none
     if (record_mode_ == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
@@ -2578,33 +2580,17 @@ void MainWindow::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
+    // FIXME: path separator should depend from system
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
+    // FIXME Opti: we could be all these 3 operations below on a single string processing
     record_output_directory_ = path.parent_path().string();
-    /*  cppreference: https://en.cppreference.com/w/cpp/filesystem/path/extension
-     *  -> rightmost ".*":
-     *     std::filesystem::path("/foo/bar.mp4.holo.mp4").extension() -> ".mp4"
-     */
     const std::string file_ext = path.extension().string();
-    std::string filename = path.filename().string();
+    default_output_filename_ = path.stem().string();
 
-    // Get the first file_ext string position in filename
-    /* cppreference: https://www.cplusplus.com/reference/string/string/find/
-     *   std::string(/foo/bar.mp4.holo.mp4).find(".mp4") -> 8 corresponding to : /foo/bar(.mp4).holo.mp4
-     *
-     *  FIXME: Could be an unexpected behaviour
-     *  To conclude, the extension you get with "file_ext = path.extension().string()" is not always
-     *  the string you locate in "filename.find(file_ext)"
-     */
-    std::size_t ext_pos = filename.find(file_ext);
-    if (ext_pos != std::string::npos)
-        // if file_ext not found in filename
-        filename.erase(ext_pos, file_ext.length());
-
+    // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
-
-    default_output_filename_ = filename;
 
     notify();
 }
@@ -2629,7 +2615,7 @@ void MainWindow::set_record_mode(const QString& value)
 
     stop_record();
 
-    const std::string text = value.toUtf8();
+    const std::string text = value.toStdString();
 
     if (text == "Chart")
         record_mode_ = RecordMode::CHART;
@@ -2746,7 +2732,6 @@ void MainWindow::start_record()
     }
 
     // Start record
-
     raw_window.reset(nullptr);
     disable_raw_view();
     ui.RawDisplayingCheckBox->setHidden(true);
@@ -2912,7 +2897,7 @@ void MainWindow::init_holovibes_import_mode()
     try
     {
         // Gather data from import panel
-        std::string file_path = import_line_edit->text().toUtf8();
+        std::string file_path = import_line_edit->text().toStdString();
         unsigned int fps = fps_spinbox->value();
         size_t first_frame = start_spinbox->value();
         size_t last_frame = end_spinbox->value();

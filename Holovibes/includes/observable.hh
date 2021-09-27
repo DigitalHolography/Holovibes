@@ -30,7 +30,7 @@ class Observable
     }
 
     /*! \brief notify all Observer in list that an error occured */
-    void notify_error_observers(std::exception& e)
+    void notify_error_observers(const std::exception& e)
     {
         std::for_each(observers_.begin(), observers_.end(), [&](Observer* observer) { observer->notify_error(e); });
     }

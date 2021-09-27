@@ -19,9 +19,7 @@ namespace holovibes
 struct UnwrappingResources
 {
     /*! \brief Allocate with CUDA the required memory, and initialize the needed variables */
-    UnwrappingResources(const unsigned capacity,
-                        const size_t image_size,
-                        const cudaStream_t& stream);
+    UnwrappingResources(const unsigned capacity, const size_t image_size, const cudaStream_t& stream);
 
     /*! \brief If buffers were allocated, deallocate them. */
     ~UnwrappingResources();

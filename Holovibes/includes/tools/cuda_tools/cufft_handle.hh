@@ -62,18 +62,18 @@ class CufftHandle
      * It's equal in byte to : frame_width * frame_height * sizeof(T) (in our
      * case cuComplex) * batch_size
      */
-    void CufftHandle::XtplanMany(int rank,
-                                 long long* n,
-                                 long long* inembed,
-                                 long long istride,
-                                 long long idist,
-                                 cudaDataType inputtype,
-                                 long long* onembed,
-                                 long long ostride,
-                                 long long odist,
-                                 cudaDataType outputtype,
-                                 long long batch,
-                                 cudaDataType executiontype);
+    void XtplanMany(int rank,
+                    long long* n,
+                    long long* inembed,
+                    long long istride,
+                    long long idist,
+                    cudaDataType inputtype,
+                    long long* onembed,
+                    long long ostride,
+                    long long odist,
+                    cudaDataType outputtype,
+                    long long batch,
+                    cudaDataType executiontype);
 
     /*! \brief Get a reference to the underlying cufftHandle */
     cufftHandle& get();
