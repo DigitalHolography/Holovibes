@@ -28,6 +28,8 @@ struct OptionsDescriptor
     std::optional<std::string> output_path;
     std::optional<std::string> ini_path;
     std::optional<std::string> convo_path;
+    std::optional<unsigned int> start_index;
+    std::optional<unsigned int> end_index;
     bool divide_convo;
     bool noskip_acc;
     bool record_raw;

@@ -94,12 +94,12 @@ set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescript
     }
 
     if (opts.start_index.has_value())
-        cd.start_index = opts.start_index.value();
+        cd.first_frame = opts.start_index.value();
 
     if (opts.end_index.has_value())
-        cd.start_index = opts.start_index.value();
+        cd.last_frame = opts.start_index.value();
     else
-        cd.end_index = nb_frames;
+        cd.last_frame = nb_frames;
 
     auto pipe = holovibes.get_compute_pipe();
     pipe->request_update_batch_size();

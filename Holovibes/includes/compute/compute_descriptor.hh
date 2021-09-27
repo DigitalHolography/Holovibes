@@ -373,8 +373,8 @@ class ComputeDescriptor : public Observable
 
     std::atomic<bool> fast_pipe{false};
 
-    size_t first_frame;
-    size_t end_frame;
+    std::atomic<size_t> first_frame = 1;
+    std::atomic<size_t> last_frame;
 
 #pragma endregion
 };
