@@ -5,6 +5,7 @@
 #pragma once
 
 #include "worker.hh"
+#include "pipe.hh"
 
 namespace holovibes
 {
@@ -26,7 +27,7 @@ class ComputeWorker : public Worker
      * \param input Input queue that is filled either by the file_frame_read_worker or the camera_frame_read_worker
      * \param output Output queue that store processed images for display
      */
-    ComputeWorker(std::atomic<std::shared_ptr<ICompute>>& pipe,
+    ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe,
                   std::atomic<std::shared_ptr<BatchInputQueue>>& input,
                   std::atomic<std::shared_ptr<Queue>>& output);
 
@@ -36,7 +37,7 @@ class ComputeWorker : public Worker
 
   private:
     /*! \brief The compute pipe used to perform all operations */
-    std::atomic<std::shared_ptr<ICompute>>& pipe_;
+    std::atomic<std::shared_ptr<Pipe>>& pipe_;
 
     /*! \brief Input queue that is filled either by the file_frame_read_worker or the camera_frame_read_worker */
     std::atomic<std::shared_ptr<BatchInputQueue>>& input_;

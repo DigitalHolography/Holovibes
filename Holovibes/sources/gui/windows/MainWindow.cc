@@ -133,8 +133,9 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_WARN << ::holovibes::ini::get_global_ini_path() << ": Configuration file not found. "
                  << "Initialization with default values.";
         save_ini(::holovibes::ini::get_global_ini_path());
@@ -242,14 +243,14 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (cd_.compute_mode == Computation::Raw && is_enabled_camera_)
+    if (is_enabled_camera_ && cd_.compute_mode == Computation::Raw)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(false);
         ui.ExportGroupBox->setEnabled(true);
     }
 
-    else if (cd_.compute_mode == Computation::Hologram && is_enabled_camera_)
+    else if (is_enabled_camera_ && cd_.compute_mode == Computation::Hologram)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(true);
@@ -277,13 +278,13 @@ void MainWindow::on_notify()
 
     QPushButton* signalBtn = ui.ChartSignalPushButton;
     signalBtn->setStyleSheet(
-        (signalBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
+        (mainDisplay && signalBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
             ? "QPushButton {color: #8E66D9;}"
             : "");
 
     QPushButton* noiseBtn = ui.ChartNoisePushButton;
     noiseBtn->setStyleSheet(
-        (noiseBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
+        (mainDisplay && noiseBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
             ? "QPushButton {color: #00A4AB;}"
             : "");
 
@@ -360,9 +361,9 @@ void MainWindow::on_notify()
 
     // q accu
     bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
-    ui.Q_AccuCheckBox->setEnabled(!is_raw && is_ssa_stft);
-    ui.Q_AccSpinBox->setEnabled(!is_raw && is_ssa_stft);
-    ui.Q_SpinBox->setEnabled(!is_raw && is_ssa_stft);
+    ui.Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
+    ui.Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui.Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
     ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
     ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
@@ -549,7 +550,7 @@ void MainWindow::notify_error(const std::exception& e)
                 }
                 close_windows();
                 close_critical_compute();
-                display_error("GPU computing error occured.\n");
+                LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
             synchronize_thread(lambda);
@@ -563,14 +564,14 @@ void MainWindow::notify_error(const std::exception& e)
             }
             close_critical_compute();
 
-            display_error("GPU computing error occured.\n");
+            LOG_ERROR << "GPU computing error occured.";
             notify();
         };
         synchronize_thread(lambda);
     }
     else
     {
-        display_error("Unknown error occured.");
+        LOG_ERROR << "Unknown error occured.";
     }
 }
 
@@ -583,10 +584,6 @@ void MainWindow::layout_toggled()
         adjustSize();
     });
 }
-
-void MainWindow::display_error(const std::string msg) { LOG_ERROR << msg; }
-
-void MainWindow::display_info(const std::string msg) { LOG_INFO << msg; }
 
 void MainWindow::credits()
 {
@@ -671,8 +668,9 @@ void MainWindow::reload_ini()
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_INFO << e.what() << std::endl;
     }
     if (import_type_ == ImportType::File)
@@ -898,8 +896,9 @@ void MainWindow::reset()
     {
         load_ini(::holovibes::ini::get_global_ini_path());
     }
-    catch (std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
         LOG_WARN << ::holovibes::ini::get_global_ini_path()
                  << ": Config file not found. It will use the default values.";
     }
@@ -948,13 +947,13 @@ void MainWindow::change_camera(CameraKind c)
             cd_.is_computation_stopped = false;
             notify();
         }
-        catch (camera::CameraException& e)
+        catch (const camera::CameraException& e)
         {
-            display_error("[CAMERA] " + std::string(e.what()));
+            LOG_ERROR << "[CAMERA] " << e.what();
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
-            display_error(e.what());
+            LOG_ERROR << e.what();
         }
     }
 }
@@ -1028,7 +1027,7 @@ void MainWindow::createPipe()
         holovibes_.start_compute();
         holovibes_.get_compute_pipe()->register_observer(*this);
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         LOG_ERROR << "cannot create Pipe: " << e.what();
     }
@@ -1061,7 +1060,7 @@ void MainWindow::createHoloWindow()
         mainDisplay->setFlip(displayFlip);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         LOG_ERROR << "createHoloWindow: " << e.what();
     }
@@ -1102,9 +1101,8 @@ void MainWindow::set_holographic_mode()
         /* Notify */
         notify();
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
-
         LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
@@ -1142,7 +1140,7 @@ void MainWindow::refreshViewMode()
         mainDisplay->setScale(old_scale);
         mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
-    catch (std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         mainDisplay.reset(nullptr);
         LOG_ERROR << "refreshViewMode: " << e.what();
@@ -1165,44 +1163,44 @@ bool need_refresh(const QString& last_type, const QString& new_type)
 } // namespace
 void MainWindow::set_view_mode(const QString value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (need_refresh(last_img_type_, value))
     {
-        if (need_refresh(last_img_type_, value))
+        refreshViewMode();
+        if (cd_.img_type == ImgType::Composite)
         {
-            refreshViewMode();
-            if (cd_.img_type == ImgType::Composite)
-            {
-                const unsigned min_val_composite = cd_.time_transformation_size == 1 ? 0 : 1;
-                const unsigned max_val_composite = cd_.time_transformation_size - 1;
+            const unsigned min_val_composite = cd_.time_transformation_size == 1 ? 0 : 1;
+            const unsigned max_val_composite = cd_.time_transformation_size - 1;
 
-                ui.PRedSpinBox_Composite->setValue(min_val_composite);
-                ui.SpinBox_hue_freq_min->setValue(min_val_composite);
-                ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
-                ui.SpinBox_value_freq_min->setValue(min_val_composite);
+            ui.PRedSpinBox_Composite->setValue(min_val_composite);
+            ui.SpinBox_hue_freq_min->setValue(min_val_composite);
+            ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
+            ui.SpinBox_value_freq_min->setValue(min_val_composite);
 
-                ui.PBlueSpinBox_Composite->setValue(max_val_composite);
-                ui.SpinBox_hue_freq_max->setValue(max_val_composite);
-                ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
-                ui.SpinBox_value_freq_max->setValue(max_val_composite);
-            }
+            ui.PBlueSpinBox_Composite->setValue(max_val_composite);
+            ui.SpinBox_hue_freq_max->setValue(max_val_composite);
+            ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
+            ui.SpinBox_value_freq_max->setValue(max_val_composite);
         }
-        last_img_type_ = value;
-
-        auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-
-        pipe->insert_fn_end_vect([=]() {
-            cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
-            notify();
-            layout_toggled();
-        });
-        pipe_refresh();
-
-        // Force XYview autocontrast
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        // Force cuts views autocontrast if needed
-        if (cd_.time_transformation_cuts_enabled)
-            set_auto_contrast_cuts();
     }
+    last_img_type_ = value;
+
+    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+
+    pipe->insert_fn_end_vect([=]() {
+        cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
+        notify();
+        layout_toggled();
+    });
+    pipe_refresh();
+
+    // Force XYview autocontrast
+    pipe->autocontrast_end_pipe(WindowKind::XYview);
+    // Force cuts views autocontrast if needed
+    if (cd_.time_transformation_cuts_enabled)
+        set_auto_contrast_cuts();
 }
 
 bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
@@ -1237,26 +1235,26 @@ static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd
 
 void MainWindow::update_batch_size()
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    int value = ui.BatchSizeSpinBox->value();
+
+    if (value == cd_.batch_size)
+        return;
+
+    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+    if (pipe)
     {
-        int value = ui.BatchSizeSpinBox->value();
-
-        if (value == cd_.batch_size)
-            return;
-
-        auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-        if (pipe)
-        {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.batch_size = value;
-                adapt_time_transformation_stride_to_batch_size(cd_);
-                holovibes_.get_compute_pipe()->request_update_batch_size();
-                notify();
-            });
-        }
-        else
-            LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+        pipe->insert_fn_end_vect([=]() {
+            cd_.batch_size = value;
+            adapt_time_transformation_stride_to_batch_size(cd_);
+            holovibes_.get_compute_pipe()->request_update_batch_size();
+            notify();
+        });
     }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
 #pragma endregion
@@ -1293,29 +1291,29 @@ void MainWindow::cancel_stft_slice_view()
 
 void MainWindow::update_time_transformation_stride()
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    int value = ui.TimeTransformationStrideSpinBox->value();
+
+    if (value == cd_.time_transformation_stride)
+        return;
+
+    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+    if (pipe)
     {
-        int value = ui.TimeTransformationStrideSpinBox->value();
-
-        if (value == cd_.time_transformation_stride)
-            return;
-
-        auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-        if (pipe)
-        {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.time_transformation_stride = value;
-                adapt_time_transformation_stride_to_batch_size(cd_);
-                holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
-                ui.NumberOfFramesSpinBox->setValue(
-                    ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
-                         (float)ui.TimeTransformationStrideSpinBox->value()));
-                notify();
-            });
-        }
-        else
-            LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+        pipe->insert_fn_end_vect([=]() {
+            cd_.time_transformation_stride = value;
+            adapt_time_transformation_stride_to_batch_size(cd_);
+            holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
+            ui.NumberOfFramesSpinBox->setValue(
+                ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
+                     (float)ui.TimeTransformationStrideSpinBox->value()));
+            notify();
+        });
     }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)
@@ -1370,7 +1368,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
                 holo->update_slice_transforms();
             notify();
         }
-        catch (std::logic_error& e)
+        catch (const std::logic_error& e)
         {
             LOG_ERROR << e.what() << std::endl;
             cancel_stft_slice_view();
@@ -1393,8 +1391,9 @@ void MainWindow::cancel_time_transformation_cuts()
             while (holovibes_.get_compute_pipe()->get_refresh_request())
                 continue;
         }
-        catch (std::exception&)
+        catch (const std::exception& e)
         {
+            LOG_ERROR << e.what();
         }
         cd_.time_transformation_cuts_enabled = false;
     }
@@ -1430,29 +1429,29 @@ void MainWindow::toggle_renormalize(bool value)
 
 void MainWindow::set_filter2d(bool checked)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (!checked)
     {
-        if (checked == false)
-        {
-            cd_.filter2d_enabled = checked;
-            cancel_filter2d();
-        }
-        else
-        {
-            const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-
-            // Set the input box related to the filter2d
-            ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-            set_filter2d_n2(ui.Filter2DN2SpinBox->value());
-            set_filter2d_n1(ui.Filter2DN1SpinBox->value());
-
-            if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-                pipe->autocontrast_end_pipe(WindowKind::XYview);
-            cd_.filter2d_enabled = checked;
-        }
-        pipe_refresh();
-        notify();
+        cd_.filter2d_enabled = checked;
+        cancel_filter2d();
     }
+    else
+    {
+        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
+
+        // Set the input box related to the filter2d
+        ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        set_filter2d_n2(ui.Filter2DN2SpinBox->value());
+        set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+
+        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+        cd_.filter2d_enabled = checked;
+    }
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::disable_filter2d_view()
@@ -1480,146 +1479,146 @@ void MainWindow::disable_filter2d_view()
 
 void MainWindow::update_filter2d_view(bool checked)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (checked)
     {
-        if (checked)
+        try
         {
-            try
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
+            auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+            if (pipe)
             {
-                // set positions of new windows according to the position of the
-                // main GL window
-                QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
-                auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-                if (pipe)
-                {
-                    pipe->request_filter2d_view();
+                pipe->request_filter2d_view();
 
-                    const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
-                    ushort filter2d_window_width = fd.width;
-                    ushort filter2d_window_height = fd.height;
-                    get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
+                const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
+                ushort filter2d_window_width = fd.width;
+                ushort filter2d_window_height = fd.height;
+                get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
 
-                    // Wait for the filter2d view to be enabled for notify
-                    while (pipe->get_filter2d_view_requested())
-                        continue;
+                // Wait for the filter2d view to be enabled for notify
+                while (pipe->get_filter2d_view_requested())
+                    continue;
 
-                    filter2d_window.reset(new Filter2DWindow(pos,
-                                                             QSize(filter2d_window_width, filter2d_window_height),
-                                                             pipe->get_filter2d_view_queue().get(),
-                                                             this));
+                filter2d_window.reset(new Filter2DWindow(pos,
+                                                         QSize(filter2d_window_width, filter2d_window_height),
+                                                         pipe->get_filter2d_view_queue().get(),
+                                                         this));
 
-                    filter2d_window->setTitle("Filter2D view");
-                    filter2d_window->setCd(&cd_);
+                filter2d_window->setTitle("Filter2D view");
+                filter2d_window->setCd(&cd_);
 
-                    connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-                    cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
-                    pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-                }
-            }
-            catch (std::exception& e)
-            {
-                LOG_ERROR << e.what() << std::endl;
+                connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
+                cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
             }
         }
-
-        else
+        catch (const std::exception& e)
         {
-            disable_filter2d_view();
-            filter2d_window.reset(nullptr);
+            LOG_ERROR << e.what() << std::endl;
         }
-
-        pipe_refresh();
-        notify();
     }
+
+    else
+    {
+        disable_filter2d_view();
+        filter2d_window.reset(nullptr);
+    }
+
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_filter2d_n1(int n)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    cd_.filter2d_n1 = n;
+
+    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
-        cd_.filter2d_n1 = n;
-
-        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        pipe->autocontrast_end_pipe(WindowKind::XYview);
+        if (cd_.time_transformation_cuts_enabled)
         {
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-            if (cd_.time_transformation_cuts_enabled)
-            {
-                pipe->autocontrast_end_pipe(WindowKind::XZview);
-                pipe->autocontrast_end_pipe(WindowKind::YZview);
-            }
-            if (cd_.filter2d_view_enabled)
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+            pipe->autocontrast_end_pipe(WindowKind::XZview);
+            pipe->autocontrast_end_pipe(WindowKind::YZview);
         }
-
-        pipe_refresh();
-        notify();
+        if (cd_.filter2d_view_enabled)
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
+
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_filter2d_n2(int n)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    cd_.filter2d_n2 = n;
+
+    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
-        cd_.filter2d_n2 = n;
-
-        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+        pipe->autocontrast_end_pipe(WindowKind::XYview);
+        if (cd_.time_transformation_cuts_enabled)
         {
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-            if (cd_.time_transformation_cuts_enabled)
-            {
-                pipe->autocontrast_end_pipe(WindowKind::XZview);
-                pipe->autocontrast_end_pipe(WindowKind::YZview);
-            }
-            if (cd_.filter2d_view_enabled)
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+            pipe->autocontrast_end_pipe(WindowKind::XZview);
+            pipe->autocontrast_end_pipe(WindowKind::YZview);
         }
-
-        pipe_refresh();
-        notify();
+        if (cd_.filter2d_view_enabled)
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
+
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::cancel_filter2d()
 {
-    if (!is_raw_mode())
-    {
-        if (cd_.filter2d_view_enabled == true)
-            update_filter2d_view(false);
-        pipe_refresh();
-        notify();
-    }
+    if (is_raw_mode())
+        return;
+
+    if (cd_.filter2d_view_enabled)
+        update_filter2d_view(false);
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_fft_shift(const bool value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.fft_shift_enabled = value;
-        pipe_refresh();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.fft_shift_enabled = value;
+    pipe_refresh();
 }
 
 void MainWindow::set_time_transformation_size()
 {
-    if (!is_raw_mode())
-    {
-        int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
-        time_transformation_size = std::max(1, time_transformation_size);
+    if (is_raw_mode())
+        return;
 
-        if (time_transformation_size == cd_.time_transformation_size)
-            return;
-        notify();
-        auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-        if (pipe)
-        {
-            pipe->insert_fn_end_vect([=]() {
-                cd_.time_transformation_size = time_transformation_size;
-                holovibes_.get_compute_pipe()->request_update_time_transformation_size();
-                set_p_accu();
-                // This will not do anything until
-                // SliceWindow::changeTexture() isn't coded.
-            });
-        }
+    int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
+    time_transformation_size = std::max(1, time_transformation_size);
+
+    if (time_transformation_size == cd_.time_transformation_size)
+        return;
+    notify();
+    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
+    if (pipe)
+    {
+        pipe->insert_fn_end_vect([=]() {
+            cd_.time_transformation_size = time_transformation_size;
+            holovibes_.get_compute_pipe()->request_update_time_transformation_size();
+            set_p_accu();
+            // This will not do anything until
+            // SliceWindow::changeTexture() isn't coded.
+        });
     }
 }
 
@@ -1652,7 +1651,7 @@ void MainWindow::update_lens_view(bool value)
             // when the window is destoryed, disable_lens_view() will be triggered
             connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             LOG_ERROR << e.what() << std::endl;
         }
@@ -1794,17 +1793,17 @@ void MainWindow::set_q_acc()
 
 void MainWindow::set_p(int value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (value < static_cast<int>(cd_.time_transformation_size))
     {
-        if (value < static_cast<int>(cd_.time_transformation_size))
-        {
-            cd_.pindex = value;
-            pipe_refresh();
-            notify();
-        }
-        else
-            display_error("p param has to be between 1 and #img");
+        cd_.pindex = value;
+        pipe_refresh();
+        notify();
     }
+    else
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_composite_intervals()
@@ -2025,69 +2024,68 @@ void MainWindow::slide_update_threshold_v_max()
 
 void MainWindow::increment_p()
 {
-    if (!is_raw_mode())
-    {
+    if (is_raw_mode())
+        return;
 
-        if (cd_.pindex < cd_.time_transformation_size)
-        {
-            cd_.pindex = cd_.pindex + 1;
-            set_auto_contrast();
-            notify();
-        }
-        else
-            display_error("p param has to be between 1 and #img");
+    if (cd_.pindex < cd_.time_transformation_size)
+    {
+        cd_.pindex = cd_.pindex + 1;
+        set_auto_contrast();
+        notify();
     }
+    else
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::decrement_p()
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (cd_.pindex > 0)
     {
-        if (cd_.pindex > 0)
-        {
-            cd_.pindex = cd_.pindex - 1;
-            set_auto_contrast();
-            notify();
-        }
-        else
-            display_error("p param has to be between 1 and #img");
+        cd_.pindex = cd_.pindex - 1;
+        set_auto_contrast();
+        notify();
     }
+    else
+        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_wavelength(const double value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.lambda = static_cast<float>(value) * 1.0e-9f;
-        pipe_refresh();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.lambda = static_cast<float>(value) * 1.0e-9f;
+    pipe_refresh();
 }
 
 void MainWindow::set_z(const double value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.zdistance = static_cast<float>(value);
-        pipe_refresh();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.zdistance = static_cast<float>(value);
+    pipe_refresh();
 }
 
 void MainWindow::increment_z()
 {
-    if (!is_raw_mode())
-    {
-        set_z(cd_.zdistance + z_step_);
-        ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-    }
+    if (is_raw_mode())
+        return;
+
+    set_z(cd_.zdistance + z_step_);
+    ui.ZDoubleSpinBox->setValue(cd_.zdistance);
 }
 
 void MainWindow::decrement_z()
 {
-    if (!is_raw_mode())
-    {
-        set_z(cd_.zdistance - z_step_);
-        ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-    }
+    if (is_raw_mode())
+        return;
+
+    set_z(cd_.zdistance - z_step_);
+    ui.ZDoubleSpinBox->setValue(cd_.zdistance);
 }
 
 void MainWindow::set_z_step(const double value)
@@ -2098,85 +2096,86 @@ void MainWindow::set_z_step(const double value)
 
 void MainWindow::set_space_transformation(const QString value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (value == "None")
+        cd_.space_transformation = SpaceTransformation::None;
+    else if (value == "1FFT")
+        cd_.space_transformation = SpaceTransformation::FFT1;
+    else if (value == "2FFT")
+        cd_.space_transformation = SpaceTransformation::FFT2;
+    else
     {
-        if (value == "None")
-            cd_.space_transformation = SpaceTransformation::None;
-        else if (value == "1FFT")
-            cd_.space_transformation = SpaceTransformation::FFT1;
-        else if (value == "2FFT")
-            cd_.space_transformation = SpaceTransformation::FFT2;
-        else
-        {
-            // Shouldn't happen
-            cd_.space_transformation = SpaceTransformation::None;
-            LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
-        }
-        set_holographic_mode();
+        // Shouldn't happen
+        cd_.space_transformation = SpaceTransformation::None;
+        LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
     }
+    set_holographic_mode();
 }
 
 void MainWindow::set_time_transformation(QString value)
 {
-    if (!is_raw_mode())
-    {
-        if (value == "STFT")
-            cd_.time_transformation = TimeTransformation::STFT;
-        else if (value == "PCA")
-            cd_.time_transformation = TimeTransformation::PCA;
-        else if (value == "None")
-            cd_.time_transformation = TimeTransformation::NONE;
-        else if (value == "SSA_STFT")
-            cd_.time_transformation = TimeTransformation::SSA_STFT;
-        set_holographic_mode();
-    }
+    if (is_raw_mode())
+        return;
+
+    if (value == "STFT")
+        cd_.time_transformation = TimeTransformation::STFT;
+    else if (value == "PCA")
+        cd_.time_transformation = TimeTransformation::PCA;
+    else if (value == "None")
+        cd_.time_transformation = TimeTransformation::NONE;
+    else if (value == "SSA_STFT")
+        cd_.time_transformation = TimeTransformation::SSA_STFT;
+    set_holographic_mode();
 }
 
 void MainWindow::set_unwrapping_2d(const bool value)
 {
-    if (!is_raw_mode())
-    {
-        holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
-        pipe_refresh();
-        notify();
-    }
+    if (is_raw_mode())
+        return;
+
+    holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_accumulation(bool value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.set_accumulation(cd_.current_window, value);
-        pipe_refresh();
-        notify();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.set_accumulation(cd_.current_window, value);
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_accumulation_level(int value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.set_accumulation_level(cd_.current_window, value);
-        pipe_refresh();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.set_accumulation_level(cd_.current_window, value);
+    pipe_refresh();
 }
 
 void MainWindow::pipe_refresh()
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    try
     {
-        try
-        {
-            // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
-            // operation to set a boolean
-            // But maybe a simple read access that create a false condition result is better than simply making a
-            // writting access
-            if (!holovibes_.get_compute_pipe()->get_request_refresh())
-                holovibes_.get_compute_pipe()->request_refresh();
-        }
-        catch (std::runtime_error& e)
-        {
-        }
+        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
+        // operation to set a boolean
+        // But maybe a simple read access that create a false condition result is better than simply making a
+        // writting access
+        if (!holovibes_.get_compute_pipe()->get_request_refresh())
+            holovibes_.get_compute_pipe()->request_refresh();
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what();
     }
 }
 
@@ -2234,14 +2233,14 @@ void MainWindow::flipTexture()
 #pragma region Contrast - Log
 void MainWindow::set_contrast_mode(bool value)
 {
-    if (!is_raw_mode())
-    {
-        change_window();
-        cd_.contrast_enabled = value;
-        cd_.contrast_auto_refresh = true;
-        pipe_refresh();
-        notify();
-    }
+    if (is_raw_mode())
+        return;
+
+    change_window();
+    cd_.contrast_enabled = value;
+    cd_.contrast_auto_refresh = true;
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_auto_contrast_cuts()
@@ -2276,69 +2275,69 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
 
 void MainWindow::set_auto_contrast()
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    try
     {
-        try
-        {
-            if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-                pipe->autocontrast_end_pipe(cd_.current_window);
-        }
-        catch (std::runtime_error& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-        }
+        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
+            pipe->autocontrast_end_pipe(cd_.current_window);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what() << std::endl;
     }
 }
 
 void MainWindow::set_contrast_min(const double value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (cd_.contrast_enabled)
     {
-        if (cd_.contrast_enabled)
+        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
+        // Get the minimum contrast value rounded for the comparison
+        const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
         {
-            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-            // Get the minimum contrast value rounded for the comparison
-            const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
-            // Floating number issue: cast to float for the comparison
-            const float val = value;
-            if (old_val != val)
-            {
-                cd_.set_contrast_min(cd_.current_window, value);
-                pipe_refresh();
-            }
+            cd_.set_contrast_min(cd_.current_window, value);
+            pipe_refresh();
         }
     }
 }
 
 void MainWindow::set_contrast_max(const double value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (cd_.contrast_enabled)
     {
-        if (cd_.contrast_enabled)
+        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
+        // Get the maximum contrast value rounded for the comparison
+        const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
         {
-            // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-            // Get the maximum contrast value rounded for the comparison
-            const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
-            // Floating number issue: cast to float for the comparison
-            const float val = value;
-            if (old_val != val)
-            {
-                cd_.set_contrast_max(cd_.current_window, value);
-                pipe_refresh();
-            }
+            cd_.set_contrast_max(cd_.current_window, value);
+            pipe_refresh();
         }
     }
 }
 
 void MainWindow::invert_contrast(bool value)
 {
-    if (!is_raw_mode())
+    if (is_raw_mode())
+        return;
+
+    if (cd_.contrast_enabled)
     {
-        if (cd_.contrast_enabled)
-        {
-            cd_.contrast_invert = value;
-            pipe_refresh();
-        }
+        cd_.contrast_invert = value;
+        pipe_refresh();
     }
 }
 
@@ -2351,14 +2350,14 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 
 void MainWindow::set_log_scale(const bool value)
 {
-    if (!is_raw_mode())
-    {
-        cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-        if (cd_.contrast_enabled && value)
-            set_auto_contrast();
-        pipe_refresh();
-        notify();
-    }
+    if (is_raw_mode())
+        return;
+
+    cd_.set_log_scale_slice_enabled(cd_.current_window, value);
+    if (value && cd_.contrast_enabled)
+        set_auto_contrast();
+    pipe_refresh();
+    notify();
 }
 #pragma endregion
 /* ------------ */
@@ -2377,9 +2376,10 @@ void MainWindow::update_convo_kernel(const QString& value)
             while (pipe->get_convolution_requested())
                 continue;
         }
-        catch (const std::exception&)
+        catch (const std::exception& e)
         {
             cd_.convolution_enabled = false;
+            LOG_ERROR << e.what();
         }
 
         notify();
@@ -2409,9 +2409,10 @@ void MainWindow::set_convolution_mode(const bool value)
                 continue;
         }
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
         cd_.convolution_enabled = false;
+        LOG_ERROR << e.what();
     }
 
     notify();
@@ -2501,8 +2502,9 @@ void MainWindow::stop_chart_display()
         while (pipe->get_disable_chart_display_requested())
             continue;
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+        LOG_ERROR << e.what();
     }
 
     plot_window_.reset(nullptr);
@@ -2689,18 +2691,23 @@ void MainWindow::start_record()
     if (!ui.NumberOfFramesCheckBox->isChecked())
         nb_frames_to_record = std::nullopt;
 
-    if ((record_mode_ == RecordMode::CHART || batch_enabled) && nb_frames_to_record == std::nullopt)
-        return display_error("Number of frames must be activated");
+    if ((batch_enabled || record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    {
+        LOG_ERROR << "Number of frames must be activated";
+        return;
+    }
 
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
-    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toStdString();
-    if (batch_enabled && batch_input_path == "")
-        return display_error("No batch input file");
+    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
+    if (batch_enabled && batch_input_path.empty())
+    {
+        LOG_ERROR << "No batch input file";
+        return;
+    }
 
     // Start record
-
     raw_window.reset(nullptr);
     disable_raw_view();
     ui.RawDisplayingCheckBox->setHidden(true);
@@ -2771,7 +2778,7 @@ void MainWindow::import_file(const QString& filename)
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
-    if (filename != "")
+    if (!filename.isEmpty())
     {
         try
         {
@@ -2798,6 +2805,7 @@ void MainWindow::import_file(const QString& filename)
             // In case of bad format, we triggered the user
             QMessageBox messageBox;
             messageBox.critical(nullptr, "File Error", e.what());
+            LOG_ERROR << e.what();
 
             // Holovibes cannot be launched over this file
             set_start_stop_buttons(false);
@@ -2886,9 +2894,9 @@ void MainWindow::init_holovibes_import_mode()
                                          });
         ui.FileReaderProgressBar->show();
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
-        display_error(e.what());
+        LOG_ERROR << e.what();
         is_enabled_camera_ = false;
         mainDisplay.reset(nullptr);
         holovibes_.stop_compute();

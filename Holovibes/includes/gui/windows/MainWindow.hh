@@ -69,6 +69,10 @@ class MainWindow : public QMainWindow, public Observer
   public slots:
     void on_notify();
     void update_file_reader_index(int n);
+    /*! \brief Give a function to execute to the main thread with a signal
+     *
+     * \param f the function to execute
+     */
     void synchronize_thread(std::function<void()> f);
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
@@ -562,18 +566,6 @@ class MainWindow : public QMainWindow, public Observer
      * \param c The new camera
      */
     void change_camera(CameraKind c);
-
-    /*! \brief Logs a message in error scope
-     *
-     * \param msg The message to log
-     */
-    void display_error(std::string msg);
-
-    /*! \brief Logs a message in info scope
-     *
-     * \param msg The message to log
-     */
-    void display_info(std::string msg);
 
     /*! \brief Opens a file
      *
