@@ -3,7 +3,7 @@ repos:
   hooks:
   - id: clang-format
     name: coding style
-    entry: clang-format --Werror -i
+    entry: clang-format --Werror --dry-run
     language: system
     files: \.(cc|hh|hxx|cu|cuh|cuhxx)$
 - repo: https://github.com/pre-commit/pre-commit-hooks
