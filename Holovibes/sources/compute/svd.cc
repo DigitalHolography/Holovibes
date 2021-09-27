@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "svd.hh"
 
 namespace holovibes
@@ -37,15 +29,14 @@ void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov)
 int eigen_values_vectors_work_buffer_size(int side)
 {
     int size = 0;
-    cusolverSafeCall(
-        cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
-                                    CUSOLVER_EIG_MODE_VECTOR,
-                                    CUBLAS_FILL_MODE_LOWER,
-                                    side,
-                                    nullptr,
-                                    side,
-                                    nullptr,
-                                    &size));
+    cusolverSafeCall(cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
+                                                 CUSOLVER_EIG_MODE_VECTOR,
+                                                 CUBLAS_FILL_MODE_LOWER,
+                                                 side,
+                                                 nullptr,
+                                                 side,
+                                                 nullptr,
+                                                 &size));
     return size;
 }
 

@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Contains the overloading of QFrame. */
+ * \brief Contains the overloading of QFrame.
+ */
 #pragma once
 
 #include <QFrame>
@@ -18,15 +11,18 @@ namespace holovibes
 {
 namespace gui
 {
-/*! \brief QFrame overload, used to hide and show parts of the GUI. */
+/*! \class Frame
+ *
+ * \brief QFrame overload, used to hide and show parts of the GUI.
+ */
 class Frame : public QFrame
 {
     Q_OBJECT
 
   public:
     /*! \brief Frame constructor
-    ** \param parent Qt parent
-    */
+     * \param parent Qt parent
+     */
     Frame(QWidget* parent = nullptr);
     /*! \brief Frame destructor */
     ~Frame();

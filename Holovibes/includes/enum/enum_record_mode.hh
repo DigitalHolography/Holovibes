@@ -1,17 +1,14 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief Enum for the different type of record
+ */
 #pragma once
 
 namespace holovibes
 {
-/*!
- *  \brief    Enum for the different type of record
+/*! \enum RecordMode
+ *
+ * \brief #TODO Add a description for this enum
  */
 enum class RecordMode
 {

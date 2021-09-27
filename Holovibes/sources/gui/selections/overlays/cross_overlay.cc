@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <sstream>
 
 #include "cross_overlay.hh"
@@ -63,12 +55,7 @@ void CrossOverlay::init()
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(verticesShader_);
-    glVertexAttribPointer(verticesShader_,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          2 * sizeof(float),
-                          0);
+    glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     glDisableVertexAttribArray(verticesShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -101,17 +88,9 @@ void CrossOverlay::init()
                                color_[2]};
     glGenBuffers(1, &colorIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(colorData),
-                 colorData,
-                 GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(colorShader_);
-    glVertexAttribPointer(colorShader_,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          3 * sizeof(float),
-                          0);
+    glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glDisableVertexAttribArray(colorShader_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -136,10 +115,7 @@ void CrossOverlay::init()
                                    4};
     glGenBuffers(1, &elemLineIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof(lineElements),
-                 lineElements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(lineElements), lineElements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // Set rectangle vertices order
@@ -159,10 +135,7 @@ void CrossOverlay::init()
                                  4};
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 elements.size() * sizeof(GLuint),
-                 elements.data(),
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLuint), elements.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     Vao_.release();
@@ -203,8 +176,7 @@ void CrossOverlay::draw()
 void CrossOverlay::onSetCurrent()
 {
     auto cd = parent_->getCd();
-    mouse_position_ =
-        units::PointFd(units::ConversionData(parent_), cd->x_cuts, cd->y_cuts);
+    mouse_position_ = units::PointFd(units::ConversionData(parent_), cd->x_cuts, cd->y_cuts);
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -266,10 +238,8 @@ void CrossOverlay::computeZone()
     }
     max.x() += 1;
     max.y() += 1;
-    zone_ =
-        units::RectFd(convert, min.x(), 0, max.x(), parent_->getFd().height);
-    horizontal_zone_ =
-        units::RectFd(convert, 0, min.y(), parent_->getFd().width, max.y());
+    zone_ = units::RectFd(convert, min.x(), 0, max.x(), parent_->getFd().height);
+    horizontal_zone_ = units::RectFd(convert, 0, min.y(), parent_->getFd().width, max.y());
 }
 
 void CrossOverlay::setBuffer()

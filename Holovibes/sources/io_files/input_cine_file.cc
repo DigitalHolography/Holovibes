@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "input_cine_file.hh"
 #include "file_exception.hh"
 #include "compute_descriptor.hh"
@@ -17,14 +9,8 @@ InputCineFile::InputCineFile(const std::string& file_path)
     , CineFile()
 {
     // read the cine file and bitmap info headers
-    size_t bytes_read = std::fread(&cine_file_header_,
-                                   sizeof(char),
-                                   sizeof(CineFileHeader),
-                                   file_);
-    bytes_read += std::fread(&bitmap_info_header_,
-                             sizeof(char),
-                             sizeof(BitmapInfoHeader),
-                             file_);
+    size_t bytes_read = std::fread(&cine_file_header_, sizeof(char), sizeof(CineFileHeader), file_);
+    bytes_read += std::fread(&bitmap_info_header_, sizeof(char), sizeof(BitmapInfoHeader), file_);
 
     if (std::ferror(file_))
     {
@@ -50,35 +36,30 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings(
-    holovibes::ComputeDescriptor& cd) const
+void InputCineFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
 {
-    cd.pixel_size =
-        1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter);
+    cd.pixel_size = 1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter);
 }
 
 void InputCineFile::set_pos_to_frame(size_t frame_id)
 {
     // get the offset to the frame offset
-    const std::fpos_t offset_frame_offset = static_cast<const std::fpos_t>(
-        cine_file_header_.off_image_offset + frame_id * sizeof(int64_t));
+    const std::fpos_t offset_frame_offset =
+        static_cast<const std::fpos_t>(cine_file_header_.off_image_offset + frame_id * sizeof(int64_t));
 
     std::fpos_t frame_offset = 0;
 
     // set pos to the image offsets, read the first frame offset and set pos to
     // this offset
     if (std::fsetpos(file_, &offset_frame_offset) != 0 ||
-        std::fread(&frame_offset, 1, sizeof(int64_t), file_) !=
-            sizeof(int64_t) ||
+        std::fread(&frame_offset, 1, sizeof(int64_t), file_) != sizeof(int64_t) ||
         std::fsetpos(file_, &frame_offset) != 0)
     {
         throw FileException("Unable to seek the frame requested");
     }
 }
 
-size_t InputCineFile::read_frames(char* buffer,
-                                  size_t frames_to_read,
-                                  int* flag_packed)
+size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag_packed)
 {
     size_t frames_read = 0;
 
@@ -91,17 +72,12 @@ size_t InputCineFile::read_frames(char* buffer,
         // This eventually matches the recorded cine but will be invalid for
         // other cine files
         if (std::fseek(file_, 8, SEEK_CUR) != 0)
-            throw FileException("Unable to read " +
-                                std::to_string(frames_to_read) + " frames");
+            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
 
-        frames_read += std::fread(buffer + i * packed_frame_size_,
-                                  packed_frame_size_,
-                                  1,
-                                  file_);
+        frames_read += std::fread(buffer + i * packed_frame_size_, packed_frame_size_, 1, file_);
 
         if (ferror(file_))
-            throw FileException("Unable to read " +
-                                std::to_string(frames_to_read) + " frames");
+            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
     }
 
     return frames_read;

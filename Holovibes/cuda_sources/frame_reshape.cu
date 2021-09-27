@@ -1,15 +1,8 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "frame_reshape.cuh"
 
 #include "tools.hh"
 #include "common.cuh"
+#include "checker.hh"
 
 cudaError_t embedded_frame_cpy(const char* input,
                                const uint input_width,
@@ -23,11 +16,10 @@ cudaError_t embedded_frame_cpy(const char* input,
                                cudaMemcpyKind kind,
                                const cudaStream_t stream)
 {
-    assert(input_width + output_startx <= output_width);
-    assert(input_height + output_starty <= output_height);
+    CHECK(input_width + output_startx <= output_width);
+    CHECK(input_height + output_starty <= output_height);
 
-    char* output_write_start =
-        output + elm_size * (output_starty * output_width + output_startx);
+    char* output_write_start = output + elm_size * (output_starty * output_width + output_startx);
     return cudaMemcpy2DAsync(output_write_start,
                              output_width * elm_size,
                              input,
@@ -75,17 +67,16 @@ cudaError_t embed_into_square(const char* input,
                               stream);
 }
 
-static __global__ void
-kernel_batched_embed_into_square(const char* input,
-                                 const uint input_width,
-                                 const uint input_height,
-                                 char* output,
-                                 const uint output_width,
-                                 const uint output_height,
-                                 const uint output_startx,
-                                 const uint output_starty,
-                                 const uint batch_size,
-                                 const uint elm_size)
+static __global__ void kernel_batched_embed_into_square(const char* input,
+                                                        const uint input_width,
+                                                        const uint input_height,
+                                                        char* output,
+                                                        const uint output_width,
+                                                        const uint output_height,
+                                                        const uint output_startx,
+                                                        const uint output_starty,
+                                                        const uint batch_size,
+                                                        const uint elm_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     const uint x = index % output_width;
@@ -95,23 +86,17 @@ kernel_batched_embed_into_square(const char* input,
     {
         for (uint i = 0; i < batch_size; i++)
         {
-            const uint batch_index =
-                index + i * input_width * input_height * elm_size;
+            const uint batch_index = index + i * input_width * input_height * elm_size;
 
-            if (x < output_startx || x >= output_startx + input_width ||
-                y < output_starty || y >= output_starty + input_height)
+            if (x < output_startx || x >= output_startx + input_width || y < output_starty ||
+                y >= output_starty + input_height)
                 output[batch_index] = 0;
             else
             {
-                if (output_startx ==
-                    0) // Horizontal black bands (top and bottom)
-                    output[batch_index] =
-                        input[batch_index -
-                              output_starty * input_width * elm_size];
+                if (output_startx == 0) // Horizontal black bands (top and bottom)
+                    output[batch_index] = input[batch_index - output_starty * input_width * elm_size];
                 else // Vertical black bands (left and right)
-                    output[batch_index] =
-                        input[batch_index -
-                              (2 * y + 1) * output_startx * elm_size];
+                    output[batch_index] = input[batch_index - (2 * y + 1) * output_startx * elm_size];
             }
         }
     }
@@ -143,20 +128,18 @@ void batched_embed_into_square(const char* input,
     }
 
     size_t threads = get_max_threads_1d();
-    size_t blocks =
-        map_blocks_to_problem(square_side_len * square_side_len, threads);
+    size_t blocks = map_blocks_to_problem(square_side_len * square_side_len, threads);
 
-    kernel_batched_embed_into_square<<<blocks, threads, 0, stream>>>(
-        input,
-        input_width,
-        input_height,
-        output,
-        square_side_len,
-        square_side_len,
-        output_startx,
-        output_starty,
-        batch_size,
-        elm_size);
+    kernel_batched_embed_into_square<<<blocks, threads, 0, stream>>>(input,
+                                                                     input_width,
+                                                                     input_height,
+                                                                     output,
+                                                                     square_side_len,
+                                                                     square_side_len,
+                                                                     output_startx,
+                                                                     output_starty,
+                                                                     batch_size,
+                                                                     elm_size);
     cudaCheckError();
 }
 
@@ -172,11 +155,10 @@ cudaError_t crop_frame(const char* input,
                        cudaMemcpyKind kind,
                        const cudaStream_t stream)
 {
-    assert(crop_start_x + crop_width <= input_width);
-    assert(crop_start_y + crop_height <= input_height);
+    CHECK(crop_start_x + crop_width <= input_width);
+    CHECK(crop_start_y + crop_height <= input_height);
 
-    const char* crop_start =
-        input + elm_size * (crop_start_y * input_width + crop_start_x);
+    const char* crop_start = input + elm_size * (crop_start_y * input_width + crop_start_x);
     return cudaMemcpy2DAsync(output,
                              crop_width * elm_size,
                              crop_start,
@@ -243,15 +225,12 @@ static __global__ void kernel_batched_crop_into_square(const char* input,
     {
         for (uint i = 0; i < batch_size; i++)
         {
-            const uint batch_index =
-                index + i * input_width * input_height * elm_size;
+            const uint batch_index = index + i * input_width * input_height * elm_size;
 
             if (crop_start_x == 0) // Horizontal black bands (top and bottom)
-                output[batch_index] =
-                    input[batch_index + crop_start_y * input_width * elm_size];
+                output[batch_index] = input[batch_index + crop_start_y * input_width * elm_size];
             else // Vertical black bands (left and right)
-                output[batch_index] =
-                    input[batch_index + (2 * y + 1) * crop_start_x * elm_size];
+                output[batch_index] = input[batch_index + (2 * y + 1) * crop_start_x * elm_size];
         }
     }
 }
@@ -282,20 +261,18 @@ void batched_crop_into_square(const char* input,
     }
 
     size_t threads = get_max_threads_1d();
-    size_t blocks =
-        map_blocks_to_problem(square_side_len * square_side_len, threads);
+    size_t blocks = map_blocks_to_problem(square_side_len * square_side_len, threads);
 
-    kernel_batched_crop_into_square<<<blocks, threads, 0, stream>>>(
-        input,
-        input_width,
-        input_height,
-        crop_start_x,
-        crop_start_y,
-        square_side_len,
-        square_side_len,
-        output,
-        elm_size,
-        batch_size);
+    kernel_batched_crop_into_square<<<blocks, threads, 0, stream>>>(input,
+                                                                    input_width,
+                                                                    input_height,
+                                                                    crop_start_x,
+                                                                    crop_start_y,
+                                                                    square_side_len,
+                                                                    square_side_len,
+                                                                    output,
+                                                                    elm_size,
+                                                                    batch_size);
     cudaCheckError();
 }
 
@@ -319,9 +296,7 @@ static __global__ void kernel_subsample_frame(const char* input,
     const uint x_offset = y % 2 == 0 ? 0 : sample_step / 2;
     const uint y_offset = x % 2 == 0 ? 0 : sample_step / 2;
 
-    const uint input_index = y * sample_step * input_width +
-                             y_offset * input_width + x * sample_step +
-                             x_offset;
+    const uint input_index = y * sample_step * input_width + y_offset * input_width + x * sample_step + x_offset;
 
     for (uint i = 0; i < elm_size; ++i)
     {
@@ -337,8 +312,8 @@ void subsample_frame(const char* input,
                      const uint elm_size,
                      const cudaStream_t stream)
 {
-    assert(input_width % sample_step == 0);
-    assert(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0);
+    CHECK(input_height % sample_step == 0);
 
     uint output_width = input_width / sample_step;
     uint output_height = input_height / sample_step;
@@ -357,15 +332,14 @@ void subsample_frame(const char* input,
                                                            elm_size);
 }
 
-static __global__ void
-kernel_subsample_frame_complex_batched(const cuComplex* input,
-                                       const uint input_width,
-                                       const uint input_height,
-                                       cuComplex* output,
-                                       const uint output_width,
-                                       const uint output_height,
-                                       const uint sample_step,
-                                       const uint batch_size)
+static __global__ void kernel_subsample_frame_complex_batched(const cuComplex* input,
+                                                              const uint input_width,
+                                                              const uint input_height,
+                                                              cuComplex* output,
+                                                              const uint output_width,
+                                                              const uint output_height,
+                                                              const uint sample_step,
+                                                              const uint batch_size)
 {
     uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -394,11 +368,11 @@ void subsample_frame_complex_batched(const cuComplex* input,
                                      const uint batch_size,
                                      const cudaStream_t stream)
 {
-    assert(input_width % sample_step == 0);
-    assert(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0);
+    CHECK(input_height % sample_step == 0);
 
-    assert(input_width % sample_step == 0);
-    assert(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0);
+    CHECK(input_height % sample_step == 0);
 
     uint output_width = input_width / sample_step;
     uint output_height = input_height / sample_step;
@@ -407,13 +381,12 @@ void subsample_frame_complex_batched(const cuComplex* input,
     size_t threads = get_max_threads_1d();
     size_t blocks = map_blocks_to_problem(output_size, threads);
 
-    kernel_subsample_frame_complex_batched<<<blocks, threads, 0, stream>>>(
-        input,
-        input_width,
-        input_height,
-        output,
-        output_width,
-        output_height,
-        sample_step,
-        batch_size);
+    kernel_subsample_frame_complex_batched<<<blocks, threads, 0, stream>>>(input,
+                                                                           input_width,
+                                                                           input_height,
+                                                                           output,
+                                                                           output_width,
+                                                                           output_height,
+                                                                           sample_step,
+                                                                           batch_size);
 }

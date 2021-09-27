@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Encapsulate a camera DLL ressource. */
+ * \brief Encapsulate a camera DLL ressource.
+ */
 #pragma once
 
 #include <memory>
@@ -19,24 +12,31 @@
 #undef min
 #include "icamera.hh"
 
+/*! \brief #TODO Add a description for this namespace */
 namespace camera
 {
-/*! \brief Encapsulate a camera DLL ressource.
+/*! \class CameraDLL
+ *
+ * \brief Encapsulate a camera DLL ressource.
  *
  * Use a custom deleter class (functor) to automatically free the DLL
- * ressource when the ICamera object is destroyed. */
+ * ressource when the ICamera object is destroyed.
+ */
 class CameraDLL
 {
   public:
     /*! \brief Return an specialize instance of ICamera contained in dll file.
-     *  \param dll_filepath Path to the dll file.
-     *  \return shared_ptr on ICamera who FreeLibrary on reset().
+     *
+     * \param dll_filepath Path to the dll file.
+     * \return shared_ptr on ICamera who FreeLibrary on reset().
      */
-    static std::shared_ptr<ICamera>
-    load_camera(const std::string& dll_filepath);
+    static std::shared_ptr<ICamera> load_camera(const std::string& dll_filepath);
 
   private:
-    /*! \brief Custom deleter that will delete the camera and the DLL handle. */
+    /*! \class DeleterDLL
+     *
+     * \brief Custom deleter that will delete the camera and the DLL handle.
+     */
     class DeleterDLL
     {
       public:

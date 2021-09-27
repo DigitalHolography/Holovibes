@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Overlay used to display a reticle in the center of the window. */
+ * \brief Overlay used to display a reticle in the center of the window.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -18,6 +11,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class Filter2DReticleOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Filter2DReticleOverlay : public Overlay
 {
   public:
@@ -33,7 +30,7 @@ class Filter2DReticleOverlay : public Overlay
   protected:
     void setBuffer() override;
 
-    //! Transparency of the lines
+    /*! \brief Transparency of the lines */
     float alpha_;
 };
 } // namespace gui

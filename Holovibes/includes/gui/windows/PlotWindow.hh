@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Qt main window class containing a plot of computed chart values  */
+ * \brief Qt main window class containing a plot of computed chart values
+ */
 #pragma once
 
 #include "ui_plotwindow.h"
@@ -25,7 +18,10 @@ namespace holovibes
 {
 namespace gui
 {
-/*! \brief Qt main window class containing a plot of computed chart values. */
+/*! \class PlotWindow
+ *
+ * \brief Qt main window class containing a plot of computed chart values.
+ */
 class PlotWindow : public QMainWindow
 {
     Q_OBJECT
@@ -35,13 +31,13 @@ class PlotWindow : public QMainWindow
 
   public:
     /*! \brief PlotWindow constructor
-    **
-    ** Create a PlotWindow and show it.
-    **
-    ** \param data_vect ConcurrentDeque containing chart values to be display
-    ** \param title title of the window
-    ** \param parent Qt parent
-    */
+     *
+     * Create a PlotWindow and show it.
+     *
+     * \param data_vect ConcurrentDeque containing chart values to be display
+     * \param title title of the window
+     * \param parent Qt parent
+     */
     PlotWindow(ConcurrentDeque<ChartPoint>& data_vect,
                const size_t auto_scale_point_threshold,
                const QString title,
@@ -54,44 +50,43 @@ class PlotWindow : public QMainWindow
     void resizeEvent(QResizeEvent* e) override;
 
     /*! \brief Starts drawing the chart/plot.
-    **
-    ** See CurvePLot::start()
-    */
+     *
+     * See CurvePLot::start()
+     */
     void start_drawing();
 
     /*! \brief Stops drawing the chart/plot.
-    **
-    ** See CurvePlot::stop()
-    */
+     *
+     * See CurvePlot::stop()
+     */
     void stop_drawing();
 
   public slots:
-    /*! \brief Reajust the scale according to max and min values contained in
-    *deque.
-    **
-    ** See CurvePLot::auto_scale()
-    */
+    /*! \brief Reajust the scale according to max and min values contained in deque.
+     *
+     * See CurvePLot::auto_scale()
+     */
     void auto_scale();
 
     /*! \brief Change number of points of chart displayed.
-    **
-    ** \param n number of points to display
-    */
+     *
+     * \param n number of points to display
+     */
     void change_points_nb(int n);
 
     /*! \brief emit signal closed on window is closed */
     void closeEvent(QCloseEvent* event);
 
-    /*! Ask curve_plot_ to change ploted curve */
+    /*! \brief Ask curve_plot_ to change ploted curve */
     void change_curve(int curve_to_plot);
 
-    /*! Switch between light and dark mode */
+    /*! \brief Switch between light and dark mode */
     void toggle_dark_mode();
 
   private:
     Ui::PlotWindow ui;
 
-    /*! CurvePlot object */
+    /*! \brief CurvePlot object */
     CurvePlot curve_plot_;
 };
 } // namespace gui

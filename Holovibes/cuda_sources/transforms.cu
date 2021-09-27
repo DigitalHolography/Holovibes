@@ -1,20 +1,9 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "transforms.cuh"
 
 using camera::FrameDescriptor;
 
-__global__ void kernel_quadratic_lens(cuComplex* output,
-                                      const uint lens_side_size,
-                                      const float lambda,
-                                      const float dist,
-                                      const float pixel_size)
+__global__ void kernel_quadratic_lens(
+    cuComplex* output, const uint lens_side_size, const float lambda, const float dist, const float pixel_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     const float c = M_PI / (lambda * dist);
@@ -37,11 +26,8 @@ __global__ void kernel_quadratic_lens(cuComplex* output,
     }
 }
 
-__global__ void kernel_spectral_lens(cuComplex* output,
-                                     const uint lens_side_size,
-                                     const float lambda,
-                                     const float distance,
-                                     const float pixel_size)
+__global__ void kernel_spectral_lens(
+    cuComplex* output, const uint lens_side_size, const float lambda, const float distance, const float pixel_size)
 {
     const uint i = blockIdx.x * blockDim.x + threadIdx.x;
     const uint j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -51,18 +37,13 @@ __global__ void kernel_spectral_lens(cuComplex* output,
     const float dy = dx;
     const float du = 1 / ((static_cast<float>(lens_side_size)) * dx);
     const float dv = 1 / ((static_cast<float>(lens_side_size)) * dy);
-    const float u = (i - static_cast<float>(
-                             lrintf(static_cast<float>(lens_side_size >> 1)))) *
-                    du;
-    const float v = (j - static_cast<float>(
-                             lrintf(static_cast<float>(lens_side_size >> 1)))) *
-                    dv;
+    const float u = (i - static_cast<float>(lrintf(static_cast<float>(lens_side_size >> 1)))) * du;
+    const float v = (j - static_cast<float>(lrintf(static_cast<float>(lens_side_size >> 1)))) * dv;
 
     if (index < lens_side_size * lens_side_size)
     {
         const float lambda2 = lambda * lambda;
-        const float csquare =
-            c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
+        const float csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
         output[index].x = cosf(csquare);
         output[index].y = sinf(csquare);
     }

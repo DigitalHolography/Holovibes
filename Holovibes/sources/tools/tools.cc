@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <iomanip>
 #include <sstream>
 #include <Windows.h>
@@ -18,10 +10,7 @@
 
 namespace holovibes
 {
-unsigned short upper_window_size(ushort width, ushort height)
-{
-    return std::max(width, height);
-}
+unsigned short upper_window_size(ushort width, ushort height) { return std::max(width, height); }
 
 void get_good_size(ushort& width, ushort& height, ushort window_size)
 {
@@ -110,8 +99,7 @@ std::string create_absolute_path(const std::string& relative_path)
 std::filesystem::path get_user_documents_path()
 {
     wchar_t document_path[MAX_PATH];
-    HRESULT sh_res =
-        SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
+    HRESULT sh_res = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, document_path);
 
     if (sh_res == S_OK)
     {
@@ -127,23 +115,7 @@ std::filesystem::path get_user_documents_path()
 std::string engineering_notation(double value, int nb_significant_figures)
 {
 
-    static std::string prefix[] = {"y",
-                                   "z",
-                                   "a",
-                                   "f",
-                                   "p",
-                                   "n",
-                                   "�",
-                                   "m",
-                                   "",
-                                   "k",
-                                   "M",
-                                   "G",
-                                   "T",
-                                   "P",
-                                   "E",
-                                   "Z",
-                                   "Y"};
+    static std::string prefix[] = {"y", "z", "a", "f", "p", "n", "�", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y"};
 
     if (value == 0.)
     {
@@ -171,10 +143,8 @@ std::string engineering_notation(double value, int nb_significant_figures)
     int leading_figure = static_cast<int>(log10(value)) % 3 + 1;
 
     std::stringstream ss;
-    ss << std::fixed
-       << std::setprecision(
-              std::max(nb_significant_figures - leading_figure, 0))
-       << value << " " << SI_prefix_symbol;
+    ss << std::fixed << std::setprecision(std::max(nb_significant_figures - leading_figure, 0)) << value << " "
+       << SI_prefix_symbol;
 
     return ss.str();
 }

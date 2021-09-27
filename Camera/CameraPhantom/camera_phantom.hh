@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include <EGrabber.h>
@@ -19,13 +11,14 @@ namespace camera
 using namespace Euresys;
 
 /*! \class EHoloSubGrabber
-    \brief Class to handle the different EHoloSubGrabber used to acquire images
-   from the Phantom S710 with a Coaxlink Octo frame grabber.
-
-   By extending EGrabberCallbackOnDemand, the events and callbacks are handled
-   by the same thread calling get_frames (camera frame read worker) as we do not
-   need to capture multiple frames at once.
-*/
+ *
+ * \brief Class to handle the different EHoloSubGrabber used to acquire images
+ * from the Phantom S710 with a Coaxlink Octo frame grabber.
+ *
+ * By extending EGrabberCallbackOnDemand, the events and callbacks are handled
+ * by the same thread calling get_frames (camera frame read worker) as we do not
+ * need to capture multiple frames at once.
+ */
 class EHoloSubGrabber : public EGrabberCallbackOnDemand
 {
   public:
@@ -35,12 +28,7 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
                     int dataStreamIndex,
                     gc::DEVICE_ACCESS_FLAGS deviceOpenFlags,
                     bool remoteRequired)
-        : EGrabberCallbackOnDemand(gentl,
-                                   interfaceIndex,
-                                   deviceIndex,
-                                   dataStreamIndex,
-                                   deviceOpenFlags,
-                                   remoteRequired)
+        : EGrabberCallbackOnDemand(gentl, interfaceIndex, deviceIndex, dataStreamIndex, deviceOpenFlags, remoteRequired)
     {
     }
 
@@ -50,31 +38,33 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
   private:
     virtual void onNewBufferEvent(const NewBufferData& data)
     {
-        // Using ScopedBuffer will tell the grabber that the buffer is available
-        // to store new acquired frames at the end of this scope. This behavior
-        // is not an issue as the next time onNewBufferEvent will be called, the
-        // previous frame will have already been enqueued in Holovibes input
-        // queue.
+        /* Using ScopedBuffer will tell the grabber that the buffer is available
+         * to store new acquired frames at the end of this scope. This behavior
+         * is not an issue as the next time onNewBufferEvent will be called, the
+         * previous frame will have already been enqueued in Holovibes input
+         * queue.
+         */
         ScopedBuffer buffer(*this, data);
         last_ptr_ = static_cast<uint8_t*>(buffer.getUserPointer());
     }
 };
 
 /*! \class EHoloGrabber
-    \brief Class to handle the different EHoloSubGrabber used to acquire images
-   from the Phantom S710 with a Coaxlink Octo frame grabber.
-
-   This implementation supposes that the frame grabber has been configured
-   properly, through the GenICam API, so that:
-   1. Only banks A and B are used.
-   2. Each bank is responsible for capturing half of the full image height.
-
-   For instance, to capture a frame of 1024*512, the first and second grabber
-   will acquire 1024*256 and stack both parts to create the full 1024*512 image.
-
-   The documentation of the Euresys eGrabber Programmer Guide can be found at
-   https://documentation.euresys.com/Products/COAXLINK/COAXLINK_14_0/en-us/Content/00_Home/PDF_Guides.htm.
-*/
+ *
+ *\brief Class to handle the different EHoloSubGrabber used to acquire images
+ * from the Phantom S710 with a Coaxlink Octo frame grabber.
+ *
+ * This implementation supposes that the frame grabber has been configured
+ * properly, through the GenICam API, so that:
+ * 1. Only banks A and B are used.
+ * 2. Each bank is responsible for capturing half of the full image height.
+ *
+ * For instance, to capture a frame of 1024*512, the first and second grabber
+ * will acquire 1024*256 and stack both parts to create the full 1024*512 image.
+ *
+ * The documentation of the Euresys eGrabber Programmer Guide can be found at
+ * https://documentation.euresys.com/Products/COAXLINK/COAXLINK_14_0/en-us/Content/00_Home/PDF_Guides.htm.
+ */
 class EHoloGrabber
 {
   public:
@@ -120,19 +110,15 @@ class EHoloGrabber
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
             uint8_t *ptr, *device_ptr;
-            cudaError_t alloc_res =
-                cudaHostAlloc(&ptr, frame_size, cudaHostAllocMapped);
-            cudaError_t device_ptr_res =
-                cudaHostGetDevicePointer(&device_ptr, ptr, 0);
+            cudaError_t alloc_res = cudaHostAlloc(&ptr, frame_size, cudaHostAllocMapped);
+            cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr, 0);
 
             if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-                std::cerr << "[CAMERA] Could not allocate buffers."
-                          << std::endl;
+                std::cerr << "[CAMERA] Could not allocate buffers." << std::endl;
 
             buffers_.push_back(ptr);
             for (size_t ix = 0; ix < grabber_count; ix++)
-                grabbers_[ix]->announceAndQueue(
-                    UserMemory(ptr, frame_size, device_ptr));
+                grabbers_[ix]->announceAndQueue(UserMemory(ptr, frame_size, device_ptr));
         }
     }
 
@@ -179,16 +165,15 @@ class EHoloGrabber
     /*! \brief Unique ptr to the instance of the GenICam GenTL API. */
     std::unique_ptr<EGenTL> gentl_;
 
-    /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber
-     * grabbers.  */
+    /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber grabbers.  */
     EGrabbers<EHoloSubGrabber> grabbers_;
 
     /*! \brief The number of buffers used to store frames. It is equivalent to
-     * the number of frames to store simultaneously. */
+     * the number of frames to store simultaneously.
+     */
     unsigned int nb_buffers_;
 
-    /*! \brief A vector storing all host memory pointers allocated to later
-     * free them. */
+    /*! \brief A vector storing all host memory pointers allocated to later free them. */
     std::vector<uint8_t*> buffers_;
 };
 

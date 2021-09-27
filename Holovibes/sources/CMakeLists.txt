@@ -9,6 +9,8 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     queue.cc
     batch_input_queue.cc
 
+    tools/loguru.cpp
+
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/compute_descriptor.cc

@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "stft.cuh"
 #include "common.cuh"
 #include "queue.hh"
@@ -49,11 +41,8 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
         {
             float pixel_float = 0;
             cuComplex pixel =
-                input[x + (id / time_transformation_size) * width +
-                      (id % time_transformation_size) * frame_size];
-            if (img_type == ImgType::Modulus ||
-                img_type == ImgType::PhaseIncrease ||
-                img_type == ImgType::Composite)
+                input[x + (id / time_transformation_size) * width + (id % time_transformation_size) * frame_size];
+            if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
                 pixel_float = hypotf(pixel.x, pixel.y);
             else if (img_type == ImgType::SquaredModulus)
             {
@@ -73,11 +62,8 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
         for (int y = ymin; y <= ymax; ++y)
         {
             float pixel_float = 0;
-            cuComplex pixel =
-                input[(y * width) + (id / width) * frame_size + id % width];
-            if (img_type == ImgType::Modulus ||
-                img_type == ImgType::PhaseIncrease ||
-                img_type == ImgType::Composite)
+            cuComplex pixel = input[(y * width) + (id / width) * frame_size + id % width];
+            if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
                 pixel_float = hypotf(pixel.x, pixel.y);
             else if (img_type == ImgType::SquaredModulus)
             {

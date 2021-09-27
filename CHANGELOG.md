@@ -1,15 +1,57 @@
 ## Changelog
- 
+
+### 10.2
+
+* Installer: creates a folder in AppData/Roaming
+* Prevent crash when 3D cuts is active and space transformation is changed
+
+### 10.1
+
+* Changed BitFlow version: 6.40 -> 6.50
+
+### 10
+
+* Bump version
+
+### 9.5
+
+* Camera: bitflow is now a standalone camera mode
+* CLI: fix batch size bug
+
+### 9.4.1
+
+* CLI: add load in GPU option
+
+### 9.4
+
+* Camera: add phantom 710 + bitflow camera (should be able to handle any camera with a bitflow framegrabber)
+* Fast pipe (experimental): pipe speed up when batch size == time stride == time size
+
+### 9.3.10
+
+* CLI: fix segfault
+* Holofile: fix exception when a field is empty
+
+### 9.3.9
+
+* CLI: load input file before .ini (avoid overriding parameters)[1;5D[1;5D[1;5D[1;5D[1;5D[1;3D[D[D[D[D[D[D config[3~[3~[3~[3~[3~ parameters)
+
+### 9.3.8
+
+* cli: record total frames / time stride by default
+* record: an arbitrary number of frames can now be skipped at the beginning of a recording
+* cuda: check for compute capabilities
+
 ### 9.3.7
- 
+
 * Set Lambda default value to 852nm
 * Fix Input Throughput display
 * Fix unit test not working in WSL
 * Automatic calculation of the total frames in relation to time stride to record the entire processed file
 * Launching unit tests with release script
- 
+
 ### 9.3.6
- 
+
 * Fix 3d cuts black bars
 * Add ssa stft time transform
 

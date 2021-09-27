@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "thread_worker_controller.hh"
@@ -21,8 +13,7 @@ ThreadWorkerController<T>::~ThreadWorkerController()
 }
 
 template <Derived<Worker> T>
-inline void
-ThreadWorkerController<T>::set_callback(std::function<void()> callback)
+inline void ThreadWorkerController<T>::set_callback(std::function<void()> callback)
 {
     callback_ = callback;
 }

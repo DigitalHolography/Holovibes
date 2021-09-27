@@ -1,12 +1,8 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
-/*! \file WARNING This file should only be included in the test_reduce.cu file
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ *
+ * WARNING This file should only be included in the test_reduce.cu file
  *
  * Test files must be .cc
  * To be templatable our reduce_generic needs to be in a .cuhxx file
@@ -20,21 +16,13 @@
 #include "common.cuh"
 
 /*! \brief reduce_add wrapper */
-void test_gpu_reduce_add(const float* const input,
-                         double* const result,
-                         const uint size);
+void test_gpu_reduce_add(const float* const input, double* const result, const uint size);
 
 /*! \brief reduce_min wrapper */
-void test_gpu_reduce_min(const double* const input,
-                         double* const result,
-                         const uint size);
+void test_gpu_reduce_min(const double* const input, double* const result, const uint size);
 
 /*! \brief reduce_max for int values wrapper */
-void test_gpu_reduce_max(const int* const input,
-                         int* const result,
-                         const uint size);
+void test_gpu_reduce_max(const int* const input, int* const result, const uint size);
 
 /*! \brief reduce_max for float values wrapper */
-void test_gpu_reduce_max(const float* const input,
-                         float* const result,
-                         const uint size);
+void test_gpu_reduce_max(const float* const input, float* const result, const uint size);

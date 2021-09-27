@@ -1,19 +1,9 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "output_avi_file.hh"
 #include "file_exception.hh"
 
 namespace holovibes::io_files
 {
-OutputAviFile::OutputAviFile(const std::string& file_path,
-                             const camera::FrameDescriptor& fd,
-                             uint64_t img_nb)
+OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , AviFile()
 {
@@ -21,10 +11,7 @@ OutputAviFile::OutputAviFile(const std::string& file_path,
     img_nb_ = img_nb;
 }
 
-void OutputAviFile::export_compute_settings(const ComputeDescriptor& cd,
-                                            bool record_raw)
-{
-}
+void OutputAviFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw) {}
 
 void OutputAviFile::write_header()
 {
@@ -33,9 +20,6 @@ void OutputAviFile::write_header()
         int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
 
         cv::Size size = cv::Size(fd_.width, fd_.height);
-
-        if (max_side_square_output_.has_value())
-            size = cv::Size(*max_side_square_output_, *max_side_square_output_);
 
         bool is_color = fd_.depth == 3;
 
@@ -46,9 +30,7 @@ void OutputAviFile::write_header()
     }
     catch (const cv::Exception&)
     {
-        throw FileException(
-            "An error was encountered while trying to create avi file",
-            false);
+        throw FileException("An error was encountered while trying to create avi file", false);
     }
 }
 
@@ -61,10 +43,7 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
 
         if (is_color)
         {
-            mat_frame = cv::Mat(fd_.height,
-                                fd_.width,
-                                CV_8UC3,
-                                const_cast<char*>(frame));
+            mat_frame = cv::Mat(fd_.height, fd_.width, CV_8UC3, const_cast<char*>(frame));
             cv::cvtColor(mat_frame, mat_frame, cv::COLOR_BGR2RGB);
         }
 
@@ -90,13 +69,6 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
             }
         }
 
-        // if the output is anamorphic and should be a square output
-        if (max_side_square_output_.has_value())
-            cv::resize(
-                mat_frame,
-                mat_frame,
-                cv::Size(*max_side_square_output_, *max_side_square_output_));
-
         video_writer_ << mat_frame;
     }
     catch (const cv::Exception&)
@@ -109,8 +81,5 @@ size_t OutputAviFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputAviFile::write_footer() {}
 
-void OutputAviFile::correct_number_of_frames(size_t nb_frames_written)
-{
-    img_nb_ = nb_frames_written;
-}
+void OutputAviFile::correct_number_of_frames(size_t nb_frames_written) { img_nb_ = nb_frames_written; }
 } // namespace holovibes::io_files

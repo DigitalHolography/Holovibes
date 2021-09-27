@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <camera_exception.hh>
 
 #include "camera_ids.hh"
@@ -113,8 +105,7 @@ void CameraIds::load_ini_params()
     exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
     gain_ = pt.get<int>("ids.gain", gain_);
     format_gain();
-    subsampling_ =
-        get_subsampling_mode(pt.get<std::string>("ids.subsampling", ""));
+    subsampling_ = get_subsampling_mode(pt.get<std::string>("ids.subsampling", ""));
     binning_ = get_binning_mode(pt.get<std::string>("ids.binning", ""));
     color_mode_ = get_color_mode(pt.get<std::string>("ids.image_format", ""));
     aoi_x_ = pt.get<int>("ids.aoi_startx", aoi_x_);
@@ -132,19 +123,13 @@ void CameraIds::bind_params()
     // Exposure time
     // is_Exposure require a double as third argument.
     double exp = (double)exposure_time_;
-    status |=
-        is_Exposure(cam_, IS_EXPOSURE_CMD_SET_EXPOSURE, &exp, sizeof(&exp));
+    status |= is_Exposure(cam_, IS_EXPOSURE_CMD_SET_EXPOSURE, &exp, sizeof(&exp));
 
     // Gain
-    if (is_SetGainBoost(cam_, IS_GET_SUPPORTED_GAINBOOST) ==
-        IS_SET_GAINBOOST_ON)
+    if (is_SetGainBoost(cam_, IS_GET_SUPPORTED_GAINBOOST) == IS_SET_GAINBOOST_ON)
     {
         status |= is_SetGainBoost(cam_, IS_SET_GAINBOOST_ON);
-        status |= is_SetHardwareGain(cam_,
-                                     gain_,
-                                     IS_IGNORE_PARAMETER,
-                                     IS_IGNORE_PARAMETER,
-                                     IS_IGNORE_PARAMETER);
+        status |= is_SetHardwareGain(cam_, gain_, IS_IGNORE_PARAMETER, IS_IGNORE_PARAMETER, IS_IGNORE_PARAMETER);
     }
 
     // Subsampling
@@ -155,8 +140,7 @@ void CameraIds::bind_params()
     if (binning_ != -1)
     {
         status |= is_SetBinning(cam_, binning_);
-        pixel_size_ *=
-            std::atoi(pt.get<std::string>("ids.binning", "1x1").c_str());
+        pixel_size_ *= std::atoi(pt.get<std::string>("ids.binning", "1x1").c_str());
     }
 
     // Image format/Color mode
@@ -169,8 +153,7 @@ void CameraIds::bind_params()
     rectAOI.s32Width = aoi_width_;
     rectAOI.s32Height = aoi_height_;
 
-    status |=
-        is_AOI(cam_, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
+    status |= is_AOI(cam_, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
 
     // Trigger
     status |= is_SetExternalTrigger(cam_, trigger_mode_);

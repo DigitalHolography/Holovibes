@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "overlay_manager.hh"
@@ -18,6 +10,7 @@
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
 #include "filter2d_reticle_overlay.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -54,8 +47,7 @@ void OverlayManager::create_overlay<Noise>()
 {
     if (!set_current(Noise))
     {
-        std::shared_ptr<Overlay> noise_overlay =
-            std::make_shared<NoiseOverlay>(parent_);
+        std::shared_ptr<Overlay> noise_overlay = std::make_shared<NoiseOverlay>(parent_);
         create_overlay(noise_overlay);
     }
 }
@@ -65,8 +57,7 @@ void OverlayManager::create_overlay<Signal>()
 {
     if (!set_current(Signal))
     {
-        std::shared_ptr<Overlay> signal_overlay =
-            std::make_shared<SignalOverlay>(parent_);
+        std::shared_ptr<Overlay> signal_overlay = std::make_shared<SignalOverlay>(parent_);
         create_overlay(signal_overlay);
     }
 }
@@ -152,8 +143,7 @@ void OverlayManager::keyPress(QKeyEvent* e)
     if (e->key() == Qt::Key_Space)
     {
         for (auto o : overlays_)
-            if ((o->getKind() == Cross || o->getKind() == SliceCross) &&
-                o->isActive())
+            if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
                 o->keyPress(e);
     }
     else if (current_overlay_)
@@ -163,8 +153,7 @@ void OverlayManager::keyPress(QKeyEvent* e)
 void OverlayManager::move(QMouseEvent* e)
 {
     for (auto o : overlays_)
-        if ((o->getKind() == Cross || o->getKind() == SliceCross) &&
-            o->isActive())
+        if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
             o->move(e);
     if (current_overlay_)
         current_overlay_->move(e);
@@ -220,9 +209,7 @@ void OverlayManager::clean()
     // Delete all disabled overlays
     overlays_.erase(std::remove_if(overlays_.begin(),
                                    overlays_.end(),
-                                   [](std::shared_ptr<Overlay> overlay) {
-                                       return !overlay->isActive();
-                                   }),
+                                   [](std::shared_ptr<Overlay> overlay) { return !overlay->isActive(); }),
                     overlays_.end());
 }
 
@@ -255,26 +242,23 @@ void OverlayManager::create_default()
 
 units::RectWindow OverlayManager::getZone() const
 {
-    assert(current_overlay_);
+    CHECK(current_overlay_ != nullptr) << "Overlay should never be null";
     return current_overlay_->getZone();
 }
 
-KindOfOverlay OverlayManager::getKind() const
-{
-    return current_overlay_ ? current_overlay_->getKind() : Zoom;
-}
+KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
 
 #ifdef _DEBUG
 void OverlayManager::printVector()
 {
-    std::cout << std::endl;
-    std::cout << "Current overlay :" << std::endl;
+    LOG_INFO << std::endl;
+    LOG_INFO << "Current overlay :" << std::endl;
     if (current_overlay_)
         current_overlay_->print();
-    std::cout << std::endl;
+    LOG_INFO << std::endl;
     for (auto o : overlays_)
         o->print();
-    std::cout << std::endl;
+    LOG_INFO << std::endl;
 }
 #endif
 } // namespace gui

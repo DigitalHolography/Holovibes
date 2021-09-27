@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "gtest/gtest.h"
 #include "map.cuh"
 #include "cuda_memory.cuh"
@@ -19,8 +11,7 @@ enum class MAP_OPERATION
 };
 
 template <typename T>
-static bool
-check_result(const T* const h_expected, T* const d_got, const size_t size)
+static bool check_result(const T* const h_expected, T* const d_got, const size_t size)
 {
     T* h_got = new T[size];
     cudaXMemcpy(h_got, d_got, sizeof(T) * size, cudaMemcpyDeviceToHost);

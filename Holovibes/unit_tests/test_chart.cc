@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "chart.cuh"
 #include "cuda_memory.cuh"
 #include "gtest/gtest.h"
@@ -66,13 +58,7 @@ TEST(ChartTest, SmallCroppedExample)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SmallSimple)
@@ -88,13 +74,7 @@ TEST(ChartTest, SmallSimple)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SuperTinyZone)
@@ -110,13 +90,7 @@ TEST(ChartTest, SuperTinyZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, NonSquareImageAndZone)
@@ -132,13 +106,7 @@ TEST(ChartTest, NonSquareImageAndZone)
 
     float cell_value = 1.0f;
 
-    chart_test(image_width,
-               image_height,
-               zone_width,
-               zone_height,
-               x_zone_offset,
-               y_zone_offset,
-               cell_value);
+    chart_test(image_width, image_height, zone_width, zone_height, x_zone_offset, y_zone_offset, cell_value);
 }
 
 TEST(ChartTest, SmallDifferentValuesImage)

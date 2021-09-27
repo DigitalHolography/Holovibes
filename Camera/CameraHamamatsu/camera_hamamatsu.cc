@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <iostream>
 #include <chrono>
 #include <cstring>
@@ -36,8 +28,7 @@ void CameraHamamatsu::init_camera()
     DCAMAPI_INIT param_init;
     std::memset(&param_init, 0, sizeof(DCAMAPI_INIT));
     param_init.size = sizeof(param_init); // This line is required by the API
-    if (dcamapi_init(&param_init) != DCAMERR_SUCCESS ||
-        param_init.iDeviceCount <= 0)
+    if (dcamapi_init(&param_init) != DCAMERR_SUCCESS || param_init.iDeviceCount <= 0)
     {
         throw CameraException(CameraException::NOT_CONNECTED);
     }
@@ -96,8 +87,7 @@ void CameraHamamatsu::retrieve_camera_name()
 
     DCAMDEV_STRING param_getstring;
     std::memset(&param_getstring, 0, sizeof(param_getstring));
-    param_getstring.size =
-        sizeof(param_getstring); // This line is required by the API
+    param_getstring.size = sizeof(param_getstring); // This line is required by the API
     param_getstring.iString = DCAM_IDSTR_MODEL;
     param_getstring.text = buf;
     param_getstring.textbytes = buf_size;
@@ -129,14 +119,10 @@ void CameraHamamatsu::set_frame_acq_info()
     // This separation is used to differentiate between API reserved fields and
     // Host writeable fields
 
-    dcam_frame_acq_info_.size =
-        sizeof(dcam_frame_acq_info_); // Line required by the API
-    dcam_frame_acq_info_.iFrame =
-        -1; // -1 to retrieve the latest captured image
-    dcam_frame_acq_info_.buf =
-        output_frame_
-            .get(); // Pointer to host memory where the image will be copied
-    dcam_frame_acq_info_.rowbytes = fd_.width * fd_.depth; // Row size in bytes
+    dcam_frame_acq_info_.size = sizeof(dcam_frame_acq_info_); // Line required by the API
+    dcam_frame_acq_info_.iFrame = -1;                         // -1 to retrieve the latest captured image
+    dcam_frame_acq_info_.buf = output_frame_.get();           // Pointer to host memory where the image will be copied
+    dcam_frame_acq_info_.rowbytes = fd_.width * fd_.depth;    // Row size in bytes
     dcam_frame_acq_info_.width = fd_.width;
     dcam_frame_acq_info_.height = fd_.height;
     dcam_frame_acq_info_.left = 0;
@@ -147,11 +133,9 @@ void CameraHamamatsu::set_wait_info()
 {
     std::memset(&dcam_wait_info_, 0, sizeof(dcam_wait_info_));
 
-    dcam_wait_info_.size = sizeof(dcam_wait_info_); // Line required by the API
-    dcam_wait_info_.eventmask =
-        DCAMWAIT_CAPEVENT_FRAMEREADY; // Waiting for event
-    dcam_wait_info_.timeout =
-        camera::FRAME_TIMEOUT; // This field should be in milliseconds
+    dcam_wait_info_.size = sizeof(dcam_wait_info_);           // Line required by the API
+    dcam_wait_info_.eventmask = DCAMWAIT_CAPEVENT_FRAMEREADY; // Waiting for event
+    dcam_wait_info_.timeout = camera::FRAME_TIMEOUT;          // This field should be in milliseconds
 }
 
 void CameraHamamatsu::get_event_waiter_handle()
@@ -288,9 +272,7 @@ void CameraHamamatsu::load_ini_params()
 
     ext_trig_ = pt.get<bool>("hamamatsu.ext_trig", ext_trig_);
 
-    circ_buffer_frame_count_ =
-        pt.get<int32>("hamamatsu.circ_buffer_frame_count",
-                      circ_buffer_frame_count_);
+    circ_buffer_frame_count_ = pt.get<int32>("hamamatsu.circ_buffer_frame_count", circ_buffer_frame_count_);
 
     std::string trig_mode = pt.get<std::string>("hamamatsu.trig_mode", "");
     if (trig_mode == "NORMAL")
@@ -298,22 +280,19 @@ void CameraHamamatsu::load_ini_params()
     else if (trig_mode == "START")
         trig_mode_ = DCAMPROP_TRIGGER_MODE__START;
 
-    std::string trig_connector =
-        pt.get<std::string>("hamamatsu.trig_connector", "");
+    std::string trig_connector = pt.get<std::string>("hamamatsu.trig_connector", "");
     if (trig_connector == "INTERFACE")
         trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__INTERFACE;
     else if (trig_connector == "BNC")
         trig_connector_ = DCAMPROP_TRIGGER_CONNECTOR__BNC;
 
-    std::string trig_polarity =
-        pt.get<std::string>("hamamatsu.trig_polarity", "");
+    std::string trig_polarity = pt.get<std::string>("hamamatsu.trig_polarity", "");
     if (trig_polarity == "POSITIVE")
         trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__POSITIVE;
     else if (trig_polarity == "NEGATIVE")
         trig_polarity_ = DCAMPROP_TRIGGERPOLARITY__NEGATIVE;
 
-    std::string readoutspeed =
-        pt.get<std::string>("hamamatsu.readoutspeed", "");
+    std::string readoutspeed = pt.get<std::string>("hamamatsu.readoutspeed", "");
     if (readoutspeed == "SLOWEST")
         readoutspeed_ = DCAMPROP_READOUTSPEED__SLOWEST;
     else if (readoutspeed == "FASTEST")
@@ -341,36 +320,26 @@ void CameraHamamatsu::bind_params()
         dcamprop_setvalue(hdcam_, DCAM_IDPROP_SUBARRAYVPOS, srcoy_);
     }
 
-    if (dcamprop_setvalue(hdcam_,
-                          DCAM_IDPROP_EXPOSURETIME,
-                          exposure_time_ / 1E6) != DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_EXPOSURETIME, exposure_time_ / 1E6) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
 
-    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_) !=
-        DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_BINNING, binning_) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
     fd_.width /= binning_;
     fd_.height /= binning_;
 
     if (dcamprop_setvalue(hdcam_,
                           DCAM_IDPROP_TRIGGERSOURCE,
-                          ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL
-                                    : DCAMPROP_TRIGGERSOURCE__INTERNAL) !=
+                          ext_trig_ ? DCAMPROP_TRIGGERSOURCE__EXTERNAL : DCAMPROP_TRIGGERSOURCE__INTERNAL) !=
         DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
-    if (dcamprop_setvalue(hdcam_,
-                          DCAM_IDPROP_TRIGGER_CONNECTOR,
-                          trig_connector_) != DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
-    if (dcamprop_setvalue(hdcam_,
-                          DCAM_IDPROP_TRIGGERPOLARITY,
-                          trig_polarity_) != DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
-    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_) !=
-        DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
-    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERACTIVE, trig_active_) !=
-        DCAMERR_SUCCESS)
+    if (dcamprop_setvalue(hdcam_, DCAM_IDPROP_TRIGGERACTIVE, trig_active_) != DCAMERR_SUCCESS)
         throw CameraException(CameraException::CANT_SET_CONFIG);
 }
 

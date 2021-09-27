@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "cuda_memory.cuh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
@@ -31,8 +23,7 @@ namespace
 void check_zone(rect& zone, const uint frame_res, const int line_size)
 {
     const int lines = line_size ? frame_res / line_size : 0;
-    if (!zone.h || !zone.w || zone.x + zone.w > line_size ||
-        zone.y + zone.h > lines)
+    if (!zone.h || !zone.w || zone.x + zone.w > line_size || zone.y + zone.h > lines)
     {
         zone.x = 0;
         zone.y = 0;
@@ -41,13 +32,8 @@ void check_zone(rect& zone, const uint frame_res, const int line_size)
     }
 }
 } // namespace
-__global__ static void kernel_composite(cuComplex* input,
-                                        float* output,
-                                        const uint frame_res,
-                                        size_t min,
-                                        size_t max,
-                                        size_t range,
-                                        const float* colors)
+__global__ static void kernel_composite(
+    cuComplex* input, float* output, const uint frame_res, size_t min, size_t max, size_t range, const float* colors)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
@@ -56,8 +42,7 @@ __global__ static void kernel_composite(cuComplex* input,
         for (ushort p = min; p <= max; p++)
         {
             cuComplex* current_pframe = input + (frame_res * p);
-            float intensity =
-                hypotf(current_pframe[id].x, current_pframe[id].y);
+            float intensity = hypotf(current_pframe[id].x, current_pframe[id].y);
             for (int i = 0; i < 3; i++)
                 res_components[i] += colors[p * 3 + i] * intensity;
         }
@@ -93,11 +78,8 @@ __global__ static void kernel_sum_one_line(float* input,
 
 // ! sums an array of size floats and put the result divided by nb_elements in
 // *output
-__global__ static void kernel_average_float_array(float* input,
-                                                  uint size,
-                                                  uint nb_elements,
-                                                  uint offset_per_pixel,
-                                                  float* output)
+__global__ static void
+kernel_average_float_array(float* input, uint size, uint nb_elements, uint offset_per_pixel, float* output)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < offset_per_pixel)
@@ -114,19 +96,13 @@ __global__ static void kernel_average_float_array(float* input,
     }
 }
 
-__global__ static void kernel_divide_by_weight(float* input,
-                                               float weight_r,
-                                               float weight_g,
-                                               float weight_b)
+__global__ static void kernel_divide_by_weight(float* input, float weight_r, float weight_g, float weight_b)
 {
     input[0] /= weight_r;
     input[1] /= weight_g;
     input[2] /= weight_b;
 }
-__global__ static void kernel_normalize_array(float* input,
-                                              uint nb_pixels,
-                                              uint pixel_depth,
-                                              float* averages)
+__global__ static void kernel_normalize_array(float* input, uint nb_pixels, uint pixel_depth, float* averages)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < pixel_depth * nb_pixels)
@@ -201,33 +177,19 @@ void rgb(cuComplex* input,
     holovibes::cuda_tools::UniquePtr<float> colors(colors_size);
 
     if (normalize)
-        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
-                                                            red,
-                                                            blue,
-                                                            min,
-                                                            max,
-                                                            range,
-                                                            1,
-                                                            1,
-                                                            1);
+        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(), red, blue, min, max, range, 1, 1, 1);
     else
         kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
-                                                            red,
-                                                            blue,
-                                                            min,
-                                                            max,
-                                                            range,
-                                                            weight_r,
-                                                            weight_g,
-                                                            weight_b);
+                                                                 red,
+                                                                 blue,
+                                                                 min,
+                                                                 max,
+                                                                 range,
+                                                                 weight_r,
+                                                                 weight_g,
+                                                                 weight_b);
 
-    kernel_composite<<<blocks, threads, 0, stream>>>(input,
-                                                output,
-                                                frame_res,
-                                                min,
-                                                max,
-                                                range,
-                                                colors.get());
+    kernel_composite<<<blocks, threads, 0, stream>>>(input, output, frame_res, min, max, range, colors.get());
     cudaCheckError();
 }
 
@@ -243,10 +205,7 @@ void postcolor_normalize(float* output,
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    rect zone = {selection.x(),
-                 selection.y(),
-                 selection.unsigned_width(),
-                 selection.unsigned_height()};
+    rect zone = {selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height()};
     check_zone(zone, frame_res, real_line_size);
     const ushort line_size = zone.w;
     const ushort lines = zone.h;
@@ -258,31 +217,25 @@ void postcolor_normalize(float* output,
 
     blocks = map_blocks_to_problem(lines * pixel_depth, threads);
     kernel_sum_one_line<<<blocks, threads, 0, stream>>>(output,
-                                                   frame_res,
-                                                   pixel_depth,
-                                                   real_line_size,
-                                                   zone,
-                                                   sums_per_line);
+                                                        frame_res,
+                                                        pixel_depth,
+                                                        real_line_size,
+                                                        zone,
+                                                        sums_per_line);
     cudaCheckError();
 
     blocks = map_blocks_to_problem(pixel_depth, threads);
     kernel_average_float_array<<<blocks, threads, 0, stream>>>(sums_per_line,
-                                                          lines,
-                                                          lines * line_size,
-                                                          pixel_depth,
-                                                          averages);
+                                                               lines,
+                                                               lines * line_size,
+                                                               pixel_depth,
+                                                               averages);
     cudaCheckError();
 
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-    kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages,
-                                            weight_r,
-                                            weight_g,
-                                            weight_b);
+    kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b);
     cudaCheckError();
-    kernel_normalize_array<<<blocks, threads, 0, stream>>>(output,
-                                                      frame_res,
-                                                      pixel_depth,
-                                                      averages);
+    kernel_normalize_array<<<blocks, threads, 0, stream>>>(output, frame_res, pixel_depth, averages);
     cudaCheckError();
     cudaXFree(averages);
     cudaXFree(sums_per_line);

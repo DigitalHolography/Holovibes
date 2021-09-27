@@ -1,19 +1,10 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include "file_exception.hh"
 
 namespace holovibes::io_files
 {
-inline FileException::FileException(const std::string& error_msg,
-                                    bool display_errno)
+inline FileException::FileException(const std::string& error_msg, bool display_errno)
     : std::exception()
     , error_msg_(error_msg)
     , display_errno_(display_errno)

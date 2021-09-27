@@ -5,7 +5,7 @@
 #define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "9.3.7"
+#define MyAppVersion "10.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -79,8 +79,13 @@ Source: "{#OpenCVPath}\opencv_world450.dll"; DestDir: "{app}\{#MyAppVersion}";Co
 
 Source: "resources\setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 
+[Dirs]
+Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
+Type: filesandordirs; Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
+Type: dirifempty; Name: "{userappdata}\{#MyAppName}"
 
 [Run]
 Filename: "{tmp}\vcredist_2019_x64.exe"; Parameters: "/install /passive /norestart"; Components: visual; Flags: waituntilterminated

@@ -1,11 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "frame_read_worker.hh"
@@ -23,30 +19,29 @@ class InputFrameFile;
 
 namespace worker
 {
-/*!
- *  \brief    Class used to read frames from a file
+/*! \class FileFrameReadWorker
+ *
+ * \brief    Class used to read frames from a file
  */
 class FileFrameReadWorker : public FrameReadWorker
 {
   public:
-    /*!
-     *  \brief    Constructor
+    /*! \brief Constructor
      *
-     *  \param    file_path               The file path
-     *  \param    loop                    Whether the reading should loop
-     *  \param    first_frame_id          Id of the first frame to read
-     *  \param    total_nb_frames_to_read Total number of frames to read
-     *  \param    load_file_in_gpu        Whether the file should be load in gpu
-     *  \param    gpu_input_queue         The input queue
+     * \param file_path  The file path
+     * \param loop Whether the reading should loop
+     * \param first_frame_id Id of the first frame to read
+     * \param total_nb_frames_to_read Total number of frames to read
+     * \param load_file_in_gpu Whether the file should be load in gpu
+     * \param gpu_input_queue The input queue
      */
-    FileFrameReadWorker(
-        const std::string& file_path,
-        bool loop,
-        unsigned int fps,
-        unsigned int first_frame_id,
-        unsigned int total_nb_frames_to_read,
-        bool load_file_in_gpu,
-        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FileFrameReadWorker(const std::string& file_path,
+                        bool loop,
+                        unsigned int fps,
+                        unsigned int first_frame_id,
+                        unsigned int total_nb_frames_to_read,
+                        bool load_file_in_gpu,
+                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 
@@ -56,106 +51,83 @@ class FileFrameReadWorker : public FrameReadWorker
       public:
         FpsHandler(unsigned int fps);
 
-        /*!
-         *  \brief    Begin the process of fps handling
-         */
+        /*! \brief Begin the process of fps handling */
         void begin();
 
-        /*!
-         *  \brief    Wait the correct time to simulate fps
+        /*! \brief Wait the correct time to simulate fps
          *
-         *  \details  Between each frame enqueue, the waiting duration should be
-         *            enqueue_interval_.
-         *            However the real waiting duration might be longer than the
-         *            theoretical one (due to descheduling).
-         *            To cope with this issue, we compute the wasted time in
-         *            order to take it into account for the next enqueue.
-         *            By doing so, the correct enqueuing time is computed, not
-         *            doing so would create a lag.
+         * Between each frame enqueue, the waiting duration should be enqueue_interval_.
+         * However the real waiting duration might be longer than the theoretical one (due to descheduling).
+         * To cope with this issue, we compute the wasted time in order to take it into account for the next enqueue.
+         * By doing so, the correct enqueuing time is computed, not doing so would create a lag.
          */
         void wait();
 
       private:
-        /*!
-         *  \brief    Theoretical time between 2 enqueues/waits
-         */
+        /*! \brief Theoretical time between 2 enqueues/waits */
         std::chrono::duration<double> enqueue_interval_;
 
-        /*!
-         *  \brief    Begin time point of the wait
-         */
+        /*! \brief Begin time point of the wait */
         std::chrono::steady_clock::time_point begin_time_;
 
-        /*!
-         *  \brief    Time wasted in last wait (if waiting was too long)
-         */
+        /*! \brief Time wasted in last wait (if waiting was too long) */
         std::chrono::duration<double> wasted_time_{0};
     };
 
-    /*!
-     *  \brief    Init the cpu_buffer and gpu_buffer
-     */
+    /*! \brief Init the cpu_buffer and gpu_buffer */
     bool init_frame_buffers();
 
-    /*!
-     *  \brief    Load all the frames of the file in the gpu
+    /*! \brief Load all the frames of the file in the gpu
      *
-     *  \details  Read all the frames in cpu and copy them in gpu.
-     *            Then enqueue the frames one by one in the gpu_input_queue
+     * Read all the frames in cpu and copy them in gpu.
+     * Then enqueue the frames one by one in the gpu_input_queue
      */
     void read_file_in_gpu();
 
-    /*!
-     *  \brief    Load the frames of the file by batch into the gpu
+    /*! \brief Load the frames of the file by batch into the gpu
      *
-     *  \details  Read batch in cpu and copy it in gpu.
-     *            Then enqueue the frames one by one in the gpu_input_queue
+     * Read batch in cpu and copy it in gpu.
+     * Then enqueue the frames one by one in the gpu_input_queue
      */
     void read_file_batch();
 
-    /*!
-     *  \brief    Read frames in cpu and copy in gpu
+    /*! \brief Read frames in cpu and copy in gpu
      *
-     *  \param    frames_to_read    The number of frames to read
-     *
-     *  \return   The number of frames read
+     * \param frames_to_read The number of frames to read
+     * \return The number of frames read
      */
     size_t read_copy_file(size_t frames_to_read);
 
-    /*!
-     *  \brief    Enqueue frames_read in the gpu_input_queue with a speed
-     *            related to the given fps
+    /*! \brief Enqueue frames_read in the gpu_input_queue with a speed related to the given fps
      *
-     *  \param    nb_frames_to_enqueue    The number of frames to enqueue from
-     *                                    gpu_buffer to gpu_input_queue
+     * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to gpu_input_queue
      */
     void enqueue_loop(size_t nb_frames_to_enqueue);
 
   private:
-    //! The file path
+    /*! \brief The file path */
     const std::string file_path_;
-    //! Whether the reading should start over when meeting the end of the file
+    /*! \brief Whether the reading should start over when meeting the end of the file */
     bool loop_;
-    //! Object used to handle the fps
+    /*! \brief Object used to handle the fps */
     FpsHandler fps_handler_;
-    //! Id of the first frame to read
+    /*! \brief Id of the first frame to read */
     unsigned int first_frame_id_;
-    //! Current number of frames read
+    /*! \brief Current number of frames read */
     std::atomic<unsigned int> current_nb_frames_read_;
-    //! Total number of frames to read at the beginning of the process
+    /*! \brief Total number of frames to read at the beginning of the process */
     const std::atomic<unsigned int> total_nb_frames_to_read_;
-    //! Whether the entire file should be loaded in the gpu
+    /*! \brief Whether the entire file should be loaded in the gpu */
     bool load_file_in_gpu_;
-    //! The input file in which the frames are read
+    /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
-    //! Size of an input frame
+    /*! \brief Size of an input frame */
     size_t frame_size_;
-    //! CPU buffer in which the frames are temporarly stored
+    /*! \brief CPU buffer in which the frames are temporarly stored */
     char* cpu_frame_buffer_;
-    //! GPU buffer in which the frames are temporarly stored
+    /*! \brief GPU buffer in which the frames are temporarly stored */
     char* gpu_frame_buffer_;
-    //! Tmp GPU buffer in which the frames are temporarly stored to convert data
-    //! from packed bits to 16bit
+    /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
     char* gpu_packed_buffer_;
 };
 } // namespace worker

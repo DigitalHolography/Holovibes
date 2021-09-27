@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Overlay manipulating z computation for side views. */
+ * \brief Overlay manipulating z computation for side views.
+ */
 #pragma once
 
 #include "rect_overlay.hh"
@@ -17,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class SliceCrossOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class SliceCrossOverlay : public RectOverlay
 {
   public:
@@ -33,16 +30,16 @@ class SliceCrossOverlay : public RectOverlay
     void setBuffer() override;
 
   private:
-    //! Transparency of the borders
+    /*! \brief Transparency of the borders */
     float line_alpha_;
 
-    //! Vertices order for lines
+    /*! \brief Vertices order for lines */
     GLuint elemLineIndex_;
 
-    //! Locking line overlay
+    /*! \brief Locking line overlay */
     bool locked_;
 
-    //! pindex of the mouse position
+    /*! \brief pindex of the mouse position */
     units::PointFd pIndex_;
 };
 } // namespace gui

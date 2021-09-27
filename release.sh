@@ -10,7 +10,7 @@ setup_creator_path="./setupCreator.iss"
 changelog_path="./CHANGELOG.md"
 
 vc_redist_path="./resources/setup_creator_files/vcredist_2019_x64.exe"
-vc_redist_url="https://aka.ms/vs/16/release/vc_redist.x64.exe"
+vc_redist_url="https://download.visualstudio.microsoft.com/download/pr/f1998402-3cc0-466f-bd67-d9fb6cd2379b/A1592D3DA2B27230C087A3B069409C1E82C2664B0D4C3B511701624702B2E2A3/VC_redist.x64.exe"
 
 # line on which the version is stored
 cd_version_line_identifier="const static std::string version = \"v"
@@ -27,16 +27,16 @@ python_cmd="python3"
 ####################################
 ## Checking commands and versions ##
 ####################################
-has_git=`which git > /dev/null; echo $?`
-has_iscc=`which iscc.exe > /dev/null; echo $?`
-has_python=`which python > /dev/null; echo $?`
-has_python3=`which python3 > /dev/null; echo $?`
-has_wget=`which wget > /dev/null; echo $?`
+has_git=`which git > /dev/null 2>&1; echo $?`
+has_iscc=`which iscc.exe > /dev/null 2>&1; echo $?`
+has_python=`which python > /dev/null 2>&1; echo $?`
+has_python3=`which python3 > /dev/null 2>&1; echo $?`
+has_curl=`which curl > /dev/null 2>&1; echo $?`
 
-# Wget
-if [ "$has_wget" != "0" ]
+# Curl
+if [ "$has_curl" != "0" ]
 then
-    echo "Wget not found !"
+    echo "Curl not found !"
     exit 1
 fi
 
@@ -204,7 +204,7 @@ fi
 if [ ! -f "$vc_redist_path" ]
 then
     mkdir -p `dirname $vc_redist_path`
-    wget $vc_redist_url -O $vc_redist_path
+    curl $vc_redist_url -o $vc_redist_path
 fi
 iscc.exe $setup_creator_path
 ret=`echo "$?"`

@@ -1,15 +1,15 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 namespace holovibes
 {
+/*! \class ChartPoint
+ *
+ * \brief #TODO Add a description for this struct
+ */
 struct ChartPoint
 {
     double avg_signal;

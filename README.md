@@ -7,7 +7,7 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 - Hologram computation using the FFT1/FFT2/STFT/PCA algorithms
 - Graphical user interface (change parameters on the fly, keyboard shortcuts)
 - Support the following cameras:
-    - IDS imaging CMOSIS CMV 4000 
+    - IDS imaging CMOSIS CMV 4000
     - Ximea CMOSIS XiQ and XiB
     - Adimec Quartz-2A750 (requires [BitFlow](http://www.bitflow.com/downloads/bfsdk640.zip))
     - Hamamatsu C11440
@@ -30,3 +30,8 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 
 - Microsoft Windows 7 x64 (or later)
 - NVIDIA graphic card supporting CUDA 11.2 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported))
+
+## Documention
+
+- Holovibes website : https://holovibes.com/
+- How Holovibes works : https://docs.google.com/document/d/1H8BcAD9Gsdpc1Rs8rBjZxRaCEdW1teBxsvuC9opWElw/edit?usp=sharing

@@ -1,12 +1,6 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
-/*! \file Optimized and generic map operation processed gpu side
+/*! \file
+ *
+ * \brief Optimized and generic map operation processed gpu side
  *
  * The templated functions can only be called from cuda files (.cu*) files.
  * In order to be exported, the templated function must be declared in .cuh
@@ -38,11 +32,7 @@ using ushort = unsigned short;
  *
  */
 template <typename I, typename O, typename FUNC>
-void map_generic(const I* const input,
-                 O* const output,
-                 const size_t size,
-                 const FUNC func,
-                 const cudaStream_t stream);
+void map_generic(const I* const input, O* const output, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Map input (float) to output (float) throughout a mapping function.
  *
@@ -54,62 +44,38 @@ void map_generic(const I* const input,
  * This function overloads the templated generic function with float.
  */
 template <typename FUNC>
-void map_generic(const float* const input,
-                 float* const output,
-                 const size_t size,
-                 const FUNC func,
-                 const cudaStream_t stream);
+void map_generic(
+    const float* const input, float* const output, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Map input (ushort) to output (ushort) throughout a mapping function.
  *
  * \see map_generic float version (above)
- *
  */
 template <typename FUNC>
-void map_generic(const ushort* const input,
-                 ushort* const output,
-                 const size_t size,
-                 const FUNC func,
-                 const cudaStream_t stream);
+void map_generic(
+    const ushort* const input, ushort* const output, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Divide every pixel by a value */
 template <typename T>
-void map_divide(const T* const input,
-                T* const output,
-                const size_t size,
-                const T value,
-                const cudaStream_t stream);
+void map_divide(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream);
 
 /*! \brief Multiply every pixel by a value */
 template <typename T>
-void map_multiply(const T* const input,
-                  T* const output,
-                  const size_t size,
-                  const T value,
-                  const cudaStream_t stream);
+void map_multiply(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream);
 
 /* The following functions can be called from any files
  * since they are templated
  */
 
 /*! \brief Apply log10 on every pixel of the input (float array) */
-void map_log10(const float* const input,
-               float* const output,
-               const size_t size,
-               const cudaStream_t stream);
+void map_log10(const float* const input, float* const output, const size_t size, const cudaStream_t stream);
 
 /*! \brief Divide every pixel of a float array by a value  */
-void map_divide(const float* const input,
-                float* const output,
-                const size_t size,
-                const float value,
-                const cudaStream_t stream);
+void map_divide(
+    const float* const input, float* const output, const size_t size, const float value, const cudaStream_t stream);
 
 /*! \brief Multiply every pixel of a float array by a value */
-void map_multiply(const float* const input,
-                  float* const output,
-                  const size_t size,
-                  const float value,
-                  const cudaStream_t stream);
+void map_multiply(
+    const float* const input, float* const output, const size_t size, const float value, const cudaStream_t stream);
 
 #include "map.cuhxx"

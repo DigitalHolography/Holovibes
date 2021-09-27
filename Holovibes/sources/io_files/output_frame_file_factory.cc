@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "output_frame_file_factory.hh"
 #include "output_holo_file.hh"
 #include "output_avi_file.hh"
@@ -14,9 +6,7 @@
 namespace holovibes::io_files
 {
 OutputFrameFile*
-OutputFrameFileFactory::create(const std::string& file_path,
-                               const camera::FrameDescriptor& fd,
-                               uint64_t img_nb)
+OutputFrameFileFactory::create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
 {
     if (file_path.ends_with(".holo"))
         return new OutputHoloFile(file_path, fd, img_nb);

@@ -1,13 +1,7 @@
-#pragma once
-
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "cuComplex.h"
@@ -24,23 +18,13 @@ using ushort = unsigned short;
  * \param batch_size The number of frames of 'input'
  * \param stream The CUDA stream on which to launch the operation.
  */
-void apply_mask(cuComplex* in_out,
-                const cuComplex* mask,
-                const uint size,
-                const uint batch_size,
-                const cudaStream_t stream);
+void apply_mask(
+    cuComplex* in_out, const cuComplex* mask, const uint size, const uint batch_size, const cudaStream_t stream);
 
-void apply_mask(cuComplex* in_out,
-                const float* mask,
-                const uint size,
-                const uint batch_size,
-                const cudaStream_t stream);
+void apply_mask(
+    cuComplex* in_out, const float* mask, const uint size, const uint batch_size, const cudaStream_t stream);
 
-void apply_mask(float* in_out,
-                const float* mask,
-                const uint size,
-                const uint batch_size,
-                const cudaStream_t stream);
+void apply_mask(float* in_out, const float* mask, const uint size, const uint batch_size, const cudaStream_t stream);
 
 /*! \brief This function applies a mask to a number of frames
  *

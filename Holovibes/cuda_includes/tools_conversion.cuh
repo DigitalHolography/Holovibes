@@ -1,11 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "common.cuh"
@@ -55,7 +51,7 @@ void complex_to_argument(float* output,
                          const uint size,
                          const cudaStream_t stream);
 
-/*! Copy the rescaled angle value of each element of the input.
+/*! \brief Copy the rescaled angle value of each element of the input.
  *
  * The function searches the minimum and maximum values among
  * the *size* elements, and rescales all elements so that the minimum
@@ -66,10 +62,7 @@ void complex_to_argument(float* output,
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void rescale_float(const float* input,
-                   float* output,
-                   const uint size,
-                   const cudaStream_t stream);
+void rescale_float(const float* input, float* output, const uint size, const cudaStream_t stream);
 
 /*! \brief Convert from big endian to little endian.
  * \param input The input data in big endian.
@@ -77,11 +70,8 @@ void rescale_float(const float* input,
  * \param frame_res The resolution (number of pixel) of a frame
  * \param stream The CUDA stream on which to launch the operation.
  */
-void endianness_conversion(const ushort* input,
-                           ushort* output,
-                           const uint batch_size,
-                           const uint frame_res,
-                           const cudaStream_t stream);
+void endianness_conversion(
+    const ushort* input, ushort* output, const uint batch_size, const uint frame_res, const cudaStream_t stream);
 
 /*! \brief Convert data from float to unsigned short (16-bit).
  *
@@ -95,16 +85,10 @@ void endianness_conversion(const ushort* input,
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void float_to_ushort(const float* const input,
-                     ushort* const output,
-                     const uint size,
-                     const cudaStream_t stream,
-                     const uint shift = 0);
+void float_to_ushort(
+    const float* const input, ushort* const output, const uint size, const cudaStream_t stream, const uint shift = 0);
 
-void ushort_to_uchar(const ushort* input,
-                     uchar* output,
-                     const uint size,
-                     const cudaStream_t stream);
+void ushort_to_uchar(const ushort* input, uchar* output, const uint size, const cudaStream_t stream);
 
 /*! \brief Converts and tranfers data from input_queue to gpu_input_buffer
  *
@@ -160,24 +144,11 @@ __global__ void kernel_accumulate_images(const float* input,
                                          const size_t nb_elmt,
                                          const size_t nb_pixel);
 
-void normalize_complex(cuComplex* image,
-                       const uint size,
-                       const cudaStream_t stream);
+void normalize_complex(cuComplex* image, const uint size, const cudaStream_t stream);
 
-void rescale_float_unwrap2d(float* input,
-                            float* output,
-                            float* cpu_buffer,
-                            uint frame_res,
-                            const cudaStream_t stream);
+void rescale_float_unwrap2d(float* input, float* output, float* cpu_buffer, uint frame_res, const cudaStream_t stream);
 
-void convert_frame_for_display(const void* input,
-                               void* output,
-                               const uint size,
-                               const uint depth,
-                               const ushort shift,
-                               const cudaStream_t stream);
+void convert_frame_for_display(
+    const void* input, void* output, const uint size, const uint depth, const ushort shift, const cudaStream_t stream);
 
-void float_to_complex(cuComplex* output,
-                      const float* input,
-                      size_t size,
-                      const cudaStream_t stream);
+void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream);

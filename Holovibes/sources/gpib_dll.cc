@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <stdexcept>
 #include <memory>
 
@@ -13,8 +5,7 @@
 
 namespace gpib
 {
-std::shared_ptr<IVisaInterface>
-GpibDLL::load_gpib(const std::string& dll_filepath)
+std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const std::string& dll_filepath)
 {
     HINSTANCE dll_handle = nullptr;
 
@@ -23,12 +14,10 @@ GpibDLL::load_gpib(const std::string& dll_filepath)
         throw std::runtime_error("Unable to load DLL gpib");
 
     FnInit init = nullptr;
-    init = reinterpret_cast<FnInit>(
-        GetProcAddress(dll_handle, "new_gpib_controller"));
+    init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_gpib_controller"));
 
     if (!init)
-        throw std::runtime_error(
-            "Unable to retrieve the 'new_gpib_controller' function");
+        throw std::runtime_error("Unable to retrieve the 'new_gpib_controller' function");
 
     return std::shared_ptr<IVisaInterface>(init(), DeleterDLL(dll_handle));
 }

@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "gui_curve_plot.hh"
 #include "PlotWindow.hh"
 
@@ -72,27 +64,19 @@ void CurvePlot::change_curve(int curve_to_plot)
         curve_get_ = [](const ChartPoint& point) { return point.avg_noise; };
         break;
     case CurvePlot::CurveName::AVG_SIGNAL_DIV_AVG_NOISE:
-        curve_get_ = [](const ChartPoint& point) {
-            return point.avg_signal_div_avg_noise;
-        };
+        curve_get_ = [](const ChartPoint& point) { return point.avg_signal_div_avg_noise; };
         break;
     case CurvePlot::CurveName::LOG_AVG_SIGNAL_DIV_AVG_NOISE:
-        curve_get_ = [](const ChartPoint& point) {
-            return point.log_avg_signal_div_avg_noise;
-        };
+        curve_get_ = [](const ChartPoint& point) { return point.log_avg_signal_div_avg_noise; };
         break;
     case CurvePlot::CurveName::STD_SIGNAL:
         curve_get_ = [](const ChartPoint& point) { return point.std_signal; };
         break;
     case CurvePlot::CurveName::STD_SIGNAL_DIV_AVG_NOISE:
-        curve_get_ = [](const ChartPoint& point) {
-            return point.std_signal_div_avg_noise;
-        };
+        curve_get_ = [](const ChartPoint& point) { return point.std_signal_div_avg_noise; };
         break;
     case CurvePlot::CurveName::STD_SIGNAL_DIV_AVG_SIGNAL:
-        curve_get_ = [](const ChartPoint& point) {
-            return point.std_signal_div_avg_signal;
-        };
+        curve_get_ = [](const ChartPoint& point) { return point.std_signal_div_avg_signal; };
         break;
     default:
         abort();
@@ -112,8 +96,7 @@ void CurvePlot::resize_plot(const int size)
 
 void CurvePlot::resizeEvent(QResizeEvent* e)
 {
-    chart_view->resize(e->size().width() + SIZE_OFFSET,
-                       e->size().height() + SIZE_OFFSET);
+    chart_view->resize(e->size().width() + SIZE_OFFSET, e->size().height() + SIZE_OFFSET);
 }
 
 void CurvePlot::load_data_vector()
@@ -122,8 +105,7 @@ void CurvePlot::load_data_vector()
 
     if (!data_vect_.empty())
     {
-        size_t copied_elts_nb =
-            data_vect_.fill_array(chart_vector_, points_nb_);
+        size_t copied_elts_nb = data_vect_.fill_array(chart_vector_, points_nb_);
         new_data.reserve(copied_elts_nb);
 
         ++auto_scale_curr_points_;
@@ -149,12 +131,10 @@ void CurvePlot::auto_scale()
 {
     std::vector<ChartPoint> tmp = chart_vector_;
 
-    auto minmax =
-        std::minmax_element(tmp.cbegin(),
-                            tmp.cend(),
-                            [&](const ChartPoint& lhs, const ChartPoint& rhs) {
-                                return curve_get_(lhs) < curve_get_(rhs);
-                            });
+    auto minmax = std::minmax_element(tmp.cbegin(),
+                                      tmp.cend(),
+                                      [&](const ChartPoint& lhs, const ChartPoint& rhs)
+                                      { return curve_get_(lhs) < curve_get_(rhs); });
 
     double min = curve_get_(*(minmax.first));
     double max = curve_get_(*(minmax.second));

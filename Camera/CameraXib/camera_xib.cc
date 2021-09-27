@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "camera_xib.hh"
 
 #include <chrono>
@@ -108,8 +100,7 @@ void CameraXib::load_ini_params()
 
     gain_ = pt.get<float>("xib.gain", gain_);
 
-    downsampling_rate_ =
-        pt.get<unsigned int>("xib.downsampling_rate", downsampling_rate_);
+    downsampling_rate_ = pt.get<unsigned int>("xib.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
     fd_.width = fd_.width / static_cast<unsigned short>(downsampling_rate_);
     fd_.height = fd_.height / static_cast<unsigned short>(downsampling_rate_);
@@ -140,9 +131,8 @@ void CameraXib::load_ini_params()
         /* Making sure ROI settings are valid.
          * Keep in mind that ROI area can't be larger than the
          * initial frame's area (after downsampling!). */
-        if (tmp_roi_width > 0 && tmp_roi_height > 0 && tmp_roi_x < fd_.width &&
-            tmp_roi_y < fd_.height && tmp_roi_width <= fd_.width &&
-            tmp_roi_height <= fd_.height)
+        if (tmp_roi_width > 0 && tmp_roi_height > 0 && tmp_roi_x < fd_.width && tmp_roi_y < fd_.height &&
+            tmp_roi_width <= fd_.width && tmp_roi_height <= fd_.height)
         {
             roi_x_ = tmp_roi_x;
             roi_y_ = tmp_roi_y;
@@ -154,12 +144,10 @@ void CameraXib::load_ini_params()
             fd_.height = static_cast<unsigned short>(roi_height_);
         }
         else
-            std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI."
-                      << std::endl;
+            std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
     }
 
-    trigger_src_ =
-        (XI_TRG_SOURCE)pt.get<unsigned long>("xib.trigger_src", XI_TRG_OFF);
+    trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xib.trigger_src", XI_TRG_OFF);
 
     exposure_time_ = pt.get<float>("xib.exposure_time", exposure_time_);
 }
@@ -171,36 +159,28 @@ void CameraXib::bind_params()
     const unsigned int name_buffer_size = 32;
     char name[name_buffer_size];
 
-    status =
-        xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
+    status = xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
 
     // This camera does not support downsampling
-    if (!strncmp(name, "CB160MG-LX-X8G3-R2", 18) ||
-        !strncmp(name, "CB013MG-LX-X8G3-R2", 18))
+    if (!strncmp(name, "CB160MG-LX-X8G3-R2", 18) || !strncmp(name, "CB013MG-LX-X8G3-R2", 18))
     {
-        std::cerr << "Detected camera is Ximea " << name
-                  << " which does not support downsampling options\n"
+        std::cerr << "Detected camera is Ximea " << name << " which does not support downsampling options\n"
                   << "Skipping parameters setting of downsapling rate and "
                      "downsampling type\n";
     }
     else
     {
-        status =
-            xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
+        status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
 
         if (status != XI_OK)
         {
-            std::cout << "Failed to set downsampling with err code " << status
-                      << std::endl;
+            std::cout << "Failed to set downsampling with err code " << status << std::endl;
         }
-        status = xiSetParamInt(device_,
-                               XI_PRM_DOWNSAMPLING_TYPE,
-                               downsampling_type_);
+        status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
 
         if (status != XI_OK)
         {
-            std::cout << "Failed to set downsampling type with err code "
-                      << status << std::endl;
+            std::cout << "Failed to set downsampling type with err code " << status << std::endl;
         }
     }
 
@@ -208,62 +188,51 @@ void CameraXib::bind_params()
 
     if (status != XI_OK)
     {
-        std::cout << "Failed to set image data format with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set image data format with err code " << status << std::endl;
     }
     status = xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set roi width with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set roi width with err code " << status << std::endl;
     }
     status = xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set roi height with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set roi height with err code " << status << std::endl;
     }
 
     status = xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set roi offset x with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set roi offset x with err code " << status << std::endl;
     }
 
     status = xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set roi offset y with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set roi offset y with err code " << status << std::endl;
     }
 
     status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set buffer policy with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set buffer policy with err code " << status << std::endl;
     }
 
     if (exposure_time_)
     {
-        status =
-            xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+        status = xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
         if (status != XI_OK)
         {
-            std::cout << "Failed to set exposure with err code " << status
-                      << std::endl;
+            std::cout << "Failed to set exposure with err code " << status << std::endl;
         }
     }
     else
     {
-        status = xiSetParamFloat(device_,
-                                 XI_PRM_ACQ_TIMING_MODE,
-                                 XI_ACQ_TIMING_MODE_FREE_RUN);
+        status = xiSetParamFloat(device_, XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FREE_RUN);
         if (status != XI_OK)
         {
-            std::cout << "Failed to set timing mode with err code " << status
-                      << std::endl;
+            std::cout << "Failed to set timing mode with err code " << status << std::endl;
         }
     }
 
@@ -276,8 +245,7 @@ void CameraXib::bind_params()
     status = xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
     if (status != XI_OK)
     {
-        std::cout << "Failed to set trigger source with err code " << status
-                  << std::endl;
+        std::cout << "Failed to set trigger source with err code " << status << std::endl;
     }
 
     /* Update the frame descriptor. */

@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * A thread safe wrapper on std::deque. */
+ * \brief A thread safe wrapper on std::deque.
+ */
 #pragma once
 
 #include <deque>
@@ -19,7 +12,9 @@ namespace holovibes
 {
 using LockGuard = std::lock_guard<std::mutex>;
 
-/*! \brief This class is a thread safe wrapper on std::deque.
+/*! \class ConcurrentDeque
+ *
+ * \brief This class is a thread safe wrapper on std::deque.
  *
  * It is used mainly to store Chart values.
  * Every method locks a mutex, do the action and delocks the mutex.
@@ -127,10 +122,10 @@ class ConcurrentDeque
     }
 
     /*! \brief Fill a given vector with deque values
-    **
-    ** \param vect Vector to fill
-    ** \param nb_elts Number of elements to copy
-    */
+     *
+     * \param vect Vector to fill
+     * \param nb_elts Number of elements to copy
+     */
     size_t fill_array(std::vector<T>& vect, size_t nb_elts)
     {
         LockGuard guard(mutex_);
@@ -139,9 +134,7 @@ class ConcurrentDeque
         size_t limit = std::min(nb_elts, deque_.size());
         std::advance(q_end, limit);
 
-        std::transform(deque_.rbegin(), q_end, vect.begin(), [](T& elt) {
-            return elt;
-        });
+        std::transform(deque_.rbegin(), q_end, vect.begin(), [](T& elt) { return elt; });
 
         return limit;
     }

@@ -1,11 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "common.cuh"
@@ -24,8 +20,7 @@ void apply_zone_sum(const float* input,
                     const holovibes::units::RectFd& zone,
                     const cudaStream_t stream);
 
-/*! \brief  Make the std sum ( sum of (x_i - x_avg) ** 2 for i in [1, N] ) of
- * input and selected zone
+/*! \brief  Make the std sum ( sum of (x_i - x_avg) ** 2 for i in [1, N] ) of input and selected zone
  *
  * \param height The height of the input image.
  * \param width The width of the input image.
@@ -47,10 +42,9 @@ void apply_zone_std_sum(const float* input,
  * \param noise_zone Coordinates of the noise zone to use.
  * \return ChartPoint containing all computations for one point of chart
  */
-holovibes::ChartPoint
-make_chart_plot(float* input,
-                const uint width,
-                const uint height,
-                const holovibes::units::RectFd& signal_zone,
-                const holovibes::units::RectFd& noise_zone,
-                const cudaStream_t stream);
+holovibes::ChartPoint make_chart_plot(float* input,
+                                      const uint width,
+                                      const uint height,
+                                      const holovibes::units::RectFd& signal_zone,
+                                      const holovibes::units::RectFd& noise_zone,
+                                      const cudaStream_t stream);

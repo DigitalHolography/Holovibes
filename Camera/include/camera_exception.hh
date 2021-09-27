@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file camera_exception.hh
  *
  * Various set of exceptions related to the camera's operation.
@@ -16,40 +8,40 @@
 
 namespace camera
 {
-/*! A variety of exceptions for errors happening at different
- * stages of a camera's operation. */
+/*! \brief A variety of exceptions for errors happening at different stages of a camera's operation. */
 class CameraException : public std::exception
 {
   public:
-    //!< The type of error encountered by the camera.
+    /*! \brief The type of error encountered by the camera. */
     enum camera_error
     {
-        NOT_CONNECTED,          //!< Camera needs to be powered on.
-        NOT_INITIALIZED,        //!< Startup failed.
-        MEMORY_PROBLEM,         //!< Buffer allocation / deallocation.
-        CANT_START_ACQUISITION, //!< Acquisition setup failed.
-        CANT_STOP_ACQUISITION,  //!< Acquisition halting failed.
-        CANT_GET_FRAME,  //!< Current configuration is unusable or a frame was
-                         //!< simply missed.
-        CANT_SHUTDOWN,   //!< Camera cannot power off.
-        CANT_SET_CONFIG, //!< Some given configuration option is invalid.
+        NOT_CONNECTED,          /*!< Camera needs to be powered on. */
+        NOT_INITIALIZED,        /*!< Startup failed. */
+        MEMORY_PROBLEM,         /*!< Buffer allocation / deallocation. */
+        CANT_START_ACQUISITION, /*!< Acquisition setup failed. */
+        CANT_STOP_ACQUISITION,  /*!< Acquisition halting failed. */
+        CANT_GET_FRAME,         /*!< Current configuration is unusable or a frame was simply missed. */
+        CANT_SHUTDOWN,          /*!< Camera cannot power off. */
+        CANT_SET_CONFIG,        /*!< Some given configuration option is invalid. */
     };
 
-    /* \brief Copy constructor. */
+    /*! \brief Copy constructor. */
     CameraException(const camera_error code)
         : code_(code)
     {
     }
 
-    /*! Although we may need the copy constructor in order to pass to a function
+    /*! \brief Equal operator overloading
+     *
+     * Although we may need the copy constructor in order to pass to a function
      * an exception to be thrown, assignation does not make sense.
      */
     CameraException& operator=(const CameraException&) = delete;
 
-    /* Destruct the exception. */
+    /*! \brief Destruct the exception. */
     virtual ~CameraException() {}
 
-    /* \brief Return a string corresponding to the enum value. */
+    /*! \brief Return a string corresponding to the enum value. */
     virtual const char* what() const override
     {
         switch (code_)
@@ -77,7 +69,7 @@ class CameraException : public std::exception
     }
 
   private:
-    /* \brief Return code of the camera (enum). */
+    /*! \brief Return code of the camera (enum). */
     const camera_error code_;
 };
 } // namespace camera

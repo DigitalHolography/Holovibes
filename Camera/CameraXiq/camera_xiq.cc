@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <camera_exception.hh>
 #include <iostream>
 
@@ -102,8 +94,7 @@ void CameraXiq::load_ini_params()
 
     gain_ = pt.get<float>("xiq.gain", gain_);
 
-    downsampling_rate_ =
-        pt.get<unsigned int>("xiq.downsampling_rate", downsampling_rate_);
+    downsampling_rate_ = pt.get<unsigned int>("xiq.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
     fd_.width = fd_.width / static_cast<unsigned short>(downsampling_rate_);
     fd_.height = fd_.height / static_cast<unsigned short>(downsampling_rate_);
@@ -134,9 +125,8 @@ void CameraXiq::load_ini_params()
         /* Making sure ROI settings are valid.
          * Keep in mind that ROI area can't be larger than the
          * initial frame's area (after downsampling!). */
-        if (tmp_roi_width > 0 && tmp_roi_height > 0 && tmp_roi_x < fd_.width &&
-            tmp_roi_y < fd_.height && tmp_roi_width <= fd_.width &&
-            tmp_roi_height <= fd_.height)
+        if (tmp_roi_width > 0 && tmp_roi_height > 0 && tmp_roi_x < fd_.width && tmp_roi_y < fd_.height &&
+            tmp_roi_width <= fd_.width && tmp_roi_height <= fd_.height)
         {
             roi_x_ = tmp_roi_x;
             roi_y_ = tmp_roi_y;
@@ -148,12 +138,10 @@ void CameraXiq::load_ini_params()
             fd_.height = static_cast<unsigned short>(roi_height_);
         }
         else
-            std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI."
-                      << std::endl;
+            std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
     }
 
-    trigger_src_ =
-        (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);
+    trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);
 
     exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
 }
@@ -165,12 +153,10 @@ void CameraXiq::bind_params()
     const unsigned int name_buffer_size = 32;
     char name[name_buffer_size];
 
-    status |=
-        xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
+    status |= xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
 
     status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
-    status |=
-        xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
+    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
     status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
@@ -179,8 +165,7 @@ void CameraXiq::bind_params()
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
-    status |=
-        xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+    status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
 
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
 

@@ -1,28 +1,20 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file cuda_memory.cuh
-    \brief Contains all the safe call wrappers around cuda calls.
-
-    Not all cuda calls were included in this file, only the most used ones
-    To make a safe call, use our wrapper, if it's not in the list you can
-   either:
-     - Wrap it by adding it here
-     - Directly use 'cudaSafeCall' in your code
-
-    The behavior in case of error can be found in the common.cuh file
-    Currently details about the file, line, error will be logged and the
-   programm will abort
-
-    IMPORTANT NOTE : SAFECALLS ARE ONLY ENABLED IN DEBUG MODE
-    (you can again modify this behavior if you wish in the common.cuh file)
-*/
-
+ *
+ * \brief Contains all the safe call wrappers around cuda calls.
+ *
+ * Not all cuda calls were included in this file, only the most used ones
+ * To make a safe call, use our wrapper, if it's not in the list you can
+ * either:
+ * - Wrap it by adding it here
+ * - Directly use 'cudaSafeCall' in your code
+ *
+ * The behavior in case of error can be found in the common.cuh file
+ * Currently details about the file, line, error will be logged and the
+ * programm will abort
+ *
+ * IMPORTANT NOTE : SAFECALLS ARE ONLY ENABLED IN DEBUG MODE
+ * (you can again modify this behavior if you wish in the common.cuh file)
+ */
 #pragma once
 
 #include "common.cuh"
@@ -64,10 +56,7 @@ void cudaXMallocHost(T** devPtr, size_t size);
  * \param count Size in bytes to copy.
  * \param kind Type of transfer.
  */
-void cudaXMemcpy(void* dst,
-                 const void* src,
-                 size_t count,
-                 cudaMemcpyKind kind = cudaMemcpyDeviceToDevice);
+void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind = cudaMemcpyDeviceToDevice);
 
 /*! \brief Wrapper around cudaMemcpyAsync to handle errors
  *
@@ -80,11 +69,7 @@ void cudaXMemcpy(void* dst,
  * \param kind Type of transfer.
  * \param stream Stream identifier.
  */
-void cudaXMemcpyAsync(void* dst,
-                      const void* src,
-                      size_t count,
-                      cudaMemcpyKind kind,
-                      const cudaStream_t stream);
+void cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaMemset to handle errors
  *
@@ -106,10 +91,7 @@ void cudaXMemset(void* devPtr, int value, size_t count);
  * \param value Value to set for each byte of specified memory.
  * \param count Size in bytes to set.
  */
-void cudaXMemsetAsync(void* devPtr,
-                      int value,
-                      size_t count,
-                      const cudaStream_t stream);
+void cudaXMemsetAsync(void* devPtr, int value, size_t count, const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaFree to handle errors
  *

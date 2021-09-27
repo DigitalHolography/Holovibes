@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * std::unique_ptr "specialization" for cudaFree */
+ * \brief std::unique_ptr "specialization" for cudaFree
+ */
 #pragma once
 
 #include <functional>
@@ -24,14 +17,23 @@ namespace holovibes
 /*! \brief Contains memory handlers for cuda buffers. */
 namespace cuda_tools
 {
+/*! \brief #TODO Add a description for this namespace or remove it */
 namespace _private
 {
+/*! \struct element_size<>
+ *
+ * \brief #TODO Add a description for this struct
+ */
 template <typename T>
 struct element_size
 {
     static const size_t value = sizeof(T);
 };
 
+/*! \struct element_size<void>
+ *
+ * \brief #TODO Add a description for this struct
+ */
 template <>
 struct element_size<void>
 {
@@ -39,7 +41,10 @@ struct element_size<void>
 };
 } // namespace _private
 
-/// A smart pointer made for ressources that need to be cudaFreed
+/*! \class UniquePtr
+ *
+ * \brief A smart pointer made for ressources that need to be cudaFreed
+ */
 template <typename T>
 class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
 {
@@ -55,21 +60,20 @@ class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
     {
     }
 
-    /// Implicit cast operator
+    /*! \brief Implicit cast operator */
     operator T*() { return get(); }
 
-    /// Implicit cast operator
+    /*! \brief Implicit cast operator */
     operator T*() const { return get(); }
 
-    /// Allocates an array of size sizeof(T) * size
+    /*! \brief Allocates an array of size sizeof(T) * size */
     UniquePtr(const size_t size)
         : base(nullptr, cudaFree)
     {
         resize(size);
     }
 
-    /// Allocates an array of size sizeof(T) * size, free the old pointer if not
-    /// null
+    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
     {
         T* tmp;

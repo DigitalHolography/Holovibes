@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Qt window used to display the input frames. */
+ * \brief Qt window used to display the input frames.
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -18,6 +11,11 @@ namespace holovibes
 namespace gui
 {
 class SliceWindow;
+
+/*! \class RawWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class RawWindow : public BasicOpenGLWindow
 {
   public:
@@ -35,10 +33,10 @@ class RawWindow : public BasicOpenGLWindow
 
     int old_width = -1;
     int old_height = -1;
-    // it represents width/height of the Raw window
+    /*! \brief Width/height ratio of the Raw window */
     float ratio = 0.0f;
 
-    // bool represent if we are resizing the window or creating one
+    /*! If we are resizing the window or creating one */
     bool is_resize = true;
 
     const float translation_step_ = 0.05f;

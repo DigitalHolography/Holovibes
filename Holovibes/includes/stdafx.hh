@@ -1,15 +1,10 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
-*
-* Precompiled header. Put here all the external includes that aren't used in a
-cuda file to avoid recompiling it each time. */
+ *
+ * \brief List of precompiled headers
+ *
+ * Precompiled header. Put here all the external includes that aren't used in a
+ * cuda file to avoid recompiling it each time.
+ */
 
 #pragma once
 // First, sort all the line

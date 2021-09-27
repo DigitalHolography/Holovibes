@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Qt window displaying the hologram in XY view. */
+ * \brief Qt window displaying the hologram in XY view.
+ */
 #pragma once
 
 #include "icompute.hh"
@@ -21,6 +14,10 @@ namespace gui
 class MainWindow;
 using SharedPipe = std::shared_ptr<ICompute>;
 
+/*! \class HoloWindow
+ *
+ * \brief #TODO Add a description for this class
+ */
 class HoloWindow : public RawWindow
 {
   public:

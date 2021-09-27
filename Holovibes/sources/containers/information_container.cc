@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "information_container.hh"
 #include "queue.hh"
 
@@ -17,64 +9,53 @@ using QueueType = Queue::QueueType;
 using ProgressType = InformationContainer::ProgressType;
 using MutexGuard = std::lock_guard<std::mutex>;
 
-const std::unordered_map<IndicationType, std::string>
-    InformationContainer::indication_type_to_string_ = {
-        {IndicationType::IMG_SOURCE, "Image Source"},
+const std::unordered_map<IndicationType, std::string> InformationContainer::indication_type_to_string_ = {
+    {IndicationType::IMG_SOURCE, "Image Source"},
 
-        {IndicationType::INPUT_FORMAT, "Input Format"},
-        {IndicationType::OUTPUT_FORMAT, "Output Format"}
+    {IndicationType::INPUT_FORMAT, "Input Format"},
+    {IndicationType::OUTPUT_FORMAT, "Output Format"}};
+
+const std::unordered_map<FpsType, std::string> InformationContainer::fps_type_to_string_ = {
+    {FpsType::INPUT_FPS, "Input FPS"},
+    {FpsType::OUTPUT_FPS, "Output FPS"},
+    {FpsType::SAVING_FPS, "Saving FPS"},
 };
 
-const std::unordered_map<FpsType, std::string>
-    InformationContainer::fps_type_to_string_ = {
-        {FpsType::INPUT_FPS, "Input FPS"},
-        {FpsType::OUTPUT_FPS, "Output FPS"},
-        {FpsType::SAVING_FPS, "Saving FPS"},
+const std::unordered_map<QueueType, std::string> InformationContainer::queue_type_to_string_ = {
+    {QueueType::INPUT_QUEUE, "Input Queue"},
+    {QueueType::OUTPUT_QUEUE, "Output Queue"},
+    {QueueType::RECORD_QUEUE, "Record Queue"},
 };
 
-const std::unordered_map<QueueType, std::string>
-    InformationContainer::queue_type_to_string_ = {
-        {QueueType::INPUT_QUEUE, "Input Queue"},
-        {QueueType::OUTPUT_QUEUE, "Output Queue"},
-        {QueueType::RECORD_QUEUE, "Record Queue"},
-};
-
-void InformationContainer::add_indication(IndicationType indication_type,
-                                          const std::string& info)
+void InformationContainer::add_indication(IndicationType indication_type, const std::string& info)
 {
     MutexGuard m_guard(mutex_);
     indication_map_.insert_or_assign(indication_type, info);
 }
 
-void InformationContainer::add_processed_fps(
-    FpsType fps_type, std::atomic<unsigned int>& processed_fps)
+void InformationContainer::add_processed_fps(FpsType fps_type, std::atomic<unsigned int>& processed_fps)
 {
     MutexGuard m_guard(mutex_);
     fps_map_.insert_or_assign(fps_type, &processed_fps);
 }
 
-void InformationContainer::add_queue_size(
-    QueueType queue_type,
-    const std::atomic<unsigned int>& cur_size,
-    const std::atomic<unsigned int>& max_size)
+void InformationContainer::add_queue_size(QueueType queue_type,
+                                          const std::atomic<unsigned int>& cur_size,
+                                          const std::atomic<unsigned int>& max_size)
 {
     if (queue_type == QueueType::UNDEFINED)
         return;
 
     MutexGuard m_guard(mutex_);
-    queue_size_map_.insert_or_assign(queue_type,
-                                     std::make_pair(&cur_size, &max_size));
+    queue_size_map_.insert_or_assign(queue_type, std::make_pair(&cur_size, &max_size));
 }
 
-void InformationContainer::add_progress_index(
-    ProgressType progress_type,
-    const std::atomic<unsigned int>& cur_progress,
-    const std::atomic<unsigned int>& max_progress)
+void InformationContainer::add_progress_index(ProgressType progress_type,
+                                              const std::atomic<unsigned int>& cur_progress,
+                                              const std::atomic<unsigned int>& max_progress)
 {
     MutexGuard m_guard(mutex_);
-    progress_index_map_.insert_or_assign(
-        progress_type,
-        std::make_pair(&cur_progress, &max_progress));
+    progress_index_map_.insert_or_assign(progress_type, std::make_pair(&cur_progress, &max_progress));
 }
 
 void InformationContainer::remove_indication(IndicationType indication_type)
@@ -113,8 +94,7 @@ void InformationContainer::clear()
     progress_index_map_.clear();
 }
 
-std::optional<std::pair<const std::atomic<unsigned int>*,
-                        const std::atomic<unsigned int>*>>
+std::optional<std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>>
 InformationContainer::get_progress_index(ProgressType progress_type) const
 {
     if (progress_index_map_.contains(progress_type))

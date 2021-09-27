@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Implementation of a Rectangle */
+ * \brief Implementation of a Rectangle
+ */
 #pragma once
 
 #include "point.hh"
@@ -23,7 +16,9 @@ namespace holovibes
 namespace units
 {
 
-/*! \brief A rectangle in some specific unit
+/*! \class Rect
+ *
+ * \brief A rectangle in some specific unit
  *
  * It can be manipulated in two ways:
  * through top / bottom / left / right, making sure left < right and so on
@@ -34,8 +29,7 @@ template <typename T>
 class Rect
 {
   public:
-    /*! \brief Default constructors, will crash when trying to convert it
-     */
+    /*! \brief Default constructors, will crash when trying to convert it */
     Rect() = default;
 
     /*! \brief Constructs a rectangle from two points
@@ -49,8 +43,7 @@ class Rect
     {
     }
 
-    /*! \brief Constructs a rectangle from its position and size
-     */
+    /*! \brief Constructs a rectangle from its position and size */
     Rect(ConversionData data,
          typename T::primary_type x1 = 0,
          typename T::primary_type y1 = 0,
@@ -61,9 +54,9 @@ class Rect
     {
     }
 
-    /*! \brief Getters and setters
+    /*! \name Getters and setters
+     * \{
      */
-    /**@{*/
     Point<T> topLeft() const { return Point<T>(x(), y()); }
 
     Point<T> bottomRight() const { return Point<T>(right(), bottom()); }
@@ -180,11 +173,9 @@ class Rect
     Point<T>& srcRef() { return src_; }
 
     Point<T>& dstRef() { return dst_; }
+    /*! \} */
 
-    /**@}*/
-
-    /*! \brief Implicit cast into a rectangle of an other unit
-     */
+    /*! \brief Implicit cast into a rectangle of an other unit*/
     template <typename U>
     operator Rect<U>() const
     {
@@ -192,15 +183,13 @@ class Rect
         return res;
     }
 
-    /*! \brief area, abs(width * height)
-     */
+  /*! \brief area, abs(width * height) */
     typename T::primary_type area() const
     {
         return std::abs(width() * height());
     }
 
-    /*! \brief Center of the rectangle
-     */
+    /*! \brief Center of the rectangle */
     Point<T> center() const
     {
         T x = this->x();
@@ -218,16 +207,13 @@ class Rect
     Point<T> dst_;
 };
 
-/*! \brief Rectangle in the OpenGL coordinates [-1;1]
- */
+/*! \brief Rectangle in the OpenGL coordinates [-1;1] */
 using RectOpengl = Rect<OpenglPosition>;
 
-/*! \brief Rectangle in the frame desc coordinates
- */
+/*! \brief Rectangle in the frame desc coordinates */
 using RectFd = Rect<FDPixel>;
 
-/*! \brief Rectangle in the window coordinates
- */
+/*! \brief Rectangle in the window coordinates */
 using RectWindow = Rect<WindowPixel>;
 
 template <typename T>

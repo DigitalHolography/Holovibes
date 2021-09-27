@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Overlay used to compute the side views. */
+ * \brief Overlay used to compute the side views.*
+ */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -19,6 +12,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class CrossOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class CrossOverlay : public Overlay
 {
   public:
@@ -26,8 +23,9 @@ class CrossOverlay : public Overlay
     virtual ~CrossOverlay();
 
     /*! \brief Initialize opengl buffers for rectangles and lines.
-     *  The vertices buffers is built like this:
      *
+     *  The vertices buffers is built like this:
+     * \verbatim
      *       0   1
      *       |   |
      *  4 --- --- --- 5
@@ -35,6 +33,7 @@ class CrossOverlay : public Overlay
      *  7 --- --- --- 6
      *       |   |
      *       3   2
+     * \endverbatim
      */
     void init() override;
     void draw() override;
@@ -49,23 +48,22 @@ class CrossOverlay : public Overlay
   protected:
     void setBuffer() override;
 
-    /*! \brief Computes the zones depending on compute descriptor of the parent
-     */
+    /*! \brief Computes the zones depending on compute descriptor of the parent */
     void computeZone();
 
-    //! Transparency of the borders
+    /*! \brief Transparency of the borders */
     float line_alpha_;
 
-    //! Vertices order for lines
+    /*! \brief Vertices order for lines */
     GLuint elemLineIndex_;
 
-    //! Locking line overlay
+    /*! \brief Locking line overlay */
     bool locked_;
 
-    //! Actual mouse position
+    /*! \brief Actual mouse position */
     units::PointFd mouse_position_{0, 0};
 
-    //! Horizontal area. zone_ corresponds to the vertical area
+    /*! \brief Horizontal area. zone_ corresponds to the vertical area */
     units::RectFd horizontal_zone_;
 };
 } // namespace gui

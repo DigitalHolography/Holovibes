@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include <cmath>
 #include <cuda_runtime.h>
 
@@ -36,8 +28,7 @@ unsigned int get_max_threads_2d()
     {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, 0);
-        max_threads_per_block_2d =
-            static_cast<unsigned int>(sqrt(prop.maxThreadsPerBlock));
+        max_threads_per_block_2d = static_cast<unsigned int>(sqrt(prop.maxThreadsPerBlock));
         initialized = true;
     }
 

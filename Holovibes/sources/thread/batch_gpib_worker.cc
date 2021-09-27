@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "batch_gpib_worker.hh"
 
 #include <chrono>
@@ -22,13 +14,11 @@ namespace holovibes::worker
 BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
                                  const std::string& output_path,
                                  unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 bool square_output)
+                                 RecordMode record_mode)
     : Worker()
     , output_path_(output_path)
     , nb_frames_to_record_(nb_frames_to_record)
     , record_mode_(record_mode)
-    , square_output_(square_output)
     , frame_record_worker_(nullptr)
     , chart_record_worker_(nullptr)
 {
@@ -38,7 +28,7 @@ BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
     }
     catch (const std::exception& exception)
     {
-        LOG_ERROR(exception.what());
+        LOG_ERROR << exception.what();
         batch_cmds_.clear();
     }
 }
@@ -75,20 +65,15 @@ void BatchGPIBWorker::run()
 
                 if (record_mode_ == RecordMode::CHART)
                 {
-                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(
-                        formatted_path,
-                        nb_frames_to_record_);
+                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_);
                     chart_record_worker_->run();
                 }
                 else // Frame Record
                 {
                     bool raw_record = record_mode_ == RecordMode::RAW;
 
-                    frame_record_worker_ = std::make_unique<FrameRecordWorker>(
-                        formatted_path,
-                        nb_frames_to_record_,
-                        raw_record,
-                        square_output_);
+                    frame_record_worker_ =
+                        std::make_unique<FrameRecordWorker>(formatted_path, nb_frames_to_record_, raw_record, 0);
                     frame_record_worker_->run();
                 }
 
@@ -102,8 +87,7 @@ void BatchGPIBWorker::run()
                 while (!stop_requested_)
                 {
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::high_resolution_clock::now() -
-                            starting_time)
+                            std::chrono::high_resolution_clock::now() - starting_time)
                             .count() >= waiting_time)
                         break;
                 }
@@ -114,7 +98,7 @@ void BatchGPIBWorker::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR(e.what());
+        LOG_ERROR << e.what();
         return;
     }
 }
@@ -151,9 +135,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(
-                    boost::lexical_cast<std::string>(line_num),
-                    gpib::GpibParseError::NoAddress);
+                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoAddress);
             }
         }
         else if (line.compare("#WAIT") == 0)
@@ -171,9 +153,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(
-                    boost::lexical_cast<std::string>(line_num),
-                    gpib::GpibParseError::NoWait);
+                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoWait);
             }
         }
         else if (line.compare("#Capture") == 0)
@@ -190,8 +170,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             for (unsigned i = 0; i < line.size(); ++i)
                 in.unget();
             std::getline(in, line, '\n');
-            line.append(
-                "\n"); // Don't forget the end-of-command character for VISA.
+            line.append("\n"); // Don't forget the end-of-command character for VISA.
 
             cmd.type = gpib::BatchCommand::INSTRUMENT_COMMAND;
             cmd.address = cur_address;
@@ -208,8 +187,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
     }
 }
 
-void BatchGPIBWorker::execute_instrument_command(
-    gpib::BatchCommand instrument_command)
+void BatchGPIBWorker::execute_instrument_command(gpib::BatchCommand instrument_command)
 {
     if (!gpib_interface_)
         gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll");

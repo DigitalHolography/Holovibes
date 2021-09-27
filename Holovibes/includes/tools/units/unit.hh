@@ -1,14 +1,6 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Implementation of a Unit with its cast between different coordinates system
+ * \brief Implementation of a Unit with its cast between different coordinates system
  */
 #pragma once
 
@@ -19,20 +11,20 @@
 
 namespace holovibes
 {
-/*! \brief Contains functions and casts related to the three coordinates system.
- */
+/*! \brief Contains functions and casts related to the three coordinates system. */
 namespace units
 {
 
-/*! \brief Describes which axis should be used when converting
- */
+/*! \brief Describes which axis should be used when converting */
 enum Axis
 {
     HORIZONTAL,
     VERTICAL
 };
 
-/*! \brief A generic distance unit type
+/*! \class Unit
+ *
+ * \brief A generic distance unit type
  *
  * Used to define implicit conversions between the different units
  * T will be either float or int, defined in the child classes
@@ -50,12 +42,10 @@ class Unit
     {
     }
 
-    /*! \brief Implicit cast toward the primary type
-     */
+    /*! \brief Implicit cast toward the primary type */
     operator T() const { return val_; }
 
-    /*! \brief Implicit cast toward the primary type
-     */
+    /*! \brief Implicit cast toward the primary type */
     operator T&() { return val_; }
 
     /*! \brief Implicit cast into a reference to the primary type
@@ -65,12 +55,10 @@ class Unit
     T& get() { return val_; }
     T get() const { return val_; }
 
-    /*! \brief Exmplcit setter
-     */
+    /*! \brief Exmplcit setter */
     void set(T x) { val_ = x; }
 
-    /*! \brief Exmplcit setter
-     */
+    /*! \brief Explicit setter */
     template <typename U>
     Unit<T> operator+(const U& other)
     {
@@ -81,12 +69,12 @@ class Unit
 
     const ConversionData& getConversion() const { return conversion_data_; }
 
-    /*! \brief Operator overloads
+    /*! \name Operator overloads
+     * \{
      *
      * They can be used with either a primary type or another Unit
      * The result is an Unit, but can be implicitly casted into a T
      */
-    /**@{*/
     template <typename U>
     Unit<T> operator-(const U& other)
     {
@@ -118,19 +106,16 @@ class Unit
         res.val_ *= -1;
         return res;
     }
-    /**@{*/
+    /*! \} */
 
   protected:
-    /*! \brief Encapsulates the metadata needed for the conversions
-     */
+    /*! \brief Encapsulates the metadata needed for the conversions */
     ConversionData conversion_data_;
 
-    /*! \brief Which axis should be used when converting
-     */
+    /*! \brief Which axis should be used when converting */
     Axis axis_;
 
-    /*! \brief The value itself
-     */
+    /*! \brief The value itself */
     T val_;
 };
 

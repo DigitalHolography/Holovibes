@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "ui_plotwindow.h"
 #include "PlotWindow.hh"
 #include "concurrent_deque.hh"
@@ -22,8 +14,7 @@ PlotWindow::PlotWindow(ConcurrentDeque<ChartPoint>& data_vect,
                        const QString title,
                        QWidget* parent)
     : QMainWindow(parent)
-    , curve_plot_(
-          data_vect, auto_scale_point_threshold, title, WIDTH, HEIGHT, this)
+    , curve_plot_(data_vect, auto_scale_point_threshold, title, WIDTH, HEIGHT, this)
 {
     ui.setupUi(this);
     resize(WIDTH, HEIGHT);
@@ -41,10 +32,7 @@ PlotWindow::~PlotWindow() {}
 
 void PlotWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
-void PlotWindow::resizeEvent(QResizeEvent* e)
-{
-    curve_plot_.resize(e->size().width() - 20, e->size().height() - 50);
-}
+void PlotWindow::resizeEvent(QResizeEvent* e) { curve_plot_.resize(e->size().width() - 20, e->size().height() - 50); }
 
 void PlotWindow::start_drawing() { curve_plot_.start(); }
 
@@ -54,10 +42,7 @@ void PlotWindow::auto_scale() { curve_plot_.auto_scale(); }
 
 void PlotWindow::change_points_nb(int n) { curve_plot_.set_points_nb(n); }
 
-void PlotWindow::change_curve(int curve_to_plot)
-{
-    curve_plot_.change_curve(curve_to_plot);
-}
+void PlotWindow::change_curve(int curve_to_plot) { curve_plot_.change_curve(curve_to_plot); }
 
 void PlotWindow::toggle_dark_mode()
 {

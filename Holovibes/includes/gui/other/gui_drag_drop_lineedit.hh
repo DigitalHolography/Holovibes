@@ -1,11 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include <QDragEnterEvent>
@@ -15,6 +11,10 @@
 
 namespace holovibes::gui
 {
+/*! \class Drag_drop_lineedit
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Drag_drop_lineedit : public QLineEdit
 {
     Q_OBJECT
@@ -23,9 +23,6 @@ class Drag_drop_lineedit : public QLineEdit
 
   public slots:
     void dropEvent(QDropEvent* event) override;
-    void dragEnterEvent(QDragEnterEvent* e) override
-    {
-        e->acceptProposedAction();
-    }
+    void dragEnterEvent(QDragEnterEvent* e) override { e->acceptProposedAction(); }
 };
 } // namespace holovibes::gui

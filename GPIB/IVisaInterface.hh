@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #pragma once
 
 #include <string>
@@ -37,8 +29,7 @@ class IVisaInterface
 
     virtual ~IVisaInterface() {}
 
-    virtual void
-    execute_instrument_command(const BatchCommand& instrument_command) = 0;
+    virtual void execute_instrument_command(const BatchCommand& instrument_command) = 0;
 };
 
 /* \brief See icamera.hh to have more information about this */

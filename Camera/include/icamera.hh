@@ -1,32 +1,24 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
  * Interface for all cameras.*/
 #pragma once
 
-/*! \brief Containt all function and structure reference to camera usage */
+/*! \brief Contains all function and structure reference to camera usage */
 namespace camera
 {
 struct FrameDescriptor;
 
 /*! \struct CapturedFramesDescriptor
-    \brief Simple struct to represent a single or mutiple frames located either
-   in host memory or in device memory.
-*/
+ *
+ * \brief Simple struct to represent a single or mutiple frames located either in host memory or in device memory.
+ */
 struct CapturedFramesDescriptor
 {
-    CapturedFramesDescriptor(void* data_,
-                             unsigned int count_,
-                             bool on_gpu_ = false)
-        : data(data_)
-        , count(count_)
+    CapturedFramesDescriptor(void* region1_, unsigned count1_, void* region2_, unsigned count2_, bool on_gpu_ = false)
+        : region1(region1_)
+        , count1(count1_)
+        , region2(region2_)
+        , count2(count2_)
         , on_gpu(on_gpu_)
     {
     }
@@ -35,36 +27,54 @@ struct CapturedFramesDescriptor
         : CapturedFramesDescriptor(nullptr, 0)
     {
     }
-    CapturedFramesDescriptor(void* data_)
-        : CapturedFramesDescriptor(data_, 1)
+    CapturedFramesDescriptor(void* data)
+        : CapturedFramesDescriptor(data, 1)
     {
     }
 
-    /*! \brief The pointer at the data location. */
-    void* data;
+    CapturedFramesDescriptor(void* data, unsigned int count, bool on_gpu_ = false)
+        : CapturedFramesDescriptor(data, count, nullptr, 0)
+    {
+    }
 
-    /*! \brief The number of frames stored in data. */
-    unsigned int count;
+    /*! \brief Pointer to the first region containing data. */
+    void* region1;
+
+    /*! \brief The number of frames stored in region1. */
+    unsigned int count1;
+
+    /* 2 data regions are needed when getting data from a ringbuffer
+     * the data can be located at the end and beginning of the buffer
+     *  region2<-       ->region1
+     * [XXXXXXX<-.......->XXXXXXX]
+     */
+
+    /*! \brief Pointer to the second region containing data. */
+    void* region2 = nullptr;
+
+    /*! \brief The number of frames stored in region2. */
+    unsigned int count2 = 0;
 
     /*! \brief Whether data is located in host or device memory (GPU). */
     bool on_gpu;
 };
 
 /*! \defgroup CameraInterface Camera Interface
+ *
  * This small module is the entry point to using all existing cameras DLLs. It
  * regroups :
  * * The ICamera interface.
- * * The new_camera_device hook function, used to grab a camera object from a
- * DLL.
+ * * The new_camera_device hook function, used to grab a camera object from a DLL.
  * * A general timeout value for all cameras.
  * \{
  */
 
-/*! Timeout value in ms for a camera to get a frame. */
+/*! \brief Timeout value in ms for a camera to get a frame. */
 static int FRAME_TIMEOUT = 100000;
 
-//! Abstract interface for all cameras.
-/*! # Interface
+/*! \brief Abstract interface for all cameras.
+ *
+ * # Interface
  *
  * In C++, an interface is a class that must contains only pure virtual
  * methods. No data fields is allowed. Whatever the camera model, each must
@@ -74,9 +84,10 @@ static int FRAME_TIMEOUT = 100000;
  * Interface](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL)
  * to export a C++ class within a DLL.
  *
- * # How to use it ?
+ * ## How to use it ?
  *
- * Use only header files in Camera/include folder. */
+ * Use only header files in Camera/include folder.
+ */
 class ICamera
 {
   public:
@@ -107,8 +118,7 @@ class ICamera
      *
      * * Open the camera and retrieve the handler
      * * Call the bind parameters method to configure the camera API
-     * * Do memory allocation and initialization (following what the user
-     * needs)
+     * * Do memory allocation and initialization (following what the user needs)
      * * Retrieves informations about the camera model */
     virtual void init_camera() = 0;
 
@@ -136,16 +146,19 @@ class ICamera
     virtual CapturedFramesDescriptor get_frames() = 0;
 };
 
-/*! extern "C" is used to avoid C++ name mangling.
+/*! \brief extern "C" is used to avoid C++ name mangling.
+ *
  * Without it, each camera DLL would provide a different symbol for the
- * new_camera_device function, thus preventing Holovibes from using it. */
+ * new_camera_device function, thus preventing Holovibes from using it.
+ */
 extern "C"
 {
     /*! \brief Ask the DLL to allocate a new camera, and get a handle to it.
      *
-     * \return A pointer to the new camera object. */
+     * \return A pointer to the new camera object.
+     */
     __declspec(dllexport) ICamera* new_camera_device();
 }
 
-/** \} */ // End of Camera Interface group
+/*! \} */ // End of Camera Interface group
 } // namespace camera

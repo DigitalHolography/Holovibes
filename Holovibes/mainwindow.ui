@@ -564,6 +564,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="FastPipeCheckBox">
+           <property name="text">
+            <string>Fast Pipe</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -2858,17 +2865,6 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="squareOutputLayout">
-                 <item>
-                  <widget class="QCheckBox" name="SquareOutputCheckBox">
-                   <property name="text">
-                    <string>Square Output</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
                 <widget class="QGroupBox" name="BatchGroupBox">
                  <property name="title">
                   <string>Batch</string>
@@ -3105,7 +3101,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3127,6 +3123,7 @@ p, li { white-space: pre-wrap; }
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionBitflowCyton"/>
      <addaction name="actionAdimec"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
@@ -3358,6 +3355,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionPhantom_S710">
    <property name="text">
     <string>Phantom S710 (Euresys)</string>
+   </property>
+  </action>
+  <action name="actionBitflowCyton">
+   <property name="text">
+    <string>Bitflow Cyton frame grabber</string>
    </property>
   </action>
  </widget>
@@ -4973,22 +4975,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RecordExtComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_record_file_extension(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>891</x>
-     <y>339</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Filter2DN1SpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -5212,6 +5198,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>FastPipeCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_fast_pipe(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>389</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBitflowCyton</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_bitflow_cyton()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5230,6 +5248,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
+  <slot>camera_bitflow_cyton()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>
@@ -5254,6 +5273,7 @@ p, li { white-space: pre-wrap; }
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
+  <slot>set_fast_pipe(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
@@ -5302,7 +5322,6 @@ p, li { white-space: pre-wrap; }
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
   <slot>set_record_mode(QString)</slot>
-  <slot>set_record_file_extension(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>

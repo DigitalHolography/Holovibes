@@ -1,24 +1,19 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Store some information that need to be accessed globally. */
+ * \brief Store some information that need to be accessed globally.
+ */
 #pragma once
 
 namespace holovibes
 {
-/*! \brief Store some information that need to be accessed globally.
+/*! \class Config
+ *
+ * \brief Store some information that need to be accessed globally.
  */
 class Config
 {
   public:
-    /*! \brief Construct the config with most commonly used values.*/
+    /*! \brief Construct the config with most commonly used values. */
     Config()
     {
         this->input_queue_max_size = 256;
@@ -33,17 +28,16 @@ class Config
         this->device_number = 0;
     }
 
-    /*! \brief Copy constructor.*/
+    /*! \brief Copy constructor. */
     Config(const Config& o) { *this = o; }
 
-    /*! \brief Assignement operator.*/
+    /*! \brief Assignement operator. */
     Config& operator=(const Config& o)
     {
         this->input_queue_max_size = o.input_queue_max_size;
         this->frame_record_queue_max_size = o.frame_record_queue_max_size;
         this->output_queue_max_size = o.output_queue_max_size;
-        this->time_transformation_cuts_output_buffer_size =
-            o.time_transformation_cuts_output_buffer_size;
+        this->time_transformation_cuts_output_buffer_size = o.time_transformation_cuts_output_buffer_size;
         this->frame_timeout = o.frame_timeout;
         this->file_buffer_size = o.file_buffer_size;
         this->unwrap_history_size = o.unwrap_history_size;
@@ -59,23 +53,24 @@ class Config
     unsigned int frame_record_queue_max_size;
     /*! \brief Max size of output queue in number of images. */
     unsigned int output_queue_max_size;
-    /*! \brief Max size of time transformation cuts queue in number of images.
-     */
+    /*! \brief Max size of time transformation cuts queue in number of images. */
     unsigned int time_transformation_cuts_output_buffer_size;
-    //! Obsolete. Now using the one in the camera ini file.
+    // #TODO Said to be obsolete
+    /*! Obsolete. Now using the one in the camera ini file. */
     unsigned int frame_timeout;
     /*! \brief Max number of frames read each time by the thread_reader. */
     unsigned int file_buffer_size;
-    /*! Max size of unwrapping corrections in number of images.
+    /*! \brief Max size of unwrapping corrections in number of images.
      *
      * Determines how far, meaning how many iterations back, phase corrections
-     * are taken in order to be applied to the current phase image. */
+     * are taken in order to be applied to the current phase image.
+     */
     unsigned int unwrap_history_size;
-    /* \brief Determines if Cuda device has to be set*/
+    /*! \brief Determines if Cuda device has to be set */
     bool set_cuda_device;
-    /* \brief Determines if Cuda device number is automaticly set*/
+    /*! \brief Determines if Cuda device number is automaticly set */
     bool auto_device_number;
-    /* \brief Determines if Cuda device number is set manually*/
+    /*! \brief Determines if Cuda device number is set manually */
     unsigned int device_number;
 };
 } // namespace holovibes

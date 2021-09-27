@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Options parser for the command-line. */
+ * \brief Options parser for the command-line.
+ */
 #pragma once
 
 #include <optional>
@@ -20,6 +13,10 @@ namespace po = boost::program_options;
 
 namespace holovibes
 {
+/*! \struct OptionsDescriptor
+ *
+ * \brief #TODO Add a description for this stuct
+ */
 struct OptionsDescriptor
 {
     bool print_help;
@@ -32,11 +29,16 @@ struct OptionsDescriptor
     std::optional<std::string> ini_path;
     std::optional<std::string> convo_path;
     bool divide_convo;
+    bool noskip_acc;
     bool record_raw;
     bool verbose;
+    bool gpu;
 };
 
-/*! \brief Options parser for the command-line. */
+/*! \class OptionsParser
+ *
+ * \brief Options parser for the command-line.
+ */
 class OptionsParser
 {
   public:
@@ -46,9 +48,10 @@ class OptionsParser
 
     OptionsParser& operator=(const OptionsParser&) = delete;
 
-    /*! \brief Parse the command line given by the user and
-     * fill the options descriptor. Will automatically call
-     * help/version print and exit. */
+    /*! \brief Parse the command line given by the user and fill the options descriptor.
+     *
+     * Will automatically call help/version print and exit.
+     */
     OptionsDescriptor parse(int argc, char* const argv[]);
 
     po::options_description get_opts_desc() const;

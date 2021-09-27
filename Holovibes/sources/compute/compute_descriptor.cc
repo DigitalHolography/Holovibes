@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "compute_descriptor.hh"
 
 #include "holovibes.hh"
@@ -62,8 +54,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     img_acc_slice_xz_level = cd.img_acc_slice_xz_level.load();
     img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
     time_transformation_stride = cd.time_transformation_stride.load();
-    time_transformation_cuts_enabled =
-        cd.time_transformation_cuts_enabled.load();
+    time_transformation_cuts_enabled = cd.time_transformation_cuts_enabled.load();
     current_window = cd.current_window.load();
     cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
     display_rate = cd.display_rate.load();
@@ -80,6 +71,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
+    fast_pipe = cd.fast_pipe.load();
     return *this;
 }
 
@@ -150,17 +142,13 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
     switch (kind)
     {
     case WindowKind::XYview:
-        return log_scale_slice_xy_enabled ? contrast_min_slice_xy.load()
-                                          : log10(contrast_min_slice_xy);
+        return log_scale_slice_xy_enabled ? contrast_min_slice_xy.load() : log10(contrast_min_slice_xy);
     case WindowKind::XZview:
-        return log_scale_slice_xz_enabled ? contrast_min_slice_xz.load()
-                                          : log10(contrast_min_slice_xz);
+        return log_scale_slice_xz_enabled ? contrast_min_slice_xz.load() : log10(contrast_min_slice_xz);
     case WindowKind::YZview:
-        return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load()
-                                          : log10(contrast_min_slice_yz);
+        return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_slice_yz);
     case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load()
-                                          : log10(contrast_min_filter2d);
+        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_filter2d);
     }
     return 0;
 }
@@ -170,33 +158,29 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     switch (kind)
     {
     case WindowKind::XYview:
-        return log_scale_slice_xy_enabled ? contrast_max_slice_xy.load()
-                                          : log10(contrast_max_slice_xy);
+        return log_scale_slice_xy_enabled ? contrast_max_slice_xy.load() : log10(contrast_max_slice_xy);
     case WindowKind::XZview:
-        return log_scale_slice_xz_enabled ? contrast_max_slice_xz.load()
-                                          : log10(contrast_max_slice_xz);
+        return log_scale_slice_xz_enabled ? contrast_max_slice_xz.load() : log10(contrast_max_slice_xz);
     case WindowKind::YZview:
-        return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load()
-                                          : log10(contrast_max_slice_yz);
+        return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load() : log10(contrast_max_slice_yz);
     case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled ? contrast_max_filter2d.load()
-                                          : log10(contrast_max_filter2d);
+        return log_scale_filter2d_enabled ? contrast_max_filter2d.load() : log10(contrast_max_filter2d);
     }
     return 0;
-}
-
-float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
-                                                   const int precision) const
-{
-    float value = get_contrast_min(kind);
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
 }
 
 float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind,
                                                    const int precision) const
 {
     float value = get_contrast_max(kind);
+    const double multiplier = std::pow(10.0, precision);
+    return std::round(value * multiplier) / multiplier;
+}
+
+float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
+                                                   const int precision) const
+{
+    float value = get_contrast_min(kind);
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
@@ -250,20 +234,16 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
     switch (kind)
     {
     case WindowKind::XYview:
-        contrast_min_slice_xy =
-            log_scale_slice_xy_enabled ? value : pow(10, value);
+        contrast_min_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
         break;
     case WindowKind::XZview:
-        contrast_min_slice_xz =
-            log_scale_slice_xz_enabled ? value : pow(10, value);
+        contrast_min_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
         break;
     case WindowKind::YZview:
-        contrast_min_slice_yz =
-            log_scale_slice_yz_enabled ? value : pow(10, value);
+        contrast_min_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
-        contrast_min_filter2d =
-            log_scale_filter2d_enabled ? value : pow(10, value);
+        contrast_min_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
         break;
     }
 }
@@ -273,20 +253,16 @@ void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
     switch (kind)
     {
     case WindowKind::XYview:
-        contrast_max_slice_xy =
-            log_scale_slice_xy_enabled ? value : pow(10, value);
+        contrast_max_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
         break;
     case WindowKind::XZview:
-        contrast_max_slice_xz =
-            log_scale_slice_xz_enabled ? value : pow(10, value);
+        contrast_max_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
         break;
     case WindowKind::YZview:
-        contrast_max_slice_yz =
-            log_scale_slice_yz_enabled ? value : pow(10, value);
+        contrast_max_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
-        contrast_max_filter2d =
-            log_scale_filter2d_enabled ? value : pow(10, value);
+        contrast_max_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
         break;
     }
 }
@@ -356,10 +332,7 @@ void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
     }
 }
 
-void ComputeDescriptor::set_divide_by_convo(bool enable)
-{
-    divide_convolution_enabled = enable && convolution_enabled;
-}
+void ComputeDescriptor::set_divide_by_convo(bool enable) { divide_convolution_enabled = enable && convolution_enabled; }
 
 void ComputeDescriptor::load_convolution_matrix(const std::string& file)
 {
@@ -388,11 +361,7 @@ void ComputeDescriptor::load_convolution_matrix(const std::string& file)
         }
 
         // Read kernel dimensions
-        if (fscanf_s(c_file,
-                     "%u %u %u;",
-                     &matrix_width,
-                     &matrix_height,
-                     &matrix_z) != 3)
+        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
         {
             fclose(c_file);
             throw std::runtime_error("Invalid kernel dimensions");
@@ -445,7 +414,7 @@ void ComputeDescriptor::load_convolution_matrix(const std::string& file)
     catch (std::exception& e)
     {
         convo_matrix.clear();
-        LOG_ERROR("Couldn't load convolution matrix " + std::string(e.what()));
+        LOG_ERROR << "Couldn't load convolution matrix " << e.what();
     }
 }
 

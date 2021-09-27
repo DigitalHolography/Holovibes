@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \mainpage Holovibes
 
     Documentation for developpers. \n
@@ -25,37 +17,52 @@
 
 static void check_cuda_graphic_card(bool gui)
 {
+    std::string error_message;
+    int device;
     int nDevices;
-    cudaError_t status = cudaGetDeviceCount(&nDevices);
-    if (status == cudaSuccess)
-        return;
+    int min_compute_capability = 35;
+    int max_compute_capability = 86;
+    int compute_capability;
+    cudaError_t status;
+    cudaDeviceProp props;
 
-    std::string error_message = "No CUDA graphic card detected.\n"
-                                "You will not be able to run Holovibes.\n\n"
-                                "Try to update your graphic drivers.";
+    /* Checking for Compute Capability */
+    if ((status = cudaGetDeviceCount(&nDevices)) == cudaSuccess)
+    {
+        cudaGetDevice(&device);
+        cudaGetDeviceProperties(&props, device);
+
+        compute_capability = props.major * 10 + props.minor;
+
+        if (compute_capability >= min_compute_capability && compute_capability <= max_compute_capability)
+            return;
+        else
+            error_message = "CUDA graphic card not supported.\n";
+    }
+    else
+        error_message = "No CUDA graphic card detected.\n"
+                        "You will not be able to run Holovibes.\n\n"
+                        "Try to update your graphic drivers.";
 
     if (gui)
     {
         QMessageBox messageBox;
-        messageBox.critical(0,
-                            "No CUDA graphic card detected",
-                            QString::fromUtf8(error_message.c_str()));
+        messageBox.critical(0, "No CUDA graphic card detected", QString::fromUtf8(error_message.c_str()));
         messageBox.setFixedSize(800, 300);
     }
     else
     {
-        LOG_WARN(error_message);
+        LOG_WARN << error_message;
     }
     std::exit(1);
 }
 
-static int start_gui(holovibes::Holovibes& holovibes,
-                     int argc,
-                     char** argv,
-                     const std::string filename = "")
+static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
     QLocale::setDefault(QLocale("en_US"));
+    // Create the Qt app
     QApplication app(argc, argv);
+
     check_cuda_graphic_card(true);
     QSplashScreen splash(QPixmap("holovibes_logo.png"));
     splash.show();
@@ -65,6 +72,7 @@ static int start_gui(holovibes::Holovibes& holovibes,
     HMENU hmenu = GetSystemMenu(hwnd, FALSE);
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
+    // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window(holovibes);
     window.show();
     splash.finish(&window);
@@ -79,19 +87,17 @@ static int start_gui(holovibes::Holovibes& holovibes,
         window.import_start();
     }
 
+    // Launch the Qt app
     return app.exec();
 }
 
-static void print_version()
-{
-    std::cout << "Holovibes " << holovibes::version << std::endl;
-}
+static void print_version() { LOG_INFO << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    std::cout << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    std::cout << parser.get_opts_desc();
+    LOG_INFO << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    LOG_INFO << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
@@ -132,7 +138,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Uncaught exception: " << e.what() << std::endl;
+        LOG_ERROR << "Uncaught exception: " << e.what() << std::endl;
         ret = 1;
     }
     return ret;

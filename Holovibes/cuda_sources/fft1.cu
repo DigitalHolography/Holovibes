@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "fft1.cuh"
 #include "transforms.cuh"
 #include "unique_ptr.hh"
@@ -27,23 +19,17 @@ void fft1_lens(cuComplex* lens,
                const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
-    const uint blocks =
-        map_blocks_to_problem(lens_side_size * lens_side_size, threads);
+    const uint blocks = map_blocks_to_problem(lens_side_size * lens_side_size, threads);
 
     cuComplex* square_lens;
     // In anamorphic mode, the lens is initally a square, it's then cropped to
     // be the same dimension as the frame
     if (frame_height != frame_width)
-        cudaXMalloc(&square_lens,
-                    lens_side_size * lens_side_size * sizeof(cuComplex));
+        cudaXMalloc(&square_lens, lens_side_size * lens_side_size * sizeof(cuComplex));
     else
         square_lens = lens;
 
-    kernel_quadratic_lens<<<blocks, threads, 0, stream>>>(square_lens,
-                                                          lens_side_size,
-                                                          lambda,
-                                                          z,
-                                                          pixel_size);
+    kernel_quadratic_lens<<<blocks, threads, 0, stream>>>(square_lens, lens_side_size, lambda, z, pixel_size);
     cudaCheckError();
 
     if (frame_height != frame_width)
@@ -52,9 +38,7 @@ void fft1_lens(cuComplex* lens,
         // offset and a limited size works
         if (frame_width > frame_height)
             cudaXMemcpyAsync(lens,
-                             square_lens +
-                                 ((lens_side_size - frame_height) / 2) *
-                                     frame_width,
+                             square_lens + ((lens_side_size - frame_height) / 2) * frame_width,
                              frame_width * frame_height * sizeof(cuComplex),
                              cudaMemcpyDeviceToDevice,
                              stream);
@@ -62,17 +46,15 @@ void fft1_lens(cuComplex* lens,
         {
             // For a vertical frame we need memcpy 2d to copy row by row, taking
             // the offset into account every time
-            cudaSafeCall(cudaMemcpy2DAsync(
-                lens,                            // Destination (frame)
-                frame_width * sizeof(cuComplex), // Destination width in byte
-                square_lens +
-                    ((lens_side_size - frame_width) / 2), // Source (lens)
-                lens_side_size * sizeof(cuComplex), // Source width in byte
-                frame_width * sizeof(cuComplex),    // Destination width in byte
-                                                    // (yes it's redoundant)
-                frame_height, // Destination height (not in byte)
-                cudaMemcpyDeviceToDevice,
-                stream));
+            cudaSafeCall(cudaMemcpy2DAsync(lens,                            // Destination (frame)
+                                           frame_width * sizeof(cuComplex), // Destination width in byte
+                                           square_lens + ((lens_side_size - frame_width) / 2), // Source (lens)
+                                           lens_side_size * sizeof(cuComplex),                 // Source width in byte
+                                           frame_width * sizeof(cuComplex), // Destination width in byte
+                                                                            // (yes it's redoundant)
+                                           frame_height,                    // Destination height (not in byte)
+                                           cudaMemcpyDeviceToDevice,
+                                           stream));
         }
         cudaXFree(square_lens);
     }

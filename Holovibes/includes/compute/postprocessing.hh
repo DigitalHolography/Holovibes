@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
-
- Implementation of postprocessing features on complex buffers. */
+ *
+ * \brief Implementation of postprocessing features on complex buffers.
+ */
 #pragma once
 
 #include <vector>
@@ -26,19 +19,21 @@ struct CoreBuffersEnv;
 
 namespace compute
 {
+/*! \class Postprocessing
+ *
+ * \brief #TODO Add a description for this class
+ */
 class Postprocessing
 {
   public:
-    /** \brief Constructor. */
+    /*! \brief Constructor */
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& fd,
                    holovibes::ComputeDescriptor& cd,
                    const cudaStream_t& stream);
 
-    /*! \brief Initialize convolution by allocating the corresponding
-    ** buffer
-    */
+    /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
     /*! \brief Free the ressources for the postprocessing */
@@ -51,34 +46,32 @@ class Postprocessing
     void insert_renormalize();
 
   private:
-    //! used only when the image is composite convolution to do a convolution on
-    //! each component
+    /*! \brief Used only when the image is composite convolution to do a convolution on each component */
     void convolution_composite();
 
     cuda_tools::UniquePtr<cuComplex> gpu_kernel_buffer_;
     cuda_tools::UniquePtr<cuComplex> cuComplex_buffer_;
     cuda_tools::UniquePtr<float> hsv_arr_;
 
-    //! Result of the reduce operation of the current frame used to renormalize
-    //! the frames
+    /*! \brief Result of the reduce operation of the current frame used to renormalize the frames */
     cuda_tools::UniquePtr<double> reduce_result_;
 
-    //! Vector function in which we insert the processing
+    /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
 
-    //! Main buffers
+    /*! \brief Main buffers */
     CoreBuffersEnv& buffers_;
 
-    // Describes the frame size
+    /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
 
-    //! Compute Descriptor
+    /*! \brief Compute Descriptor */
     ComputeDescriptor& cd_;
 
-    // plan used for the convolution (frame width, frame height, cufft_c2c)
+    /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
-    /// Compute stream to perform  pipe computation
+    /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 };
 } // namespace compute

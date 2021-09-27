@@ -1,18 +1,8 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 #include "common.cuh"
 #include "unpack.cuh"
 
-__global__ void kernel_unpack_12_to_16bit(short* output,
-                                          const size_t output_size,
-                                          const unsigned char* input,
-                                          const size_t input_size)
+__global__ void
+kernel_unpack_12_to_16bit(short* output, const size_t output_size, const unsigned char* input, const size_t input_size)
 {
     const uint index = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
     const uint index_12bit = (index * 3) / 2;
@@ -25,10 +15,8 @@ __global__ void kernel_unpack_12_to_16bit(short* output,
     }
 }
 
-__global__ void kernel_unpack_10_to_16bit(short* output,
-                                          const size_t output_size,
-                                          const unsigned char* input,
-                                          const size_t input_size)
+__global__ void
+kernel_unpack_10_to_16bit(short* output, const size_t output_size, const unsigned char* input, const size_t input_size)
 {
     const uint index = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
     const uint index_10bit = (index * 5) / 4;
@@ -43,36 +31,30 @@ __global__ void kernel_unpack_10_to_16bit(short* output,
     }
 }
 
-// input and output do not overlap !!
+// input and output must not overlap !!
 void unpack_12_to_16bit(short* output,
                         const size_t output_size,
                         const unsigned char* input,
                         const size_t input_size,
                         const cudaStream_t stream)
 {
-    uint threads = THREADS_128;
+    uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(output_size / 2, threads);
 
-    kernel_unpack_12_to_16bit<<<blocks, threads, 0, stream>>>(output,
-                                                              output_size,
-                                                              input,
-                                                              input_size);
+    kernel_unpack_12_to_16bit<<<blocks, threads, 0, stream>>>(output, output_size, input, input_size);
     cudaCheckError();
 }
 
-// input and output do not overlap !!
+// input and output must not overlap !!
 void unpack_10_to_16bit(short* output,
                         const size_t output_size,
                         const unsigned char* input,
                         const size_t input_size,
                         const cudaStream_t stream)
 {
-    uint threads = THREADS_128;
+    uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(output_size / 4, threads);
 
-    kernel_unpack_10_to_16bit<<<blocks, threads, 0, stream>>>(output,
-                                                              output_size,
-                                                              input,
-                                                              input_size);
+    kernel_unpack_10_to_16bit<<<blocks, threads, 0, stream>>>(output, output_size, input, input_size);
     cudaCheckError();
 }

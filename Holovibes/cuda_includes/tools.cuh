@@ -1,11 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
 #pragma once
 
 #include "tools.hh"
@@ -28,9 +24,7 @@ void frame_memcpy(const float* input,
                   float* output,
                   const cudaStream_t stream);
 
-/*  \brief Circularly shifts the elements in input given a point(i,j)
-**   and the size of the frame.
-*/
+/*! \brief Circularly shifts the elements in input given a point(i,j) and the size of the frame. */
 __global__ void circ_shift(const cuComplex* input,
                            cuComplex* output,
                            const uint batch_size,
@@ -40,9 +34,7 @@ __global__ void circ_shift(const cuComplex* input,
                            const uint height,
                            const uint size);
 
-/*  \brief Circularly shifts the elements in input given a point(i,j)
- *	given float output & inputs.
- */
+/*! \brief Circularly shifts the elements in input given a point(i,j) given float output & inputs. */
 __global__ void circ_shift_float(const float* input,
                                  float* output,
                                  const uint batch_size,
@@ -52,6 +44,4 @@ __global__ void circ_shift_float(const float* input,
                                  const uint height,
                                  const uint size);
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input,
-                                          float* output,
-                                          const uint size);
+__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size);

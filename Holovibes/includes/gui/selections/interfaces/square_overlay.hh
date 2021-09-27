@@ -1,14 +1,7 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 /*! \file
  *
- * Interface for all square overlays. */
+ * \brief Interface for all square overlays.
+ */
 #pragma once
 
 #include "rect_overlay.hh"
@@ -17,6 +10,10 @@ namespace holovibes
 {
 namespace gui
 {
+/*! \class SquareOverlay
+ *
+ * \brief #TODO Add a description for this class
+ */
 class SquareOverlay : public RectOverlay
 {
   public:
@@ -26,8 +23,7 @@ class SquareOverlay : public RectOverlay
 
     /*! \brief Check if corners don't go out of bounds. */
     void checkCorners() override;
-    /*! \brief Change the rectangular zone to a square zone, using the shortest
-     * side */
+    /*! \brief Change the rectangular zone to a square zone, using the shortest side */
     void make_square();
 
     virtual void move(QMouseEvent* e) override;

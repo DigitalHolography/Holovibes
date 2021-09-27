@@ -1,11 +1,3 @@
-/* ________________________________________________________ */
-/*                  _                _  _                   */
-/*    /\  /\  ___  | |  ___  __   __(_)| |__    ___  ___    */
-/*   / /_/ / / _ \ | | / _ \ \ \ / /| || '_ \  / _ \/ __|   */
-/*  / __  / | (_) || || (_) | \ V / | || |_) ||  __/\__ \   */
-/*  \/ /_/   \___/ |_| \___/   \_/  |_||_.__/  \___||___/   */
-/* ________________________________________________________ */
-
 // Windows include is needed for the cuda_gl_interop header to compile
 #ifdef WIN32
 #include <windows.h>
@@ -21,10 +13,7 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p,
-                               QSize s,
-                               DisplayQueue* q,
-                               MainWindow* main_window)
+Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* main_window)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
     , main_window_(main_window)
 {
@@ -40,12 +29,8 @@ Filter2DWindow::~Filter2DWindow()
 void Filter2DWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Vertex,
-        create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(
-        QOpenGLShader::Fragment,
-        create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
     overlay_manager_.create_default();
 }
@@ -73,26 +58,15 @@ void Filter2DWindow::initializeGL()
     ushort* mTexture = new ushort[size];
     std::memset(mTexture, 0, size * sizeof(ushort));
 
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGBA,
-                 fd_.width,
-                 fd_.height,
-                 0,
-                 GL_RG,
-                 GL_UNSIGNED_SHORT,
-                 mTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fd_.width, fd_.height, 0, GL_RG, GL_UNSIGNED_SHORT, mTexture);
 
     Program->setUniformValue(Program->uniformLocation("tex"), 0);
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MAG_FILTER,
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     if (fd_.depth == 8)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
@@ -106,11 +80,10 @@ void Filter2DWindow::initializeGL()
 
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] mTexture;
-    cudaGraphicsGLRegisterImage(
-        &cuResource,
-        Tex,
-        GL_TEXTURE_2D,
-        cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
+    cudaGraphicsGLRegisterImage(&cuResource,
+                                Tex,
+                                GL_TEXTURE_2D,
+                                cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
     cudaGraphicsMapResources(1, &cuResource, cuStream);
     cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
     cuArrRD.resType = cudaResourceTypeArray;
@@ -147,12 +120,7 @@ void Filter2DWindow::initializeGL()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          4 * sizeof(float),
-                          reinterpret_cast<void*>(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(2 * sizeof(float)));
 
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
@@ -163,10 +131,7 @@ void Filter2DWindow::initializeGL()
     const GLuint elements[] = {0, 1, 2, 2, 3, 0};
     glGenBuffers(1, &Ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 6 * sizeof(GLuint),
-                 elements,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #pragma endregion
 
@@ -186,10 +151,7 @@ void Filter2DWindow::paintGL()
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface,
-                  output_->get_last_image(),
-                  output_->get_fd(),
-                  cuStream);
+    textureUpdate(cuSurface, output_->get_last_image(), output_->get_fd(), cuStream);
 
     glBindTexture(GL_TEXTURE_2D, Tex);
     glGenerateMipmap(GL_TEXTURE_2D);
