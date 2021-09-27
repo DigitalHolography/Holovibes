@@ -409,7 +409,7 @@ void MainWindow::on_notify()
     QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
 
     // Time transformation
-    ui.TimeTransformationStrideSpinBox->setEnabled(!cd_.fast_pipe && !is_raw);
+    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
@@ -418,7 +418,7 @@ void MainWindow::on_notify()
     ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!cd_.fast_pipe && !is_raw && !is_recording_);
+    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
 
     if (cd_.batch_size > input_queue_capacity)
         cd_.batch_size = input_queue_capacity;
@@ -435,7 +435,7 @@ void MainWindow::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui.timeTransformationSizeSpinBox->setEnabled(!cd_.fast_pipe && !is_raw && !cd_.time_transformation_cuts_enabled);
+    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
     ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
     ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
                                                   MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
@@ -2423,30 +2423,6 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 
     pipe_refresh();
     notify();
-}
-
-void MainWindow::set_fast_pipe(bool value)
-{
-    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (pipe && value)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            // Constraints linked with fast pipe option
-            cd_.time_transformation_stride = cd_.batch_size.load();
-            cd_.time_transformation_size = cd_.batch_size.load();
-            pipe->request_update_time_transformation_stride();
-            pipe->request_update_time_transformation_size();
-            cd_.fast_pipe = true;
-            pipe_refresh();
-            notify();
-        });
-    }
-    else
-    {
-        cd_.fast_pipe = false;
-        pipe_refresh();
-        notify();
-    }
 }
 
 #pragma endregion

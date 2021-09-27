@@ -125,12 +125,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_divide_convolution_mode(const bool value);
 
-    /*! \brief Switchs the pipe mode
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_fast_pipe(bool value);
-
     /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
      *
      * \param value true: enable, false: disable

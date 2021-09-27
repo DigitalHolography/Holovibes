@@ -94,8 +94,7 @@ void FourierTransform::insert_fft1()
 
     fft1_lens(gpu_lens_.get(), lens_side_size_, fd_.height, fd_.width, cd_.lambda, z, cd_.pixel_size, stream_);
 
-    void* input_output = cd_.fast_pipe ? time_transformation_env_.gpu_time_transformation_queue->get_data()
-                                       : buffers_.gpu_spatial_transformation_buffer.get();
+    void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
     fn_compute_vect_.push_back([=]() {
         fft_1(static_cast<cuComplex*>(input_output),
@@ -119,8 +118,7 @@ void FourierTransform::insert_fft2()
     if (cd_.filter2d_enabled)
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
-    void* input_output = cd_.fast_pipe ? time_transformation_env_.gpu_time_transformation_queue->get_data()
-                                       : buffers_.gpu_spatial_transformation_buffer.get();
+    void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
     fn_compute_vect_.push_back([=]() {
         fft_2(static_cast<cuComplex*>(input_output),
