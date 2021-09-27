@@ -2867,7 +2867,7 @@ void MainWindow::import_start()
         import_stop();
 
     cd_.is_computation_stopped = false;
-    // Gather all the usefull data from the ui import panel
+    // Gather all the useful data from the ui import panel
     init_holovibes_import_mode();
 
     ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
