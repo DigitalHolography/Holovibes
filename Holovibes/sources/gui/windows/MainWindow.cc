@@ -404,9 +404,7 @@ void MainWindow::on_notify()
     // Batch
     ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_ && !cd_.fast_pipe);
 
-    if (cd_.batch_size > input_queue_capacity)
-        cd_.batch_size = input_queue_capacity;
-
+    cd_.check_batch_size_limit(input_queue_capacity);
     ui.BatchSizeSpinBox->setValue(cd_.batch_size);
     ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
@@ -525,12 +523,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [this] {
                 // notify will be in close_critical_compute
-                cd_.pindex = 0;
-                cd_.time_transformation_size = 1;
-                if (cd_.convolution_enabled)
-                {
-                    cd_.convolution_enabled = false;
-                }
+                cd_.handle_update_exception();
                 close_windows();
                 close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
@@ -542,8 +535,7 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
-                cd_.img_acc_slice_xy_enabled = false;
-                cd_.img_acc_slice_xy_level = 1;
+                cd_.handle_accumulation_exception();
             }
             close_critical_compute();
 

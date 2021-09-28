@@ -137,6 +137,13 @@ class ComputeDescriptor : public Observable
     void check_p_limits();
     /*! \brief Limit the value of q_index and q_acc according to time transformation size */
     void check_q_limits();
+    /*! \brief Limit the value of batch_size according to input queue capacity */
+    void check_batch_size_limit(const uint input_queue_capacity);
+
+    /*! \brief Reset some values after MainWindow receives an update exception */
+    void handle_update_exception();
+    /*! \brief Reset some values after MainWindow receives an accumulation exception */
+    void handle_accumulation_exception();
     /*! \} */
 
     /*! \name Convolution related operations
