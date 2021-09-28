@@ -148,6 +148,8 @@ class ComputeDescriptor : public Observable
     void set_contrast_mode(bool value);
     bool set_contrast_invert(bool value);
     void set_contrast_auto_refresh(bool value);
+    void set_divide_convolution_mode(bool value);
+    void set_reticle_enabled(bool value);
     /*! \} */
 
     /*! \name Convolution related operations

@@ -2383,7 +2383,7 @@ void MainWindow::set_convolution_mode(const bool value)
 
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
-    cd_.divide_convolution_enabled = value;
+    cd_.set_divide_convolution_mode(value);
 
     pipe_refresh();
     notify();
@@ -2418,7 +2418,7 @@ void MainWindow::set_fast_pipe(bool value)
 #pragma region Reticle
 void MainWindow::display_reticle(bool value)
 {
-    cd_.reticle_enabled = value;
+    cd_.set_reticle_enabled(value);
     if (value)
     {
         mainDisplay->getOverlayManager().create_overlay<Reticle>();
