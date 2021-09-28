@@ -243,17 +243,10 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (is_enabled_camera_ && cd_.compute_mode == Computation::Raw)
+    if (is_enabled_camera_)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
-        ui.ViewGroupBox->setEnabled(false);
-        ui.ExportGroupBox->setEnabled(true);
-    }
-
-    else if (is_enabled_camera_ && cd_.compute_mode == Computation::Hologram)
-    {
-        ui.ImageRenderingGroupBox->setEnabled(true);
-        ui.ViewGroupBox->setEnabled(true);
+        ui.ViewGroupBox->setEnabled(cd_.compute_mode == Computation::Hologram);
         ui.ExportGroupBox->setEnabled(true);
     }
 
