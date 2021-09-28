@@ -1,7 +1,6 @@
 #!python
 
 import os
-import sys
 import subprocess
 import argparse
 import pathlib
@@ -83,6 +82,7 @@ def cmake(args):
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
+        print("Warning: deleting previous build")
         shutil.rmtree(build_dir)
 
     cmd += ['cmake', '-B', build_dir,
@@ -234,12 +234,12 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    # Shenaningans of argparse, when there is no goals specified the default is used
+    # Shenanigans of argparse, when there are no goals specified the default is used
     # but the default is not a list which is the case if we specify any goal manually
     if args.goals != DEFAULT_GOAL:  # manually specified goals
         for goal in args.goals:
             run_goal(goal, args)
-    else:                          # if there is no goal specified
+    else:                           # if there is no goal specified
         run_goal("build", args)
 
     exit(0)

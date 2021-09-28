@@ -38,7 +38,7 @@ Alternatively, you can build from the command line (not recommended):
 * **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
 * **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
 
-Note: After changing element of the front or to change release/debug mode, please delete your build folder and recompile.
+Note: After changing an element of the front or to change between release/debug mode, please delete your build folder and recompile.
 
 ### Add an element to Front with __QtCreator__
 
