@@ -40,20 +40,40 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
                   bool load_file_in_gpu,
                   size_t last_frame);
 
-/*!
- * \brief Stops the display
+/*! \brief Stops the display
  *
  * \param mainwindow TODO: to remove
  * \param holovibes the object embeding the display to stop
  */
 void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
 
-/*!
- * \brief Stops the program compute
+/*! \brief Switchs operating camera to none
+ *
+ * \param mainwindow TODO: to remove
+ * \param holovibes the computing object to stop
+ */
+void camera_none(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
+
+/*! \brief Stops the program compute
  *
  * \param mainwindow TODO: to remove
  * \param holovibes the computing object
  */
 void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
+
+/*! \brief Removes info container in holovibes */
+void remove_infos();
+
+/*! \brief Checks if we are currently in raw mode
+ *
+ * \return true if we are in raw mode, false otherwise
+ */
+bool is_raw_mode(Holovibes& holovibes);
+
+/*! \brief Enable the divide convolution mode
+ *
+ * \param value true: enable, false: disable
+ */
+void set_convolution_mode(Holovibes& holovibes, const bool value);
 
 } // namespace holovibes::api

@@ -106,16 +106,69 @@ void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
     holovibes.get_cd().is_computation_stopped = true;
 }
 
+void camera_none(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
+{
+    LOG_INFO;
+    mainwindow.close_windows();
+    close_critical_compute(mainwindow, holovibes);
+    if (!is_raw_mode(holovibes))
+        holovibes.stop_compute();
+    holovibes.stop_frame_read();
+    remove_infos();
+}
+
 void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
 {
     LOG_INFO;
     if (holovibes.get_cd().convolution_enabled)
-        mainwindow.set_convolution_mode(false);
+        set_convolution_mode(holovibes, false);
 
     if (holovibes.get_cd().time_transformation_cuts_enabled)
         mainwindow.cancel_time_transformation_cuts();
 
     holovibes.stop_compute();
+}
+
+bool is_raw_mode(Holovibes& holovibes)
+{
+    LOG_INFO;
+    return holovibes.get_cd().compute_mode == Computation::Raw;
+}
+
+void remove_infos()
+{
+    LOG_INFO;
+    Holovibes::instance().get_info_container().clear();
+}
+
+void set_convolution_mode(Holovibes& holovibes, const bool value)
+{
+    LOG_INFO;
+
+    try
+    {
+        auto pipe = holovibes.get_compute_pipe();
+
+        if (value)
+        {
+            pipe->request_convolution();
+            // Wait for the convolution to be enabled for notify
+            while (pipe->get_convolution_requested())
+                continue;
+        }
+        else
+        {
+            pipe->request_disable_convolution();
+            // Wait for the convolution to be disabled for notify
+            while (pipe->get_disable_convolution_requested())
+                continue;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        holovibes.get_cd().convolution_enabled = false;
+        LOG_ERROR << e.what();
+    }
 }
 
 } // namespace holovibes::api

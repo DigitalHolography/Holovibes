@@ -141,12 +141,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void toggle_renormalize(bool value);
 
-    /*! \brief Checks if we are currently in raw mode
-     *
-     * \return true if we are in raw mode, false otherwise
-     */
-    bool is_raw_mode();
-
     /*! \brief Resets the whole program in reload .ini file */
     void reset();
 
@@ -593,9 +587,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
-
-    /*! \brief Clears the info container (real time data bench panel) */
-    void remove_infos();
 
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh();
