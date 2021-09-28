@@ -1309,35 +1309,6 @@ void MainWindow::update_batch_size()
 #pragma endregion
 /* ------------ */
 #pragma region STFT
-void MainWindow::cancel_stft_slice_view()
-{
-    LOG_INFO;
-    cd_.contrast_max_slice_xz = false;
-    cd_.contrast_max_slice_yz = false;
-    cd_.log_scale_slice_xz_enabled = false;
-    cd_.log_scale_slice_yz_enabled = false;
-    cd_.img_acc_slice_xz_enabled = false;
-    cd_.img_acc_slice_yz_enabled = false;
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
-
-    if (mainDisplay)
-    {
-        mainDisplay->setCursor(Qt::ArrowCursor);
-        mainDisplay->getOverlayManager().disable_all(SliceCross);
-        mainDisplay->getOverlayManager().disable_all(Cross);
-    }
-    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_cuts_enabled = false;
-            pipe->delete_stft_slice_queue();
-
-            ui.TimeTransformationCutsCheckBox->setChecked(false);
-            notify();
-        });
-    }
-}
 
 void MainWindow::update_time_transformation_stride()
 {
@@ -1423,12 +1394,12 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
         catch (const std::logic_error& e)
         {
             LOG_ERROR << e.what() << std::endl;
-            cancel_stft_slice_view();
+            cancel_time_transformation_cuts();
         }
     }
     else
     {
-        cancel_stft_slice_view();
+        cancel_time_transformation_cuts();
     }
 }
 
@@ -1437,18 +1408,28 @@ void MainWindow::cancel_time_transformation_cuts()
     LOG_INFO;
     if (cd_.time_transformation_cuts_enabled)
     {
-        cancel_stft_slice_view();
-        try
+        std::function<void()> callback = []() { return; };
+
+        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
         {
-            // Wait for refresh to be enabled for notify
-            while (holovibes_.get_compute_pipe()->get_refresh_request())
-                continue;
+            callback = ([=]() {
+                cd_.time_transformation_cuts_enabled = false;
+                pipe->delete_stft_slice_queue();
+
+                ui.TimeTransformationCutsCheckBox->setChecked(false);
+                notify();
+            });
         }
-        catch (const std::exception& e)
+        ::holovibes::api::cancel_time_transformation_cuts(holovibes_, callback);
+        sliceXZ.reset(nullptr);
+        sliceYZ.reset(nullptr);
+
+        if (mainDisplay)
         {
-            LOG_ERROR << e.what();
+            mainDisplay->setCursor(Qt::ArrowCursor);
+            mainDisplay->getOverlayManager().disable_all(SliceCross);
+            mainDisplay->getOverlayManager().disable_all(Cross);
         }
-        cd_.time_transformation_cuts_enabled = false;
     }
     notify();
 }

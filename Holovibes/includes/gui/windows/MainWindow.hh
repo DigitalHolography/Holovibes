@@ -333,9 +333,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void toggle_time_transformation_cuts(bool checked);
 
-    /*! \brief Disables time transform cuts views */
-    void cancel_stft_slice_view();
-
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
 

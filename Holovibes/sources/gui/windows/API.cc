@@ -20,14 +20,14 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
     return std::nullopt;
 }
 
-bool init_holovibes_import_mode(Holovibes& holovibes,
-                                camera::FrameDescriptor& file_fd,
-                                bool& is_enabled_camera,
-                                std::string& file_path,
-                                unsigned int fps,
-                                size_t first_frame,
-                                bool load_file_in_gpu,
-                                size_t last_frame)
+bool init_holovibesimport_mode(Holovibes& holovibes,
+                               camera::FrameDescriptor& file_fd,
+                               bool& is_enabled_camera,
+                               std::string& file_path,
+                               unsigned int fps,
+                               size_t first_frame,
+                               bool load_file_in_gpu,
+                               size_t last_frame)
 {
     LOG_INFO;
 
@@ -80,14 +80,14 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
 
     holovibes.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
-    return init_holovibes_import_mode(holovibes,
-                                      file_fd,
-                                      is_enabled_camera,
-                                      file_path,
-                                      fps,
-                                      first_frame,
-                                      load_file_in_gpu,
-                                      last_frame);
+    return init_holovibesimport_mode(holovibes,
+                                     file_fd,
+                                     is_enabled_camera,
+                                     file_path,
+                                     fps,
+                                     first_frame,
+                                     load_file_in_gpu,
+                                     last_frame);
 }
 
 void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
@@ -168,6 +168,36 @@ void set_convolution_mode(Holovibes& holovibes, const bool value)
     {
         holovibes.get_cd().convolution_enabled = false;
         LOG_ERROR << e.what();
+    }
+}
+
+void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()> callback)
+{
+    LOG_INFO;
+    if (holovibes.get_cd().time_transformation_cuts_enabled)
+    {
+
+        holovibes.get_cd().contrast_max_slice_xz = false;
+        holovibes.get_cd().contrast_max_slice_yz = false;
+        holovibes.get_cd().log_scale_slice_xz_enabled = false;
+        holovibes.get_cd().log_scale_slice_yz_enabled = false;
+        holovibes.get_cd().img_acc_slice_xz_enabled = false;
+        holovibes.get_cd().img_acc_slice_yz_enabled = false;
+
+        holovibes.get_compute_pipe().get()->insert_fn_end_vect(callback);
+
+        try
+        {
+            // Wait for refresh to be enabled for notify
+            while (holovibes.get_compute_pipe()->get_refresh_request())
+                continue;
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR << e.what();
+        }
+
+        holovibes.get_cd().time_transformation_cuts_enabled = false;
     }
 }
 

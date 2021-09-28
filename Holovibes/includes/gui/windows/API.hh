@@ -76,4 +76,6 @@ bool is_raw_mode(Holovibes& holovibes);
  */
 void set_convolution_mode(Holovibes& holovibes, const bool value);
 
+void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()> callback);
+
 } // namespace holovibes::api
