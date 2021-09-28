@@ -2284,12 +2284,11 @@ void MainWindow::set_contrast_min(const double value)
 
     if (cd_.contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-        // Get the minimum contrast value rounded for the comparison
         const float old_val = cd_.get_truncate_contrast_min();
-        // Floating number issue: cast to float for the comparison
         const float val = value;
-        if (old_val != val)
+        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+
+        if (abs(old_val - val) > epsilon)
         {
             cd_.set_contrast_min(value);
             pipe_refresh();
@@ -2304,12 +2303,11 @@ void MainWindow::set_contrast_max(const double value)
 
     if (cd_.contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-        // Get the maximum contrast value rounded for the comparison
         const float old_val = cd_.get_truncate_contrast_max();
-        // Floating number issue: cast to float for the comparison
         const float val = value;
-        if (old_val != val)
+        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+
+        if (abs(old_val - val) > epsilon)
         {
             cd_.set_contrast_max(value);
             pipe_refresh();
@@ -2322,16 +2320,15 @@ void MainWindow::invert_contrast(bool value)
     if (is_raw_mode())
         return;
 
-    if (cd_.contrast_enabled)
+    if (cd_.set_contrast_invert(value))
     {
-        cd_.contrast_invert = value;
         pipe_refresh();
     }
 }
 
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
-    cd_.contrast_auto_refresh = value;
+    cd_.set_contrast_auto_refresh(value);
     pipe_refresh();
     notify();
 }
