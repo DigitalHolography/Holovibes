@@ -76,7 +76,7 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
 
     if (!holovibes.get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(mainwindow, holovibes);
+        import_stop(mainwindow, is_enabled_camera, holovibes);
 
     holovibes.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
@@ -90,7 +90,7 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
                                      last_frame);
 }
 
-void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
+void import_stop(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes)
 {
     LOG_INFO;
 
@@ -101,20 +101,22 @@ void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
-    mainwindow.camera_none();
+    camera_none(mainwindow, is_enabled_camera, holovibes);
 
     holovibes.get_cd().is_computation_stopped = true;
 }
 
-void camera_none(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
+void camera_none(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes)
 {
     LOG_INFO;
-    mainwindow.close_windows();
     close_critical_compute(mainwindow, holovibes);
     if (!is_raw_mode(holovibes))
         holovibes.stop_compute();
     holovibes.stop_frame_read();
     remove_infos();
+
+    is_enabled_camera = false;
+    holovibes.get_cd().is_computation_stopped = true;
 }
 
 void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
@@ -124,7 +126,7 @@ void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes&
         set_convolution_mode(holovibes, false);
 
     if (holovibes.get_cd().time_transformation_cuts_enabled)
-        mainwindow.cancel_time_transformation_cuts();
+        cancel_time_transformation_cuts(holovibes, []() { return; });
 
     holovibes.stop_compute();
 }

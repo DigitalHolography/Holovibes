@@ -833,14 +833,12 @@ void MainWindow::open_file(const std::string& path)
 void MainWindow::camera_none()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_none(*this, holovibes_);
+    close_windows();
+    ::holovibes::api::camera_none(*this, is_enabled_camera_, holovibes_);
 
     // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);
-    is_enabled_camera_ = false;
 
-    cd_.is_computation_stopped = true;
     notify();
 }
 
@@ -2950,7 +2948,7 @@ void MainWindow::import_stop()
     close_windows();
     cancel_time_transformation_cuts();
 
-    ::holovibes::api::import_stop(*this, holovibes_);
+    ::holovibes::api::import_stop(*this, is_enabled_camera_, holovibes_);
     synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }

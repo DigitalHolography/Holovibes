@@ -45,14 +45,14 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
  * \param mainwindow TODO: to remove
  * \param holovibes the object embeding the display to stop
  */
-void import_stop(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
+void import_stop(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes);
 
 /*! \brief Switchs operating camera to none
  *
  * \param mainwindow TODO: to remove
  * \param holovibes the computing object to stop
  */
-void camera_none(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
+void camera_none(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes);
 
 /*! \brief Stops the program compute
  *
