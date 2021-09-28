@@ -2298,10 +2298,7 @@ void MainWindow::set_contrast_max(const double value)
 
 void MainWindow::invert_contrast(bool value)
 {
-    if (is_raw_mode())
-        return;
-
-    if (cd_.set_contrast_invert(value))
+    if (!is_raw_mode() && cd_.set_contrast_invert(value))
     {
         pipe_refresh();
     }
