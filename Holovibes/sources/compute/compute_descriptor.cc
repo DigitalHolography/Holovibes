@@ -364,12 +364,6 @@ void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
     }
 }
 
-void ComputeDescriptor::set_contrast_mode(bool value)
-{
-    contrast_enabled = value;
-    contrast_auto_refresh = true;
-}
-
 void ComputeDescriptor::handle_update_exception()
 {
     pindex = 0;
@@ -382,6 +376,22 @@ void ComputeDescriptor::handle_accumulation_exception()
     img_acc_slice_xy_enabled = false;
     img_acc_slice_xy_level = 1;
 }
+
+void ComputeDescriptor::set_contrast_mode(bool value)
+{
+    contrast_enabled = value;
+    contrast_auto_refresh = true;
+}
+
+bool ComputeDescriptor::set_contrast_invert(bool value)
+{
+    if (contrast_enabled)
+        contrast_invert = value;
+
+    return contrast_enabled;
+}
+
+void ComputeDescriptor::set_contrast_auto_refresh(bool value) { contrast_auto_refresh = value; }
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
