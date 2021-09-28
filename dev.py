@@ -130,6 +130,10 @@ def run(args):
         'build', get_generator(args.g), build_mode)
     previous_path = os.getcwd()
 
+    if not os.path.isdir(exe_path):
+        print("Cannot find Holovibes.exe at path: " + exe_path)
+        exit(1)
+
     os.chdir(exe_path)
 
     cmd = ["Holovibes.exe", ]
@@ -203,20 +207,20 @@ def parse_args():
         description='Holovibes Dev Tools (only runnable from project root)')
 
     build_mode = parser.add_argument_group(
-        'Build Mode', 'Choose between Release mode and Debug mode (Default)')
+        'Build Mode', 'Choose between Release mode and Debug mode (Default: Debug)')
     build_mode.add_argument(
         '-b', choices=RELEASE_OPT + DEBUG_OPT, default=None)
 
     build_generator = parser.add_argument_group(
-        'Build Generator', 'Choose between NMake, Visual Studio and Ninja (Default)')
+        'Build Generator', 'Choose between NMake, Visual Studio and Ninja (Default: Ninja)')
     build_generator.add_argument(
         '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
     build_env = parser.add_argument_group('Build Environment')
     build_env.add_argument('-e', type=pathlib.Path,
-                           help='Where to find the VS Developper Prompt to use to build', default=None)
+                           help='Path to find the VS Developper Prompt to use to build (Default: auto-find)', default=None)
     build_env.add_argument('-p', type=pathlib.Path,
-                           help='Where to store cmake and build data', default=None)
+                           help='Path used by cmake to store compile objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
