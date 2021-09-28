@@ -144,6 +144,8 @@ class ComputeDescriptor : public Observable
     void handle_update_exception();
     /*! \brief Reset some values after MainWindow receives an accumulation exception */
     void handle_accumulation_exception();
+
+    void set_contrast_mode(bool value);
     /*! \} */
 
     /*! \name Convolution related operations

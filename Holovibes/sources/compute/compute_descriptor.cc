@@ -363,6 +363,12 @@ void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
     }
 }
 
+void ComputeDescriptor::set_contrast_mode(bool value)
+{
+    contrast_enabled = value;
+    contrast_auto_refresh = true;
+}
+
 void ComputeDescriptor::handle_update_exception()
 {
     pindex = 0;
