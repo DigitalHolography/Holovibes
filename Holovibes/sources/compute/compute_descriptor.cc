@@ -343,6 +343,25 @@ void ComputeDescriptor::check_q_limits()
         q_index = upper_bound;
 }
 
+void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
+{
+    if (batch_size > input_queue_capacity)
+        batch_size = input_queue_capacity;
+}
+
+void ComputeDescriptor::handle_update_exception()
+{
+    pindex = 0;
+    time_transformation_size = 1;
+    convolution_enabled = false;
+}
+
+void ComputeDescriptor::handle_accumulation_exception()
+{
+    img_acc_slice_xy_enabled = false;
+    img_acc_slice_xy_level = 1;
+}
+
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
     if (enable)
