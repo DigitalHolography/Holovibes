@@ -320,13 +320,19 @@ void ComputeDescriptor::check_p_limits()
     uint upper_bound = time_transformation_size - 1;
 
     if (p_acc_level > upper_bound)
+    {
         p_acc_level = upper_bound;
+    }
 
     if (p_accu_enabled)
+    {
         upper_bound -= p_acc_level;
+    }
 
     if (pindex > upper_bound)
+    {
         pindex = upper_bound;
+    }
 }
 
 void ComputeDescriptor::check_q_limits()
@@ -334,19 +340,27 @@ void ComputeDescriptor::check_q_limits()
     uint upper_bound = time_transformation_size - 1;
 
     if (q_acc_level > upper_bound)
+    {
         q_acc_level = upper_bound;
+    }
 
     if (q_acc_enabled)
+    {
         upper_bound -= q_acc_level;
+    }
 
     if (q_index > upper_bound)
+    {
         q_index = upper_bound;
+    }
 }
 
 void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
 {
     if (batch_size > input_queue_capacity)
+    {
         batch_size = input_queue_capacity;
+    }
 }
 
 void ComputeDescriptor::handle_update_exception()
