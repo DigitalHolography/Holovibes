@@ -2160,12 +2160,7 @@ void MainWindow::pipe_refresh()
 
     try
     {
-        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
-        // operation to set a boolean
-        // But maybe a simple read access that create a false condition result is better than simply making a
-        // writting access
-        if (!holovibes_.get_compute_pipe()->get_request_refresh())
-            holovibes_.get_compute_pipe()->request_refresh();
+        holovibes_.get_compute_pipe()->soft_request_refresh();
     }
     catch (const std::runtime_error& e)
     {
