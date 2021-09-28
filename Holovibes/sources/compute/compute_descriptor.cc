@@ -137,9 +137,9 @@ units::RectFd ComputeDescriptor::getReticleZone() const
     return reticle_zone;
 }
 
-float ComputeDescriptor::get_contrast_min(WindowKind kind) const
+float ComputeDescriptor::get_contrast_min() const
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         return log_scale_slice_xy_enabled ? contrast_min_slice_xy.load() : log10(contrast_min_slice_xy);
@@ -153,9 +153,9 @@ float ComputeDescriptor::get_contrast_min(WindowKind kind) const
     return 0;
 }
 
-float ComputeDescriptor::get_contrast_max(WindowKind kind) const
+float ComputeDescriptor::get_contrast_max() const
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         return log_scale_slice_xy_enabled ? contrast_max_slice_xy.load() : log10(contrast_max_slice_xy);
@@ -169,16 +169,16 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     return 0;
 }
 
-float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind, const int precision) const
+float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
 {
-    float value = get_contrast_max(kind);
+    float value = get_contrast_max();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind, const int precision) const
+float ComputeDescriptor::get_truncate_contrast_min(const int precision) const
 {
-    float value = get_contrast_min(kind);
+    float value = get_contrast_min();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
@@ -227,9 +227,9 @@ unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind) const
     return 0;
 }
 
-void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
+void ComputeDescriptor::set_contrast_min(float value)
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         contrast_min_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
@@ -246,9 +246,9 @@ void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
     }
 }
 
-void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
+void ComputeDescriptor::set_contrast_max(float value)
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         contrast_max_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
@@ -284,9 +284,9 @@ void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
     }
 }
 
-void ComputeDescriptor::set_accumulation(WindowKind kind, bool value)
+void ComputeDescriptor::set_accumulation(bool value)
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         img_acc_slice_xy_enabled = value;
@@ -300,9 +300,9 @@ void ComputeDescriptor::set_accumulation(WindowKind kind, bool value)
     }
 }
 
-void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
+void ComputeDescriptor::set_accumulation_level(float value)
 {
-    switch (kind)
+    switch (current_window)
     {
     case WindowKind::XYview:
         img_acc_slice_xy_level = value;

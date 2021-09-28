@@ -293,9 +293,9 @@ void MainWindow::on_notify()
 
     // Contrast SpinBox:
     ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min(cd_.current_window));
+    ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
     ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max(cd_.current_window));
+    ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
 
     // FFT shift
     ui.FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
@@ -2120,7 +2120,7 @@ void MainWindow::set_accumulation(bool value)
     if (is_raw_mode())
         return;
 
-    cd_.set_accumulation(cd_.current_window, value);
+    cd_.set_accumulation(value);
     pipe_refresh();
     notify();
 }
@@ -2130,7 +2130,7 @@ void MainWindow::set_accumulation_level(int value)
     if (is_raw_mode())
         return;
 
-    cd_.set_accumulation_level(cd_.current_window, value);
+    cd_.set_accumulation_level(value);
     pipe_refresh();
 }
 
@@ -2272,12 +2272,12 @@ void MainWindow::set_contrast_min(const double value)
     {
         // FIXME: type issue, manipulatiion of double casted to float implies lost of data
         // Get the minimum contrast value rounded for the comparison
-        const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
+        const float old_val = cd_.get_truncate_contrast_min();
         // Floating number issue: cast to float for the comparison
         const float val = value;
         if (old_val != val)
         {
-            cd_.set_contrast_min(cd_.current_window, value);
+            cd_.set_contrast_min(value);
             pipe_refresh();
         }
     }
@@ -2292,12 +2292,12 @@ void MainWindow::set_contrast_max(const double value)
     {
         // FIXME: type issue, manipulatiion of double casted to float implies lost of data
         // Get the maximum contrast value rounded for the comparison
-        const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
+        const float old_val = cd_.get_truncate_contrast_max();
         // Floating number issue: cast to float for the comparison
         const float val = value;
         if (old_val != val)
         {
-            cd_.set_contrast_max(cd_.current_window, value);
+            cd_.set_contrast_max(value);
             pipe_refresh();
         }
     }

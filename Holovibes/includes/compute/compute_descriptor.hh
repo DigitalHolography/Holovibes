@@ -108,30 +108,30 @@ class ComputeDescriptor : public Observable
     /*! \name General getters / setters to avoid code duplication
      * \{
      */
-    float get_contrast_min(WindowKind kind) const;
-    float get_contrast_max(WindowKind kind) const;
+    float get_contrast_min() const;
+    float get_contrast_max() const;
 
     /*! \brief Get the rounded value of max contrast for the given WindowKind
      *
      * Qt rounds the value by default.
      * In order to compare the compute descriptor values these values also needs to be rounded.
      */
-    float get_truncate_contrast_max(WindowKind kind, const int precision = 2) const;
+    float get_truncate_contrast_max(const int precision = 2) const;
     /*! \brief Get the rounded value of min contrast for the given WindowKind
      *
      * \see get_truncate_contrast_max()
      */
-    float get_truncate_contrast_min(WindowKind kind, const int precision = 2) const;
+    float get_truncate_contrast_min(const int precision = 2) const;
 
     bool get_img_log_scale_slice_enabled(WindowKind kind) const;
     bool get_img_acc_slice_enabled(WindowKind kind) const;
     unsigned get_img_acc_slice_level(WindowKind kind) const;
 
-    void set_contrast_min(WindowKind kind, float value);
-    void set_contrast_max(WindowKind kind, float value);
+    void set_contrast_min(float value);
+    void set_contrast_max(float value);
     void set_log_scale_slice_enabled(WindowKind kind, bool value);
-    void set_accumulation(WindowKind kind, bool value);
-    void set_accumulation_level(WindowKind kind, float value);
+    void set_accumulation(bool value);
+    void set_accumulation_level(float value);
 
     /*! \brief Limit the value of pindex and p_acc according to time transformation size */
     void check_p_limits();
