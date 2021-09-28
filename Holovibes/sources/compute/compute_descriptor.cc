@@ -392,6 +392,10 @@ bool ComputeDescriptor::set_contrast_invert(bool value)
 
 void ComputeDescriptor::set_contrast_auto_refresh(bool value) { contrast_auto_refresh = value; }
 
+void ComputeDescriptor::set_divide_convolution_mode(bool value) { divide_convolution_enabled = value; }
+
+void ComputeDescriptor::set_reticle_enabled(bool value) { reticle_enabled = value; }
+
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
     if (enable)
