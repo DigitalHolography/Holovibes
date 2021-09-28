@@ -235,7 +235,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Shenaningans of argparse, when there is no goals specified the default is used
-    # but the default is not in a list which is the case if we specify any goal manually
+    # but the default is not a list which is the case if we specify any goal manually
     if args.goals != DEFAULT_GOAL:  # manually specified goals
         for goal in args.goals:
             run_goal(goal, args)
