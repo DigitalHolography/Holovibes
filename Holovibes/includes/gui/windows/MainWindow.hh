@@ -441,15 +441,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Opens file explorer to let the user chose the file he wants to import */
     void import_browse_file();
 
-    /*! \brief Creates an input file to gather data from it.
-     *
-     * \param filename The chosen file
-     */
-    void import_file(const QString& filename);
-
-    /*! \brief Sets ui values and constraints + launch FileReadWroker */
-    void init_holovibes_import_mode();
-
     /*! \brief Setups attributes for launching and launchs the imported file */
     void import_start();
     /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
@@ -547,14 +538,14 @@ class MainWindow : public QMainWindow, public Observer
      */
     void synchronize_thread_signal(std::function<void()> f);
 #pragma region Protected / Private Methods
-  protected:
+  public:
     /*! \brief Last call before the program is closed
      *
      * \param event Unused
      */
     virtual void closeEvent(QCloseEvent* event) override;
 
-  private:
+  public:
     /*! \brief Changes display mode to Raw */
     void set_raw_mode();
 
@@ -602,9 +593,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
-
-    /*! \brief Stops critical compute */
-    void close_critical_compute();
 
     /*! \brief Clears the info container (real time data bench panel) */
     void remove_infos();

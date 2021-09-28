@@ -80,13 +80,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     // Resizing horizontally the window before starting
     window.layout_toggled();
-
-    if (filename != "")
-    {
-        window.import_file(QString(filename.c_str()));
-        window.import_start();
-    }
-
     // Launch the Qt app
     return app.exec();
 }

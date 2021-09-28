@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <list>
+#include <optional>
 #include <atomic>
 
 #include <QAction>
@@ -26,6 +27,7 @@
 #include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
+#include "API.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -196,13 +198,14 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    LOG_INFO;
     delete z_up_shortcut_;
     delete z_down_shortcut_;
     delete p_left_shortcut_;
     delete p_right_shortcut_;
 
     close_windows();
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
     camera_none();
     remove_infos();
 
@@ -225,11 +228,13 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
+    LOG_INFO;
     synchronize_thread([this]() { on_notify(); });
 }
 
 void MainWindow::on_notify()
 {
+    LOG_INFO;
     ui.InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
 
     // Tabs
@@ -534,6 +539,7 @@ void MainWindow::on_notify()
 
 void MainWindow::notify_error(const std::exception& e)
 {
+    LOG_INFO;
     const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
@@ -549,7 +555,7 @@ void MainWindow::notify_error(const std::exception& e)
                     cd_.convolution_enabled = false;
                 }
                 close_windows();
-                close_critical_compute();
+                ::holovibes::api::close_critical_compute(*this, holovibes_);
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
@@ -562,7 +568,7 @@ void MainWindow::notify_error(const std::exception& e)
                 cd_.img_acc_slice_xy_enabled = false;
                 cd_.img_acc_slice_xy_level = 1;
             }
-            close_critical_compute();
+            ::holovibes::api::close_critical_compute(*this, holovibes_);
 
             LOG_ERROR << "GPU computing error occured.";
             notify();
@@ -577,6 +583,7 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
+    LOG_INFO;
 
     synchronize_thread([=]() {
         // Resizing to original size, then adjust it to fit the groupboxes
@@ -587,6 +594,8 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
+    LOG_INFO;
+
     std::string msg = "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
                       "\n\n"
 
@@ -645,6 +654,7 @@ void MainWindow::credits()
 
 void MainWindow::documentation()
 {
+    LOG_INFO;
     QDesktopServices::openUrl(QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"));
 }
 
@@ -652,10 +662,15 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
+void MainWindow::configure_holovibes()
+{
+    LOG_INFO;
+    open_file(::holovibes::ini::get_global_ini_path());
+}
 
 void MainWindow::write_ini()
 {
+    LOG_INFO;
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     save_ini(::holovibes::ini::get_global_ini_path());
     notify();
@@ -663,6 +678,7 @@ void MainWindow::write_ini()
 
 void MainWindow::reload_ini()
 {
+    LOG_INFO;
     import_stop();
     try
     {
@@ -686,6 +702,7 @@ void MainWindow::reload_ini()
 
 void MainWindow::load_ini(const std::string& path)
 {
+    LOG_INFO;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -754,6 +771,7 @@ void MainWindow::load_ini(const std::string& path)
 
 void MainWindow::save_ini(const std::string& path)
 {
+    LOG_INFO;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -805,26 +823,18 @@ void MainWindow::save_ini(const std::string& path)
 
 void MainWindow::open_file(const std::string& path)
 {
+    LOG_INFO;
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 }
 #pragma endregion
 /* ------------ */
 #pragma region Close Compute
-void MainWindow::close_critical_compute()
-{
-    if (cd_.convolution_enabled)
-        set_convolution_mode(false);
-
-    if (cd_.time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts();
-
-    holovibes_.stop_compute();
-}
 
 void MainWindow::camera_none()
 {
+    LOG_INFO;
     close_windows();
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
     if (!is_raw_mode())
         holovibes_.stop_compute();
     holovibes_.stop_frame_read();
@@ -838,10 +848,15 @@ void MainWindow::camera_none()
     notify();
 }
 
-void MainWindow::remove_infos() { Holovibes::instance().get_info_container().clear(); }
+void MainWindow::remove_infos()
+{
+    LOG_INFO;
+    Holovibes::instance().get_info_container().clear();
+}
 
 void MainWindow::close_windows()
 {
+    LOG_INFO;
     sliceXZ.reset(nullptr);
     sliceYZ.reset(nullptr);
 
@@ -864,10 +879,11 @@ void MainWindow::close_windows()
 
 void MainWindow::reset()
 {
+    LOG_INFO;
     Config& config = global::global_config;
     int device = 0;
 
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
     camera_none();
     qApp->processEvents();
     if (!is_raw_mode())
@@ -907,9 +923,10 @@ void MainWindow::reset()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
+    LOG_INFO;
     close_windows();
     if (!cd_.is_computation_stopped)
-        close_critical_compute();
+        ::holovibes::api::close_critical_compute(*this, holovibes_);
     camera_none();
     remove_infos();
     save_ini(::holovibes::ini::get_global_ini_path());
@@ -919,6 +936,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 #pragma region Cameras
 void MainWindow::change_camera(CameraKind c)
 {
+    LOG_INFO;
     camera_none();
 
     if (c != CameraKind::NONE)
@@ -958,22 +976,51 @@ void MainWindow::change_camera(CameraKind c)
     }
 }
 
-void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
+void MainWindow::camera_ids()
+{
+    LOG_INFO;
+    change_camera(CameraKind::IDS);
+}
 
-void MainWindow::camera_phantom() { change_camera(CameraKind::Phantom); }
+void MainWindow::camera_phantom()
+{
+    LOG_INFO;
+    change_camera(CameraKind::Phantom);
+}
 
-void MainWindow::camera_bitflow_cyton() { change_camera(CameraKind::BitflowCyton); }
+void MainWindow::camera_bitflow_cyton()
+{
+    LOG_INFO;
+    change_camera(CameraKind::BitflowCyton);
+}
 
-void MainWindow::camera_hamamatsu() { change_camera(CameraKind::Hamamatsu); }
+void MainWindow::camera_hamamatsu()
+{
+    LOG_INFO;
+    change_camera(CameraKind::Hamamatsu);
+}
 
-void MainWindow::camera_adimec() { change_camera(CameraKind::Adimec); }
+void MainWindow::camera_adimec()
+{
+    LOG_INFO;
+    change_camera(CameraKind::Adimec);
+}
 
-void MainWindow::camera_xiq() { change_camera(CameraKind::xiQ); }
+void MainWindow::camera_xiq()
+{
+    LOG_INFO;
+    change_camera(CameraKind::xiQ);
+}
 
-void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
+void MainWindow::camera_xib()
+{
+    LOG_INFO;
+    change_camera(CameraKind::xiB);
+}
 
 void MainWindow::configure_camera()
 {
+    LOG_INFO;
     open_file(std::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 }
 #pragma endregion
@@ -981,6 +1028,7 @@ void MainWindow::configure_camera()
 #pragma region Image Mode
 void MainWindow::init_image_mode(QPoint& position, QSize& size)
 {
+    LOG_INFO;
     if (mainDisplay)
     {
         position = mainDisplay->framePosition();
@@ -991,8 +1039,9 @@ void MainWindow::init_image_mode(QPoint& position, QSize& size)
 
 void MainWindow::set_raw_mode()
 {
+    LOG_INFO;
     close_windows();
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
 
     if (is_enabled_camera_)
     {
@@ -1022,6 +1071,7 @@ void MainWindow::set_raw_mode()
 
 void MainWindow::createPipe()
 {
+    LOG_INFO;
     try
     {
         holovibes_.start_compute();
@@ -1035,6 +1085,7 @@ void MainWindow::createPipe()
 
 void MainWindow::createHoloWindow()
 {
+    LOG_INFO;
     QPoint pos(0, 0);
     const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
     unsigned short width = fd.width;
@@ -1068,11 +1119,12 @@ void MainWindow::createHoloWindow()
 
 void MainWindow::set_holographic_mode()
 {
+    LOG_INFO;
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
     close_windows();
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
 
     /* ---------- */
     try
@@ -1109,6 +1161,7 @@ void MainWindow::set_holographic_mode()
 
 void MainWindow::set_computation_mode()
 {
+    LOG_INFO;
     if (ui.ImageModeComboBox->currentIndex() == 0)
     {
         cd_.compute_mode = Computation::Raw;
@@ -1119,10 +1172,15 @@ void MainWindow::set_computation_mode()
     }
 }
 
-void MainWindow::set_camera_timeout() { camera::FRAME_TIMEOUT = global::global_config.frame_timeout; }
+void MainWindow::set_camera_timeout()
+{
+    LOG_INFO;
+    camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
+}
 
 void MainWindow::refreshViewMode()
 {
+    LOG_INFO;
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
     if (mainDisplay)
@@ -1131,7 +1189,7 @@ void MainWindow::refreshViewMode()
         old_translation = mainDisplay->getTranslate();
     }
     close_windows();
-    close_critical_compute();
+    ::holovibes::api::close_critical_compute(*this, holovibes_);
     cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
     try
     {
@@ -1163,6 +1221,7 @@ bool need_refresh(const QString& last_type, const QString& new_type)
 } // namespace
 void MainWindow::set_view_mode(const QString value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1203,10 +1262,15 @@ void MainWindow::set_view_mode(const QString value)
         set_auto_contrast_cuts();
 }
 
-bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
+bool MainWindow::is_raw_mode()
+{
+    LOG_INFO;
+    return cd_.compute_mode == Computation::Raw;
+}
 
 void MainWindow::set_image_mode(QString mode)
 {
+    LOG_INFO;
     if (mode != nullptr)
     {
         // Call comes from ui
@@ -1235,6 +1299,7 @@ static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd
 
 void MainWindow::update_batch_size()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1262,6 +1327,7 @@ void MainWindow::update_batch_size()
 #pragma region STFT
 void MainWindow::cancel_stft_slice_view()
 {
+    LOG_INFO;
     cd_.contrast_max_slice_xz = false;
     cd_.contrast_max_slice_yz = false;
     cd_.log_scale_slice_xz_enabled = false;
@@ -1291,6 +1357,7 @@ void MainWindow::cancel_stft_slice_view()
 
 void MainWindow::update_time_transformation_stride()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1318,6 +1385,7 @@ void MainWindow::update_time_transformation_stride()
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)
 {
+    LOG_INFO;
     QComboBox* winSelection = ui.WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
@@ -1382,6 +1450,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 
 void MainWindow::cancel_time_transformation_cuts()
 {
+    LOG_INFO;
     if (cd_.time_transformation_cuts_enabled)
     {
         cancel_stft_slice_view();
@@ -1405,6 +1474,7 @@ void MainWindow::cancel_time_transformation_cuts()
 #pragma region Computation
 void MainWindow::change_window()
 {
+    LOG_INFO;
     QComboBox* window_cbox = ui.WindowSelectionComboBox;
 
     if (window_cbox->currentIndex() == 0)
@@ -1421,6 +1491,7 @@ void MainWindow::change_window()
 
 void MainWindow::toggle_renormalize(bool value)
 {
+    LOG_INFO;
     cd_.renorm_enabled = value;
 
     holovibes_.get_compute_pipe()->request_clear_img_acc();
@@ -1429,6 +1500,7 @@ void MainWindow::toggle_renormalize(bool value)
 
 void MainWindow::set_filter2d(bool checked)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1456,6 +1528,7 @@ void MainWindow::set_filter2d(bool checked)
 
 void MainWindow::disable_filter2d_view()
 {
+    LOG_INFO;
 
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_filter2d_view();
@@ -1479,6 +1552,7 @@ void MainWindow::disable_filter2d_view()
 
 void MainWindow::update_filter2d_view(bool checked)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1534,6 +1608,7 @@ void MainWindow::update_filter2d_view(bool checked)
 
 void MainWindow::set_filter2d_n1(int n)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1557,6 +1632,7 @@ void MainWindow::set_filter2d_n1(int n)
 
 void MainWindow::set_filter2d_n2(int n)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1580,6 +1656,7 @@ void MainWindow::set_filter2d_n2(int n)
 
 void MainWindow::cancel_filter2d()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1591,6 +1668,7 @@ void MainWindow::cancel_filter2d()
 
 void MainWindow::set_fft_shift(const bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1600,6 +1678,7 @@ void MainWindow::set_fft_shift(const bool value)
 
 void MainWindow::set_time_transformation_size()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1624,6 +1703,7 @@ void MainWindow::set_time_transformation_size()
 
 void MainWindow::update_lens_view(bool value)
 {
+    LOG_INFO;
     cd_.gpu_lens_display_enabled = value;
 
     if (value)
@@ -1668,6 +1748,7 @@ void MainWindow::update_lens_view(bool value)
 
 void MainWindow::disable_lens_view()
 {
+    LOG_INFO;
     if (lens_window)
         disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
@@ -1678,6 +1759,7 @@ void MainWindow::disable_lens_view()
 
 void MainWindow::update_raw_view(bool value)
 {
+    LOG_INFO;
     if (value)
     {
         if (cd_.batch_size > global::global_config.output_queue_max_size)
@@ -1720,6 +1802,7 @@ void MainWindow::update_raw_view(bool value)
 
 void MainWindow::disable_raw_view()
 {
+    LOG_INFO;
     if (raw_window)
         disconnect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
 
@@ -1735,6 +1818,7 @@ void MainWindow::disable_raw_view()
 
 void MainWindow::set_p_accu()
 {
+    LOG_INFO;
     auto spinbox = ui.PAccSpinBox;
     auto checkBox = ui.PAccuCheckBox;
     cd_.p_accu_enabled = checkBox->isChecked();
@@ -1745,6 +1829,7 @@ void MainWindow::set_p_accu()
 
 void MainWindow::set_x_accu()
 {
+    LOG_INFO;
     auto box = ui.XAccSpinBox;
     auto checkBox = ui.XAccuCheckBox;
     cd_.x_accu_enabled = checkBox->isChecked();
@@ -1755,6 +1840,7 @@ void MainWindow::set_x_accu()
 
 void MainWindow::set_y_accu()
 {
+    LOG_INFO;
     auto box = ui.YAccSpinBox;
     auto checkBox = ui.YAccuCheckBox;
     cd_.y_accu_enabled = checkBox->isChecked();
@@ -1765,6 +1851,7 @@ void MainWindow::set_y_accu()
 
 void MainWindow::set_x_y()
 {
+    LOG_INFO;
     auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
     uint x = ui.XSpinBox->value();
     uint y = ui.YSpinBox->value();
@@ -1778,12 +1865,14 @@ void MainWindow::set_x_y()
 
 void MainWindow::set_q(int value)
 {
+    LOG_INFO;
     cd_.q_index = value;
     notify();
 }
 
 void MainWindow::set_q_acc()
 {
+    LOG_INFO;
     auto spinbox = ui.Q_AccSpinBox;
     auto checkBox = ui.Q_AccuCheckBox;
     cd_.q_acc_enabled = checkBox->isChecked();
@@ -1793,6 +1882,7 @@ void MainWindow::set_q_acc()
 
 void MainWindow::set_p(int value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -1808,6 +1898,7 @@ void MainWindow::set_p(int value)
 
 void MainWindow::set_composite_intervals()
 {
+    LOG_INFO;
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
     cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
@@ -1818,6 +1909,7 @@ void MainWindow::set_composite_intervals()
 
 void MainWindow::set_composite_intervals_hsv_h_min()
 {
+    LOG_INFO;
     cd_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
     pipe_refresh();
     notify();
@@ -1825,6 +1917,7 @@ void MainWindow::set_composite_intervals_hsv_h_min()
 
 void MainWindow::set_composite_intervals_hsv_h_max()
 {
+    LOG_INFO;
     cd_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
     pipe_refresh();
     notify();
@@ -1832,6 +1925,7 @@ void MainWindow::set_composite_intervals_hsv_h_max()
 
 void MainWindow::set_composite_intervals_hsv_s_min()
 {
+    LOG_INFO;
     cd_.composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
     pipe_refresh();
     notify();
@@ -1839,6 +1933,7 @@ void MainWindow::set_composite_intervals_hsv_s_min()
 
 void MainWindow::set_composite_intervals_hsv_s_max()
 {
+    LOG_INFO;
     cd_.composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
     pipe_refresh();
     notify();
@@ -1846,6 +1941,7 @@ void MainWindow::set_composite_intervals_hsv_s_max()
 
 void MainWindow::set_composite_intervals_hsv_v_min()
 {
+    LOG_INFO;
     cd_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
     pipe_refresh();
     notify();
@@ -1853,6 +1949,7 @@ void MainWindow::set_composite_intervals_hsv_v_min()
 
 void MainWindow::set_composite_intervals_hsv_v_max()
 {
+    LOG_INFO;
     cd_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
     pipe_refresh();
     notify();
@@ -1860,6 +1957,7 @@ void MainWindow::set_composite_intervals_hsv_v_max()
 
 void MainWindow::set_composite_weights()
 {
+    LOG_INFO;
     cd_.weight_r = ui.WeightSpinBox_R->value();
     cd_.weight_g = ui.WeightSpinBox_G->value();
     cd_.weight_b = ui.WeightSpinBox_B->value();
@@ -1869,12 +1967,14 @@ void MainWindow::set_composite_weights()
 
 void MainWindow::set_composite_auto_weights(bool value)
 {
+    LOG_INFO;
     cd_.composite_auto_weights_ = value;
     set_auto_contrast();
 }
 
 void MainWindow::click_composite_rgb_or_hsv()
 {
+    LOG_INFO;
     cd_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
     if (ui.radioButton_rgb->isChecked())
     {
@@ -1895,6 +1995,7 @@ void MainWindow::click_composite_rgb_or_hsv()
 
 void MainWindow::actualize_frequency_channel_s()
 {
+    LOG_INFO;
     cd_.composite_p_activated_s = ui.checkBox_saturation_freq->isChecked();
     ui.SpinBox_saturation_freq_min->setDisabled(!ui.checkBox_saturation_freq->isChecked());
     ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
@@ -1902,6 +2003,7 @@ void MainWindow::actualize_frequency_channel_s()
 
 void MainWindow::actualize_frequency_channel_v()
 {
+    LOG_INFO;
     cd_.composite_p_activated_v = ui.checkBox_value_freq->isChecked();
     ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
     ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
@@ -1909,11 +2011,16 @@ void MainWindow::actualize_frequency_channel_v()
 
 void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
+    LOG_INFO;
     cd_.h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
     ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 }
 
-void MainWindow::actualize_kernel_size_blur() { cd_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value(); }
+void MainWindow::actualize_kernel_size_blur()
+{
+    LOG_INFO;
+    cd_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value();
+}
 
 void fancy_Qslide_text_percent(char* str)
 {
@@ -1958,6 +2065,7 @@ void slide_update_threshold(QSlider& slider,
 
 void MainWindow::slide_update_threshold_h_min()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_min,
                            cd_.slider_h_threshold_min,
                            cd_.slider_h_threshold_max,
@@ -1969,6 +2077,7 @@ void MainWindow::slide_update_threshold_h_min()
 
 void MainWindow::slide_update_threshold_h_max()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_max,
                            cd_.slider_h_threshold_max,
                            cd_.slider_h_threshold_min,
@@ -1980,6 +2089,7 @@ void MainWindow::slide_update_threshold_h_max()
 
 void MainWindow::slide_update_threshold_s_min()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min,
                            cd_.slider_s_threshold_min,
                            cd_.slider_s_threshold_max,
@@ -1991,6 +2101,7 @@ void MainWindow::slide_update_threshold_s_min()
 
 void MainWindow::slide_update_threshold_s_max()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max,
                            cd_.slider_s_threshold_max,
                            cd_.slider_s_threshold_min,
@@ -2002,6 +2113,7 @@ void MainWindow::slide_update_threshold_s_max()
 
 void MainWindow::slide_update_threshold_v_min()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_value_threshold_min,
                            cd_.slider_v_threshold_min,
                            cd_.slider_v_threshold_max,
@@ -2013,6 +2125,7 @@ void MainWindow::slide_update_threshold_v_min()
 
 void MainWindow::slide_update_threshold_v_max()
 {
+    LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_value_threshold_max,
                            cd_.slider_v_threshold_max,
                            cd_.slider_v_threshold_min,
@@ -2024,6 +2137,7 @@ void MainWindow::slide_update_threshold_v_max()
 
 void MainWindow::increment_p()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2039,6 +2153,7 @@ void MainWindow::increment_p()
 
 void MainWindow::decrement_p()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2054,6 +2169,7 @@ void MainWindow::decrement_p()
 
 void MainWindow::set_wavelength(const double value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2063,6 +2179,7 @@ void MainWindow::set_wavelength(const double value)
 
 void MainWindow::set_z(const double value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2072,6 +2189,7 @@ void MainWindow::set_z(const double value)
 
 void MainWindow::increment_z()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2081,6 +2199,7 @@ void MainWindow::increment_z()
 
 void MainWindow::decrement_z()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2090,12 +2209,14 @@ void MainWindow::decrement_z()
 
 void MainWindow::set_z_step(const double value)
 {
+    LOG_INFO;
     z_step_ = value;
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
 
 void MainWindow::set_space_transformation(const QString value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2116,6 +2237,7 @@ void MainWindow::set_space_transformation(const QString value)
 
 void MainWindow::set_time_transformation(QString value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2132,6 +2254,7 @@ void MainWindow::set_time_transformation(QString value)
 
 void MainWindow::set_unwrapping_2d(const bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2142,6 +2265,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
 
 void MainWindow::set_accumulation(bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2152,6 +2276,7 @@ void MainWindow::set_accumulation(bool value)
 
 void MainWindow::set_accumulation_level(int value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2161,6 +2286,7 @@ void MainWindow::set_accumulation_level(int value)
 
 void MainWindow::pipe_refresh()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2179,13 +2305,18 @@ void MainWindow::pipe_refresh()
     }
 }
 
-void MainWindow::set_composite_area() { mainDisplay->getOverlayManager().create_overlay<CompositeArea>(); }
+void MainWindow::set_composite_area()
+{
+    LOG_INFO;
+    mainDisplay->getOverlayManager().create_overlay<CompositeArea>();
+}
 
 #pragma endregion
 /* ------------ */
 #pragma region Texture
 void MainWindow::rotateTexture()
 {
+    LOG_INFO;
     WindowKind curWin = cd_.current_window;
 
     if (curWin == WindowKind::XYview)
@@ -2208,6 +2339,7 @@ void MainWindow::rotateTexture()
 
 void MainWindow::flipTexture()
 {
+    LOG_INFO;
     WindowKind curWin = cd_.current_window;
 
     if (curWin == WindowKind::XYview)
@@ -2233,6 +2365,7 @@ void MainWindow::flipTexture()
 #pragma region Contrast - Log
 void MainWindow::set_contrast_mode(bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2245,6 +2378,7 @@ void MainWindow::set_contrast_mode(bool value)
 
 void MainWindow::set_auto_contrast_cuts()
 {
+    LOG_INFO;
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XZview);
@@ -2254,6 +2388,7 @@ void MainWindow::set_auto_contrast_cuts()
 
 void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 {
+    LOG_INFO;
     spinBox->blockSignals(true);
     spinBox->setValue(value);
     spinBox->blockSignals(false);
@@ -2261,6 +2396,7 @@ void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 
 void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
 {
+    LOG_INFO;
     slider->blockSignals(true);
     slider->setValue(value);
     slider->blockSignals(false);
@@ -2268,6 +2404,7 @@ void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
 
 void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value)
 {
+    LOG_INFO;
     spinBox->blockSignals(true);
     spinBox->setValue(value);
     spinBox->blockSignals(false);
@@ -2275,6 +2412,7 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
 
 void MainWindow::set_auto_contrast()
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2291,6 +2429,7 @@ void MainWindow::set_auto_contrast()
 
 void MainWindow::set_contrast_min(const double value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2311,6 +2450,7 @@ void MainWindow::set_contrast_min(const double value)
 
 void MainWindow::set_contrast_max(const double value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2331,6 +2471,7 @@ void MainWindow::set_contrast_max(const double value)
 
 void MainWindow::invert_contrast(bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2343,6 +2484,7 @@ void MainWindow::invert_contrast(bool value)
 
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
+    LOG_INFO;
     cd_.contrast_auto_refresh = value;
     pipe_refresh();
     notify();
@@ -2350,6 +2492,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 
 void MainWindow::set_log_scale(const bool value)
 {
+    LOG_INFO;
     if (is_raw_mode())
         return;
 
@@ -2364,6 +2507,7 @@ void MainWindow::set_log_scale(const bool value)
 #pragma region Convolution
 void MainWindow::update_convo_kernel(const QString& value)
 {
+    LOG_INFO;
     if (cd_.convolution_enabled)
     {
         cd_.set_convolution(true, ui.KernelQuickSelectComboBox->currentText().toStdString());
@@ -2388,6 +2532,7 @@ void MainWindow::update_convo_kernel(const QString& value)
 
 void MainWindow::set_convolution_mode(const bool value)
 {
+    LOG_INFO;
     cd_.set_convolution(value, ui.KernelQuickSelectComboBox->currentText().toStdString());
 
     try
@@ -2420,6 +2565,7 @@ void MainWindow::set_convolution_mode(const bool value)
 
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
+    LOG_INFO;
     cd_.divide_convolution_enabled = value;
 
     pipe_refresh();
@@ -2428,6 +2574,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 
 void MainWindow::set_fast_pipe(bool value)
 {
+    LOG_INFO;
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
     if (value && pipe)
     {
@@ -2455,6 +2602,7 @@ void MainWindow::set_fast_pipe(bool value)
 #pragma region Reticle
 void MainWindow::display_reticle(bool value)
 {
+    LOG_INFO;
     cd_.reticle_enabled = value;
     if (value)
     {
@@ -2471,6 +2619,7 @@ void MainWindow::display_reticle(bool value)
 
 void MainWindow::reticle_scale(double value)
 {
+    LOG_INFO;
     if (0 > value || value > 1)
         return;
 
@@ -2482,18 +2631,21 @@ void MainWindow::reticle_scale(double value)
 #pragma region Chart
 void MainWindow::activeSignalZone()
 {
+    LOG_INFO;
     mainDisplay->getOverlayManager().create_overlay<Signal>();
     notify();
 }
 
 void MainWindow::activeNoiseZone()
 {
+    LOG_INFO;
     mainDisplay->getOverlayManager().create_overlay<Noise>();
     notify();
 }
 
 void MainWindow::start_chart_display()
 {
+    LOG_INFO;
     if (cd_.chart_display_enabled)
         return;
 
@@ -2514,6 +2666,7 @@ void MainWindow::start_chart_display()
 
 void MainWindow::stop_chart_display()
 {
+    LOG_INFO;
     if (!cd_.chart_display_enabled)
         return;
 
@@ -2540,14 +2693,20 @@ void MainWindow::stop_chart_display()
 #pragma region Record
 void MainWindow::set_record_frame_step(int value)
 {
+    LOG_INFO;
     record_frame_step_ = value;
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
 
-void MainWindow::set_nb_frames_mode(bool value) { ui.NumberOfFramesSpinBox->setEnabled(value); }
+void MainWindow::set_nb_frames_mode(bool value)
+{
+    LOG_INFO;
+    ui.NumberOfFramesSpinBox->setEnabled(value);
+}
 
 void MainWindow::browse_record_output_file()
 {
+    LOG_INFO;
     QString filepath;
 
     // Open file explorer dialog on the fly depending on the record mode
@@ -2597,6 +2756,7 @@ void MainWindow::browse_record_output_file()
 
 void MainWindow::browse_batch_input()
 {
+    LOG_INFO;
 
     // Open file explorer on the fly
     QString filename =
@@ -2610,6 +2770,7 @@ void MainWindow::browse_batch_input()
 
 void MainWindow::set_record_mode(const QString& value)
 {
+    LOG_INFO;
     if (record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
@@ -2674,6 +2835,7 @@ void MainWindow::set_record_mode(const QString& value)
 
 void MainWindow::stop_record()
 {
+    LOG_INFO;
     holovibes_.stop_batch_gpib();
 
     if (record_mode_ == RecordMode::CHART)
@@ -2684,6 +2846,7 @@ void MainWindow::stop_record()
 
 void MainWindow::record_finished(RecordMode record_mode)
 {
+    LOG_INFO;
     std::string info;
 
     if (record_mode == RecordMode::CHART)
@@ -2707,6 +2870,7 @@ void MainWindow::record_finished(RecordMode record_mode)
 
 void MainWindow::start_record()
 {
+    LOG_INFO;
     bool batch_enabled = ui.BatchGroupBox->isChecked();
 
     // Preconditions to start record
@@ -2774,174 +2938,131 @@ void MainWindow::start_record()
 #pragma region Import
 void MainWindow::set_start_stop_buttons(bool value)
 {
+    LOG_INFO;
     ui.ImportStartPushButton->setEnabled(value);
     ui.ImportStopPushButton->setEnabled(value);
 }
 
 void MainWindow::import_browse_file()
 {
+    LOG_INFO;
     QString filename = "";
-
     // Open the file explorer to let the user pick his file
     // and store the chosen file in filename
+
     filename = QFileDialog::getOpenFileName(this,
                                             tr("import file"),
                                             file_input_directory_.c_str(),
                                             tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
                                                "(*.cine)"));
 
-    // Start importing the chosen
-    import_file(filename);
-}
-
-void MainWindow::import_file(const QString& filename)
-{
     // Get the widget (output bar) from the ui linked to the file explorer
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
-    if (!filename.isEmpty())
+    // Start importing the chosen
+    std::optional<io_files::InputFrameFile*> input_file_opt;
+    try
     {
-        try
-        {
-            // Will throw if the file format (extension) cannot be handled
-            io_files::InputFrameFile* input_file = io_files::InputFrameFileFactory::open(filename.toStdString());
+        input_file_opt = ::holovibes::api::import_file(filename.toStdString());
+    }
+    catch (const io_files::FileException& e)
+    {
+        // In case of bad format, we triggered the user
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "File Error", e.what());
+        LOG_ERROR << e.what();
 
-            // Gather data from the newly opened file
-            size_t nb_frames = input_file->get_total_nb_frames();
-            file_fd_ = input_file->get_frame_descriptor();
-            input_file->import_compute_settings(cd_);
-
-            // Don't need the input file anymore
-            delete input_file;
-
-            // Update the ui with the gathered data
-            ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
-            ui.ImportEndIndexSpinBox->setValue(nb_frames);
-
-            // We can now launch holovibes over this file
-            set_start_stop_buttons(true);
-        }
-        catch (const io_files::FileException& e)
-        {
-            // In case of bad format, we triggered the user
-            QMessageBox messageBox;
-            messageBox.critical(nullptr, "File Error", e.what());
-            LOG_ERROR << e.what();
-
-            // Holovibes cannot be launched over this file
-            set_start_stop_buttons(false);
-        }
+        // Holovibes cannot be launched over this file
+        set_start_stop_buttons(false);
+        return;
     }
 
+    if (input_file_opt)
+    {
+        auto input_file = input_file_opt.value();
+        // Gather data from the newly opened file
+        size_t nb_frames = input_file->get_total_nb_frames();
+        file_fd_ = input_file->get_frame_descriptor();
+        input_file->import_compute_settings(cd_);
+
+        // Don't need the input file anymore
+        delete input_file;
+
+        // Update the ui with the gathered data
+        ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
+        ui.ImportEndIndexSpinBox->setValue(nb_frames);
+
+        // We can now launch holovibes over this file
+        set_start_stop_buttons(true);
+    }
     else
         set_start_stop_buttons(false);
 }
 
 void MainWindow::import_stop()
 {
+    LOG_INFO;
     close_windows();
     cancel_time_transformation_cuts();
 
-    holovibes_.stop_all_worker_controller();
-    holovibes_.start_information_display(false);
-
-    close_critical_compute();
-
-    // FIXME: import_stop() and camera_none() call same methods
-    // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none();
-
-    cd_.is_computation_stopped = true;
-
+    ::holovibes::api::import_stop(*this, holovibes_);
+    synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }
 
 void MainWindow::import_start()
 {
+    LOG_INFO;
     // shift main window when camera view appears
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();
     move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
 
-    if (!cd_.is_computation_stopped)
-        // if computation is running
-        import_stop();
-
-    cd_.is_computation_stopped = false;
-    // Gather all the usefull data from the ui import panel
-    init_holovibes_import_mode();
-
-    ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
-}
-
-void MainWindow::init_holovibes_import_mode()
-{
-    // Get all the useful ui items
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
-    // Set the image rendering ui params
-    cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-    cd_.batch_size = 1;
+    bool res_import_start = ::holovibes::api::import_start(*this,
+                                                           holovibes_,
+                                                           file_fd_,
+                                                           is_enabled_camera_,
+                                                           import_line_edit->text().toStdString(),
+                                                           fps_spinbox->value(),
+                                                           start_spinbox->value(),
+                                                           load_file_gpu_box->isChecked(),
+                                                           end_spinbox->value());
 
-    // Because we are in import mode
-    is_enabled_camera_ = false;
-
-    try
+    if (res_import_start)
     {
-        // Gather data from import panel
-        std::string file_path = import_line_edit->text().toStdString();
-        unsigned int fps = fps_spinbox->value();
-        size_t first_frame = start_spinbox->value();
-        size_t last_frame = end_spinbox->value();
-        bool load_file_in_gpu = load_file_gpu_box->isChecked();
-
-        holovibes_.init_input_queue(file_fd_);
-        holovibes_.start_file_frame_read(file_path,
-                                         true,
-                                         fps,
-                                         first_frame - 1,
-                                         last_frame - first_frame + 1,
-                                         load_file_in_gpu,
-                                         [=]() {
-                                             synchronize_thread([&]() {
-                                                 if (cd_.is_computation_stopped)
-                                                     ui.FileReaderProgressBar->hide();
-                                             });
-                                         });
         ui.FileReaderProgressBar->show();
+        is_enabled_camera_ = true;
+        set_image_mode(nullptr);
+
+        // Make camera's settings menu unaccessible
+        QAction* settings = ui.actionSettings;
+        settings->setEnabled(false);
+
+        import_type_ = ImportType::File;
+
+        notify();
     }
-    catch (const std::exception& e)
+    else
     {
-        LOG_ERROR << e.what();
-        is_enabled_camera_ = false;
         mainDisplay.reset(nullptr);
-        holovibes_.stop_compute();
-        holovibes_.stop_frame_read();
-        return;
     }
 
-    is_enabled_camera_ = true;
-    set_image_mode(nullptr);
-
-    // Make camera's settings menu unaccessible
-    QAction* settings = ui.actionSettings;
-    settings->setEnabled(false);
-
-    import_type_ = ImportType::File;
-
-    notify();
+    ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
 }
 
 void MainWindow::import_start_spinbox_update()
 {
+    LOG_INFO;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
@@ -2951,6 +3072,7 @@ void MainWindow::import_start_spinbox_update()
 
 void MainWindow::import_end_spinbox_update()
 {
+    LOG_INFO;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
@@ -2963,6 +3085,7 @@ void MainWindow::import_end_spinbox_update()
 #pragma region Themes
 void MainWindow::set_night()
 {
+    LOG_INFO;
     // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
@@ -2991,6 +3114,7 @@ void MainWindow::set_night()
 
 void MainWindow::set_classic()
 {
+    LOG_INFO;
     qApp->setPalette(this->style()->standardPalette());
     // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
@@ -3001,10 +3125,15 @@ void MainWindow::set_classic()
 
 #pragma region Getters
 
-RawWindow* MainWindow::get_main_display() { return mainDisplay.get(); }
+RawWindow* MainWindow::get_main_display()
+{
+    LOG_INFO;
+    return mainDisplay.get();
+}
 
 void MainWindow::update_file_reader_index(int n)
 {
+    LOG_INFO;
     auto lambda = [this, n]() { ui.FileReaderProgressBar->setValue(n); };
     synchronize_thread(lambda);
 }
