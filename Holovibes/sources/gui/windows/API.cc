@@ -202,4 +202,7 @@ void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()>
     }
 }
 
+// Check that value is higher or equal than 0
+void set_record_frame_step(unsigned int& record_frame_step, int value) { record_frame_step = value; }
+
 } // namespace holovibes::api

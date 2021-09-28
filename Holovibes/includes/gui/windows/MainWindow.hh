@@ -573,7 +573,7 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path);
 
-    /*! \brief Remove time transformation cut views */
+    /*! \brief Removes time transformation cut views */
     void cancel_time_transformation_cuts();
 
     /*! \brief Creates the pipeline */
