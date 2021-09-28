@@ -2212,8 +2212,7 @@ void MainWindow::set_contrast_mode(bool value)
         return;
 
     change_window();
-    cd_.contrast_enabled = value;
-    cd_.contrast_auto_refresh = true;
+    cd_.set_contrast_mode(value);
     pipe_refresh();
     notify();
 }
