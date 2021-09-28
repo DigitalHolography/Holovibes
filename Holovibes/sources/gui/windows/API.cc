@@ -62,8 +62,7 @@ bool init_holovibesimport_mode(Holovibes& holovibes,
     return true;
 }
 
-bool import_start(::holovibes::gui::MainWindow& mainwindow,
-                  Holovibes& holovibes,
+bool import_start(Holovibes& holovibes,
                   camera::FrameDescriptor& file_fd,
                   bool& is_enabled_camera,
                   std::string& file_path,
@@ -76,7 +75,7 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
 
     if (!holovibes.get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(mainwindow, is_enabled_camera, holovibes);
+        import_stop(is_enabled_camera, holovibes);
 
     holovibes.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
@@ -90,26 +89,26 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
                                      last_frame);
 }
 
-void import_stop(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes)
+void import_stop(bool& is_enabled_camera, Holovibes& holovibes)
 {
     LOG_INFO;
 
     holovibes.stop_all_worker_controller();
     holovibes.start_information_display(false);
 
-    close_critical_compute(mainwindow, holovibes);
+    close_critical_compute(holovibes);
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none(mainwindow, is_enabled_camera, holovibes);
+    camera_none(is_enabled_camera, holovibes);
 
     holovibes.get_cd().is_computation_stopped = true;
 }
 
-void camera_none(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes)
+void camera_none(bool& is_enabled_camera, Holovibes& holovibes)
 {
     LOG_INFO;
-    close_critical_compute(mainwindow, holovibes);
+    close_critical_compute(holovibes);
     if (!is_raw_mode(holovibes))
         holovibes.stop_compute();
     holovibes.stop_frame_read();
@@ -119,7 +118,7 @@ void camera_none(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_came
     holovibes.get_cd().is_computation_stopped = true;
 }
 
-void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes)
+void close_critical_compute(Holovibes& holovibes)
 {
     LOG_INFO;
     if (holovibes.get_cd().convolution_enabled)

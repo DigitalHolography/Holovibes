@@ -18,7 +18,6 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
 /*!
  * \brief Launchs the reading of a given inputed file
  *
- * \param mainwindow TODO: to remove
  * \param holovibes the object used for launching
  * \param file_fd TODO: to store in an object
  * \param is_enabled_camera TODO: to store in an object
@@ -30,8 +29,7 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
  * \return true on success
  * \return false on failure
  */
-bool import_start(::holovibes::gui::MainWindow& mainwindow,
-                  Holovibes& holovibes,
+bool import_start(Holovibes& holovibes,
                   camera::FrameDescriptor& file_fd,
                   bool& is_enabled_camera,
                   std::string& file_path,
@@ -42,24 +40,21 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
 
 /*! \brief Stops the display
  *
- * \param mainwindow TODO: to remove
  * \param holovibes the object embeding the display to stop
  */
-void import_stop(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes);
+void import_stop(bool& is_enabled_camera, Holovibes& holovibes);
 
 /*! \brief Switchs operating camera to none
  *
- * \param mainwindow TODO: to remove
  * \param holovibes the computing object to stop
  */
-void camera_none(::holovibes::gui::MainWindow& mainwindow, bool& is_enabled_camera, Holovibes& holovibes);
+void camera_none(bool& is_enabled_camera, Holovibes& holovibes);
 
 /*! \brief Stops the program compute
  *
- * \param mainwindow TODO: to remove
  * \param holovibes the computing object
  */
-void close_critical_compute(::holovibes::gui::MainWindow& mainwindow, Holovibes& holovibes);
+void close_critical_compute(Holovibes& holovibes);
 
 /*! \brief Removes info container in holovibes */
 void remove_infos();

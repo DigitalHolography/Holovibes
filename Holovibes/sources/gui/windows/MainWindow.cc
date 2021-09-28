@@ -205,7 +205,7 @@ MainWindow::~MainWindow()
     delete p_right_shortcut_;
 
     close_windows();
-    ::holovibes::api::close_critical_compute(*this, holovibes_);
+    ::holovibes::api::close_critical_compute(holovibes_);
     camera_none();
     ::holovibes::api::remove_infos();
 
@@ -555,7 +555,7 @@ void MainWindow::notify_error(const std::exception& e)
                     cd_.convolution_enabled = false;
                 }
                 close_windows();
-                ::holovibes::api::close_critical_compute(*this, holovibes_);
+                ::holovibes::api::close_critical_compute(holovibes_);
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
@@ -568,7 +568,7 @@ void MainWindow::notify_error(const std::exception& e)
                 cd_.img_acc_slice_xy_enabled = false;
                 cd_.img_acc_slice_xy_level = 1;
             }
-            ::holovibes::api::close_critical_compute(*this, holovibes_);
+            ::holovibes::api::close_critical_compute(holovibes_);
 
             LOG_ERROR << "GPU computing error occured.";
             notify();
@@ -834,7 +834,7 @@ void MainWindow::camera_none()
 {
     LOG_INFO;
     close_windows();
-    ::holovibes::api::camera_none(*this, is_enabled_camera_, holovibes_);
+    ::holovibes::api::camera_none(is_enabled_camera_, holovibes_);
 
     // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);
@@ -871,7 +871,7 @@ void MainWindow::reset()
     Config& config = global::global_config;
     int device = 0;
 
-    ::holovibes::api::close_critical_compute(*this, holovibes_);
+    ::holovibes::api::close_critical_compute(holovibes_);
     camera_none();
     qApp->processEvents();
     if (!::holovibes::api::is_raw_mode(holovibes_))
@@ -914,7 +914,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     LOG_INFO;
     close_windows();
     if (!cd_.is_computation_stopped)
-        ::holovibes::api::close_critical_compute(*this, holovibes_);
+        ::holovibes::api::close_critical_compute(holovibes_);
     camera_none();
     ::holovibes::api::remove_infos();
     save_ini(::holovibes::ini::get_global_ini_path());
@@ -1029,7 +1029,7 @@ void MainWindow::set_raw_mode()
 {
     LOG_INFO;
     close_windows();
-    ::holovibes::api::close_critical_compute(*this, holovibes_);
+    ::holovibes::api::close_critical_compute(holovibes_);
 
     if (is_enabled_camera_)
     {
@@ -1112,7 +1112,7 @@ void MainWindow::set_holographic_mode()
     // input mode could have changed
     /* Close windows & destory thread compute */
     close_windows();
-    ::holovibes::api::close_critical_compute(*this, holovibes_);
+    ::holovibes::api::close_critical_compute(holovibes_);
 
     /* ---------- */
     try
@@ -1177,7 +1177,7 @@ void MainWindow::refreshViewMode()
         old_translation = mainDisplay->getTranslate();
     }
     close_windows();
-    ::holovibes::api::close_critical_compute(*this, holovibes_);
+    ::holovibes::api::close_critical_compute(holovibes_);
     cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
     try
     {
@@ -2948,7 +2948,7 @@ void MainWindow::import_stop()
     close_windows();
     cancel_time_transformation_cuts();
 
-    ::holovibes::api::import_stop(*this, is_enabled_camera_, holovibes_);
+    ::holovibes::api::import_stop(is_enabled_camera_, holovibes_);
     synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }
@@ -2968,8 +2968,7 @@ void MainWindow::import_start()
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
-    bool res_import_start = ::holovibes::api::import_start(*this,
-                                                           holovibes_,
+    bool res_import_start = ::holovibes::api::import_start(holovibes_,
                                                            file_fd_,
                                                            is_enabled_camera_,
                                                            import_line_edit->text().toStdString(),
