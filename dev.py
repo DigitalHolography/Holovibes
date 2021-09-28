@@ -38,7 +38,7 @@ def get_generator(arg):
 
 
 def cannot_find_vcvars():
-    print("Cannot find the Developper Prompt launcher, you can either:")
+    print("Cannot find the Developer Prompt launcher, you can either:")
     print("    - Find by yourself the vcvars64.bat file in your Visual Studio install")
     print("      Then specify it with the '-e' option")
     print("    - Find by yourself your Visual Studio install")
@@ -218,9 +218,9 @@ def parse_args():
 
     build_env = parser.add_argument_group('Build Environment')
     build_env.add_argument('-e', type=pathlib.Path,
-                           help='Path to find the VS Developper Prompt to use to build (Default: auto-find)', default=None)
+                           help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
     build_env.add_argument('-p', type=pathlib.Path,
-                           help='Path used by cmake to store compile objects and exe (Default: build/<generator>/)', default=None)
+                           help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")

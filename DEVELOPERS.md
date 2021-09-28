@@ -13,7 +13,7 @@
 
 #### Visual Studio dependencies
 
-The minimum requirements in _Individual Compomnents_ (installable from Visual Studio installer) are the following:
+The minimum requirements in _Individual Components_ (installable from Visual Studio installer) are the following:
 * C++ CMake tools for Windows
 * MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
 * MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
@@ -102,16 +102,16 @@ $ ./dev.py build ctest
 
 ### Dev Tool
 
-Since building this project is such a hassle, we create a unified building script to build, run and test Holovibes.
+Since building this project is such a hassle, we have created an unified building script to build, run and test Holovibes.
 
-The script works like a makefile using goals to run, there is 5 of them:
+The script works like a makefile using goals to run. There are 5 of them:
 * cmake: for cmake configure step and reconfigure step
 * build: using the generator chosen during previous step
 * run: running the last generated executable
 * ctest: running unit tests from GTest using ctest
 * pytest: running integration tests using pytest
 
-Futhermore these is several options to manipulate the tool:
+Futhermore, there is several options to manipulate the tool:
 * Build Mode:
     Choose between Release mode and Debug mode (Default: Debug)
 
@@ -123,9 +123,9 @@ Futhermore these is several options to manipulate the tool:
     -g {Ninja,ninja,N,n,NMake,nmake,NM,nm,Visual Studio 14,Visual Studio 15,Visual Studio 16}
 
 * Build Environment:
-    -e E                  Path to find the VS Developper Prompt to use to build
+    -e E                  Path to find the VS Developer Prompt to use to build
                           (Default: auto-find)
-    -p P                  Path used by cmake to store compile objects and exe
+    -p P                  Path used by cmake to store compiled objects and exe
                           (Default: build/%generator%/)
 
 ### Misc
