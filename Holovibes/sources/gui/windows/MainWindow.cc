@@ -2708,18 +2708,10 @@ void MainWindow::set_record_mode(const QString& value)
     if (record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
-    stop_record();
+    ::holovibes::api::stop_record(holovibes_, record_mode_);
 
     const std::string text = value.toStdString();
-
-    if (text == "Chart")
-        record_mode_ = RecordMode::CHART;
-    else if (text == "Processed Image")
-        record_mode_ = RecordMode::HOLOGRAM;
-    else if (text == "Raw Image")
-        record_mode_ = RecordMode::RAW;
-    else
-        throw std::exception("Record mode not handled");
+    ::holovibes::api::set_record_mode(text, record_mode_);
 
     if (record_mode_ == RecordMode::CHART)
     {

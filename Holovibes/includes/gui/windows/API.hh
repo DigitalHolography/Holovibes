@@ -112,4 +112,6 @@ const std::string browse_record_output_file(std::string& std_filepath,
                                             std::string& record_output_directory,
                                             std::string& default_output_filename);
 
+void set_record_mode(const std::string& text, RecordMode& record_mode);
+
 } // namespace holovibes::api

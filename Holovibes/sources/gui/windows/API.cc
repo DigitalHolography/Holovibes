@@ -293,4 +293,18 @@ const std::string browse_record_output_file(std::string& std_filepath,
     return file_ext;
 }
 
+void set_record_mode(const std::string& text, RecordMode& record_mode)
+{
+    LOG_INFO;
+
+    if (text == "Chart")
+        record_mode = RecordMode::CHART;
+    else if (text == "Processed Image")
+        record_mode = RecordMode::HOLOGRAM;
+    else if (text == "Raw Image")
+        record_mode = RecordMode::RAW;
+    else
+        throw std::exception("Record mode not handled");
+}
+
 } // namespace holovibes::api
