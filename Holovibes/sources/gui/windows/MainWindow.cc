@@ -2700,7 +2700,7 @@ void MainWindow::start_record()
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
-    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
+    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toStdString();
     if (batch_enabled && batch_input_path.empty())
     {
         LOG_ERROR << "No batch input file";
