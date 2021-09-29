@@ -2859,9 +2859,9 @@ void MainWindow::init_holovibes_import_mode()
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
     cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
@@ -2875,8 +2875,8 @@ void MainWindow::init_holovibes_import_mode()
         // Gather data from import panel
         std::string file_path = import_line_edit->text().toStdString();
         unsigned int fps = fps_spinbox->value();
-        size_t first_frame = start_spinbox->value();
-        size_t last_frame = end_spinbox->value();
+        uint first_frame = start_spinbox->value();
+        uint last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
         holovibes_.init_input_queue(file_fd_);
@@ -2918,8 +2918,8 @@ void MainWindow::init_holovibes_import_mode()
 
 void MainWindow::import_start_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (start_spinbox->value() > end_spinbox->value())
         end_spinbox->setValue(start_spinbox->value());
@@ -2927,8 +2927,8 @@ void MainWindow::import_start_spinbox_update()
 
 void MainWindow::import_end_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (end_spinbox->value() < start_spinbox->value())
         start_spinbox->setValue(end_spinbox->value());

@@ -138,6 +138,7 @@ add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
 # Targets test_* (unit tests)
 # ---
 
+# Fetch googletest git repository during CMake configuration
 include(FetchContent)
 FetchContent_Declare(
   googletest
