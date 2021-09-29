@@ -1,6 +1,7 @@
 #!python
 
 import os
+import sys
 import subprocess
 import argparse
 import pathlib
@@ -24,14 +25,24 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 
 
 def get_generator(arg):
-    if not args.g:
+    if not arg:
         return DEFAULT_GENERATOR
-    elif args.g in NINJA_OPT:
+    elif arg in NINJA_OPT:
         return "Ninja"
-    elif args.g in NMAKE_OPT:
+    elif arg in NMAKE_OPT:
         return "NMake Makefiles"
-    elif args.g in VS_OPT:
-        return args.g
+    elif arg in VS_OPT:
+        return arg
+    else:
+        raise Exception("Unreachable statement thanks to argparse")
+
+def get_build_mode(arg):
+    if not arg:
+        return DEFAULT_BUILD_MODE
+    elif arg in RELEASE_OPT:
+        return "Release"
+    elif arg in DEBUG_OPT:
+        return "Debug"
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
@@ -77,12 +88,13 @@ def cmake(args):
     cmd += [args.e or find_vcvars(), '&&']
 
     generator = get_generator(args.g)
-    build_mode = args.b or DEFAULT_BUILD_MODE
+    build_mode = get_build_mode(args.b)
     build_dir = args.p or os.path.join('build', generator)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
         print("Warning: deleting previous build")
+        sys.stdout.flush()
         shutil.rmtree(build_dir)
 
     cmd += ['cmake', '-B', build_dir,
@@ -97,12 +109,13 @@ def cmake(args):
 
     if args.v:
         print("Configure cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
 def build(args):
-    build_mode = args.b or DEFAULT_BUILD_MODE
+    build_mode = get_build_mode(args.b)
     build_dir = args.p or os.path.join('build', get_generator(args.g))
 
     if not os.path.isdir(build_dir):
@@ -120,18 +133,20 @@ def build(args):
 
     if args.v:
         print("Build cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
 def run(args):
-    build_mode = args.b or DEFAULT_BUILD_MODE
+    build_mode = get_build_mode(args.b)
     exe_path = args.p or os.path.join(
         'build', get_generator(args.g), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
         print("Cannot find Holovibes.exe at path: " + exe_path)
+        sys.stdout.flush()
         exit(1)
 
     os.chdir(exe_path)
@@ -140,6 +155,7 @@ def run(args):
 
     if args.v:
         print("Run cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     out = subprocess.call(cmd)
 
@@ -153,9 +169,11 @@ def pytest(args):
     except ImportError as e:
         print(e)
         print("Please install pytest with '$ python -m pip install pytest'")
+        sys.stdout.flush()
 
     if args.v:
         print("Pytest: Running pytest main...")
+        sys.stdout.flush()
 
     return pytest.main(args=['-v', ])
 
@@ -171,6 +189,7 @@ def ctest(args):
 
     if args.v:
         print("Ctest cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     out = subprocess.call(cmd)
 
@@ -195,6 +214,7 @@ def run_goal(goal: str, args) -> int:
     out = goal_func(args)
     if out != 0:
         print(f"Goal {goal} Failed, Abort")
+        sys.stdout.flush()
         exit(out)
 
 #----------------------------------#
