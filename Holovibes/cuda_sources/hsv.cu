@@ -435,8 +435,9 @@ void hsv_normalize(
     reduce_min(gpu_arr, gpu_min, frame_res, stream); // Get the minimum value
     reduce_max(gpu_arr, gpu_max, frame_res, stream); // Get the maximum value
 
-    const auto lambda = [gpu_min, gpu_max] __device__(const float pixel)
-    { return (pixel - *gpu_min) * (1 / (*gpu_max - *gpu_min)); };
+    const auto lambda = [gpu_min, gpu_max] __device__(const float pixel) {
+        return (pixel - *gpu_min) * (1 / (*gpu_max - *gpu_min));
+    };
     map_generic(gpu_arr, gpu_arr, frame_res, lambda, stream);
 }
 

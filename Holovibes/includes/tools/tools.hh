@@ -34,8 +34,7 @@ void delete_them(Container& c, const Functor& f)
  *
  * \param nb_threads Number of threads per block.
  */
-inline unsigned map_blocks_to_problem(const size_t problem_size,
-                                      const unsigned nb_threads)
+inline unsigned map_blocks_to_problem(const size_t problem_size, const unsigned nb_threads)
 {
     unsigned nb_blocks =
         static_cast<unsigned>(std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));

@@ -95,14 +95,14 @@ void input_queue_to_input_buffer(void* const output,
      *  We can't declare the lambda outside this function for some reason
      * To pass lambda like that, we need to add the --extended-lambda  flag
      */
-    static const auto convert_8_bit = [] __device__(const uchar input_pixel)
-    {
+    static const auto convert_8_bit = [] __device__(const uchar input_pixel) {
         // max uchar value is 255, multiplied by 257 you have 65535 which is max
         // ushort
         return static_cast<float>(input_pixel * 257);
     };
-    static const auto convert_16_bit = [] __device__(const ushort input_pixel)
-    { return static_cast<float>(input_pixel); };
+    static const auto convert_16_bit = [] __device__(const ushort input_pixel) {
+        return static_cast<float>(input_pixel);
+    };
     static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
 
     switch (depth)
@@ -255,8 +255,9 @@ void rescale_float(const float* input, float* output, const uint size, const cud
     constexpr float max_intensity = max_ushort_value_to_float;
     const float min_element = *(std::min_element(cpu_local_min, cpu_local_min + threads));
     const float max_element = *(std::max_element(cpu_local_max, cpu_local_max + threads));
-    const auto lambda = [min_element, max_element, max_intensity] __device__(const float in) -> float
-    { return (in + fabsf(min_element)) * max_intensity / (fabsf(max_element) + fabsf(min_element)); };
+    const auto lambda = [min_element, max_element, max_intensity] __device__(const float in) -> float {
+        return (in + fabsf(min_element)) * max_intensity / (fabsf(max_element) + fabsf(min_element));
+    };
 
     map_generic<float>(output, output, size, lambda, stream);
     cudaCheckError();
@@ -278,8 +279,7 @@ void rescale_float_unwrap2d(float* input, float* output, float* cpu_buffer, uint
     min = *minmax.first;
     max = *minmax.second;
 
-    const auto lambda = [min, max] __device__(const float in) -> float
-    {
+    const auto lambda = [min, max] __device__(const float in) -> float {
         if (min < 0.f)
             return (in + fabs(min)) / (fabs(min) + max) * max_ushort_value_to_float;
         else
@@ -315,8 +315,7 @@ static __device__ ushort device_float_to_ushort(const float input, const uint sh
 void complex_to_uint(
     const cuComplex* const input, uint* const output, const uint size, cudaStream_t stream, const uint shift)
 {
-    const auto lambda_complex_to_ushort = [shift] __device__(const cuComplex in) -> uint
-    {
+    const auto lambda_complex_to_ushort = [shift] __device__(const cuComplex in) -> uint {
         /* cuComplex needs to be casted to a uint
         ** Each part (real & imaginary) are casted from float to ushort to then
         *be assembled into a uint
@@ -409,8 +408,7 @@ void accumulate_images(const float* input,
 
 void normalize_complex(cuComplex* image, const uint size, const cudaStream_t stream)
 {
-    static const auto lambda = [] __device__(cuComplex in) -> cuComplex
-    {
+    static const auto lambda = [] __device__(cuComplex in) -> cuComplex {
         in.x = (in.x + 1.0f) * (max_ushort_value_to_float / 2.0f);
         in.y = (in.y + 1.0f) * (max_ushort_value_to_float / 2.0f);
         return in;

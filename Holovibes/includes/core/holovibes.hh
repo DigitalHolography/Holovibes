@@ -6,6 +6,7 @@
 
 #include "compute_descriptor.hh"
 #include "icamera.hh"
+#include "pipe.hh"
 
 // Worker & Controller
 #include "thread_worker_controller.hh"
@@ -114,7 +115,7 @@ class Holovibes
     /*! \name Getters/Setters
      * \{
      */
-    std::shared_ptr<ICompute> get_compute_pipe();
+    std::shared_ptr<Pipe> get_compute_pipe();
 
     /*! \return Common ComputeDescriptor */
     ComputeDescriptor& get_cd();
@@ -263,7 +264,7 @@ class Holovibes
     worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
 
     worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
-    std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
+    std::atomic<std::shared_ptr<Pipe>> compute_pipe_{nullptr};
 
     /*! \name Frames queue (GPU)
      * \{

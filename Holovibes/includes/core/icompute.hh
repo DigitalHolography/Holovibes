@@ -279,7 +279,7 @@ class ICompute : public Observable
 
   protected:
     virtual void refresh() = 0;
-    virtual void pipe_error(const int& err_count, std::exception& e);
+    virtual void pipe_error(const int& err_count, const std::exception& e);
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management

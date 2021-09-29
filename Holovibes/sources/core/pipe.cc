@@ -332,10 +332,7 @@ void Pipe::refresh()
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
     // time_transformation_stride)
-    if (!cd_.fast_pipe)
-    {
-        insert_transfer_for_time_transformation();
-    }
+    insert_transfer_for_time_transformation();
 
     update_batch_index();
 

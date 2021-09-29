@@ -69,8 +69,7 @@ void gpu_normalize(float* const input,
     ** x = x * 2^(norm_constant) * (frame_res / reduce_result)
     */
     const float multiplier = (1 << norm_constant);
-    auto map_function = [multiplier, frame_res, result_reduce] __device__(const float input_pixel) -> float
-    {
+    auto map_function = [multiplier, frame_res, result_reduce] __device__(const float input_pixel) -> float {
         /* Computing on double is really slow on a GPU, in our case
          *result_reduce can never overflow
          ** Thus it can be casted to a float

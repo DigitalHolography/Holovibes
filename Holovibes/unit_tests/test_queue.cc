@@ -438,7 +438,7 @@ TEST(SimpleDequeueValue, QueueDequeueValue)
 
     char* res = new char[fd.frame_res()];
 
-    char* buff[] = {"ab\0", "cd\0", "ef\0"};
+    char* buff[] = {strdup("ab\0"), strdup("cd\0"), strdup("ef\0")};
     q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
 
     // Make one enqueue and dequeue
@@ -456,7 +456,7 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
 
     char* res = new char[fd.frame_res()];
 
-    char* buff[] = {"ab\0", "cd\0", "ef\0"};
+    char* buff[] = {strdup("ab\0"), strdup("cd\0"), strdup("ef\0")};
 
     // Change indexes
     q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
@@ -669,7 +669,7 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
 
     // 11 + 3 = 14 characters
     unsigned int nb_frames = 14;
-    char* new_elt = "a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0";
+    char* new_elt = strdup("a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0");
 
     // Make the queue full
     q_src.enqueue_multiple(new_elt, 11, stream, cudaMemcpyHostToDevice);

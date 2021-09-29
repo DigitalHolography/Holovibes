@@ -341,8 +341,8 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    CHECK(size_ >= nb_elts) << "When dequeuing " << nb_elts 
-        << " elements, queue size should be bigger than it, not " << size_;
+    CHECK(size_ >= nb_elts) << "When dequeuing " << nb_elts << " elements, queue size should be bigger than it, not "
+                            << size_;
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }

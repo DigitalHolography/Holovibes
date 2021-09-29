@@ -51,8 +51,7 @@ class BatchInputQueue : public DisplayQueue
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
      */
-    void enqueue(const void* const input_frame,
-                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
+    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
@@ -76,12 +75,8 @@ class BatchInputQueue : public DisplayQueue
      *
      * src, dst, batch_size, frame_res, depth, stream -> void
      */
-    using dequeue_func_t = std::function<void(const void* const,
-                                              void* const,
-                                              const uint,
-                                              const uint,
-                                              const uint,
-                                              const cudaStream_t)>;
+    using dequeue_func_t =
+        std::function<void(const void* const, void* const, const uint, const uint, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
@@ -115,7 +110,7 @@ class BatchInputQueue : public DisplayQueue
      * However, the producer will stop its enqueues (in Holovibes the reader is stopped)
      * and will not be able to exit the critical section in case the current batch is still not full.
      * The queue needs this critical section to be exited for its destruction later.
-    */
+     */
     void stop_producer();
 
     void sync_current_batch() const;
@@ -198,7 +193,7 @@ class BatchInputQueue : public DisplayQueue
     /*! \brief Current number of full batches
      *
      * Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize)
-    */
+     */
     std::atomic<uint> size_{0};
     /*! \brief Number of frames in a batch
      *

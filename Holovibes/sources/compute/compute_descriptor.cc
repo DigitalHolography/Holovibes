@@ -71,7 +71,6 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
-    fast_pipe = cd.fast_pipe.load();
     return *this;
 }
 
@@ -169,16 +168,14 @@ float ComputeDescriptor::get_contrast_max(WindowKind kind) const
     return 0;
 }
 
-float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind,
-                                                   const int precision) const
+float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind, const int precision) const
 {
     float value = get_contrast_max(kind);
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
-                                                   const int precision) const
+float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind, const int precision) const
 {
     float value = get_contrast_min(kind);
     const double multiplier = std::pow(10.0, precision);

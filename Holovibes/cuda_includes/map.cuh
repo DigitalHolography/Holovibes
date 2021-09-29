@@ -78,4 +78,10 @@ void map_divide(
 void map_multiply(
     const float* const input, float* const output, const size_t size, const float value, const cudaStream_t stream);
 
+// The map.cuhxx file contains functions only compilable via nvcc
+// but the cpp compiler still needs the declarations of the templates
+#if __NVCC__
+
 #include "map.cuhxx"
+
+#endif
