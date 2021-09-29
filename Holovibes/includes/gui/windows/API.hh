@@ -123,4 +123,22 @@ void close_windows(Holovibes& holovibes,
                    std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
                    std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_);
 
+void set_computation_mode(Holovibes& holovibes, const uint image_mode_index);
+
+void set_camera_timeout();
+
+void change_camera(::holovibes::gui::MainWindow& mainwindow,
+                   Holovibes& holovibes,
+                   CameraKind c,
+                   CameraKind& kCamera,
+                   bool& is_enabled_camera,
+                   ::holovibes::gui::MainWindow::ImportType& import_type,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
+                   const uint image_mode_index);
+
+void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
+                    Holovibes& holovibes,
+                    const bool is_null_mode,
+                    const uint image_mode_index);
+
 } // namespace holovibes::api

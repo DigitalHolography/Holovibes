@@ -337,4 +337,72 @@ void close_windows(Holovibes& holovibes,
     holovibes.get_cd().reticle_enabled = false;
 }
 
+void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
+{
+    LOG_INFO;
+    if (image_mode_index == 0)
+    {
+        holovibes.get_cd().compute_mode = Computation::Raw;
+    }
+    else if (image_mode_index == 1)
+    {
+        holovibes.get_cd().compute_mode = Computation::Hologram;
+    }
+}
+
+void set_camera_timeout()
+{
+    LOG_INFO;
+    camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
+}
+
+void change_camera(::holovibes::gui::MainWindow& mainwindow,
+                   Holovibes& holovibes,
+                   CameraKind c,
+                   CameraKind& kCamera,
+                   bool& is_enabled_camera,
+                   ::holovibes::gui::MainWindow::ImportType& import_type,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
+                   const uint image_mode_index)
+{
+    LOG_INFO;
+
+    mainDisplay.reset(nullptr);
+    if (!is_raw_mode(holovibes))
+        holovibes.stop_compute();
+    holovibes.stop_frame_read();
+
+    set_camera_timeout();
+
+    set_computation_mode(holovibes, image_mode_index);
+
+    holovibes.start_camera_frame_read(c);
+    is_enabled_camera = true;
+    set_image_mode(mainwindow, holovibes, nullptr, image_mode_index);
+    import_type = ::holovibes::gui::MainWindow::ImportType::Camera;
+    kCamera = c;
+
+    holovibes.get_cd().is_computation_stopped = false;
+}
+
+void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
+                    Holovibes& holovibes,
+                    const bool is_null_mode,
+                    const uint image_mode_index)
+{
+    LOG_INFO;
+    if (!is_null_mode)
+    {
+        // Call comes from ui
+        if (image_mode_index == 0)
+            mainwindow.set_raw_mode();
+        else
+            mainwindow.set_holographic_mode();
+    }
+    else if (holovibes.get_cd().compute_mode == Computation::Raw)
+        mainwindow.set_raw_mode();
+    else if (holovibes.get_cd().compute_mode == Computation::Hologram)
+        mainwindow.set_holographic_mode();
+}
+
 } // namespace holovibes::api

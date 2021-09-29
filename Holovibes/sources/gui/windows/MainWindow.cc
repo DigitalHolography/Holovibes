@@ -943,26 +943,20 @@ void MainWindow::change_camera(CameraKind c)
     {
         try
         {
-            mainDisplay.reset(nullptr);
-            if (!::holovibes::api::is_raw_mode(holovibes_))
-                holovibes_.stop_compute();
-            holovibes_.stop_frame_read();
 
-            set_camera_timeout();
-
-            set_computation_mode();
-
-            holovibes_.start_camera_frame_read(c);
-            is_enabled_camera_ = true;
-            set_image_mode(nullptr);
-            import_type_ = ImportType::Camera;
-            kCamera = c;
+            ::holovibes::api::change_camera(*this,
+                                            holovibes_,
+                                            c,
+                                            kCamera,
+                                            is_enabled_camera_,
+                                            import_type_,
+                                            mainDisplay,
+                                            ui.ImageModeComboBox->currentIndex());
 
             // Make camera's settings menu accessible
             QAction* settings = ui.actionSettings;
             settings->setEnabled(true);
 
-            cd_.is_computation_stopped = false;
             notify();
         }
         catch (const camera::CameraException& e)
@@ -1173,25 +1167,6 @@ void MainWindow::set_holographic_mode()
     }
 }
 
-void MainWindow::set_computation_mode()
-{
-    LOG_INFO;
-    if (ui.ImageModeComboBox->currentIndex() == 0)
-    {
-        cd_.compute_mode = Computation::Raw;
-    }
-    else if (ui.ImageModeComboBox->currentIndex() == 1)
-    {
-        cd_.compute_mode = Computation::Hologram;
-    }
-}
-
-void MainWindow::set_camera_timeout()
-{
-    LOG_INFO;
-    camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
-}
-
 void MainWindow::refreshViewMode()
 {
     LOG_INFO;
@@ -1286,18 +1261,8 @@ void MainWindow::set_view_mode(const QString value)
 void MainWindow::set_image_mode(QString mode)
 {
     LOG_INFO;
-    if (mode != nullptr)
-    {
-        // Call comes from ui
-        if (ui.ImageModeComboBox->currentIndex() == 0)
-            set_raw_mode();
-        else
-            set_holographic_mode();
-    }
-    else if (cd_.compute_mode == Computation::Raw)
-        set_raw_mode();
-    else if (cd_.compute_mode == Computation::Hologram)
-        set_holographic_mode();
+    const bool is_null_mode = (mode == nullptr);
+    ::holovibes::api::set_image_mode(*this, holovibes_, is_null_mode, ui.ImageModeComboBox->currentIndex());
 }
 #pragma endregion
 
