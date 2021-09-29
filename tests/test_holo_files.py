@@ -9,7 +9,7 @@ import json
 from typing import List, Tuple, Union
 
 
-import holo
+from tests import holo
 
 INPUT_FILENAME = "input.holo"
 OUTPUT_FILENAME = "last_generated_output.holo"
@@ -86,6 +86,7 @@ def find_tests() -> List[str]:
     return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
 
 
+@pytest.mark.flaky(reruns=5, reruns_delay=3)
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 

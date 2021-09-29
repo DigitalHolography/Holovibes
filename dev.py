@@ -6,11 +6,15 @@ import argparse
 import pathlib
 import shutil
 
+from tests.test_holo_files import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
+
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
 DEFAULT_GOAL = "build"
 
-GOALS = ["cmake", "build", "run", "pytest", "ctest"]
+TEST_DATA = "data"
+
+GOALS = ["cmake", "build", "run", "pytest", "ctest", "build_ref"]
 
 RELEASE_OPT = ["Release", "release", "R", "r"]
 DEBUG_OPT = ["Debug", "debug", "D", "d"]
@@ -178,6 +182,37 @@ def ctest(args):
     return out
 
 
+def build_ref(args) -> int:
+    dirs = os.listdir(TESTS_DATA)
+    print(dirs)
+    for name in dirs:
+        if name == ".pytest_cache":
+            continue
+
+        path = os.path.join(TESTS_DATA, name)
+        if os.path.isdir(path):
+            input = os.path.join(path, INPUT_FILENAME)
+            ref = os.path.join(path, REF_FILENAME)
+            cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
+            config = os.path.join(path, CONFIG_FILENAME)
+
+            if not os.path.isfile(input):
+                print(
+                    f"Did not find the {INPUT_FILENAME} file in folder {path}")
+
+            if not os.path.isfile(cli_argument):
+                print(
+                    f"Did not find the {CLI_ARGUMENT_FILENAME} file in folder {path}")
+
+            if not os.path.isfile(config):
+                config = None
+
+            if os.path.isfile(ref):
+                os.remove(ref)
+
+            generate_holo_from(input, ref, cli_argument, config)
+
+
 def run_goal(goal: str, args) -> int:
 
     GoalsFuncs = {
@@ -185,7 +220,8 @@ def run_goal(goal: str, args) -> int:
         "build": build,
         "run": run,
         "pytest": pytest,
-        "ctest": ctest
+        "ctest": ctest,
+        "build_ref": build_ref
     }
 
     goal_func = GoalsFuncs.get(goal)
