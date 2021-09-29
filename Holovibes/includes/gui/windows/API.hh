@@ -91,6 +91,17 @@ void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()>
  */
 void set_record_frame_step(unsigned int& record_frame_step, int value);
 
+/*! \brief Checks preconditions to start recording
+ *
+ * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
+ * \param nb_frame_checked if number of frame is allowed FIXME: shouldn't be stored in the wild.
+ * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
+ * \param record_mode what kind of record is it FIXME: shouldn't be stored in the wild.
+ * \param output_path where to locate the destination file FIXME: shouldn't be stored in the wild.
+ * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
+ * \return true on success
+ * \return false on failure
+ */
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
@@ -98,6 +109,16 @@ bool start_record_preconditions(const bool batch_enabled,
                                 std::string& output_path,
                                 std::string& batch_input_path);
 
+/*! \brief Launchs recording
+ *
+ * \param holovibes the computing object
+ * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
+ * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
+ * \param record_mode what kind of record is it FIXME: shouldn't be stored in the wild.
+ * \param output_path where to locate the destination file FIXME: shouldn't be stored in the wild.
+ * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ */
 void start_record(Holovibes& holovibes,
                   const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
@@ -106,14 +127,42 @@ void start_record(Holovibes& holovibes,
                   std::string& batch_input_path,
                   std::function<void()> callback);
 
+/*! \brief Stops recording
+ *
+ * \param holovibes the computing object
+ * \param record_mode what kind of record is it FIXME: shouldn't be stored in the wild.
+ */
 void stop_record(Holovibes& holovibes, const RecordMode record_mode);
 
+/*! \brief Gets the destination of the output file
+ *
+ * \param std_filepath the output filepath FIXME: shouldn't be stored in the wild.
+ * \param record_output_directory output directory FIXME: shouldn't be stored in the wild.
+ * \param default_output_filename output filename FIXME: shouldn't be stored in the wild.
+ * \return const std::string the extension of the output file
+ */
 const std::string browse_record_output_file(std::string& std_filepath,
                                             std::string& record_output_directory,
                                             std::string& default_output_filename);
 
+/*! \brief Set the record mode object
+ *
+ * \param text the catched mode
+ * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
+ */
 void set_record_mode(const std::string& text, RecordMode& record_mode);
 
+/*! \brief Closes all the currently displaying windows
+ *
+ * \param holovibes the computing object
+ * \param mainDisplay a window FIXME: shouldn't be stored in the wild.
+ * \param sliceXZ a window FIXME: shouldn't be stored in the wild.
+ * \param sliceYZ a window FIXME: shouldn't be stored in the wild.
+ * \param lens_window a window FIXME: shouldn't be stored in the wild.
+ * \param raw_window a window FIXME: shouldn't be stored in the wild.
+ * \param filter2d_window a window FIXME: shouldn't be stored in the wild.
+ * \param plot_window_ a window FIXME: shouldn't be stored in the wild.
+ */
 void close_windows(Holovibes& holovibes,
                    std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    std::unique_ptr<::holovibes::gui::SliceWindow>& sliceXZ,
@@ -123,10 +172,27 @@ void close_windows(Holovibes& holovibes,
                    std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
                    std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_);
 
+/*! \brief Sets the computation mode
+ *
+ * \param holovibes the computing object
+ * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
+ */
 void set_computation_mode(Holovibes& holovibes, const uint image_mode_index);
 
+/*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
+/*! \brief Changes the current camera used
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param holovibes the computing object
+ * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
+ * \param kCamera the current camera kind to modify FIXME: shouldn't be stored in the wild.
+ * \param is_enabled_camera if camera is enablde FIXME: shouldn't be stored in the wild.
+ * \param import_type the kind of import FIXME: shouldn't be stored in the wild.
+ * \param mainDisplay a window FIXME: shouldn't be stored in the wild.
+ * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
+ */
 void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    Holovibes& holovibes,
                    CameraKind c,
@@ -136,6 +202,13 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    const uint image_mode_index);
 
+/*! \brief Sets the image mode
+ *
+ * \param mainwindow a window
+ * \param holovibes the computing object
+ * \param is_null_mode if the selection is null
+ * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
+ */
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
                     Holovibes& holovibes,
                     const bool is_null_mode,
