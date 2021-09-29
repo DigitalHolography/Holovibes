@@ -65,24 +65,33 @@ void get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
                               const uint& nb_frames,
                               holovibes::ComputeDescriptor& cd)
 {
+    auto err_message = [&](const std::string& name, const uint& value, const std::string& option) {
+        std::cerr << option << " (" << name << ") value: " << value
+                  << " is not valid. The valid condition is: 1 <= " << name
+                  << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";
+    };
+
     uint start_frame = opts.start_frame.value_or(1);
     if (!is_between(start_frame, (uint)1, nb_frames))
-        throw std::runtime_error("-s (start_frame) value: " + std::to_string(start_frame) +
-                                 " is not valid. The valid condition is: 1 <= start_frame <= "
-                                 "nb_frame. For this file nb_frame = " +
-                                 std::to_string(nb_frames) + ".");
+    {
+        err_message("start_frame", start_frame, "-s");
+        exit(1);
+    }
     cd.start_frame = start_frame;
 
     uint end_frame = opts.end_frame.value_or(nb_frames);
     if (!is_between(end_frame, (uint)1, nb_frames))
-        throw std::runtime_error("-s (end_frame) value: " + std::to_string(end_frame) +
-                                 " is not valid. The valid condition is: 1 <= end_frame <= "
-                                 "nb_frame. For this file nb_frame = " +
-                                 std::to_string(nb_frames) + ".");
+    {
+        err_message("end_frame", end_frame, "-e");
+        exit(1);
+    }
     cd.end_frame = end_frame;
 
     if (start_frame > end_frame)
-        throw std::runtime_error("last_frame has to be higher than first_frame");
+    {
+        std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
+        exit(1);
+    }
 }
 
 static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes& holovibes,
