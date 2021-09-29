@@ -264,4 +264,33 @@ void start_record(Holovibes& holovibes,
     }
 }
 
+void stop_record(Holovibes& holovibes, const RecordMode record_mode)
+{
+    LOG_INFO;
+    holovibes.stop_batch_gpib();
+
+    if (record_mode == RecordMode::CHART)
+        holovibes.stop_chart_record();
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
+        holovibes.stop_frame_record();
+}
+
+const std::string browse_record_output_file(std::string& std_filepath,
+                                            std::string& record_output_directory,
+                                            std::string& default_output_filename)
+{
+    LOG_INFO;
+
+    // FIXME: path separator should depend from system
+    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
+    std::filesystem::path path = std::filesystem::path(std_filepath);
+
+    // FIXME Opti: we could be all these 3 operations below on a single string processing
+    record_output_directory = path.parent_path().string();
+    const std::string file_ext = path.extension().string();
+    default_output_filename = path.stem().string();
+
+    return file_ext;
+}
+
 } // namespace holovibes::api

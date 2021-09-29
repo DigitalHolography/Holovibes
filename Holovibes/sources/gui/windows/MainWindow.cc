@@ -2679,14 +2679,8 @@ void MainWindow::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
-    // FIXME: path separator should depend from system
-    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
-    std::filesystem::path path = std::filesystem::path(std_filepath);
-
-    // FIXME Opti: we could be all these 3 operations below on a single string processing
-    record_output_directory_ = path.parent_path().string();
-    const std::string file_ext = path.extension().string();
-    default_output_filename_ = path.stem().string();
+    const std::string file_ext =
+        ::holovibes::api::browse_record_output_file(std_filepath, record_output_directory_, default_output_filename_);
 
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
@@ -2776,12 +2770,7 @@ void MainWindow::set_record_mode(const QString& value)
 void MainWindow::stop_record()
 {
     LOG_INFO;
-    holovibes_.stop_batch_gpib();
-
-    if (record_mode_ == RecordMode::CHART)
-        holovibes_.stop_chart_record();
-    else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
-        holovibes_.stop_frame_record();
+    ::holovibes::api::stop_record(holovibes_, record_mode_);
 }
 
 void MainWindow::record_finished(RecordMode record_mode)

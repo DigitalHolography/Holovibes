@@ -106,4 +106,10 @@ void start_record(Holovibes& holovibes,
                   std::string& batch_input_path,
                   std::function<void()> callback);
 
+void stop_record(Holovibes& holovibes, const RecordMode record_mode);
+
+const std::string browse_record_output_file(std::string& std_filepath,
+                                            std::string& record_output_directory,
+                                            std::string& default_output_filename);
+
 } // namespace holovibes::api
