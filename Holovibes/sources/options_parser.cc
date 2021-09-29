@@ -82,12 +82,12 @@ OptionsParser::OptionsParser()
     (
         "start_frame,s",
         po::value<unsigned int>(),
-        "Start frame (default = 1). All strictly before start frame is not read."
+        "Start frame (default = 1). Everything strictly before start frame is not read."
     )
     (
         "end_frame,e",
         po::value<unsigned int>(),
-        "End frame (default = eof). All striclty after end frame is not read."
+        "End frame (default = eof). Everything striclty after end frame is not read."
     );
     // clang-format on
 
