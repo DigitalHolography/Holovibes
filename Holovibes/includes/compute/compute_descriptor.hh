@@ -371,8 +371,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> composite_auto_weights_;
     /*! \} */
 
-    std::atomic<bool> fast_pipe{false};
-
 #pragma endregion
 };
 } // namespace holovibes
