@@ -2812,26 +2812,27 @@ void MainWindow::start_record()
 {
     LOG_INFO;
     bool batch_enabled = ui.BatchGroupBox->isChecked();
-
-    // Preconditions to start record
-
-    std::optional<unsigned int> nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
-    if (!ui.NumberOfFramesCheckBox->isChecked())
-        nb_frames_to_record = std::nullopt;
-
-    if ((batch_enabled || record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    bool nb_frame_checked = ui.NumberOfFramesCheckBox->isChecked();
+    std::optional<unsigned int> nb_frames_to_record = std::nullopt;
+    if (nb_frame_checked)
     {
-        LOG_ERROR << "Number of frames must be activated";
-        return;
+        nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
     }
-
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
     std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
-    if (batch_enabled && batch_input_path.empty())
+
+    // Preconditions to start record
+    const bool preconditions = ::holovibes::api::start_record_preconditions(batch_enabled,
+                                                                            nb_frame_checked,
+                                                                            nb_frames_to_record,
+                                                                            record_mode_,
+                                                                            output_path,
+                                                                            batch_input_path);
+
+    if (!preconditions)
     {
-        LOG_ERROR << "No batch input file";
         return;
     }
 
@@ -2853,25 +2854,13 @@ void MainWindow::start_record()
         synchronize_thread([=]() { record_finished(record_mode); });
     };
 
-    if (batch_enabled)
-    {
-        holovibes_.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(), record_mode_, callback);
-    }
-    else
-    {
-        if (record_mode_ == RecordMode::CHART)
-        {
-            holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
-        }
-        else if (record_mode_ == RecordMode::HOLOGRAM)
-        {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
-        }
-        else if (record_mode_ == RecordMode::RAW)
-        {
-            holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
-        }
-    }
+    ::holovibes::api::start_record(holovibes_,
+                                   batch_enabled,
+                                   nb_frames_to_record,
+                                   record_mode_,
+                                   output_path,
+                                   batch_input_path,
+                                   callback);
 }
 #pragma endregion
 /* ------------ */

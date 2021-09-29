@@ -91,4 +91,19 @@ void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()>
  */
 void set_record_frame_step(unsigned int& record_frame_step, int value);
 
+bool start_record_preconditions(const bool batch_enabled,
+                                const bool nb_frame_checked,
+                                std::optional<unsigned int> nb_frames_to_record,
+                                const RecordMode record_mode,
+                                std::string& output_path,
+                                std::string& batch_input_path);
+
+void start_record(Holovibes& holovibes,
+                  const bool batch_enabled,
+                  std::optional<unsigned int> nb_frames_to_record,
+                  const RecordMode record_mode,
+                  std::string& output_path,
+                  std::string& batch_input_path,
+                  std::function<void()> callback);
+
 } // namespace holovibes::api

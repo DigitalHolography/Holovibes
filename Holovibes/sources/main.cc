@@ -78,6 +78,12 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     splash.finish(&window);
     holovibes.get_cd().register_observer(window);
 
+    if (!filename.empty())
+    {
+        // TODO: to restore
+        LOG_INFO << "TODO";
+    }
+
     // Resizing horizontally the window before starting
     window.layout_toggled();
     // Launch the Qt app

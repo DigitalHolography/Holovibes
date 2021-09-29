@@ -205,4 +205,63 @@ void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()>
 // Check that value is higher or equal than 0
 void set_record_frame_step(unsigned int& record_frame_step, int value) { record_frame_step = value; }
 
+bool start_record_preconditions(const bool batch_enabled,
+                                const bool nb_frame_checked,
+                                std::optional<unsigned int> nb_frames_to_record,
+                                const RecordMode record_mode,
+                                std::string& output_path,
+                                std::string& batch_input_path)
+{
+    LOG_INFO;
+    // Preconditions to start record
+
+    if (!nb_frame_checked)
+        nb_frames_to_record = std::nullopt;
+
+    if ((batch_enabled || record_mode == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    {
+        LOG_ERROR << "Number of frames must be activated";
+        return false;
+    }
+
+    if (batch_enabled && batch_input_path.empty())
+    {
+        LOG_ERROR << "No batch input file";
+        return false;
+    }
+
+    return true;
+}
+
+void start_record(Holovibes& holovibes,
+                  const bool batch_enabled,
+                  std::optional<unsigned int> nb_frames_to_record,
+                  const RecordMode record_mode,
+                  std::string& output_path,
+                  std::string& batch_input_path,
+                  std::function<void()> callback)
+{
+    LOG_INFO;
+
+    if (batch_enabled)
+    {
+        holovibes.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(), record_mode, callback);
+    }
+    else
+    {
+        if (record_mode == RecordMode::CHART)
+        {
+            holovibes.start_chart_record(output_path, nb_frames_to_record.value(), callback);
+        }
+        else if (record_mode == RecordMode::HOLOGRAM)
+        {
+            holovibes.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
+        }
+        else if (record_mode == RecordMode::RAW)
+        {
+            holovibes.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+        }
+    }
+}
+
 } // namespace holovibes::api
