@@ -393,7 +393,7 @@ void MainWindow::on_notify()
     QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
 
     // Time transformation
-    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw && !cd_.fast_pipe);
+    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
@@ -402,7 +402,7 @@ void MainWindow::on_notify()
     ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_ && !cd_.fast_pipe);
+    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
 
     cd_.check_batch_size_limit(input_queue_capacity);
     ui.BatchSizeSpinBox->setValue(cd_.batch_size);
@@ -417,7 +417,7 @@ void MainWindow::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.fast_pipe && !cd_.time_transformation_cuts_enabled);
+    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
     ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
     ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
                                                   MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
@@ -2327,30 +2327,6 @@ void MainWindow::set_divide_convolution_mode(const bool value)
     notify();
 }
 
-void MainWindow::set_fast_pipe(bool value)
-{
-    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (value && pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            // Constraints linked with fast pipe option
-            cd_.time_transformation_stride = cd_.batch_size.load();
-            cd_.time_transformation_size = cd_.batch_size.load();
-            pipe->request_update_time_transformation_stride();
-            pipe->request_update_time_transformation_size();
-            cd_.fast_pipe = true;
-            pipe_refresh();
-            notify();
-        });
-    }
-    else
-    {
-        cd_.fast_pipe = false;
-        pipe_refresh();
-        notify();
-    }
-}
-
 #pragma endregion
 /* ------------ */
 #pragma region Reticle
@@ -2784,9 +2760,9 @@ void MainWindow::init_holovibes_import_mode()
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
     cd._set_rendering_params(static_cast<float>(fps_spinbox->value()));
@@ -2799,8 +2775,8 @@ void MainWindow::init_holovibes_import_mode()
         // Gather data from import panel
         std::string file_path = import_line_edit->text().toStdString();
         unsigned int fps = fps_spinbox->value();
-        size_t first_frame = start_spinbox->value();
-        size_t last_frame = end_spinbox->value();
+        uint first_frame = start_spinbox->value();
+        uint last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
         holovibes_.init_input_queue(file_fd_);
@@ -2842,8 +2818,8 @@ void MainWindow::init_holovibes_import_mode()
 
 void MainWindow::import_start_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (start_spinbox->value() > end_spinbox->value())
         end_spinbox->setValue(start_spinbox->value());
@@ -2851,8 +2827,8 @@ void MainWindow::import_start_spinbox_update()
 
 void MainWindow::import_end_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (end_spinbox->value() < start_spinbox->value())
         start_spinbox->setValue(end_spinbox->value());

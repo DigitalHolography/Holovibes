@@ -1,6 +1,5 @@
 #include "cli.hh"
 
-// #include <chrono>
 #include "chrono.hh"
 
 #include "tools.hh"
@@ -62,6 +61,39 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
     std::cout << std::endl;
 }
 
+void get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
+                              const uint& nb_frames,
+                              holovibes::ComputeDescriptor& cd)
+{
+    auto err_message = [&](const std::string& name, const uint& value, const std::string& option) {
+        std::cerr << option << " (" << name << ") value: " << value
+                  << " is not valid. The valid condition is: 1 <= " << name
+                  << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";
+    };
+
+    uint start_frame = opts.start_frame.value_or(1);
+    if (!is_between(start_frame, (uint)1, nb_frames))
+    {
+        err_message("start_frame", start_frame, "-s");
+        exit(1);
+    }
+    cd.start_frame = start_frame;
+
+    uint end_frame = opts.end_frame.value_or(nb_frames);
+    if (!is_between(end_frame, (uint)1, nb_frames))
+    {
+        err_message("end_frame", end_frame, "-e");
+        exit(1);
+    }
+    cd.end_frame = end_frame;
+
+    if (start_frame > end_frame)
+    {
+        std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
+        exit(1);
+    }
+}
+
 static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes& holovibes,
                                                             const holovibes::OptionsDescriptor& opts)
 {
@@ -72,9 +104,13 @@ static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
+    auto& cd = holovibes.get_cd();
+    get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd);
+
     const unsigned int fps = opts.fps.value_or(60);
     holovibes.init_input_queue(fd);
-    holovibes.start_file_frame_read(input_path, true, fps, 0, input_frame_file->get_total_nb_frames(), opts.gpu);
+    holovibes
+        .start_file_frame_read(input_path, true, fps, cd.start_frame - 1, cd.end_frame - cd.start_frame + 1, opts.gpu);
 
     input_frame_file->import_compute_settings(holovibes.get_cd());
 
@@ -82,7 +118,7 @@ static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes
 }
 
 static void
-set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, uint record_nb_frames)
+set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, const size_t& nb_frames)
 {
     auto& cd = holovibes.get_cd();
     if (opts.convo_path.has_value())
@@ -108,11 +144,11 @@ start_record(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor
 {
     auto& cd = holovibes.get_cd();
     uint nb_frames_skip = 0;
+
     // Skip img acc frames to avoid early black frames
     if (!opts.noskip_acc && cd.img_acc_slice_xy_enabled)
-    {
         nb_frames_skip = cd.img_acc_slice_xy_level;
-    }
+
     cd.frame_record_enabled = true;
     holovibes.start_frame_record(opts.output_path.value(), record_nb_frames, opts.record_raw, nb_frames_skip);
 }
@@ -168,20 +204,20 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         }
     }
 
-    auto input_frame_file = open_input_file(holovibes, opts);
-    size_t input_nb_frames = input_frame_file->get_total_nb_frames();
+    auto input_frame_file = open_input_file(holovibes, opts); // Thread
+    size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
 
-    holovibes.start_information_display(true);
+    holovibes.start_information_display(true); // Thread
 
     Chrono chrono;
 
-    holovibes.start_compute();
-    set_parameters(holovibes, opts, record_nb_frames);
-    start_record(holovibes, opts, record_nb_frames);
+    holovibes.start_compute(); // Thread
+    set_parameters(holovibes, opts, input_nb_frames);
+    start_record(holovibes, opts, record_nb_frames); // Thread
     if (opts.verbose)
     {
         print_verbose(opts, cd);

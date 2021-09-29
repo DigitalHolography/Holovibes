@@ -564,13 +564,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="FastPipeCheckBox">
-           <property name="text">
-            <string>Fast Pipe</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -3101,7 +3094,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5199,22 +5192,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>FastPipeCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_fast_pipe(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>121</x>
-     <y>389</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionBitflowCyton</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5273,7 +5250,6 @@ p, li { white-space: pre-wrap; }
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
-  <slot>set_fast_pipe(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
