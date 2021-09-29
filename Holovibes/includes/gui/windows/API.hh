@@ -114,4 +114,13 @@ const std::string browse_record_output_file(std::string& std_filepath,
 
 void set_record_mode(const std::string& text, RecordMode& record_mode);
 
+void close_windows(Holovibes& holovibes,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
+                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceXZ,
+                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceYZ,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& lens_window,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& raw_window,
+                   std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
+                   std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_);
+
 } // namespace holovibes::api

@@ -582,9 +582,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Creates the windows for processed image output */
     void createHoloWindow();
 
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
-
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh();
 

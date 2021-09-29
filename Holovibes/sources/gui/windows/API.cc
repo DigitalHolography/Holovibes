@@ -307,4 +307,34 @@ void set_record_mode(const std::string& text, RecordMode& record_mode)
         throw std::exception("Record mode not handled");
 }
 
+void close_windows(Holovibes& holovibes,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
+                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceXZ,
+                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceYZ,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& lens_window,
+                   std::unique_ptr<::holovibes::gui::RawWindow>& raw_window,
+                   std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
+                   std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_)
+{
+    LOG_INFO;
+    sliceXZ.reset(nullptr);
+    sliceYZ.reset(nullptr);
+
+    plot_window_.reset(nullptr);
+    mainDisplay.reset(nullptr);
+
+    lens_window.reset(nullptr);
+    holovibes.get_cd().gpu_lens_display_enabled = false;
+
+    filter2d_window.reset(nullptr);
+    holovibes.get_cd().filter2d_view_enabled = false;
+
+    /* Raw view & recording */
+    raw_window.reset(nullptr);
+    holovibes.get_cd().raw_view_enabled = false;
+
+    // Disable overlays
+    holovibes.get_cd().reticle_enabled = false;
+}
+
 } // namespace holovibes::api

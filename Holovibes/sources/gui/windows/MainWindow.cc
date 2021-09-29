@@ -204,7 +204,14 @@ MainWindow::~MainWindow()
     delete p_left_shortcut_;
     delete p_right_shortcut_;
 
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::close_critical_compute(holovibes_);
     camera_none();
     ::holovibes::api::remove_infos();
@@ -554,7 +561,14 @@ void MainWindow::notify_error(const std::exception& e)
                 {
                     cd_.convolution_enabled = false;
                 }
-                close_windows();
+                ::holovibes::api::close_windows(holovibes_,
+                                                mainDisplay,
+                                                sliceXZ,
+                                                sliceYZ,
+                                                lens_window,
+                                                raw_window,
+                                                filter2d_window,
+                                                plot_window_);
                 ::holovibes::api::close_critical_compute(holovibes_);
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
@@ -833,36 +847,20 @@ void MainWindow::open_file(const std::string& path)
 void MainWindow::camera_none()
 {
     LOG_INFO;
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::camera_none(is_enabled_camera_, holovibes_);
 
     // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);
 
     notify();
-}
-
-void MainWindow::close_windows()
-{
-    LOG_INFO;
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
-
-    plot_window_.reset(nullptr);
-    mainDisplay.reset(nullptr);
-
-    lens_window.reset(nullptr);
-    cd_.gpu_lens_display_enabled = false;
-
-    filter2d_window.reset(nullptr);
-    cd_.filter2d_view_enabled = false;
-
-    /* Raw view & recording */
-    raw_window.reset(nullptr);
-    cd_.raw_view_enabled = false;
-
-    // Disable overlays
-    cd_.reticle_enabled = false;
 }
 
 void MainWindow::reset()
@@ -893,7 +891,14 @@ void MainWindow::reset()
     }
     cudaDeviceSynchronize();
     cudaDeviceReset();
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::remove_infos();
     holovibes_.reload_streams();
     try
@@ -912,7 +917,14 @@ void MainWindow::reset()
 void MainWindow::closeEvent(QCloseEvent*)
 {
     LOG_INFO;
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     if (!cd_.is_computation_stopped)
         ::holovibes::api::close_critical_compute(holovibes_);
     camera_none();
@@ -1028,7 +1040,14 @@ void MainWindow::init_image_mode(QPoint& position, QSize& size)
 void MainWindow::set_raw_mode()
 {
     LOG_INFO;
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::close_critical_compute(holovibes_);
 
     if (is_enabled_camera_)
@@ -1111,7 +1130,14 @@ void MainWindow::set_holographic_mode()
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::close_critical_compute(holovibes_);
 
     /* ---------- */
@@ -1176,7 +1202,14 @@ void MainWindow::refreshViewMode()
         old_scale = mainDisplay->getScale();
         old_translation = mainDisplay->getTranslate();
     }
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     ::holovibes::api::close_critical_compute(holovibes_);
     cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
     try
@@ -2915,7 +2948,14 @@ void MainWindow::import_browse_file()
 void MainWindow::import_stop()
 {
     LOG_INFO;
-    close_windows();
+    ::holovibes::api::close_windows(holovibes_,
+                                    mainDisplay,
+                                    sliceXZ,
+                                    sliceYZ,
+                                    lens_window,
+                                    raw_window,
+                                    filter2d_window,
+                                    plot_window_);
     cancel_time_transformation_cuts();
 
     ::holovibes::api::import_stop(is_enabled_camera_, holovibes_);
