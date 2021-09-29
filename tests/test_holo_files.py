@@ -5,7 +5,9 @@ import subprocess
 import time
 import difflib
 import pytest
-from typing import List, Tuple
+import json
+from typing import List, Tuple, Union
+
 
 import holo
 
@@ -13,7 +15,7 @@ INPUT_FILENAME = "input.holo"
 OUTPUT_FILENAME = "last_generated_output.holo"
 REF_FILENAME = "ref.holo"
 CONFIG_FILENAME = "holovibes.ini"
-CLI_ARGUMENT_FILENAME = "cli_argument.txt"
+CLI_ARGUMENT_FILENAME = "cli_argument.json"
 
 TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
 
@@ -34,21 +36,17 @@ def read_holo(path: str) -> Tuple[bytes, bytes, bytes]:
     return data
 
 
-def get_s_n(cli_argument_path: str):
-
-    s = "3"
-    n = "2"
-
-    return s, n
+def get_cli_arguments(cli_argument_path: str) -> List[str]:
+    with open(cli_argument_path, "rb") as f:
+        return json.load(f)
 
 
-def generate_holo_from(input: str, output: str, cli_agument: str, config: str = None) -> time.time:
-    s, n = get_s_n(cli_agument)
-
+def generate_holo_from(input: str, output: str, cli_argument: str, config: str = None) -> time.time:
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output, "-s", s, "-n", n]
+    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
+        get_cli_arguments(cli_argument)
     if config:
         cmd += ['--ini', config]
 
