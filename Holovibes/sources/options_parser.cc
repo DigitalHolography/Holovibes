@@ -80,14 +80,14 @@ OptionsParser::OptionsParser()
         "Load file in GPU (default = false)"
     )
     (
-        "start_index,s",
+        "start_frame,s",
         po::value<unsigned int>(),
-        "Start index (default = 1)"
+        "Start frame (default = 1). All strictly before start frame is not read."
     )
     (
-        "end_index,e",
+        "end_frame,e",
         po::value<unsigned int>(),
-        "End index (default = eof)"
+        "End frame (default = eof). All striclty after end frame is not read."
     );
     // clang-format on
 
@@ -118,10 +118,10 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
             options_.n_rec = boost::any_cast<unsigned int>(vm_["n_rec"].value());
-        if (vm_.count("start_index"))
-            options_.start_index = boost::any_cast<unsigned int>(vm_["start_index"].value());
-        if (vm_.count("end_index"))
-            options_.end_index = boost::any_cast<unsigned int>(vm_["end_index"].value());
+        if (vm_.count("start_frame"))
+            options_.start_frame = boost::any_cast<unsigned int>(vm_["start_frame"].value());
+        if (vm_.count("end_frame"))
+            options_.end_frame = boost::any_cast<unsigned int>(vm_["end_frame"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
