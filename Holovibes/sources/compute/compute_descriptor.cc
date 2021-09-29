@@ -364,6 +364,48 @@ void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
     }
 }
 
+void ComputeDescriptor::set_compute_mode(Computation mode) { compute_mode = mode; }
+
+void ComputeDescriptor::set_space_transformation_from_string(const QString value)
+{
+    if (value == "None")
+        space_transformation = SpaceTransformation::None;
+    else if (value == "1FFT")
+        space_transformation = SpaceTransformation::FFT1;
+    else if (value == "2FFT")
+        space_transformation = SpaceTransformation::FFT2;
+    else
+    {
+        // Shouldn't happen
+        space_transformation = SpaceTransformation::None;
+        LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
+    }
+}
+
+void ComputeDescriptor::set_time_transformation_from_string(const QString value)
+{
+    if (value == "STFT")
+        time_transformation = TimeTransformation::STFT;
+    else if (value == "PCA")
+        time_transformation = TimeTransformation::PCA;
+    else if (value == "None")
+        time_transformation = TimeTransformation::NONE;
+    else if (value == "SSA_STFT")
+        time_transformation = TimeTransformation::SSA_STFT;
+}
+
+void ComputeDescriptor::adapt_time_transformation_stride()
+{
+    if (time_transformation_stride < batch_size)
+    {
+        time_transformation_stride = batch_size.load();
+    }
+    else if (time_transformation_stride % batch_size != 0) // Go to lower multiple
+    {
+        time_transformation_stride -= time_transformation_stride % batch_size;
+    }
+}
+
 void ComputeDescriptor::handle_update_exception()
 {
     pindex = 0;
@@ -376,6 +418,12 @@ void ComputeDescriptor::handle_accumulation_exception()
     img_acc_slice_xy_enabled = false;
     img_acc_slice_xy_level = 1;
 }
+
+void ComputeDescriptor::set_time_transformation_stride(int value) { time_transformation_stride = value; }
+
+void ComputeDescriptor::set_time_transformation_size(int value) { time_transformation_size = size; }
+
+void ComputeDescriptor::set_batch_size(int value) { batch_size = value; }
 
 void ComputeDescriptor::set_contrast_mode(bool value)
 {
@@ -393,9 +441,150 @@ bool ComputeDescriptor::set_contrast_invert(bool value)
 
 void ComputeDescriptor::set_contrast_auto_refresh(bool value) { contrast_auto_refresh = value; }
 
+void ComputeDescriptor::set_contrast_enabled(bool value) { contrast_enabled = value; }
+
+void ComputeDescriptor::set_convolution_enabled(bool value) { convolution_enabled = value; }
+
 void ComputeDescriptor::set_divide_convolution_mode(bool value) { divide_convolution_enabled = value; }
 
 void ComputeDescriptor::set_reticle_enabled(bool value) { reticle_enabled = value; }
+
+void ComputeDescriptor::set_reticle_scale(double value) { reticle_scale = value; }
+
+void ComputeDescriptor::set_img_type(ImgType type) { img_type = type; }
+
+void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
+
+void ComputeDescriptor::set_time_transformation_cuts_enabled(bool value) { time_transformation_cuts_enabled = value; }
+
+void ComputeDescriptor::set_renorm_enabled(bool value) { renorm_enabled = value; }
+
+void ComputeDescriptor::set_filter2d_enabled(bool value) { filter2d_enabled = value; }
+
+void ComputeDescriptor::set_filter2d_n1(int n) { filter2d_n1 = n; }
+
+void ComputeDescriptor::set_filter2d_n1(int n) { filter2d_n2 = n; }
+
+void ComputeDescriptor::set_fft_shift_enabled(bool value) { fft_shift_enabled = value; }
+
+void ComputeDescriptor::set_gpu_lens_display_enabled(bool value) { gpu_lens_display_enabled = value; }
+
+void ComputeDescriptor::set_x_cuts(int value) { x_cuts = value; }
+
+void ComputeDescriptor::set_x_cuts(int value) { y_cuts = value; }
+
+void ComputeDescriptor::set_pindex(int value) { pindex = value; }
+
+void ComputeDescriptor::set_q_index(int value) { q_index = value; }
+
+void ComputeDescriptor::set_lambda(float value) { lambda = value; }
+
+void ComputeDescriptor::set_zdistance(float value) { zdistance = value; }
+
+void ComputeDescriptor::set_composite_p_red(int value) { composite_p_red = value; }
+
+void ComputeDescriptor::set_composite_p_blue(int value) { composite_p_blue = value; }
+
+void ComputeDescriptor::set_composite_p_min_h(int value) { composite_p_min_h = value; }
+
+void ComputeDescriptor::set_composite_p_max_h(int value) { composite_p_max_h = value; }
+
+void ComputeDescriptor::set_composite_p_min_s(int value) { composite_p_min_s = value; }
+
+void ComputeDescriptor::set_composite_p_max_s(int value) { composite_p_max_s = value; }
+
+void ComputeDescriptor::set_composite_p_min_v(int value) { composite_p_min_v = value; }
+
+void ComputeDescriptor::set_composite_p_max_v(int value) { composite_p_max_v = value; }
+
+void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
+{
+    weight_r = r;
+    weight_g = g;
+    weight_b = b;
+}
+
+void ComputeDescriptor::set_weight_g(int value) { weight_g = value; }
+
+void ComputeDescriptor::set_weight_b(int value) { weight_b = value; }
+
+void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights_ = value; }
+
+void ComputeDescriptor::set_composite_kind(CompositeKind kind) { composite_kind = kind; }
+
+void ComputeDescriptor::set_composite_p_activated_s(bool value) { composite_p_activated_s = value; }
+
+void ComputeDescriptor::set_composite_p_activated_v(bool value) { composite_p_activated_v = value; }
+
+void ComputeDescriptor::set_h_blur_activated(bool value) { h_blur_activated = value; }
+
+void ComputeDescriptor::set_h_blur_kernel_size(int value) { h_blur_kernel_size = value; }
+
+void ComputeDescriptor::set_p_accu(bool enabled, int level)
+{
+    p_accu_enabled = enabled;
+    p_acc_level = level;
+}
+
+void ComputeDescriptor::set_x_accu(bool enabled, int level)
+{
+    x_accu_enabled = enabled;
+    x_acc_level = level;
+}
+
+void ComputeDescriptor::set_y_accu(bool enabled, int level)
+{
+    y_accu_enabled = enabled;
+    y_acc_level = level;
+}
+
+void ComputeDescriptor::set_q_accu(bool enabled, int level)
+{
+    q_acc_enabled = enabled;
+    q_acc_level = level;
+}
+
+void ComputeDescriptor::change_window(int index)
+{
+    if (index == 0)
+        cd_.current_window = WindowKind::XYview;
+    else if (index == 1)
+        cd_.current_window = WindowKind::XZview;
+    else if (index == 2)
+        cd_.current_window = WindowKind::YZview;
+    else if (index == 3)
+        cd_.current_window = WindowKind::Filter2D;
+}
+
+void ComputeDescriptor::set_rendering_params(float value)
+{
+    time_transformation_stride = std::ceil(value / 20.0f);
+    batch_size = 1;
+}
+
+void ComputeDescriptor::reset_windows_display()
+{
+    gpu_lens_display_enabled = false;
+    filter2d_view_enabled = false;
+    raw_view_enabled = false;
+    reticle_enabled = false;
+}
+
+void ComputeDescriptor::reset_gui()
+{
+    pindex = 0;
+    time_transformation_size = 1;
+}
+
+void ComputeDescriptor::reset_slice_view()
+{
+    contrast_max_slice_xz = false;
+    contrast_max_slice_yz = false;
+    log_scale_slice_xz_enabled = false;
+    log_scale_slice_yz_enabled = false;
+    img_acc_slice_xz_enabled = false;
+    img_acc_slice_yz_enabled = false;
+}
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
