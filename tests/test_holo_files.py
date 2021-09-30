@@ -37,6 +37,9 @@ def read_holo(path: str) -> Tuple[bytes, bytes, bytes]:
 
 
 def get_cli_arguments(cli_argument_path: str) -> List[str]:
+    if not os.path.isfile(cli_argument_path):
+        return []
+
     with open(cli_argument_path, "rb") as f:
         return json.load(f)
 
@@ -86,7 +89,7 @@ def find_tests() -> List[str]:
     return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
 
 
-@pytest.mark.flaky(reruns=5, reruns_delay=3)
+@pytest.mark.flaky(reruns=5, reruns_delay=3, )
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 
@@ -107,11 +110,8 @@ def test_holo(folder: str):
     if not os.path.isfile(ref):
         not_found(REF_FILENAME)
 
-    if not os.path.isfile(cli_argument):
-        not_found(CLI_ARGUMENT_FILENAME)
-
     if not os.path.isfile(config):
-        config = None
+        not_found(CONFIG_FILENAME)
 
     if os.path.isfile(output):
         os.remove(output)

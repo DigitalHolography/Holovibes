@@ -203,10 +203,6 @@ def build_ref(args) -> int:
                 print(
                     f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
-            if not os.path.isfile(cli_argument):
-                print(
-                    f"Did not find the {CLI_ARGUMENT_FILENAME} file in folder {path}")
-
             if not os.path.isfile(config):
                 config = None
 
