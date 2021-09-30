@@ -508,4 +508,11 @@ void set_composite_intervals_hsv_s_max(UserInterfaceDescriptor& ui_descriptor, u
     pipe_refresh(ui_descriptor);
 }
 
+void set_composite_intervals_hsv_v_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_v)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().composite_p_min_v = composite_p_min_v;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

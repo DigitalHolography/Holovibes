@@ -1873,8 +1873,9 @@ void MainWindow::set_composite_intervals_hsv_s_max()
 void MainWindow::set_composite_intervals_hsv_v_min()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_p_min_v = ui.SpinBox_value_freq_min->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_composite_intervals_hsv_v_min(ui_descriptor_, ui.SpinBox_value_freq_min->value());
+
     notify();
 }
 
