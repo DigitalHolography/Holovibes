@@ -1846,8 +1846,9 @@ void MainWindow::set_composite_intervals_hsv_h_min()
 void MainWindow::set_composite_intervals_hsv_h_max()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_p_max_h = ui.SpinBox_hue_freq_max->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_composite_intervals_hsv_h_max(ui_descriptor_, ui.SpinBox_hue_freq_max->value());
+
     notify();
 }
 
