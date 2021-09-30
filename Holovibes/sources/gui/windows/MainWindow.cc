@@ -1910,15 +1910,16 @@ void MainWindow::set_composite_auto_weights(bool value)
 void MainWindow::click_composite_rgb_or_hsv()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_kind =
-        ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
+
     if (ui.radioButton_rgb->isChecked())
     {
+        ::holovibes::api::select_composite_rgb(ui_descriptor_);
         ui.PRedSpinBox_Composite->setValue(ui.SpinBox_hue_freq_min->value());
         ui.PBlueSpinBox_Composite->setValue(ui.SpinBox_hue_freq_max->value());
     }
     else
     {
+        ::holovibes::api::select_composite_hsv(ui_descriptor_);
         ui.SpinBox_hue_freq_min->setValue(ui.PRedSpinBox_Composite->value());
         ui.SpinBox_hue_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
         ui.SpinBox_saturation_freq_min->setValue(ui.PRedSpinBox_Composite->value());

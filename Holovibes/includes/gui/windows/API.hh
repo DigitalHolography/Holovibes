@@ -213,4 +213,8 @@ void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
                                 UserInterfaceDescriptor& ui_descriptor,
                                 bool value);
 
+void select_composite_rgb(UserInterfaceDescriptor& ui_descriptor);
+
+void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

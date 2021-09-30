@@ -540,4 +540,18 @@ void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
     mainwindow.set_auto_contrast();
 }
 
+void select_composite_rgb(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().composite_kind = CompositeKind::RGB;
+}
+
+void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().composite_kind = CompositeKind::HSV;
+}
+
 } // namespace holovibes::api
