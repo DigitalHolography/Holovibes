@@ -269,9 +269,7 @@ void stop_record(UserInterfaceDescriptor& ui_descriptor)
         ui_descriptor.holovibes_.stop_frame_record();
 }
 
-const std::string browse_record_output_file(std::string& std_filepath,
-                                            std::string& record_output_directory,
-                                            std::string& default_output_filename)
+const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath)
 {
     LOG_INFO;
 
@@ -280,9 +278,9 @@ const std::string browse_record_output_file(std::string& std_filepath,
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     // FIXME Opti: we could be all these 3 operations below on a single string processing
-    record_output_directory = path.parent_path().string();
+    ui_descriptor.record_output_directory_ = path.parent_path().string();
     const std::string file_ext = path.extension().string();
-    default_output_filename = path.stem().string();
+    ui_descriptor.default_output_filename_ = path.stem().string();
 
     return file_ext;
 }

@@ -138,9 +138,7 @@ void stop_record(UserInterfaceDescriptor& ui_descriptor);
  * \param default_output_filename output filename FIXME: shouldn't be stored in the wild.
  * \return const std::string the extension of the output file
  */
-const std::string browse_record_output_file(std::string& std_filepath,
-                                            std::string& record_output_directory,
-                                            std::string& default_output_filename);
+const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath);
 
 /*! \brief Set the record mode object
  *

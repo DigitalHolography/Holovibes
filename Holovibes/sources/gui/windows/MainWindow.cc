@@ -2671,9 +2671,7 @@ void MainWindow::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
-    const std::string file_ext = ::holovibes::api::browse_record_output_file(std_filepath,
-                                                                             ui_descriptor_.record_output_directory_,
-                                                                             ui_descriptor_.default_output_filename_);
+    const std::string file_ext = ::holovibes::api::browse_record_output_file(ui_descriptor_, std_filepath);
 
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
