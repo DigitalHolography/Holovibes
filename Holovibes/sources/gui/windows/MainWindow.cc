@@ -1786,15 +1786,11 @@ void MainWindow::set_y_accu()
 void MainWindow::set_x_y()
 {
     LOG_INFO;
-    auto& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
+    const auto& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
     uint x = ui.XSpinBox->value();
     uint y = ui.YSpinBox->value();
 
-    if (x < fd.width)
-        ui_descriptor_.holovibes_.get_cd().x_cuts = x;
-
-    if (y < fd.height)
-        ui_descriptor_.holovibes_.get_cd().y_cuts = y;
+    ::holovibes::api::set_x_y(ui_descriptor_, fd, x, y);
 }
 
 void MainWindow::set_q(int value)
