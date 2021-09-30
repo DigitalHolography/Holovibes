@@ -386,4 +386,32 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
         mainwindow.set_holographic_mode();
 }
 
+void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    try
+    {
+        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
+        // operation to set a boolean
+        // But maybe a simple read access that create a false condition result is better than simply making a
+        // writting access
+        if (!ui_descriptor.holovibes_.get_compute_pipe()->get_request_refresh())
+            ui_descriptor.holovibes_.get_compute_pipe()->request_refresh();
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what();
+    }
+}
+
+void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_value)
+{
+    ui_descriptor.holovibes_.get_cd().p_accu_enabled = is_p_accu;
+    ui_descriptor.holovibes_.get_cd().p_acc_level = p_value;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

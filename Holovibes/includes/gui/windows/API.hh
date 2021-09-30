@@ -177,4 +177,8 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
                     const bool is_null_mode,
                     const uint image_mode_index);
 
+void pipe_refresh(UserInterfaceDescriptor& ui_descriptor);
+
+void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_value);
+
 } // namespace holovibes::api

@@ -577,9 +577,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Creates the windows for processed image output */
     void createHoloWindow();
 
-    /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh();
-
     /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
 

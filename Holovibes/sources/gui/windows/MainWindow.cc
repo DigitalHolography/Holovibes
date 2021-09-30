@@ -1221,7 +1221,7 @@ void MainWindow::set_view_mode(const QString value)
         notify();
         layout_toggled();
     });
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 
     // Force XYview autocontrast
     pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -1422,7 +1422,7 @@ void MainWindow::change_window()
         ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::YZview;
     else if (window_cbox->currentIndex() == 3)
         ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::Filter2D;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1432,7 +1432,7 @@ void MainWindow::toggle_renormalize(bool value)
     ui_descriptor_.holovibes_.get_cd().renorm_enabled = value;
 
     ui_descriptor_.holovibes_.get_compute_pipe()->request_clear_img_acc();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::set_filter2d(bool checked)
@@ -1459,7 +1459,7 @@ void MainWindow::set_filter2d(bool checked)
             pipe->autocontrast_end_pipe(WindowKind::XYview);
         ui_descriptor_.holovibes_.get_cd().filter2d_enabled = checked;
     }
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1541,7 +1541,7 @@ void MainWindow::update_filter2d_view(bool checked)
         ui_descriptor_.filter2d_window.reset(nullptr);
     }
 
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1565,7 +1565,7 @@ void MainWindow::set_filter2d_n1(int n)
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1589,7 +1589,7 @@ void MainWindow::set_filter2d_n2(int n)
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1601,7 +1601,7 @@ void MainWindow::cancel_filter2d()
 
     if (ui_descriptor_.holovibes_.get_cd().filter2d_view_enabled)
         update_filter2d_view(false);
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1612,7 +1612,7 @@ void MainWindow::set_fft_shift(const bool value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().fft_shift_enabled = value;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::set_time_transformation_size()
@@ -1683,7 +1683,7 @@ void MainWindow::update_lens_view(bool value)
         ui_descriptor_.lens_window.reset(nullptr);
     }
 
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::disable_lens_view()
@@ -1737,7 +1737,7 @@ void MainWindow::update_raw_view(bool value)
         ui_descriptor_.raw_window.reset(nullptr);
         disable_raw_view();
     }
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::disable_raw_view()
@@ -1759,11 +1759,9 @@ void MainWindow::disable_raw_view()
 void MainWindow::set_p_accu()
 {
     LOG_INFO;
-    auto spinbox = ui.PAccSpinBox;
-    auto checkBox = ui.PAccuCheckBox;
-    ui_descriptor_.holovibes_.get_cd().p_accu_enabled = checkBox->isChecked();
-    ui_descriptor_.holovibes_.get_cd().p_acc_level = spinbox->value();
-    pipe_refresh();
+
+    ::holovibes::api::set_p_accu(ui_descriptor_, ui.PAccuCheckBox->isChecked(), ui.PAccSpinBox->value());
+
     notify();
 }
 
@@ -1774,7 +1772,7 @@ void MainWindow::set_x_accu()
     auto checkBox = ui.XAccuCheckBox;
     ui_descriptor_.holovibes_.get_cd().x_accu_enabled = checkBox->isChecked();
     ui_descriptor_.holovibes_.get_cd().x_acc_level = box->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1785,7 +1783,7 @@ void MainWindow::set_y_accu()
     auto checkBox = ui.YAccuCheckBox;
     ui_descriptor_.holovibes_.get_cd().y_accu_enabled = checkBox->isChecked();
     ui_descriptor_.holovibes_.get_cd().y_acc_level = box->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1829,7 +1827,7 @@ void MainWindow::set_p(int value)
     if (value < static_cast<int>(ui_descriptor_.holovibes_.get_cd().time_transformation_size))
     {
         ui_descriptor_.holovibes_.get_cd().pindex = value;
-        pipe_refresh();
+        ::holovibes::api::pipe_refresh(ui_descriptor_);
         notify();
     }
     else
@@ -1843,7 +1841,7 @@ void MainWindow::set_composite_intervals()
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
     ui_descriptor_.holovibes_.get_cd().composite_p_red = ui.PRedSpinBox_Composite->value();
     ui_descriptor_.holovibes_.get_cd().composite_p_blue = ui.PBlueSpinBox_Composite->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1851,7 +1849,7 @@ void MainWindow::set_composite_intervals_hsv_h_min()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_min_h = ui.SpinBox_hue_freq_min->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1859,7 +1857,7 @@ void MainWindow::set_composite_intervals_hsv_h_max()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_max_h = ui.SpinBox_hue_freq_max->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1867,7 +1865,7 @@ void MainWindow::set_composite_intervals_hsv_s_min()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1875,7 +1873,7 @@ void MainWindow::set_composite_intervals_hsv_s_max()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1883,7 +1881,7 @@ void MainWindow::set_composite_intervals_hsv_v_min()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_min_v = ui.SpinBox_value_freq_min->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1891,7 +1889,7 @@ void MainWindow::set_composite_intervals_hsv_v_max()
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().composite_p_max_v = ui.SpinBox_value_freq_max->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -1901,7 +1899,7 @@ void MainWindow::set_composite_weights()
     ui_descriptor_.holovibes_.get_cd().weight_r = ui.WeightSpinBox_R->value();
     ui_descriptor_.holovibes_.get_cd().weight_g = ui.WeightSpinBox_G->value();
     ui_descriptor_.holovibes_.get_cd().weight_b = ui.WeightSpinBox_B->value();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2115,7 +2113,7 @@ void MainWindow::set_wavelength(const double value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::set_z(const double value)
@@ -2125,7 +2123,7 @@ void MainWindow::set_z(const double value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().zdistance = static_cast<float>(value);
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::increment_z()
@@ -2200,7 +2198,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
         return;
 
     ui_descriptor_.holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2211,7 +2209,7 @@ void MainWindow::set_accumulation(bool value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().set_accumulation(ui_descriptor_.holovibes_.get_cd().current_window, value);
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2222,28 +2220,7 @@ void MainWindow::set_accumulation_level(int value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().set_accumulation_level(ui_descriptor_.holovibes_.get_cd().current_window, value);
-    pipe_refresh();
-}
-
-void MainWindow::pipe_refresh()
-{
-    LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
-
-    try
-    {
-        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
-        // operation to set a boolean
-        // But maybe a simple read access that create a false condition result is better than simply making a
-        // writting access
-        if (!ui_descriptor_.holovibes_.get_compute_pipe()->get_request_refresh())
-            ui_descriptor_.holovibes_.get_compute_pipe()->request_refresh();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what();
-    }
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::set_composite_area()
@@ -2313,7 +2290,7 @@ void MainWindow::set_contrast_mode(bool value)
     change_window();
     ui_descriptor_.holovibes_.get_cd().contrast_enabled = value;
     ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh = true;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2386,7 +2363,7 @@ void MainWindow::set_contrast_min(const double value)
         {
             ui_descriptor_.holovibes_.get_cd().set_contrast_min(ui_descriptor_.holovibes_.get_cd().current_window,
                                                                 value);
-            pipe_refresh();
+            ::holovibes::api::pipe_refresh(ui_descriptor_);
         }
     }
 }
@@ -2409,7 +2386,7 @@ void MainWindow::set_contrast_max(const double value)
         {
             ui_descriptor_.holovibes_.get_cd().set_contrast_max(ui_descriptor_.holovibes_.get_cd().current_window,
                                                                 value);
-            pipe_refresh();
+            ::holovibes::api::pipe_refresh(ui_descriptor_);
         }
     }
 }
@@ -2423,7 +2400,7 @@ void MainWindow::invert_contrast(bool value)
     if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
     {
         ui_descriptor_.holovibes_.get_cd().contrast_invert = value;
-        pipe_refresh();
+        ::holovibes::api::pipe_refresh(ui_descriptor_);
     }
 }
 
@@ -2431,7 +2408,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 {
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh = value;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2445,7 +2422,7 @@ void MainWindow::set_log_scale(const bool value)
                                                                    value);
     if (value && ui_descriptor_.holovibes_.get_cd().contrast_enabled)
         set_auto_contrast();
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 #pragma endregion
@@ -2493,7 +2470,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().divide_convolution_enabled = value;
 
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2512,14 +2489,14 @@ void MainWindow::set_fast_pipe(bool value)
             pipe->request_update_time_transformation_stride();
             pipe->request_update_time_transformation_size();
             ui_descriptor_.holovibes_.get_cd().fast_pipe = true;
-            pipe_refresh();
+            ::holovibes::api::pipe_refresh(ui_descriptor_);
             notify();
         });
     }
     else
     {
         ui_descriptor_.holovibes_.get_cd().fast_pipe = false;
-        pipe_refresh();
+        ::holovibes::api::pipe_refresh(ui_descriptor_);
         notify();
     }
 }
@@ -2540,7 +2517,7 @@ void MainWindow::display_reticle(bool value)
     {
         ui_descriptor_.mainDisplay->getOverlayManager().disable_all(Reticle);
     }
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
     notify();
 }
 
@@ -2551,7 +2528,7 @@ void MainWindow::reticle_scale(double value)
         return;
 
     ui_descriptor_.holovibes_.get_cd().reticle_scale = value;
-    pipe_refresh();
+    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 #pragma endregion Reticle
 /* ------------ */
