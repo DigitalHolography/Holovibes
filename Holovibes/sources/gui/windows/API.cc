@@ -531,4 +531,13 @@ void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r
     pipe_refresh(ui_descriptor);
 }
 
+void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
+                                UserInterfaceDescriptor& ui_descriptor,
+                                bool value)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().composite_auto_weights_ = value;
+    mainwindow.set_auto_contrast();
+}
+
 } // namespace holovibes::api

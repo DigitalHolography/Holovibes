@@ -209,4 +209,8 @@ void set_composite_intervals_hsv_v_max(UserInterfaceDescriptor& ui_descriptor, u
 
 void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r, uint weight_g, uint weight_b);
 
+void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
+                                UserInterfaceDescriptor& ui_descriptor,
+                                bool value);
+
 } // namespace holovibes::api

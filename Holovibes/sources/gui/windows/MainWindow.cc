@@ -1903,8 +1903,8 @@ void MainWindow::set_composite_weights()
 void MainWindow::set_composite_auto_weights(bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_auto_weights_ = value;
-    set_auto_contrast();
+
+    ::holovibes::api::set_composite_auto_weights(*this, ui_descriptor_, value);
 }
 
 void MainWindow::click_composite_rgb_or_hsv()
