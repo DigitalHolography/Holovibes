@@ -1891,10 +1891,12 @@ void MainWindow::set_composite_intervals_hsv_v_max()
 void MainWindow::set_composite_weights()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().weight_r = ui.WeightSpinBox_R->value();
-    ui_descriptor_.holovibes_.get_cd().weight_g = ui.WeightSpinBox_G->value();
-    ui_descriptor_.holovibes_.get_cd().weight_b = ui.WeightSpinBox_B->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_composite_weights(ui_descriptor_,
+                                            ui.WeightSpinBox_R->value(),
+                                            ui.WeightSpinBox_G->value(),
+                                            ui.WeightSpinBox_B->value());
+
     notify();
 }
 
