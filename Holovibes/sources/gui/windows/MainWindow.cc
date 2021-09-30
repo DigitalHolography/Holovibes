@@ -2769,10 +2769,10 @@ void MainWindow::set_record_mode(const QString& value)
     if (ui_descriptor_.record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
-    ::holovibes::api::stop_record(ui_descriptor_.holovibes_, ui_descriptor_.record_mode_);
+    ::holovibes::api::stop_record(ui_descriptor_);
 
     const std::string text = value.toStdString();
-    ::holovibes::api::set_record_mode(text, ui_descriptor_.record_mode_);
+    ::holovibes::api::set_record_mode(ui_descriptor_, text);
 
     if (ui_descriptor_.record_mode_ == RecordMode::CHART)
     {
@@ -2823,7 +2823,7 @@ void MainWindow::set_record_mode(const QString& value)
 void MainWindow::stop_record()
 {
     LOG_INFO;
-    ::holovibes::api::stop_record(ui_descriptor_.holovibes_, ui_descriptor_.record_mode_);
+    ::holovibes::api::stop_record(ui_descriptor_);
 }
 
 void MainWindow::record_finished(RecordMode record_mode)

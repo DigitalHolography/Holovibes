@@ -129,7 +129,7 @@ void start_record(UserInterfaceDescriptor& ui_descriptor,
  * \param holovibes the computing object
  * \param record_mode what kind of record is it FIXME: shouldn't be stored in the wild.
  */
-void stop_record(Holovibes& holovibes, const RecordMode record_mode);
+void stop_record(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Gets the destination of the output file
  *
@@ -147,7 +147,7 @@ const std::string browse_record_output_file(std::string& std_filepath,
  * \param text the catched mode
  * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
  */
-void set_record_mode(const std::string& text, RecordMode& record_mode);
+void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text);
 
 /*! \brief Closes all the currently displaying windows
  *

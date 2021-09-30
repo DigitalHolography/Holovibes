@@ -258,15 +258,15 @@ void start_record(UserInterfaceDescriptor& ui_descriptor,
     }
 }
 
-void stop_record(Holovibes& holovibes, const RecordMode record_mode)
+void stop_record(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    holovibes.stop_batch_gpib();
+    ui_descriptor.holovibes_.stop_batch_gpib();
 
-    if (record_mode == RecordMode::CHART)
-        holovibes.stop_chart_record();
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
-        holovibes.stop_frame_record();
+    if (ui_descriptor.record_mode_ == RecordMode::CHART)
+        ui_descriptor.holovibes_.stop_chart_record();
+    else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM || ui_descriptor.record_mode_ == RecordMode::RAW)
+        ui_descriptor.holovibes_.stop_frame_record();
 }
 
 const std::string browse_record_output_file(std::string& std_filepath,
@@ -287,16 +287,16 @@ const std::string browse_record_output_file(std::string& std_filepath,
     return file_ext;
 }
 
-void set_record_mode(const std::string& text, RecordMode& record_mode)
+void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text)
 {
     LOG_INFO;
 
     if (text == "Chart")
-        record_mode = RecordMode::CHART;
+        ui_descriptor.record_mode_ = RecordMode::CHART;
     else if (text == "Processed Image")
-        record_mode = RecordMode::HOLOGRAM;
+        ui_descriptor.record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
-        record_mode = RecordMode::RAW;
+        ui_descriptor.record_mode_ = RecordMode::RAW;
     else
         throw std::exception("Record mode not handled");
 }
