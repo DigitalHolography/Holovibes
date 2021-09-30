@@ -5203,7 +5203,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_ini()</slot>
+   <slot>browse_import_ini()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5251,7 +5251,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionExport_as</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_ini_save()</slot>
+   <slot>browse_export_ini()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5313,9 +5313,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>
-  <slot>browse_ini()</slot>
+  <slot>browse_import_ini()</slot>
   <slot>write_ini()</slot>
-  <slot>browse_ini_save()</slot>
+  <slot>browse_export_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>
   <slot>rotateTexture()</slot>

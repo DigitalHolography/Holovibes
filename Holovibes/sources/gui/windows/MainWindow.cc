@@ -663,13 +663,13 @@ void MainWindow::write_ini(QString filename)
     notify();
 }
 
-void MainWindow::browse_ini_save()
+void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
     write_ini(filename);
 }
 
-void MainWindow::browse_ini()
+void MainWindow::browse_import_ini()
 {
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
@@ -693,14 +693,12 @@ void MainWindow::reload_ini(QString filename)
         LOG_ERROR << e.what();
         LOG_INFO << e.what() << std::endl;
     }
+
     if (import_type_ == ImportType::File)
-    {
         import_start();
-    }
     else if (import_type_ == ImportType::Camera)
-    {
         change_camera(kCamera);
-    }
+
     notify();
 }
 
