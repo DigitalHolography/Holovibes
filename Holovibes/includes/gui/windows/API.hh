@@ -183,4 +183,6 @@ void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_v
 
 void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_value);
 
+void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value);
+
 } // namespace holovibes::api

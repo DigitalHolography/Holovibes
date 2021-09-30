@@ -422,4 +422,12 @@ void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_v
     pipe_refresh(ui_descriptor);
 }
 
+void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().y_accu_enabled = is_y_accu;
+    ui_descriptor.holovibes_.get_cd().y_acc_level = y_value;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

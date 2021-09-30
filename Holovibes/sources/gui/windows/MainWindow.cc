@@ -1777,11 +1777,9 @@ void MainWindow::set_x_accu()
 void MainWindow::set_y_accu()
 {
     LOG_INFO;
-    auto box = ui.YAccSpinBox;
-    auto checkBox = ui.YAccuCheckBox;
-    ui_descriptor_.holovibes_.get_cd().y_accu_enabled = checkBox->isChecked();
-    ui_descriptor_.holovibes_.get_cd().y_acc_level = box->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_y_accu(ui_descriptor_, ui.YAccuCheckBox->isChecked(), ui.YAccSpinBox->value());
+
     notify();
 }
 
