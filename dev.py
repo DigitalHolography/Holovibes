@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from time import sleep
 
-from tests.constant_name import TESTS_DATA, REF_FILENAME, OUTPUT_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
+from tests.constant_name import *
 
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
@@ -187,11 +187,8 @@ def ctest(args):
 def build_ref(args) -> int:
     from tests.test_holo_files import generate_holo_from
 
-    dirs = os.listdir(TESTS_DATA)
+    dirs = find_tests()
     for name in dirs:
-        if name == ".pytest_cache":
-            continue
-
         sleep(1)
 
         path = os.path.join(TESTS_DATA, name)
@@ -202,8 +199,10 @@ def build_ref(args) -> int:
             config = os.path.join(path, CONFIG_FILENAME)
 
             if not os.path.isfile(input):
-                print(
-                    f"Did not find the {INPUT_FILENAME} file in folder {path}")
+                input = get_input_file(path)
+                if input is None:
+                    print(
+                        f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
             if not os.path.isfile(config):
                 config = None

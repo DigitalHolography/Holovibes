@@ -77,10 +77,6 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
     return a != b
 
 
-def find_tests() -> List[str]:
-    return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name)) and name != "inputs"]
-
-
 @pytest.mark.flaky(reruns=5, reruns_delay=3, )
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
@@ -95,14 +91,6 @@ def test_holo(folder: str):
     def not_found(filename: str) -> None:
         pytest.skip(
             f"Did not find the {filename} file in folder {path}")
-
-    def get_input_file(test_folder: str) -> str:
-        general_inputs = os.listdir(TESTS_INPUTS)
-        for general_input in general_inputs:
-            # Remove ".holo" (5 last char) of the filename
-            if general_input[:-5] in test_folder:
-                return os.path.join(TESTS_INPUTS, general_input)
-        return None
 
     if not os.path.isfile(input):
         input = get_input_file(path)
