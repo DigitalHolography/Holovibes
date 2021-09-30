@@ -943,14 +943,7 @@ void MainWindow::change_camera(CameraKind c)
         try
         {
 
-            ::holovibes::api::change_camera(*this,
-                                            ui_descriptor_.holovibes_,
-                                            c,
-                                            ui_descriptor_.kCamera,
-                                            ui_descriptor_.is_enabled_camera_,
-                                            ui_descriptor_.import_type_,
-                                            ui_descriptor_.mainDisplay,
-                                            ui.ImageModeComboBox->currentIndex());
+            ::holovibes::api::change_camera(*this, ui_descriptor_, c, ui.ImageModeComboBox->currentIndex());
 
             // Make camera's settings menu accessible
             QAction* settings = ui.actionSettings;

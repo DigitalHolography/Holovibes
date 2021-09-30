@@ -344,32 +344,28 @@ void set_camera_timeout()
 }
 
 void change_camera(::holovibes::gui::MainWindow& mainwindow,
-                   Holovibes& holovibes,
+                   UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
-                   CameraKind& kCamera,
-                   bool& is_enabled_camera,
-                   ::holovibes::UserInterfaceDescriptor::ImportType& import_type,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    const uint image_mode_index)
 {
     LOG_INFO;
 
-    mainDisplay.reset(nullptr);
-    if (!is_raw_mode(holovibes))
-        holovibes.stop_compute();
-    holovibes.stop_frame_read();
+    ui_descriptor.mainDisplay.reset(nullptr);
+    if (!is_raw_mode(ui_descriptor.holovibes_))
+        ui_descriptor.holovibes_.stop_compute();
+    ui_descriptor.holovibes_.stop_frame_read();
 
     set_camera_timeout();
 
-    set_computation_mode(holovibes, image_mode_index);
+    set_computation_mode(ui_descriptor.holovibes_, image_mode_index);
 
-    holovibes.start_camera_frame_read(c);
-    is_enabled_camera = true;
-    set_image_mode(mainwindow, holovibes, nullptr, image_mode_index);
-    import_type = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
-    kCamera = c;
+    ui_descriptor.holovibes_.start_camera_frame_read(c);
+    ui_descriptor.is_enabled_camera_ = true;
+    set_image_mode(mainwindow, ui_descriptor.holovibes_, nullptr, image_mode_index);
+    ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
+    ui_descriptor.kCamera = c;
 
-    holovibes.get_cd().is_computation_stopped = false;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
 }
 
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,

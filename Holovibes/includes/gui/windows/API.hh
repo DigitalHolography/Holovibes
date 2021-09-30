@@ -184,12 +184,8 @@ void set_camera_timeout();
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
 void change_camera(::holovibes::gui::MainWindow& mainwindow,
-                   Holovibes& holovibes,
+                   UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
-                   CameraKind& kCamera,
-                   bool& is_enabled_camera,
-                   ::holovibes::UserInterfaceDescriptor::ImportType& import_type,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    const uint image_mode_index);
 
 /*! \brief Sets the image mode
