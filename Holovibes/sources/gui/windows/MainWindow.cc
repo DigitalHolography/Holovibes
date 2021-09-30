@@ -1768,11 +1768,9 @@ void MainWindow::set_p_accu()
 void MainWindow::set_x_accu()
 {
     LOG_INFO;
-    auto box = ui.XAccSpinBox;
-    auto checkBox = ui.XAccuCheckBox;
-    ui_descriptor_.holovibes_.get_cd().x_accu_enabled = checkBox->isChecked();
-    ui_descriptor_.holovibes_.get_cd().x_acc_level = box->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_x_accu(ui_descriptor_, ui.XAccuCheckBox->isChecked(), ui.XAccSpinBox->value());
+
     notify();
 }
 
