@@ -6,18 +6,12 @@ import time
 import difflib
 import pytest
 import json
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 
 from tests import holo
+from tests.constant_name import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME, TESTS_DATA
 
-INPUT_FILENAME = "input.holo"
-OUTPUT_FILENAME = "last_generated_output.holo"
-REF_FILENAME = "ref.holo"
-CONFIG_FILENAME = "holovibes.ini"
-CLI_ARGUMENT_FILENAME = "cli_argument.json"
-
-TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
 
 HOLOVIBES_BIN = os.path.join(
     os.getcwd(), "build", "Ninja", "Release", "Holovibes.exe")

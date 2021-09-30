@@ -5,8 +5,10 @@ import subprocess
 import argparse
 import pathlib
 import shutil
+import subprocess
 from time import sleep
 
+from tests.constant_name import TESTS_DATA, REF_FILENAME, OUTPUT_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
 
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
@@ -14,7 +16,7 @@ DEFAULT_GOAL = "build"
 
 TEST_DATA = "data"
 
-GOALS = ["cmake", "build", "run", "pytest", "ctest", "build_ref"]
+GOALS = ["cmake", "build", "run", "pytest", "ctest", "build_ref", "clean"]
 
 RELEASE_OPT = ["Release", "release", "R", "r"]
 DEBUG_OPT = ["Debug", "debug", "D", "d"]
@@ -183,7 +185,7 @@ def ctest(args):
 
 
 def build_ref(args) -> int:
-    from tests.test_holo_files import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
+    from tests.test_holo_files import generate_holo_from
 
     dirs = os.listdir(TESTS_DATA)
     for name in dirs:
@@ -215,6 +217,22 @@ def build_ref(args) -> int:
     return 0
 
 
+def clean(args) -> int:
+    # Remove build directory
+    if os.path.isdir('build'):
+        subprocess.call("rm -rf build/", shell=True)
+
+    # Remove last_generated_output.holo from tests/data
+    for name in TESTS_DATA:
+        path = os.path.join(TESTS_DATA, name)
+        last_output_path = os.path.join(path, OUTPUT_FILENAME)
+
+        if os.path.isfile(last_output_path):
+            os.remove(last_output_path)
+
+    return 0
+
+
 def run_goal(goal: str, args) -> int:
 
     GoalsFuncs = {
@@ -223,7 +241,8 @@ def run_goal(goal: str, args) -> int:
         "run": run,
         "pytest": pytest,
         "ctest": ctest,
-        "build_ref": build_ref
+        "build_ref": build_ref,
+        "clean": clean
     }
 
     goal_func = GoalsFuncs.get(goal)
