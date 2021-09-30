@@ -224,7 +224,6 @@ def clean(args) -> int:
 
     # Remove last_generated_output.holo from tests/data
     for name in os.listdir(TESTS_DATA):
-        print(name)
         path = os.path.join(TESTS_DATA, name)
         last_output_path = os.path.join(path, OUTPUT_FILENAME)
 

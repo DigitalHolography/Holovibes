@@ -8,10 +8,8 @@ import pytest
 import json
 from typing import List, Tuple
 
-
 from tests import holo
-from tests.constant_name import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME, TESTS_DATA
-
+from tests.constant_name import *
 
 HOLOVIBES_BIN = os.path.join(
     os.getcwd(), "build", "Ninja", "Release", "Holovibes.exe")
@@ -80,7 +78,7 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
 
 def find_tests() -> List[str]:
-    return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
+    return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name)) and name != "inputs"]
 
 
 @pytest.mark.flaky(reruns=5, reruns_delay=3, )
@@ -94,12 +92,22 @@ def test_holo(folder: str):
     cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
     config = os.path.join(path, CONFIG_FILENAME)
 
-    def not_found(filename):
+    def not_found(filename: str) -> None:
         pytest.skip(
             f"Did not find the {filename} file in folder {path}")
 
+    def get_input_file(test_folder: str) -> str:
+        general_inputs = os.listdir(TESTS_INPUTS)
+        for general_input in general_inputs:
+            # Remove ".holo" (5 last char) of the filename
+            if general_input[:-5] in test_folder:
+                return os.path.join(TESTS_INPUTS, general_input)
+        return None
+
     if not os.path.isfile(input):
-        not_found(INPUT_FILENAME)
+        input = get_input_file(path)
+        if input is None:
+            not_found(INPUT_FILENAME)
 
     if not os.path.isfile(ref):
         not_found(REF_FILENAME)

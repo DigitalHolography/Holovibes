@@ -7,3 +7,4 @@ CONFIG_FILENAME = "holovibes.ini"
 CLI_ARGUMENT_FILENAME = "cli_argument.json"
 
 TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
+TESTS_INPUTS = os.path.join(TESTS_DATA, "inputs")
