@@ -117,10 +117,9 @@ bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void start_record(Holovibes& holovibes,
+void start_record(UserInterfaceDescriptor& ui_descriptor,
                   const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
-                  const RecordMode record_mode,
                   std::string& output_path,
                   std::string& batch_input_path,
                   std::function<void()> callback);

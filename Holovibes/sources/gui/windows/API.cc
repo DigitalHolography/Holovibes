@@ -224,10 +224,9 @@ bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
-void start_record(Holovibes& holovibes,
+void start_record(UserInterfaceDescriptor& ui_descriptor,
                   const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
-                  const RecordMode record_mode,
                   std::string& output_path,
                   std::string& batch_input_path,
                   std::function<void()> callback)
@@ -236,21 +235,25 @@ void start_record(Holovibes& holovibes,
 
     if (batch_enabled)
     {
-        holovibes.start_batch_gpib(batch_input_path, output_path, nb_frames_to_record.value(), record_mode, callback);
+        ui_descriptor.holovibes_.start_batch_gpib(batch_input_path,
+                                                  output_path,
+                                                  nb_frames_to_record.value(),
+                                                  ui_descriptor.record_mode_,
+                                                  callback);
     }
     else
     {
-        if (record_mode == RecordMode::CHART)
+        if (ui_descriptor.record_mode_ == RecordMode::CHART)
         {
-            holovibes.start_chart_record(output_path, nb_frames_to_record.value(), callback);
+            ui_descriptor.holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (record_mode == RecordMode::HOLOGRAM)
+        else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM)
         {
-            holovibes.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
+            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
-        else if (record_mode == RecordMode::RAW)
+        else if (ui_descriptor.record_mode_ == RecordMode::RAW)
         {
-            holovibes.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }
     }
 }

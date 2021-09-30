@@ -2896,10 +2896,9 @@ void MainWindow::start_record()
         synchronize_thread([=]() { record_finished(record_mode); });
     };
 
-    ::holovibes::api::start_record(ui_descriptor_.holovibes_,
+    ::holovibes::api::start_record(ui_descriptor_,
                                    batch_enabled,
                                    nb_frames_to_record,
-                                   ui_descriptor_.record_mode_,
                                    output_path,
                                    batch_input_path,
                                    callback);
