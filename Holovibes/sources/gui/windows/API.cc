@@ -111,7 +111,7 @@ void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
     if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
-        set_convolution_mode(ui_descriptor.holovibes_, false);
+        set_convolution_mode(ui_descriptor, false);
 
     if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
         cancel_time_transformation_cuts(ui_descriptor.holovibes_, []() { return; });
@@ -131,13 +131,13 @@ void remove_infos()
     Holovibes::instance().get_info_container().clear();
 }
 
-void set_convolution_mode(Holovibes& holovibes, const bool value)
+void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
 {
     LOG_INFO;
 
     try
     {
-        auto pipe = holovibes.get_compute_pipe();
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
 
         if (value)
         {
@@ -156,7 +156,7 @@ void set_convolution_mode(Holovibes& holovibes, const bool value)
     }
     catch (const std::exception& e)
     {
-        holovibes.get_cd().convolution_enabled = false;
+        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
         LOG_ERROR << e.what();
     }
 }

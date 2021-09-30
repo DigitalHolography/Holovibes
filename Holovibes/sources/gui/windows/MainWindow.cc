@@ -2549,7 +2549,7 @@ void MainWindow::set_convolution_mode(const bool value)
     ui_descriptor_.holovibes_.get_cd().set_convolution(value,
                                                        ui.KernelQuickSelectComboBox->currentText().toStdString());
 
-    ::holovibes::api::set_convolution_mode(ui_descriptor_.holovibes_, value);
+    ::holovibes::api::set_convolution_mode(ui_descriptor_, value);
 
     notify();
 }

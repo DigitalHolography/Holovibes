@@ -72,7 +72,7 @@ bool is_raw_mode(Holovibes& holovibes);
  * \param holovibes the computing object
  * \param value true: enable, false: disable
  */
-void set_convolution_mode(Holovibes& holovibes, const bool value);
+void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value);
 
 /*!
  * \brief Removes time transformation from computation
