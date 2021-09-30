@@ -4,8 +4,6 @@ import os
 import sys
 import subprocess
 import argparse
-import pathlib
-import shutil
 
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
@@ -95,7 +93,7 @@ def cmake(args):
     if os.path.isdir(build_dir):
         print("Warning: deleting previous build")
         sys.stdout.flush()
-        shutil.rmtree(build_dir)
+        subprocess.call(['rm', '-rf', build_dir], shell=True)
 
     cmd += ['cmake', '-B', build_dir,
             '-G', generator,
@@ -237,10 +235,8 @@ def parse_args():
         '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
     build_env = parser.add_argument_group('Build Environment')
-    build_env.add_argument('-e', type=pathlib.Path,
-                           help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
-    build_env.add_argument('-p', type=pathlib.Path,
-                           help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
+    build_env.add_argument('-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+    build_env.add_argument('-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
