@@ -197,12 +197,11 @@ void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value)
     ui_descriptor.record_frame_step_ = value;
 }
 
-bool start_record_preconditions(const bool batch_enabled,
+bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
+                                const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
-                                const RecordMode record_mode,
-                                std::string& output_path,
-                                std::string& batch_input_path)
+                                const std::string& batch_input_path)
 {
     LOG_INFO;
     // Preconditions to start record
@@ -210,7 +209,7 @@ bool start_record_preconditions(const bool batch_enabled,
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || record_mode == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || ui_descriptor.record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
     {
         LOG_ERROR << "Number of frames must be activated";
         return false;

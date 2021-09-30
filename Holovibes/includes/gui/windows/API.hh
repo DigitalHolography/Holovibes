@@ -101,12 +101,11 @@ void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value);
  * \return true on success
  * \return false on failure
  */
-bool start_record_preconditions(const bool batch_enabled,
+bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
+                                const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
-                                const RecordMode record_mode,
-                                std::string& output_path,
-                                std::string& batch_input_path);
+                                const std::string& batch_input_path);
 
 /*! \brief Launchs recording
  *

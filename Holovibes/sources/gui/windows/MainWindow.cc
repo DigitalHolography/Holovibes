@@ -2860,23 +2860,23 @@ void MainWindow::start_record()
     {
         nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
     }
-    std::string output_path =
-        ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
     std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
 
     // Preconditions to start record
-    const bool preconditions = ::holovibes::api::start_record_preconditions(batch_enabled,
+    const bool preconditions = ::holovibes::api::start_record_preconditions(ui_descriptor_,
+                                                                            batch_enabled,
                                                                             nb_frame_checked,
                                                                             nb_frames_to_record,
-                                                                            ui_descriptor_.record_mode_,
-                                                                            output_path,
                                                                             batch_input_path);
 
     if (!preconditions)
     {
         return;
     }
+
+    std::string output_path =
+        ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
 
     // Start record
     ui_descriptor_.raw_window.reset(nullptr);
