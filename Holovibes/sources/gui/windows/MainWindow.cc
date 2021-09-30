@@ -1794,7 +1794,9 @@ void MainWindow::set_x_y()
 void MainWindow::set_q(int value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().q_index = value;
+
+    ::holovibes::api::set_q(ui_descriptor_, value);
+
     notify();
 }
 
@@ -1824,9 +1826,11 @@ void MainWindow::set_composite_intervals()
     LOG_INFO;
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
-    ui_descriptor_.holovibes_.get_cd().composite_p_red = ui.PRedSpinBox_Composite->value();
-    ui_descriptor_.holovibes_.get_cd().composite_p_blue = ui.PBlueSpinBox_Composite->value();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_composite_intervals(ui_descriptor_,
+                                              ui.PRedSpinBox_Composite->value(),
+                                              ui.PBlueSpinBox_Composite->value());
+
     notify();
 }
 

@@ -466,4 +466,19 @@ const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
     return false;
 }
 
+void set_q(UserInterfaceDescriptor& ui_descriptor, int value)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().q_index = value;
+}
+
+void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint composite_p_red, uint composite_p_blue)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().composite_p_red = composite_p_red;
+    ui_descriptor.holovibes_.get_cd().composite_p_blue = composite_p_blue;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

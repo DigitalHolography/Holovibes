@@ -191,4 +191,8 @@ void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescript
 
 const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value);
 
+void set_q(UserInterfaceDescriptor& ui_descriptor, int value);
+
+void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint composite_p_red, uint composite_p_blue);
+
 } // namespace holovibes::api
