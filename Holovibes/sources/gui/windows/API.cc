@@ -20,14 +20,14 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
     return std::nullopt;
 }
 
-bool init_holovibesimport_mode(Holovibes& holovibes,
-                               camera::FrameDescriptor& file_fd,
-                               bool& is_enabled_camera,
-                               std::string& file_path,
-                               unsigned int fps,
-                               size_t first_frame,
-                               bool load_file_in_gpu,
-                               size_t last_frame)
+bool init_holovibes_import_mode(Holovibes& holovibes,
+                                camera::FrameDescriptor& file_fd,
+                                bool& is_enabled_camera,
+                                std::string& file_path,
+                                unsigned int fps,
+                                size_t first_frame,
+                                bool load_file_in_gpu,
+                                size_t last_frame)
 {
     LOG_INFO;
 
@@ -77,14 +77,14 @@ bool import_start(UserInterfaceDescriptor& ui_descriptor,
 
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
-    return init_holovibesimport_mode(ui_descriptor.holovibes_,
-                                     ui_descriptor.file_fd_,
-                                     ui_descriptor.is_enabled_camera_,
-                                     file_path,
-                                     fps,
-                                     first_frame,
-                                     load_file_in_gpu,
-                                     last_frame);
+    return init_holovibes_import_mode(ui_descriptor.holovibes_,
+                                      ui_descriptor.file_fd_,
+                                      ui_descriptor.is_enabled_camera_,
+                                      file_path,
+                                      fps,
+                                      first_frame,
+                                      load_file_in_gpu,
+                                      last_frame);
 }
 
 void import_stop(bool& is_enabled_camera, Holovibes& holovibes)
