@@ -71,27 +71,27 @@ bool import_start(UserInterfaceDescriptor& ui_descriptor,
 
     if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(ui_descriptor.is_enabled_camera_, ui_descriptor.holovibes_);
+        import_stop(ui_descriptor);
 
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
     return init_holovibes_import_mode(ui_descriptor, file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
-void import_stop(bool& is_enabled_camera, Holovibes& holovibes)
+void import_stop(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
-    holovibes.stop_all_worker_controller();
-    holovibes.start_information_display(false);
+    ui_descriptor.holovibes_.stop_all_worker_controller();
+    ui_descriptor.holovibes_.start_information_display(false);
 
-    close_critical_compute(holovibes);
+    close_critical_compute(ui_descriptor.holovibes_);
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none(is_enabled_camera, holovibes);
+    camera_none(ui_descriptor.is_enabled_camera_, ui_descriptor.holovibes_);
 
-    holovibes.get_cd().is_computation_stopped = true;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
 void camera_none(bool& is_enabled_camera, Holovibes& holovibes)

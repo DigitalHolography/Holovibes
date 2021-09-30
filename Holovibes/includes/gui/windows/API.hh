@@ -42,7 +42,7 @@ bool import_start(UserInterfaceDescriptor& ui_descriptor,
  * \param is_enabled_camera enables or not the camera usage FIXME: shouldn't be stored in the wild.
  * \param holovibes the object embeding the display to stop
  */
-void import_stop(bool& is_enabled_camera, Holovibes& holovibes);
+void import_stop(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Switchs operating camera to none
  *

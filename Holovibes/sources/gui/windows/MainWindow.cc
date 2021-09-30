@@ -2986,7 +2986,7 @@ void MainWindow::import_stop()
                                     ui_descriptor_.plot_window_);
     cancel_time_transformation_cuts();
 
-    ::holovibes::api::import_stop(ui_descriptor_.is_enabled_camera_, ui_descriptor_.holovibes_);
+    ::holovibes::api::import_stop(ui_descriptor_);
     synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }
