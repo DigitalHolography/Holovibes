@@ -361,7 +361,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
 
     ui_descriptor.holovibes_.start_camera_frame_read(c);
     ui_descriptor.is_enabled_camera_ = true;
-    set_image_mode(mainwindow, ui_descriptor.holovibes_, nullptr, image_mode_index);
+    set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
     ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
     ui_descriptor.kCamera = c;
 
@@ -369,7 +369,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
 }
 
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
-                    Holovibes& holovibes,
+                    UserInterfaceDescriptor& ui_descriptor,
                     const bool is_null_mode,
                     const uint image_mode_index)
 {
@@ -382,9 +382,9 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
         else
             mainwindow.set_holographic_mode();
     }
-    else if (holovibes.get_cd().compute_mode == Computation::Raw)
+    else if (ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Raw)
         mainwindow.set_raw_mode();
-    else if (holovibes.get_cd().compute_mode == Computation::Hologram)
+    else if (ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Hologram)
         mainwindow.set_holographic_mode();
 }
 

@@ -196,7 +196,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
-                    Holovibes& holovibes,
+                    UserInterfaceDescriptor& ui_descriptor,
                     const bool is_null_mode,
                     const uint image_mode_index);
 

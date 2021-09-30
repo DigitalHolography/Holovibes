@@ -1234,10 +1234,7 @@ void MainWindow::set_image_mode(QString mode)
 {
     LOG_INFO;
     const bool is_null_mode = (mode == nullptr);
-    ::holovibes::api::set_image_mode(*this,
-                                     ui_descriptor_.holovibes_,
-                                     is_null_mode,
-                                     ui.ImageModeComboBox->currentIndex());
+    ::holovibes::api::set_image_mode(*this, ui_descriptor_, is_null_mode, ui.ImageModeComboBox->currentIndex());
 }
 #pragma endregion
 
