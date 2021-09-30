@@ -148,8 +148,8 @@ class ComputeDescriptor : public Observable
     void handle_accumulation_exception();
 
     void set_compute_mode(Computation mode);
-    void set_space_transformation_from_string(QString value);
-    void set_time_transformation_from_string(QString value);
+    void set_space_transformation_from_string(const std::string value);
+    void set_time_transformation_from_string(const std::string value);
     void set_time_transformation_stride(int value);
     void set_time_transformation_size(int value);
     void set_batch_size(int value);
@@ -171,7 +171,7 @@ class ComputeDescriptor : public Observable
     void set_fft_shift_enabled(bool value);
     void set_gpu_lens_display_enabled(bool value);
     void set_x_cuts(int value);
-    void set_y_cutes(int value);
+    void set_y_cuts(int value);
     void set_pindex(int value);
     void set_q_index(int value);
     void set_lambda(float value);
