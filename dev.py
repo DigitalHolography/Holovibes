@@ -5,8 +5,8 @@ import subprocess
 import argparse
 import pathlib
 import shutil
+from time import sleep
 
-from tests.test_holo_files import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
 
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
@@ -183,11 +183,14 @@ def ctest(args):
 
 
 def build_ref(args) -> int:
+    from tests.test_holo_files import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME
+
     dirs = os.listdir(TESTS_DATA)
-    print(dirs)
     for name in dirs:
         if name == ".pytest_cache":
             continue
+
+        sleep(1)
 
         path = os.path.join(TESTS_DATA, name)
         if os.path.isdir(path):
@@ -210,7 +213,10 @@ def build_ref(args) -> int:
             if os.path.isfile(ref):
                 os.remove(ref)
 
+            print(name)
             generate_holo_from(input, ref, cli_argument, config)
+
+    return 0
 
 
 def run_goal(goal: str, args) -> int:
