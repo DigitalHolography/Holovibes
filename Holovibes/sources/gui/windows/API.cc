@@ -301,34 +301,27 @@ void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& 
         throw std::exception("Record mode not handled");
 }
 
-void close_windows(Holovibes& holovibes,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
-                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceXZ,
-                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceYZ,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& lens_window,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& raw_window,
-                   std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
-                   std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_)
+void close_windows(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
+    ui_descriptor.sliceXZ.reset(nullptr);
+    ui_descriptor.sliceYZ.reset(nullptr);
 
-    plot_window_.reset(nullptr);
-    mainDisplay.reset(nullptr);
+    ui_descriptor.plot_window_.reset(nullptr);
+    ui_descriptor.mainDisplay.reset(nullptr);
 
-    lens_window.reset(nullptr);
-    holovibes.get_cd().gpu_lens_display_enabled = false;
+    ui_descriptor.lens_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().gpu_lens_display_enabled = false;
 
-    filter2d_window.reset(nullptr);
-    holovibes.get_cd().filter2d_view_enabled = false;
+    ui_descriptor.filter2d_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().filter2d_view_enabled = false;
 
     /* Raw view & recording */
-    raw_window.reset(nullptr);
-    holovibes.get_cd().raw_view_enabled = false;
+    ui_descriptor.raw_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().raw_view_enabled = false;
 
     // Disable overlays
-    holovibes.get_cd().reticle_enabled = false;
+    ui_descriptor.holovibes_.get_cd().reticle_enabled = false;
 }
 
 void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)

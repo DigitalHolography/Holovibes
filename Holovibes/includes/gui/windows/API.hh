@@ -160,14 +160,7 @@ void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& 
  * \param filter2d_window a window FIXME: shouldn't be stored in the wild.
  * \param plot_window_ a window FIXME: shouldn't be stored in the wild.
  */
-void close_windows(Holovibes& holovibes,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
-                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceXZ,
-                   std::unique_ptr<::holovibes::gui::SliceWindow>& sliceYZ,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& lens_window,
-                   std::unique_ptr<::holovibes::gui::RawWindow>& raw_window,
-                   std::unique_ptr<::holovibes::gui::Filter2DWindow>& filter2d_window,
-                   std::unique_ptr<::holovibes::gui::PlotWindow>& plot_window_);
+void close_windows(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Sets the computation mode
  *

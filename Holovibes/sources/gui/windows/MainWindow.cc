@@ -194,14 +194,7 @@ MainWindow::~MainWindow()
     delete p_left_shortcut_;
     delete p_right_shortcut_;
 
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
     ::holovibes::api::remove_infos();
@@ -588,14 +581,7 @@ void MainWindow::notify_error(const std::exception& e)
                 {
                     ui_descriptor_.holovibes_.get_cd().convolution_enabled = false;
                 }
-                ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                                ui_descriptor_.mainDisplay,
-                                                ui_descriptor_.sliceXZ,
-                                                ui_descriptor_.sliceYZ,
-                                                ui_descriptor_.lens_window,
-                                                ui_descriptor_.raw_window,
-                                                ui_descriptor_.filter2d_window,
-                                                ui_descriptor_.plot_window_);
+                ::holovibes::api::close_windows(ui_descriptor_);
                 ::holovibes::api::close_critical_compute(ui_descriptor_);
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
@@ -881,14 +867,7 @@ void MainWindow::open_file(const std::string& path)
 void MainWindow::camera_none()
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::camera_none(ui_descriptor_);
 
     // Make camera's settings menu unaccessible
@@ -925,14 +904,7 @@ void MainWindow::reset()
     }
     cudaDeviceSynchronize();
     cudaDeviceReset();
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::remove_infos();
     ui_descriptor_.holovibes_.reload_streams();
     try
@@ -951,14 +923,7 @@ void MainWindow::reset()
 void MainWindow::closeEvent(QCloseEvent*)
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     if (!ui_descriptor_.holovibes_.get_cd().is_computation_stopped)
         ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
@@ -1068,14 +1033,7 @@ void MainWindow::init_image_mode(QPoint& position, QSize& size)
 void MainWindow::set_raw_mode()
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::close_critical_compute(ui_descriptor_);
 
     if (ui_descriptor_.is_enabled_camera_)
@@ -1159,14 +1117,7 @@ void MainWindow::set_holographic_mode()
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::close_critical_compute(ui_descriptor_);
 
     /* ---------- */
@@ -1212,14 +1163,7 @@ void MainWindow::refreshViewMode()
         old_scale = ui_descriptor_.mainDisplay->getScale();
         old_translation = ui_descriptor_.mainDisplay->getTranslate();
     }
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     ::holovibes::api::close_critical_compute(ui_descriptor_);
     ui_descriptor_.holovibes_.get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
     try
@@ -2975,14 +2919,7 @@ void MainWindow::import_browse_file()
 void MainWindow::import_stop()
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(ui_descriptor_.holovibes_,
-                                    ui_descriptor_.mainDisplay,
-                                    ui_descriptor_.sliceXZ,
-                                    ui_descriptor_.sliceYZ,
-                                    ui_descriptor_.lens_window,
-                                    ui_descriptor_.raw_window,
-                                    ui_descriptor_.filter2d_window,
-                                    ui_descriptor_.plot_window_);
+    ::holovibes::api::close_windows(ui_descriptor_);
     cancel_time_transformation_cuts();
 
     ::holovibes::api::import_stop(ui_descriptor_);
