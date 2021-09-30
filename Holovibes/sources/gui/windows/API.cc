@@ -85,7 +85,7 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.holovibes_.stop_all_worker_controller();
     ui_descriptor.holovibes_.start_information_display(false);
 
-    close_critical_compute(ui_descriptor.holovibes_);
+    close_critical_compute(ui_descriptor);
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
@@ -97,7 +97,7 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor)
 void camera_none(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    close_critical_compute(ui_descriptor.holovibes_);
+    close_critical_compute(ui_descriptor);
     if (!is_raw_mode(ui_descriptor.holovibes_))
         ui_descriptor.holovibes_.stop_compute();
     ui_descriptor.holovibes_.stop_frame_read();
@@ -107,16 +107,16 @@ void camera_none(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
-void close_critical_compute(Holovibes& holovibes)
+void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    if (holovibes.get_cd().convolution_enabled)
-        set_convolution_mode(holovibes, false);
+    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
+        set_convolution_mode(ui_descriptor.holovibes_, false);
 
-    if (holovibes.get_cd().time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts(holovibes, []() { return; });
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+        cancel_time_transformation_cuts(ui_descriptor.holovibes_, []() { return; });
 
-    holovibes.stop_compute();
+    ui_descriptor.holovibes_.stop_compute();
 }
 
 bool is_raw_mode(Holovibes& holovibes)

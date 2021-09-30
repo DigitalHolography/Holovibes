@@ -55,7 +55,7 @@ void camera_none(UserInterfaceDescriptor& ui_descriptor);
  *
  * \param holovibes the computing object
  */
-void close_critical_compute(Holovibes& holovibes);
+void close_critical_compute(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Removes info container in holovibes */
 void remove_infos();

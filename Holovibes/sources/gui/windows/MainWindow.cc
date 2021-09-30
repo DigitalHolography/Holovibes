@@ -202,7 +202,7 @@ MainWindow::~MainWindow()
                                     ui_descriptor_.raw_window,
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+    ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
     ::holovibes::api::remove_infos();
 
@@ -596,7 +596,7 @@ void MainWindow::notify_error(const std::exception& e)
                                                 ui_descriptor_.raw_window,
                                                 ui_descriptor_.filter2d_window,
                                                 ui_descriptor_.plot_window_);
-                ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+                ::holovibes::api::close_critical_compute(ui_descriptor_);
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
@@ -609,7 +609,7 @@ void MainWindow::notify_error(const std::exception& e)
                 ui_descriptor_.holovibes_.get_cd().img_acc_slice_xy_enabled = false;
                 ui_descriptor_.holovibes_.get_cd().img_acc_slice_xy_level = 1;
             }
-            ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+            ::holovibes::api::close_critical_compute(ui_descriptor_);
 
             LOG_ERROR << "GPU computing error occured.";
             notify();
@@ -903,7 +903,7 @@ void MainWindow::reset()
     Config& config = global::global_config;
     int device = 0;
 
-    ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+    ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
     qApp->processEvents();
     if (!::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
@@ -960,7 +960,7 @@ void MainWindow::closeEvent(QCloseEvent*)
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
     if (!ui_descriptor_.holovibes_.get_cd().is_computation_stopped)
-        ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+        ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
     ::holovibes::api::remove_infos();
     save_ini(::holovibes::ini::get_global_ini_path());
@@ -1076,7 +1076,7 @@ void MainWindow::set_raw_mode()
                                     ui_descriptor_.raw_window,
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+    ::holovibes::api::close_critical_compute(ui_descriptor_);
 
     if (ui_descriptor_.is_enabled_camera_)
     {
@@ -1167,7 +1167,7 @@ void MainWindow::set_holographic_mode()
                                     ui_descriptor_.raw_window,
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+    ::holovibes::api::close_critical_compute(ui_descriptor_);
 
     /* ---------- */
     try
@@ -1220,7 +1220,7 @@ void MainWindow::refreshViewMode()
                                     ui_descriptor_.raw_window,
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_.holovibes_);
+    ::holovibes::api::close_critical_compute(ui_descriptor_);
     ui_descriptor_.holovibes_.get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
     try
     {
