@@ -3101,9 +3101,23 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuImport_from_ini">
+     <property name="title">
+      <string>Import from .ini</string>
+     </property>
+     <addaction name="actionReload_ini"/>
+     <addaction name="actionBrowse"/>
+    </widget>
+    <widget class="QMenu" name="menuExport_to_ini">
+     <property name="title">
+      <string>Export to .ini</string>
+     </property>
+     <addaction name="actionExport"/>
+     <addaction name="actionExport_as"/>
+    </widget>
     <addaction name="actionConfigure"/>
-    <addaction name="actionReload_ini"/>
-    <addaction name="actionSave_ini"/>
+    <addaction name="menuImport_from_ini"/>
+    <addaction name="menuExport_to_ini"/>
     <addaction name="actionReset"/>
     <addaction name="actionExit"/>
    </widget>
@@ -3330,16 +3344,6 @@ p, li { white-space: pre-wrap; }
     <string>Night</string>
    </property>
   </action>
-  <action name="actionReload_ini">
-   <property name="text">
-    <string>Import from .ini</string>
-   </property>
-  </action>
-  <action name="actionSave_ini">
-   <property name="text">
-    <string>Export to .ini</string>
-   </property>
-  </action>
   <action name="actionHamamatsu">
    <property name="text">
     <string>Hamamatsu C11440</string>
@@ -3353,6 +3357,26 @@ p, li { white-space: pre-wrap; }
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionReload_ini">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionBrowse">
+   <property name="text">
+    <string>Browse</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionExport_as">
+   <property name="text">
+    <string>Export as...</string>
    </property>
   </action>
  </widget>
@@ -3668,38 +3692,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionReload_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reload_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSave_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>write_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5207,6 +5199,70 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionBrowse</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReload_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reload_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport_as</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_ini_save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5257,7 +5313,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>
+  <slot>browse_ini()</slot>
   <slot>write_ini()</slot>
+  <slot>browse_ini_save()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>
   <slot>rotateTexture()</slot>
