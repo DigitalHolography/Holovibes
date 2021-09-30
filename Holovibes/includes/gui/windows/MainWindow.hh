@@ -609,7 +609,9 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
 
-    // Change the value without triggering any signal
+    /*! \brief Enable the filter2d mode */
+    void set_filter2d();
+
     /*! \brief Changes Box value without triggering any signal
      *
      * \param spinBox The box to change
@@ -622,8 +624,8 @@ class MainWindow : public QMainWindow, public Observer
      * \param slider The slider to change
      * \param value The value to set
      */
-
     void QSliderQuietSetValue(QSlider* slider, int value);
+
     /*! \brief Changes SpinBox value without triggering any signal
      *
      * \param spinBox The spinbox to change

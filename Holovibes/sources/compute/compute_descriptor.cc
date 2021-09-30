@@ -365,7 +365,7 @@ void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
 
 void ComputeDescriptor::set_compute_mode(Computation mode) { compute_mode = mode; }
 
-void ComputeDescriptor::set_space_transformation_from_string(const QString value)
+void ComputeDescriptor::set_space_transformation_from_string(const std::string value)
 {
     if (value == "None")
         space_transformation = SpaceTransformation::None;
@@ -377,11 +377,11 @@ void ComputeDescriptor::set_space_transformation_from_string(const QString value
     {
         // Shouldn't happen
         space_transformation = SpaceTransformation::None;
-        LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
+        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
 }
 
-void ComputeDescriptor::set_time_transformation_from_string(const QString value)
+void ComputeDescriptor::set_time_transformation_from_string(const std::string value)
 {
     if (value == "STFT")
         time_transformation = TimeTransformation::STFT;
@@ -420,7 +420,7 @@ void ComputeDescriptor::handle_accumulation_exception()
 
 void ComputeDescriptor::set_time_transformation_stride(int value) { time_transformation_stride = value; }
 
-void ComputeDescriptor::set_time_transformation_size(int value) { time_transformation_size = size; }
+void ComputeDescriptor::set_time_transformation_size(int value) { time_transformation_size = value; }
 
 void ComputeDescriptor::set_batch_size(int value) { batch_size = value; }
 
@@ -462,7 +462,7 @@ void ComputeDescriptor::set_filter2d_enabled(bool value) { filter2d_enabled = va
 
 void ComputeDescriptor::set_filter2d_n1(int n) { filter2d_n1 = n; }
 
-void ComputeDescriptor::set_filter2d_n1(int n) { filter2d_n2 = n; }
+void ComputeDescriptor::set_filter2d_n2(int n) { filter2d_n2 = n; }
 
 void ComputeDescriptor::set_fft_shift_enabled(bool value) { fft_shift_enabled = value; }
 
@@ -470,7 +470,7 @@ void ComputeDescriptor::set_gpu_lens_display_enabled(bool value) { gpu_lens_disp
 
 void ComputeDescriptor::set_x_cuts(int value) { x_cuts = value; }
 
-void ComputeDescriptor::set_x_cuts(int value) { y_cuts = value; }
+void ComputeDescriptor::set_y_cuts(int value) { y_cuts = value; }
 
 void ComputeDescriptor::set_pindex(int value) { pindex = value; }
 
@@ -502,10 +502,6 @@ void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
     weight_g = g;
     weight_b = b;
 }
-
-void ComputeDescriptor::set_weight_g(int value) { weight_g = value; }
-
-void ComputeDescriptor::set_weight_b(int value) { weight_b = value; }
 
 void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights_ = value; }
 
@@ -546,13 +542,13 @@ void ComputeDescriptor::set_q_accu(bool enabled, int level)
 void ComputeDescriptor::change_window(int index)
 {
     if (index == 0)
-        cd_.current_window = WindowKind::XYview;
+        current_window = WindowKind::XYview;
     else if (index == 1)
-        cd_.current_window = WindowKind::XZview;
+        current_window = WindowKind::XZview;
     else if (index == 2)
-        cd_.current_window = WindowKind::YZview;
+        current_window = WindowKind::YZview;
     else if (index == 3)
-        cd_.current_window = WindowKind::Filter2D;
+        current_window = WindowKind::Filter2D;
 }
 
 void ComputeDescriptor::set_rendering_params(float value)

@@ -1487,7 +1487,7 @@ void MainWindow::update_filter2d_view(bool checked)
     notify();
 }
 
-static void set_filter2d()
+void MainWindow::set_filter2d()
 {
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
@@ -1800,7 +1800,7 @@ void MainWindow::set_composite_weights()
 
 void MainWindow::set_composite_auto_weights(bool value)
 {
-    cd_.set_composite_auto_weights_(value);
+    cd_.set_composite_auto_weights(value);
     set_auto_contrast();
 }
 
@@ -1988,7 +1988,7 @@ void MainWindow::set_wavelength(const double value)
     if (is_raw_mode())
         return;
 
-    cd_.set_lambda(static_cast<float>(value) * 1.0e-9f;
+    cd_.set_lambda(static_cast<float>(value) * 1.0e-9f);
     pipe_refresh();
 }
 
@@ -2030,7 +2030,7 @@ void MainWindow::set_space_transformation(const QString value)
     if (is_raw_mode())
         return;
 
-    cd_.set_space_transformation_from_string(value);
+    cd_.set_space_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
@@ -2039,7 +2039,7 @@ void MainWindow::set_time_transformation(const QString value)
     if (is_raw_mode())
         return;
 
-    cd_.set_time_transformation_from_string(value);
+    cd_.set_time_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
@@ -2312,7 +2312,7 @@ void MainWindow::set_convolution_mode(const bool value)
     }
     catch (const std::exception& e)
     {
-        cd_.set_convolution_enabled(false;
+        cd_.set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 
@@ -2765,7 +2765,7 @@ void MainWindow::init_holovibes_import_mode()
     end_spinbox = ui.ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
-    cd._set_rendering_params(static_cast<float>(fps_spinbox->value()));
+    cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
 
     // Because we are in import mode
     is_enabled_camera_ = false;
