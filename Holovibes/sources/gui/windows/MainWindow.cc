@@ -2692,7 +2692,7 @@ void MainWindow::stop_chart_display()
 void MainWindow::set_record_frame_step(int value)
 {
     LOG_INFO;
-    ::holovibes::api::set_record_frame_step(ui_descriptor_.record_frame_step_, value);
+    ::holovibes::api::set_record_frame_step(ui_descriptor_, value);
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
 

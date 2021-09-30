@@ -192,7 +192,10 @@ void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
 }
 
 // Check that value is higher or equal than 0
-void set_record_frame_step(unsigned int& record_frame_step, int value) { record_frame_step = value; }
+void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value)
+{
+    ui_descriptor.record_frame_step_ = value;
+}
 
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,

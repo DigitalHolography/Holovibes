@@ -88,7 +88,7 @@ void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
  * \param record_frame_step the value to change FIXME: shouldn't be stored in the wild.
  * \param value the new value
  */
-void set_record_frame_step(unsigned int& record_frame_step, int value);
+void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value);
 
 /*! \brief Checks preconditions to start recording
  *
