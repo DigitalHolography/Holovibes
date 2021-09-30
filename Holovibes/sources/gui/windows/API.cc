@@ -114,7 +114,7 @@ void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
         set_convolution_mode(ui_descriptor, false);
 
     if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts(ui_descriptor.holovibes_, []() { return; });
+        cancel_time_transformation_cuts(ui_descriptor, []() { return; });
 
     ui_descriptor.holovibes_.stop_compute();
 }
@@ -161,25 +161,25 @@ void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool val
     }
 }
 
-void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()> callback)
+void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback)
 {
     LOG_INFO;
-    if (holovibes.get_cd().time_transformation_cuts_enabled)
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
     {
 
-        holovibes.get_cd().contrast_max_slice_xz = false;
-        holovibes.get_cd().contrast_max_slice_yz = false;
-        holovibes.get_cd().log_scale_slice_xz_enabled = false;
-        holovibes.get_cd().log_scale_slice_yz_enabled = false;
-        holovibes.get_cd().img_acc_slice_xz_enabled = false;
-        holovibes.get_cd().img_acc_slice_yz_enabled = false;
+        ui_descriptor.holovibes_.get_cd().contrast_max_slice_xz = false;
+        ui_descriptor.holovibes_.get_cd().contrast_max_slice_yz = false;
+        ui_descriptor.holovibes_.get_cd().log_scale_slice_xz_enabled = false;
+        ui_descriptor.holovibes_.get_cd().log_scale_slice_yz_enabled = false;
+        ui_descriptor.holovibes_.get_cd().img_acc_slice_xz_enabled = false;
+        ui_descriptor.holovibes_.get_cd().img_acc_slice_yz_enabled = false;
 
-        holovibes.get_compute_pipe().get()->insert_fn_end_vect(callback);
+        ui_descriptor.holovibes_.get_compute_pipe().get()->insert_fn_end_vect(callback);
 
         try
         {
             // Wait for refresh to be enabled for notify
-            while (holovibes.get_compute_pipe()->get_refresh_request())
+            while (ui_descriptor.holovibes_.get_compute_pipe()->get_refresh_request())
                 continue;
         }
         catch (const std::exception& e)
@@ -187,7 +187,7 @@ void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()>
             LOG_ERROR << e.what();
         }
 
-        holovibes.get_cd().time_transformation_cuts_enabled = false;
+        ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled = false;
     }
 }
 

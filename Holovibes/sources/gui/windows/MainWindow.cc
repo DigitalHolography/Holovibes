@@ -1458,7 +1458,7 @@ void MainWindow::cancel_time_transformation_cuts()
                 notify();
             });
         }
-        ::holovibes::api::cancel_time_transformation_cuts(ui_descriptor_.holovibes_, callback);
+        ::holovibes::api::cancel_time_transformation_cuts(ui_descriptor_, callback);
         ui_descriptor_.sliceXZ.reset(nullptr);
         ui_descriptor_.sliceYZ.reset(nullptr);
 

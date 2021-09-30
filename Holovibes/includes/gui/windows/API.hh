@@ -80,7 +80,7 @@ void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool val
  * \param holovibes the computing object
  * \param callback FIXME: Api is not supposed to handdle callback
  */
-void cancel_time_transformation_cuts(Holovibes& holovibes, std::function<void()> callback);
+void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback);
 
 /*!
  * \brief Set the record frame step object
