@@ -89,22 +89,22 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor)
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none(ui_descriptor.is_enabled_camera_, ui_descriptor.holovibes_);
+    camera_none(ui_descriptor);
 
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
-void camera_none(bool& is_enabled_camera, Holovibes& holovibes)
+void camera_none(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    close_critical_compute(holovibes);
-    if (!is_raw_mode(holovibes))
-        holovibes.stop_compute();
-    holovibes.stop_frame_read();
+    close_critical_compute(ui_descriptor.holovibes_);
+    if (!is_raw_mode(ui_descriptor.holovibes_))
+        ui_descriptor.holovibes_.stop_compute();
+    ui_descriptor.holovibes_.stop_frame_read();
     remove_infos();
 
-    is_enabled_camera = false;
-    holovibes.get_cd().is_computation_stopped = true;
+    ui_descriptor.is_enabled_camera_ = false;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
 void close_critical_compute(Holovibes& holovibes)

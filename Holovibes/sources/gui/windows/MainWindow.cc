@@ -889,7 +889,7 @@ void MainWindow::camera_none()
                                     ui_descriptor_.raw_window,
                                     ui_descriptor_.filter2d_window,
                                     ui_descriptor_.plot_window_);
-    ::holovibes::api::camera_none(ui_descriptor_.is_enabled_camera_, ui_descriptor_.holovibes_);
+    ::holovibes::api::camera_none(ui_descriptor_);
 
     // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);

@@ -49,7 +49,7 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor);
  * \param is_enabled_camera enables or not the camera usage FIXME: shouldn't be stored in the wild.
  * \param holovibes the computing object to stop
  */
-void camera_none(bool& is_enabled_camera, Holovibes& holovibes);
+void camera_none(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Stops the program compute
  *
