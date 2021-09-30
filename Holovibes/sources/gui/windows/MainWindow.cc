@@ -654,19 +654,39 @@ void MainWindow::documentation()
 
 void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
 
-void MainWindow::write_ini()
+void MainWindow::write_ini() { write_ini(""); }
+
+void MainWindow::write_ini(QString filename)
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(::holovibes::ini::get_global_ini_path());
+    save_ini(filename == "" ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     notify();
 }
 
-void MainWindow::reload_ini()
+void MainWindow::browse_ini_save()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
+    write_ini(filename);
+}
+
+void MainWindow::browse_ini()
+{
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("import .ini file"),
+                                                    file_input_directory_.c_str(),
+                                                    tr("All files (*.ini);; Ini files (*.ini)"));
+
+    reload_ini(filename);
+}
+
+void MainWindow::reload_ini() { reload_ini(""); }
+
+void MainWindow::reload_ini(QString filename)
 {
     import_stop();
     try
     {
-        load_ini(::holovibes::ini::get_global_ini_path());
+        load_ini(filename == "" ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     }
     catch (const std::exception& e)
     {
@@ -686,6 +706,7 @@ void MainWindow::reload_ini()
 
 void MainWindow::load_ini(const std::string& path)
 {
+    LOG_INFO << path << std::endl;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -701,6 +722,7 @@ void MainWindow::load_ini(const std::string& path)
 
     if (!ptree.empty())
     {
+        LOG_INFO << "on passe dedans" << std::endl;
         // Load general compute data
         ini::load_ini(ptree, cd_);
 
@@ -754,6 +776,7 @@ void MainWindow::load_ini(const std::string& path)
 
 void MainWindow::save_ini(const std::string& path)
 {
+    LOG_INFO << path << std::endl;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
