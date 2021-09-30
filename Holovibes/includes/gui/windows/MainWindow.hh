@@ -24,6 +24,7 @@ using json = ::nlohmann::json;
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
+#include "user_interface_descriptor.hh"
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
@@ -608,56 +609,8 @@ class MainWindow : public QMainWindow, public Observer
 /* ---------- */
 #pragma region Fields
 
-    enum ImportType
-    {
-        None,
-        Camera,
-        File,
-    };
-
+    UserInterfaceDescriptor ui_descriptor_;
     Ui::MainWindow ui;
-    Holovibes& holovibes_;
-    ComputeDescriptor& cd_;
-    camera::FrameDescriptor file_fd_;
-
-    std::unique_ptr<RawWindow> mainDisplay = nullptr;
-    std::unique_ptr<SliceWindow> sliceXZ = nullptr;
-    std::unique_ptr<SliceWindow> sliceYZ = nullptr;
-    std::unique_ptr<RawWindow> lens_window = nullptr;
-    std::unique_ptr<RawWindow> raw_window = nullptr;
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
-    std::unique_ptr<PlotWindow> plot_window_ = nullptr;
-
-    uint window_max_size = 768;
-    uint time_transformation_cuts_window_max_size = 512;
-    uint auxiliary_window_max_size = 512;
-
-    float displayAngle = 0.f;
-    float xzAngle = 0.f;
-    float yzAngle = 0.f;
-
-    int displayFlip = 0;
-    int xzFlip = 0;
-    int yzFlip = 0;
-
-    bool is_enabled_camera_ = false;
-    double z_step_ = 0.005f;
-
-    bool is_recording_ = false;
-    unsigned record_frame_step_ = 512;
-    RecordMode record_mode_ = RecordMode::RAW;
-
-    std::string default_output_filename_;
-    std::string record_output_directory_;
-    std::string file_input_directory_;
-    std::string batch_input_directory_;
-
-    CameraKind kCamera = CameraKind::NONE;
-    ImportType import_type_ = ImportType::None;
-    QString last_img_type_ = "Magnitude";
-
-    size_t auto_scale_point_threshold_ = 100;
-    ushort theme_index_ = 0;
 
     // Shortcuts (initialized in constructor)
     QShortcut* z_up_shortcut_;

@@ -62,9 +62,7 @@ bool init_holovibesimport_mode(Holovibes& holovibes,
     return true;
 }
 
-bool import_start(Holovibes& holovibes,
-                  camera::FrameDescriptor& file_fd,
-                  bool& is_enabled_camera,
+bool import_start(UserInterfaceDescriptor& ui_descriptor,
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
@@ -73,15 +71,15 @@ bool import_start(Holovibes& holovibes,
 {
     LOG_INFO;
 
-    if (!holovibes.get_cd().is_computation_stopped)
+    if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(is_enabled_camera, holovibes);
+        import_stop(ui_descriptor.is_enabled_camera_, ui_descriptor.holovibes_);
 
-    holovibes.get_cd().is_computation_stopped = false;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
-    return init_holovibesimport_mode(holovibes,
-                                     file_fd,
-                                     is_enabled_camera,
+    return init_holovibesimport_mode(ui_descriptor.holovibes_,
+                                     ui_descriptor.file_fd_,
+                                     ui_descriptor.is_enabled_camera_,
                                      file_path,
                                      fps,
                                      first_frame,
@@ -361,7 +359,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    CameraKind c,
                    CameraKind& kCamera,
                    bool& is_enabled_camera,
-                   ::holovibes::gui::MainWindow::ImportType& import_type,
+                   ::holovibes::UserInterfaceDescriptor::ImportType& import_type,
                    std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    const uint image_mode_index)
 {
@@ -379,7 +377,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
     holovibes.start_camera_frame_read(c);
     is_enabled_camera = true;
     set_image_mode(mainwindow, holovibes, nullptr, image_mode_index);
-    import_type = ::holovibes::gui::MainWindow::ImportType::Camera;
+    import_type = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
     kCamera = c;
 
     holovibes.get_cd().is_computation_stopped = false;

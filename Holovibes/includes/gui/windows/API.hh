@@ -5,6 +5,7 @@
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
 #include "MainWindow.hh"
+#include "user_interface_descriptor.hh"
 
 namespace holovibes::api
 {
@@ -29,9 +30,7 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
  * \return true on success
  * \return false on failure
  */
-bool import_start(Holovibes& holovibes,
-                  camera::FrameDescriptor& file_fd,
-                  bool& is_enabled_camera,
+bool import_start(UserInterfaceDescriptor& ui_descriptor,
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
@@ -198,7 +197,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    CameraKind c,
                    CameraKind& kCamera,
                    bool& is_enabled_camera,
-                   ::holovibes::gui::MainWindow::ImportType& import_type,
+                   ::holovibes::UserInterfaceDescriptor::ImportType& import_type,
                    std::unique_ptr<::holovibes::gui::RawWindow>& mainDisplay,
                    const uint image_mode_index);
 
