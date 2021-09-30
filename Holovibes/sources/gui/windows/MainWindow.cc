@@ -1787,10 +1787,8 @@ void MainWindow::set_x_y()
 {
     LOG_INFO;
     const auto& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
-    uint x = ui.XSpinBox->value();
-    uint y = ui.YSpinBox->value();
 
-    ::holovibes::api::set_x_y(ui_descriptor_, fd, x, y);
+    ::holovibes::api::set_x_y(ui_descriptor_, fd, ui.XSpinBox->value(), ui.YSpinBox->value());
 }
 
 void MainWindow::set_q(int value)
@@ -1803,10 +1801,9 @@ void MainWindow::set_q(int value)
 void MainWindow::set_q_acc()
 {
     LOG_INFO;
-    auto spinbox = ui.Q_AccSpinBox;
-    auto checkBox = ui.Q_AccuCheckBox;
-    ui_descriptor_.holovibes_.get_cd().q_acc_enabled = checkBox->isChecked();
-    ui_descriptor_.holovibes_.get_cd().q_acc_level = spinbox->value();
+
+    ::holovibes::api::set_q_accu(ui_descriptor_, ui.Q_AccuCheckBox->isChecked(), ui.Q_AccSpinBox->value());
+
     notify();
 }
 

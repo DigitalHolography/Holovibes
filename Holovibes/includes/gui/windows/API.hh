@@ -185,6 +185,8 @@ void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_v
 
 void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value);
 
+void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_value);
+
 void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescriptor& frame_descriptor, uint x, uint y);
 
 } // namespace holovibes::api
