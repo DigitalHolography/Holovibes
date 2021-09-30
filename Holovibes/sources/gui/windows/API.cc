@@ -98,7 +98,7 @@ void camera_none(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
     close_critical_compute(ui_descriptor);
-    if (!is_raw_mode(ui_descriptor.holovibes_))
+    if (!is_raw_mode(ui_descriptor))
         ui_descriptor.holovibes_.stop_compute();
     ui_descriptor.holovibes_.stop_frame_read();
     remove_infos();
@@ -119,10 +119,10 @@ void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.holovibes_.stop_compute();
 }
 
-bool is_raw_mode(Holovibes& holovibes)
+bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
-    return holovibes.get_cd().compute_mode == Computation::Raw;
+    return ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Raw;
 }
 
 void remove_infos()
@@ -349,7 +349,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
     LOG_INFO;
 
     ui_descriptor.mainDisplay.reset(nullptr);
-    if (!is_raw_mode(ui_descriptor.holovibes_))
+    if (!is_raw_mode(ui_descriptor))
         ui_descriptor.holovibes_.stop_compute();
     ui_descriptor.holovibes_.stop_frame_read();
 

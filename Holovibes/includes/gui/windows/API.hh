@@ -65,7 +65,7 @@ void remove_infos();
  * \param holovibes the computing object
  * \return true if we are in raw mode, false otherwise
  */
-bool is_raw_mode(Holovibes& holovibes);
+bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Enables the divide convolution mode
  *

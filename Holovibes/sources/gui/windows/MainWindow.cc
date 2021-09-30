@@ -253,7 +253,7 @@ void MainWindow::on_notify()
         ui.ExportGroupBox->setEnabled(true);
     }
 
-    const bool is_raw = ::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_);
+    const bool is_raw = ::holovibes::api::is_raw_mode(ui_descriptor_);
 
     if (is_raw)
     {
@@ -528,7 +528,7 @@ void MainWindow::on_notify()
                          (int)(ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max * 1000));
     slide_update_threshold_v_max();
 
-    ui.CompositeGroupBox->setHidden(::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_) ||
+    ui.CompositeGroupBox->setHidden(::holovibes::api::is_raw_mode(ui_descriptor_) ||
                                     (ui_descriptor_.holovibes_.get_cd().img_type != ImgType::Composite));
 
     bool rgbMode = ui.radioButton_rgb->isChecked();
@@ -885,7 +885,7 @@ void MainWindow::reset()
     ::holovibes::api::close_critical_compute(ui_descriptor_);
     camera_none();
     qApp->processEvents();
-    if (!::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (!::holovibes::api::is_raw_mode(ui_descriptor_))
         ui_descriptor_.holovibes_.stop_compute();
     ui_descriptor_.holovibes_.stop_frame_read();
     ui_descriptor_.holovibes_.get_cd().pindex = 0;
@@ -1190,7 +1190,7 @@ bool need_refresh(const QString& last_type, const QString& new_type)
 void MainWindow::set_view_mode(const QString value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (need_refresh(ui_descriptor_.last_img_type_, value))
@@ -1252,7 +1252,7 @@ static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd
 void MainWindow::update_batch_size()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     int value = ui.BatchSizeSpinBox->value();
@@ -1281,7 +1281,7 @@ void MainWindow::update_batch_size()
 void MainWindow::update_time_transformation_stride()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     int value = ui.TimeTransformationStrideSpinBox->value();
@@ -1438,7 +1438,7 @@ void MainWindow::toggle_renormalize(bool value)
 void MainWindow::set_filter2d(bool checked)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (!checked)
@@ -1490,7 +1490,7 @@ void MainWindow::disable_filter2d_view()
 void MainWindow::update_filter2d_view(bool checked)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (checked)
@@ -1548,7 +1548,7 @@ void MainWindow::update_filter2d_view(bool checked)
 void MainWindow::set_filter2d_n1(int n)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().filter2d_n1 = n;
@@ -1572,7 +1572,7 @@ void MainWindow::set_filter2d_n1(int n)
 void MainWindow::set_filter2d_n2(int n)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().filter2d_n2 = n;
@@ -1596,7 +1596,7 @@ void MainWindow::set_filter2d_n2(int n)
 void MainWindow::cancel_filter2d()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().filter2d_view_enabled)
@@ -1608,7 +1608,7 @@ void MainWindow::cancel_filter2d()
 void MainWindow::set_fft_shift(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().fft_shift_enabled = value;
@@ -1618,7 +1618,7 @@ void MainWindow::set_fft_shift(const bool value)
 void MainWindow::set_time_transformation_size()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
@@ -1823,7 +1823,7 @@ void MainWindow::set_q_acc()
 void MainWindow::set_p(int value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (value < static_cast<int>(ui_descriptor_.holovibes_.get_cd().time_transformation_size))
@@ -2079,7 +2079,7 @@ void MainWindow::slide_update_threshold_v_max()
 void MainWindow::increment_p()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().pindex < ui_descriptor_.holovibes_.get_cd().time_transformation_size)
@@ -2095,7 +2095,7 @@ void MainWindow::increment_p()
 void MainWindow::decrement_p()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().pindex > 0)
@@ -2111,7 +2111,7 @@ void MainWindow::decrement_p()
 void MainWindow::set_wavelength(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
@@ -2121,7 +2121,7 @@ void MainWindow::set_wavelength(const double value)
 void MainWindow::set_z(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().zdistance = static_cast<float>(value);
@@ -2131,7 +2131,7 @@ void MainWindow::set_z(const double value)
 void MainWindow::increment_z()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     set_z(ui_descriptor_.holovibes_.get_cd().zdistance + ui_descriptor_.z_step_);
@@ -2141,7 +2141,7 @@ void MainWindow::increment_z()
 void MainWindow::decrement_z()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     set_z(ui_descriptor_.holovibes_.get_cd().zdistance - ui_descriptor_.z_step_);
@@ -2158,7 +2158,7 @@ void MainWindow::set_z_step(const double value)
 void MainWindow::set_space_transformation(const QString value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (value == "None")
@@ -2179,7 +2179,7 @@ void MainWindow::set_space_transformation(const QString value)
 void MainWindow::set_time_transformation(QString value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (value == "STFT")
@@ -2196,7 +2196,7 @@ void MainWindow::set_time_transformation(QString value)
 void MainWindow::set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
@@ -2207,7 +2207,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
 void MainWindow::set_accumulation(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().set_accumulation(ui_descriptor_.holovibes_.get_cd().current_window, value);
@@ -2218,7 +2218,7 @@ void MainWindow::set_accumulation(bool value)
 void MainWindow::set_accumulation_level(int value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().set_accumulation_level(ui_descriptor_.holovibes_.get_cd().current_window, value);
@@ -2228,7 +2228,7 @@ void MainWindow::set_accumulation_level(int value)
 void MainWindow::pipe_refresh()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     try
@@ -2307,7 +2307,7 @@ void MainWindow::flipTexture()
 void MainWindow::set_contrast_mode(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     change_window();
@@ -2354,7 +2354,7 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
 void MainWindow::set_auto_contrast()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     try
@@ -2371,7 +2371,7 @@ void MainWindow::set_auto_contrast()
 void MainWindow::set_contrast_min(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
@@ -2394,7 +2394,7 @@ void MainWindow::set_contrast_min(const double value)
 void MainWindow::set_contrast_max(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
@@ -2417,7 +2417,7 @@ void MainWindow::set_contrast_max(const double value)
 void MainWindow::invert_contrast(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
@@ -2438,7 +2438,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 void MainWindow::set_log_scale(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_))
+    if (::holovibes::api::is_raw_mode(ui_descriptor_))
         return;
 
     ui_descriptor_.holovibes_.get_cd().set_log_scale_slice_enabled(ui_descriptor_.holovibes_.get_cd().current_window,
@@ -2956,7 +2956,7 @@ void MainWindow::import_start()
         ui_descriptor_.mainDisplay.reset(nullptr);
     }
 
-    ui.ImageModeComboBox->setCurrentIndex(::holovibes::api::is_raw_mode(ui_descriptor_.holovibes_) ? 0 : 1);
+    ui.ImageModeComboBox->setCurrentIndex(::holovibes::api::is_raw_mode(ui_descriptor_) ? 0 : 1);
 }
 
 void MainWindow::import_start_spinbox_update()
