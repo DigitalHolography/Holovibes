@@ -706,7 +706,6 @@ void MainWindow::reload_ini(QString filename)
 
 void MainWindow::load_ini(const std::string& path)
 {
-    LOG_INFO << path << std::endl;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -722,7 +721,6 @@ void MainWindow::load_ini(const std::string& path)
 
     if (!ptree.empty())
     {
-        LOG_INFO << "on passe dedans" << std::endl;
         // Load general compute data
         ini::load_ini(ptree, cd_);
 
@@ -776,7 +774,6 @@ void MainWindow::load_ini(const std::string& path)
 
 void MainWindow::save_ini(const std::string& path)
 {
-    LOG_INFO << path << std::endl;
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
