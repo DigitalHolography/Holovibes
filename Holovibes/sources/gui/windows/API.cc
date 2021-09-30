@@ -449,4 +449,21 @@ void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescript
         ui_descriptor.holovibes_.get_cd().y_cuts = y;
 }
 
+const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (value < static_cast<int>(ui_descriptor.holovibes_.get_cd().time_transformation_size))
+    {
+        ui_descriptor.holovibes_.get_cd().pindex = value;
+        pipe_refresh(ui_descriptor);
+        return true;
+    }
+    else
+        LOG_ERROR << "p param has to be between 1 and #img";
+    return false;
+}
+
 } // namespace holovibes::api

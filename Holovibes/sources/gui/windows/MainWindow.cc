@@ -1810,17 +1810,13 @@ void MainWindow::set_q_acc()
 void MainWindow::set_p(int value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (value < static_cast<int>(ui_descriptor_.holovibes_.get_cd().time_transformation_size))
+    const bool set_p_succeed = ::holovibes::api::set_p(ui_descriptor_, value);
+
+    if (set_p_succeed)
     {
-        ui_descriptor_.holovibes_.get_cd().pindex = value;
-        ::holovibes::api::pipe_refresh(ui_descriptor_);
         notify();
     }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_composite_intervals()
