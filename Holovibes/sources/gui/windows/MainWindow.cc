@@ -2176,12 +2176,12 @@ void MainWindow::set_unwrapping_2d(const bool value)
 void MainWindow::set_accumulation(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
+    bool res = ::holovibes::api::set_accumulation(ui_descriptor_, value);
 
-    ui_descriptor_.holovibes_.get_cd().set_accumulation(ui_descriptor_.holovibes_.get_cd().current_window, value);
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
+    if (res)
+    {
+        notify();
+    }
 }
 
 void MainWindow::set_accumulation_level(int value)

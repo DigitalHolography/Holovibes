@@ -721,4 +721,15 @@ bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
     return true;
 }
 
+bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().set_accumulation(ui_descriptor.holovibes_.get_cd().current_window, value);
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api
