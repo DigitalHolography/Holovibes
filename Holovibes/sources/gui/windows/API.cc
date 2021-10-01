@@ -772,4 +772,41 @@ void rotateTexture(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
+void flipTexture(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    const WindowKind curWin = ui_descriptor.holovibes_.get_cd().current_window;
+
+    if (curWin == WindowKind::XYview)
+    {
+        ui_descriptor.displayFlip = !ui_descriptor.displayFlip;
+        ui_descriptor.mainDisplay->setFlip(ui_descriptor.displayFlip);
+    }
+    else if (ui_descriptor.sliceXZ && curWin == WindowKind::XZview)
+    {
+        ui_descriptor.xzFlip = !ui_descriptor.xzFlip;
+        ui_descriptor.sliceXZ->setFlip(ui_descriptor.xzFlip);
+    }
+    else if (ui_descriptor.sliceYZ && curWin == WindowKind::YZview)
+    {
+        ui_descriptor.yzFlip = !ui_descriptor.yzFlip;
+        ui_descriptor.sliceYZ->setFlip(ui_descriptor.yzFlip);
+    }
+}
+
+bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    mainwindow.change_window();
+    ui_descriptor.holovibes_.get_cd().contrast_enabled = value;
+    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = true;
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

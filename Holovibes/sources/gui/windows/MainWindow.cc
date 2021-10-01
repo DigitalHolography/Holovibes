@@ -2213,23 +2213,9 @@ void MainWindow::rotateTexture()
 void MainWindow::flipTexture()
 {
     LOG_INFO;
-    WindowKind curWin = ui_descriptor_.holovibes_.get_cd().current_window;
 
-    if (curWin == WindowKind::XYview)
-    {
-        ui_descriptor_.displayFlip = !ui_descriptor_.displayFlip;
-        ui_descriptor_.mainDisplay->setFlip(ui_descriptor_.displayFlip);
-    }
-    else if (ui_descriptor_.sliceXZ && curWin == WindowKind::XZview)
-    {
-        ui_descriptor_.xzFlip = !ui_descriptor_.xzFlip;
-        ui_descriptor_.sliceXZ->setFlip(ui_descriptor_.xzFlip);
-    }
-    else if (ui_descriptor_.sliceYZ && curWin == WindowKind::YZview)
-    {
-        ui_descriptor_.yzFlip = !ui_descriptor_.yzFlip;
-        ui_descriptor_.sliceYZ->setFlip(ui_descriptor_.yzFlip);
-    }
+    ::holovibes::api::flipTexture(ui_descriptor_);
+
     notify();
 }
 
@@ -2239,14 +2225,13 @@ void MainWindow::flipTexture()
 void MainWindow::set_contrast_mode(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    change_window();
-    ui_descriptor_.holovibes_.get_cd().contrast_enabled = value;
-    ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh = true;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
+    bool res = ::holovibes::api::set_contrast_mode(*this, ui_descriptor_, value);
+
+    if (res)
+    {
+        notify();
+    }
 }
 
 void MainWindow::set_auto_contrast_cuts()

@@ -257,4 +257,8 @@ void set_composite_area(UserInterfaceDescriptor& ui_descriptor);
 
 void rotateTexture(UserInterfaceDescriptor& ui_descriptor);
 
+void flipTexture(UserInterfaceDescriptor& ui_descriptor);
+
+bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
+
 } // namespace holovibes::api
