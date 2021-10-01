@@ -238,7 +238,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies HSV Value min frequence */
     void set_composite_intervals_hsv_v_max();
 
-    /*! \brief Modifies the RGV from ui values */
+    /*! \brief Modifies the RGB from ui values */
     void set_composite_weights();
 
     /*! \brief Automatic equalization (Auto-constrast)

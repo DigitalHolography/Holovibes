@@ -572,7 +572,7 @@ void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor,
     ui_descriptor.holovibes_.get_cd().h_blur_activated = h_blur_activated;
 }
 
-void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_kernel_size)
+void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, uint h_blur_kernel_size)
 {
     LOG_INFO;
     ui_descriptor.holovibes_.get_cd().h_blur_kernel_size = h_blur_kernel_size;
@@ -1002,11 +1002,62 @@ bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
     return true;
 }
 
-void activeNoiseZone(UserInterfaceDescriptor& ui_descriptor)
+#pragma region Chart
+
+void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
     ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
 }
 
+void activeSignalZone(const UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Signal>();
+}
+
+void start_chart_display(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (ui_descriptor.holovibes_.get_cd().chart_display_enabled)
+        return;
+
+    auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+    pipe->request_display_chart();
+
+    // Wait for the chart display to be enabled for notify
+    while (pipe->get_chart_display_requested())
+        continue;
+
+    ui_descriptor.plot_window_ = std::make_unique<::holovibes::gui::PlotWindow>(
+        *ui_descriptor.holovibes_.get_compute_pipe()->get_chart_display_queue(),
+        ui_descriptor.auto_scale_point_threshold_,
+        "Chart");
+}
+
+void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (!ui_descriptor.holovibes_.get_cd().chart_display_enabled)
+        return;
+
+    try
+    {
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+        pipe->request_disable_display_chart();
+
+        // Wait for the chart display to be disabled for notify
+        while (pipe->get_disable_chart_display_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+    }
+
+    ui_descriptor.plot_window_.reset(nullptr);
+}
+
+#pragma endregion
 } // namespace holovibes::api

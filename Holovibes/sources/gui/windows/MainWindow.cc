@@ -2399,6 +2399,7 @@ void MainWindow::reticle_scale(double value)
 void MainWindow::activeSignalZone()
 {
     LOG_INFO;
+    ::holovibes::api::activeSignalZone(ui_descriptor_);
     ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Signal>();
     notify();
 }
@@ -2413,51 +2414,19 @@ void MainWindow::activeNoiseZone()
 void MainWindow::start_chart_display()
 {
     LOG_INFO;
-    if (ui_descriptor_.holovibes_.get_cd().chart_display_enabled)
-        return;
-
-    auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-    pipe->request_display_chart();
-
-    // Wait for the chart display to be enabled for notify
-    while (pipe->get_chart_display_requested())
-        continue;
-
-    ui_descriptor_.plot_window_ =
-        std::make_unique<PlotWindow>(*ui_descriptor_.holovibes_.get_compute_pipe()->get_chart_display_queue(),
-                                     ui_descriptor_.auto_scale_point_threshold_,
-                                     "Chart");
+    holovibes::api::start_chart_display(ui_descriptor_);
     connect(ui_descriptor_.plot_window_.get(),
             SIGNAL(closed()),
             this,
             SLOT(stop_chart_display()),
             Qt::UniqueConnection);
-
     ui.ChartPlotPushButton->setEnabled(false);
 }
 
 void MainWindow::stop_chart_display()
 {
     LOG_INFO;
-    if (!ui_descriptor_.holovibes_.get_cd().chart_display_enabled)
-        return;
-
-    try
-    {
-        auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-        pipe->request_disable_display_chart();
-
-        // Wait for the chart display to be disabled for notify
-        while (pipe->get_disable_chart_display_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
-
-    ui_descriptor_.plot_window_.reset(nullptr);
-
+    holovibes::api::stop_chart_display(ui_descriptor_);
     ui.ChartPlotPushButton->setEnabled(true);
 }
 #pragma endregion
