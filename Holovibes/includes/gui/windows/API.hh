@@ -225,6 +225,8 @@ void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor,
 
 void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_kernel_size);
 
-std::optional<bool> increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
 } // namespace holovibes::api

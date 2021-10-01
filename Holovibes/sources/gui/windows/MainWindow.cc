@@ -2083,7 +2083,7 @@ void MainWindow::increment_p()
 {
     LOG_INFO;
 
-    std::optional<bool> res = ::holovibes::api::increment_p(*this, ui_descriptor_);
+    bool res = ::holovibes::api::increment_p(*this, ui_descriptor_);
 
     if (res)
     {
@@ -2094,17 +2094,13 @@ void MainWindow::increment_p()
 void MainWindow::decrement_p()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (ui_descriptor_.holovibes_.get_cd().pindex > 0)
+    bool res = ::holovibes::api::decrement_p(*this, ui_descriptor_);
+
+    if (res)
     {
-        ui_descriptor_.holovibes_.get_cd().pindex = ui_descriptor_.holovibes_.get_cd().pindex - 1;
-        set_auto_contrast();
         notify();
     }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_wavelength(const double value)
