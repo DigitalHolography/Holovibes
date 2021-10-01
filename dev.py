@@ -148,7 +148,7 @@ def build(args):
 
 def run(args):
     build_mode = get_build_mode(args.b)
-    exe_path = os.path.join(get_build_dir(args.p), build_mode)
+    exe_path = os.path.join(get_build_dir(args.p, get_generator(args.g)), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
