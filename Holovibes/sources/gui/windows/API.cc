@@ -963,4 +963,31 @@ bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::stri
     return false;
 }
 
+void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().divide_convolution_enabled = value;
+
+    pipe_refresh(ui_descriptor);
+}
+
+void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().reticle_enabled = value;
+    if (value)
+    {
+        ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Reticle>();
+        ui_descriptor.mainDisplay->getOverlayManager().create_default();
+    }
+    else
+    {
+        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
+    }
+
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

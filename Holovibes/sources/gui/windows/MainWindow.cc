@@ -1982,6 +1982,7 @@ void fancy_Qslide_text_percent(char* str)
     str[len + 2] = '\0';
 }
 
+// TODO -> api
 void slide_update_threshold(QSlider& slider,
                             std::atomic<float>& receiver,
                             std::atomic<float>& bound_to_update,
@@ -2329,6 +2330,7 @@ void MainWindow::update_convo_kernel(const QString& value)
 void MainWindow::set_convolution_mode(const bool value)
 {
     LOG_INFO;
+    // TODO -> api
     ui_descriptor_.holovibes_.get_cd().set_convolution(value,
                                                        ui.KernelQuickSelectComboBox->currentText().toStdString());
 
@@ -2340,9 +2342,9 @@ void MainWindow::set_convolution_mode(const bool value)
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().divide_convolution_enabled = value;
 
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::set_divide_convolution_mode(ui_descriptor_, value);
+
     notify();
 }
 
@@ -2379,17 +2381,9 @@ void MainWindow::set_fast_pipe(bool value)
 void MainWindow::display_reticle(bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().reticle_enabled = value;
-    if (value)
-    {
-        ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Reticle>();
-        ui_descriptor_.mainDisplay->getOverlayManager().create_default();
-    }
-    else
-    {
-        ui_descriptor_.mainDisplay->getOverlayManager().disable_all(Reticle);
-    }
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::display_reticle(ui_descriptor_, value);
+
     notify();
 }
 

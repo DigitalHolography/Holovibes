@@ -277,4 +277,8 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value);
 
 bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value);
 
+void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value);
+
+void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
+
 } // namespace holovibes::api
