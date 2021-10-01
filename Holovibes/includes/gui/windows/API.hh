@@ -237,4 +237,6 @@ bool increment_z(UserInterfaceDescriptor& ui_descriptor);
 
 bool decrement_z(UserInterfaceDescriptor& ui_descriptor);
 
+void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value);
+
 } // namespace holovibes::api

@@ -2142,7 +2142,8 @@ void MainWindow::decrement_z()
 void MainWindow::set_z_step(const double value)
 {
     LOG_INFO;
-    ui_descriptor_.z_step_ = value;
+    ::holovibes::api::set_z_step(ui_descriptor_, value);
+
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
 

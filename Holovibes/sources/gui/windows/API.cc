@@ -655,4 +655,10 @@ bool decrement_z(UserInterfaceDescriptor& ui_descriptor)
     return true;
 }
 
+void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+    ui_descriptor.z_step_ = value;
+}
+
 } // namespace holovibes::api
