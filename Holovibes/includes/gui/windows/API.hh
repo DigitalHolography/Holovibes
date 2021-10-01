@@ -217,4 +217,12 @@ void select_composite_rgb(UserInterfaceDescriptor& ui_descriptor);
 
 void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor);
 
+void actualize_frequency_channel_s(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_s);
+
+void actualize_frequency_channel_v(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_v);
+
+void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_activated);
+
+void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_kernel_size);
+
 } // namespace holovibes::api

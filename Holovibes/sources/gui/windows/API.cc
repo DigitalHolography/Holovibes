@@ -554,4 +554,28 @@ void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.holovibes_.get_cd().composite_kind = CompositeKind::HSV;
 }
 
+void actualize_frequency_channel_s(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_s)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().composite_p_activated_s = composite_p_activated_s;
+}
+
+void actualize_frequency_channel_v(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_v)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().composite_p_activated_v = composite_p_activated_v;
+}
+
+void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_activated)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().h_blur_activated = h_blur_activated;
+}
+
+void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_kernel_size)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().h_blur_kernel_size = h_blur_kernel_size;
+}
+
 } // namespace holovibes::api

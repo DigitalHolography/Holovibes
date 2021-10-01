@@ -1933,7 +1933,9 @@ void MainWindow::click_composite_rgb_or_hsv()
 void MainWindow::actualize_frequency_channel_s()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_p_activated_s = ui.checkBox_saturation_freq->isChecked();
+
+    ::holovibes::api::actualize_frequency_channel_s(ui_descriptor_, ui.checkBox_saturation_freq->isChecked());
+
     ui.SpinBox_saturation_freq_min->setDisabled(!ui.checkBox_saturation_freq->isChecked());
     ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
 }
@@ -1941,7 +1943,9 @@ void MainWindow::actualize_frequency_channel_s()
 void MainWindow::actualize_frequency_channel_v()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().composite_p_activated_v = ui.checkBox_value_freq->isChecked();
+
+    ::holovibes::api::actualize_frequency_channel_v(ui_descriptor_, ui.checkBox_value_freq->isChecked());
+
     ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
     ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 }
@@ -1949,14 +1953,17 @@ void MainWindow::actualize_frequency_channel_v()
 void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
+
+    ::holovibes::api::actualize_selection_h_gaussian_blur(ui_descriptor_, ui.checkBox_h_gaussian_blur->isChecked());
+
     ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 }
 
 void MainWindow::actualize_kernel_size_blur()
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value();
+
+    ::holovibes::api::actualize_kernel_size_blur(ui_descriptor_, ui.SpinBox_hue_blur_kernel_size->value());
 }
 
 void fancy_Qslide_text_percent(char* str)
