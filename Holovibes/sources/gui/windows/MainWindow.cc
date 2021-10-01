@@ -2044,7 +2044,7 @@ void MainWindow::set_z_step(const double value)
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
 
-void MainWindow::set_space_transformation(const QString value)
+void MainWindow::set_space_transformation(const QString& value)
 {
     if (is_raw_mode())
         return;
@@ -2053,7 +2053,7 @@ void MainWindow::set_space_transformation(const QString value)
     set_holographic_mode();
 }
 
-void MainWindow::set_time_transformation(const QString value)
+void MainWindow::set_time_transformation(const QString& value)
 {
     if (is_raw_mode())
         return;

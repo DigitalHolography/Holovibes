@@ -365,7 +365,7 @@ void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
 
 void ComputeDescriptor::set_compute_mode(Computation mode) { compute_mode = mode; }
 
-void ComputeDescriptor::set_space_transformation_from_string(const std::string value)
+void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
 {
     if (value == "None")
         space_transformation = SpaceTransformation::None;
@@ -381,7 +381,7 @@ void ComputeDescriptor::set_space_transformation_from_string(const std::string v
     }
 }
 
-void ComputeDescriptor::set_time_transformation_from_string(const std::string value)
+void ComputeDescriptor::set_time_transformation_from_string(const std::string& value)
 {
     if (value == "STFT")
         time_transformation = TimeTransformation::STFT;
