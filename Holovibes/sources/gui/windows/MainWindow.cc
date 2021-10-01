@@ -2237,11 +2237,8 @@ void MainWindow::set_contrast_mode(bool value)
 void MainWindow::set_auto_contrast_cuts()
 {
     LOG_INFO;
-    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XZview);
-        pipe->autocontrast_end_pipe(WindowKind::YZview);
-    }
+
+    ::holovibes::api::set_auto_contrast_cuts(ui_descriptor_);
 }
 
 void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)

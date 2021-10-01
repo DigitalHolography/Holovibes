@@ -261,4 +261,6 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor);
 
 bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
 
+void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

@@ -809,4 +809,15 @@ bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDe
     return true;
 }
 
+void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+    {
+        pipe->autocontrast_end_pipe(WindowKind::XZview);
+        pipe->autocontrast_end_pipe(WindowKind::YZview);
+    }
+}
+
 } // namespace holovibes::api
