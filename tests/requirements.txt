@@ -1,2 +1,5 @@
 numpy==1.19.3
 opencv-python
+pytest
+pytest-rerunfailures
+Pillow

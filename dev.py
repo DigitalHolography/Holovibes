@@ -4,12 +4,20 @@ import os
 import sys
 import subprocess
 import argparse
+import shutil
+import subprocess
+from time import sleep
+
+from tests.constant_name import *
 
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
 DEFAULT_GOAL = "build"
+DEFAULT_BUILD_BASE = "build"
 
-GOALS = ["cmake", "build", "run", "pytest", "ctest"]
+TEST_DATA = "data"
+
+GOALS = ["cmake", "build", "run", "pytest", "ctest", "build_ref", "clean"]
 
 RELEASE_OPT = ["Release", "release", "R", "r"]
 DEBUG_OPT = ["Debug", "debug", "D", "d"]
@@ -20,7 +28,6 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 #----------------------------------#
 # Utils                            #
 #----------------------------------#
-
 
 def get_generator(arg):
     if not arg:
@@ -44,6 +51,8 @@ def get_build_mode(arg):
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+def get_build_dir(arg, generator):
+    return arg or os.path.join(DEFAULT_BUILD_BASE, generator)
 
 def cannot_find_vcvars():
     print("Cannot find the Developer Prompt launcher, you can either:")
@@ -87,13 +96,14 @@ def cmake(args):
 
     generator = get_generator(args.g)
     build_mode = get_build_mode(args.b)
-    build_dir = args.p or os.path.join('build', generator)
+    build_dir = get_build_dir(args.p, generator)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
         print("Warning: deleting previous build")
         sys.stdout.flush()
-        subprocess.call(['rm', '-rf', build_dir], shell=True)
+        if subprocess.call(['rm', '-rf', build_dir], shell=True):
+            return 1
 
     cmd += ['cmake', '-B', build_dir,
             '-G', generator,
@@ -114,7 +124,7 @@ def cmake(args):
 
 def build(args):
     build_mode = get_build_mode(args.b)
-    build_dir = args.p or os.path.join('build', get_generator(args.g))
+    build_dir = get_build_dir(args.p, get_generator(args.g))
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
@@ -138,8 +148,7 @@ def build(args):
 
 def run(args):
     build_mode = get_build_mode(args.b)
-    exe_path = args.p or os.path.join(
-        'build', get_generator(args.g), build_mode)
+    exe_path = os.path.join(get_build_dir(args.p), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
@@ -195,6 +204,58 @@ def ctest(args):
     return out
 
 
+def build_ref(args) -> int:
+    from tests.test_holo_files import generate_holo_from
+
+    dirs = find_tests()
+    for name in dirs:
+        sleep(1)
+
+        path = os.path.join(TESTS_DATA, name)
+        if os.path.isdir(path):
+            input = os.path.join(path, INPUT_FILENAME)
+            ref = os.path.join(path, REF_FILENAME)
+            cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
+            config = os.path.join(path, CONFIG_FILENAME)
+
+            if not os.path.isfile(input):
+                input = get_input_file(path)
+                if input is None:
+                    print(
+                        f"Did not find the {INPUT_FILENAME} file in folder {path}")
+
+            if not os.path.isfile(config):
+                config = None
+
+            if os.path.isfile(ref):
+                os.remove(ref)
+
+            print(name)
+            generate_holo_from(input, ref, cli_argument, config)
+
+    return 0
+
+
+def clean(args) -> int:
+    # Remove build directory
+    if os.path.isdir(DEFAULT_BUILD_BASE):
+         if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
+             return 1
+
+    # Remove last_generated_output.holo from tests/data
+    for name in os.listdir(TESTS_DATA):
+        path = os.path.join(TESTS_DATA, name)
+        last_output_holo = os.path.join(path, OUTPUT_FILENAME)
+        last_output_image = os.path.join(path, OUTPUT_FAILED_IMAGE)
+        last_ref_image = os.path.join(path, REF_FAILED_IMAGE)
+
+        for file in (last_output_holo, last_output_image, last_ref_image):
+            if os.path.isfile(file):
+                os.remove(file)
+
+    return 0
+
+
 def run_goal(goal: str, args) -> int:
 
     GoalsFuncs = {
@@ -202,7 +263,9 @@ def run_goal(goal: str, args) -> int:
         "build": build,
         "run": run,
         "pytest": pytest,
-        "ctest": ctest
+        "ctest": ctest,
+        "build_ref": build_ref,
+        "clean": clean
     }
 
     goal_func = GoalsFuncs.get(goal)

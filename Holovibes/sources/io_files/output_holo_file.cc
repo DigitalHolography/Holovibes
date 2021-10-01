@@ -79,13 +79,13 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
 
 void OutputHoloFile::write_header()
 {
-    if (std::fwrite(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
+    if (std::fwrite(&holo_file_header_, 1, sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
         throw FileException("Unable to write output holo file header");
 }
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
-    size_t written_bytes = std::fwrite(frame, sizeof(char), frame_size, file_);
+    size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
@@ -98,7 +98,7 @@ void OutputHoloFile::write_footer()
     const std::string& meta_data_str = meta_data_.dump();
     const size_t meta_data_size = meta_data_str.size();
 
-    if (std::fwrite(meta_data_str.data(), sizeof(char), meta_data_size, file_) != meta_data_size)
+    if (std::fwrite(meta_data_str.data(), 1, meta_data_size, file_) != meta_data_size)
         throw FileException("Unable to write output holo file footer");
 }
 
