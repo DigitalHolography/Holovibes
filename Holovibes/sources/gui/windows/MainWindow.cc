@@ -2204,23 +2204,9 @@ void MainWindow::set_composite_area()
 void MainWindow::rotateTexture()
 {
     LOG_INFO;
-    WindowKind curWin = ui_descriptor_.holovibes_.get_cd().current_window;
 
-    if (curWin == WindowKind::XYview)
-    {
-        ui_descriptor_.displayAngle = (ui_descriptor_.displayAngle == 270.f) ? 0.f : ui_descriptor_.displayAngle + 90.f;
-        ui_descriptor_.mainDisplay->setAngle(ui_descriptor_.displayAngle);
-    }
-    else if (ui_descriptor_.sliceXZ && curWin == WindowKind::XZview)
-    {
-        ui_descriptor_.xzAngle = (ui_descriptor_.xzAngle == 270.f) ? 0.f : ui_descriptor_.xzAngle + 90.f;
-        ui_descriptor_.sliceXZ->setAngle(ui_descriptor_.xzAngle);
-    }
-    else if (ui_descriptor_.sliceYZ && curWin == WindowKind::YZview)
-    {
-        ui_descriptor_.yzAngle = (ui_descriptor_.yzAngle == 270.f) ? 0.f : ui_descriptor_.yzAngle + 90.f;
-        ui_descriptor_.sliceYZ->setAngle(ui_descriptor_.yzAngle);
-    }
+    ::holovibes::api::rotateTexture(ui_descriptor_);
+
     notify();
 }
 

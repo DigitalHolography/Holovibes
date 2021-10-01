@@ -749,4 +749,27 @@ void set_composite_area(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::CompositeArea>();
 }
 
+void rotateTexture(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    const WindowKind curWin = ui_descriptor.holovibes_.get_cd().current_window;
+
+    if (curWin == WindowKind::XYview)
+    {
+        ui_descriptor.displayAngle = (ui_descriptor.displayAngle == 270.f) ? 0.f : ui_descriptor.displayAngle + 90.f;
+        ui_descriptor.mainDisplay->setAngle(ui_descriptor.displayAngle);
+    }
+    else if (ui_descriptor.sliceXZ && curWin == WindowKind::XZview)
+    {
+        ui_descriptor.xzAngle = (ui_descriptor.xzAngle == 270.f) ? 0.f : ui_descriptor.xzAngle + 90.f;
+        ui_descriptor.sliceXZ->setAngle(ui_descriptor.xzAngle);
+    }
+    else if (ui_descriptor.sliceYZ && curWin == WindowKind::YZview)
+    {
+        ui_descriptor.yzAngle = (ui_descriptor.yzAngle == 270.f) ? 0.f : ui_descriptor.yzAngle + 90.f;
+        ui_descriptor.sliceYZ->setAngle(ui_descriptor.yzAngle);
+    }
+}
+
 } // namespace holovibes::api
