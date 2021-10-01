@@ -251,4 +251,6 @@ bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
 
 bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value);
 
+bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value);
+
 } // namespace holovibes::api

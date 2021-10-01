@@ -2187,11 +2187,8 @@ void MainWindow::set_accumulation(bool value)
 void MainWindow::set_accumulation_level(int value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().set_accumulation_level(ui_descriptor_.holovibes_.get_cd().current_window, value);
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    bool res = ::holovibes::api::set_accumulation_level(ui_descriptor_, value);
 }
 
 void MainWindow::set_composite_area()
