@@ -2305,15 +2305,12 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 void MainWindow::set_log_scale(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
+    const bool res = ::holovibes::api::set_log_scale(ui_descriptor_, value);
 
-    ui_descriptor_.holovibes_.get_cd().set_log_scale_slice_enabled(ui_descriptor_.holovibes_.get_cd().current_window,
-                                                                   value);
-    if (value && ui_descriptor_.holovibes_.get_cd().contrast_enabled)
-        set_auto_contrast();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
+    if (res)
+    {
+        notify();
+    }
 }
 #pragma endregion
 /* ------------ */

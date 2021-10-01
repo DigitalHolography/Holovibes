@@ -915,4 +915,19 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
     pipe_refresh(ui_descriptor);
 }
 
+bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().set_log_scale_slice_enabled(ui_descriptor.holovibes_.get_cd().current_window,
+                                                                  value);
+    if (value && ui_descriptor.holovibes_.get_cd().contrast_enabled)
+        set_auto_contrast(ui_descriptor);
+
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

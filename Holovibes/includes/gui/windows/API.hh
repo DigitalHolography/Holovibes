@@ -273,4 +273,6 @@ bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value);
 
 void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value);
 
+bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value);
+
 } // namespace holovibes::api
