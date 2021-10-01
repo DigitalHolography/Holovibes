@@ -624,4 +624,15 @@ bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value)
     return true;
 }
 
+bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().zdistance = static_cast<float>(value);
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

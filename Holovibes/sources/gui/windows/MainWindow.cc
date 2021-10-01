@@ -2113,11 +2113,8 @@ void MainWindow::set_wavelength(const double value)
 void MainWindow::set_z(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().zdistance = static_cast<float>(value);
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::set_z(ui_descriptor_, value);
 }
 
 void MainWindow::increment_z()
