@@ -860,10 +860,52 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
         {
             ui_descriptor.holovibes_.get_cd().set_contrast_min(ui_descriptor.holovibes_.get_cd().current_window, value);
             pipe_refresh(ui_descriptor);
+            return true;
         }
     }
 
-    return true;
+    return false;
+}
+
+bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
+        // Get the maximum contrast value rounded for the comparison
+        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_max(
+            ui_descriptor.holovibes_.get_cd().current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
+        {
+            ui_descriptor.holovibes_.get_cd().set_contrast_max(ui_descriptor.holovibes_.get_cd().current_window, value);
+            pipe_refresh(ui_descriptor);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        ui_descriptor.holovibes_.get_cd().contrast_invert = value;
+        pipe_refresh(ui_descriptor);
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace holovibes::api

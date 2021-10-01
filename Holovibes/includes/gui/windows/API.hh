@@ -267,4 +267,8 @@ bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor);
 
 bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value);
 
+bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value);
+
+bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value);
+
 } // namespace holovibes::api

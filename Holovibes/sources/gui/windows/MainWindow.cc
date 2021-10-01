@@ -2282,37 +2282,15 @@ void MainWindow::set_contrast_min(const double value)
 void MainWindow::set_contrast_max(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
-    {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-        // Get the maximum contrast value rounded for the comparison
-        const float old_val = ui_descriptor_.holovibes_.get_cd().get_truncate_contrast_max(
-            ui_descriptor_.holovibes_.get_cd().current_window);
-        // Floating number issue: cast to float for the comparison
-        const float val = value;
-        if (old_val != val)
-        {
-            ui_descriptor_.holovibes_.get_cd().set_contrast_max(ui_descriptor_.holovibes_.get_cd().current_window,
-                                                                value);
-            ::holovibes::api::pipe_refresh(ui_descriptor_);
-        }
-    }
+    ::holovibes::api::set_contrast_max(ui_descriptor_, value);
 }
 
 void MainWindow::invert_contrast(bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (ui_descriptor_.holovibes_.get_cd().contrast_enabled)
-    {
-        ui_descriptor_.holovibes_.get_cd().contrast_invert = value;
-        ::holovibes::api::pipe_refresh(ui_descriptor_);
-    }
+    ::holovibes::api::invert_contrast(ui_descriptor_, value);
 }
 
 void MainWindow::set_auto_refresh_contrast(bool value)
