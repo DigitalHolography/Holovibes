@@ -319,13 +319,13 @@ class MainWindow : public QMainWindow, public Observer
      *
      * \param value The new space transform to apply
      */
-    void set_space_transformation(const QString value);
+    void set_space_transformation(const QString& value);
 
     /*! \brief Modifies time transform calculation
      *
      * \param value The new time transform to apply
      */
-    void set_time_transformation(const QString value);
+    void set_time_transformation(const QString& value);
 
     /*! \brief Enables or Disables time transform cuts views
      *

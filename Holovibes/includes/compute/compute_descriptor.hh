@@ -148,8 +148,8 @@ class ComputeDescriptor : public Observable
     void handle_accumulation_exception();
 
     void set_compute_mode(Computation mode);
-    void set_space_transformation_from_string(const std::string value);
-    void set_time_transformation_from_string(const std::string value);
+    void set_space_transformation_from_string(const std::string& value);
+    void set_time_transformation_from_string(const std::string& value);
     void set_time_transformation_stride(int value);
     void set_time_transformation_size(int value);
     void set_batch_size(int value);
