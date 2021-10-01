@@ -458,10 +458,16 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the focused windows */
     void change_window();
 
+    /*! \brief Browses to import/ export .ini file */
+    void browse_import_ini();
+    void browse_export_ini();
+
     /*! \brief Reloads .ini file that store program's state */
+    void reload_ini(QString filename);
     void reload_ini();
 
     /*! \brief Saves the current state of holovibes in .ini file */
+    void write_ini(QString filename);
     void write_ini();
 
     /*! \brief Changes the theme of the ui */

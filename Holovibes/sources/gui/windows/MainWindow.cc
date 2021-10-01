@@ -654,29 +654,48 @@ void MainWindow::documentation()
 
 void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
 
-void MainWindow::write_ini()
+void MainWindow::write_ini() { write_ini(""); }
+
+void MainWindow::write_ini(QString filename)
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(::holovibes::ini::get_global_ini_path());
+    save_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     notify();
 }
 
-void MainWindow::reload_ini()
+void MainWindow::browse_export_ini()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
+    write_ini(filename);
+}
+
+void MainWindow::browse_import_ini()
+{
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("import .ini file"),
+                                                    file_input_directory_.c_str(),
+                                                    tr("All files (*.ini);; Ini files (*.ini)"));
+
+    reload_ini(filename);
+}
+
+void MainWindow::reload_ini() { reload_ini(""); }
+
+void MainWindow::reload_ini(QString filename)
 {
     import_stop();
     try
     {
-        load_ini(::holovibes::ini::get_global_ini_path());
+        load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     }
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
         LOG_INFO << e.what() << std::endl;
     }
+
     if (import_type_ == ImportType::File)
-    {
         import_start();
-    }
     else if (import_type_ == ImportType::Camera)
     {
         change_camera(kCamera);

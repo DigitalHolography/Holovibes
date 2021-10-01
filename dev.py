@@ -1,9 +1,9 @@
 #!python
 
 import os
+import sys
 import subprocess
 import argparse
-import pathlib
 import shutil
 import subprocess
 from time import sleep
@@ -13,6 +13,7 @@ from tests.constant_name import *
 DEFAULT_GENERATOR = "Ninja"
 DEFAULT_BUILD_MODE = "Debug"
 DEFAULT_GOAL = "build"
+DEFAULT_BUILD_BASE = "build"
 
 TEST_DATA = "data"
 
@@ -29,17 +30,29 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 #----------------------------------#
 
 def get_generator(arg):
-    if not args.g:
+    if not arg:
         return DEFAULT_GENERATOR
-    elif args.g in NINJA_OPT:
+    elif arg in NINJA_OPT:
         return "Ninja"
-    elif args.g in NMAKE_OPT:
+    elif arg in NMAKE_OPT:
         return "NMake Makefiles"
-    elif args.g in VS_OPT:
-        return args.g
+    elif arg in VS_OPT:
+        return arg
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+def get_build_mode(arg):
+    if not arg:
+        return DEFAULT_BUILD_MODE
+    elif arg in RELEASE_OPT:
+        return "Release"
+    elif arg in DEBUG_OPT:
+        return "Debug"
+    else:
+        raise Exception("Unreachable statement thanks to argparse")
+
+def get_build_dir(arg, generator):
+    return arg or os.path.join(DEFAULT_BUILD_BASE, generator)
 
 def cannot_find_vcvars():
     print("Cannot find the Developer Prompt launcher, you can either:")
@@ -82,13 +95,15 @@ def cmake(args):
     cmd += [args.e or find_vcvars(), '&&']
 
     generator = get_generator(args.g)
-    build_mode = args.b or DEFAULT_BUILD_MODE
-    build_dir = args.p or os.path.join('build', generator)
+    build_mode = get_build_mode(args.b)
+    build_dir = get_build_dir(args.p, generator)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
         print("Warning: deleting previous build")
-        shutil.rmtree(build_dir)
+        sys.stdout.flush()
+        if subprocess.call(['rm', '-rf', build_dir], shell=True):
+            return 1
 
     cmd += ['cmake', '-B', build_dir,
             '-G', generator,
@@ -102,13 +117,14 @@ def cmake(args):
 
     if args.v:
         print("Configure cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
 def build(args):
-    build_mode = args.b or DEFAULT_BUILD_MODE
-    build_dir = args.p or os.path.join('build', get_generator(args.g))
+    build_mode = get_build_mode(args.b)
+    build_dir = get_build_dir(args.p, get_generator(args.g))
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
@@ -125,18 +141,19 @@ def build(args):
 
     if args.v:
         print("Build cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
 def run(args):
-    build_mode = args.b or DEFAULT_BUILD_MODE
-    exe_path = args.p or os.path.join(
-        'build', get_generator(args.g), build_mode)
+    build_mode = get_build_mode(args.b)
+    exe_path = os.path.join(get_build_dir(args.p), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
         print("Cannot find Holovibes.exe at path: " + exe_path)
+        sys.stdout.flush()
         exit(1)
 
     os.chdir(exe_path)
@@ -145,6 +162,7 @@ def run(args):
 
     if args.v:
         print("Run cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     out = subprocess.call(cmd)
 
@@ -158,9 +176,11 @@ def pytest(args):
     except ImportError as e:
         print(e)
         print("Please install pytest with '$ python -m pip install pytest'")
+        sys.stdout.flush()
 
     if args.v:
         print("Pytest: Running pytest main...")
+        sys.stdout.flush()
 
     return pytest.main(args=['-v', ])
 
@@ -176,6 +196,7 @@ def ctest(args):
 
     if args.v:
         print("Ctest cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
 
     out = subprocess.call(cmd)
 
@@ -217,8 +238,8 @@ def build_ref(args) -> int:
 
 def clean(args) -> int:
     # Remove build directory
-    if os.path.isdir('build'):
-         if subprocess.call("rm -rf build/", shell=True):
+    if os.path.isdir(DEFAULT_BUILD_BASE):
+         if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
              return 1
 
     # Remove last_generated_output.holo from tests/data
@@ -254,6 +275,7 @@ def run_goal(goal: str, args) -> int:
     out = goal_func(args)
     if out != 0:
         print(f"Goal {goal} Failed, Abort")
+        sys.stdout.flush()
         exit(out)
 
 #----------------------------------#
@@ -276,10 +298,8 @@ def parse_args():
         '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
     build_env = parser.add_argument_group('Build Environment')
-    build_env.add_argument('-e', type=pathlib.Path,
-                           help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
-    build_env.add_argument('-p', type=pathlib.Path,
-                           help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
+    build_env.add_argument('-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+    build_env.add_argument('-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
