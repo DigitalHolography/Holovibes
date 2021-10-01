@@ -2157,18 +2157,8 @@ void MainWindow::set_space_transformation(const QString value)
 void MainWindow::set_time_transformation(QString value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (value == "STFT")
-        ui_descriptor_.holovibes_.get_cd().time_transformation = TimeTransformation::STFT;
-    else if (value == "PCA")
-        ui_descriptor_.holovibes_.get_cd().time_transformation = TimeTransformation::PCA;
-    else if (value == "None")
-        ui_descriptor_.holovibes_.get_cd().time_transformation = TimeTransformation::NONE;
-    else if (value == "SSA_STFT")
-        ui_descriptor_.holovibes_.get_cd().time_transformation = TimeTransformation::SSA_STFT;
-    set_holographic_mode();
+    ::holovibes::api::set_time_transformation(*this, ui_descriptor_, value.toStdString());
 }
 
 void MainWindow::set_unwrapping_2d(const bool value)

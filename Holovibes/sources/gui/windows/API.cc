@@ -687,4 +687,26 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
     return true;
 }
 
+bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
+                             UserInterfaceDescriptor& ui_descriptor,
+                             const std::string& value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (value == "STFT")
+        ui_descriptor.holovibes_.get_cd().time_transformation = TimeTransformation::STFT;
+    else if (value == "PCA")
+        ui_descriptor.holovibes_.get_cd().time_transformation = TimeTransformation::PCA;
+    else if (value == "None")
+        ui_descriptor.holovibes_.get_cd().time_transformation = TimeTransformation::NONE;
+    else if (value == "SSA_STFT")
+        ui_descriptor.holovibes_.get_cd().time_transformation = TimeTransformation::SSA_STFT;
+
+    mainwindow.set_holographic_mode();
+    return true;
+}
+
 } // namespace holovibes::api

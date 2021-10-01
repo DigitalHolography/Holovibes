@@ -243,4 +243,8 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
                               UserInterfaceDescriptor& ui_descriptor,
                               const std::string& value);
 
+bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
+                             UserInterfaceDescriptor& ui_descriptor,
+                             const std::string& value);
+
 } // namespace holovibes::api
