@@ -2120,11 +2120,12 @@ void MainWindow::set_z(const double value)
 void MainWindow::increment_z()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
+    const bool res = ::holovibes::api::is_raw_mode(ui_descriptor_);
 
-    set_z(ui_descriptor_.holovibes_.get_cd().zdistance + ui_descriptor_.z_step_);
-    ui.ZDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().zdistance);
+    if (res)
+    {
+        ui.ZDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().zdistance);
+    }
 }
 
 void MainWindow::decrement_z()

@@ -233,4 +233,6 @@ bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value);
 
 bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value);
 
+bool increment_z(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api
