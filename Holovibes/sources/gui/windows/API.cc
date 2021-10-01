@@ -709,4 +709,16 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
     return true;
 }
 
+bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

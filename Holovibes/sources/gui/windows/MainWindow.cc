@@ -2164,12 +2164,13 @@ void MainWindow::set_time_transformation(QString value)
 void MainWindow::set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
+    bool res = ::holovibes::api::set_unwrapping_2d(ui_descriptor_, value);
+
+    if (res)
+    {
+        notify();
+    }
 }
 
 void MainWindow::set_accumulation(bool value)

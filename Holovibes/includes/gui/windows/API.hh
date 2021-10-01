@@ -247,4 +247,6 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
                              UserInterfaceDescriptor& ui_descriptor,
                              const std::string& value);
 
+bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value);
+
 } // namespace holovibes::api
