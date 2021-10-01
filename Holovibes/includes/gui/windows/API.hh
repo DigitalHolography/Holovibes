@@ -263,4 +263,6 @@ bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDe
 
 void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor);
 
+bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

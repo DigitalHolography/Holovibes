@@ -2268,18 +2268,8 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
 void MainWindow::set_auto_contrast()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    try
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(ui_descriptor_.holovibes_.get_cd().current_window);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what() << std::endl;
-    }
+    ::holovibes::api::set_auto_contrast(ui_descriptor_);
 }
 
 void MainWindow::set_contrast_min(const double value)

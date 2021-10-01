@@ -820,4 +820,26 @@ void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
+bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    try
+    {
+        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+        {
+            pipe->autocontrast_end_pipe(ui_descriptor.holovibes_.get_cd().current_window);
+            return true;
+        }
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what() << std::endl;
+    }
+
+    return false;
+}
+
 } // namespace holovibes::api
