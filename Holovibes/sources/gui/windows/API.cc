@@ -990,4 +990,16 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
     pipe_refresh(ui_descriptor);
 }
 
+bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
+{
+    LOG_INFO;
+
+    if (0 > value || value > 1)
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().reticle_scale = value;
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

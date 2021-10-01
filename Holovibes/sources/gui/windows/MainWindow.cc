@@ -2390,11 +2390,8 @@ void MainWindow::display_reticle(bool value)
 void MainWindow::reticle_scale(double value)
 {
     LOG_INFO;
-    if (0 > value || value > 1)
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().reticle_scale = value;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::reticle_scale(ui_descriptor_, value);
 }
 #pragma endregion Reticle
 /* ------------ */

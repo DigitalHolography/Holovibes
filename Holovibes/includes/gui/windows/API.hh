@@ -281,4 +281,6 @@ void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const b
 
 void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
 
+bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value);
+
 } // namespace holovibes::api
