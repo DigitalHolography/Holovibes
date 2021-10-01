@@ -578,4 +578,21 @@ void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, bool h_b
     ui_descriptor.holovibes_.get_cd().h_blur_kernel_size = h_blur_kernel_size;
 }
 
+std::optional<bool> increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().pindex < ui_descriptor.holovibes_.get_cd().time_transformation_size)
+    {
+        ui_descriptor.holovibes_.get_cd().pindex++;
+        mainwindow.set_auto_contrast();
+        return true;
+    }
+
+    LOG_ERROR << "p param has to be between 1 and #img";
+    return std::nullopt;
+}
+
 } // namespace holovibes::api

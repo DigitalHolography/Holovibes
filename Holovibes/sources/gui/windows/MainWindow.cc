@@ -2082,17 +2082,13 @@ void MainWindow::slide_update_threshold_v_max()
 void MainWindow::increment_p()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (ui_descriptor_.holovibes_.get_cd().pindex < ui_descriptor_.holovibes_.get_cd().time_transformation_size)
+    std::optional<bool> res = ::holovibes::api::increment_p(*this, ui_descriptor_);
+
+    if (res)
     {
-        ui_descriptor_.holovibes_.get_cd().pindex = ui_descriptor_.holovibes_.get_cd().pindex + 1;
-        set_auto_contrast();
         notify();
     }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::decrement_p()
