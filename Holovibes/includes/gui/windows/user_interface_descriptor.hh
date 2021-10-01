@@ -19,6 +19,7 @@ using json = ::nlohmann::json;
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
 #include "ui_mainwindow.h"
+
 namespace holovibes
 {
 class UserInterfaceDescriptor

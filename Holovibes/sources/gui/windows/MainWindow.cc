@@ -2194,7 +2194,8 @@ void MainWindow::set_accumulation_level(int value)
 void MainWindow::set_composite_area()
 {
     LOG_INFO;
-    ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<CompositeArea>();
+
+    ::holovibes::api::set_composite_area(ui_descriptor_);
 }
 
 #pragma endregion

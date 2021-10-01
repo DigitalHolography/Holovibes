@@ -253,4 +253,6 @@ bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value);
 
 bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value);
 
+void set_composite_area(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

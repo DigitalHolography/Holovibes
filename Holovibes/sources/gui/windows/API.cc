@@ -743,4 +743,10 @@ bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value)
     return true;
 }
 
+void set_composite_area(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::CompositeArea>();
+}
+
 } // namespace holovibes::api
