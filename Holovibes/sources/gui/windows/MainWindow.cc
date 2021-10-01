@@ -2296,8 +2296,9 @@ void MainWindow::invert_contrast(bool value)
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh = value;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+
+    ::holovibes::api::set_auto_refresh_contrast(ui_descriptor_, value);
+
     notify();
 }
 

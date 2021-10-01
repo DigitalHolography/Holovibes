@@ -908,4 +908,11 @@ bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
     return false;
 }
 
+void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = value;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api
