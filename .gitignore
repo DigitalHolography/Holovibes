@@ -3,7 +3,8 @@
 # =========================
 
 # Ignore Visual Studio config files
-.vscode
+.vscode/
+*.code-workspace
 
 # python cache from scripts
 __pycache__/

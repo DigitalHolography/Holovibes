@@ -8,8 +8,8 @@ import pytest
 import json
 from typing import List, Tuple
 
-from tests import holo
-from tests.constant_name import *
+from .constant_name import generate_holo_from, TESTS_DATA, OUTPUT_FILENAME, REF_FILENAME, CONFIG_FILENAME, CLI_ARGUMENT_FILENAME, INPUT_FILENAME, TESTS_DATA
+from . import holo
 
 HOLOVIBES_BIN = os.path.join(
     os.getcwd(), "build", "Ninja", "Release", "Holovibes.exe")
@@ -22,8 +22,8 @@ assert os.path.isfile(
 
 
 def read_holo(path: str) -> Tuple[bytes, bytes, bytes]:
-    holo_file = holo.HoloFileReader(path)
-    data = holo_file.get_all()
+    holo_file = holo.HoloLazyReader(path)
+    data = holo_file.get_all_bytes()
     holo_file.close()
     return data
 

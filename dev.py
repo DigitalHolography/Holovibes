@@ -28,7 +28,6 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 # Utils                            #
 #----------------------------------#
 
-
 def get_generator(arg):
     if not args.g:
         return DEFAULT_GENERATOR
@@ -218,6 +217,8 @@ def build_ref(args) -> int:
 
 def clean(args) -> int:
     # Remove build directory
+    build_dir = get_build_dir()
+
     if os.path.isdir('build'):
         subprocess.call("rm -rf build/", shell=True)
 
