@@ -2150,22 +2150,8 @@ void MainWindow::set_z_step(const double value)
 void MainWindow::set_space_transformation(const QString value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (value == "None")
-        ui_descriptor_.holovibes_.get_cd().space_transformation = SpaceTransformation::None;
-    else if (value == "1FFT")
-        ui_descriptor_.holovibes_.get_cd().space_transformation = SpaceTransformation::FFT1;
-    else if (value == "2FFT")
-        ui_descriptor_.holovibes_.get_cd().space_transformation = SpaceTransformation::FFT2;
-    else
-    {
-        // Shouldn't happen
-        ui_descriptor_.holovibes_.get_cd().space_transformation = SpaceTransformation::None;
-        LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
-    }
-    set_holographic_mode();
+    ::holovibes::api::set_space_transformation(*this, ui_descriptor_, value.toStdString());
 }
 
 void MainWindow::set_time_transformation(QString value)

@@ -661,4 +661,30 @@ void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value)
     ui_descriptor.z_step_ = value;
 }
 
+bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
+                              UserInterfaceDescriptor& ui_descriptor,
+                              const std::string& value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (value == "None")
+        ui_descriptor.holovibes_.get_cd().space_transformation = SpaceTransformation::None;
+    else if (value == "1FFT")
+        ui_descriptor.holovibes_.get_cd().space_transformation = SpaceTransformation::FFT1;
+    else if (value == "2FFT")
+        ui_descriptor.holovibes_.get_cd().space_transformation = SpaceTransformation::FFT2;
+    else
+    {
+        // Shouldn't happen
+        ui_descriptor.holovibes_.get_cd().space_transformation = SpaceTransformation::None;
+        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
+    }
+
+    mainwindow.set_holographic_mode();
+    return true;
+}
+
 } // namespace holovibes::api
