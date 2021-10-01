@@ -7,6 +7,8 @@ from PIL import Image
 from PIL import ImageChops
 import numpy as np
 
+from .constant_name import *
+
 holo_header_version = 3
 holo_header_size = 64
 holo_header_padding_size = 35
@@ -137,18 +139,19 @@ class HoloFile:
 
         def __assert(lhs, rhs, name: str):
             assert lhs == rhs, f"{name} differ: {lhs} != {rhs}"
-        
+
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images', 'footer'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        for i, l_image, r_image in enumerate(zip(ref.images, chal.images)):
-            diff = ImageChops.difference(l_image, r_image)
+        for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
+            diff = ImageChops.difference(
+                l_image.convert('L'), r_image.convert('L'))
             if diff.getbbox():
-                l_image.save(os.path.join(basepath, 'ref.png'))
-                r_image.save(os.path.join(basepath, 'out.png'))
+                l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
+                r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert diff.getbbox(), f"Image {i} differ"
-    
+            assert not diff.getbbox(), f"Image {i} differ"
+
 
 class HoloLazyReader(HoloLazyIO):
     def __init__(self, path: str):

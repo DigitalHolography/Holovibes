@@ -217,18 +217,20 @@ def build_ref(args) -> int:
 
 def clean(args) -> int:
     # Remove build directory
-    build_dir = get_build_dir()
-
     if os.path.isdir('build'):
-        subprocess.call("rm -rf build/", shell=True)
+         if subprocess.call("rm -rf build/", shell=True):
+             return 1
 
     # Remove last_generated_output.holo from tests/data
     for name in os.listdir(TESTS_DATA):
         path = os.path.join(TESTS_DATA, name)
-        last_output_path = os.path.join(path, OUTPUT_FILENAME)
+        last_output_holo = os.path.join(path, OUTPUT_FILENAME)
+        last_output_image = os.path.join(path, OUTPUT_FAILED_IMAGE)
+        last_ref_image = os.path.join(path, REF_FAILED_IMAGE)
 
-        if os.path.isfile(last_output_path):
-            os.remove(last_output_path)
+        for file in (last_output_holo, last_output_image, last_ref_image):
+            if os.path.isfile(file):
+                os.remove(file)
 
     return 0
 
