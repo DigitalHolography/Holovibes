@@ -2106,11 +2106,8 @@ void MainWindow::decrement_p()
 void MainWindow::set_wavelength(const double value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::set_wavelength(ui_descriptor_, value);
 }
 
 void MainWindow::set_z(const double value)

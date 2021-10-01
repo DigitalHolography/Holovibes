@@ -229,4 +229,6 @@ bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
 
 bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
+bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value);
+
 } // namespace holovibes::api

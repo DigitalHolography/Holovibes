@@ -613,4 +613,15 @@ bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     return false;
 }
 
+bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api
