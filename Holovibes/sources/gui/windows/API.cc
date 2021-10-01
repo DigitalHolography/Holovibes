@@ -645,4 +645,14 @@ bool increment_z(UserInterfaceDescriptor& ui_descriptor)
     return true;
 }
 
+bool decrement_z(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    set_z(ui_descriptor, ui_descriptor.holovibes_.get_cd().zdistance - ui_descriptor.z_step_);
+    return true;
+}
+
 } // namespace holovibes::api
