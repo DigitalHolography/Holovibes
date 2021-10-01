@@ -68,8 +68,8 @@ to a reference file.
 
 An auto-discover function is already implemented.
 Just create a folder in the `tests/data/` folder. This is the name of your test.
-You shall put 2 or 3 files in the folder:
-* a `input.holo` file as input
+You shall put 1 to 3 files in the folder:
+* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen)
 * a `ref.holo` file as intended output
 * an optional `holovibes.ini` config file for the parameters
 
@@ -110,6 +110,8 @@ The script works like a makefile using goals to run. There are 5 of them:
 * run: running the last generated executable
 * ctest: running unit tests from GTest using ctest
 * pytest: running integration tests using pytest
+* build_ref: build the reference outputs for integration tests (run it only if the software's output improved, and if you know for sure that it's stable.)
+* clean: remove the buid folder and the generated outputs of the integration tests
 
 Futhermore, there is several options to manipulate the tool:
 * Build Mode:
