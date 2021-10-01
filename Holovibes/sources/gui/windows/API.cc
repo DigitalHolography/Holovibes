@@ -842,4 +842,28 @@ bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
     return false;
 }
 
+bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
+        // Get the minimum contrast value rounded for the comparison
+        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_min(
+            ui_descriptor.holovibes_.get_cd().current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
+        {
+            ui_descriptor.holovibes_.get_cd().set_contrast_min(ui_descriptor.holovibes_.get_cd().current_window, value);
+            pipe_refresh(ui_descriptor);
+        }
+    }
+
+    return true;
+}
+
 } // namespace holovibes::api
