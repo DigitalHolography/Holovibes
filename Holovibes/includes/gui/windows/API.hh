@@ -275,4 +275,6 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
 
 bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value);
 
+bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value);
+
 } // namespace holovibes::api

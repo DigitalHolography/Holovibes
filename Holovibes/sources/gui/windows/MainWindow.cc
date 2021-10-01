@@ -2318,25 +2318,10 @@ void MainWindow::set_log_scale(const bool value)
 void MainWindow::update_convo_kernel(const QString& value)
 {
     LOG_INFO;
-    if (ui_descriptor_.holovibes_.get_cd().convolution_enabled)
+    bool res = ::holovibes::api::update_convo_kernel(ui_descriptor_, value.toStdString());
+
+    if (res)
     {
-        ui_descriptor_.holovibes_.get_cd().set_convolution(true,
-                                                           ui.KernelQuickSelectComboBox->currentText().toStdString());
-
-        try
-        {
-            auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            ui_descriptor_.holovibes_.get_cd().convolution_enabled = false;
-            LOG_ERROR << e.what();
-        }
-
         notify();
     }
 }

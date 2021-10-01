@@ -823,6 +823,7 @@ void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
 bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
+
     if (is_raw_mode(ui_descriptor))
         return false;
 
@@ -845,6 +846,7 @@ bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
 bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value)
 {
     LOG_INFO;
+
     if (is_raw_mode(ui_descriptor))
         return false;
 
@@ -870,6 +872,7 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
 bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value)
 {
     LOG_INFO;
+
     if (is_raw_mode(ui_descriptor))
         return false;
 
@@ -895,6 +898,7 @@ bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value
 bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
 {
     LOG_INFO;
+
     if (is_raw_mode(ui_descriptor))
         return false;
 
@@ -911,6 +915,7 @@ bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
 void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
 {
     LOG_INFO;
+
     ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = value;
     pipe_refresh(ui_descriptor);
 }
@@ -918,6 +923,7 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
 bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
 {
     LOG_INFO;
+
     if (is_raw_mode(ui_descriptor))
         return false;
 
@@ -928,6 +934,33 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
 
     pipe_refresh(ui_descriptor);
     return true;
+}
+
+bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value)
+{
+    LOG_INFO;
+
+    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
+    {
+        ui_descriptor.holovibes_.get_cd().set_convolution(true, value);
+
+        try
+        {
+            auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+            pipe->request_convolution();
+            // Wait for the convolution to be enabled for notify
+            while (pipe->get_convolution_requested())
+                continue;
+        }
+        catch (const std::exception& e)
+        {
+            ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
+            LOG_ERROR << e.what();
+        }
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace holovibes::api
