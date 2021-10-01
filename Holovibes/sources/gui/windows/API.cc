@@ -1002,4 +1002,11 @@ bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
     return true;
 }
 
+void activeNoiseZone(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
+}
+
 } // namespace holovibes::api

@@ -2406,7 +2406,7 @@ void MainWindow::activeSignalZone()
 void MainWindow::activeNoiseZone()
 {
     LOG_INFO;
-    ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Noise>();
+    ::holovibes::api::activeNoiseZone(ui_descriptor_);
     notify();
 }
 

@@ -283,4 +283,6 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
 
 bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value);
 
+void activeNoiseZone(UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api
