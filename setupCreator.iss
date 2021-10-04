@@ -9,6 +9,7 @@
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
+#define MyLicense "LICENSE"
 
 #define QtPath "C:\Qt\Qt5.9.9\5.9.9\msvc2017_64\bin"
 #define QtPlatformPath "C:\Qt\Qt5.9.9\5.9.9\msvc2017_64\plugins\platforms"
@@ -32,6 +33,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
+LicenseFile={#MyLicense}
 OutputBaseFilename=holovibes_setup_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
