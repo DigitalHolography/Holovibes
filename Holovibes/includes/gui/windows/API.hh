@@ -659,4 +659,11 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
                                   int time_transformation_size,
                                   std::function<void()> callback);
 
+/*! \brief Enables or Disables fft shift mode on the main display window
+ *
+ * \param ui_descriptor user interface's state
+ * \param value true: enable, false: disable
+ */
+void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value);
+
 } // namespace holovibes::api

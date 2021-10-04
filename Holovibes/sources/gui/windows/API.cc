@@ -1217,4 +1217,14 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
+void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    ui_descriptor.holovibes_.get_cd().fft_shift_enabled = value;
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

@@ -1637,11 +1637,8 @@ void MainWindow::cancel_filter2d()
 void MainWindow::set_fft_shift(const bool value)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().fft_shift_enabled = value;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::set_fft_shift(ui_descriptor_, value);
 }
 
 void MainWindow::set_time_transformation_size()
