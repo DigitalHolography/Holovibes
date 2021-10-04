@@ -1334,6 +1334,7 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     }
 
     pipe_refresh(ui_descriptor);
+    return res;
 }
 
 void change_window(UserInterfaceDescriptor& ui_descriptor, const int index)
