@@ -1021,8 +1021,6 @@ void record_finished(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.is_recording_ = false;
 }
 
-#pragma region Chart
-
 void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
@@ -1197,5 +1195,26 @@ void disable_raw_view(UserInterfaceDescriptor& ui_descriptor)
         continue;
 }
 
-#pragma endregion
+bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
+                                  int time_transformation_size,
+                                  std::function<void()> callback)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    time_transformation_size = std::max(1, time_transformation_size);
+
+    if (time_transformation_size == ui_descriptor.holovibes_.get_cd().time_transformation_size)
+        return false;
+
+    auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get());
+    if (pipe)
+    {
+        pipe->insert_fn_end_vect(callback);
+    }
+
+    return true;
+}
+
 } // namespace holovibes::api

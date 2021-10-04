@@ -1647,25 +1647,22 @@ void MainWindow::set_fft_shift(const bool value)
 void MainWindow::set_time_transformation_size()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
     int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
-    time_transformation_size = std::max(1, time_transformation_size);
 
-    if (time_transformation_size == ui_descriptor_.holovibes_.get_cd().time_transformation_size)
-        return;
-    notify();
-    auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-    if (pipe)
+    auto callback = [=]() {
+        ui_descriptor_.holovibes_.get_cd().time_transformation_size = time_transformation_size;
+        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_size();
+        set_p_accu();
+        // This will not do anything until
+        // SliceWindow::changeTexture() isn't coded.
+    };
+
+    const bool res = ::holovibes::api::set_time_transformation_size(ui_descriptor_, time_transformation_size, callback);
+
+    if (res)
     {
-        pipe->insert_fn_end_vect([=]() {
-            ui_descriptor_.holovibes_.get_cd().time_transformation_size = time_transformation_size;
-            ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_size();
-            set_p_accu();
-            // This will not do anything until
-            // SliceWindow::changeTexture() isn't coded.
-        });
+        notify();
     }
 }
 

@@ -640,10 +640,23 @@ void disable_lens_view(UserInterfaceDescriptor& ui_descriptor);
  */
 std::optional<bool>
 update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
+
 /*! \brief Removes raw view
  *
  * \param ui_descriptor user interface's state
  */
 void disable_raw_view(UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief Changes the time transformation size from ui value
+ *
+ * \param ui_descriptor user interface's state
+ * \param time_transformation_size the new value
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ * \return true on success
+ * \return false on failure
+ */
+bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
+                                  int time_transformation_size,
+                                  std::function<void()> callback);
 
 } // namespace holovibes::api
