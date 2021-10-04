@@ -1506,7 +1506,7 @@ void MainWindow::update_filter2d_view(bool checked)
     notify();
 }
 
-void MainWindow::set_filter2d()
+void MainWindow::set_filter2d_pipe()
 {
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
@@ -1530,7 +1530,7 @@ void MainWindow::set_filter2d_n1(int n)
         return;
 
     cd_.set_filter2d_n1(n);
-    set_filter2d();
+    set_filter2d_pipe();
 }
 
 void MainWindow::set_filter2d_n2(int n)
@@ -1539,7 +1539,7 @@ void MainWindow::set_filter2d_n2(int n)
         return;
 
     cd_.set_filter2d_n2(n);
-    set_filter2d();
+    set_filter2d_pipe();
 }
 
 void MainWindow::cancel_filter2d()
@@ -2779,9 +2779,9 @@ void MainWindow::init_holovibes_import_mode()
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
-    start_spinbox = ui.ImportStartIndexSpinBox;
+    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
-    end_spinbox = ui.ImportEndIndexSpinBox;
+    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
     cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
@@ -2837,8 +2837,8 @@ void MainWindow::init_holovibes_import_mode()
 
 void MainWindow::import_start_spinbox_update()
 {
-    start_spinbox = ui.ImportStartIndexSpinBox;
-    end_spinbox = ui.ImportEndIndexSpinBox;
+    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
+    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (start_spinbox->value() > end_spinbox->value())
         end_spinbox->setValue(start_spinbox->value());
@@ -2846,8 +2846,8 @@ void MainWindow::import_start_spinbox_update()
 
 void MainWindow::import_end_spinbox_update()
 {
-    start_spinbox = ui.ImportStartIndexSpinBox;
-    end_spinbox = ui.ImportEndIndexSpinBox;
+    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
+    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
     if (end_spinbox->value() < start_spinbox->value())
         start_spinbox->setValue(end_spinbox->value());
