@@ -2793,17 +2793,20 @@ void MainWindow::init_holovibes_import_mode()
     {
         // Gather data from import panel
         std::string file_path = import_line_edit->text().toStdString();
-        unsigned int fps = fps_spinbox->value();
-        uint first_frame = start_spinbox->value();
-        uint last_frame = end_spinbox->value();
+
+        // TODO: Refacto cd_ access
+        cd_.input_fps = fps_spinbox->value();
+        cd_.start_frame = start_spinbox->value();
+        cd_.end_frame = end_spinbox->value();
+
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
         holovibes_.init_input_queue(file_fd_);
         holovibes_.start_file_frame_read(file_path,
                                          true,
-                                         fps,
-                                         first_frame - 1,
-                                         last_frame - first_frame + 1,
+                                         cd_.input_fps,
+                                         cd_.start_frame - 1,
+                                         cd_.end_frame - cd_.start_frame + 1,
                                          load_file_in_gpu,
                                          [=]() {
                                              synchronize_thread([&]() {
