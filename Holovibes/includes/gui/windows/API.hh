@@ -70,8 +70,7 @@ bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor);
  */
 void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str);
 
-/*!
- * \brief Disables the divide convolution mode
+/*! \brief Disables the divide convolution mode
  *
  * \param ui_descriptor user interface's state
  */
@@ -585,8 +584,7 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
  */
 bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value);
 
-/*!
- * \brief Restores attributs when recording ends
+/*! \brief Restores attributs when recording ends
  *
  * \param ui_descriptor user interface's state
  */
@@ -616,5 +614,11 @@ void start_chart_display(UserInterfaceDescriptor& ui_descriptor);
  * \param ui_descriptor user interface's state
  */
 void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief Removes raw view
+ *
+ * \param ui_descriptor user interface's state
+ */
+void disable_raw_view(UserInterfaceDescriptor& ui_descriptor);
 
 } // namespace holovibes::api

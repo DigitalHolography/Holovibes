@@ -1772,15 +1772,11 @@ void MainWindow::update_raw_view(bool value)
 void MainWindow::disable_raw_view()
 {
     LOG_INFO;
+
     if (ui_descriptor_.raw_window)
         disconnect(ui_descriptor_.raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
 
-    auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-    pipe->request_disable_raw_view();
-
-    // Wait for the raw view to be disabled for notify
-    while (pipe->get_disable_raw_view_requested())
-        continue;
+    ::holovibes::api::disable_raw_view(ui_descriptor_);
 
     notify();
 }
@@ -1815,6 +1811,7 @@ void MainWindow::set_y_accu()
 void MainWindow::set_x_y()
 {
     LOG_INFO;
+
     const auto& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
 
     ::holovibes::api::set_x_y(ui_descriptor_, fd, ui.XSpinBox->value(), ui.YSpinBox->value());
@@ -1956,6 +1953,7 @@ void MainWindow::click_composite_rgb_or_hsv()
         ui.SpinBox_value_freq_min->setValue(ui.PRedSpinBox_Composite->value());
         ui.SpinBox_value_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
     }
+
     notify();
 }
 
@@ -2150,6 +2148,7 @@ void MainWindow::set_z(const double value)
 void MainWindow::increment_z()
 {
     LOG_INFO;
+
     const bool res = ::holovibes::api::is_raw_mode(ui_descriptor_);
 
     if (res)
@@ -2161,6 +2160,7 @@ void MainWindow::increment_z()
 void MainWindow::decrement_z()
 {
     LOG_INFO;
+
     bool res = ::holovibes::api::decrement_z(ui_descriptor_);
 
     if (res)
@@ -2172,6 +2172,7 @@ void MainWindow::decrement_z()
 void MainWindow::set_z_step(const double value)
 {
     LOG_INFO;
+
     ::holovibes::api::set_z_step(ui_descriptor_, value);
 
     ui.ZDoubleSpinBox->setSingleStep(value);
@@ -2218,7 +2219,7 @@ void MainWindow::set_accumulation_level(int value)
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::set_accumulation_level(ui_descriptor_, value);
+    ::holovibes::api::set_accumulation_level(ui_descriptor_, value);
 }
 
 void MainWindow::set_composite_area()
@@ -2335,6 +2336,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 void MainWindow::set_log_scale(const bool value)
 {
     LOG_INFO;
+
     const bool res = ::holovibes::api::set_log_scale(ui_descriptor_, value);
 
     if (res)
@@ -2348,6 +2350,7 @@ void MainWindow::set_log_scale(const bool value)
 void MainWindow::update_convo_kernel(const QString& value)
 {
     LOG_INFO;
+
     bool res = ::holovibes::api::update_convo_kernel(ui_descriptor_, value.toStdString());
 
     if (res)
@@ -2377,7 +2380,9 @@ void MainWindow::set_convolution_mode(const bool value)
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
+
     ::holovibes::api::set_divide_convolution_mode(ui_descriptor_, value);
+
     notify();
 }
 
@@ -2387,13 +2392,16 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 void MainWindow::display_reticle(bool value)
 {
     LOG_INFO;
+
     ::holovibes::api::display_reticle(ui_descriptor_, value);
+
     notify();
 }
 
 void MainWindow::reticle_scale(double value)
 {
     LOG_INFO;
+
     ::holovibes::api::reticle_scale(ui_descriptor_, value);
 }
 #pragma endregion Reticle
@@ -2402,22 +2410,30 @@ void MainWindow::reticle_scale(double value)
 void MainWindow::activeSignalZone()
 {
     LOG_INFO;
+
     ::holovibes::api::activeSignalZone(ui_descriptor_);
+
+    // TODO: -> API
     ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Signal>();
+
     notify();
 }
 
 void MainWindow::activeNoiseZone()
 {
     LOG_INFO;
+
     ::holovibes::api::activeNoiseZone(ui_descriptor_);
+
     notify();
 }
 
 void MainWindow::start_chart_display()
 {
     LOG_INFO;
+
     holovibes::api::start_chart_display(ui_descriptor_);
+
     connect(ui_descriptor_.plot_window_.get(),
             SIGNAL(closed()),
             this,
@@ -2429,7 +2445,9 @@ void MainWindow::start_chart_display()
 void MainWindow::stop_chart_display()
 {
     LOG_INFO;
+
     holovibes::api::stop_chart_display(ui_descriptor_);
+
     ui.ChartPlotPushButton->setEnabled(true);
 }
 #pragma endregion
@@ -2438,13 +2456,16 @@ void MainWindow::stop_chart_display()
 void MainWindow::set_record_frame_step(int value)
 {
     LOG_INFO;
+
     ::holovibes::api::set_record_frame_step(ui_descriptor_, value);
+
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
 
 void MainWindow::set_nb_frames_mode(bool value)
 {
     LOG_INFO;
+
     ui.NumberOfFramesSpinBox->setEnabled(value);
 }
 

@@ -1078,5 +1078,17 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.plot_window_.reset(nullptr);
 }
 
+void disable_raw_view(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+    pipe->request_disable_raw_view();
+
+    // Wait for the raw view to be disabled for notify
+    while (pipe->get_disable_raw_view_requested())
+        continue;
+}
+
 #pragma endregion
 } // namespace holovibes::api
