@@ -615,6 +615,12 @@ void start_chart_display(UserInterfaceDescriptor& ui_descriptor);
  */
 void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
 
+/*! \brief Removes lens view
+ *
+ * \param ui_descriptor user interface's state
+ */
+void disable_lens_view(UserInterfaceDescriptor& ui_descriptor);
+
 /*! \brief Adds or removes raw view
  *
  * \param ui_descriptor user interface's state

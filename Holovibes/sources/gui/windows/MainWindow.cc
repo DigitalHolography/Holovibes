@@ -1718,11 +1718,12 @@ void MainWindow::update_lens_view(bool value)
 void MainWindow::disable_lens_view()
 {
     LOG_INFO;
+
     if (ui_descriptor_.lens_window)
         disconnect(ui_descriptor_.lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
-    ui_descriptor_.holovibes_.get_cd().gpu_lens_display_enabled = false;
-    ui_descriptor_.holovibes_.get_compute_pipe()->request_disable_lens_view();
+    ::holovibes::api::disable_lens_view(ui_descriptor_);
+
     notify();
 }
 

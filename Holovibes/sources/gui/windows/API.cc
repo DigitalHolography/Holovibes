@@ -1078,6 +1078,14 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.plot_window_.reset(nullptr);
 }
 
+void disable_lens_view(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().gpu_lens_display_enabled = false;
+    ui_descriptor.holovibes_.get_compute_pipe()->request_disable_lens_view();
+}
+
 std::optional<bool> update_raw_view(UserInterfaceDescriptor& ui_descriptor, bool value)
 {
     LOG_INFO;
