@@ -1674,45 +1674,12 @@ void MainWindow::update_lens_view(bool value)
     LOG_INFO;
     ui_descriptor_.holovibes_.get_cd().gpu_lens_display_enabled = value;
 
-    if (value)
+    const std::optional<bool> res = ::holovibes::api::update_lens_view(*this, ui_descriptor_, value);
+
+    if (res.has_value() && res.value())
     {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos =
-                ui_descriptor_.mainDisplay->framePosition() + QPoint(ui_descriptor_.mainDisplay->width() + 310, 0);
-            ICompute* pipe = ui_descriptor_.holovibes_.get_compute_pipe().get();
-
-            const FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, ui_descriptor_.auxiliary_window_max_size);
-
-            ui_descriptor_.lens_window.reset(new RawWindow(pos,
-                                                           QSize(lens_window_width, lens_window_height),
-                                                           pipe->get_lens_queue().get(),
-                                                           KindOfView::Lens));
-
-            ui_descriptor_.lens_window->setTitle("Lens view");
-            ui_descriptor_.lens_window->setCd(&ui_descriptor_.holovibes_.get_cd());
-
-            // when the window is destoryed, disable_lens_view() will be triggered
-            connect(ui_descriptor_.lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-        }
+        connect(ui_descriptor_.lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
     }
-
-    else
-    {
-        disable_lens_view();
-        ui_descriptor_.lens_window.reset(nullptr);
-    }
-
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::disable_lens_view()
@@ -1731,7 +1698,7 @@ void MainWindow::update_raw_view(bool value)
 {
     LOG_INFO;
 
-    const std::optional<bool> res = ::holovibes::api::update_raw_view(ui_descriptor_, value);
+    const std::optional<bool> res = ::holovibes::api::update_raw_view(*this, ui_descriptor_, value);
 
     if (!res.has_value())
     {

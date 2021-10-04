@@ -1078,6 +1078,57 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.plot_window_.reset(nullptr);
 }
 
+std::optional<bool>
+update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    std::optional<bool> res = true;
+
+    ui_descriptor.holovibes_.get_cd().gpu_lens_display_enabled = value;
+
+    if (value)
+    {
+        try
+        {
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos =
+                ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
+            ICompute* pipe = ui_descriptor.holovibes_.get_compute_pipe().get();
+
+            const ::camera::FrameDescriptor& fd = ui_descriptor.holovibes_.get_gpu_input_queue()->get_fd();
+            ushort lens_window_width = fd.width;
+            ushort lens_window_height = fd.height;
+            get_good_size(lens_window_width, lens_window_height, ui_descriptor.auxiliary_window_max_size);
+
+            ui_descriptor.lens_window.reset(
+                new ::holovibes::gui::RawWindow(pos,
+                                                QSize(lens_window_width, lens_window_height),
+                                                pipe->get_lens_queue().get(),
+                                                ::holovibes::gui::KindOfView::Lens));
+
+            ui_descriptor.lens_window->setTitle("Lens view");
+            ui_descriptor.lens_window->setCd(&ui_descriptor.holovibes_.get_cd());
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR << e.what() << std::endl;
+            res = std::nullopt;
+        }
+    }
+
+    else
+    {
+        mainwindow.disable_lens_view();
+        ui_descriptor.lens_window.reset(nullptr);
+        res = false;
+    }
+
+    ::holovibes::api::pipe_refresh(ui_descriptor);
+    return res;
+}
+
 void disable_lens_view(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
@@ -1086,7 +1137,8 @@ void disable_lens_view(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.holovibes_.get_compute_pipe()->request_disable_lens_view();
 }
 
-std::optional<bool> update_raw_view(UserInterfaceDescriptor& ui_descriptor, bool value)
+std::optional<bool>
+update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
 {
     LOG_INFO;
 
@@ -1125,7 +1177,7 @@ std::optional<bool> update_raw_view(UserInterfaceDescriptor& ui_descriptor, bool
     else
     {
         ui_descriptor.raw_window.reset(nullptr);
-        disable_raw_view(ui_descriptor);
+        mainwindow.disable_raw_view();
         res = false;
     }
 
