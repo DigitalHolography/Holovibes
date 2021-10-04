@@ -111,7 +111,7 @@ void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
     if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
-        set_convolution_mode(ui_descriptor, false);
+        unset_convolution_mode(ui_descriptor);
 
     if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
         cancel_time_transformation_cuts(ui_descriptor, []() { return; });
@@ -131,7 +131,29 @@ void remove_infos()
     Holovibes::instance().get_info_container().clear();
 }
 
-void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
+void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().set_convolution(true, str);
+
+    try
+    {
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+
+        pipe->request_convolution();
+        // Wait for the convolution to be enabled for notify
+        while (pipe->get_convolution_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
+        LOG_ERROR << e.what();
+    }
+}
+
+void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
@@ -139,20 +161,10 @@ void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool val
     {
         auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
 
-        if (value)
-        {
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        else
-        {
-            pipe->request_disable_convolution();
-            // Wait for the convolution to be disabled for notify
-            while (pipe->get_disable_convolution_requested())
-                continue;
-        }
+        pipe->request_disable_convolution();
+        // Wait for the convolution to be disabled for notify
+        while (pipe->get_disable_convolution_requested())
+            continue;
     }
     catch (const std::exception& e)
     {

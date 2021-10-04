@@ -66,9 +66,16 @@ bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor);
 /*! \brief Enables the divide convolution mode
  *
  * \param ui_descriptor user interface's state
- * \param value true: enable, false: disable
+ * \param str the file containing the convolution's settings
  */
-void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value);
+void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str);
+
+/*!
+ * \brief Disables the divide convolution mode
+ *
+ * \param ui_descriptor user interface's state
+ */
+void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Removes time transformation from computation
  *

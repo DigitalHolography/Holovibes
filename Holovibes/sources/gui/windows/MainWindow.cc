@@ -2359,11 +2359,17 @@ void MainWindow::update_convo_kernel(const QString& value)
 void MainWindow::set_convolution_mode(const bool value)
 {
     LOG_INFO;
-    // TODO -> api
-    ui_descriptor_.holovibes_.get_cd().set_convolution(value,
-                                                       ui.KernelQuickSelectComboBox->currentText().toStdString());
 
-    ::holovibes::api::set_convolution_mode(ui_descriptor_, value);
+    if (value)
+    {
+        std::string str = ui.KernelQuickSelectComboBox->currentText().toStdString();
+
+        ::holovibes::api::set_convolution_mode(ui_descriptor_, str);
+    }
+    else
+    {
+        ::holovibes::api::unset_convolution_mode(ui_descriptor_);
+    }
 
     notify();
 }
@@ -2371,9 +2377,7 @@ void MainWindow::set_convolution_mode(const bool value)
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
-
     ::holovibes::api::set_divide_convolution_mode(ui_descriptor_, value);
-
     notify();
 }
 
@@ -2383,16 +2387,13 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 void MainWindow::display_reticle(bool value)
 {
     LOG_INFO;
-
     ::holovibes::api::display_reticle(ui_descriptor_, value);
-
     notify();
 }
 
 void MainWindow::reticle_scale(double value)
 {
     LOG_INFO;
-
     ::holovibes::api::reticle_scale(ui_descriptor_, value);
 }
 #pragma endregion Reticle
