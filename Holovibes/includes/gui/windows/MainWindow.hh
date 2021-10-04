@@ -618,6 +618,9 @@ class MainWindow : public QMainWindow, public Observer
     QSpinBox* start_spinbox;
     QSpinBox* end_spinbox;
 
+    // Additional attributs
+    ushort theme_index_ = 0;
+
 #pragma endregion
 };
 } // namespace gui

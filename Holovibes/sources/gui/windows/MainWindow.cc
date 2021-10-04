@@ -694,7 +694,11 @@ void MainWindow::configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void MainWindow::write_ini() { write_ini(""); }
+void MainWindow::write_ini()
+{
+    LOG_INFO;
+    write_ini("");
+}
 
 void MainWindow::write_ini(QString filename)
 {
@@ -706,12 +710,14 @@ void MainWindow::write_ini(QString filename)
 
 void MainWindow::browse_export_ini()
 {
+    LOG_INFO;
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
     write_ini(filename);
 }
 
 void MainWindow::browse_import_ini()
 {
+    LOG_INFO;
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
                                                     ui_descriptor_.file_input_directory_.c_str(),
@@ -720,7 +726,11 @@ void MainWindow::browse_import_ini()
     reload_ini(filename);
 }
 
-void MainWindow::reload_ini() { reload_ini(""); }
+void MainWindow::reload_ini()
+{
+    LOG_INFO;
+    reload_ini("");
+}
 
 void MainWindow::reload_ini(QString filename)
 {
@@ -810,7 +820,7 @@ void MainWindow::load_ini(const std::string& path)
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
         info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
-        ui_descriptor_.theme_index_ = ptree.get<int>("info.theme_type", ui_descriptor_.theme_index_);
+        theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
         ui_descriptor_.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
         ui_descriptor_.time_transformation_cuts_window_max_size =
@@ -862,7 +872,7 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 
     ptree.put<bool>("info.hidden", info_group_box->isHidden());
-    ptree.put<ushort>("info.theme_type", ui_descriptor_.theme_index_);
+    ptree.put<ushort>("info.theme_type", theme_index_);
 
     ptree.put<uint>("display.main_window_max_size", ui_descriptor_.window_max_size);
     ptree.put<uint>("display.time_transformation_cuts_window_max_size",
@@ -2811,7 +2821,7 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::Light, Qt::black);
 
     qApp->setPalette(darkPalette);
-    ui_descriptor_.theme_index_ = 1;
+    theme_index_ = 1;
 }
 
 void MainWindow::set_classic()
@@ -2821,7 +2831,7 @@ void MainWindow::set_classic()
     // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
-    ui_descriptor_.theme_index_ = 0;
+    theme_index_ = 0;
 }
 #pragma endregion
 
