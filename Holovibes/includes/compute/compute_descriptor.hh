@@ -452,6 +452,7 @@ class ComputeDescriptor : public Observable
 
     std::atomic<uint> start_frame{0};
     std::atomic<uint> end_frame{0};
+    std::atomic<uint> input_fps{60};
 
 #pragma endregion
 };

@@ -66,6 +66,13 @@ class OutputFrameFile : public FrameFile
      * \throw FileException if an error occurred while opening the file
      */
     OutputFrameFile(const std::string& file_path);
+
+    /*!
+     * \brief Compute the output fps as follow: input_fps / time_transformation_stride.
+     *
+     * \return double return the compute output fps
+     */
+    double compute_output_fps();
 };
 } // namespace holovibes::io_files
 

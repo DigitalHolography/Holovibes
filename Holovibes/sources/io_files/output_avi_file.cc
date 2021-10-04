@@ -23,7 +23,7 @@ void OutputAviFile::write_header()
 
         bool is_color = fd_.depth == 3;
 
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, 20, size, is_color);
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_output_fps(), size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();
