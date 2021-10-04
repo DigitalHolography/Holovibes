@@ -1577,25 +1577,13 @@ void MainWindow::update_filter2d_view(bool checked)
 void MainWindow::set_filter2d_n1(int n)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    ui_descriptor_.holovibes_.get_cd().filter2d_n1 = n;
+    const bool res = ::holovibes::api::set_filter2d_n1(ui_descriptor_, n);
 
-    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
+    if (res)
     {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled)
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (ui_descriptor_.holovibes_.get_cd().filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        notify();
     }
-
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
 }
 
 void MainWindow::set_filter2d_n2(int n)
