@@ -1078,6 +1078,53 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
     ui_descriptor.plot_window_.reset(nullptr);
 }
 
+std::optional<bool> update_raw_view(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    std::optional<bool> res = true;
+
+    if (value)
+    {
+        if (ui_descriptor.holovibes_.get_cd().batch_size > global::global_config.output_queue_max_size)
+        {
+            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
+            return std::nullopt;
+        }
+
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+        pipe->request_raw_view();
+
+        // Wait for the raw view to be enabled for notify
+        while (pipe->get_raw_view_requested())
+            continue;
+
+        const ::camera::FrameDescriptor& fd = ui_descriptor.holovibes_.get_gpu_input_queue()->get_fd();
+        ushort raw_window_width = fd.width;
+        ushort raw_window_height = fd.height;
+        get_good_size(raw_window_width, raw_window_height, ui_descriptor.auxiliary_window_max_size);
+
+        // set positions of new windows according to the position of the main GL
+        // window and Lens window
+        QPoint pos = ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
+        ui_descriptor.raw_window.reset(new ::holovibes::gui::RawWindow(pos,
+                                                                       QSize(raw_window_width, raw_window_height),
+                                                                       pipe->get_raw_view_queue().get()));
+
+        ui_descriptor.raw_window->setTitle("Raw view");
+        ui_descriptor.raw_window->setCd(&ui_descriptor.holovibes_.get_cd());
+    }
+    else
+    {
+        ui_descriptor.raw_window.reset(nullptr);
+        disable_raw_view(ui_descriptor);
+        res = false;
+    }
+
+    pipe_refresh(ui_descriptor);
+    return res;
+}
+
 void disable_raw_view(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;

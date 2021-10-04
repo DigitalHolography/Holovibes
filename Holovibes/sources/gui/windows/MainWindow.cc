@@ -1729,44 +1729,19 @@ void MainWindow::disable_lens_view()
 void MainWindow::update_raw_view(bool value)
 {
     LOG_INFO;
-    if (value)
+
+    const std::optional<bool> res = ::holovibes::api::update_raw_view(ui_descriptor_, value);
+
+    if (!res.has_value())
     {
-        if (ui_descriptor_.holovibes_.get_cd().batch_size > global::global_config.output_queue_max_size)
-        {
-            ui.RawDisplayingCheckBox->setChecked(false);
-            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-            return;
-        }
+        ui.RawDisplayingCheckBox->setChecked(false);
+        return;
+    }
 
-        auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-        pipe->request_raw_view();
-
-        // Wait for the raw view to be enabled for notify
-        while (pipe->get_raw_view_requested())
-            continue;
-
-        const FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, ui_descriptor_.auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = ui_descriptor_.mainDisplay->framePosition() + QPoint(ui_descriptor_.mainDisplay->width() + 310, 0);
-        ui_descriptor_.raw_window.reset(
-            new RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-        ui_descriptor_.raw_window->setTitle("Raw view");
-        ui_descriptor_.raw_window->setCd(&ui_descriptor_.holovibes_.get_cd());
-
+    if (res.value())
+    {
         connect(ui_descriptor_.raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
     }
-    else
-    {
-        ui_descriptor_.raw_window.reset(nullptr);
-        disable_raw_view();
-    }
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
 }
 
 void MainWindow::disable_raw_view()

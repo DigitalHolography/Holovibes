@@ -615,6 +615,14 @@ void start_chart_display(UserInterfaceDescriptor& ui_descriptor);
  */
 void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
 
+/*! \brief Adds or removes raw view
+ *
+ * \param ui_descriptor user interface's state
+ * \param value true: add, false: remove
+ * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
+ */
+std::optional<bool> update_raw_view(UserInterfaceDescriptor& ui_descriptor, bool value);
+
 /*! \brief Removes raw view
  *
  * \param ui_descriptor user interface's state
