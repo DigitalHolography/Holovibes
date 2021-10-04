@@ -1441,17 +1441,9 @@ void MainWindow::cancel_time_transformation_cuts()
 void MainWindow::change_window()
 {
     LOG_INFO;
-    QComboBox* window_cbox = ui.WindowSelectionComboBox;
 
-    if (window_cbox->currentIndex() == 0)
-        ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::XYview;
-    else if (window_cbox->currentIndex() == 1)
-        ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::XZview;
-    else if (window_cbox->currentIndex() == 2)
-        ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::YZview;
-    else if (window_cbox->currentIndex() == 3)
-        ui_descriptor_.holovibes_.get_cd().current_window = WindowKind::Filter2D;
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::change_window(ui_descriptor_, ui.WindowSelectionComboBox->currentIndex());
+
     notify();
 }
 

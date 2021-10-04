@@ -1336,4 +1336,20 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     pipe_refresh(ui_descriptor);
 }
 
+void change_window(UserInterfaceDescriptor& ui_descriptor, const int index)
+{
+    LOG_INFO;
+
+    if (index == 0)
+        ui_descriptor.holovibes_.get_cd().current_window = WindowKind::XYview;
+    else if (index == 1)
+        ui_descriptor.holovibes_.get_cd().current_window = WindowKind::XZview;
+    else if (index == 2)
+        ui_descriptor.holovibes_.get_cd().current_window = WindowKind::YZview;
+    else if (index == 3)
+        ui_descriptor.holovibes_.get_cd().current_window = WindowKind::Filter2D;
+
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

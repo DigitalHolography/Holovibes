@@ -695,4 +695,11 @@ bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n);
 std::optional<bool>
 update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
 
+/*! \brief Changes the focused windows
+ *
+ * \param ui_descriptor user interface's state
+ * \param index the index representing the window to select
+ */
+void change_window(UserInterfaceDescriptor& ui_descriptor, const int index);
+
 } // namespace holovibes::api

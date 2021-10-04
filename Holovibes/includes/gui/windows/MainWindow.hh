@@ -139,7 +139,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Resets the whole program in reload .ini file */
     void reset();
 
-    /*! \brief adds or removes filter 2d view
+    /*! \brief Adds or removes filter 2d view
      *
      * \param checked true: enable, false: disable
      */
