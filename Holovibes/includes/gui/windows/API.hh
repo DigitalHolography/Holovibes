@@ -685,4 +685,14 @@ bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n);
  */
 bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n);
 
+/*! \brief Adds or removes filter 2d view
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param checked true: enable, false: disable
+ * \return std::optional<bool> nullopt: on anticipated return, false: on failure, true: on success
+ */
+std::optional<bool>
+update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
+
 } // namespace holovibes::api

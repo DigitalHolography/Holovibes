@@ -1519,59 +1519,17 @@ void MainWindow::disable_filter2d_view()
 void MainWindow::update_filter2d_view(bool checked)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (checked)
+    const std::optional<bool> res = ::holovibes::api::update_filter2d_view(*this, ui_descriptor_, checked);
+
+    if (res.has_value())
     {
-        try
+        if (res.value())
         {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos =
-                ui_descriptor_.mainDisplay->framePosition() + QPoint(ui_descriptor_.mainDisplay->width() + 310, 0);
-            auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-            if (pipe)
-            {
-                pipe->request_filter2d_view();
-
-                const FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_output_queue()->get_fd();
-                ushort filter2d_window_width = fd.width;
-                ushort filter2d_window_height = fd.height;
-                get_good_size(filter2d_window_width, filter2d_window_height, ui_descriptor_.auxiliary_window_max_size);
-
-                // Wait for the filter2d view to be enabled for notify
-                while (pipe->get_filter2d_view_requested())
-                    continue;
-
-                ui_descriptor_.filter2d_window.reset(
-                    new Filter2DWindow(pos,
-                                       QSize(filter2d_window_width, filter2d_window_height),
-                                       pipe->get_filter2d_view_queue().get(),
-                                       this));
-
-                ui_descriptor_.filter2d_window->setTitle("Filter2D view");
-                ui_descriptor_.filter2d_window->setCd(&ui_descriptor_.holovibes_.get_cd());
-
-                connect(ui_descriptor_.filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-                ui_descriptor_.holovibes_.get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-            }
+            connect(ui_descriptor_.filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
         }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-        }
+        notify();
     }
-
-    else
-    {
-        disable_filter2d_view();
-        ui_descriptor_.filter2d_window.reset(nullptr);
-    }
-
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
 }
 
 void MainWindow::set_filter2d_n1(int n)

@@ -1275,4 +1275,65 @@ bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n)
     return true;
 }
 
+std::optional<bool>
+update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked)
+{
+    LOG_INFO;
+    if (::holovibes::api::is_raw_mode(ui_descriptor))
+        return std::nullopt;
+
+    std::optional<bool> res = true;
+
+    if (checked)
+    {
+        try
+        {
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos =
+                ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
+            auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get());
+            if (pipe)
+            {
+                pipe->request_filter2d_view();
+
+                const camera::FrameDescriptor& fd = ui_descriptor.holovibes_.get_gpu_output_queue()->get_fd();
+                ushort filter2d_window_width = fd.width;
+                ushort filter2d_window_height = fd.height;
+                get_good_size(filter2d_window_width, filter2d_window_height, ui_descriptor.auxiliary_window_max_size);
+
+                // Wait for the filter2d view to be enabled for notify
+                while (pipe->get_filter2d_view_requested())
+                    continue;
+
+                ui_descriptor.filter2d_window.reset(
+                    new ::holovibes::gui::Filter2DWindow(pos,
+                                                         QSize(filter2d_window_width, filter2d_window_height),
+                                                         pipe->get_filter2d_view_queue().get(),
+                                                         &mainwindow));
+
+                ui_descriptor.filter2d_window->setTitle("Filter2D view");
+                ui_descriptor.filter2d_window->setCd(&ui_descriptor.holovibes_.get_cd());
+
+                ui_descriptor.holovibes_.get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+            }
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR << e.what() << std::endl;
+            res = false;
+        }
+    }
+
+    else
+    {
+        mainwindow.disable_filter2d_view();
+        ui_descriptor.filter2d_window.reset(nullptr);
+        res = false;
+    }
+
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api
