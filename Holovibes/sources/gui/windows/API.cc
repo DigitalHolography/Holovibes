@@ -1002,6 +1002,13 @@ bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
     return true;
 }
 
+void record_finished(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.is_recording_ = false;
+}
+
 #pragma region Chart
 
 void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)

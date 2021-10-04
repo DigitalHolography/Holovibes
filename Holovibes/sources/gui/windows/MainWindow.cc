@@ -2590,7 +2590,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
     ui.BatchSizeSpinBox->setEnabled(ui_descriptor_.holovibes_.get_cd().compute_mode == Computation::Hologram);
-    ui_descriptor_.is_recording_ = false;
+    ::holovibes::api::record_finished(ui_descriptor_);
 }
 
 void MainWindow::start_record()

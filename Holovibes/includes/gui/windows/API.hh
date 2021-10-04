@@ -578,6 +578,13 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
  */
 bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value);
 
+/*!
+ * \brief Restores attributs when recording ends
+ *
+ * \param ui_descriptor user interface's state
+ */
+void record_finished(UserInterfaceDescriptor& ui_descriptor);
+
 /*! \brief Creates Noise overlay
  *
  * \param ui_descriptor user interface's state
