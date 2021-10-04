@@ -1,8 +1,6 @@
-
-
+#include <assert.h>
 #include "output_frame_file.hh"
 #include "holovibes.hh"
-#include <assert.h>
 
 namespace holovibes::io_files
 {
