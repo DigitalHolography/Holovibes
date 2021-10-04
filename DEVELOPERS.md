@@ -11,26 +11,34 @@
 * [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 * [OpenCV 4.5.0](https://opencv.org/releases/)
 
+#### Visual Studio dependencies
+
+The minimum requirements in _Individual Components_ (installable from Visual Studio installer) are the following:
+* C++ CMake tools for Windows
+* MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
+* MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
+
 #### Environment variables
 
 Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path. *Note: it is recommended to put Qt above every other paths to avoid conflicts when loading Qt5 DLLs.*
 
 Other variables:
-    - `OpenCV_DIR` = `C:\opencv\build`
+* `OpenCV_DIR`: Fill with OpenCV location (Usually: `C:\opencv\build`)
+* `CUDA_PATH`: Fill with Cuda and NVCC location
 
 Do not forget to restart Visual Studio Code or your terminal before compiling again.
 
 ### Compilation
 
-After changing element of the front, changing release/debug mode, delete your build folder and recompile.
-
-Use `./build.py` (or `./build.py R` for release mode / `./build.py P` if using Visual Studio professional) and `./run.py` (or `./run.py R` for release mode) in project folder.
+Use `./dev.py cmake build` to build using our dev tool (cf. Dev tool documentation)
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./build [generator]`.
 
-Alternatively, you can build from the command line:
+Alternatively, you can build from the command line (not recommended):
 * **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
 * **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+
+Note: After changing an element of the front or to change between release/debug mode, please delete your build folder and recompile.
 
 ### Add an element to Front with __QtCreator__
 
@@ -45,7 +53,7 @@ Alternatively, you can build from the command line:
 
 #### Known issues
 
-2021-05-18: The project does not compile with the latest version of MSVC (14.29). To downgrade to a previous version (14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
+2021-05-18: The project may not compile with the latest version of MSVC. To downgrade to a previous version (14.29 and 14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
 
 ### Test suite
 
@@ -60,8 +68,8 @@ to a reference file.
 
 An auto-discover function is already implemented.
 Just create a folder in the `tests/data/` folder. This is the name of your test.
-You shall put 2 or 3 files in the folder:
-* a `input.holo` file as input
+You shall put 1 to 3 files in the folder:
+* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen)
 * a `ref.holo` file as intended output
 * an optional `holovibes.ini` config file for the parameters
 
@@ -73,6 +81,11 @@ The tool used to run these tests is `pytest`. Just run this from the root of the
 $ python -m pytest -v
 ```
 
+or using our dev tool:
+```sh
+$ ./dev.py build pytest
+```
+
 #### Unit tests
 
 ##### Installation
@@ -82,7 +95,40 @@ $ python -m pytest -v
 
 ##### Usage
 
-Build the project in debug mode and run all unit tests with `./run_unit_tests.py`.
+Build the project in debug mode and run:
+```sh
+$ ./dev.py build ctest
+```
+
+### Dev Tool
+
+Since building this project is such a hassle, we have created an unified building script to build, run and test Holovibes.
+
+The script works like a makefile using goals to run. There are 5 of them:
+* cmake: for cmake configure step and reconfigure step
+* build: using the generator chosen during previous step
+* run: running the last generated executable
+* ctest: running unit tests from GTest using ctest
+* pytest: running integration tests using pytest
+* build_ref: build the reference outputs for integration tests (run it only if the software's output improved, and if you know for sure that it's stable.)
+* clean: remove the buid folder and the generated outputs of the integration tests
+
+Futhermore, there is several options to manipulate the tool:
+* Build Mode:
+    Choose between Release mode and Debug mode (Default: Debug)
+
+    -b {Release,release,R,r,Debug,debug,D,d}
+
+* Build Generator:
+    Choose between NMake, Visual Studio and Ninja (Default: Ninja)
+
+    -g {Ninja,ninja,N,n,NMake,nmake,NM,nm,Visual Studio 14,Visual Studio 15,Visual Studio 16}
+
+* Build Environment:
+    -e E                  Path to find the VS Developer Prompt to use to build
+                          (Default: auto-find)
+    -p P                  Path used by cmake to store compiled objects and exe
+                          (Default: build/%generator%/)
 
 ### Misc
 

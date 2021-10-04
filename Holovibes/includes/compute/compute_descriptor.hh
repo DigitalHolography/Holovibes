@@ -373,6 +373,9 @@ class ComputeDescriptor : public Observable
 
     std::atomic<bool> fast_pipe{false};
 
+    std::atomic<uint> start_frame{0};
+    std::atomic<uint> end_frame{0};
+
 #pragma endregion
 };
 } // namespace holovibes

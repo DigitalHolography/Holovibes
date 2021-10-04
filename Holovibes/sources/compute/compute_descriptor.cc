@@ -71,7 +71,6 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     contrast_auto_refresh = cd.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
-    fast_pipe = cd.fast_pipe.load();
     return *this;
 }
 

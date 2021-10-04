@@ -428,7 +428,7 @@ void MainWindow::on_notify()
     QSpinBoxQuietSetValue(ui.YSpinBox, ui_descriptor_.holovibes_.get_cd().y_cuts);
 
     // Time transformation
-    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw && !ui_descriptor_.holovibes_.get_cd().fast_pipe);
+    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
@@ -437,8 +437,7 @@ void MainWindow::on_notify()
     ui.TimeTransformationStrideSpinBox->setMinimum(ui_descriptor_.holovibes_.get_cd().batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!is_raw && !ui_descriptor_.is_recording_ &&
-                                    !ui_descriptor_.holovibes_.get_cd().fast_pipe);
+    ui.BatchSizeSpinBox->setEnabled(!is_raw && !ui_descriptor_.is_recording_);
 
     if (ui_descriptor_.holovibes_.get_cd().batch_size > input_queue_capacity)
         ui_descriptor_.holovibes_.get_cd().batch_size = input_queue_capacity;
@@ -458,7 +457,7 @@ void MainWindow::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !ui_descriptor_.holovibes_.get_cd().fast_pipe &&
+    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw &&
                                                  !ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled);
     ui.timeTransformationSizeSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().time_transformation_size);
     ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
@@ -695,21 +694,41 @@ void MainWindow::configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void MainWindow::write_ini()
+void MainWindow::write_ini() { write_ini(""); }
+
+void MainWindow::write_ini(QString filename)
 {
     LOG_INFO;
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(::holovibes::ini::get_global_ini_path());
+    save_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     notify();
 }
 
-void MainWindow::reload_ini()
+void MainWindow::browse_export_ini()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
+    write_ini(filename);
+}
+
+void MainWindow::browse_import_ini()
+{
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("import .ini file"),
+                                                    ui_descriptor_.file_input_directory_.c_str(),
+                                                    tr("All files (*.ini);; Ini files (*.ini)"));
+
+    reload_ini(filename);
+}
+
+void MainWindow::reload_ini() { reload_ini(""); }
+
+void MainWindow::reload_ini(QString filename)
 {
     LOG_INFO;
     import_stop();
     try
     {
-        load_ini(::holovibes::ini::get_global_ini_path());
+        load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
     }
     catch (const std::exception& e)
     {
@@ -2348,33 +2367,6 @@ void MainWindow::set_divide_convolution_mode(const bool value)
     notify();
 }
 
-void MainWindow::set_fast_pipe(bool value)
-{
-    LOG_INFO;
-    auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-    if (value && pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            // Constraints linked with fast pipe option
-            ui_descriptor_.holovibes_.get_cd().time_transformation_stride =
-                ui_descriptor_.holovibes_.get_cd().batch_size.load();
-            ui_descriptor_.holovibes_.get_cd().time_transformation_size =
-                ui_descriptor_.holovibes_.get_cd().batch_size.load();
-            pipe->request_update_time_transformation_stride();
-            pipe->request_update_time_transformation_size();
-            ui_descriptor_.holovibes_.get_cd().fast_pipe = true;
-            ::holovibes::api::pipe_refresh(ui_descriptor_);
-            notify();
-        });
-    }
-    else
-    {
-        ui_descriptor_.holovibes_.get_cd().fast_pipe = false;
-        ::holovibes::api::pipe_refresh(ui_descriptor_);
-        notify();
-    }
-}
-
 #pragma endregion
 /* ------------ */
 #pragma region Reticle
@@ -2602,7 +2594,7 @@ void MainWindow::start_record()
         nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
     }
 
-    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toUtf8();
+    std::string batch_input_path = ui.BatchInputPathLineEdit->text().toStdString();
 
     // Preconditions to start record
     const bool preconditions = ::holovibes::api::start_record_preconditions(ui_descriptor_,
@@ -2735,12 +2727,14 @@ void MainWindow::import_start()
 
     QLineEdit* import_line_edit = ui.ImportPathLineEdit;
     QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
+    start_spinbox = ui.ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
+    end_spinbox = ui.ImportEndIndexSpinBox;
+
+    std::string file_path = import_line_edit->text().toStdString();
 
     bool res_import_start = ::holovibes::api::import_start(ui_descriptor_,
-                                                           import_line_edit->text().toStdString(),
+                                                           file_path,
                                                            fps_spinbox->value(),
                                                            start_spinbox->value(),
                                                            load_file_gpu_box->isChecked(),
