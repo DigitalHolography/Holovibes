@@ -97,9 +97,13 @@ void InformationContainer::clear()
 std::optional<std::pair<const std::atomic<unsigned int>*, const std::atomic<unsigned int>*>>
 InformationContainer::get_progress_index(ProgressType progress_type) const
 {
+    LOG_TRACE << "InformationContainer::get_progress_index(ProgressType progress_type)";
+
     if (progress_index_map_.contains(progress_type))
     {
-        return progress_index_map_.at(progress_type);
+        auto var = progress_index_map_.at(progress_type);
+        LOG_DEBUG << "progress_index_map_.at() = <" << var.first << "," << var.second << ">";
+        return var;
     }
     return std::nullopt;
 }

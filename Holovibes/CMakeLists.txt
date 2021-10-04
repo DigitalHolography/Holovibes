@@ -150,7 +150,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string(APPEND CMAKE_CXX_FLAGS " /fsanitize=address /DEBUG")
+    string(APPEND CMAKE_CXX_FLAGS " /DEBUG")
+    string(APPEND CMAKE_CXX_FLAGS " /fsanitize=address")
 endif()
 
 set(SRC_TESTS
