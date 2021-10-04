@@ -1459,29 +1459,22 @@ void MainWindow::toggle_renormalize(bool value)
 void MainWindow::set_filter2d(bool checked)
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (!checked)
-    {
-        ui_descriptor_.holovibes_.get_cd().filter2d_enabled = checked;
-        cancel_filter2d();
-    }
-    else
-    {
-        const camera::FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
+    const bool res = ::holovibes::api::set_filter2d(*this, ui_descriptor_, checked);
 
+    if (checked)
+    {
         // Set the input box related to the filter2d
+        const camera::FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
         set_filter2d_n2(ui.Filter2DN2SpinBox->value());
         set_filter2d_n1(ui.Filter2DN1SpinBox->value());
-
-        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-        ui_descriptor_.holovibes_.get_cd().filter2d_enabled = checked;
     }
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
-    notify();
+
+    if (res)
+    {
+        notify();
+    }
 }
 
 void MainWindow::disable_filter2d_view()

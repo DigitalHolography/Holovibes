@@ -1368,4 +1368,26 @@ void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int ind
     change_window(ui_descriptor, index);
 }
 
+bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked)
+{
+    LOG_INFO;
+    if (::holovibes::api::is_raw_mode(ui_descriptor))
+        return false;
+
+    if (checked)
+    {
+        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+        ui_descriptor.holovibes_.get_cd().filter2d_enabled = checked;
+    }
+    else
+    {
+        ui_descriptor.holovibes_.get_cd().filter2d_enabled = checked;
+        mainwindow.cancel_filter2d();
+    }
+
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

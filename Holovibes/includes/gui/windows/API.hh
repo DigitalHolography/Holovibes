@@ -709,4 +709,14 @@ void change_window(UserInterfaceDescriptor& ui_descriptor, const int index);
  */
 void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index);
 
+/*! \brief Set the filter2d object
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param checked true: enable, false: disable
+ * \return true on success
+ * \return false on failure
+ */
+bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
+
 } // namespace holovibes::api
