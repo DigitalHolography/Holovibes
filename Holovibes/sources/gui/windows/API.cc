@@ -1227,4 +1227,28 @@ void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
     pipe_refresh(ui_descriptor);
 }
 
+bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().filter2d_n2 = n;
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+    {
+        pipe->autocontrast_end_pipe(WindowKind::XYview);
+        if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+        {
+            pipe->autocontrast_end_pipe(WindowKind::XZview);
+            pipe->autocontrast_end_pipe(WindowKind::YZview);
+        }
+        if (ui_descriptor.holovibes_.get_cd().filter2d_view_enabled)
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+    }
+
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 } // namespace holovibes::api

@@ -666,4 +666,13 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
  */
 void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value);
 
+/*! \brief Modifies filter2d n2
+ *
+ * \param ui_descriptor user interface's state
+ * \param n the new value
+ * \return true on success
+ * \return false on failure
+ */
+bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n);
+
 } // namespace holovibes::api
