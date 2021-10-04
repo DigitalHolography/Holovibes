@@ -173,7 +173,7 @@ void change_camera(::holovibes::gui::MainWindow& mainwindow,
 
 /*! \brief Sets the image mode
  *
- * \param mainwindow a window
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param is_null_mode if the selection is null
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
@@ -308,7 +308,7 @@ void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r
 
 /*! \brief Automatic equalization (Auto-constrast)
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value the new value of composite auto weight
  */
@@ -358,7 +358,7 @@ void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, uint h_b
 
 /*! \brief Increment p by 1
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \return true on success
  * \return false on failure
@@ -367,7 +367,7 @@ bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
 
 /*! \brief Decrement p by 1
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \return true on success
  * \return false on failure
@@ -418,7 +418,7 @@ void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value);
 
 /*! \brief Modifies space transform calculation
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value the string to match to determine the kind of space transformation
  * \return true on success
@@ -430,7 +430,7 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
 
 /*! \brief Modifies time transform calculation
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value the string to match to determine the kind of time transformation
  * \return true on success
@@ -487,7 +487,7 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Enables or Disables the contrast mode and update the current focused window
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value true: enable, false: disable
  * \return true on success
@@ -617,7 +617,7 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Adds or removes lens view
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value true: add, false: remove
  * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
@@ -633,7 +633,7 @@ void disable_lens_view(UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Adds or removes raw view
  *
- * \param mainwindow
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param value true: add, false: remove
  * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
