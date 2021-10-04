@@ -702,4 +702,11 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
  */
 void change_window(UserInterfaceDescriptor& ui_descriptor, const int index);
 
+/*! \brief Adds or removes filter 2d view
+ *
+ * \param ui_descriptor user interface's state
+ * \param index the index representing the window to select
+ */
+void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index);
+
 } // namespace holovibes::api

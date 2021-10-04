@@ -1488,22 +1488,13 @@ void MainWindow::disable_filter2d_view()
 {
     LOG_INFO;
 
-    auto pipe = ui_descriptor_.holovibes_.get_compute_pipe();
-    pipe->request_disable_filter2d_view();
-
-    // Wait for the filter2d view to be disabled for notify
-    while (pipe->get_disable_filter2d_view_requested())
-        continue;
+    ::holovibes::api::disable_filter2d_view(ui_descriptor_, ui.WindowSelectionComboBox->currentIndex());
 
     if (ui_descriptor_.filter2d_window)
     {
         // Remove the on triggered event
-
         disconnect(ui_descriptor_.filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
     }
-
-    // Change the focused window
-    change_window();
 
     notify();
 }

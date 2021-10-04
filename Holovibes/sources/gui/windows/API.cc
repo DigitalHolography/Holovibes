@@ -1353,4 +1353,19 @@ void change_window(UserInterfaceDescriptor& ui_descriptor, const int index)
     pipe_refresh(ui_descriptor);
 }
 
+void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index)
+{
+    LOG_INFO;
+
+    auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+    pipe->request_disable_filter2d_view();
+
+    // Wait for the filter2d view to be disabled for notify
+    while (pipe->get_disable_filter2d_view_requested())
+        continue;
+
+    // Change the focused window
+    change_window(ui_descriptor, index);
+}
+
 } // namespace holovibes::api
