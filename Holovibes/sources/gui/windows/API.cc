@@ -1998,4 +1998,11 @@ void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filena
     save_ini(ui_descriptor, filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename, ptree);
 }
 
+void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename)
+{
+    LOG_INFO;
+
+    write_ini(ui_descriptor, filename);
+}
+
 } // namespace holovibes::api

@@ -931,7 +931,7 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow,
  */
 void reload_ini(::holovibes::gui::MainWindow& mainwindow);
 
-/*! \brief Browses to import/ export .ini file
+/*! \brief Browses to import .ini file
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
@@ -953,5 +953,12 @@ void write_ini(UserInterfaceDescriptor& ui_descriptor);
  * \param filename the location of the output filename
  */
 void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
+
+/*! \brief Browses to export .ini file
+ *
+ * \param ui_descriptor user interface's state
+ * \param filename filename to export .ini data
+ */
+void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
 
 } // namespace holovibes::api
