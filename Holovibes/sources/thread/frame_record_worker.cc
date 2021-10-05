@@ -44,9 +44,6 @@ void FrameRecordWorker::run()
         info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD,
                                 nb_frames_recorded,
                                 nb_frames_to_record_atomic);
-
-        LOG_DEBUG << &nb_frames_recorded << ":" << nb_frames_recorded;
-        LOG_DEBUG << &(nb_frames_to_record_.value()) << ":" << nb_frames_to_record_.value();
     }
     else
     {
