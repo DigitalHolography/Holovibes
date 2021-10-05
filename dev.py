@@ -128,6 +128,7 @@ def build(args):
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
+        sys.stdout.flush()
         run_goal("cmake", args)
 
     cmd = ['cmd.exe', '/c', 'call']
