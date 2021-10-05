@@ -560,11 +560,11 @@ void Pipe::exec()
     {
         try
         {
-            // Run the entire pipeline of calculation
-            run_all();
-
             if (refresh_requested_)
                 refresh();
+
+            // Run the entire pipeline of calculation
+            run_all();
         }
         catch (CustomException& e)
         {

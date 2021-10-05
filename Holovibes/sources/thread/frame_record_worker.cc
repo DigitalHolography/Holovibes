@@ -33,15 +33,17 @@ void FrameRecordWorker::run()
     }
 
     std::atomic<unsigned int> nb_frames_recorded = 0;
+    std::atomic<unsigned int> nb_frames_to_record_atomic = 0;
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
 
     if (nb_frames_to_record_.has_value())
     {
+        nb_frames_to_record_atomic = nb_frames_to_record_.value();
         info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD,
                                 nb_frames_recorded,
-                                nb_frames_to_record_.value());
+                                nb_frames_to_record_atomic);
 
         LOG_DEBUG << &nb_frames_recorded << ":" << nb_frames_recorded;
         LOG_DEBUG << &(nb_frames_to_record_.value()) << ":" << nb_frames_to_record_.value();

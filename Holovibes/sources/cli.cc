@@ -134,23 +134,13 @@ set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescript
     pipe->request_update_time_transformation_stride();
     pipe->request_update_time_transformation_size();
     pipe->request_refresh();
-
-    while (pipe->get_refresh_request())
-        continue;
 }
 
 static void
 start_record(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts, uint record_nb_frames)
 {
     auto& cd = holovibes.get_cd();
-    uint nb_frames_skip = 0;
 
-    // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && cd.img_acc_slice_xy_enabled)
-        nb_frames_skip = cd.img_acc_slice_xy_level;
-
-    cd.frame_record_enabled = true;
-    holovibes.start_frame_record(opts.output_path.value(), record_nb_frames, opts.record_raw, nb_frames_skip);
 }
 
 static void main_loop(holovibes::Holovibes& holovibes)
@@ -215,9 +205,19 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     Chrono chrono;
 
-    holovibes.start_compute(); // Thread
-    set_parameters(holovibes, opts, input_nb_frames);
-    start_record(holovibes, opts, record_nb_frames); // Thread
+    uint nb_frames_skip = 0;
+
+    // Skip img acc frames to avoid early black frames
+    if (!opts.noskip_acc && cd.img_acc_slice_xy_enabled)
+        nb_frames_skip = cd.img_acc_slice_xy_level;
+
+    cd.frame_record_enabled = true;
+    holovibes.start_cli_compute_and_record(opts.output_path.value(), record_nb_frames, opts.record_raw, nb_frames_skip,
+        [&]() {
+            set_parameters(holovibes, opts, input_nb_frames);
+        }
+    );
+
     if (opts.verbose)
     {
         print_verbose(opts, cd);
