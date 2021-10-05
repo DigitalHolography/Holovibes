@@ -173,18 +173,21 @@ void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
-void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback)
+bool cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback)
 {
     LOG_INFO;
 
-    // cancel_stft_slice_view
+    if (!ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+    {
+        return false;
+    }
+
     ui_descriptor.holovibes_.get_cd().contrast_max_slice_xz = false;
     ui_descriptor.holovibes_.get_cd().contrast_max_slice_yz = false;
     ui_descriptor.holovibes_.get_cd().log_scale_slice_xz_enabled = false;
     ui_descriptor.holovibes_.get_cd().log_scale_slice_yz_enabled = false;
     ui_descriptor.holovibes_.get_cd().img_acc_slice_xz_enabled = false;
     ui_descriptor.holovibes_.get_cd().img_acc_slice_yz_enabled = false;
-    // cancel_stft_slice_view end
 
     ui_descriptor.holovibes_.get_compute_pipe().get()->insert_fn_end_vect(callback);
 
@@ -201,7 +204,6 @@ void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
 
     ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled = false;
 
-    // cancel_stft_slice_view
     ui_descriptor.sliceXZ.reset(nullptr);
     ui_descriptor.sliceYZ.reset(nullptr);
 
@@ -211,7 +213,8 @@ void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
         ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::SliceCross);
         ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Cross);
     }
-    // cancel_stft_slice_view end
+
+    return true;
 }
 
 // Check that value is higher or equal than 0

@@ -1421,12 +1421,12 @@ void MainWindow::cancel_time_transformation_cuts()
         });
     }
 
-    if (ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled)
-    {
-        ::holovibes::api::cancel_time_transformation_cuts(ui_descriptor_, callback);
-    }
+    const bool res = ::holovibes::api::cancel_time_transformation_cuts(ui_descriptor_, callback);
 
-    notify();
+    if (res)
+    {
+        notify();
+    }
 }
 
 #pragma endregion
