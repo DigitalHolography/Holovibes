@@ -1088,15 +1088,8 @@ void MainWindow::set_raw_mode()
 void MainWindow::createPipe()
 {
     LOG_INFO;
-    try
-    {
-        ui_descriptor_.holovibes_.start_compute();
-        ui_descriptor_.holovibes_.get_compute_pipe()->register_observer(*this);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << "cannot create Pipe: " << e.what();
-    }
+
+    ::holovibes::api::createPipe(*this, ui_descriptor_);
 }
 
 void MainWindow::createHoloWindow()

@@ -1671,4 +1671,18 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDes
     }
 }
 
+void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    try
+    {
+        ui_descriptor.holovibes_.start_compute();
+        ui_descriptor.holovibes_.get_compute_pipe()->register_observer(mainwindow);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << "cannot create Pipe: " << e.what();
+    }
+}
+
 } // namespace holovibes::api
