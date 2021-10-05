@@ -885,4 +885,11 @@ void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
  */
 void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
+/*! \brief Resets the whole program in reload .ini file
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

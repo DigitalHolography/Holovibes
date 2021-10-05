@@ -1800,4 +1800,50 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
     mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
 }
 
+void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    Config& config = global::global_config;
+    int device = 0;
+
+    close_critical_compute(ui_descriptor);
+    mainwindow.camera_none();
+
+    // TOD: qApp must be strongly related to qt window
+    qApp->processEvents();
+
+    if (!is_raw_mode(ui_descriptor))
+        ui_descriptor.holovibes_.stop_compute();
+    ui_descriptor.holovibes_.stop_frame_read();
+    ui_descriptor.holovibes_.get_cd().pindex = 0;
+    ui_descriptor.holovibes_.get_cd().time_transformation_size = 1;
+    ui_descriptor.is_enabled_camera_ = false;
+    if (config.set_cuda_device)
+    {
+        if (config.auto_device_number)
+        {
+            cudaGetDevice(&device);
+            config.device_number = device;
+        }
+        else
+            device = config.device_number;
+        cudaSetDevice(device);
+    }
+    cudaDeviceSynchronize();
+    cudaDeviceReset();
+    close_windows(ui_descriptor);
+    remove_infos();
+    ui_descriptor.holovibes_.reload_streams();
+    try
+    {
+        mainwindow.load_ini(::holovibes::ini::get_global_ini_path());
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_WARN << ::holovibes::ini::get_global_ini_path()
+                 << ": Config file not found. It will use the default values.";
+    }
+}
+
 } // namespace holovibes::api

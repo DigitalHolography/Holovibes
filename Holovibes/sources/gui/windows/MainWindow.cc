@@ -908,44 +908,9 @@ void MainWindow::camera_none()
 void MainWindow::reset()
 {
     LOG_INFO;
-    Config& config = global::global_config;
-    int device = 0;
 
-    ::holovibes::api::close_critical_compute(ui_descriptor_);
-    camera_none();
-    qApp->processEvents();
-    if (!::holovibes::api::is_raw_mode(ui_descriptor_))
-        ui_descriptor_.holovibes_.stop_compute();
-    ui_descriptor_.holovibes_.stop_frame_read();
-    ui_descriptor_.holovibes_.get_cd().pindex = 0;
-    ui_descriptor_.holovibes_.get_cd().time_transformation_size = 1;
-    ui_descriptor_.is_enabled_camera_ = false;
-    if (config.set_cuda_device)
-    {
-        if (config.auto_device_number)
-        {
-            cudaGetDevice(&device);
-            config.device_number = device;
-        }
-        else
-            device = config.device_number;
-        cudaSetDevice(device);
-    }
-    cudaDeviceSynchronize();
-    cudaDeviceReset();
-    ::holovibes::api::close_windows(ui_descriptor_);
-    ::holovibes::api::remove_infos();
-    ui_descriptor_.holovibes_.reload_streams();
-    try
-    {
-        load_ini(::holovibes::ini::get_global_ini_path());
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::get_global_ini_path()
-                 << ": Config file not found. It will use the default values.";
-    }
+    ::holovibes::api::reset(*this, ui_descriptor_);
+
     notify();
 }
 
