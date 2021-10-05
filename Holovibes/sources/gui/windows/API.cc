@@ -1982,4 +1982,20 @@ void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
     ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
 }
 
+void write_ini(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    write_ini(ui_descriptor, "");
+}
+
+void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename)
+{
+    LOG_INFO;
+
+    boost::property_tree::ptree ptree;
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
+    save_ini(ui_descriptor, filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename, ptree);
+}
+
 } // namespace holovibes::api

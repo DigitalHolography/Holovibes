@@ -941,4 +941,17 @@ void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
                        UserInterfaceDescriptor& ui_descriptor,
                        const std::string& filename);
 
+/*! \brief Saves the current state of holovibes in .ini file
+ *
+ * \param ui_descriptor user interface's state
+ */
+void write_ini(UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief Saves the current state of holovibes in .ini file
+ *
+ * \param ui_descriptor user interface's state
+ * \param filename the location of the output filename
+ */
+void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
+
 } // namespace holovibes::api

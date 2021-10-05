@@ -704,7 +704,7 @@ void MainWindow::write_ini(QString filename)
 {
     LOG_INFO;
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
+    save_ini(filename.toStdString());
     notify();
 }
 
