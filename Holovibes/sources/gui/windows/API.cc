@@ -1390,4 +1390,14 @@ bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return true;
 }
 
+void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().renorm_enabled = value;
+    ui_descriptor.holovibes_.get_compute_pipe()->request_clear_img_acc();
+
+    pipe_refresh(ui_descriptor);
+}
+
 } // namespace holovibes::api

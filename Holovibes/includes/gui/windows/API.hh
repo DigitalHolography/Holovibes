@@ -709,7 +709,7 @@ void change_window(UserInterfaceDescriptor& ui_descriptor, const int index);
  */
 void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index);
 
-/*! \brief Set the filter2d object
+/*! \brief Deactivates filter2d view
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
@@ -718,5 +718,12 @@ void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int ind
  * \return false on failure
  */
 bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
+
+/*! \brief Enables or Disables renormalize image with clear image accumulation pipe
+ *
+ * \param ui_descriptor user interface's state
+ * \param value true: enable, false: disable
+ */
+void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value);
 
 } // namespace holovibes::api
