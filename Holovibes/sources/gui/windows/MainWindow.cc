@@ -1407,31 +1407,25 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 void MainWindow::cancel_time_transformation_cuts()
 {
     LOG_INFO;
+
+    std::function<void()> callback = []() { return; };
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
+    {
+        callback = ([=]() {
+            ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled = false;
+            pipe->delete_stft_slice_queue();
+
+            ui.TimeTransformationCutsCheckBox->setChecked(false);
+            notify();
+        });
+    }
+
     if (ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled)
     {
-        std::function<void()> callback = []() { return; };
-
-        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
-        {
-            callback = ([=]() {
-                ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled = false;
-                pipe->delete_stft_slice_queue();
-
-                ui.TimeTransformationCutsCheckBox->setChecked(false);
-                notify();
-            });
-        }
         ::holovibes::api::cancel_time_transformation_cuts(ui_descriptor_, callback);
-        ui_descriptor_.sliceXZ.reset(nullptr);
-        ui_descriptor_.sliceYZ.reset(nullptr);
-
-        if (ui_descriptor_.mainDisplay)
-        {
-            ui_descriptor_.mainDisplay->setCursor(Qt::ArrowCursor);
-            ui_descriptor_.mainDisplay->getOverlayManager().disable_all(SliceCross);
-            ui_descriptor_.mainDisplay->getOverlayManager().disable_all(Cross);
-        }
     }
+
     notify();
 }
 

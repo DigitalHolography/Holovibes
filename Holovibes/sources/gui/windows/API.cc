@@ -176,31 +176,42 @@ void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
 void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback)
 {
     LOG_INFO;
-    if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+
+    // cancel_stft_slice_view
+    ui_descriptor.holovibes_.get_cd().contrast_max_slice_xz = false;
+    ui_descriptor.holovibes_.get_cd().contrast_max_slice_yz = false;
+    ui_descriptor.holovibes_.get_cd().log_scale_slice_xz_enabled = false;
+    ui_descriptor.holovibes_.get_cd().log_scale_slice_yz_enabled = false;
+    ui_descriptor.holovibes_.get_cd().img_acc_slice_xz_enabled = false;
+    ui_descriptor.holovibes_.get_cd().img_acc_slice_yz_enabled = false;
+    // cancel_stft_slice_view end
+
+    ui_descriptor.holovibes_.get_compute_pipe().get()->insert_fn_end_vect(callback);
+
+    try
     {
-
-        ui_descriptor.holovibes_.get_cd().contrast_max_slice_xz = false;
-        ui_descriptor.holovibes_.get_cd().contrast_max_slice_yz = false;
-        ui_descriptor.holovibes_.get_cd().log_scale_slice_xz_enabled = false;
-        ui_descriptor.holovibes_.get_cd().log_scale_slice_yz_enabled = false;
-        ui_descriptor.holovibes_.get_cd().img_acc_slice_xz_enabled = false;
-        ui_descriptor.holovibes_.get_cd().img_acc_slice_yz_enabled = false;
-
-        ui_descriptor.holovibes_.get_compute_pipe().get()->insert_fn_end_vect(callback);
-
-        try
-        {
-            // Wait for refresh to be enabled for notify
-            while (ui_descriptor.holovibes_.get_compute_pipe()->get_refresh_request())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what();
-        }
-
-        ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled = false;
+        // Wait for refresh to be enabled for notify
+        while (ui_descriptor.holovibes_.get_compute_pipe()->get_refresh_request())
+            continue;
     }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+    }
+
+    ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled = false;
+
+    // cancel_stft_slice_view
+    ui_descriptor.sliceXZ.reset(nullptr);
+    ui_descriptor.sliceYZ.reset(nullptr);
+
+    if (ui_descriptor.mainDisplay)
+    {
+        ui_descriptor.mainDisplay->setCursor(Qt::ArrowCursor);
+        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::SliceCross);
+        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Cross);
+    }
+    // cancel_stft_slice_view end
 }
 
 // Check that value is higher or equal than 0

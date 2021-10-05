@@ -726,4 +726,11 @@ bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
  */
 void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value);
 
+/*! \brief Removes time transformation cut views
+ *
+ * \param ui_descriptor user interface's state
+ * \param callback FIXME: Api is not supposed to handdle callback
+ */
+void cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback);
+
 } // namespace holovibes::api
