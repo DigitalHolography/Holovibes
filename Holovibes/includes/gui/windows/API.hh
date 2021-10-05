@@ -778,4 +778,15 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
  */
 void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, uint index);
 
+/*! \brief Changes display mode to Holographic
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param fd the frame descriptor that will be initialized and returned by reference
+ * \return true on success
+ * \return false on failure
+ */
+bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
+                          UserInterfaceDescriptor& ui_descriptor,
+                          camera::FrameDescriptor& fd);
 } // namespace holovibes::api

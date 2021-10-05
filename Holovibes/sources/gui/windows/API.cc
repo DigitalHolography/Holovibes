@@ -1599,4 +1599,41 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     }
 }
 
+bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
+                          UserInterfaceDescriptor& ui_descriptor,
+                          camera::FrameDescriptor& fd)
+{
+    LOG_INFO;
+    // That function is used to reallocate the buffers since the Square
+    // input mode could have changed
+    /* Close windows & destory thread compute */
+    close_windows(ui_descriptor);
+    close_critical_compute(ui_descriptor);
+
+    /* ---------- */
+    try
+    {
+        ui_descriptor.holovibes_.get_cd().compute_mode = Computation::Hologram;
+        /* Pipe & Window */
+        mainwindow.createPipe();
+        mainwindow.createHoloWindow();
+        /* Info Manager */
+        fd = ui_descriptor.holovibes_.get_gpu_output_queue()->get_fd();
+        std::string fd_info =
+            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
+                                                                  fd_info);
+        /* Contrast */
+        ui_descriptor.holovibes_.get_cd().contrast_enabled = true;
+
+        return true;
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << "cannot set holographic mode: " << e.what();
+    }
+
+    return false;
+}
+
 } // namespace holovibes::api

@@ -1136,28 +1136,12 @@ void MainWindow::createHoloWindow()
 void MainWindow::set_holographic_mode()
 {
     LOG_INFO;
-    // That function is used to reallocate the buffers since the Square
-    // input mode could have changed
-    /* Close windows & destory thread compute */
-    ::holovibes::api::close_windows(ui_descriptor_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_);
 
-    /* ---------- */
-    try
+    FrameDescriptor fd;
+    const bool res = ::holovibes::api::set_holographic_mode(*this, ui_descriptor_, fd);
+
+    if (res)
     {
-        ui_descriptor_.holovibes_.get_cd().compute_mode = Computation::Hologram;
-        /* Pipe & Window */
-        createPipe();
-        createHoloWindow();
-        /* Info Manager */
-        const FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_output_queue()->get_fd();
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
-                                                                  fd_info);
-        /* Contrast */
-        ui_descriptor_.holovibes_.get_cd().contrast_enabled = true;
-
         /* Filter2D */
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
@@ -1168,10 +1152,6 @@ void MainWindow::set_holographic_mode()
 
         /* Notify */
         notify();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << "cannot set holographic mode: " << e.what();
     }
 }
 
