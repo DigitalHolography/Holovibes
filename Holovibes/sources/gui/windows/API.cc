@@ -368,6 +368,7 @@ void set_camera_timeout()
 }
 
 // TODO: too different than mainwindow change_camera() method
+// we shouldn't use const uint image_mode_index that is a qt drop list concept
 void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
@@ -1785,6 +1786,18 @@ void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::xiB);
+}
+
+void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    close_windows(ui_descriptor);
+    if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
+        close_critical_compute(ui_descriptor);
+    camera_none(ui_descriptor);
+    remove_infos();
+    mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
 }
 
 } // namespace holovibes::api

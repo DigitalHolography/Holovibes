@@ -6,6 +6,7 @@
 #include "holovibes.hh"
 #include "MainWindow.hh"
 #include "user_interface_descriptor.hh"
+#include "ini_config.hh"
 
 namespace holovibes::api
 {
@@ -876,5 +877,12 @@ void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
  * \param ui_descriptor user interface's state
  */
 void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief Last call before the program is closed
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
 } // namespace holovibes::api

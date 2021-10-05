@@ -952,16 +952,15 @@ void MainWindow::reset()
 void MainWindow::closeEvent(QCloseEvent*)
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(ui_descriptor_);
-    if (!ui_descriptor_.holovibes_.get_cd().is_computation_stopped)
-        ::holovibes::api::close_critical_compute(ui_descriptor_);
-    camera_none();
-    ::holovibes::api::remove_infos();
-    save_ini(::holovibes::ini::get_global_ini_path());
+
+    ::holovibes::api::closeEvent(*this, ui_descriptor_);
 }
 #pragma endregion
 /* ------------ */
 #pragma region Cameras
+
+// TODO: move to api with more genericity
+// and the body should be a single call to api
 void MainWindow::change_camera(CameraKind c)
 {
     LOG_INFO;
