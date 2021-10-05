@@ -26,11 +26,13 @@ assert os.path.isfile(
 def read_holo(path: str) -> holo.HoloFile:
     return holo.HoloFile.from_file(path)
 
+
 def read_holo_lazy(path: str) -> Tuple[bytes, bytes, bytes]:
     holo_file = holo.HoloLazyReader(path)
     data = holo_file.get_all_bytes()
     holo_file.close()
     return data
+
 
 def get_cli_arguments(cli_argument_path: str) -> List[str]:
     if not os.path.isfile(cli_argument_path):
@@ -38,6 +40,7 @@ def get_cli_arguments(cli_argument_path: str) -> List[str]:
 
     with open(cli_argument_path, "rb") as f:
         return json.load(f)
+
 
 def generate_holo_from(input: str, output: str, cli_argument: str, config: str = None) -> time.time:
     t1 = time.time()
@@ -53,6 +56,7 @@ def generate_holo_from(input: str, output: str, cli_argument: str, config: str =
 
     t2 = time.time()
     return (t2 - t1),
+
 
 def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> bool:
     a_header, a_data, a_footer = a
@@ -78,7 +82,7 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
     return a != b
 
-@pytest.mark.flaky(reruns=5, reruns_delay=3, )
+
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 
@@ -115,7 +119,7 @@ def test_holo(folder: str):
         ref = read_holo(ref)
 
         ref.assertHolo(out, path)
-    
+
     else:
         out = read_holo_lazy(output)
         ref = read_holo_lazy(ref)
