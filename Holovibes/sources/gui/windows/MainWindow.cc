@@ -1310,29 +1310,21 @@ void MainWindow::update_batch_size()
 void MainWindow::update_time_transformation_stride()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
     int value = ui.TimeTransformationStrideSpinBox->value();
+    auto callback = [=]() {
+        ui_descriptor_.holovibes_.get_cd().time_transformation_stride = value;
+        adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
+        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
+        ui.NumberOfFramesSpinBox->setValue(
+            ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
+                 (float)ui.TimeTransformationStrideSpinBox->value()));
+        notify();
+    };
 
-    if (value == ui_descriptor_.holovibes_.get_cd().time_transformation_stride)
-        return;
-
-    auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-    if (pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            ui_descriptor_.holovibes_.get_cd().time_transformation_stride = value;
-            adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
-            ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
-            ui.NumberOfFramesSpinBox->setValue(
-                ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
-                     (float)ui.TimeTransformationStrideSpinBox->value()));
-            notify();
-        });
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+    ::holovibes::api::update_time_transformation_stride(ui_descriptor_,
+                                                        callback,
+                                                        ui.TimeTransformationStrideSpinBox->value());
 }
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)

@@ -740,4 +740,14 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
                                      UserInterfaceDescriptor& ui_descriptor,
                                      const bool checked);
 
+/*! \brief Modifies time transformation stride size from ui value
+ *
+ * \param ui_descriptor user interface's state
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ * \param time_transformation_stride the new value
+ */
+void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
+                                       std::function<void()> callback,
+                                       uint time_transformation_stride);
+
 } // namespace holovibes::api

@@ -1484,4 +1484,26 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
     return false;
 }
 
+void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
+                                       std::function<void()> callback,
+                                       uint time_transformation_stride)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    int value = time_transformation_stride;
+
+    if (value == ui_descriptor.holovibes_.get_cd().time_transformation_stride)
+        return;
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+    {
+        pipe->insert_fn_end_vect(callback);
+    }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+}
+
 } // namespace holovibes::api
