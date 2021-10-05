@@ -158,25 +158,15 @@ void Holovibes::start_information_display(bool is_cli, const std::function<void(
 
 void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
-void Holovibes::start_cli_compute_and_record(const std::string &path,
-                                            std::optional<unsigned int> nb_frames_to_record,
-                                            bool raw_record, unsigned int nb_frames_skip,
-                                            const std::function<void()>& set_params)
+void Holovibes::start_cli_compute_and_record(const std::string& path,
+                                             std::optional<unsigned int> nb_frames_to_record,
+                                             bool raw_record,
+                                             unsigned int nb_frames_skip,
+                                             const std::function<void()>& set_params)
 {
     LOG_TRACE << "Entering Holovibes::start_cli_compute_and_record()";
 
-    try
-    {
-        init_pipe();
-        set_params();
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        return;
-    }
-
-    frame_record_worker_controller_.set_callback([](){});
+    frame_record_worker_controller_.set_callback([]() {});
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip);
 
@@ -185,7 +175,7 @@ void Holovibes::start_cli_compute_and_record(const std::string &path,
 
     compute_pipe_.load()->request_refresh();
 
-    compute_worker_controller_.set_callback([](){});
+    compute_worker_controller_.set_callback([]() {});
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
     compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
 
@@ -206,10 +196,13 @@ void Holovibes::init_pipe()
     }
 
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
-                                            global::global_config.output_queue_max_size,
-                                            Queue::QueueType::OUTPUT_QUEUE));
+                                                    global::global_config.output_queue_max_size,
+                                                    Queue::QueueType::OUTPUT_QUEUE));
 
-    compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()), *(gpu_output_queue_.load()), cd, get_cuda_streams().compute_stream));
+    compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
+                                               *(gpu_output_queue_.load()),
+                                               cd,
+                                               get_cuda_streams().compute_stream));
 
     LOG_TRACE << "Exiting Holovibes::init_pipe()";
 }
