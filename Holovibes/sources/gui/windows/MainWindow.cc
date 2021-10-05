@@ -1036,7 +1036,8 @@ void MainWindow::camera_xib()
 void MainWindow::configure_camera()
 {
     LOG_INFO;
-    open_file(std::filesystem::current_path().generic_string() + "/" + ui_descriptor_.holovibes_.get_camera_ini_path());
+
+    ::holovibes::api::configure_camera(ui_descriptor_);
 }
 #pragma endregion
 /* ------------ */
@@ -1044,12 +1045,8 @@ void MainWindow::configure_camera()
 void MainWindow::init_image_mode(QPoint& position, QSize& size)
 {
     LOG_INFO;
-    if (ui_descriptor_.mainDisplay)
-    {
-        position = ui_descriptor_.mainDisplay->framePosition();
-        size = ui_descriptor_.mainDisplay->size();
-        ui_descriptor_.mainDisplay.reset(nullptr);
-    }
+
+    ::holovibes::api::init_image_mode(ui_descriptor_, position, size);
 }
 
 void MainWindow::set_raw_mode()

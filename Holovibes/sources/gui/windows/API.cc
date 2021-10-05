@@ -1720,4 +1720,28 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return false;
 }
 
+void open_file(const std::string& path)
+{
+    LOG_INFO;
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
+}
+
+void configure_camera(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    open_file(std::filesystem::current_path().generic_string() + "/" + ui_descriptor.holovibes_.get_camera_ini_path());
+}
+
+void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size)
+{
+    LOG_INFO;
+
+    if (ui_descriptor.mainDisplay)
+    {
+        position = ui_descriptor.mainDisplay->framePosition();
+        size = ui_descriptor.mainDisplay->size();
+        ui_descriptor.mainDisplay.reset(nullptr);
+    }
+}
+
 } // namespace holovibes::api

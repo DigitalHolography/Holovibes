@@ -814,4 +814,18 @@ void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
  */
 bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
+/*! \brief Configures the camera
+ *
+ * \param ui_descriptor user interface's state
+ */
+void configure_camera(UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param ui_descriptor user interface's state
+ * \param position
+ * \param size
+ */
+void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size);
+
 } // namespace holovibes::api
