@@ -29,6 +29,7 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 # Utils                            #
 #----------------------------------#
 
+
 def get_generator(arg):
     if not arg:
         return DEFAULT_GENERATOR
@@ -41,6 +42,7 @@ def get_generator(arg):
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+
 def get_build_mode(arg):
     if not arg:
         return DEFAULT_BUILD_MODE
@@ -51,8 +53,10 @@ def get_build_mode(arg):
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+
 def get_build_dir(arg, generator):
     return arg or os.path.join(DEFAULT_BUILD_BASE, generator)
+
 
 def cannot_find_vcvars():
     print("Cannot find the Developer Prompt launcher, you can either:")
@@ -149,7 +153,8 @@ def build(args):
 
 def run(args):
     build_mode = get_build_mode(args.b)
-    exe_path = os.path.join(get_build_dir(args.p, get_generator(args.g)), build_mode)
+    exe_path = os.path.join(get_build_dir(
+        args.p, get_generator(args.g)), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
@@ -210,8 +215,6 @@ def build_ref(args) -> int:
 
     dirs = find_tests()
     for name in dirs:
-        sleep(1)
-
         path = os.path.join(TESTS_DATA, name)
         if os.path.isdir(path):
             input = os.path.join(path, INPUT_FILENAME)
@@ -240,8 +243,8 @@ def build_ref(args) -> int:
 def clean(args) -> int:
     # Remove build directory
     if os.path.isdir(DEFAULT_BUILD_BASE):
-         if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
-             return 1
+        if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
+            return 1
 
     # Remove last_generated_output.holo from tests/data
     for name in os.listdir(TESTS_DATA):
@@ -299,8 +302,10 @@ def parse_args():
         '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
     build_env = parser.add_argument_group('Build Environment')
-    build_env.add_argument('-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
-    build_env.add_argument('-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
+    build_env.add_argument(
+        '-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+    build_env.add_argument(
+        '-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
