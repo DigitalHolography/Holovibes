@@ -553,12 +553,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void change_camera(CameraKind c);
 
-    /*! \brief Opens a file
-     *
-     * \param path The path of the file to open
-     */
-    void open_file(const std::string& path);
-
     /*! \brief Setups program from .ini file
      *
      * \param path The path where the .ini file is

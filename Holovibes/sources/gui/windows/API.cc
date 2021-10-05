@@ -1846,4 +1846,10 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
     }
 }
 
+void configure_holovibes()
+{
+    LOG_INFO;
+    open_file(::holovibes::ini::get_global_ini_path());
+}
+
 } // namespace holovibes::api

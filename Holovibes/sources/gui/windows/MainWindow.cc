@@ -691,7 +691,7 @@ void MainWindow::documentation()
 void MainWindow::configure_holovibes()
 {
     LOG_INFO;
-    open_file(::holovibes::ini::get_global_ini_path());
+    ::holovibes::api::configure_holovibes();
 }
 
 void MainWindow::write_ini()
@@ -884,11 +884,6 @@ void MainWindow::save_ini(const std::string& path)
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
 
-void MainWindow::open_file(const std::string& path)
-{
-    LOG_INFO;
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
-}
 #pragma endregion
 /* ------------ */
 #pragma region Close Compute

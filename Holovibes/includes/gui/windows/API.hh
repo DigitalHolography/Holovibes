@@ -892,4 +892,7 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
  */
 void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
+/*! \brief TODO: to comment */
+void configure_holovibes();
+
 } // namespace holovibes::api
