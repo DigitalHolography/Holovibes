@@ -828,4 +828,53 @@ void configure_camera(UserInterfaceDescriptor& ui_descriptor);
  */
 void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size);
 
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief TODO: to comment
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

@@ -367,6 +367,7 @@ void set_camera_timeout()
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
+// TODO: too different than mainwindow change_camera() method
 void change_camera(::holovibes::gui::MainWindow& mainwindow,
                    UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
@@ -1742,6 +1743,48 @@ void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, Q
         size = ui_descriptor.mainDisplay->size();
         ui_descriptor.mainDisplay.reset(nullptr);
     }
+}
+
+void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::IDS);
+}
+
+void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Phantom);
+}
+
+void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::BitflowCyton);
+}
+
+void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Hamamatsu);
+}
+
+void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Adimec);
+}
+
+void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::xiQ);
+}
+
+void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::xiB);
 }
 
 } // namespace holovibes::api

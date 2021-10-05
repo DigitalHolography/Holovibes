@@ -994,43 +994,43 @@ void MainWindow::change_camera(CameraKind c)
 void MainWindow::camera_ids()
 {
     LOG_INFO;
-    change_camera(CameraKind::IDS);
+    ::holovibes::api::camera_ids(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_phantom()
 {
     LOG_INFO;
-    change_camera(CameraKind::Phantom);
+    ::holovibes::api::camera_phantom(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_bitflow_cyton()
 {
     LOG_INFO;
-    change_camera(CameraKind::BitflowCyton);
+    ::holovibes::api::camera_bitflow_cyton(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_hamamatsu()
 {
     LOG_INFO;
-    change_camera(CameraKind::Hamamatsu);
+    ::holovibes::api::camera_hamamatsu(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_adimec()
 {
     LOG_INFO;
-    change_camera(CameraKind::Adimec);
+    ::holovibes::api::camera_adimec(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_xiq()
 {
     LOG_INFO;
-    change_camera(CameraKind::xiQ);
+    ::holovibes::api::camera_xiq(*this, ui_descriptor_);
 }
 
 void MainWindow::camera_xib()
 {
     LOG_INFO;
-    change_camera(CameraKind::xiB);
+    ::holovibes::api::camera_xib(*this, ui_descriptor_);
 }
 
 void MainWindow::configure_camera()
