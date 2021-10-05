@@ -729,30 +729,15 @@ void MainWindow::browse_import_ini()
 void MainWindow::reload_ini()
 {
     LOG_INFO;
-    reload_ini("");
+    ::holovibes::api::reload_ini(*this);
 }
 
 void MainWindow::reload_ini(QString filename)
 {
     LOG_INFO;
-    import_stop();
-    try
-    {
-        load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_INFO << e.what() << std::endl;
-    }
-    if (ui_descriptor_.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
-    {
-        import_start();
-    }
-    else if (ui_descriptor_.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
-    {
-        change_camera(ui_descriptor_.kCamera);
-    }
+
+    ::holovibes::api::reload_ini(*this, ui_descriptor_, filename.toStdString());
+
     notify();
 }
 
@@ -765,7 +750,6 @@ void MainWindow::load_ini(const std::string& path)
 
     ::holovibes::api::load_ini(*this, ui_descriptor_, path, ptree);
 
-    /// NEXT
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     GroupBox* import_group_box = ui.ImportGroupBox;
@@ -775,8 +759,6 @@ void MainWindow::load_ini(const std::string& path)
     QAction* view_action = ui.actionView;
     QAction* import_export_action = ui.actionImportExport;
     QAction* info_action = ui.actionInfo;
-
-    boost::property_tree::ini_parser::read_ini(path, ptree);
 
     if (!ptree.empty())
     {

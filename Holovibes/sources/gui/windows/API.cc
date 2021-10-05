@@ -1942,4 +1942,35 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
     }
 }
 
+void reload_ini(::holovibes::gui::MainWindow& mainwindow,
+                UserInterfaceDescriptor& ui_descriptor,
+                const std::string& filename)
+{
+    LOG_INFO;
+    mainwindow.import_stop();
+    try
+    {
+        mainwindow.load_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_INFO << e.what() << std::endl;
+    }
+    if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
+    {
+        mainwindow.import_start();
+    }
+    else if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
+    {
+        mainwindow.change_camera(ui_descriptor.kCamera);
+    }
+}
+
+void reload_ini(::holovibes::gui::MainWindow& mainwindow)
+{
+    LOG_INFO;
+    mainwindow.reload_ini("");
+}
+
 } // namespace holovibes::api
