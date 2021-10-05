@@ -2005,4 +2005,6 @@ void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string
     write_ini(ui_descriptor, filename);
 }
 
+const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
+
 } // namespace holovibes::api

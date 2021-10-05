@@ -681,7 +681,7 @@ void MainWindow::credits()
 void MainWindow::documentation()
 {
     LOG_INFO;
-    QDesktopServices::openUrl(QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"));
+    QDesktopServices::openUrl(::holovibes::api::get_documentation_url());
 }
 
 #pragma endregion

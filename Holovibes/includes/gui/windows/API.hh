@@ -961,4 +961,10 @@ void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filena
  */
 void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
 
+/*! \brief Gets the documentation url
+ *
+ * \return const QUrl& url
+ */
+const QUrl get_documentation_url();
+
 } // namespace holovibes::api
