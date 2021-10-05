@@ -1636,4 +1636,39 @@ bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
     return false;
 }
 
+void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    QPoint pos(0, 0);
+    const camera::FrameDescriptor& fd = ui_descriptor.holovibes_.get_gpu_input_queue()->get_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    get_good_size(width, height, ui_descriptor.window_max_size);
+    QSize size(width, height);
+    mainwindow.init_image_mode(pos, size);
+    /* ---------- */
+    try
+    {
+        ui_descriptor.mainDisplay.reset(
+            new ::holovibes::gui::HoloWindow(pos,
+                                             size,
+                                             ui_descriptor.holovibes_.get_gpu_output_queue().get(),
+                                             ui_descriptor.holovibes_.get_compute_pipe(),
+                                             ui_descriptor.sliceXZ,
+                                             ui_descriptor.sliceYZ,
+                                             &mainwindow));
+        ui_descriptor.mainDisplay->set_is_resize(false);
+        ui_descriptor.mainDisplay->setTitle(QString("XY view"));
+        ui_descriptor.mainDisplay->setCd(&ui_descriptor.holovibes_.get_cd());
+        ui_descriptor.mainDisplay->resetTransform();
+        ui_descriptor.mainDisplay->setAngle(ui_descriptor.displayAngle);
+        ui_descriptor.mainDisplay->setFlip(ui_descriptor.displayFlip);
+        ui_descriptor.mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << "createHoloWindow: " << e.what();
+    }
+}
+
 } // namespace holovibes::api

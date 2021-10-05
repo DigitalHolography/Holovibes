@@ -789,4 +789,12 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
 bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
                           UserInterfaceDescriptor& ui_descriptor,
                           camera::FrameDescriptor& fd);
+
+/*! \brief Creates the windows for processed image output
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api
