@@ -760,4 +760,15 @@ void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<voi
 
 /*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
 void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor);
+
+/*! \brief Modifies view image type
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param value The new image type
+ */
+void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
+                   UserInterfaceDescriptor& ui_descriptor,
+                   const std::string& value);
+
 } // namespace holovibes::api

@@ -839,6 +839,11 @@ void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
+    if (!ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+    {
+        return;
+    }
+
     if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XZview);
@@ -1532,6 +1537,37 @@ void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_
         0)
         ui_descriptor.holovibes_.get_cd().time_transformation_stride -=
             ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size;
+}
+
+void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
+                   UserInterfaceDescriptor& ui_descriptor,
+                   const std::string& value)
+{
+    LOG_INFO;
+    LOG_ERROR;
+
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    if (mainwindow.need_refresh(ui_descriptor.last_img_type_, value))
+    {
+        mainwindow.refreshViewMode();
+        if (ui_descriptor.holovibes_.get_cd().img_type == ImgType::Composite)
+        {
+            mainwindow.set_composite_values();
+        }
+    }
+    ui_descriptor.last_img_type_ = value;
+
+    auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get());
+
+    pipe->insert_fn_end_vect(mainwindow.get_view_mode_callback());
+    pipe_refresh(ui_descriptor);
+
+    // Force XYview autocontrast
+    pipe->autocontrast_end_pipe(WindowKind::XYview);
+    // Force cuts views autocontrast if needed
+    set_auto_contrast_cuts(ui_descriptor);
 }
 
 } // namespace holovibes::api

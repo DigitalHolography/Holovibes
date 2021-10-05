@@ -78,7 +78,7 @@ class UserInterfaceDescriptor
 
     CameraKind kCamera = CameraKind::NONE;
     ImportType import_type_ = ImportType::None;
-    QString last_img_type_ = "Magnitude";
+    std::string last_img_type_ = "Magnitude";
 
     size_t auto_scale_point_threshold_ = 100;
 };
