@@ -895,4 +895,12 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
 /*! \brief TODO: to comment */
 void configure_holovibes();
 
+/*! \brief Saves the current state of holovibes
+ *
+ * \param ui_descriptor user interface's state
+ * \param path The location of the .ini file saved
+ * \param ptree the object containing the .ini parameters to serialize
+ */
+void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree);
+
 } // namespace holovibes::api

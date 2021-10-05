@@ -1852,4 +1852,42 @@ void configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
+void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree)
+{
+    LOG_INFO;
+
+    // Save general compute data
+    ini::save_ini(ptree, ui_descriptor.holovibes_.get_cd());
+
+    // Save window specific data
+    ptree.put<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
+    ptree.put<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
+    ptree.put<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
+    ptree.put<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+
+    ptree.put<int>("image_rendering.camera", static_cast<int>(ui_descriptor.kCamera));
+
+    ptree.put<double>("image_rendering.z_step", ui_descriptor.z_step_);
+
+    ptree.put<float>("view.mainWindow_rotate", ui_descriptor.displayAngle);
+    ptree.put<float>("view.xCut_rotate", ui_descriptor.xzAngle);
+    ptree.put<float>("view.yCut_rotate", ui_descriptor.yzAngle);
+    ptree.put<int>("view.mainWindow_flip", ui_descriptor.displayFlip);
+    ptree.put<int>("view.xCut_flip", ui_descriptor.xzFlip);
+    ptree.put<int>("view.yCut_flip", ui_descriptor.yzFlip);
+
+    ptree.put<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+
+    ptree.put<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+
+    ptree.put<uint>("display.main_window_max_size", ui_descriptor.window_max_size);
+    ptree.put<uint>("display.time_transformation_cuts_window_max_size",
+                    ui_descriptor.time_transformation_cuts_window_max_size);
+    ptree.put<uint>("display.auxiliary_window_max_size", ui_descriptor.auxiliary_window_max_size);
+
+    boost::property_tree::write_ini(path, ptree);
+
+    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
+}
+
 } // namespace holovibes::api

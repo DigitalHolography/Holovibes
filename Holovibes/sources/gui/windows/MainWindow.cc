@@ -835,51 +835,23 @@ void MainWindow::save_ini(const std::string& path)
 {
     LOG_INFO;
     boost::property_tree::ptree ptree;
+
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     Frame* import_export_frame = ui.ImportExportFrame;
     GroupBox* info_group_box = ui.InfoGroupBox;
-    Config& config = global::global_config;
 
-    // Save general compute data
-    ini::save_ini(ptree, ui_descriptor_.holovibes_.get_cd());
-
-    // Save window specific data
-    ptree.put<std::string>("files.default_output_filename", ui_descriptor_.default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory", ui_descriptor_.record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", ui_descriptor_.file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", ui_descriptor_.batch_input_directory_);
-
+    // We save in the ptree the .ini parameters that are directly linked with MainWindow ...
     ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-
-    ptree.put<int>("image_rendering.camera", static_cast<int>(ui_descriptor_.kCamera));
-
-    ptree.put<double>("image_rendering.z_step", ui_descriptor_.z_step_);
-
     ptree.put<bool>("view.hidden", view_group_box->isHidden());
-
-    ptree.put<float>("view.mainWindow_rotate", ui_descriptor_.displayAngle);
-    ptree.put<float>("view.xCut_rotate", ui_descriptor_.xzAngle);
-    ptree.put<float>("view.yCut_rotate", ui_descriptor_.yzAngle);
-    ptree.put<int>("view.mainWindow_flip", ui_descriptor_.displayFlip);
-    ptree.put<int>("view.xCut_flip", ui_descriptor_.xzFlip);
-    ptree.put<int>("view.yCut_flip", ui_descriptor_.yzFlip);
-
-    ptree.put<size_t>("chart.auto_scale_point_threshold", ui_descriptor_.auto_scale_point_threshold_);
-
-    ptree.put<uint>("record.record_frame_step", ui_descriptor_.record_frame_step_);
 
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 
     ptree.put<bool>("info.hidden", info_group_box->isHidden());
     ptree.put<ushort>("info.theme_type", theme_index_);
 
-    ptree.put<uint>("display.main_window_max_size", ui_descriptor_.window_max_size);
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size",
-                    ui_descriptor_.time_transformation_cuts_window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", ui_descriptor_.auxiliary_window_max_size);
-
-    boost::property_tree::write_ini(path, ptree);
+    // ... then the general data to save in ptree
+    ::holovibes::api::save_ini(ui_descriptor_, path, ptree);
 
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
