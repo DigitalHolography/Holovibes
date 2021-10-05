@@ -804,4 +804,14 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDes
  */
 void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
+/*!
+ * \brief Set the raw mode object
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \return true on success
+ * \return false on failure
+ */
+bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
 } // namespace holovibes::api

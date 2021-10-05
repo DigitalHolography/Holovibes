@@ -1685,4 +1685,39 @@ void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
     }
 }
 
+bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    close_windows(ui_descriptor);
+    close_critical_compute(ui_descriptor);
+
+    if (ui_descriptor.is_enabled_camera_)
+    {
+        QPoint pos(0, 0);
+        const camera::FrameDescriptor& fd = ui_descriptor.holovibes_.get_gpu_input_queue()->get_fd();
+        unsigned short width = fd.width;
+        unsigned short height = fd.height;
+        get_good_size(width, height, ui_descriptor.window_max_size);
+        QSize size(width, height);
+        mainwindow.init_image_mode(pos, size);
+        ui_descriptor.holovibes_.get_cd().compute_mode = Computation::Raw;
+        createPipe(mainwindow, ui_descriptor);
+        ui_descriptor.mainDisplay.reset(
+            new holovibes::gui::RawWindow(pos, size, ui_descriptor.holovibes_.get_gpu_input_queue().get()));
+        ui_descriptor.mainDisplay->setTitle(QString("XY view"));
+        ui_descriptor.mainDisplay->setCd(&ui_descriptor.holovibes_.get_cd());
+        ui_descriptor.mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+        std::string fd_info =
+            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
+                                                                  fd_info);
+        unset_convolution_mode(ui_descriptor);
+        set_divide_convolution_mode(ui_descriptor, false);
+
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace holovibes::api
