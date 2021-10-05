@@ -931,4 +931,14 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow,
  */
 void reload_ini(::holovibes::gui::MainWindow& mainwindow);
 
+/*! \brief Browses to import/ export .ini file
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param filename filename to read to load .ini data
+ */
+void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename);
+
 } // namespace holovibes::api

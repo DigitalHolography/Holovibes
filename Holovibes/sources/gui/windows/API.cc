@@ -1973,4 +1973,13 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow)
     mainwindow.reload_ini("");
 }
 
+void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename)
+{
+    LOG_INFO;
+
+    ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
+}
+
 } // namespace holovibes::api

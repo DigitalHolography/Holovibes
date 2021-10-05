@@ -723,7 +723,9 @@ void MainWindow::browse_import_ini()
                                                     ui_descriptor_.file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
-    reload_ini(filename);
+    ::holovibes::api::browse_import_ini(*this, ui_descriptor_, filename.toStdString());
+
+    notify();
 }
 
 void MainWindow::reload_ini()
