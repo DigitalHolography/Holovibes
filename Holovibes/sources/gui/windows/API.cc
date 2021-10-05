@@ -1890,4 +1890,56 @@ void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, b
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
 
+void load_ini(::holovibes::gui::MainWindow& mainwindow,
+              UserInterfaceDescriptor& ui_descriptor,
+              const std::string& path,
+              boost::property_tree::ptree& ptree)
+{
+    LOG_INFO;
+
+    boost::property_tree::ini_parser::read_ini(path, ptree);
+
+    if (!ptree.empty())
+    {
+        // Load general compute data
+        ini::load_ini(ptree, ui_descriptor.holovibes_.get_cd());
+
+        // Load window specific data
+        ui_descriptor.default_output_filename_ =
+            ptree.get<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
+        ui_descriptor.record_output_directory_ =
+            ptree.get<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
+        ui_descriptor.file_input_directory_ =
+            ptree.get<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
+        ui_descriptor.batch_input_directory_ =
+            ptree.get<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+
+        const float z_step = ptree.get<float>("image_rendering.z_step", ui_descriptor.z_step_);
+        if (z_step > 0.0f)
+            mainwindow.set_z_step(z_step);
+
+        ui_descriptor.last_img_type_ = ui_descriptor.holovibes_.get_cd().img_type == ImgType::Composite
+                                           ? "Composite image"
+                                           : ui_descriptor.last_img_type_;
+
+        ui_descriptor.displayAngle = ptree.get("view.mainWindow_rotate", ui_descriptor.displayAngle);
+        ui_descriptor.xzAngle = ptree.get<float>("view.xCut_rotate", ui_descriptor.xzAngle);
+        ui_descriptor.yzAngle = ptree.get<float>("view.yCut_rotate", ui_descriptor.yzAngle);
+        ui_descriptor.displayFlip = ptree.get("view.mainWindow_flip", ui_descriptor.displayFlip);
+        ui_descriptor.xzFlip = ptree.get("view.xCut_flip", ui_descriptor.xzFlip);
+        ui_descriptor.yzFlip = ptree.get("view.yCut_flip", ui_descriptor.yzFlip);
+
+        ui_descriptor.auto_scale_point_threshold_ =
+            ptree.get<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+
+        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+        mainwindow.set_record_frame_step(record_frame_step);
+
+        ui_descriptor.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
+        ui_descriptor.time_transformation_cuts_window_max_size =
+            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
+        ui_descriptor.auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
+    }
+}
+
 } // namespace holovibes::api

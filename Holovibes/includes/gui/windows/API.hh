@@ -903,4 +903,16 @@ void configure_holovibes();
  */
 void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree);
 
+/*! \brief Setups program from .ini file
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param path the path where the .ini file is
+ * \param ptree the object containing the .ini parameters to serialize
+ */
+void load_ini(::holovibes::gui::MainWindow& mainwindow,
+              UserInterfaceDescriptor& ui_descriptor,
+              const std::string& path,
+              boost::property_tree::ptree& ptree);
+
 } // namespace holovibes::api

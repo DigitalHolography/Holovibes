@@ -759,7 +759,13 @@ void MainWindow::reload_ini(QString filename)
 void MainWindow::load_ini(const std::string& path)
 {
     LOG_INFO;
+
     boost::property_tree::ptree ptree;
+    boost::property_tree::ini_parser::read_ini(path, ptree);
+
+    ::holovibes::api::load_ini(*this, ui_descriptor_, path, ptree);
+
+    /// NEXT
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     GroupBox* import_group_box = ui.ImportGroupBox;
@@ -774,59 +780,17 @@ void MainWindow::load_ini(const std::string& path)
 
     if (!ptree.empty())
     {
-        // Load general compute data
-        ini::load_ini(ptree, ui_descriptor_.holovibes_.get_cd());
-
-        // Load window specific data
-        ui_descriptor_.default_output_filename_ =
-            ptree.get<std::string>("files.default_output_filename", ui_descriptor_.default_output_filename_);
-        ui_descriptor_.record_output_directory_ =
-            ptree.get<std::string>("files.record_output_directory", ui_descriptor_.record_output_directory_);
-        ui_descriptor_.file_input_directory_ =
-            ptree.get<std::string>("files.file_input_directory", ui_descriptor_.file_input_directory_);
-        ui_descriptor_.batch_input_directory_ =
-            ptree.get<std::string>("files.batch_input_directory", ui_descriptor_.batch_input_directory_);
-
         image_rendering_action->setChecked(
             !ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
-        const float z_step = ptree.get<float>("image_rendering.z_step", ui_descriptor_.z_step_);
-        if (z_step > 0.0f)
-            set_z_step(z_step);
-
         view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
-
-        ui_descriptor_.last_img_type_ = ui_descriptor_.holovibes_.get_cd().img_type == ImgType::Composite
-                                            ? "Composite image"
-                                            : ui_descriptor_.last_img_type_;
-
         ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(ui_descriptor_.holovibes_.get_cd().img_type.load()));
-
-        ui_descriptor_.displayAngle = ptree.get("view.mainWindow_rotate", ui_descriptor_.displayAngle);
-        ui_descriptor_.xzAngle = ptree.get<float>("view.xCut_rotate", ui_descriptor_.xzAngle);
-        ui_descriptor_.yzAngle = ptree.get<float>("view.yCut_rotate", ui_descriptor_.yzAngle);
-        ui_descriptor_.displayFlip = ptree.get("view.mainWindow_flip", ui_descriptor_.displayFlip);
-        ui_descriptor_.xzFlip = ptree.get("view.xCut_flip", ui_descriptor_.xzFlip);
-        ui_descriptor_.yzFlip = ptree.get("view.yCut_flip", ui_descriptor_.yzFlip);
-
-        ui_descriptor_.auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold", ui_descriptor_.auto_scale_point_threshold_);
-
-        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", ui_descriptor_.record_frame_step_);
-        set_record_frame_step(record_frame_step);
-
         import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_group_box->isHidden()));
 
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
         info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
-
-        ui_descriptor_.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        ui_descriptor_.time_transformation_cuts_window_max_size =
-            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
-        ui_descriptor_.auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
-
         notify();
     }
 }
