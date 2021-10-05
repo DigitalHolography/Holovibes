@@ -967,4 +967,10 @@ void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string
  */
 const QUrl get_documentation_url();
 
+/*! \brief Gets the credits
+ *
+ * \return const std::string credits
+ */
+const std::string get_credits();
+
 } // namespace holovibes::api
