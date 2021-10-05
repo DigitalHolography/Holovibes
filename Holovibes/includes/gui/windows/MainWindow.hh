@@ -334,6 +334,9 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies time transformation stride size from ui value */
     void update_time_transformation_stride();
 
+    bool need_refresh(const std::string& last_type, const std::string& new_type);
+    void set_composite_values();
+    std::function<void()> get_view_mode_callback();
     /*! \brief Modifies view image type
      *
      * \param value The new image type

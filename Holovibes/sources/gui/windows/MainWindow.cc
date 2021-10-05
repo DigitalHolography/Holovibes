@@ -1204,59 +1204,48 @@ void MainWindow::refreshViewMode()
     layout_toggled();
 }
 
-namespace
-{
 // Is there a change in window pixel depth (needs to be re-opened)
-bool need_refresh(const QString& last_type, const QString& new_type)
+bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
 {
-    std::vector<QString> types_needing_refresh({"Composite image"});
+    std::vector<std::string> types_needing_refresh({"Composite image"});
     for (auto& type : types_needing_refresh)
         if ((last_type == type) != (new_type == type))
             return true;
     return false;
 }
-} // namespace
-void MainWindow::set_view_mode(const QString value)
+
+void MainWindow::set_composite_values()
 {
-    LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
+    const unsigned min_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size == 1 ? 0 : 1;
+    const unsigned max_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
 
-    if (need_refresh(ui_descriptor_.last_img_type_, value))
-    {
-        refreshViewMode();
-        if (ui_descriptor_.holovibes_.get_cd().img_type == ImgType::Composite)
-        {
-            const unsigned min_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size == 1 ? 0 : 1;
-            const unsigned max_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
+    ui.PRedSpinBox_Composite->setValue(min_val_composite);
+    ui.SpinBox_hue_freq_min->setValue(min_val_composite);
+    ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
+    ui.SpinBox_value_freq_min->setValue(min_val_composite);
 
-            ui.PRedSpinBox_Composite->setValue(min_val_composite);
-            ui.SpinBox_hue_freq_min->setValue(min_val_composite);
-            ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
-            ui.SpinBox_value_freq_min->setValue(min_val_composite);
+    ui.PBlueSpinBox_Composite->setValue(max_val_composite);
+    ui.SpinBox_hue_freq_max->setValue(max_val_composite);
+    ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
+    ui.SpinBox_value_freq_max->setValue(max_val_composite);
+}
 
-            ui.PBlueSpinBox_Composite->setValue(max_val_composite);
-            ui.SpinBox_hue_freq_max->setValue(max_val_composite);
-            ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
-            ui.SpinBox_value_freq_max->setValue(max_val_composite);
-        }
-    }
-    ui_descriptor_.last_img_type_ = value;
-
-    auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-
-    pipe->insert_fn_end_vect([=]() {
+std::function<void()> MainWindow::get_view_mode_callback()
+{
+    auto callback = ([=]() {
         ui_descriptor_.holovibes_.get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
         notify();
         layout_toggled();
     });
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
 
-    // Force XYview autocontrast
-    pipe->autocontrast_end_pipe(WindowKind::XYview);
-    // Force cuts views autocontrast if needed
-    if (ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled)
-        set_auto_contrast_cuts();
+    return callback;
+}
+
+void MainWindow::set_view_mode(const QString value)
+{
+    LOG_INFO;
+
+    ::holovibes::api::set_view_mode(*this, ui_descriptor_, value.toStdString());
 }
 
 void MainWindow::set_image_mode(QString mode)
