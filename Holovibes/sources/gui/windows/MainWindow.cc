@@ -1338,69 +1338,16 @@ void MainWindow::update_time_transformation_stride()
 void MainWindow::toggle_time_transformation_cuts(bool checked)
 {
     LOG_INFO;
+
     QComboBox* winSelection = ui.WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-    if (checked)
+
+    const bool res = ::holovibes::api::toggle_time_transformation_cuts(*this, ui_descriptor_, checked);
+
+    if (res)
     {
-        try
-        {
-            ui_descriptor_.holovibes_.get_compute_pipe()->create_stft_slice_queue();
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint xzPos =
-                ui_descriptor_.mainDisplay->framePosition() + QPoint(0, ui_descriptor_.mainDisplay->height() + 42);
-            QPoint yzPos =
-                ui_descriptor_.mainDisplay->framePosition() + QPoint(ui_descriptor_.mainDisplay->width() + 20, 0);
-            const ushort nImg = ui_descriptor_.holovibes_.get_cd().time_transformation_size;
-            uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-            if (time_transformation_size > ui_descriptor_.time_transformation_cuts_window_max_size)
-                time_transformation_size = ui_descriptor_.time_transformation_cuts_window_max_size;
-
-            while (ui_descriptor_.holovibes_.get_compute_pipe()->get_update_time_transformation_size_request())
-                continue;
-            while (ui_descriptor_.holovibes_.get_compute_pipe()->get_cuts_request())
-                continue;
-            ui_descriptor_.sliceXZ.reset(
-                new SliceWindow(xzPos,
-                                QSize(ui_descriptor_.mainDisplay->width(), time_transformation_size),
-                                ui_descriptor_.holovibes_.get_compute_pipe()->get_stft_slice_queue(0).get(),
-                                KindOfView::SliceXZ,
-                                this));
-            ui_descriptor_.sliceXZ->setTitle("XZ view");
-            ui_descriptor_.sliceXZ->setAngle(ui_descriptor_.xzAngle);
-            ui_descriptor_.sliceXZ->setFlip(ui_descriptor_.xzFlip);
-            ui_descriptor_.sliceXZ->setCd(&ui_descriptor_.holovibes_.get_cd());
-
-            ui_descriptor_.sliceYZ.reset(
-                new SliceWindow(yzPos,
-                                QSize(time_transformation_size, ui_descriptor_.mainDisplay->height()),
-                                ui_descriptor_.holovibes_.get_compute_pipe()->get_stft_slice_queue(1).get(),
-                                KindOfView::SliceYZ,
-                                this));
-            ui_descriptor_.sliceYZ->setTitle("YZ view");
-            ui_descriptor_.sliceYZ->setAngle(ui_descriptor_.yzAngle);
-            ui_descriptor_.sliceYZ->setFlip(ui_descriptor_.yzFlip);
-            ui_descriptor_.sliceYZ->setCd(&ui_descriptor_.holovibes_.get_cd());
-
-            ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Cross>();
-            ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled = true;
-            set_auto_contrast_cuts();
-            auto holo = dynamic_cast<HoloWindow*>(ui_descriptor_.mainDisplay.get());
-            if (holo)
-                holo->update_slice_transforms();
-            notify();
-        }
-        catch (const std::logic_error& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-            cancel_time_transformation_cuts();
-        }
-    }
-    else
-    {
-        cancel_time_transformation_cuts();
+        notify();
     }
 }
 

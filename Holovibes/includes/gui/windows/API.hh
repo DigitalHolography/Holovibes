@@ -728,4 +728,16 @@ bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
  */
 void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value);
 
+/*! \brief Enables or Disables time transform cuts views
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \param checked true: enable, false: disable
+ * \return true on success
+ * \return false on failure
+ */
+bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
+                                     UserInterfaceDescriptor& ui_descriptor,
+                                     const bool checked);
+
 } // namespace holovibes::api
