@@ -748,6 +748,14 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
  */
 void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
                                        std::function<void()> callback,
-                                       uint time_transformation_stride);
+                                       const uint time_transformation_stride);
+
+/*! \brief Modifies batch size from ui value
+ *
+ * \param ui_descriptor user interface's state
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ * \param batch_size the new value
+ */
+void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size);
 
 } // namespace holovibes::api

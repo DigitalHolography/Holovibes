@@ -1281,26 +1281,16 @@ static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd
 void MainWindow::update_batch_size()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    int value = ui.BatchSizeSpinBox->value();
+    uint batch_size = ui.BatchSizeSpinBox->value();
+    auto callback = [=]() {
+        ui_descriptor_.holovibes_.get_cd().batch_size = batch_size;
+        adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
+        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_batch_size();
+        notify();
+    };
 
-    if (value == ui_descriptor_.holovibes_.get_cd().batch_size)
-        return;
-
-    auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get());
-    if (pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            ui_descriptor_.holovibes_.get_cd().batch_size = value;
-            adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
-            ui_descriptor_.holovibes_.get_compute_pipe()->request_update_batch_size();
-            notify();
-        });
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+    ::holovibes::api::update_batch_size(ui_descriptor_, callback, batch_size);
 }
 
 #pragma endregion
@@ -1311,9 +1301,9 @@ void MainWindow::update_time_transformation_stride()
 {
     LOG_INFO;
 
-    int value = ui.TimeTransformationStrideSpinBox->value();
+    uint time_transformation_stride = ui.TimeTransformationStrideSpinBox->value();
     auto callback = [=]() {
-        ui_descriptor_.holovibes_.get_cd().time_transformation_stride = value;
+        ui_descriptor_.holovibes_.get_cd().time_transformation_stride = time_transformation_stride;
         adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
         ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
         ui.NumberOfFramesSpinBox->setValue(
@@ -1322,9 +1312,7 @@ void MainWindow::update_time_transformation_stride()
         notify();
     };
 
-    ::holovibes::api::update_time_transformation_stride(ui_descriptor_,
-                                                        callback,
-                                                        ui.TimeTransformationStrideSpinBox->value());
+    ::holovibes::api::update_time_transformation_stride(ui_descriptor_, callback, time_transformation_stride);
 }
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)
