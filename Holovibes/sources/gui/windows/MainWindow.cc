@@ -1178,28 +1178,9 @@ void MainWindow::set_holographic_mode()
 void MainWindow::refreshViewMode()
 {
     LOG_INFO;
-    float old_scale = 1.f;
-    glm::vec2 old_translation(0.f, 0.f);
-    if (ui_descriptor_.mainDisplay)
-    {
-        old_scale = ui_descriptor_.mainDisplay->getScale();
-        old_translation = ui_descriptor_.mainDisplay->getTranslate();
-    }
-    ::holovibes::api::close_windows(ui_descriptor_);
-    ::holovibes::api::close_critical_compute(ui_descriptor_);
-    ui_descriptor_.holovibes_.get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
-    try
-    {
-        createPipe();
-        createHoloWindow();
-        ui_descriptor_.mainDisplay->setScale(old_scale);
-        ui_descriptor_.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-    }
-    catch (const std::runtime_error& e)
-    {
-        ui_descriptor_.mainDisplay.reset(nullptr);
-        LOG_ERROR << "refreshViewMode: " << e.what();
-    }
+
+    ::holovibes::api::refreshViewMode(*this, ui_descriptor_, ui.ViewModeComboBox->currentIndex());
+
     notify();
     layout_toggled();
 }

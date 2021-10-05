@@ -771,4 +771,11 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
                    UserInterfaceDescriptor& ui_descriptor,
                    const std::string& value);
 
+/*! \brief Restarts everything to change the view mode
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ */
+void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, uint index);
+
 } // namespace holovibes::api

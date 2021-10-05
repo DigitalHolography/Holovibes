@@ -1544,7 +1544,6 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
                    const std::string& value)
 {
     LOG_INFO;
-    LOG_ERROR;
 
     if (is_raw_mode(ui_descriptor))
         return;
@@ -1568,6 +1567,36 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
     set_auto_contrast_cuts(ui_descriptor);
+}
+
+void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, uint index)
+{
+    LOG_INFO;
+    float old_scale = 1.f;
+    glm::vec2 old_translation(0.f, 0.f);
+    if (ui_descriptor.mainDisplay)
+    {
+        old_scale = ui_descriptor.mainDisplay->getScale();
+        old_translation = ui_descriptor.mainDisplay->getTranslate();
+    }
+
+    close_windows(ui_descriptor);
+    close_critical_compute(ui_descriptor);
+
+    ui_descriptor.holovibes_.get_cd().img_type = static_cast<ImgType>(index);
+
+    try
+    {
+        mainwindow.createPipe();
+        mainwindow.createHoloWindow();
+        ui_descriptor.mainDisplay->setScale(old_scale);
+        ui_descriptor.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+    }
+    catch (const std::runtime_error& e)
+    {
+        ui_descriptor.mainDisplay.reset(nullptr);
+        LOG_ERROR << "refreshViewMode: " << e.what();
+    }
 }
 
 } // namespace holovibes::api
