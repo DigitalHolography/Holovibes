@@ -758,4 +758,6 @@ void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
  */
 void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size);
 
+/*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
+void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor);
 } // namespace holovibes::api

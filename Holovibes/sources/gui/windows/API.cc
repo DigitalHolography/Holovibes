@@ -1522,4 +1522,16 @@ void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<voi
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
+void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
+{
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride < ui_descriptor.holovibes_.get_cd().batch_size)
+        ui_descriptor.holovibes_.get_cd().time_transformation_stride =
+            ui_descriptor.holovibes_.get_cd().batch_size.load();
+    // Go to lower multiple
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size !=
+        0)
+        ui_descriptor.holovibes_.get_cd().time_transformation_stride -=
+            ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size;
+}
+
 } // namespace holovibes::api

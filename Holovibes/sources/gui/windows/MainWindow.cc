@@ -1269,15 +1269,6 @@ void MainWindow::set_image_mode(QString mode)
 
 #pragma region Batch
 
-static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd)
-{
-    if (cd.time_transformation_stride < cd.batch_size)
-        cd.time_transformation_stride = cd.batch_size.load();
-    // Go to lower multiple
-    if (cd.time_transformation_stride % cd.batch_size != 0)
-        cd.time_transformation_stride -= cd.time_transformation_stride % cd.batch_size;
-}
-
 void MainWindow::update_batch_size()
 {
     LOG_INFO;
@@ -1285,7 +1276,7 @@ void MainWindow::update_batch_size()
     uint batch_size = ui.BatchSizeSpinBox->value();
     auto callback = [=]() {
         ui_descriptor_.holovibes_.get_cd().batch_size = batch_size;
-        adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
+        ::holovibes::api::adapt_time_transformation_stride_to_batch_size(ui_descriptor_);
         ui_descriptor_.holovibes_.get_compute_pipe()->request_update_batch_size();
         notify();
     };
@@ -1304,7 +1295,7 @@ void MainWindow::update_time_transformation_stride()
     uint time_transformation_stride = ui.TimeTransformationStrideSpinBox->value();
     auto callback = [=]() {
         ui_descriptor_.holovibes_.get_cd().time_transformation_stride = time_transformation_stride;
-        adapt_time_transformation_stride_to_batch_size(ui_descriptor_.holovibes_.get_cd());
+        ::holovibes::api::adapt_time_transformation_stride_to_batch_size(ui_descriptor_);
         ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
         ui.NumberOfFramesSpinBox->setValue(
             ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
