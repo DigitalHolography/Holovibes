@@ -568,7 +568,6 @@ void Pipe::exec()
 
             if (refresh_requested_)
                 refresh();
-
         }
         catch (CustomException& e)
         {
@@ -594,8 +593,6 @@ void Pipe::autocontrast_end_pipe(WindowKind kind)
 
 void Pipe::run_all()
 {
-    LOG_TRACE << "Entering Pipe::run_all()";
-
     for (FnType& f : fn_compute_vect_)
         f();
     {
