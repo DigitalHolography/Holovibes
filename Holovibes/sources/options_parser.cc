@@ -130,7 +130,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        LOG_INFO << e.what() << std::endl;
+        LOG_INFO << e.what() <<;
         std::exit(1);
     }
 

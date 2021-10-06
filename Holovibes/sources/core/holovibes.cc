@@ -82,7 +82,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         catch (std::exception&)
         {
             // Should never happen
-            LOG_ERROR << "This camera is not handled." << std::endl;
+            LOG_ERROR << "This camera is not handled.";
             throw;
         }
 

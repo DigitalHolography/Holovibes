@@ -691,7 +691,6 @@ void MainWindow::reload_ini(QString filename)
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        LOG_INFO << e.what() << std::endl;
     }
 
     if (import_type_ == ImportType::File)
@@ -819,7 +818,7 @@ void MainWindow::save_ini(const std::string& path)
 
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
+    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path;
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -1273,7 +1272,7 @@ void MainWindow::update_batch_size()
         });
     }
     else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+        LOG_ERROR << "Compute pipe is nullptr";
 }
 
 #pragma endregion
@@ -1332,7 +1331,7 @@ void MainWindow::update_time_transformation_stride()
         });
     }
     else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+        LOG_ERROR << "Compute pipte is nullptr";
 }
 
 void MainWindow::toggle_time_transformation_cuts(bool checked)
@@ -1389,7 +1388,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
         }
         catch (const std::logic_error& e)
         {
-            LOG_ERROR << e.what() << std::endl;
+            LOG_ERROR << e.what();
             cancel_stft_slice_view();
         }
     }
@@ -1537,7 +1536,7 @@ void MainWindow::update_filter2d_view(bool checked)
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR << e.what() << std::endl;
+            LOG_ERROR << e.what();
         }
     }
 
@@ -1672,7 +1671,7 @@ void MainWindow::update_lens_view(bool value)
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR << e.what() << std::endl;
+            LOG_ERROR << e.what();
         }
     }
 
@@ -2304,7 +2303,7 @@ void MainWindow::set_auto_contrast()
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << e.what() << std::endl;
+        LOG_ERROR << e.what();
     }
 }
 
