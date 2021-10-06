@@ -243,7 +243,7 @@ class Holovibes
 
     void stop_all_worker_controller();
 
-    void start_cli_compute_and_record(
+    void start_cli_record_and_compute(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
         bool raw_record,

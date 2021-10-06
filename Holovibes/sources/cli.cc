@@ -217,7 +217,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     cd.frame_record_enabled = true;
 
-    holovibes.start_cli_compute_and_record(opts.output_path.value(),
+    holovibes.start_cli_record_and_compute(opts.output_path.value(),
                                            record_nb_frames,
                                            opts.record_raw,
                                            nb_frames_skip);
