@@ -163,14 +163,14 @@ void set_computation_mode(Holovibes& holovibes, const uint image_mode_index);
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
-/*! \brief Changes the current camera used
+/*! \brief Changes the current camera used TODO: to complete
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-void change_camera(::holovibes::gui::MainWindow& mainwindow,
+bool change_camera(::holovibes::gui::MainWindow& mainwindow,
                    UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
                    const uint image_mode_index);

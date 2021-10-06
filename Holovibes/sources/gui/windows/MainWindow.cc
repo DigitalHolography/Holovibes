@@ -807,34 +807,20 @@ void MainWindow::closeEvent(QCloseEvent*)
 /* ------------ */
 #pragma region Cameras
 
-// TODO: move to api with more genericity
-// and the body should be a single call to api
+// GUI
 void MainWindow::change_camera(CameraKind c)
 {
     LOG_INFO;
-    camera_none();
 
-    if (c != CameraKind::NONE)
+    const bool res = ::holovibes::api::change_camera(*this, ui_descriptor_, c, ui.ImageModeComboBox->currentIndex());
+
+    if (res)
     {
-        try
-        {
+        // Make camera's settings menu accessible
+        QAction* settings = ui.actionSettings;
+        settings->setEnabled(true);
 
-            ::holovibes::api::change_camera(*this, ui_descriptor_, c, ui.ImageModeComboBox->currentIndex());
-
-            // Make camera's settings menu accessible
-            QAction* settings = ui.actionSettings;
-            settings->setEnabled(true);
-
-            notify();
-        }
-        catch (const camera::CameraException& e)
-        {
-            LOG_ERROR << "[CAMERA] " << e.what();
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what();
-        }
+        notify();
     }
 }
 

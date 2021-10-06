@@ -369,31 +369,54 @@ void set_camera_timeout()
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
-// TODO: too different than mainwindow change_camera() method
-// we shouldn't use const uint image_mode_index that is a qt drop list concept
-void change_camera(::holovibes::gui::MainWindow& mainwindow,
+// TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
+bool change_camera(::holovibes::gui::MainWindow& mainwindow,
                    UserInterfaceDescriptor& ui_descriptor,
                    CameraKind c,
                    const uint image_mode_index)
 {
     LOG_INFO;
 
-    ui_descriptor.mainDisplay.reset(nullptr);
-    if (!is_raw_mode(ui_descriptor))
-        ui_descriptor.holovibes_.stop_compute();
-    ui_descriptor.holovibes_.stop_frame_read();
+    mainwindow.camera_none();
 
-    set_camera_timeout();
+    bool res = false;
 
-    set_computation_mode(ui_descriptor.holovibes_, image_mode_index);
+    if (c == CameraKind::NONE)
+    {
+        return res;
+    }
 
-    ui_descriptor.holovibes_.start_camera_frame_read(c);
-    ui_descriptor.is_enabled_camera_ = true;
-    set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
-    ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
-    ui_descriptor.kCamera = c;
+    try
+    {
+        ui_descriptor.mainDisplay.reset(nullptr);
+        if (!is_raw_mode(ui_descriptor))
+            ui_descriptor.holovibes_.stop_compute();
+        ui_descriptor.holovibes_.stop_frame_read();
 
-    ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
+        set_camera_timeout();
+
+        set_computation_mode(ui_descriptor.holovibes_, image_mode_index);
+
+        ui_descriptor.holovibes_.start_camera_frame_read(c);
+        ui_descriptor.is_enabled_camera_ = true;
+        set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
+        ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
+        ui_descriptor.kCamera = c;
+
+        ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
+
+        res = true;
+    }
+    catch (const camera::CameraException& e)
+    {
+        LOG_ERROR << "[CAMERA] " << e.what();
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+    }
+
+    return res;
 }
 
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
