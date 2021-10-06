@@ -2099,4 +2099,24 @@ const std::string get_credits()
            "Michael Atlan\n";
 }
 
+bool slide_update_threshold(const int slider_value,
+                            std::atomic<float>& receiver,
+                            std::atomic<float>& bound_to_update,
+                            const std::atomic<float>& lower_bound,
+                            const std::atomic<float>& upper_bound)
+{
+    // Store the slider value in ui_descriptor_.holovibes_.get_cd() (ComputeDescriptor)
+    receiver = slider_value / 1000.0f;
+
+    if (lower_bound > upper_bound)
+    {
+        // FIXME bound_to_update = receiver ?
+        bound_to_update = slider_value / 1000.0f;
+
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace holovibes::api

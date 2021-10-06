@@ -1556,29 +1556,29 @@ void fancy_Qslide_text_percent(char* str)
     str[len + 2] = '\0';
 }
 
-// GUI
+// LOCAL
 // TODO -> api
-void slide_update_threshold(QSlider& slider,
+void slide_update_threshold(const QSlider& slider,
                             std::atomic<float>& receiver,
                             std::atomic<float>& bound_to_update,
                             QSlider& slider_to_update,
                             QLabel& to_be_written_in,
-                            std::atomic<float>& lower_bound,
-                            std::atomic<float>& upper_bound)
+                            const std::atomic<float>& lower_bound,
+                            const std::atomic<float>& upper_bound)
 {
-    // Store the slider value in ui_descriptor_.holovibes_.get_cd() (ComputeDescriptor)
-    receiver = slider.value() / 1000.0f;
+
+    LOG_INFO;
+
+    const bool res =
+        ::holovibes::api::slide_update_threshold(slider.value(), receiver, bound_to_update, lower_bound, upper_bound);
 
     char array[10];
     sprintf_s(array, "%d", slider.value());
     fancy_Qslide_text_percent(array);
     to_be_written_in.setText(QString(array));
 
-    if (lower_bound > upper_bound)
+    if (res)
     {
-        // FIXME bound_to_update = receiver ?
-        bound_to_update = slider.value() / 1000.0f;
-
         slider_to_update.setValue(slider.value());
     }
 }

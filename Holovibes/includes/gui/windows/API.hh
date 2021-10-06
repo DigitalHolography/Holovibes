@@ -983,4 +983,20 @@ const QUrl get_documentation_url();
  */
 const std::string get_credits();
 
+/*! \brief Update the slide value according to the bounds
+ *
+ * \param slider_value the new value
+ * \param receiver will get the new value
+ * \param bound_to_update may be updated
+ * \param lower_bound the lower bound of the slide
+ * \param upper_bound the upper bound of the slide
+ * \return true lower_bound greater than upper_bound
+ * \return false else
+ */
+bool slide_update_threshold(const int slider_value,
+                            std::atomic<float>& receiver,
+                            std::atomic<float>& bound_to_update,
+                            const std::atomic<float>& lower_bound,
+                            const std::atomic<float>& upper_bound);
+
 } // namespace holovibes::api
