@@ -29,6 +29,46 @@ void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
+bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
+                                std::string& file_path,
+                                unsigned int fps,
+                                size_t first_frame,
+                                bool load_file_in_gpu,
+                                size_t last_frame)
+{
+    LOG_INFO;
+
+    // Set the image rendering ui params
+    ui_descriptor.holovibes_.get_cd().time_transformation_stride = std::ceil(static_cast<float>(fps) / 20.0f);
+    ui_descriptor.holovibes_.get_cd().batch_size = 1;
+
+    // Because we are in import mode
+    ui_descriptor.is_enabled_camera_ = false;
+
+    try
+    {
+
+        ui_descriptor.holovibes_.init_input_queue(ui_descriptor.file_fd_);
+        ui_descriptor.holovibes_.start_file_frame_read(file_path,
+                                                       true,
+                                                       fps,
+                                                       first_frame - 1,
+                                                       last_frame - first_frame + 1,
+                                                       load_file_in_gpu,
+                                                       [=]() { return; });
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        ui_descriptor.is_enabled_camera_ = false;
+        ui_descriptor.holovibes_.stop_compute();
+        ui_descriptor.holovibes_.stop_frame_read();
+        return false;
+    }
+    ui_descriptor.is_enabled_camera_ = true;
+    return true;
+}
+
 #pragma endregion
 
 #pragma region Ini
@@ -371,6 +411,12 @@ void configure_camera(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
     open_file(std::filesystem::current_path().generic_string() + "/" + ui_descriptor.holovibes_.get_camera_ini_path());
+}
+
+void set_camera_timeout()
+{
+    LOG_INFO;
+    camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
 #pragma endregion
@@ -1950,62 +1996,21 @@ void record_finished(UserInterfaceDescriptor& ui_descriptor)
 #pragma endregion
 
 #pragma region Import
-#pragma endregion
 
-std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename)
+void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
-    if (!filename.empty())
-    {
+    ui_descriptor.holovibes_.stop_all_worker_controller();
+    ui_descriptor.holovibes_.start_information_display(false);
 
-        // Will throw if the file format (extension) cannot be handled
-        auto input_file = ::holovibes::io_files::InputFrameFileFactory::open(filename);
+    close_critical_compute(ui_descriptor);
 
-        return input_file;
-    }
+    // FIXME: import_stop() and camera_none() call same methods
+    // FIXME: camera_none() weird call because we are dealing with imported file
+    mainwindow.camera_none();
 
-    return std::nullopt;
-}
-
-bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
-                                std::string& file_path,
-                                unsigned int fps,
-                                size_t first_frame,
-                                bool load_file_in_gpu,
-                                size_t last_frame)
-{
-    LOG_INFO;
-
-    // Set the image rendering ui params
-    ui_descriptor.holovibes_.get_cd().time_transformation_stride = std::ceil(static_cast<float>(fps) / 20.0f);
-    ui_descriptor.holovibes_.get_cd().batch_size = 1;
-
-    // Because we are in import mode
-    ui_descriptor.is_enabled_camera_ = false;
-
-    try
-    {
-
-        ui_descriptor.holovibes_.init_input_queue(ui_descriptor.file_fd_);
-        ui_descriptor.holovibes_.start_file_frame_read(file_path,
-                                                       true,
-                                                       fps,
-                                                       first_frame - 1,
-                                                       last_frame - first_frame + 1,
-                                                       load_file_in_gpu,
-                                                       [=]() { return; });
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        ui_descriptor.is_enabled_camera_ = false;
-        ui_descriptor.holovibes_.stop_compute();
-        ui_descriptor.holovibes_.stop_frame_read();
-        return false;
-    }
-    ui_descriptor.is_enabled_camera_ = true;
-    return true;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
 bool import_start(::holovibes::gui::MainWindow& mainwindow,
@@ -2027,20 +2032,22 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
     return init_holovibes_import_mode(ui_descriptor, file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
-void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+#pragma endregion
+
+std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     LOG_INFO;
 
-    ui_descriptor.holovibes_.stop_all_worker_controller();
-    ui_descriptor.holovibes_.start_information_display(false);
+    if (!filename.empty())
+    {
 
-    close_critical_compute(ui_descriptor);
+        // Will throw if the file format (extension) cannot be handled
+        auto input_file = ::holovibes::io_files::InputFrameFileFactory::open(filename);
 
-    // FIXME: import_stop() and camera_none() call same methods
-    // FIXME: camera_none() weird call because we are dealing with imported file
-    mainwindow.camera_none();
+        return input_file;
+    }
 
-    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
+    return std::nullopt;
 }
 
 void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
@@ -2101,12 +2108,6 @@ void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
     {
         holovibes.get_cd().compute_mode = Computation::Hologram;
     }
-}
-
-void set_camera_timeout()
-{
-    LOG_INFO;
-    camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
 void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)

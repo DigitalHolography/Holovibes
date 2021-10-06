@@ -2349,6 +2349,7 @@ void MainWindow::import_browse_file()
         set_start_stop_buttons(false);
 }
 
+// TODO: method should be a simple call to API
 // GUI
 void MainWindow::import_stop()
 {
