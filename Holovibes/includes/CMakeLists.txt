@@ -6,4 +6,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_frame.hh
     gui/windows/MainWindow.hh
     gui/windows/PlotWindow.hh
+    gui/windows/mainWindow/panel.hh
+    gui/windows/mainWindow/import_panel.hh
 )

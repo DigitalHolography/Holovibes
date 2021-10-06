@@ -83,8 +83,8 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     if (filename != "")
     {
-        window.import_file(QString(filename.c_str()));
-        window.import_start();
+        window.ui.ImportPanel->import_file(QString(filename.c_str()));
+        window.ui.ImportPanel->import_start();
     }
 
     // Launch the Qt app

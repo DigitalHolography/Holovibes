@@ -658,7 +658,7 @@ void MainWindow::reload_ini() { reload_ini(""); }
 
 void MainWindow::reload_ini(QString filename)
 {
-    import_stop();
+    ui.ImportPanel->import_stop();
     try
     {
         load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
@@ -670,7 +670,7 @@ void MainWindow::reload_ini(QString filename)
     }
 
     if (import_type_ == ImportType::File)
-        import_start();
+        ui.ImportPanel->import_start();
     else if (import_type_ == ImportType::Camera)
     {
         change_camera(kCamera);
@@ -683,7 +683,7 @@ void MainWindow::load_ini(const std::string& path)
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
-    GroupBox* import_group_box = ui.ImportGroupBox;
+    Panel* import_panel = ui.ImportPanel;
     GroupBox* info_group_box = ui.InfoGroupBox;
 
     QAction* image_rendering_action = ui.actionImage_rendering;
@@ -730,7 +730,7 @@ void MainWindow::load_ini(const std::string& path)
         const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
         set_record_frame_step(record_frame_step);
 
-        import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_group_box->isHidden()));
+        import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_panel->isHidden()));
 
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
@@ -2666,195 +2666,6 @@ void MainWindow::start_record()
     }
 }
 #pragma endregion
-/* ------------ */
-#pragma region Import
-void MainWindow::set_start_stop_buttons(bool value)
-{
-    ui.ImportStartPushButton->setEnabled(value);
-    ui.ImportStopPushButton->setEnabled(value);
-}
-
-void MainWindow::import_browse_file()
-{
-    QString filename = "";
-
-    // Open the file explorer to let the user pick his file
-    // and store the chosen file in filename
-    filename = QFileDialog::getOpenFileName(this,
-                                            tr("import file"),
-                                            file_input_directory_.c_str(),
-                                            tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
-                                               "(*.cine)"));
-
-    // Start importing the chosen
-    import_file(filename);
-}
-
-void MainWindow::import_file(const QString& filename)
-{
-    // Get the widget (output bar) from the ui linked to the file explorer
-    QLineEdit* import_line_edit = ui.ImportPathLineEdit;
-    // Insert the newly getted path in it
-    import_line_edit->clear();
-    import_line_edit->insert(filename);
-
-    if (!filename.isEmpty())
-    {
-        try
-        {
-            // Will throw if the file format (extension) cannot be handled
-            io_files::InputFrameFile* input_file = io_files::InputFrameFileFactory::open(filename.toStdString());
-
-            // Gather data from the newly opened file
-            size_t nb_frames = input_file->get_total_nb_frames();
-            file_fd_ = input_file->get_frame_descriptor();
-            input_file->import_compute_settings(cd_);
-
-            // Don't need the input file anymore
-            delete input_file;
-
-            // Update the ui with the gathered data
-            ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
-            ui.ImportEndIndexSpinBox->setValue(nb_frames);
-
-            // We can now launch holovibes over this file
-            set_start_stop_buttons(true);
-        }
-        catch (const io_files::FileException& e)
-        {
-            // In case of bad format, we triggered the user
-            QMessageBox messageBox;
-            messageBox.critical(nullptr, "File Error", e.what());
-            LOG_ERROR << e.what();
-
-            // Holovibes cannot be launched over this file
-            set_start_stop_buttons(false);
-        }
-    }
-
-    else
-        set_start_stop_buttons(false);
-}
-
-void MainWindow::import_stop()
-{
-    close_windows();
-    cancel_time_transformation_cuts();
-
-    holovibes_.stop_all_worker_controller();
-    holovibes_.start_information_display(false);
-
-    close_critical_compute();
-
-    // FIXME: import_stop() and camera_none() call same methods
-    // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none();
-
-    cd_.set_computation_stopped(true);
-
-    notify();
-}
-
-void MainWindow::import_start()
-{
-    // shift main window when camera view appears
-    QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int screen_height = rec.height();
-    int screen_width = rec.width();
-    move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
-
-    if (!cd_.is_computation_stopped)
-        // if computation is running
-        import_stop();
-
-    cd_.set_computation_stopped(false);
-    // Gather all the useful data from the ui import panel
-    init_holovibes_import_mode();
-
-    ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
-}
-
-void MainWindow::init_holovibes_import_mode()
-{
-    // Get all the useful ui items
-    QLineEdit* import_line_edit = ui.ImportPathLineEdit;
-    QSpinBox* fps_spinbox = ui.ImportInputFpsSpinBox;
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QCheckBox* load_file_gpu_box = ui.LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
-
-    // Set the image rendering ui params
-    cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
-
-    // Because we are in import mode
-    is_enabled_camera_ = false;
-
-    try
-    {
-        // Gather data from import panel
-        std::string file_path = import_line_edit->text().toStdString();
-        unsigned int fps = fps_spinbox->value();
-        uint first_frame = start_spinbox->value();
-        uint last_frame = end_spinbox->value();
-        bool load_file_in_gpu = load_file_gpu_box->isChecked();
-
-        holovibes_.init_input_queue(file_fd_);
-        holovibes_.start_file_frame_read(file_path,
-                                         true,
-                                         fps,
-                                         first_frame - 1,
-                                         last_frame - first_frame + 1,
-                                         load_file_in_gpu,
-                                         [=]() {
-                                             synchronize_thread([&]() {
-                                                 if (cd_.is_computation_stopped)
-                                                     ui.FileReaderProgressBar->hide();
-                                             });
-                                         });
-        ui.FileReaderProgressBar->show();
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        is_enabled_camera_ = false;
-        mainDisplay.reset(nullptr);
-        holovibes_.stop_compute();
-        holovibes_.stop_frame_read();
-        return;
-    }
-
-    is_enabled_camera_ = true;
-    set_image_mode(nullptr);
-
-    // Make camera's settings menu unaccessible
-    QAction* settings = ui.actionSettings;
-    settings->setEnabled(false);
-
-    import_type_ = ImportType::File;
-
-    notify();
-}
-
-void MainWindow::import_start_spinbox_update()
-{
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
-
-    if (start_spinbox->value() > end_spinbox->value())
-        end_spinbox->setValue(start_spinbox->value());
-}
-
-void MainWindow::import_end_spinbox_update()
-{
-    QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
-
-    if (end_spinbox->value() < start_spinbox->value())
-        start_spinbox->setValue(end_spinbox->value());
-}
-
-#pragma endregion
-
 #pragma region Themes
 void MainWindow::set_night()
 {

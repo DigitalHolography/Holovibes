@@ -2329,64 +2329,16 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="holovibes::gui::GroupBox" name="ImportGroupBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>210</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>252</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>210</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string notr="true"/>
-           </property>
-           <property name="toolTipDuration">
-            <number>-1</number>
+          <widget class="holovibes::gui::ImportPanel" name="ImportPanel">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
            <property name="title">
             <string>Import</string>
            </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <property name="sizeConstraint">
-             <enum>QLayout::SetNoConstraint</enum>
-            </property>
-            <property name="leftMargin">
-             <number>9</number>
-            </property>
-            <property name="topMargin">
-             <number>9</number>
-            </property>
-            <property name="rightMargin">
-             <number>9</number>
-            </property>
-            <property name="bottomMargin">
-             <number>9</number>
-            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
               <item>
                <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
                 <property name="enabled">
@@ -2425,49 +2377,17 @@
              </layout>
             </item>
             <item>
-             <layout class="QGridLayout" name="gridLayout_6">
+             <layout class="QGridLayout" name="gridLayout_12">
               <property name="horizontalSpacing">
                <number>9</number>
               </property>
               <property name="verticalSpacing">
                <number>4</number>
               </property>
-              <item row="2" column="0">
-               <widget class="QLabel" name="ImportEndIndexLabel">
+              <item row="1" column="0">
+               <widget class="QLabel" name="ImportStartIndexLabel">
                 <property name="text">
-                 <string>End Index</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>2100000000</number>
-                </property>
-                <property name="value">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="ImportFpsLabel">
-                <property name="text">
-                 <string>Input FPS</string>
+                 <string>Start Index</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2496,13 +2416,25 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="ImportStartIndexLabel">
-                <property name="text">
-                 <string>Start Index</string>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
                 </property>
                </widget>
               </item>
@@ -2531,30 +2463,46 @@
                 </property>
                </widget>
               </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout">
-              <item>
-               <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
-                <property name="toolTip">
-                 <string>Allows much higher FPS. Requires high GPU DRAM.</string>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="locale">
-                 <locale language="French" country="France"/>
-                </property>
+              <item row="2" column="0">
+               <widget class="QLabel" name="ImportEndIndexLabel">
                 <property name="text">
-                 <string>Load File In GPU</string>
+                 <string>End Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="ImportFpsLabel">
+                <property name="text">
+                 <string>Input FPS</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_27">
+             <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
+              <property name="toolTip">
+               <string>Allows much higher FPS. Requires high GPU DRAM.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="locale">
+               <locale language="French" country="France"/>
+              </property>
+              <property name="text">
+               <string>Load File In GPU</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_29">
               <item>
                <widget class="QPushButton" name="ImportStartPushButton">
                 <property name="enabled">
@@ -2613,76 +2561,6 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_10">
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QComboBox" name="RecordImageModeComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>126</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Raw Image</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Processed Image</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Chart</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="RecordDataTypeComboBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>71</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>0</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Uint16</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Float32</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </item>
             <item row="1" column="0">
              <widget class="QFrame" name="RecordFrame">
               <property name="maximumSize">
@@ -2943,6 +2821,76 @@
                </item>
               </layout>
              </widget>
+            </item>
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QComboBox" name="RecordImageModeComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>126</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Raw Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Processed Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Chart</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="RecordDataTypeComboBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>71</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>0</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Uint16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Float32</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -3406,6 +3354,12 @@ p, li { white-space: pre-wrap; }
    <extends>QLineEdit</extends>
    <header>gui_drag_drop_lineedit.hh</header>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ImportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>import_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3431,11 +3385,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>ExportRecPushButton</tabstop>
   <tabstop>ExportStopPushButton</tabstop>
   <tabstop>BatchInputBrowseToolButton</tabstop>
-  <tabstop>ImportPathLineEdit</tabstop>
-  <tabstop>InputBrowseToolButton</tabstop>
-  <tabstop>ImportInputFpsSpinBox</tabstop>
-  <tabstop>ImportStartIndexSpinBox</tabstop>
-  <tabstop>ImportEndIndexSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -4832,82 +4781,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>InputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_browse_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>926</x>
-     <y>65</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartIndexSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_start_spinbox_update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>881</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportEndIndexSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_end_spinbox_update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>881</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImportStopPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>208</y>
+     <x>910</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>import_start()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>797</x>
-     <y>208</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
+     <x>859</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>
@@ -5260,6 +5145,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>604</x>
      <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InputBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_browse_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>947</x>
+     <y>501</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>808</x>
+     <y>531</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>

@@ -23,6 +23,7 @@ using json = ::nlohmann::json;
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
+#include "import_panel.hh"
 #include "ui_mainwindow.h"
 
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -63,6 +64,61 @@ class MainWindow : public QMainWindow, public Observer
     void notify_error(const std::exception& e) override;
 
     RawWindow* get_main_display();
+
+    Ui::MainWindow ui;                                         // RIEN
+    Holovibes& holovibes_;                                     // RIEN
+    ComputeDescriptor& cd_;                                    // RIEN (TOUT?)
+    camera::FrameDescriptor file_fd_;                          // RIEN (I/IR/V?)
+    std::unique_ptr<RawWindow> mainDisplay = nullptr;          // RIEN
+    std::unique_ptr<SliceWindow> sliceXZ = nullptr;            // RIEN
+    std::unique_ptr<SliceWindow> sliceYZ = nullptr;            // RIEN
+    std::unique_ptr<RawWindow> lens_window = nullptr;          // RIEN
+    std::unique_ptr<RawWindow> raw_window = nullptr;           // RIEN
+    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr; // RIEN
+    std::unique_ptr<PlotWindow> plot_window_ = nullptr;        // RIEN
+
+    uint window_max_size = 768;                          // RIEN
+    uint time_transformation_cuts_window_max_size = 512; // RIEN
+    uint auxiliary_window_max_size = 512;                // RIEN
+
+    float displayAngle = 0.f; // V?
+    float xzAngle = 0.f;      // V?
+    float yzAngle = 0.f;      // V?
+
+    int displayFlip = 0; // V?
+    int xzFlip = 0;      // V?
+    int yzFlip = 0;      // V?
+
+    bool is_enabled_camera_ = false; // RIEN?IR?
+    double z_step_ = 0.005f;         // IR
+
+    bool is_recording_ = false;                // RIEN?
+    unsigned record_frame_step_ = 512;         // E?
+    RecordMode record_mode_ = RecordMode::RAW; // E
+
+    std::string default_output_filename_; // E
+    std::string record_output_directory_; // E
+    std::string file_input_directory_;    // E
+    std::string batch_input_directory_;   // E
+
+    enum ImportType // I
+    {
+        None,
+        Camera,
+        File,
+    };
+    CameraKind kCamera = CameraKind::NONE;      // RIEN?IR?
+    ImportType import_type_ = ImportType::None; // I
+    QString last_img_type_ = "Magnitude";       // V
+
+    size_t auto_scale_point_threshold_ = 100; // RIEN
+    ushort theme_index_ = 0;                  // RIEN
+
+    // Shortcuts (initialized in constructor)
+    QShortcut* z_up_shortcut_;    // ?
+    QShortcut* z_down_shortcut_;  // ?
+    QShortcut* p_left_shortcut_;  // ?
+    QShortcut* p_right_shortcut_; // ?
 #pragma endregion
 /* ---------- */
 #pragma region Public Slots
@@ -425,36 +481,7 @@ class MainWindow : public QMainWindow, public Observer
      *
      * \param value the new incrementation/decrementation step
      */
-    void set_record_frame_step(int value); // I
-
-    /*! \brief Sets the start stop buttons object accessibility
-     *
-     * \param value accessibility
-     */
-    void set_start_stop_buttons(bool value); // I
-
-    /*! \brief Opens file explorer to let the user chose the file he wants to import */
-    void import_browse_file(); // I
-
-    /*! \brief Creates an input file to gather data from it.
-     *
-     * \param filename The chosen file
-     */
-    void import_file(const QString& filename); // I
-
-    /*! \brief Sets ui values and constraints + launch FileReadWroker */
-    void init_holovibes_import_mode(); // I
-
-    /*! \brief Setups attributes for launching and launchs the imported file */
-    void import_start(); // I
-    /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
-    void import_stop(); // I
-
-    /*! \brief Handles the ui input fps */
-    void import_start_spinbox_update(); // I
-
-    /*! \brief Handles the ui output fps */
-    void import_end_spinbox_update(); // I
+    void set_record_frame_step(int value); // E
 
     /*! \brief Changes the focused windows */
     void change_window(); // RIEN
@@ -555,7 +582,7 @@ class MainWindow : public QMainWindow, public Observer
      */
     virtual void closeEvent(QCloseEvent* event) override; // RIEN
 
-  private:
+  public:
     /*! \brief Changes display mode to Raw */
     void set_raw_mode(); // IR
 
@@ -644,62 +671,6 @@ class MainWindow : public QMainWindow, public Observer
 /* ---------- */
 #pragma region Fields
 
-    enum ImportType // I
-    {
-        None,
-        Camera,
-        File,
-    };
-
-    Ui::MainWindow ui;                // RIEN
-    Holovibes& holovibes_;            // RIEN
-    ComputeDescriptor& cd_;           // RIEN (TOUT?)
-    camera::FrameDescriptor file_fd_; // RIEN (I/IR/V?)
-
-    std::unique_ptr<RawWindow> mainDisplay = nullptr;          // RIEN
-    std::unique_ptr<SliceWindow> sliceXZ = nullptr;            // RIEN
-    std::unique_ptr<SliceWindow> sliceYZ = nullptr;            // RIEN
-    std::unique_ptr<RawWindow> lens_window = nullptr;          // RIEN
-    std::unique_ptr<RawWindow> raw_window = nullptr;           // RIEN
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr; // RIEN
-    std::unique_ptr<PlotWindow> plot_window_ = nullptr;        // RIEN
-
-    uint window_max_size = 768;                          // RIEN
-    uint time_transformation_cuts_window_max_size = 512; // RIEN
-    uint auxiliary_window_max_size = 512;                // RIEN
-
-    float displayAngle = 0.f; // V?
-    float xzAngle = 0.f;      // V?
-    float yzAngle = 0.f;      // V?
-
-    int displayFlip = 0; // V?
-    int xzFlip = 0;      // V?
-    int yzFlip = 0;      // V?
-
-    bool is_enabled_camera_ = false; // RIEN?IR?
-    double z_step_ = 0.005f;         // IR
-
-    bool is_recording_ = false;                // RIEN?
-    unsigned record_frame_step_ = 512;         // E?
-    RecordMode record_mode_ = RecordMode::RAW; // E
-
-    std::string default_output_filename_; // E
-    std::string record_output_directory_; // E
-    std::string file_input_directory_;    // E
-    std::string batch_input_directory_;   // E
-
-    CameraKind kCamera = CameraKind::NONE;      // RIEN?IR?
-    ImportType import_type_ = ImportType::None; // I
-    QString last_img_type_ = "Magnitude";       // V
-
-    size_t auto_scale_point_threshold_ = 100; // RIEN
-    ushort theme_index_ = 0;                  // RIEN
-
-    // Shortcuts (initialized in constructor)
-    QShortcut* z_up_shortcut_;    // ?
-    QShortcut* z_down_shortcut_;  // ?
-    QShortcut* p_left_shortcut_;  // ?
-    QShortcut* p_right_shortcut_; // ?
 #pragma endregion
 };
 } // namespace gui
