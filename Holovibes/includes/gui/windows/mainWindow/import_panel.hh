@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file
+ *
+ * \brief File containing methods, attributes and slots related to the Import panel
+ */
 #pragma once
 
 #include "panel.hh"
@@ -7,7 +10,10 @@ namespace holovibes::gui
 {
 class MainWindow;
 
-/*! \class ImportPanel */
+/*! \class ImportPanel
+ *
+ * \brief Class representing the Import Panel in the GUI
+ */
 class ImportPanel : public Panel
 {
     Q_OBJECT
