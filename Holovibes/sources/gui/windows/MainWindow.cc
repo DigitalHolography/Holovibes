@@ -652,15 +652,26 @@ void MainWindow::configure_holovibes()
 void MainWindow::write_ini()
 {
     LOG_INFO;
-    write_ini("");
+    ::holovibes::api::write_ini(*this, ui_descriptor_);
 }
 
 // Notify
 void MainWindow::write_ini(QString filename)
 {
     LOG_INFO;
+
+    ::holovibes::api::write_ini(*this, ui_descriptor_, filename.toStdString());
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(filename.toStdString());
+    notify();
+}
+
+// Notify
+void MainWindow::write_ini(const std::string& filename)
+{
+    LOG_INFO;
+
+    ::holovibes::api::write_ini(*this, ui_descriptor_, filename);
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     notify();
 }
 
@@ -670,9 +681,7 @@ void MainWindow::browse_export_ini()
     LOG_INFO;
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
-    ::holovibes::api::browse_export_ini(ui_descriptor_, filename.toStdString());
-
-    notify();
+    ::holovibes::api::browse_export_ini(*this, ui_descriptor_, filename.toStdString());
 }
 
 // GUI
@@ -693,6 +702,7 @@ void MainWindow::browse_import_ini()
 void MainWindow::reload_ini()
 {
     LOG_INFO;
+
     ::holovibes::api::reload_ini(*this);
 }
 

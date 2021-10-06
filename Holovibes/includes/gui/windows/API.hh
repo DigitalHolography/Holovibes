@@ -954,23 +954,29 @@ void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
 
 /*! \brief Saves the current state of holovibes in .ini file
  *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void write_ini(UserInterfaceDescriptor& ui_descriptor);
+void write_ini(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Saves the current state of holovibes in .ini file
  *
  * \param ui_descriptor user interface's state
  * \param filename the location of the output filename
  */
-void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
+void write_ini(::holovibes::gui::MainWindow& mainwindow,
+               UserInterfaceDescriptor& ui_descriptor,
+               const std::string& filename);
 
 /*! \brief Browses to export .ini file
  *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param filename filename to export .ini data
  */
-void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename);
+void browse_export_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename);
 
 /*! \brief Gets the documentation url
  *

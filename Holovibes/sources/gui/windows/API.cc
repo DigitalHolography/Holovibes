@@ -2016,27 +2016,31 @@ void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
     ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
 }
 
-void write_ini(UserInterfaceDescriptor& ui_descriptor)
+void write_ini(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
-    write_ini(ui_descriptor, "");
+    mainwindow.write_ini((QString) "");
 }
 
-void write_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename)
+void write_ini(::holovibes::gui::MainWindow& mainwindow,
+               UserInterfaceDescriptor& ui_descriptor,
+               const std::string& filename)
 {
     LOG_INFO;
 
-    boost::property_tree::ptree ptree;
+    // boost::property_tree::ptree ptree;
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(ui_descriptor, filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename, ptree);
+    mainwindow.save_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
 }
 
-void browse_export_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& filename)
+void browse_export_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename)
 {
     LOG_INFO;
 
-    write_ini(ui_descriptor, filename);
+    mainwindow.write_ini(filename);
 }
 
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
