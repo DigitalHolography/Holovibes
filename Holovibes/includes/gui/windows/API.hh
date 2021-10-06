@@ -18,7 +18,7 @@ namespace holovibes::api
 std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename);
 
 /*!
- * \brief Launchs the reading of a given inputed file
+ * \brief Launchs the reading of a given inputed file TODO: to complete
  *
  * \param ui_descriptor user interface's state
  * \param file_path location of the file to read
@@ -29,18 +29,19 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
  * \return true on success
  * \return false on failure
  */
-bool import_start(UserInterfaceDescriptor& ui_descriptor,
+bool import_start(::holovibes::gui::MainWindow& mainwindow,
+                  UserInterfaceDescriptor& ui_descriptor,
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
                   bool load_file_in_gpu,
                   size_t last_frame);
 
-/*! \brief Stops the display
+/*! \brief Stops the display TODO: to complete
  *
  * \param ui_descriptor user interface's state
  */
-void import_stop(UserInterfaceDescriptor& ui_descriptor);
+void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
 /*! \brief Switchs operating camera to none
  *

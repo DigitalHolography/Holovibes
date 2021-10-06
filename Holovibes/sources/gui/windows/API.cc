@@ -60,7 +60,8 @@ bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
-bool import_start(UserInterfaceDescriptor& ui_descriptor,
+bool import_start(::holovibes::gui::MainWindow& mainwindow,
+                  UserInterfaceDescriptor& ui_descriptor,
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
@@ -71,14 +72,14 @@ bool import_start(UserInterfaceDescriptor& ui_descriptor,
 
     if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(ui_descriptor);
+        import_stop(mainwindow, ui_descriptor);
 
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
     return init_holovibes_import_mode(ui_descriptor, file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
-void import_stop(UserInterfaceDescriptor& ui_descriptor)
+void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
@@ -89,7 +90,7 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor)
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
-    camera_none(ui_descriptor);
+    mainwindow.camera_none();
 
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
@@ -97,6 +98,7 @@ void import_stop(UserInterfaceDescriptor& ui_descriptor)
 void camera_none(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
+    close_windows(ui_descriptor);
     close_critical_compute(ui_descriptor);
     if (!is_raw_mode(ui_descriptor))
         ui_descriptor.holovibes_.stop_compute();
@@ -1795,7 +1797,7 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
     close_windows(ui_descriptor);
     if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
         close_critical_compute(ui_descriptor);
-    camera_none(ui_descriptor);
+    mainwindow.camera_none();
     remove_infos();
     mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
 }
