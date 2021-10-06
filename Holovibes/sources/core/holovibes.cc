@@ -161,8 +161,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::start_cli_compute_and_record(const std::string& path,
                                              std::optional<unsigned int> nb_frames_to_record,
                                              bool raw_record,
-                                             unsigned int nb_frames_skip,
-                                             const std::function<void()>& set_params)
+                                             unsigned int nb_frames_skip)
 {
     LOG_TRACE << "Entering Holovibes::start_cli_compute_and_record()";
 

@@ -556,6 +556,9 @@ void Pipe::exec()
     Holovibes::instance().get_info_container().add_processed_fps(InformationContainer::FpsType::OUTPUT_FPS,
                                                                  processed_output_fps_);
 
+    if (refresh_requested_)
+        refresh();
+
     while (!termination_requested_)
     {
         try

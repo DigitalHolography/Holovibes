@@ -61,7 +61,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
     std::cout << std::endl;
 }
 
-void get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
+bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
                               const uint& nb_frames,
                               holovibes::ComputeDescriptor& cd)
 {
@@ -75,7 +75,7 @@ void get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
     if (!is_between(start_frame, (uint)1, nb_frames))
     {
         err_message("start_frame", start_frame, "-s");
-        exit(1);
+        return false;
     }
     cd.start_frame = start_frame;
 
@@ -83,18 +83,20 @@ void get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
     if (!is_between(end_frame, (uint)1, nb_frames))
     {
         err_message("end_frame", end_frame, "-e");
-        exit(1);
+        return false;
     }
     cd.end_frame = end_frame;
 
     if (start_frame > end_frame)
     {
         std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
-static void set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     auto& cd = holovibes.get_cd();
 
@@ -107,7 +109,8 @@ static void set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
-    get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd);
+    if (!get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd))
+        return false;
 
     const unsigned int fps = opts.fps.value_or(60);
 
@@ -128,7 +131,7 @@ static void set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     catch (std::exception& e)
     {
         LOG_ERROR << e.what();
-        return;
+        return false;
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -138,6 +141,8 @@ static void set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     pipe->request_refresh();
 
     delete input_frame_file;
+
+    return true;
 }
 
 static void main_loop(holovibes::Holovibes& holovibes)
@@ -191,7 +196,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         }
     }
 
-    set_parameters(holovibes, opts);
+    if (!set_parameters(holovibes, opts))
+        return 1;
 
     size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
@@ -214,10 +220,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     holovibes.start_cli_compute_and_record(opts.output_path.value(),
                                            record_nb_frames,
                                            opts.record_raw,
-                                           nb_frames_skip,
-                                           [&]() {
-
-                                           });
+                                           nb_frames_skip);
 
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,

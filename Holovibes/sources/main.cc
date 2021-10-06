@@ -154,5 +154,6 @@ int main(int argc, char* argv[])
         LOG_ERROR << "Uncaught exception: " << e.what() << std::endl;
         ret = 1;
     }
+
     return ret;
 }

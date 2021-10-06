@@ -247,8 +247,7 @@ class Holovibes
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
         bool raw_record,
-        unsigned int nb_frames_skip,
-        const std::function<void()>& set_params = []() {});
+        unsigned int nb_frames_skip);
 
     void init_pipe();
 
