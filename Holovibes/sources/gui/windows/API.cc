@@ -447,10 +447,6 @@ void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
 
     try
     {
-        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
-        // operation to set a boolean
-        // But maybe a simple read access that create a false condition result is better than simply making a
-        // writting access
         if (!ui_descriptor.holovibes_.get_compute_pipe()->get_request_refresh())
             ui_descriptor.holovibes_.get_compute_pipe()->request_refresh();
     }
@@ -910,7 +906,6 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
 
     if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
         // Get the minimum contrast value rounded for the comparison
         const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_min(
             ui_descriptor.holovibes_.get_cd().current_window);
@@ -936,7 +931,6 @@ bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value
 
     if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
         // Get the maximum contrast value rounded for the comparison
         const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_max(
             ui_descriptor.holovibes_.get_cd().current_window);

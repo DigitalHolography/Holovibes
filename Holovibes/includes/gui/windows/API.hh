@@ -17,9 +17,9 @@ namespace holovibes::api
  */
 std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename);
 
-/*!
- * \brief Launchs the reading of a given inputed file TODO: to complete
+/*! \brief Launchs the reading of a given inputed file
  *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  * \param file_path location of the file to read
  * \param fps input fps
@@ -37,8 +37,9 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
                   bool load_file_in_gpu,
                   size_t last_frame);
 
-/*! \brief Stops the display TODO: to complete
+/*! \brief Stops the display
  *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
@@ -163,7 +164,7 @@ void set_computation_mode(Holovibes& holovibes, const uint image_mode_index);
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
-/*! \brief Changes the current camera used TODO: to complete
+/*! \brief Changes the current camera used
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
@@ -831,57 +832,57 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
  */
 void configure_camera(UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Gets data from the current main display
  *
  * \param ui_descriptor user interface's state
- * \param position
- * \param size
+ * \param position the position to fill
+ * \param size the size to fill
  */
 void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to ids
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to phantom
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to bitflow_cyton
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to hamamatsu
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to adimec
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to xiq
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
 void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment
+/*! \brief Switches camera to xib
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
@@ -902,7 +903,7 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
  */
 void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
 
-/*! \brief TODO: to comment */
+/*! \brief Opens holovibes configuration file */
 void configure_holovibes();
 
 /*! \brief Saves the current state of holovibes

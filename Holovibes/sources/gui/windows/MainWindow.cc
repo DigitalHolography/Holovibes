@@ -1557,7 +1557,6 @@ void fancy_Qslide_text_percent(char* str)
 }
 
 // LOCAL
-// TODO -> api
 void slide_update_threshold(const QSlider& slider,
                             std::atomic<float>& receiver,
                             std::atomic<float>& bound_to_update,
