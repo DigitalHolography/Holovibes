@@ -12,15 +12,17 @@
 #include "compute_descriptor.hh"
 #include "tools.hh"
 
-namespace holovibes
+namespace holovibes::ini
 {
-namespace ini
-{
-static std::string global_ini_path = "";
-std::string get_global_ini_path();
+
+#define __CONFIG_FILENAME__ "holovibes.ini"
+
+#define __CONFIG_FOLDER__ (std::filesystem::path(getenv("AppData")) / __APPNAME__ / __HOLOVIBES_VERSION__)
+
+const static std::string default_config_filepath = (__CONFIG_FOLDER__ / __CONFIG_FILENAME__).string();
 
 void load_ini(ComputeDescriptor& cd, const std::string& ini_path);
 void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd);
 void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd);
-} // namespace ini
-} // namespace holovibes
+
+} // namespace holovibes::ini

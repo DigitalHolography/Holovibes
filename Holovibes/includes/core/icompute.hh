@@ -191,6 +191,8 @@ class ICompute : public Observable
 
   public:
     ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
+    void soft_request_refresh();
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -234,7 +236,6 @@ class ICompute : public Observable
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
     bool get_cuts_request();
     bool get_cuts_delete_request();
-    bool get_request_refresh();
 
     bool get_unwrap_1d_request() const { return unwrap_1d_requested_; }
     bool get_unwrap_2d_request() const { return unwrap_2d_requested_; }
