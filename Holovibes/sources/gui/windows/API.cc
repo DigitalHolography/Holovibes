@@ -593,6 +593,25 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
 #pragma endregion
 
 #pragma region Batch
+
+void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    if (batch_size == ui_descriptor.holovibes_.get_cd().batch_size)
+        return;
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+    {
+        pipe->insert_fn_end_vect(callback);
+    }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+}
+
 #pragma endregion
 
 #pragma region STFT
@@ -2052,24 +2071,6 @@ void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
         return;
 
     if (time_transformation_stride == ui_descriptor.holovibes_.get_cd().time_transformation_stride)
-        return;
-
-    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(callback);
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
-}
-
-void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return;
-
-    if (batch_size == ui_descriptor.holovibes_.get_cd().batch_size)
         return;
 
     if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
