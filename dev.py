@@ -143,6 +143,7 @@ def build(args):
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
+        sys.stdout.flush()
         run_goal("cmake", args)
 
     cmd = ['cmd.exe', '/c', 'call']
@@ -229,8 +230,6 @@ def build_ref(args) -> int:
 
     dirs = find_tests()
     for name in dirs:
-        sleep(1)
-
         path = os.path.join(TESTS_DATA, name)
         if os.path.isdir(path):
             input = os.path.join(path, INPUT_FILENAME)

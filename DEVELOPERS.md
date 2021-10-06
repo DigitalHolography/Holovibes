@@ -15,6 +15,7 @@
 
 The minimum requirements in _Individual Components_ (installable from Visual Studio installer) are the following:
 * C++ CMake tools for Windows
+* C++ AddressSanitizer
 * MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
 * MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
 
@@ -54,6 +55,8 @@ Note: After changing an element of the front or to change between release/debug 
 #### Known issues
 
 2021-05-18: The project may not compile with the latest version of MSVC. To downgrade to a previous version (14.29 and 14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
+
+2021-10-04: If you encounter the issue "clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory". You have to find the file and put it in your PATH or copy it into the build directory for it to work
 
 ### Test suite
 

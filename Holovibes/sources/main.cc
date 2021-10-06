@@ -102,6 +102,19 @@ static void print_help(holovibes::OptionsParser parser)
 
 int main(int argc, char* argv[])
 {
+
+#ifndef _DEBUG
+    // Put every log message in "everything.log":
+    loguru::add_file("everything.log", loguru::Append, loguru::Verbosity_MAX);
+
+    // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
+    loguru::add_file("latest_readable.log", loguru::Truncate, loguru::Verbosity_INFO);
+
+    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
+#else
+    loguru::g_stderr_verbosity = 2;
+#endif
+
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
 
@@ -141,5 +154,6 @@ int main(int argc, char* argv[])
         LOG_ERROR << "Uncaught exception: " << e.what();
         ret = 1;
     }
+
     return ret;
 }

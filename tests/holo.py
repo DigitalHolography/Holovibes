@@ -145,12 +145,12 @@ class HoloFile:
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(
-                l_image.convert('L'), r_image.convert('L'))
-            if diff.getbbox():
+                l_image.convert('L'), r_image.convert('L')).getbbox()
+            if diff:
                 l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
                 r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert not diff.getbbox(), f"Image {i} differ"
+            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]}, )"
 
 
 class HoloLazyReader(HoloLazyIO):

@@ -5,6 +5,8 @@ namespace holovibes::ini
 
 void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
 {
+    LOG_DEBUG << "Loading ini file at path: " << ini_path;
+
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(ini_path, ptree);
     load_ini(ptree, cd);
