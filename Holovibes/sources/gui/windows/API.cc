@@ -1240,6 +1240,21 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
+bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().filter2d_view_enabled)
+        mainwindow.update_filter2d_view(false);
+
+    pipe_refresh(ui_descriptor);
+
+    return true;
+}
+
 void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
 {
     LOG_INFO;

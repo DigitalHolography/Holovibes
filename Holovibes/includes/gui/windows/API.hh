@@ -663,6 +663,15 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
                                   int time_transformation_size,
                                   std::function<void()> callback);
 
+/*! \brief Removes 2d filter on output display
+ *
+ * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param ui_descriptor user interface's state
+ * \return true on success
+ * \return false on failure
+ */
+bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+
 /*! \brief Enables or Disables fft shift mode on the main display window
  *
  * \param ui_descriptor user interface's state

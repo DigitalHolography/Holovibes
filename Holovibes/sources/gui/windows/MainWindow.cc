@@ -1132,14 +1132,11 @@ void MainWindow::change_window()
 }
 
 // FREE
-// TODO: -> API
 void MainWindow::toggle_renormalize(bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().renorm_enabled = value;
 
-    ui_descriptor_.holovibes_.get_compute_pipe()->request_clear_img_acc();
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    ::holovibes::api::toggle_renormalize(ui_descriptor_, value);
 }
 
 // GUI
@@ -1228,12 +1225,9 @@ void MainWindow::set_filter2d_n2(int n)
 void MainWindow::cancel_filter2d()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode(ui_descriptor_))
-        return;
 
-    if (ui_descriptor_.holovibes_.get_cd().filter2d_view_enabled)
-        update_filter2d_view(false);
-    ::holovibes::api::pipe_refresh(ui_descriptor_);
+    const bool res = ::holovibes::api::cancel_filter2d(*this, ui_descriptor_);
+
     notify();
 }
 
