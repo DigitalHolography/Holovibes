@@ -69,6 +69,95 @@ bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
+const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
+
+const std::string get_credits()
+{
+    return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
+           "\n\n"
+
+           "Developers:\n\n"
+
+           "Philippe Bernet\n"
+           "Eliott Bouhana\n"
+           "Fabien Colmagro\n"
+           "Marius Dubosc\n"
+           "Guillaume Poisson\n"
+
+           "Anthony Strazzella\n"
+           "Ilan Guenet\n"
+           "Nicolas Blin\n"
+           "Quentin Kaci\n"
+           "Theo Lepage\n"
+
+           "Loïc Bellonnet-Mottet\n"
+           "Antoine Martin\n"
+           "François Te\n"
+
+           "Ellena Davoine\n"
+           "Clement Fang\n"
+           "Danae Marmai\n"
+           "Hugo Verjus\n"
+
+           "Eloi Charpentier\n"
+           "Julien Gautier\n"
+           "Florian Lapeyre\n"
+
+           "Thomas Jarrossay\n"
+           "Alexandre Bartz\n"
+
+           "Cyril Cetre\n"
+           "Clement Ledant\n"
+
+           "Eric Delanghe\n"
+           "Arnaud Gaillard\n"
+           "Geoffrey Le Gourrierec\n"
+
+           "Jeffrey Bencteux\n"
+           "Thomas Kostas\n"
+           "Pierre Pagnoux\n"
+
+           "Antoine Dillée\n"
+           "Romain Cancillière\n"
+
+           "Michael Atlan\n";
+}
+
+bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    return ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Raw;
+}
+
+void remove_infos()
+{
+    LOG_INFO;
+    Holovibes::instance().get_info_container().clear();
+}
+
+void close_windows(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    ui_descriptor.sliceXZ.reset(nullptr);
+    ui_descriptor.sliceYZ.reset(nullptr);
+
+    ui_descriptor.plot_window_.reset(nullptr);
+    ui_descriptor.mainDisplay.reset(nullptr);
+
+    ui_descriptor.lens_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().gpu_lens_display_enabled = false;
+
+    ui_descriptor.filter2d_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().filter2d_view_enabled = false;
+
+    /* Raw view & recording */
+    ui_descriptor.raw_window.reset(nullptr);
+    ui_descriptor.holovibes_.get_cd().raw_view_enabled = false;
+
+    // Disable overlays
+    ui_descriptor.holovibes_.get_cd().reticle_enabled = false;
+}
+
 #pragma endregion
 
 #pragma region Ini
@@ -1461,6 +1550,18 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
     return true;
 }
 
+void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
+{
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride < ui_descriptor.holovibes_.get_cd().batch_size)
+        ui_descriptor.holovibes_.get_cd().time_transformation_stride =
+            ui_descriptor.holovibes_.get_cd().batch_size.load();
+    // Go to lower multiple
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size !=
+        0)
+        ui_descriptor.holovibes_.get_cd().time_transformation_stride -=
+            ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size;
+}
+
 bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
 {
     LOG_INFO;
@@ -1499,6 +1600,31 @@ void set_composite_area(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
     ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::CompositeArea>();
+}
+
+void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
+{
+    LOG_INFO;
+    if (image_mode_index == 0)
+    {
+        holovibes.get_cd().compute_mode = Computation::Raw;
+    }
+    else if (image_mode_index == 1)
+    {
+        holovibes.get_cd().compute_mode = Computation::Hologram;
+    }
+}
+
+void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
+        unset_convolution_mode(ui_descriptor);
+
+    if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+        cancel_time_transformation_cuts(ui_descriptor, []() { return; });
+
+    ui_descriptor.holovibes_.stop_compute();
 }
 
 #pragma endregion
@@ -2032,8 +2158,6 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
     return init_holovibes_import_mode(ui_descriptor, file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
-#pragma endregion
-
 std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     LOG_INFO;
@@ -2050,130 +2174,6 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
     return std::nullopt;
 }
 
-void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
-        unset_convolution_mode(ui_descriptor);
-
-    if (ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts(ui_descriptor, []() { return; });
-
-    ui_descriptor.holovibes_.stop_compute();
-}
-
-bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    return ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Raw;
-}
-
-void remove_infos()
-{
-    LOG_INFO;
-    Holovibes::instance().get_info_container().clear();
-}
-
-void close_windows(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    ui_descriptor.sliceXZ.reset(nullptr);
-    ui_descriptor.sliceYZ.reset(nullptr);
-
-    ui_descriptor.plot_window_.reset(nullptr);
-    ui_descriptor.mainDisplay.reset(nullptr);
-
-    ui_descriptor.lens_window.reset(nullptr);
-    ui_descriptor.holovibes_.get_cd().gpu_lens_display_enabled = false;
-
-    ui_descriptor.filter2d_window.reset(nullptr);
-    ui_descriptor.holovibes_.get_cd().filter2d_view_enabled = false;
-
-    /* Raw view & recording */
-    ui_descriptor.raw_window.reset(nullptr);
-    ui_descriptor.holovibes_.get_cd().raw_view_enabled = false;
-
-    // Disable overlays
-    ui_descriptor.holovibes_.get_cd().reticle_enabled = false;
-}
-
-void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
-{
-    LOG_INFO;
-    if (image_mode_index == 0)
-    {
-        holovibes.get_cd().compute_mode = Computation::Raw;
-    }
-    else if (image_mode_index == 1)
-    {
-        holovibes.get_cd().compute_mode = Computation::Hologram;
-    }
-}
-
-void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
-{
-    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride < ui_descriptor.holovibes_.get_cd().batch_size)
-        ui_descriptor.holovibes_.get_cd().time_transformation_stride =
-            ui_descriptor.holovibes_.get_cd().batch_size.load();
-    // Go to lower multiple
-    if (ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size !=
-        0)
-        ui_descriptor.holovibes_.get_cd().time_transformation_stride -=
-            ui_descriptor.holovibes_.get_cd().time_transformation_stride % ui_descriptor.holovibes_.get_cd().batch_size;
-}
-
-const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
-
-const std::string get_credits()
-{
-    return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
-           "\n\n"
-
-           "Developers:\n\n"
-
-           "Philippe Bernet\n"
-           "Eliott Bouhana\n"
-           "Fabien Colmagro\n"
-           "Marius Dubosc\n"
-           "Guillaume Poisson\n"
-
-           "Anthony Strazzella\n"
-           "Ilan Guenet\n"
-           "Nicolas Blin\n"
-           "Quentin Kaci\n"
-           "Theo Lepage\n"
-
-           "Loïc Bellonnet-Mottet\n"
-           "Antoine Martin\n"
-           "François Te\n"
-
-           "Ellena Davoine\n"
-           "Clement Fang\n"
-           "Danae Marmai\n"
-           "Hugo Verjus\n"
-
-           "Eloi Charpentier\n"
-           "Julien Gautier\n"
-           "Florian Lapeyre\n"
-
-           "Thomas Jarrossay\n"
-           "Alexandre Bartz\n"
-
-           "Cyril Cetre\n"
-           "Clement Ledant\n"
-
-           "Eric Delanghe\n"
-           "Arnaud Gaillard\n"
-           "Geoffrey Le Gourrierec\n"
-
-           "Jeffrey Bencteux\n"
-           "Thomas Kostas\n"
-           "Pierre Pagnoux\n"
-
-           "Antoine Dillée\n"
-           "Romain Cancillière\n"
-
-           "Michael Atlan\n";
-}
+#pragma endregion
 
 } // namespace holovibes::api
