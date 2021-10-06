@@ -4,6 +4,219 @@
 namespace holovibes::api
 {
 
+#pragma region Local
+void open_file(const std::string& path)
+{
+    LOG_INFO;
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
+}
+#pragma endregion
+
+#pragma region Ini
+void configure_holovibes()
+{
+    LOG_INFO;
+    open_file(::holovibes::ini::get_global_ini_path());
+}
+
+void write_ini(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    mainwindow.write_ini((QString) "");
+}
+
+void write_ini(::holovibes::gui::MainWindow& mainwindow,
+               UserInterfaceDescriptor& ui_descriptor,
+               const std::string& filename)
+{
+    LOG_INFO;
+
+    // boost::property_tree::ptree ptree;
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
+    mainwindow.save_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
+}
+
+void browse_export_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename)
+{
+    LOG_INFO;
+
+    mainwindow.write_ini(filename);
+}
+
+void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
+                       UserInterfaceDescriptor& ui_descriptor,
+                       const std::string& filename)
+{
+    LOG_INFO;
+
+    ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
+}
+
+void reload_ini(::holovibes::gui::MainWindow& mainwindow,
+                UserInterfaceDescriptor& ui_descriptor,
+                const std::string& filename)
+{
+    LOG_INFO;
+    mainwindow.import_stop();
+    try
+    {
+        mainwindow.load_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_INFO << e.what() << std::endl;
+    }
+    if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
+    {
+        mainwindow.import_start();
+    }
+    else if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
+    {
+        mainwindow.change_camera(ui_descriptor.kCamera);
+    }
+}
+
+void reload_ini(::holovibes::gui::MainWindow& mainwindow)
+{
+    LOG_INFO;
+    mainwindow.reload_ini("");
+}
+
+void load_ini(::holovibes::gui::MainWindow& mainwindow,
+              UserInterfaceDescriptor& ui_descriptor,
+              const std::string& path,
+              boost::property_tree::ptree& ptree)
+{
+    LOG_INFO;
+
+    boost::property_tree::ini_parser::read_ini(path, ptree);
+
+    if (!ptree.empty())
+    {
+        // Load general compute data
+        ini::load_ini(ptree, ui_descriptor.holovibes_.get_cd());
+
+        // Load window specific data
+        ui_descriptor.default_output_filename_ =
+            ptree.get<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
+        ui_descriptor.record_output_directory_ =
+            ptree.get<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
+        ui_descriptor.file_input_directory_ =
+            ptree.get<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
+        ui_descriptor.batch_input_directory_ =
+            ptree.get<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+
+        const float z_step = ptree.get<float>("image_rendering.z_step", ui_descriptor.z_step_);
+        if (z_step > 0.0f)
+            mainwindow.set_z_step(z_step);
+
+        ui_descriptor.last_img_type_ = ui_descriptor.holovibes_.get_cd().img_type == ImgType::Composite
+                                           ? "Composite image"
+                                           : ui_descriptor.last_img_type_;
+
+        ui_descriptor.displayAngle = ptree.get("view.mainWindow_rotate", ui_descriptor.displayAngle);
+        ui_descriptor.xzAngle = ptree.get<float>("view.xCut_rotate", ui_descriptor.xzAngle);
+        ui_descriptor.yzAngle = ptree.get<float>("view.yCut_rotate", ui_descriptor.yzAngle);
+        ui_descriptor.displayFlip = ptree.get("view.mainWindow_flip", ui_descriptor.displayFlip);
+        ui_descriptor.xzFlip = ptree.get("view.xCut_flip", ui_descriptor.xzFlip);
+        ui_descriptor.yzFlip = ptree.get("view.yCut_flip", ui_descriptor.yzFlip);
+
+        ui_descriptor.auto_scale_point_threshold_ =
+            ptree.get<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+
+        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+        mainwindow.set_record_frame_step(record_frame_step);
+
+        ui_descriptor.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
+        ui_descriptor.time_transformation_cuts_window_max_size =
+            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
+        ui_descriptor.auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
+    }
+}
+
+void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree)
+{
+    LOG_INFO;
+
+    // Save general compute data
+    ini::save_ini(ptree, ui_descriptor.holovibes_.get_cd());
+
+    // Save window specific data
+    ptree.put<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
+    ptree.put<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
+    ptree.put<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
+    ptree.put<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+
+    ptree.put<int>("image_rendering.camera", static_cast<int>(ui_descriptor.kCamera));
+
+    ptree.put<double>("image_rendering.z_step", ui_descriptor.z_step_);
+
+    ptree.put<float>("view.mainWindow_rotate", ui_descriptor.displayAngle);
+    ptree.put<float>("view.xCut_rotate", ui_descriptor.xzAngle);
+    ptree.put<float>("view.yCut_rotate", ui_descriptor.yzAngle);
+    ptree.put<int>("view.mainWindow_flip", ui_descriptor.displayFlip);
+    ptree.put<int>("view.xCut_flip", ui_descriptor.xzFlip);
+    ptree.put<int>("view.yCut_flip", ui_descriptor.yzFlip);
+
+    ptree.put<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+
+    ptree.put<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+
+    ptree.put<uint>("display.main_window_max_size", ui_descriptor.window_max_size);
+    ptree.put<uint>("display.time_transformation_cuts_window_max_size",
+                    ui_descriptor.time_transformation_cuts_window_max_size);
+    ptree.put<uint>("display.auxiliary_window_max_size", ui_descriptor.auxiliary_window_max_size);
+
+    boost::property_tree::write_ini(path, ptree);
+
+    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
+}
+
+#pragma endregion
+
+#pragma region Close Compute
+#pragma endregion
+
+#pragma region Cameras
+#pragma endregion
+
+#pragma region Image Mode
+#pragma endregion
+
+#pragma region Batch
+#pragma endregion
+
+#pragma region STFT
+#pragma endregion
+
+#pragma region Computation
+#pragma endregion
+
+#pragma region Texture
+#pragma endregion
+
+#pragma region Contrast - Log
+#pragma endregion
+
+#pragma region Convolution
+#pragma endregion
+
+#pragma region Reticle
+#pragma endregion
+
+#pragma region Chart
+#pragma endregion
+
+#pragma region Record
+#pragma endregion
+
+#pragma region Import
+#pragma endregion
+
 std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     LOG_INFO;
@@ -1756,12 +1969,6 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return false;
 }
 
-void open_file(const std::string& path)
-{
-    LOG_INFO;
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
-}
-
 void configure_camera(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
@@ -1878,169 +2085,6 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
         LOG_WARN << ::holovibes::ini::get_global_ini_path()
                  << ": Config file not found. It will use the default values.";
     }
-}
-
-void configure_holovibes()
-{
-    LOG_INFO;
-    open_file(::holovibes::ini::get_global_ini_path());
-}
-
-void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree)
-{
-    LOG_INFO;
-
-    // Save general compute data
-    ini::save_ini(ptree, ui_descriptor.holovibes_.get_cd());
-
-    // Save window specific data
-    ptree.put<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
-
-    ptree.put<int>("image_rendering.camera", static_cast<int>(ui_descriptor.kCamera));
-
-    ptree.put<double>("image_rendering.z_step", ui_descriptor.z_step_);
-
-    ptree.put<float>("view.mainWindow_rotate", ui_descriptor.displayAngle);
-    ptree.put<float>("view.xCut_rotate", ui_descriptor.xzAngle);
-    ptree.put<float>("view.yCut_rotate", ui_descriptor.yzAngle);
-    ptree.put<int>("view.mainWindow_flip", ui_descriptor.displayFlip);
-    ptree.put<int>("view.xCut_flip", ui_descriptor.xzFlip);
-    ptree.put<int>("view.yCut_flip", ui_descriptor.yzFlip);
-
-    ptree.put<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
-
-    ptree.put<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
-
-    ptree.put<uint>("display.main_window_max_size", ui_descriptor.window_max_size);
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size",
-                    ui_descriptor.time_transformation_cuts_window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", ui_descriptor.auxiliary_window_max_size);
-
-    boost::property_tree::write_ini(path, ptree);
-
-    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
-}
-
-void load_ini(::holovibes::gui::MainWindow& mainwindow,
-              UserInterfaceDescriptor& ui_descriptor,
-              const std::string& path,
-              boost::property_tree::ptree& ptree)
-{
-    LOG_INFO;
-
-    boost::property_tree::ini_parser::read_ini(path, ptree);
-
-    if (!ptree.empty())
-    {
-        // Load general compute data
-        ini::load_ini(ptree, ui_descriptor.holovibes_.get_cd());
-
-        // Load window specific data
-        ui_descriptor.default_output_filename_ =
-            ptree.get<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
-        ui_descriptor.record_output_directory_ =
-            ptree.get<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
-        ui_descriptor.file_input_directory_ =
-            ptree.get<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
-        ui_descriptor.batch_input_directory_ =
-            ptree.get<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
-
-        const float z_step = ptree.get<float>("image_rendering.z_step", ui_descriptor.z_step_);
-        if (z_step > 0.0f)
-            mainwindow.set_z_step(z_step);
-
-        ui_descriptor.last_img_type_ = ui_descriptor.holovibes_.get_cd().img_type == ImgType::Composite
-                                           ? "Composite image"
-                                           : ui_descriptor.last_img_type_;
-
-        ui_descriptor.displayAngle = ptree.get("view.mainWindow_rotate", ui_descriptor.displayAngle);
-        ui_descriptor.xzAngle = ptree.get<float>("view.xCut_rotate", ui_descriptor.xzAngle);
-        ui_descriptor.yzAngle = ptree.get<float>("view.yCut_rotate", ui_descriptor.yzAngle);
-        ui_descriptor.displayFlip = ptree.get("view.mainWindow_flip", ui_descriptor.displayFlip);
-        ui_descriptor.xzFlip = ptree.get("view.xCut_flip", ui_descriptor.xzFlip);
-        ui_descriptor.yzFlip = ptree.get("view.yCut_flip", ui_descriptor.yzFlip);
-
-        ui_descriptor.auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
-
-        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
-        mainwindow.set_record_frame_step(record_frame_step);
-
-        ui_descriptor.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        ui_descriptor.time_transformation_cuts_window_max_size =
-            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
-        ui_descriptor.auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
-    }
-}
-
-void reload_ini(::holovibes::gui::MainWindow& mainwindow,
-                UserInterfaceDescriptor& ui_descriptor,
-                const std::string& filename)
-{
-    LOG_INFO;
-    mainwindow.import_stop();
-    try
-    {
-        mainwindow.load_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_INFO << e.what() << std::endl;
-    }
-    if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
-    {
-        mainwindow.import_start();
-    }
-    else if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
-    {
-        mainwindow.change_camera(ui_descriptor.kCamera);
-    }
-}
-
-void reload_ini(::holovibes::gui::MainWindow& mainwindow)
-{
-    LOG_INFO;
-    mainwindow.reload_ini("");
-}
-
-void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
-                       UserInterfaceDescriptor& ui_descriptor,
-                       const std::string& filename)
-{
-    LOG_INFO;
-
-    ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
-}
-
-void write_ini(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    mainwindow.write_ini((QString) "");
-}
-
-void write_ini(::holovibes::gui::MainWindow& mainwindow,
-               UserInterfaceDescriptor& ui_descriptor,
-               const std::string& filename)
-{
-    LOG_INFO;
-
-    // boost::property_tree::ptree ptree;
-    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    mainwindow.save_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
-}
-
-void browse_export_ini(::holovibes::gui::MainWindow& mainwindow,
-                       UserInterfaceDescriptor& ui_descriptor,
-                       const std::string& filename)
-{
-    LOG_INFO;
-
-    mainwindow.write_ini(filename);
 }
 
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
