@@ -1508,9 +1508,233 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor)
 #pragma endregion
 
 #pragma region Contrast - Log
+
+bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    mainwindow.change_window();
+    ui_descriptor.holovibes_.get_cd().contrast_enabled = value;
+    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = true;
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
+void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    if (!ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
+    {
+        return;
+    }
+
+    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+    {
+        pipe->autocontrast_end_pipe(WindowKind::XZview);
+        pipe->autocontrast_end_pipe(WindowKind::YZview);
+    }
+}
+
+bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    try
+    {
+        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
+        {
+            pipe->autocontrast_end_pipe(ui_descriptor.holovibes_.get_cd().current_window);
+            return true;
+        }
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what() << std::endl;
+    }
+
+    return false;
+}
+
+bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        // Get the minimum contrast value rounded for the comparison
+        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_min(
+            ui_descriptor.holovibes_.get_cd().current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
+        {
+            ui_descriptor.holovibes_.get_cd().set_contrast_min(ui_descriptor.holovibes_.get_cd().current_window, value);
+            pipe_refresh(ui_descriptor);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        // Get the maximum contrast value rounded for the comparison
+        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_max(
+            ui_descriptor.holovibes_.get_cd().current_window);
+        // Floating number issue: cast to float for the comparison
+        const float val = value;
+        if (old_val != val)
+        {
+            ui_descriptor.holovibes_.get_cd().set_contrast_max(ui_descriptor.holovibes_.get_cd().current_window, value);
+            pipe_refresh(ui_descriptor);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
+    {
+        ui_descriptor.holovibes_.get_cd().contrast_invert = value;
+        pipe_refresh(ui_descriptor);
+        return true;
+    }
+
+    return false;
+}
+
+void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = value;
+    pipe_refresh(ui_descriptor);
+}
+
+bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+
+    if (is_raw_mode(ui_descriptor))
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().set_log_scale_slice_enabled(ui_descriptor.holovibes_.get_cd().current_window,
+                                                                  value);
+    if (value && ui_descriptor.holovibes_.get_cd().contrast_enabled)
+        set_auto_contrast(ui_descriptor);
+
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 #pragma endregion
 
 #pragma region Convolution
+
+bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value)
+{
+    LOG_INFO;
+
+    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
+    {
+        ui_descriptor.holovibes_.get_cd().set_convolution(true, value);
+
+        try
+        {
+            auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+            pipe->request_convolution();
+            // Wait for the convolution to be enabled for notify
+            while (pipe->get_convolution_requested())
+                continue;
+        }
+        catch (const std::exception& e)
+        {
+            ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
+            LOG_ERROR << e.what();
+        }
+        return true;
+    }
+
+    return false;
+}
+
+void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().set_convolution(true, str);
+
+    try
+    {
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+
+        pipe->request_convolution();
+        // Wait for the convolution to be enabled for notify
+        while (pipe->get_convolution_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
+        LOG_ERROR << e.what();
+    }
+}
+
+void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    try
+    {
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+
+        pipe->request_disable_convolution();
+        // Wait for the convolution to be disabled for notify
+        while (pipe->get_disable_convolution_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
+        LOG_ERROR << e.what();
+    }
+}
+
+void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().divide_convolution_enabled = value;
+
+    pipe_refresh(ui_descriptor);
+}
+
 #pragma endregion
 
 #pragma region Reticle
@@ -1638,48 +1862,6 @@ void remove_infos()
 {
     LOG_INFO;
     Holovibes::instance().get_info_container().clear();
-}
-
-void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str)
-{
-    LOG_INFO;
-
-    ui_descriptor.holovibes_.get_cd().set_convolution(true, str);
-
-    try
-    {
-        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
-
-        pipe->request_convolution();
-        // Wait for the convolution to be enabled for notify
-        while (pipe->get_convolution_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
-        LOG_ERROR << e.what();
-    }
-}
-
-void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    try
-    {
-        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
-
-        pipe->request_disable_convolution();
-        // Wait for the convolution to be disabled for notify
-        while (pipe->get_disable_convolution_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
-        LOG_ERROR << e.what();
-    }
 }
 
 // Check that value is higher or equal than 0
@@ -1830,186 +2012,6 @@ void set_camera_timeout()
 {
     LOG_INFO;
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
-}
-
-bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    mainwindow.change_window();
-    ui_descriptor.holovibes_.get_cd().contrast_enabled = value;
-    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = true;
-    pipe_refresh(ui_descriptor);
-    return true;
-}
-
-void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    if (!ui_descriptor.holovibes_.get_cd().time_transformation_cuts_enabled)
-    {
-        return;
-    }
-
-    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XZview);
-        pipe->autocontrast_end_pipe(WindowKind::YZview);
-    }
-}
-
-bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    try
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor.holovibes_.get_compute_pipe().get()))
-        {
-            pipe->autocontrast_end_pipe(ui_descriptor.holovibes_.get_cd().current_window);
-            return true;
-        }
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what() << std::endl;
-    }
-
-    return false;
-}
-
-bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
-    {
-        // Get the minimum contrast value rounded for the comparison
-        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_min(
-            ui_descriptor.holovibes_.get_cd().current_window);
-        // Floating number issue: cast to float for the comparison
-        const float val = value;
-        if (old_val != val)
-        {
-            ui_descriptor.holovibes_.get_cd().set_contrast_min(ui_descriptor.holovibes_.get_cd().current_window, value);
-            pipe_refresh(ui_descriptor);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
-    {
-        // Get the maximum contrast value rounded for the comparison
-        const float old_val = ui_descriptor.holovibes_.get_cd().get_truncate_contrast_max(
-            ui_descriptor.holovibes_.get_cd().current_window);
-        // Floating number issue: cast to float for the comparison
-        const float val = value;
-        if (old_val != val)
-        {
-            ui_descriptor.holovibes_.get_cd().set_contrast_max(ui_descriptor.holovibes_.get_cd().current_window, value);
-            pipe_refresh(ui_descriptor);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    if (ui_descriptor.holovibes_.get_cd().contrast_enabled)
-    {
-        ui_descriptor.holovibes_.get_cd().contrast_invert = value;
-        pipe_refresh(ui_descriptor);
-        return true;
-    }
-
-    return false;
-}
-
-void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
-{
-    LOG_INFO;
-
-    ui_descriptor.holovibes_.get_cd().contrast_auto_refresh = value;
-    pipe_refresh(ui_descriptor);
-}
-
-bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
-{
-    LOG_INFO;
-
-    if (is_raw_mode(ui_descriptor))
-        return false;
-
-    ui_descriptor.holovibes_.get_cd().set_log_scale_slice_enabled(ui_descriptor.holovibes_.get_cd().current_window,
-                                                                  value);
-    if (value && ui_descriptor.holovibes_.get_cd().contrast_enabled)
-        set_auto_contrast(ui_descriptor);
-
-    pipe_refresh(ui_descriptor);
-    return true;
-}
-
-bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value)
-{
-    LOG_INFO;
-
-    if (ui_descriptor.holovibes_.get_cd().convolution_enabled)
-    {
-        ui_descriptor.holovibes_.get_cd().set_convolution(true, value);
-
-        try
-        {
-            auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            ui_descriptor.holovibes_.get_cd().convolution_enabled = false;
-            LOG_ERROR << e.what();
-        }
-        return true;
-    }
-
-    return false;
-}
-
-void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
-{
-    LOG_INFO;
-
-    ui_descriptor.holovibes_.get_cd().divide_convolution_enabled = value;
-
-    pipe_refresh(ui_descriptor);
 }
 
 void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
