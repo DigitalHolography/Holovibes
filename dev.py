@@ -7,6 +7,7 @@ import argparse
 import shutil
 import subprocess
 from time import sleep
+from collections import namedtuple
 
 from tests.constant_name import *
 
@@ -17,8 +18,6 @@ DEFAULT_BUILD_BASE = "build"
 
 TEST_DATA = "data"
 
-GOALS = ["cmake", "build", "run", "pytest", "ctest", "build_ref", "clean"]
-
 RELEASE_OPT = ["Release", "release", "R", "r"]
 DEBUG_OPT = ["Debug", "debug", "D", "d"]
 NINJA_OPT = ["Ninja", "ninja", "N", "n"]
@@ -28,6 +27,7 @@ VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
 #----------------------------------#
 # Utils                            #
 #----------------------------------#
+
 
 def get_generator(arg):
     if not arg:
@@ -41,6 +41,7 @@ def get_generator(arg):
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+
 def get_build_mode(arg):
     if not arg:
         return DEFAULT_BUILD_MODE
@@ -51,8 +52,10 @@ def get_build_mode(arg):
     else:
         raise Exception("Unreachable statement thanks to argparse")
 
+
 def get_build_dir(arg, generator):
     return arg or os.path.join(DEFAULT_BUILD_BASE, generator)
+
 
 def cannot_find_vcvars():
     print("Cannot find the Developer Prompt launcher, you can either:")
@@ -85,18 +88,29 @@ def find_vcvars():
 
     return "{}".format(res)
 
+
+GoalArgs = namedtuple('GoalArgs', [
+                      'build_mode', 'generator', 'build_env', 'build_dir', 'verbose', 'goal_args'])
+GoalsFuncs = {}
+
+
+def goal(func, name: str = None):
+    GoalsFuncs[name or func.__name__] = func
+    return func
+
 #----------------------------------#
 # Goals                            #
 #----------------------------------#
 
 
+@goal
 def cmake(args):
     cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.e or find_vcvars(), '&&']
+    cmd += [args.build_env or find_vcvars(), '&&']
 
-    generator = get_generator(args.g)
-    build_mode = get_build_mode(args.b)
-    build_dir = get_build_dir(args.p, generator)
+    generator = get_generator(args.generator)
+    build_mode = get_build_mode(args.build_mode)
+    build_dir = get_build_dir(args.build_dir, generator)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
@@ -110,45 +124,48 @@ def cmake(args):
             '-S', '.',
             '-DCMAKE_VERBOSE_MAKEFILE=OFF',
             f'-DCMAKE_BUILD_TYPE={build_mode}',
-            ]
+            ] + args.goal_args
 
-    if args.g in VS_OPT:
+    if args.generator in VS_OPT:
         cmd += ['-A', 'x64']
 
-    if args.v:
+    if args.verbose:
         print("Configure cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
+@goal
 def build(args):
-    build_mode = get_build_mode(args.b)
-    build_dir = get_build_dir(args.p, get_generator(args.g))
+    build_mode = get_build_mode(args.build_mode)
+    build_dir = get_build_dir(args.build_dir, get_generator(args.generator))
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
         run_goal("cmake", args)
 
     cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.e or find_vcvars(), '&&']
+    cmd += [args.build_env or find_vcvars(), '&&']
     cmd += ['cmake', '--build', build_dir]
 
-    if args.g in VS_OPT:
+    if args.generator in VS_OPT:
         cmd += ['--config', build_mode,
                 '--', '/verbosity:normal'
                 ]
 
-    if args.v:
+    if args.verbose:
         print("Build cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
 
 
+@goal
 def run(args):
-    build_mode = get_build_mode(args.b)
-    exe_path = os.path.join(get_build_dir(args.p, get_generator(args.g)), build_mode)
+    build_mode = get_build_mode(args.build_mode)
+    exe_path = os.path.join(get_build_dir(
+        args.build_dir, get_generator(args.generator)), build_mode)
     previous_path = os.getcwd()
 
     if not os.path.isdir(exe_path):
@@ -158,9 +175,9 @@ def run(args):
 
     os.chdir(exe_path)
 
-    cmd = ["Holovibes.exe", ]
+    cmd = ["Holovibes.exe", ] + args.goal_args
 
-    if args.v:
+    if args.verbose:
         print("Run cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
@@ -170,6 +187,7 @@ def run(args):
     return out
 
 
+@goal
 def pytest(args):
     try:
         import pytest
@@ -182,19 +200,20 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(args=['-v', ])
+    return pytest.main(args=['-v', ] + args.goal_args)
 
 
+@goal
 def ctest(args):
-    exe_path = args.p or os.path.join(
-        'build', get_generator(args.g), "Holovibes")
+    exe_path = args.build_dir or os.path.join(
+        'build', get_generator(args.generator), "Holovibes")
     previous_path = os.getcwd()
 
     os.chdir(exe_path)
-    cmd = ['cmd.exe', '/c', 'call', args.e or find_vcvars(), '&&' 'ctest',
-           '--verbose']
+    cmd = ['cmd.exe', '/c', 'call', args.build_env or find_vcvars(), '&&' 'ctest',
+           '--verbose'] + args.goal_args
 
-    if args.v:
+    if args.verbose:
         print("Ctest cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
@@ -204,6 +223,7 @@ def ctest(args):
     return out
 
 
+@goal
 def build_ref(args) -> int:
     from tests.test_holo_files import generate_holo_from
 
@@ -236,11 +256,12 @@ def build_ref(args) -> int:
     return 0
 
 
+@goal
 def clean(args) -> int:
     # Remove build directory
     if os.path.isdir(DEFAULT_BUILD_BASE):
-         if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
-             return 1
+        if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
+            return 1
 
     # Remove last_generated_output.holo from tests/data
     for name in os.listdir(TESTS_DATA):
@@ -257,16 +278,6 @@ def clean(args) -> int:
 
 
 def run_goal(goal: str, args) -> int:
-
-    GoalsFuncs = {
-        "cmake": cmake,
-        "build": build,
-        "run": run,
-        "pytest": pytest,
-        "ctest": ctest,
-        "build_ref": build_ref,
-        "clean": clean
-    }
 
     goal_func = GoalsFuncs.get(goal)
     if not goal_func:
@@ -298,27 +309,38 @@ def parse_args():
         '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
     build_env = parser.add_argument_group('Build Environment')
-    build_env.add_argument('-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
-    build_env.add_argument('-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
+    build_env.add_argument(
+        '-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+    build_env.add_argument(
+        '-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
 
-    parser.add_argument('goals', choices=GOALS,
-                        nargs='*', default=DEFAULT_GOAL)
+    args, leftovers = parser.parse_known_args()
 
-    return parser.parse_args()
+    all_goals = list(GoalsFuncs.keys())
+    goals = {}
+
+    if len(leftovers) == 0:
+        return args, {DEFAULT_GOAL: []}
+
+    current_goal = DEFAULT_GOAL
+    for arg in leftovers:
+        if arg in all_goals:
+            current_goal = arg
+            goals[current_goal] = []
+        else:
+            goals[current_goal].append(arg)
+
+    return args, goals
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    args, goals = parse_args()
 
-    # Shenanigans of argparse, when there are no goals specified the default is used
-    # but the default is not a list which is the case if we specify any goal manually
-    if args.goals != DEFAULT_GOAL:  # manually specified goals
-        for goal in args.goals:
-            run_goal(goal, args)
-    else:                           # if there is no goal specified
-        run_goal("build", args)
+    for goal, goal_args in goals.items():
+        args = GoalArgs(args.b, args.g, args.e, args.p, args.v, goal_args)
+        run_goal(goal, args)
 
     exit(0)
