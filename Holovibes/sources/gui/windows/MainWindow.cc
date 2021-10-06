@@ -122,7 +122,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     ui.CompositeGroupBox->hide();
 
     // Set default files
-    std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
+    std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
     std::filesystem::create_directory(holovibes_documents_path);
     default_output_filename_ = "capture";
     record_output_directory_ = holovibes_documents_path.string();
@@ -131,14 +131,14 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     try
     {
-        load_ini(::holovibes::ini::get_global_ini_path());
+        load_ini(::holovibes::ini::default_config_filepath);
     }
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::get_global_ini_path() << ": Configuration file not found. "
+        LOG_WARN << ::holovibes::ini::default_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
-        save_ini(::holovibes::ini::get_global_ini_path());
+        save_ini(::holovibes::ini::default_config_filepath);
     }
 
     set_z_step(z_step_);
@@ -652,14 +652,14 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(::holovibes::ini::get_global_ini_path()); }
+void MainWindow::configure_holovibes() { open_file(::holovibes::ini::default_config_filepath); }
 
 void MainWindow::write_ini() { write_ini(""); }
 
 void MainWindow::write_ini(QString filename)
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
+    save_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
     notify();
 }
 
@@ -686,7 +686,7 @@ void MainWindow::reload_ini(QString filename)
     import_stop();
     try
     {
-        load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
+        load_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
     }
     catch (const std::exception& e)
     {
@@ -913,12 +913,12 @@ void MainWindow::reset()
     holovibes_.reload_streams();
     try
     {
-        load_ini(::holovibes::ini::get_global_ini_path());
+        load_ini(::holovibes::ini::default_config_filepath);
     }
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::get_global_ini_path()
+        LOG_WARN << ::holovibes::ini::default_config_filepath
                  << ": Config file not found. It will use the default values.";
     }
     notify();
@@ -931,7 +931,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         close_critical_compute();
     camera_none();
     remove_infos();
-    save_ini(::holovibes::ini::get_global_ini_path());
+    save_ini(::holovibes::ini::default_config_filepath);
 }
 #pragma endregion
 /* ------------ */
