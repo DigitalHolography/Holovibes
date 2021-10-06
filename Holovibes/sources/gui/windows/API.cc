@@ -179,6 +179,79 @@ void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, b
 #pragma endregion
 
 #pragma region Close Compute
+
+void camera_none(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    close_windows(ui_descriptor);
+    close_critical_compute(ui_descriptor);
+    if (!is_raw_mode(ui_descriptor))
+        ui_descriptor.holovibes_.stop_compute();
+    ui_descriptor.holovibes_.stop_frame_read();
+    remove_infos();
+
+    ui_descriptor.is_enabled_camera_ = false;
+    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
+}
+
+void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    Config& config = global::global_config;
+    int device = 0;
+
+    close_critical_compute(ui_descriptor);
+    mainwindow.camera_none();
+
+    // TOD: qApp must be strongly related to qt window
+    qApp->processEvents();
+
+    if (!is_raw_mode(ui_descriptor))
+        ui_descriptor.holovibes_.stop_compute();
+    ui_descriptor.holovibes_.stop_frame_read();
+    ui_descriptor.holovibes_.get_cd().pindex = 0;
+    ui_descriptor.holovibes_.get_cd().time_transformation_size = 1;
+    ui_descriptor.is_enabled_camera_ = false;
+    if (config.set_cuda_device)
+    {
+        if (config.auto_device_number)
+        {
+            cudaGetDevice(&device);
+            config.device_number = device;
+        }
+        else
+            device = config.device_number;
+        cudaSetDevice(device);
+    }
+    cudaDeviceSynchronize();
+    cudaDeviceReset();
+    close_windows(ui_descriptor);
+    remove_infos();
+    ui_descriptor.holovibes_.reload_streams();
+    try
+    {
+        mainwindow.load_ini(::holovibes::ini::get_global_ini_path());
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_WARN << ::holovibes::ini::get_global_ini_path()
+                 << ": Config file not found. It will use the default values.";
+    }
+}
+
+void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    close_windows(ui_descriptor);
+    if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
+        close_critical_compute(ui_descriptor);
+    mainwindow.camera_none();
+    remove_infos();
+    mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
+}
+
 #pragma endregion
 
 #pragma region Cameras
@@ -305,20 +378,6 @@ void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     // FIXME: camera_none() weird call because we are dealing with imported file
     mainwindow.camera_none();
 
-    ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
-}
-
-void camera_none(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    close_windows(ui_descriptor);
-    close_critical_compute(ui_descriptor);
-    if (!is_raw_mode(ui_descriptor))
-        ui_descriptor.holovibes_.stop_compute();
-    ui_descriptor.holovibes_.stop_frame_read();
-    remove_infos();
-
-    ui_descriptor.is_enabled_camera_ = false;
     ui_descriptor.holovibes_.get_cd().is_computation_stopped = true;
 }
 
@@ -2027,64 +2086,6 @@ void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::xiB);
-}
-
-void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    close_windows(ui_descriptor);
-    if (!ui_descriptor.holovibes_.get_cd().is_computation_stopped)
-        close_critical_compute(ui_descriptor);
-    mainwindow.camera_none();
-    remove_infos();
-    mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
-}
-
-void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    Config& config = global::global_config;
-    int device = 0;
-
-    close_critical_compute(ui_descriptor);
-    mainwindow.camera_none();
-
-    // TOD: qApp must be strongly related to qt window
-    qApp->processEvents();
-
-    if (!is_raw_mode(ui_descriptor))
-        ui_descriptor.holovibes_.stop_compute();
-    ui_descriptor.holovibes_.stop_frame_read();
-    ui_descriptor.holovibes_.get_cd().pindex = 0;
-    ui_descriptor.holovibes_.get_cd().time_transformation_size = 1;
-    ui_descriptor.is_enabled_camera_ = false;
-    if (config.set_cuda_device)
-    {
-        if (config.auto_device_number)
-        {
-            cudaGetDevice(&device);
-            config.device_number = device;
-        }
-        else
-            device = config.device_number;
-        cudaSetDevice(device);
-    }
-    cudaDeviceSynchronize();
-    cudaDeviceReset();
-    close_windows(ui_descriptor);
-    remove_infos();
-    ui_descriptor.holovibes_.reload_streams();
-    try
-    {
-        mainwindow.load_ini(::holovibes::ini::get_global_ini_path());
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::get_global_ini_path()
-                 << ": Config file not found. It will use the default values.";
-    }
 }
 
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
