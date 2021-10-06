@@ -1831,6 +1831,122 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
 #pragma endregion
 
 #pragma region Record
+
+// Check that value is higher or equal than 0
+void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value)
+{
+    ui_descriptor.record_frame_step_ = value;
+}
+
+const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath)
+{
+    LOG_INFO;
+
+    // FIXME: path separator should depend from system
+    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
+    std::filesystem::path path = std::filesystem::path(std_filepath);
+
+    // FIXME Opti: we could be all these 3 operations below on a single string processing
+    ui_descriptor.record_output_directory_ = path.parent_path().string();
+    const std::string file_ext = path.extension().string();
+    ui_descriptor.default_output_filename_ = path.stem().string();
+
+    return file_ext;
+}
+
+void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text)
+{
+    LOG_INFO;
+
+    if (text == "Chart")
+        ui_descriptor.record_mode_ = RecordMode::CHART;
+    else if (text == "Processed Image")
+        ui_descriptor.record_mode_ = RecordMode::HOLOGRAM;
+    else if (text == "Raw Image")
+        ui_descriptor.record_mode_ = RecordMode::RAW;
+    else
+        throw std::exception("Record mode not handled");
+}
+
+bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
+                                const bool batch_enabled,
+                                const bool nb_frame_checked,
+                                std::optional<unsigned int> nb_frames_to_record,
+                                const std::string& batch_input_path)
+{
+    LOG_INFO;
+    // Preconditions to start record
+
+    if (!nb_frame_checked)
+        nb_frames_to_record = std::nullopt;
+
+    if ((batch_enabled || ui_descriptor.record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    {
+        LOG_ERROR << "Number of frames must be activated";
+        return false;
+    }
+
+    if (batch_enabled && batch_input_path.empty())
+    {
+        LOG_ERROR << "No batch input file";
+        return false;
+    }
+
+    return true;
+}
+
+void start_record(UserInterfaceDescriptor& ui_descriptor,
+                  const bool batch_enabled,
+                  std::optional<unsigned int> nb_frames_to_record,
+                  std::string& output_path,
+                  std::string& batch_input_path,
+                  std::function<void()> callback)
+{
+    LOG_INFO;
+
+    if (batch_enabled)
+    {
+        ui_descriptor.holovibes_.start_batch_gpib(batch_input_path,
+                                                  output_path,
+                                                  nb_frames_to_record.value(),
+                                                  ui_descriptor.record_mode_,
+                                                  callback);
+    }
+    else
+    {
+        if (ui_descriptor.record_mode_ == RecordMode::CHART)
+        {
+            ui_descriptor.holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
+        }
+        else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM)
+        {
+            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
+        }
+        else if (ui_descriptor.record_mode_ == RecordMode::RAW)
+        {
+            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+        }
+    }
+}
+
+void stop_record(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    ui_descriptor.holovibes_.stop_batch_gpib();
+
+    if (ui_descriptor.record_mode_ == RecordMode::CHART)
+        ui_descriptor.holovibes_.stop_chart_record();
+    else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM || ui_descriptor.record_mode_ == RecordMode::RAW)
+        ui_descriptor.holovibes_.stop_frame_record();
+}
+
+void record_finished(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.is_recording_ = false;
+}
+
 #pragma endregion
 
 #pragma region Import
@@ -1951,114 +2067,6 @@ void remove_infos()
     Holovibes::instance().get_info_container().clear();
 }
 
-// Check that value is higher or equal than 0
-void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value)
-{
-    ui_descriptor.record_frame_step_ = value;
-}
-
-bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
-                                const bool batch_enabled,
-                                const bool nb_frame_checked,
-                                std::optional<unsigned int> nb_frames_to_record,
-                                const std::string& batch_input_path)
-{
-    LOG_INFO;
-    // Preconditions to start record
-
-    if (!nb_frame_checked)
-        nb_frames_to_record = std::nullopt;
-
-    if ((batch_enabled || ui_descriptor.record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
-    {
-        LOG_ERROR << "Number of frames must be activated";
-        return false;
-    }
-
-    if (batch_enabled && batch_input_path.empty())
-    {
-        LOG_ERROR << "No batch input file";
-        return false;
-    }
-
-    return true;
-}
-
-void start_record(UserInterfaceDescriptor& ui_descriptor,
-                  const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback)
-{
-    LOG_INFO;
-
-    if (batch_enabled)
-    {
-        ui_descriptor.holovibes_.start_batch_gpib(batch_input_path,
-                                                  output_path,
-                                                  nb_frames_to_record.value(),
-                                                  ui_descriptor.record_mode_,
-                                                  callback);
-    }
-    else
-    {
-        if (ui_descriptor.record_mode_ == RecordMode::CHART)
-        {
-            ui_descriptor.holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
-        }
-        else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM)
-        {
-            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
-        }
-        else if (ui_descriptor.record_mode_ == RecordMode::RAW)
-        {
-            ui_descriptor.holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
-        }
-    }
-}
-
-void stop_record(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    ui_descriptor.holovibes_.stop_batch_gpib();
-
-    if (ui_descriptor.record_mode_ == RecordMode::CHART)
-        ui_descriptor.holovibes_.stop_chart_record();
-    else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM || ui_descriptor.record_mode_ == RecordMode::RAW)
-        ui_descriptor.holovibes_.stop_frame_record();
-}
-
-const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath)
-{
-    LOG_INFO;
-
-    // FIXME: path separator should depend from system
-    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
-    std::filesystem::path path = std::filesystem::path(std_filepath);
-
-    // FIXME Opti: we could be all these 3 operations below on a single string processing
-    ui_descriptor.record_output_directory_ = path.parent_path().string();
-    const std::string file_ext = path.extension().string();
-    ui_descriptor.default_output_filename_ = path.stem().string();
-
-    return file_ext;
-}
-
-void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text)
-{
-    LOG_INFO;
-
-    if (text == "Chart")
-        ui_descriptor.record_mode_ = RecordMode::CHART;
-    else if (text == "Processed Image")
-        ui_descriptor.record_mode_ = RecordMode::HOLOGRAM;
-    else if (text == "Raw Image")
-        ui_descriptor.record_mode_ = RecordMode::RAW;
-    else
-        throw std::exception("Record mode not handled");
-}
-
 void close_windows(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
@@ -2099,13 +2107,6 @@ void set_camera_timeout()
 {
     LOG_INFO;
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
-}
-
-void record_finished(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    ui_descriptor.is_recording_ = false;
 }
 
 void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
