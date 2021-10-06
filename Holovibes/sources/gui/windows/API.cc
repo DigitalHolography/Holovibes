@@ -1738,9 +1738,96 @@ void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const b
 #pragma endregion
 
 #pragma region Reticle
+
+void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
+{
+    LOG_INFO;
+
+    ui_descriptor.holovibes_.get_cd().reticle_enabled = value;
+    if (value)
+    {
+        ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Reticle>();
+        ui_descriptor.mainDisplay->getOverlayManager().create_default();
+    }
+    else
+    {
+        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
+    }
+
+    pipe_refresh(ui_descriptor);
+}
+
+bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
+{
+    LOG_INFO;
+
+    if (0 > value || value > 1)
+        return false;
+
+    ui_descriptor.holovibes_.get_cd().reticle_scale = value;
+    pipe_refresh(ui_descriptor);
+    return true;
+}
+
 #pragma endregion
 
 #pragma region Chart
+
+void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+
+    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
+}
+
+void activeSignalZone(const UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Signal>();
+}
+
+void start_chart_display(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (ui_descriptor.holovibes_.get_cd().chart_display_enabled)
+        return;
+
+    auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+    pipe->request_display_chart();
+
+    // Wait for the chart display to be enabled for notify
+    while (pipe->get_chart_display_requested())
+        continue;
+
+    ui_descriptor.plot_window_ = std::make_unique<::holovibes::gui::PlotWindow>(
+        *ui_descriptor.holovibes_.get_compute_pipe()->get_chart_display_queue(),
+        ui_descriptor.auto_scale_point_threshold_,
+        "Chart");
+}
+
+void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (!ui_descriptor.holovibes_.get_cd().chart_display_enabled)
+        return;
+
+    try
+    {
+        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
+        pipe->request_disable_display_chart();
+
+        // Wait for the chart display to be disabled for notify
+        while (pipe->get_disable_chart_display_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+    }
+
+    ui_descriptor.plot_window_.reset(nullptr);
+}
+
 #pragma endregion
 
 #pragma region Record
@@ -2014,96 +2101,11 @@ void set_camera_timeout()
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
-void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
-{
-    LOG_INFO;
-
-    ui_descriptor.holovibes_.get_cd().reticle_enabled = value;
-    if (value)
-    {
-        ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Reticle>();
-        ui_descriptor.mainDisplay->getOverlayManager().create_default();
-    }
-    else
-    {
-        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
-    }
-
-    pipe_refresh(ui_descriptor);
-}
-
-bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
-{
-    LOG_INFO;
-
-    if (0 > value || value > 1)
-        return false;
-
-    ui_descriptor.holovibes_.get_cd().reticle_scale = value;
-    pipe_refresh(ui_descriptor);
-    return true;
-}
-
 void record_finished(UserInterfaceDescriptor& ui_descriptor)
 {
     LOG_INFO;
 
     ui_descriptor.is_recording_ = false;
-}
-
-void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-
-    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
-}
-
-void activeSignalZone(const UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Signal>();
-}
-
-void start_chart_display(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    if (ui_descriptor.holovibes_.get_cd().chart_display_enabled)
-        return;
-
-    auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
-    pipe->request_display_chart();
-
-    // Wait for the chart display to be enabled for notify
-    while (pipe->get_chart_display_requested())
-        continue;
-
-    ui_descriptor.plot_window_ = std::make_unique<::holovibes::gui::PlotWindow>(
-        *ui_descriptor.holovibes_.get_compute_pipe()->get_chart_display_queue(),
-        ui_descriptor.auto_scale_point_threshold_,
-        "Chart");
-}
-
-void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    if (!ui_descriptor.holovibes_.get_cd().chart_display_enabled)
-        return;
-
-    try
-    {
-        auto pipe = ui_descriptor.holovibes_.get_compute_pipe();
-        pipe->request_disable_display_chart();
-
-        // Wait for the chart display to be disabled for notify
-        while (pipe->get_disable_chart_display_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
-
-    ui_descriptor.plot_window_.reset(nullptr);
 }
 
 void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
