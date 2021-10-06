@@ -51,15 +51,15 @@ class ComputeDescriptor : public Observable
     /*! \brief The lock used in the zone accessors */
     mutable std::mutex mutex_;
 
-    /*! \brief	The zone for the signal chart */
+    /*! \brief The zone for the signal chart */
     units::RectFd signal_zone;
-    /*! \brief	The zone for the noise chart */
+    /*! \brief The zone for the noise chart */
     units::RectFd noise_zone;
-    /*! \brief	The area on which we'll normalize the colors */
+    /*! \brief The area on which we'll normalize the colors */
     units::RectFd composite_zone;
-    /*! \brief  The area used to limit the stft computations. */
+    /*! \brief The area used to limit the stft computations. */
     units::RectFd zoomed_zone;
-    /*! \brief	The zone of the reticle area */
+    /*! \brief The zone of the reticle area */
     units::RectFd reticle_zone;
 
   public:
@@ -72,7 +72,8 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Assignment operator
      * The assignment operator is explicitely defined because std::atomic type
-     * does not allow to generate assignments operator automatically. */
+     * does not allow to generate assignments operator automatically.
+     */
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
     /*! \name Accessor to the selected zone
@@ -109,30 +110,106 @@ class ComputeDescriptor : public Observable
     /*! \name General getters / setters to avoid code duplication
      * \{
      */
-    float get_contrast_min(WindowKind kind) const;
-    float get_contrast_max(WindowKind kind) const;
+    float get_contrast_min() const;
+    float get_contrast_max() const;
 
     /*! \brief Get the rounded value of max contrast for the given WindowKind
      *
      * Qt rounds the value by default.
      * In order to compare the compute descriptor values these values also needs to be rounded.
      */
-    float get_truncate_contrast_max(WindowKind kind, const int precision = 2) const;
+    float get_truncate_contrast_max(const int precision = 2) const;
     /*! \brief Get the rounded value of min contrast for the given WindowKind
      *
      * \see get_truncate_contrast_max()
      */
-    float get_truncate_contrast_min(WindowKind kind, const int precision = 2) const;
+    float get_truncate_contrast_min(const int precision = 2) const;
 
     bool get_img_log_scale_slice_enabled(WindowKind kind) const;
     bool get_img_acc_slice_enabled(WindowKind kind) const;
     unsigned get_img_acc_slice_level(WindowKind kind) const;
 
-    void set_contrast_min(WindowKind kind, float value);
-    void set_contrast_max(WindowKind kind, float value);
+    void set_contrast_min(float value);
+    void set_contrast_max(float value);
     void set_log_scale_slice_enabled(WindowKind kind, bool value);
-    void set_accumulation(WindowKind kind, bool value);
-    void set_accumulation_level(WindowKind kind, float value);
+    void set_accumulation(bool value);
+    void set_accumulation_level(float value);
+
+    /*! \brief Limit the value of pindex and p_acc according to time_transformation_size */
+    void check_p_limits();
+    /*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
+    void check_q_limits();
+    /*! \brief Limit the value of batch_size according to input_queue_capacity */
+    void check_batch_size_limit(const uint input_queue_capacity);
+    /*! \brief Limit the value of time_transformation_stride according to batch_size or adapt into a multiple of it */
+    void adapt_time_transformation_stride();
+
+    /*! \brief Reset some values after MainWindow receives an update exception */
+    void handle_update_exception();
+    /*! \brief Reset some values after MainWindow receives an accumulation exception */
+    void handle_accumulation_exception();
+
+    void set_compute_mode(Computation mode);
+    void set_space_transformation_from_string(const std::string& value);
+    void set_time_transformation_from_string(const std::string& value);
+    void set_time_transformation_stride(int value);
+    void set_time_transformation_size(int value);
+    void set_batch_size(int value);
+    void set_contrast_mode(bool value);
+    bool set_contrast_invert(bool value);
+    void set_contrast_auto_refresh(bool value);
+    void set_contrast_enabled(bool value);
+    void set_convolution_enabled(bool value);
+    void set_divide_convolution_mode(bool value);
+    void set_reticle_enabled(bool value);
+    void set_reticle_scale(double value);
+    void set_img_type(ImgType type);
+    void set_computation_stopped(bool value);
+    void set_time_transformation_cuts_enabled(bool value);
+    void set_renorm_enabled(bool value);
+    void set_filter2d_enabled(bool value);
+    void set_filter2d_n1(int n);
+    void set_filter2d_n2(int n);
+    void set_fft_shift_enabled(bool value);
+    void set_gpu_lens_display_enabled(bool value);
+    void set_x_cuts(int value);
+    void set_y_cuts(int value);
+    void set_pindex(int value);
+    void set_q_index(int value);
+    void set_lambda(float value);
+    void set_zdistance(float value);
+
+    void set_composite_p_red(int value);
+    void set_composite_p_blue(int value);
+    void set_composite_p_min_h(int value);
+    void set_composite_p_max_h(int value);
+    void set_composite_p_min_s(int value);
+    void set_composite_p_max_s(int value);
+    void set_composite_p_min_v(int value);
+    void set_composite_p_max_v(int value);
+    void set_weight_rgb(int r, int g, int b);
+    void set_composite_auto_weights(bool value);
+    void set_composite_kind(CompositeKind kind);
+    void set_composite_p_activated_s(bool value);
+    void set_composite_p_activated_v(bool value);
+    void set_h_blur_activated(bool value);
+    void set_h_blur_kernel_size(int value);
+
+    void set_p_accu(bool enabled, int level);
+    void set_x_accu(bool enabled, int level);
+    void set_y_accu(bool enabled, int level);
+    void set_q_accu(bool enabled, int level);
+
+    /*! \brief Change the window according to the given index */
+    void change_window(int index);
+    /*! \brief Set the image rendering ui params */
+    void set_rendering_params(float value);
+    /*! \brief Reset values used to check if GUY windows are displayed */
+    void reset_windows_display();
+    /*! \brief Reset key FFT values when the GUI is reset */
+    void reset_gui();
+    /*! \brief Reset values used in the slice view */
+    void reset_slice_view();
     /*! \} */
 
     /*! \name Convolution related operations
@@ -352,7 +429,7 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> x_accu_enabled{false};
     /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
     std::atomic<bool> y_accu_enabled{false};
-    /*! \brief Is q_acc enabled (svd eigen vectors filtering) */
+    /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
     std::atomic<bool> q_acc_enabled;
 
     /*! \brief Display the raw interferogram when we are in hologram mode. */
@@ -377,6 +454,7 @@ class ComputeDescriptor : public Observable
 
     std::atomic<uint> start_frame{0};
     std::atomic<uint> end_frame{0};
+    std::atomic<uint> input_fps{60};
 
 #pragma endregion
 };

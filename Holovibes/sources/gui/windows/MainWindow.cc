@@ -166,7 +166,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
     // Display default values
-    cd_.compute_mode = Computation::Raw;
+    cd_.set_compute_mode(Computation::Raw);
     notify();
     setFocusPolicy(Qt::StrongFocus);
 
@@ -243,17 +243,10 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (is_enabled_camera_ && cd_.compute_mode == Computation::Raw)
+    if (is_enabled_camera_)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
-        ui.ViewGroupBox->setEnabled(false);
-        ui.ExportGroupBox->setEnabled(true);
-    }
-
-    else if (is_enabled_camera_ && cd_.compute_mode == Computation::Hologram)
-    {
-        ui.ImageRenderingGroupBox->setEnabled(true);
-        ui.ViewGroupBox->setEnabled(true);
+        ui.ViewGroupBox->setEnabled(cd_.compute_mode == Computation::Hologram);
         ui.ExportGroupBox->setEnabled(true);
     }
 
@@ -300,9 +293,9 @@ void MainWindow::on_notify()
 
     // Contrast SpinBox:
     ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min(cd_.current_window));
+    ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
     ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max(cd_.current_window));
+    ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
 
     // FFT shift
     ui.FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
@@ -338,24 +331,19 @@ void MainWindow::on_notify()
     ui.PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
     ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
-    if (cd_.p_acc_level > cd_.time_transformation_size - 1)
-        cd_.p_acc_level = cd_.time_transformation_size - 1;
+
+    cd_.check_p_limits();
     ui.PAccSpinBox->setValue(cd_.p_acc_level);
+    ui.PSpinBox->setValue(cd_.pindex);
     ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     if (cd_.p_accu_enabled)
     {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        if (cd_.pindex > cd_.time_transformation_size - cd_.p_acc_level - 1)
-            cd_.pindex = cd_.time_transformation_size - cd_.p_acc_level - 1;
-        ui.PSpinBox->setValue(cd_.pindex);
         ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
     }
     else
     {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - 1);
-        if (cd_.pindex > cd_.time_transformation_size - 1)
-            cd_.pindex = cd_.time_transformation_size - 1;
-        ui.PSpinBox->setValue(cd_.pindex);
     }
     ui.PSpinBox->setEnabled(!is_raw);
 
@@ -367,23 +355,18 @@ void MainWindow::on_notify()
 
     ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
     ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
-    if (cd_.q_acc_level > cd_.time_transformation_size - 1)
-        cd_.q_acc_level = cd_.time_transformation_size - 1;
+
+    cd_.check_q_limits();
     ui.Q_AccSpinBox->setValue(cd_.q_acc_level);
+    ui.Q_SpinBox->setValue(cd_.q_index);
     if (cd_.q_acc_enabled)
     {
         ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
-        if (cd_.q_index > cd_.time_transformation_size - cd_.q_acc_level - 1)
-            cd_.q_index = cd_.time_transformation_size - cd_.q_acc_level - 1;
-        ui.Q_SpinBox->setValue(cd_.q_index);
         ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
     }
     else
     {
         ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
-        if (cd_.q_index > cd_.time_transformation_size - 1)
-            cd_.q_index = cd_.time_transformation_size - 1;
-        ui.Q_SpinBox->setValue(cd_.q_index);
     }
 
     // XY accu
@@ -421,9 +404,7 @@ void MainWindow::on_notify()
     // Batch
     ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
 
-    if (cd_.batch_size > input_queue_capacity)
-        cd_.batch_size = input_queue_capacity;
-
+    cd_.check_batch_size_limit(input_queue_capacity);
     ui.BatchSizeSpinBox->setValue(cd_.batch_size);
     ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
@@ -542,12 +523,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [this] {
                 // notify will be in close_critical_compute
-                cd_.pindex = 0;
-                cd_.time_transformation_size = 1;
-                if (cd_.convolution_enabled)
-                {
-                    cd_.convolution_enabled = false;
-                }
+                cd_.handle_update_exception();
                 close_windows();
                 close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
@@ -559,8 +535,7 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
-                cd_.img_acc_slice_xy_enabled = false;
-                cd_.img_acc_slice_xy_level = 1;
+                cd_.handle_accumulation_exception();
             }
             close_critical_compute();
 
@@ -852,7 +827,7 @@ void MainWindow::camera_none()
     ui.actionSettings->setEnabled(false);
     is_enabled_camera_ = false;
 
-    cd_.is_computation_stopped = true;
+    cd_.set_computation_stopped(true);
     notify();
 }
 
@@ -867,17 +842,13 @@ void MainWindow::close_windows()
     mainDisplay.reset(nullptr);
 
     lens_window.reset(nullptr);
-    cd_.gpu_lens_display_enabled = false;
-
     filter2d_window.reset(nullptr);
-    cd_.filter2d_view_enabled = false;
 
     /* Raw view & recording */
     raw_window.reset(nullptr);
-    cd_.raw_view_enabled = false;
 
-    // Disable overlays
-    cd_.reticle_enabled = false;
+    // Disable windows and overlays
+    cd_.reset_windows_display();
 }
 
 void MainWindow::reset()
@@ -888,12 +859,13 @@ void MainWindow::reset()
     close_critical_compute();
     camera_none();
     qApp->processEvents();
+
     if (!is_raw_mode())
         holovibes_.stop_compute();
     holovibes_.stop_frame_read();
-    cd_.pindex = 0;
-    cd_.time_transformation_size = 1;
+    cd_.reset_gui();
     is_enabled_camera_ = false;
+
     if (config.set_cuda_device)
     {
         if (config.auto_device_number)
@@ -905,11 +877,13 @@ void MainWindow::reset()
             device = config.device_number;
         cudaSetDevice(device);
     }
+
     cudaDeviceSynchronize();
     cudaDeviceReset();
     close_windows();
     remove_infos();
     holovibes_.reload_streams();
+
     try
     {
         load_ini(::holovibes::ini::default_config_filepath);
@@ -962,7 +936,7 @@ void MainWindow::change_camera(CameraKind c)
             QAction* settings = ui.actionSettings;
             settings->setEnabled(true);
 
-            cd_.is_computation_stopped = false;
+            cd_.set_computation_stopped(false);
             notify();
         }
         catch (const camera::CameraException& e)
@@ -1018,15 +992,18 @@ void MainWindow::set_raw_mode()
         const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
         unsigned short width = fd.width;
         unsigned short height = fd.height;
+
         get_good_size(width, height, window_max_size);
         QSize size(width, height);
         init_image_mode(pos, size);
-        cd_.compute_mode = Computation::Raw;
+        cd_.set_compute_mode(Computation::Raw);
         createPipe();
+
         mainDisplay.reset(new RawWindow(pos, size, holovibes_.get_gpu_input_queue().get()));
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
@@ -1095,7 +1072,7 @@ void MainWindow::set_holographic_mode()
     /* ---------- */
     try
     {
-        cd_.compute_mode = Computation::Hologram;
+        cd_.set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
         createPipe();
         createHoloWindow();
@@ -1106,7 +1083,7 @@ void MainWindow::set_holographic_mode()
         Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
                                                                   fd_info);
         /* Contrast */
-        cd_.contrast_enabled = true;
+        cd_.set_contrast_enabled(true);
 
         /* Filter2D */
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
@@ -1129,11 +1106,11 @@ void MainWindow::set_computation_mode()
 {
     if (ui.ImageModeComboBox->currentIndex() == 0)
     {
-        cd_.compute_mode = Computation::Raw;
+        cd_.set_compute_mode(Computation::Raw);
     }
     else if (ui.ImageModeComboBox->currentIndex() == 1)
     {
-        cd_.compute_mode = Computation::Hologram;
+        cd_.set_compute_mode(Computation::Hologram);
     }
 }
 
@@ -1208,7 +1185,7 @@ void MainWindow::set_view_mode(const QString value)
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
 
     pipe->insert_fn_end_vect([=]() {
-        cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
+        cd_.set_img_type(static_cast<ImgType>(ui.ViewModeComboBox->currentIndex()));
         notify();
         layout_toggled();
     });
@@ -1241,16 +1218,6 @@ void MainWindow::set_image_mode(QString mode)
 #pragma endregion
 
 #pragma region Batch
-
-static void adapt_time_transformation_stride_to_batch_size(ComputeDescriptor& cd)
-{
-    if (cd.time_transformation_stride < cd.batch_size)
-        cd.time_transformation_stride = cd.batch_size.load();
-    // Go to lower multiple
-    if (cd.time_transformation_stride % cd.batch_size != 0)
-        cd.time_transformation_stride -= cd.time_transformation_stride % cd.batch_size;
-}
-
 void MainWindow::update_batch_size()
 {
     if (is_raw_mode())
@@ -1265,8 +1232,8 @@ void MainWindow::update_batch_size()
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            cd_.batch_size = value;
-            adapt_time_transformation_stride_to_batch_size(cd_);
+            cd_.set_batch_size(value);
+            cd_.adapt_time_transformation_stride();
             holovibes_.get_compute_pipe()->request_update_batch_size();
             notify();
         });
@@ -1280,12 +1247,7 @@ void MainWindow::update_batch_size()
 #pragma region STFT
 void MainWindow::cancel_stft_slice_view()
 {
-    cd_.contrast_max_slice_xz = false;
-    cd_.contrast_max_slice_yz = false;
-    cd_.log_scale_slice_xz_enabled = false;
-    cd_.log_scale_slice_yz_enabled = false;
-    cd_.img_acc_slice_xz_enabled = false;
-    cd_.img_acc_slice_yz_enabled = false;
+    cd_.reset_slice_view();
     sliceXZ.reset(nullptr);
     sliceYZ.reset(nullptr);
 
@@ -1298,7 +1260,7 @@ void MainWindow::cancel_stft_slice_view()
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
         pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_cuts_enabled = false;
+            cd_.set_time_transformation_cuts_enabled(false);
             pipe->delete_stft_slice_queue();
 
             ui.TimeTransformationCutsCheckBox->setChecked(false);
@@ -1321,8 +1283,8 @@ void MainWindow::update_time_transformation_stride()
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_stride = value;
-            adapt_time_transformation_stride_to_batch_size(cd_);
+            cd_.set_time_transformation_stride(value);
+            cd_.adapt_time_transformation_stride();
             holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
             ui.NumberOfFramesSpinBox->setValue(
                 ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
@@ -1379,7 +1341,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
             sliceYZ->setCd(&cd_);
 
             mainDisplay->getOverlayManager().create_overlay<Cross>();
-            cd_.time_transformation_cuts_enabled = true;
+            cd_.set_time_transformation_cuts_enabled(true);
             set_auto_contrast_cuts();
             auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
             if (holo)
@@ -1413,7 +1375,7 @@ void MainWindow::cancel_time_transformation_cuts()
         {
             LOG_ERROR << e.what();
         }
-        cd_.time_transformation_cuts_enabled = false;
+        cd_.set_time_transformation_cuts_enabled(false);
     }
     notify();
 }
@@ -1425,21 +1387,14 @@ void MainWindow::change_window()
 {
     QComboBox* window_cbox = ui.WindowSelectionComboBox;
 
-    if (window_cbox->currentIndex() == 0)
-        cd_.current_window = WindowKind::XYview;
-    else if (window_cbox->currentIndex() == 1)
-        cd_.current_window = WindowKind::XZview;
-    else if (window_cbox->currentIndex() == 2)
-        cd_.current_window = WindowKind::YZview;
-    else if (window_cbox->currentIndex() == 3)
-        cd_.current_window = WindowKind::Filter2D;
+    cd_.change_window(window_cbox->currentIndex());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::toggle_renormalize(bool value)
 {
-    cd_.renorm_enabled = value;
+    cd_.set_renorm_enabled(value);
 
     holovibes_.get_compute_pipe()->request_clear_img_acc();
     pipe_refresh();
@@ -1452,7 +1407,7 @@ void MainWindow::set_filter2d(bool checked)
 
     if (!checked)
     {
-        cd_.filter2d_enabled = checked;
+        cd_.set_filter2d_enabled(checked);
         cancel_filter2d();
     }
     else
@@ -1466,7 +1421,7 @@ void MainWindow::set_filter2d(bool checked)
 
         if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
             pipe->autocontrast_end_pipe(WindowKind::XYview);
-        cd_.filter2d_enabled = checked;
+        cd_.set_filter2d_enabled(checked);
     }
     pipe_refresh();
     notify();
@@ -1550,13 +1505,8 @@ void MainWindow::update_filter2d_view(bool checked)
     notify();
 }
 
-void MainWindow::set_filter2d_n1(int n)
+void MainWindow::set_filter2d()
 {
-    if (is_raw_mode())
-        return;
-
-    cd_.filter2d_n1 = n;
-
     if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -1573,27 +1523,22 @@ void MainWindow::set_filter2d_n1(int n)
     notify();
 }
 
+void MainWindow::set_filter2d_n1(int n)
+{
+    if (is_raw_mode())
+        return;
+
+    cd_.set_filter2d_n1(n);
+    set_filter2d();
+}
+
 void MainWindow::set_filter2d_n2(int n)
 {
     if (is_raw_mode())
         return;
 
-    cd_.filter2d_n2 = n;
-
-    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (cd_.time_transformation_cuts_enabled)
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (cd_.filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
-
-    pipe_refresh();
-    notify();
+    cd_.set_filter2d_n2(n);
+    set_filter2d();
 }
 
 void MainWindow::cancel_filter2d()
@@ -1612,7 +1557,7 @@ void MainWindow::set_fft_shift(const bool value)
     if (is_raw_mode())
         return;
 
-    cd_.fft_shift_enabled = value;
+    cd_.set_fft_shift_enabled(value);
     pipe_refresh();
 }
 
@@ -1631,7 +1576,7 @@ void MainWindow::set_time_transformation_size()
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            cd_.time_transformation_size = time_transformation_size;
+            cd_.set_time_transformation_size(time_transformation_size);
             holovibes_.get_compute_pipe()->request_update_time_transformation_size();
             set_p_accu();
             // This will not do anything until
@@ -1642,7 +1587,7 @@ void MainWindow::set_time_transformation_size()
 
 void MainWindow::update_lens_view(bool value)
 {
-    cd_.gpu_lens_display_enabled = value;
+    cd_.set_gpu_lens_display_enabled(value);
 
     if (value)
     {
@@ -1689,7 +1634,7 @@ void MainWindow::disable_lens_view()
     if (lens_window)
         disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
-    cd_.gpu_lens_display_enabled = false;
+    cd_.set_gpu_lens_display_enabled(false);
     holovibes_.get_compute_pipe()->request_disable_lens_view();
     notify();
 }
@@ -1753,30 +1698,21 @@ void MainWindow::disable_raw_view()
 
 void MainWindow::set_p_accu()
 {
-    auto spinbox = ui.PAccSpinBox;
-    auto checkBox = ui.PAccuCheckBox;
-    cd_.p_accu_enabled = checkBox->isChecked();
-    cd_.p_acc_level = spinbox->value();
+    cd_.set_p_accu(ui.PAccuCheckBox->isChecked(), ui.PAccSpinBox->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_x_accu()
 {
-    auto box = ui.XAccSpinBox;
-    auto checkBox = ui.XAccuCheckBox;
-    cd_.x_accu_enabled = checkBox->isChecked();
-    cd_.x_acc_level = box->value();
+    cd_.set_x_accu(ui.XAccuCheckBox->isChecked(), ui.XAccSpinBox->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_y_accu()
 {
-    auto box = ui.YAccSpinBox;
-    auto checkBox = ui.YAccuCheckBox;
-    cd_.y_accu_enabled = checkBox->isChecked();
-    cd_.y_acc_level = box->value();
+    cd_.set_y_accu(ui.YAccuCheckBox->isChecked(), ui.YAccSpinBox->value());
     pipe_refresh();
     notify();
 }
@@ -1788,24 +1724,21 @@ void MainWindow::set_x_y()
     uint y = ui.YSpinBox->value();
 
     if (x < fd.width)
-        cd_.x_cuts = x;
+        cd_.set_x_cuts(x);
 
     if (y < fd.height)
-        cd_.y_cuts = y;
+        cd_.set_y_cuts(y);
 }
 
 void MainWindow::set_q(int value)
 {
-    cd_.q_index = value;
+    cd_.set_q_index(value);
     notify();
 }
 
 void MainWindow::set_q_acc()
 {
-    auto spinbox = ui.Q_AccSpinBox;
-    auto checkBox = ui.Q_AccuCheckBox;
-    cd_.q_acc_enabled = checkBox->isChecked();
-    cd_.q_acc_level = spinbox->value();
+    cd_.set_q_accu(ui.Q_AccuCheckBox->isChecked(), ui.Q_AccSpinBox->value());
     notify();
 }
 
@@ -1828,72 +1761,70 @@ void MainWindow::set_composite_intervals()
 {
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
-    cd_.composite_p_red = ui.PRedSpinBox_Composite->value();
-    cd_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
+    cd_.set_composite_p_red(ui.PRedSpinBox_Composite->value());
+    cd_.set_composite_p_blue(ui.PBlueSpinBox_Composite->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_h_min()
 {
-    cd_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
+    cd_.set_composite_p_min_h(ui.SpinBox_hue_freq_min->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_h_max()
 {
-    cd_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
+    cd_.set_composite_p_max_h(ui.SpinBox_hue_freq_max->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_s_min()
 {
-    cd_.composite_p_min_s = ui.SpinBox_saturation_freq_min->value();
+    cd_.set_composite_p_min_s(ui.SpinBox_saturation_freq_min->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_s_max()
 {
-    cd_.composite_p_max_s = ui.SpinBox_saturation_freq_max->value();
+    cd_.set_composite_p_max_s(ui.SpinBox_saturation_freq_max->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_v_min()
 {
-    cd_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
+    cd_.set_composite_p_min_v(ui.SpinBox_value_freq_min->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_intervals_hsv_v_max()
 {
-    cd_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
+    cd_.set_composite_p_max_v(ui.SpinBox_value_freq_max->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_weights()
 {
-    cd_.weight_r = ui.WeightSpinBox_R->value();
-    cd_.weight_g = ui.WeightSpinBox_G->value();
-    cd_.weight_b = ui.WeightSpinBox_B->value();
+    cd_.set_weight_rgb(ui.WeightSpinBox_R->value(), ui.WeightSpinBox_G->value(), ui.WeightSpinBox_B->value());
     pipe_refresh();
     notify();
 }
 
 void MainWindow::set_composite_auto_weights(bool value)
 {
-    cd_.composite_auto_weights_ = value;
+    cd_.set_composite_auto_weights(value);
     set_auto_contrast();
 }
 
 void MainWindow::click_composite_rgb_or_hsv()
 {
-    cd_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
+    cd_.set_composite_kind(ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV);
     if (ui.radioButton_rgb->isChecked())
     {
         ui.PRedSpinBox_Composite->setValue(ui.SpinBox_hue_freq_min->value());
@@ -1913,25 +1844,25 @@ void MainWindow::click_composite_rgb_or_hsv()
 
 void MainWindow::actualize_frequency_channel_s()
 {
-    cd_.composite_p_activated_s = ui.checkBox_saturation_freq->isChecked();
+    cd_.set_composite_p_activated_s(ui.checkBox_saturation_freq->isChecked());
     ui.SpinBox_saturation_freq_min->setDisabled(!ui.checkBox_saturation_freq->isChecked());
     ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
 }
 
 void MainWindow::actualize_frequency_channel_v()
 {
-    cd_.composite_p_activated_v = ui.checkBox_value_freq->isChecked();
+    cd_.set_composite_p_activated_v(ui.checkBox_value_freq->isChecked());
     ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
     ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 }
 
 void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
-    cd_.h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
+    cd_.set_h_blur_activated(ui.checkBox_h_gaussian_blur->isChecked());
     ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 }
 
-void MainWindow::actualize_kernel_size_blur() { cd_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value(); }
+void MainWindow::actualize_kernel_size_blur() { cd_.set_h_blur_kernel_size(ui.SpinBox_hue_blur_kernel_size->value()); }
 
 void fancy_Qslide_text_percent(char* str)
 {
@@ -2047,7 +1978,7 @@ void MainWindow::increment_p()
 
     if (cd_.pindex < cd_.time_transformation_size)
     {
-        cd_.pindex = cd_.pindex + 1;
+        cd_.set_pindex(cd_.pindex + 1);
         set_auto_contrast();
         notify();
     }
@@ -2062,7 +1993,7 @@ void MainWindow::decrement_p()
 
     if (cd_.pindex > 0)
     {
-        cd_.pindex = cd_.pindex - 1;
+        cd_.set_pindex(cd_.pindex - 1);
         set_auto_contrast();
         notify();
     }
@@ -2075,7 +2006,7 @@ void MainWindow::set_wavelength(const double value)
     if (is_raw_mode())
         return;
 
-    cd_.lambda = static_cast<float>(value) * 1.0e-9f;
+    cd_.set_lambda(static_cast<float>(value) * 1.0e-9f);
     pipe_refresh();
 }
 
@@ -2084,7 +2015,7 @@ void MainWindow::set_z(const double value)
     if (is_raw_mode())
         return;
 
-    cd_.zdistance = static_cast<float>(value);
+    cd_.set_zdistance(static_cast<float>(value));
     pipe_refresh();
 }
 
@@ -2112,39 +2043,21 @@ void MainWindow::set_z_step(const double value)
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
 
-void MainWindow::set_space_transformation(const QString value)
+void MainWindow::set_space_transformation(const QString& value)
 {
     if (is_raw_mode())
         return;
 
-    if (value == "None")
-        cd_.space_transformation = SpaceTransformation::None;
-    else if (value == "1FFT")
-        cd_.space_transformation = SpaceTransformation::FFT1;
-    else if (value == "2FFT")
-        cd_.space_transformation = SpaceTransformation::FFT2;
-    else
-    {
-        // Shouldn't happen
-        cd_.space_transformation = SpaceTransformation::None;
-        LOG_ERROR << "Unknown space transform: " << value.toStdString() << ", falling back to None";
-    }
+    cd_.set_space_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
-void MainWindow::set_time_transformation(QString value)
+void MainWindow::set_time_transformation(const QString& value)
 {
     if (is_raw_mode())
         return;
 
-    if (value == "STFT")
-        cd_.time_transformation = TimeTransformation::STFT;
-    else if (value == "PCA")
-        cd_.time_transformation = TimeTransformation::PCA;
-    else if (value == "None")
-        cd_.time_transformation = TimeTransformation::NONE;
-    else if (value == "SSA_STFT")
-        cd_.time_transformation = TimeTransformation::SSA_STFT;
+    cd_.set_time_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
@@ -2163,7 +2076,7 @@ void MainWindow::set_accumulation(bool value)
     if (is_raw_mode())
         return;
 
-    cd_.set_accumulation(cd_.current_window, value);
+    cd_.set_accumulation(value);
     pipe_refresh();
     notify();
 }
@@ -2173,7 +2086,7 @@ void MainWindow::set_accumulation_level(int value)
     if (is_raw_mode())
         return;
 
-    cd_.set_accumulation_level(cd_.current_window, value);
+    cd_.set_accumulation_level(value);
     pipe_refresh();
 }
 
@@ -2184,12 +2097,7 @@ void MainWindow::pipe_refresh()
 
     try
     {
-        // FIXME: Should better not use a if structure with 2 method access, 1 dereferencing, and 1 negation bitwise
-        // operation to set a boolean
-        // But maybe a simple read access that create a false condition result is better than simply making a
-        // writting access
-        if (!holovibes_.get_compute_pipe()->get_request_refresh())
-            holovibes_.get_compute_pipe()->request_refresh();
+        holovibes_.get_compute_pipe()->soft_request_refresh();
     }
     catch (const std::runtime_error& e)
     {
@@ -2255,8 +2163,7 @@ void MainWindow::set_contrast_mode(bool value)
         return;
 
     change_window();
-    cd_.contrast_enabled = value;
-    cd_.contrast_auto_refresh = true;
+    cd_.set_contrast_mode(value);
     pipe_refresh();
     notify();
 }
@@ -2314,14 +2221,13 @@ void MainWindow::set_contrast_min(const double value)
 
     if (cd_.contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-        // Get the minimum contrast value rounded for the comparison
-        const float old_val = cd_.get_truncate_contrast_min(cd_.current_window);
-        // Floating number issue: cast to float for the comparison
+        const float old_val = cd_.get_truncate_contrast_min();
         const float val = value;
-        if (old_val != val)
+        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+
+        if (abs(old_val - val) > epsilon)
         {
-            cd_.set_contrast_min(cd_.current_window, value);
+            cd_.set_contrast_min(value);
             pipe_refresh();
         }
     }
@@ -2334,14 +2240,13 @@ void MainWindow::set_contrast_max(const double value)
 
     if (cd_.contrast_enabled)
     {
-        // FIXME: type issue, manipulatiion of double casted to float implies lost of data
-        // Get the maximum contrast value rounded for the comparison
-        const float old_val = cd_.get_truncate_contrast_max(cd_.current_window);
-        // Floating number issue: cast to float for the comparison
+        const float old_val = cd_.get_truncate_contrast_max();
         const float val = value;
-        if (old_val != val)
+        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+
+        if (abs(old_val - val) > epsilon)
         {
-            cd_.set_contrast_max(cd_.current_window, value);
+            cd_.set_contrast_max(value);
             pipe_refresh();
         }
     }
@@ -2349,19 +2254,15 @@ void MainWindow::set_contrast_max(const double value)
 
 void MainWindow::invert_contrast(bool value)
 {
-    if (is_raw_mode())
-        return;
-
-    if (cd_.contrast_enabled)
+    if (!is_raw_mode() && cd_.set_contrast_invert(value))
     {
-        cd_.contrast_invert = value;
         pipe_refresh();
     }
 }
 
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
-    cd_.contrast_auto_refresh = value;
+    cd_.set_contrast_auto_refresh(value);
     pipe_refresh();
     notify();
 }
@@ -2396,7 +2297,7 @@ void MainWindow::update_convo_kernel(const QString& value)
         }
         catch (const std::exception& e)
         {
-            cd_.convolution_enabled = false;
+            cd_.set_convolution_enabled(false);
             LOG_ERROR << e.what();
         }
 
@@ -2429,7 +2330,7 @@ void MainWindow::set_convolution_mode(const bool value)
     }
     catch (const std::exception& e)
     {
-        cd_.convolution_enabled = false;
+        cd_.set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 
@@ -2438,7 +2339,7 @@ void MainWindow::set_convolution_mode(const bool value)
 
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
-    cd_.divide_convolution_enabled = value;
+    cd_.set_divide_convolution_mode(value);
 
     pipe_refresh();
     notify();
@@ -2449,7 +2350,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 #pragma region Reticle
 void MainWindow::display_reticle(bool value)
 {
-    cd_.reticle_enabled = value;
+    cd_.set_reticle_enabled(value);
     if (value)
     {
         mainDisplay->getOverlayManager().create_overlay<Reticle>();
@@ -2468,7 +2369,7 @@ void MainWindow::reticle_scale(double value)
     if (0 > value || value > 1)
         return;
 
-    cd_.reticle_scale = value;
+    cd_.set_reticle_scale(value);
     pipe_refresh();
 }
 #pragma endregion Reticle
@@ -2848,7 +2749,7 @@ void MainWindow::import_stop()
     // FIXME: camera_none() weird call because we are dealing with imported file
     camera_none();
 
-    cd_.is_computation_stopped = true;
+    cd_.set_computation_stopped(true);
 
     notify();
 }
@@ -2865,8 +2766,8 @@ void MainWindow::import_start()
         // if computation is running
         import_stop();
 
-    cd_.is_computation_stopped = false;
-    // Gather all the usefull data from the ui import panel
+    cd_.set_computation_stopped(false);
+    // Gather all the useful data from the ui import panel
     init_holovibes_import_mode();
 
     ui.ImageModeComboBox->setCurrentIndex(is_raw_mode() ? 0 : 1);
@@ -2882,8 +2783,7 @@ void MainWindow::init_holovibes_import_mode()
     end_spinbox = ui.ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
-    cd_.time_transformation_stride = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
-    cd_.batch_size = 1;
+    cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
 
     // Because we are in import mode
     is_enabled_camera_ = false;
@@ -2892,17 +2792,20 @@ void MainWindow::init_holovibes_import_mode()
     {
         // Gather data from import panel
         std::string file_path = import_line_edit->text().toStdString();
-        unsigned int fps = fps_spinbox->value();
-        uint first_frame = start_spinbox->value();
-        uint last_frame = end_spinbox->value();
+
+        // TODO: Refacto cd_ access
+        cd_.input_fps = fps_spinbox->value();
+        cd_.start_frame = start_spinbox->value();
+        cd_.end_frame = end_spinbox->value();
+
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
         holovibes_.init_input_queue(file_fd_);
         holovibes_.start_file_frame_read(file_path,
                                          true,
-                                         fps,
-                                         first_frame - 1,
-                                         last_frame - first_frame + 1,
+                                         cd_.input_fps,
+                                         cd_.start_frame - 1,
+                                         cd_.end_frame - cd_.start_frame + 1,
                                          load_file_in_gpu,
                                          [=]() {
                                              synchronize_thread([&]() {

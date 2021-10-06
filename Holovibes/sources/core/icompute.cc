@@ -277,7 +277,11 @@ void ICompute::pipe_error(const int& err_count, const std::exception& e)
     notify_error_observers(e);
 }
 
-bool ICompute::get_request_refresh() { return refresh_requested_; }
+void ICompute::soft_request_refresh()
+{
+    if (!refresh_requested_)
+        refresh_requested_ = true;
+}
 
 void ICompute::request_refresh() { refresh_requested_ = true; }
 
