@@ -335,10 +335,11 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    args, goals = parse_args()
+    main_args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        args = GoalArgs(args.b, args.g, args.e, args.p, args.v, goal_args)
+        args = GoalArgs(main_args.b, main_args.g, main_args.e,
+                        main_args.p, main_args.v, goal_args)
         run_goal(goal, args)
 
     exit(0)
