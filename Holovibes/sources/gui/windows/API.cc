@@ -5,11 +5,30 @@ namespace holovibes::api
 {
 
 #pragma region Local
+
 void open_file(const std::string& path)
 {
     LOG_INFO;
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 }
+
+void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    if (is_raw_mode(ui_descriptor))
+        return;
+
+    try
+    {
+        if (!ui_descriptor.holovibes_.get_compute_pipe()->get_request_refresh())
+            ui_descriptor.holovibes_.get_compute_pipe()->request_refresh();
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR << e.what();
+    }
+}
+
 #pragma endregion
 
 #pragma region Ini
@@ -255,6 +274,105 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
 #pragma endregion
 
 #pragma region Cameras
+
+// TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
+bool change_camera(::holovibes::gui::MainWindow& mainwindow,
+                   UserInterfaceDescriptor& ui_descriptor,
+                   CameraKind c,
+                   const uint image_mode_index)
+{
+    LOG_INFO;
+
+    mainwindow.camera_none();
+
+    bool res = false;
+
+    if (c == CameraKind::NONE)
+    {
+        return res;
+    }
+
+    try
+    {
+        ui_descriptor.mainDisplay.reset(nullptr);
+        if (!is_raw_mode(ui_descriptor))
+            ui_descriptor.holovibes_.stop_compute();
+        ui_descriptor.holovibes_.stop_frame_read();
+
+        set_camera_timeout();
+
+        set_computation_mode(ui_descriptor.holovibes_, image_mode_index);
+
+        ui_descriptor.holovibes_.start_camera_frame_read(c);
+        ui_descriptor.is_enabled_camera_ = true;
+        set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
+        ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
+        ui_descriptor.kCamera = c;
+
+        ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
+
+        res = true;
+    }
+    catch (const camera::CameraException& e)
+    {
+        LOG_ERROR << "[CAMERA] " << e.what();
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+    }
+
+    return res;
+}
+
+void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::IDS);
+}
+
+void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Phantom);
+}
+
+void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::BitflowCyton);
+}
+
+void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Hamamatsu);
+}
+
+void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::Adimec);
+}
+
+void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::xiQ);
+}
+
+void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    mainwindow.change_camera(::holovibes::CameraKind::xiB);
+}
+
+void configure_camera(UserInterfaceDescriptor& ui_descriptor)
+{
+    LOG_INFO;
+    open_file(std::filesystem::current_path().generic_string() + "/" + ui_descriptor.holovibes_.get_camera_ini_path());
+}
+
 #pragma endregion
 
 #pragma region Image Mode
@@ -641,56 +759,6 @@ void set_camera_timeout()
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
-// TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
-bool change_camera(::holovibes::gui::MainWindow& mainwindow,
-                   UserInterfaceDescriptor& ui_descriptor,
-                   CameraKind c,
-                   const uint image_mode_index)
-{
-    LOG_INFO;
-
-    mainwindow.camera_none();
-
-    bool res = false;
-
-    if (c == CameraKind::NONE)
-    {
-        return res;
-    }
-
-    try
-    {
-        ui_descriptor.mainDisplay.reset(nullptr);
-        if (!is_raw_mode(ui_descriptor))
-            ui_descriptor.holovibes_.stop_compute();
-        ui_descriptor.holovibes_.stop_frame_read();
-
-        set_camera_timeout();
-
-        set_computation_mode(ui_descriptor.holovibes_, image_mode_index);
-
-        ui_descriptor.holovibes_.start_camera_frame_read(c);
-        ui_descriptor.is_enabled_camera_ = true;
-        set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
-        ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
-        ui_descriptor.kCamera = c;
-
-        ui_descriptor.holovibes_.get_cd().is_computation_stopped = false;
-
-        res = true;
-    }
-    catch (const camera::CameraException& e)
-    {
-        LOG_ERROR << "[CAMERA] " << e.what();
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
-
-    return res;
-}
-
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
                     UserInterfaceDescriptor& ui_descriptor,
                     const bool is_null_mode,
@@ -709,23 +777,6 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
         mainwindow.set_raw_mode();
     else if (ui_descriptor.holovibes_.get_cd().compute_mode == Computation::Hologram)
         mainwindow.set_holographic_mode();
-}
-
-void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    if (is_raw_mode(ui_descriptor))
-        return;
-
-    try
-    {
-        if (!ui_descriptor.holovibes_.get_compute_pipe()->get_request_refresh())
-            ui_descriptor.holovibes_.get_compute_pipe()->request_refresh();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what();
-    }
 }
 
 void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_value)
@@ -2028,12 +2079,6 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return false;
 }
 
-void configure_camera(UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    open_file(std::filesystem::current_path().generic_string() + "/" + ui_descriptor.holovibes_.get_camera_ini_path());
-}
-
 void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size)
 {
     LOG_INFO;
@@ -2044,48 +2089,6 @@ void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, Q
         size = ui_descriptor.mainDisplay->size();
         ui_descriptor.mainDisplay.reset(nullptr);
     }
-}
-
-void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::IDS);
-}
-
-void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::Phantom);
-}
-
-void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::BitflowCyton);
-}
-
-void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::Hamamatsu);
-}
-
-void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::Adimec);
-}
-
-void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::xiQ);
-}
-
-void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
-{
-    LOG_INFO;
-    mainwindow.change_camera(::holovibes::CameraKind::xiB);
 }
 
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
