@@ -1221,7 +1221,6 @@ void MainWindow::set_filter2d_n2(int n)
 }
 
 // Notify
-// TODO: -> API
 void MainWindow::cancel_filter2d()
 {
     LOG_INFO;
@@ -2018,9 +2017,6 @@ void MainWindow::activeSignalZone()
     LOG_INFO;
 
     ::holovibes::api::activeSignalZone(ui_descriptor_);
-
-    // TODO: -> API
-    ui_descriptor_.mainDisplay->getOverlayManager().create_overlay<Signal>();
 
     notify();
 }
