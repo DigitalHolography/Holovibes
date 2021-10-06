@@ -2529,38 +2529,81 @@
           </widget>
          </item>
          <item>
-          <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>255</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string notr="true"/>
-           </property>
-           <property name="toolTipDuration">
-            <number>-1</number>
-           </property>
+          <widget class="holovibes::gui::ExportPanel" name="ExportPanel">
            <property name="title">
             <string>Export</string>
            </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_10">
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QComboBox" name="RecordImageModeComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>126</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Raw Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Processed Image</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Chart</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="RecordDataTypeComboBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>71</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>0</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Uint16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Float32</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
             <item row="1" column="0">
              <widget class="QFrame" name="RecordFrame">
               <property name="maximumSize">
@@ -2578,7 +2621,7 @@
               <property name="lineWidth">
                <number>2</number>
               </property>
-              <layout class="QVBoxLayout" name="recordLayout">
+              <layout class="QVBoxLayout" name="recordLayout_2">
                <property name="spacing">
                 <number>6</number>
                </property>
@@ -2614,7 +2657,7 @@
                    <height>40</height>
                   </size>
                  </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <property name="spacing">
                    <number>0</number>
                   </property>
@@ -2746,7 +2789,7 @@
                  <property name="checked">
                   <bool>false</bool>
                  </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                 <layout class="QVBoxLayout" name="verticalLayout_21">
                   <property name="leftMargin">
                    <number>2</number>
                   </property>
@@ -2821,76 +2864,6 @@
                </item>
               </layout>
              </widget>
-            </item>
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QComboBox" name="RecordImageModeComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>126</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Raw Image</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Processed Image</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Chart</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="RecordDataTypeComboBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>71</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>0</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Uint16</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Float32</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
             </item>
            </layout>
           </widget>
@@ -3360,6 +3333,12 @@ p, li { white-space: pre-wrap; }
    <header>import_panel.hh</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ExportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>export_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3377,14 +3356,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
-  <tabstop>ChartSignalPushButton</tabstop>
-  <tabstop>ChartNoisePushButton</tabstop>
-  <tabstop>NumberOfFramesSpinBox</tabstop>
-  <tabstop>OutputFilePathLineEdit</tabstop>
-  <tabstop>OutputFileBrowseToolButton</tabstop>
-  <tabstop>ExportRecPushButton</tabstop>
-  <tabstop>ExportStopPushButton</tabstop>
-  <tabstop>BatchInputBrowseToolButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -4655,7 +4626,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RecordImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>set_record_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4671,7 +4642,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartNoisePushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>activeNoiseZone()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4687,7 +4658,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartSignalPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>activeSignalZone()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4703,7 +4674,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartPlotPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>start_chart_display()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4719,7 +4690,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>OutputFileBrowseToolButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>browse_record_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4735,7 +4706,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>BatchInputBrowseToolButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4751,7 +4722,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>start_record()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4767,7 +4738,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ExportStopPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>stop_record()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4815,7 +4786,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>NumberOfFramesCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>set_nb_frames_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">

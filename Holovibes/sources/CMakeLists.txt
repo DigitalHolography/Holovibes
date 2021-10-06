@@ -54,6 +54,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/Filter2DWindow.cc
     gui/windows/mainWindow/panel.cc
     gui/windows/mainWindow/import_panel.cc
+    gui/windows/mainWindow/export_panel.cc
 
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc

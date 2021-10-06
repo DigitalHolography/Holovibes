@@ -9,8 +9,6 @@
 #include "json.hh"
 using json = ::nlohmann::json;
 
-#include "enum_record_mode.hh"
-
 // namespace camera
 #include "camera_exception.hh"
 
@@ -24,6 +22,7 @@ using json = ::nlohmann::json;
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
 #include "import_panel.hh"
+#include "export_panel.hh"
 #include "ui_mainwindow.h"
 
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -477,12 +476,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void update_convo_kernel(const QString& value); // C
 
-    /*! \brief Modifies the z step on scroll
-     *
-     * \param value the new incrementation/decrementation step
-     */
-    void set_record_frame_step(int value); // E
-
     /*! \brief Changes the focused windows */
     void change_window(); // RIEN
 
@@ -521,49 +514,6 @@ class MainWindow : public QMainWindow, public Observer
      * \param value The new reticle scale
      */
     void reticle_scale(double value); // V
-
-    /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
-     * replacement*/
-    void browse_record_output_file(); // E
-
-    /*! \brief Enables or Disables number of frame restriction for recording
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_nb_frames_mode(bool value); // E
-
-    /*! \brief Modifies the record mode
-     *
-     * \param value The new record mode
-     */
-    void set_record_mode(const QString& value); // E
-
-    /*! \brief Stops the record */
-    void stop_record(); // E
-
-    /*! \brief Resets ui on record finished
-     *
-     * \param record_mode The current record mode
-     */
-    void record_finished(RecordMode record_mode); // RIEN (E?)
-
-    /*! \brief Starts recording */
-    void start_record(); // E
-
-    /*! \brief Browses output file */
-    void browse_batch_input(); // E
-
-    /*! \brief Creates Signal overlay */
-    void activeSignalZone(); // E
-
-    /*! \brief Creates Noise overlay */
-    void activeNoiseZone(); // E
-
-    /*! \brief Opens Chart window */
-    void start_chart_display(); // E
-
-    /*! \brief Closes Chart window */
-    void stop_chart_display(); // E
     /*! \} */
 
 #pragma endregion
