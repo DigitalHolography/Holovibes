@@ -20,12 +20,6 @@ void InfoPanel::init_file_reader_progress(int value, int max)
     parent_->ui.FileReaderProgressBar->setValue(static_cast<int>(value));
 }
 
-void InfoPanel::init_record_progress(int value, int max)
-{
-    parent_->ui.RecordProgressBar->setMaximum(static_cast<int>(max));
-    parent_->ui.RecordProgressBar->setValue(static_cast<int>(value));
-}
-
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {
     if (visible)
@@ -36,6 +30,14 @@ void InfoPanel::set_visible_file_reader_progress(bool visible)
     {
         parent_->ui.FileReaderProgressBar->hide();
     }
+}
+
+void InfoPanel::update_file_reader_progress(int value) { parent_->ui.FileReaderProgressBar->setValue(value); }
+
+void InfoPanel::init_record_progress(int value, int max)
+{
+    parent_->ui.RecordProgressBar->setMaximum(static_cast<int>(max));
+    parent_->ui.RecordProgressBar->setValue(static_cast<int>(value));
 }
 
 void InfoPanel::set_visible_record_progress(bool visible)
@@ -50,6 +52,4 @@ void InfoPanel::set_visible_record_progress(bool visible)
         parent_->ui.RecordProgressBar->hide();
     }
 }
-
-void InfoPanel::update_file_reader_progress(int value) { parent_->ui.FileReaderProgressBar->setValue(value); }
 } // namespace holovibes::gui
