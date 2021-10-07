@@ -1060,7 +1060,7 @@ void MainWindow::update_time_transformation_stride()
         notify();
     };
 
-    ::holovibes::api::update_time_transformation_stride(ui_descriptor_, callback, time_transformation_stride);
+    ::holovibes::api::update_time_transformation_stride(callback, time_transformation_stride);
 }
 
 // GUI

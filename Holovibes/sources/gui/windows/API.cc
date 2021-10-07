@@ -744,9 +744,7 @@ void update_batch_size(std::function<void()> callback, const uint batch_size)
 
 #pragma region STFT
 
-void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
-                                       std::function<void()> callback,
-                                       const uint time_transformation_stride)
+void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
     LOG_INFO;
 
