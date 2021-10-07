@@ -178,14 +178,10 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
 /*! \brief Sets the image mode
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param ui_descriptor user interface's state
  * \param is_null_mode if the selection is null
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
-                    UserInterfaceDescriptor& ui_descriptor,
-                    const bool is_null_mode,
-                    const uint image_mode_index);
+void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null_mode, const uint image_mode_index);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
@@ -808,9 +804,8 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDes
 /*! \brief Creates the pipeline
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param ui_descriptor user interface's state
  */
-void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+void createPipe(::holovibes::gui::MainWindow& mainwindow);
 
 /*!
  * \brief Set the raw mode object

@@ -430,7 +430,7 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
 
         Holovibes::instance().start_camera_frame_read(c);
         ui_descriptor.is_enabled_camera_ = true;
-        set_image_mode(mainwindow, ui_descriptor, true, image_mode_index);
+        set_image_mode(mainwindow, true, image_mode_index);
         ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
         ui_descriptor.kCamera = c;
 
@@ -536,7 +536,7 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
         QSize size(width, height);
         mainwindow.init_image_mode(pos, size);
         Holovibes::instance().get_cd().compute_mode = Computation::Raw;
-        createPipe(mainwindow, ui_descriptor);
+        createPipe(mainwindow);
         ui_descriptor.mainDisplay.reset(
             new holovibes::gui::RawWindow(pos, size, Holovibes::instance().get_gpu_input_queue().get()));
         ui_descriptor.mainDisplay->setTitle(QString("XY view"));
@@ -555,7 +555,7 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return false;
 }
 
-void createPipe(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void createPipe(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     try
@@ -701,10 +701,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     set_auto_contrast_cuts(ui_descriptor);
 }
 
-void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
-                    UserInterfaceDescriptor& ui_descriptor,
-                    const bool is_null_mode,
-                    const uint image_mode_index)
+void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null_mode, const uint image_mode_index)
 {
     LOG_INFO;
     if (!is_null_mode)
