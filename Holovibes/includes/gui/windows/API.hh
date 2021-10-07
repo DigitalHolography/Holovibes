@@ -187,11 +187,8 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow,
                     const bool is_null_mode,
                     const uint image_mode_index);
 
-/*! \brief Triggers the pipe to make it refresh
- *
- * \param ui_descriptor user interface's state
- */
-void pipe_refresh(UserInterfaceDescriptor& ui_descriptor);
+/*! \brief Triggers the pipe to make it refresh */
+void pipe_refresh();
 
 /*! \brief Modifies p accumulation
  *

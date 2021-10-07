@@ -12,7 +12,7 @@ void open_file(const std::string& path)
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 }
 
-void pipe_refresh(UserInterfaceDescriptor& ui_descriptor)
+void pipe_refresh()
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -697,7 +697,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
 
     pipe->insert_fn_end_vect(mainwindow.get_view_mode_callback());
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 
     // Force XYview autocontrast
     pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -902,7 +902,7 @@ void change_window(UserInterfaceDescriptor& ui_descriptor, const int index)
     else if (index == 3)
         Holovibes::instance().get_cd().current_window = WindowKind::Filter2D;
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value)
@@ -912,7 +912,7 @@ void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value)
     Holovibes::instance().get_cd().renorm_enabled = value;
     Holovibes::instance().get_compute_pipe()->request_clear_img_acc();
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked)
@@ -933,7 +933,7 @@ bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
         mainwindow.cancel_filter2d();
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1010,7 +1010,7 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
         res = false;
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return res;
 }
 
@@ -1034,7 +1034,7 @@ bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n)
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1058,7 +1058,7 @@ bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n)
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1072,7 +1072,7 @@ bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     if (Holovibes::instance().get_cd().filter2d_view_enabled)
         mainwindow.update_filter2d_view(false);
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 
     return true;
 }
@@ -1084,7 +1084,7 @@ void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
         return;
 
     Holovibes::instance().get_cd().fft_shift_enabled = value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
@@ -1156,7 +1156,7 @@ update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
         res = false;
     }
 
-    ::holovibes::api::pipe_refresh(ui_descriptor);
+    ::holovibes::api::pipe_refresh();
     return res;
 }
 
@@ -1212,7 +1212,7 @@ update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
         res = false;
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return res;
 }
 
@@ -1232,7 +1232,7 @@ void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_v
 {
     Holovibes::instance().get_cd().p_accu_enabled = is_p_accu;
     Holovibes::instance().get_cd().p_acc_level = p_value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_value)
@@ -1240,7 +1240,7 @@ void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_v
     LOG_INFO;
     Holovibes::instance().get_cd().x_accu_enabled = is_x_accu;
     Holovibes::instance().get_cd().x_acc_level = x_value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value)
@@ -1248,7 +1248,7 @@ void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_v
     LOG_INFO;
     Holovibes::instance().get_cd().y_accu_enabled = is_y_accu;
     Holovibes::instance().get_cd().y_acc_level = y_value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
@@ -1273,7 +1273,7 @@ void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_v
     LOG_INFO;
     Holovibes::instance().get_cd().q_acc_enabled = is_q_accu;
     Holovibes::instance().get_cd().q_acc_level = q_value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
@@ -1285,7 +1285,7 @@ const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
     if (value < static_cast<int>(Holovibes::instance().get_cd().time_transformation_size))
     {
         Holovibes::instance().get_cd().pindex = value;
-        pipe_refresh(ui_descriptor);
+        pipe_refresh();
         return true;
     }
     else
@@ -1298,49 +1298,49 @@ void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint compos
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_red = composite_p_red;
     Holovibes::instance().get_cd().composite_p_blue = composite_p_blue;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_h)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_h = composite_p_min_h;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_h)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_h = composite_p_max_h;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_s = composite_p_min_s;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_s = composite_p_max_s;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_v = composite_p_min_v;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_v = composite_p_max_v;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r, uint weight_g, uint weight_b)
@@ -1349,7 +1349,7 @@ void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r
     Holovibes::instance().get_cd().weight_r = weight_r;
     Holovibes::instance().get_cd().weight_g = weight_g;
     Holovibes::instance().get_cd().weight_b = weight_b;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
@@ -1461,7 +1461,7 @@ bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value)
         return false;
 
     Holovibes::instance().get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1472,7 +1472,7 @@ bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value)
         return false;
 
     Holovibes::instance().get_cd().zdistance = static_cast<float>(value);
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1568,7 +1568,7 @@ bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
         return false;
 
     Holovibes::instance().get_compute_pipe()->request_unwrapping_2d(value);
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1579,7 +1579,7 @@ bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value)
         return false;
 
     Holovibes::instance().get_cd().set_accumulation(Holovibes::instance().get_cd().current_window, value);
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1590,7 +1590,7 @@ bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value)
         return false;
 
     Holovibes::instance().get_cd().set_accumulation_level(Holovibes::instance().get_cd().current_window, value);
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1689,7 +1689,7 @@ bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDe
     mainwindow.change_window();
     Holovibes::instance().get_cd().contrast_enabled = value;
     Holovibes::instance().get_cd().contrast_auto_refresh = true;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1749,7 +1749,7 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
         if (old_val != val)
         {
             Holovibes::instance().get_cd().set_contrast_min(Holovibes::instance().get_cd().current_window, value);
-            pipe_refresh(ui_descriptor);
+            pipe_refresh();
             return true;
         }
     }
@@ -1774,7 +1774,7 @@ bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value
         if (old_val != val)
         {
             Holovibes::instance().get_cd().set_contrast_max(Holovibes::instance().get_cd().current_window, value);
-            pipe_refresh(ui_descriptor);
+            pipe_refresh();
             return true;
         }
     }
@@ -1792,7 +1792,7 @@ bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
     if (Holovibes::instance().get_cd().contrast_enabled)
     {
         Holovibes::instance().get_cd().contrast_invert = value;
-        pipe_refresh(ui_descriptor);
+        pipe_refresh();
         return true;
     }
 
@@ -1804,7 +1804,7 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
     LOG_INFO;
 
     Holovibes::instance().get_cd().contrast_auto_refresh = value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
@@ -1818,7 +1818,7 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
     if (value && Holovibes::instance().get_cd().contrast_enabled)
         set_auto_contrast(ui_descriptor);
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
@@ -1901,7 +1901,7 @@ void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const b
 
     Holovibes::instance().get_cd().divide_convolution_enabled = value;
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 #pragma endregion
@@ -1923,7 +1923,7 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
         ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
     }
 
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
 }
 
 bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
@@ -1934,7 +1934,7 @@ bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
         return false;
 
     Holovibes::instance().get_cd().reticle_scale = value;
-    pipe_refresh(ui_descriptor);
+    pipe_refresh();
     return true;
 }
 
