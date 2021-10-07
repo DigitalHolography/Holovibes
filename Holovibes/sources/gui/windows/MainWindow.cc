@@ -158,7 +158,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
     // Display default values
-    ui_descriptor_.holovibes_.get_cd().compute_mode = Computation::Raw;
+    Holovibes::instance().get_cd().compute_mode = Computation::Raw;
     notify();
     setFocusPolicy(Qt::StrongFocus);
 
@@ -225,10 +225,10 @@ void MainWindow::notify()
 void MainWindow::on_notify()
 {
     LOG_INFO;
-    ui.InputBrowseToolButton->setEnabled(ui_descriptor_.holovibes_.get_cd().is_computation_stopped);
+    ui.InputBrowseToolButton->setEnabled(Holovibes::instance().get_cd().is_computation_stopped);
 
     // Tabs
-    if (ui_descriptor_.holovibes_.get_cd().is_computation_stopped)
+    if (Holovibes::instance().get_cd().is_computation_stopped)
     {
         ui.CompositeGroupBox->hide();
         ui.ImageRenderingGroupBox->setEnabled(false);
@@ -238,15 +238,14 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (ui_descriptor_.is_enabled_camera_ && ui_descriptor_.holovibes_.get_cd().compute_mode == Computation::Raw)
+    if (ui_descriptor_.is_enabled_camera_ && Holovibes::instance().get_cd().compute_mode == Computation::Raw)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(false);
         ui.ExportGroupBox->setEnabled(true);
     }
 
-    else if (ui_descriptor_.is_enabled_camera_ &&
-             ui_descriptor_.holovibes_.get_cd().compute_mode == Computation::Hologram)
+    else if (ui_descriptor_.is_enabled_camera_ && Holovibes::instance().get_cd().compute_mode == Computation::Hologram)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
         ui.ViewGroupBox->setEnabled(true);
@@ -270,7 +269,7 @@ void MainWindow::on_notify()
 
     // Raw view
     ui.RawDisplayingCheckBox->setEnabled(!is_raw);
-    ui.RawDisplayingCheckBox->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().raw_view_enabled);
+    ui.RawDisplayingCheckBox->setChecked(!is_raw && Holovibes::instance().get_cd().raw_view_enabled);
 
     QPushButton* signalBtn = ui.ChartSignalPushButton;
     signalBtn->setStyleSheet((ui_descriptor_.mainDisplay && signalBtn->isEnabled() &&
@@ -284,204 +283,198 @@ void MainWindow::on_notify()
                                 ? "QPushButton {color: #00A4AB;}"
                                 : "");
 
-    ui.PhaseUnwrap2DCheckBox->setEnabled(ui_descriptor_.holovibes_.get_cd().img_type == ImgType::PhaseIncrease ||
-                                         ui_descriptor_.holovibes_.get_cd().img_type == ImgType::Argument);
+    ui.PhaseUnwrap2DCheckBox->setEnabled(Holovibes::instance().get_cd().img_type == ImgType::PhaseIncrease ||
+                                         Holovibes::instance().get_cd().img_type == ImgType::Argument);
 
     // Time transformation cuts
     ui.TimeTransformationCutsCheckBox->setChecked(!is_raw &&
-                                                  ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled);
+                                                  Holovibes::instance().get_cd().time_transformation_cuts_enabled);
 
     // Contrast
-    ui.ContrastCheckBox->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().contrast_enabled);
+    ui.ContrastCheckBox->setChecked(!is_raw && Holovibes::instance().get_cd().contrast_enabled);
     ui.ContrastCheckBox->setEnabled(true);
-    ui.AutoRefreshContrastCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh);
+    ui.AutoRefreshContrastCheckBox->setChecked(Holovibes::instance().get_cd().contrast_auto_refresh);
 
     // Contrast SpinBox:
-    ui.ContrastMinDoubleSpinBox->setEnabled(!ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh);
+    ui.ContrastMinDoubleSpinBox->setEnabled(!Holovibes::instance().get_cd().contrast_auto_refresh);
     ui.ContrastMinDoubleSpinBox->setValue(
-        ui_descriptor_.holovibes_.get_cd().get_contrast_min(ui_descriptor_.holovibes_.get_cd().current_window));
-    ui.ContrastMaxDoubleSpinBox->setEnabled(!ui_descriptor_.holovibes_.get_cd().contrast_auto_refresh);
+        Holovibes::instance().get_cd().get_contrast_min(Holovibes::instance().get_cd().current_window));
+    ui.ContrastMaxDoubleSpinBox->setEnabled(!Holovibes::instance().get_cd().contrast_auto_refresh);
     ui.ContrastMaxDoubleSpinBox->setValue(
-        ui_descriptor_.holovibes_.get_cd().get_contrast_max(ui_descriptor_.holovibes_.get_cd().current_window));
+        Holovibes::instance().get_cd().get_contrast_max(Holovibes::instance().get_cd().current_window));
 
     // FFT shift
-    ui.FFTShiftCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().fft_shift_enabled);
+    ui.FFTShiftCheckBox->setChecked(Holovibes::instance().get_cd().fft_shift_enabled);
     ui.FFTShiftCheckBox->setEnabled(true);
 
     // Window selection
     QComboBox* window_selection = ui.WindowSelectionComboBox;
-    window_selection->setEnabled(ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled);
+    window_selection->setEnabled(Holovibes::instance().get_cd().time_transformation_cuts_enabled);
     window_selection->setCurrentIndex(
-        window_selection->isEnabled() ? static_cast<int>(ui_descriptor_.holovibes_.get_cd().current_window.load()) : 0);
+        window_selection->isEnabled() ? static_cast<int>(Holovibes::instance().get_cd().current_window.load()) : 0);
 
     ui.LogScaleCheckBox->setEnabled(true);
-    ui.LogScaleCheckBox->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().get_img_log_scale_slice_enabled(
-                                                   ui_descriptor_.holovibes_.get_cd().current_window.load()));
+    ui.LogScaleCheckBox->setChecked(!is_raw && Holovibes::instance().get_cd().get_img_log_scale_slice_enabled(
+                                                   Holovibes::instance().get_cd().current_window.load()));
     ui.ImgAccuCheckBox->setEnabled(true);
-    ui.ImgAccuCheckBox->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().get_img_acc_slice_enabled(
-                                                  ui_descriptor_.holovibes_.get_cd().current_window.load()));
-    ui.ImgAccuSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().get_img_acc_slice_level(
-        ui_descriptor_.holovibes_.get_cd().current_window.load()));
-    if (ui_descriptor_.holovibes_.get_cd().current_window == WindowKind::XYview)
+    ui.ImgAccuCheckBox->setChecked(!is_raw && Holovibes::instance().get_cd().get_img_acc_slice_enabled(
+                                                  Holovibes::instance().get_cd().current_window.load()));
+    ui.ImgAccuSpinBox->setValue(
+        Holovibes::instance().get_cd().get_img_acc_slice_level(Holovibes::instance().get_cd().current_window.load()));
+    if (Holovibes::instance().get_cd().current_window == WindowKind::XYview)
     {
         ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(ui_descriptor_.displayAngle))).c_str());
         ui.FlipPushButton->setText(("Flip " + std::to_string(ui_descriptor_.displayFlip)).c_str());
     }
-    else if (ui_descriptor_.holovibes_.get_cd().current_window == WindowKind::XZview)
+    else if (Holovibes::instance().get_cd().current_window == WindowKind::XZview)
     {
         ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(ui_descriptor_.xzAngle))).c_str());
         ui.FlipPushButton->setText(("Flip " + std::to_string(ui_descriptor_.xzFlip)).c_str());
     }
-    else if (ui_descriptor_.holovibes_.get_cd().current_window == WindowKind::YZview)
+    else if (Holovibes::instance().get_cd().current_window == WindowKind::YZview)
     {
         ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(ui_descriptor_.yzAngle))).c_str());
         ui.FlipPushButton->setText(("Flip " + std::to_string(ui_descriptor_.yzFlip)).c_str());
     }
 
     // p accu
-    ui.PAccuCheckBox->setEnabled(ui_descriptor_.holovibes_.get_cd().img_type != ImgType::PhaseIncrease);
-    ui.PAccuCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().p_accu_enabled);
-    ui.PAccSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1);
-    if (ui_descriptor_.holovibes_.get_cd().p_acc_level >
-        ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1)
-        ui_descriptor_.holovibes_.get_cd().p_acc_level =
-            ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
-    ui.PAccSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().p_acc_level);
-    ui.PAccSpinBox->setEnabled(ui_descriptor_.holovibes_.get_cd().img_type != ImgType::PhaseIncrease);
-    if (ui_descriptor_.holovibes_.get_cd().p_accu_enabled)
+    ui.PAccuCheckBox->setEnabled(Holovibes::instance().get_cd().img_type != ImgType::PhaseIncrease);
+    ui.PAccuCheckBox->setChecked(Holovibes::instance().get_cd().p_accu_enabled);
+    ui.PAccSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size - 1);
+    if (Holovibes::instance().get_cd().p_acc_level > Holovibes::instance().get_cd().time_transformation_size - 1)
+        Holovibes::instance().get_cd().p_acc_level = Holovibes::instance().get_cd().time_transformation_size - 1;
+    ui.PAccSpinBox->setValue(Holovibes::instance().get_cd().p_acc_level);
+    ui.PAccSpinBox->setEnabled(Holovibes::instance().get_cd().img_type != ImgType::PhaseIncrease);
+    if (Holovibes::instance().get_cd().p_accu_enabled)
     {
-        ui.PSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                ui_descriptor_.holovibes_.get_cd().p_acc_level - 1);
-        if (ui_descriptor_.holovibes_.get_cd().pindex > ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                                            ui_descriptor_.holovibes_.get_cd().p_acc_level - 1)
-            ui_descriptor_.holovibes_.get_cd().pindex = ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                                        ui_descriptor_.holovibes_.get_cd().p_acc_level - 1;
-        ui.PSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().pindex);
-        ui.PAccSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                   ui_descriptor_.holovibes_.get_cd().pindex - 1);
+        ui.PSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size -
+                                Holovibes::instance().get_cd().p_acc_level - 1);
+        if (Holovibes::instance().get_cd().pindex >
+            Holovibes::instance().get_cd().time_transformation_size - Holovibes::instance().get_cd().p_acc_level - 1)
+            Holovibes::instance().get_cd().pindex = Holovibes::instance().get_cd().time_transformation_size -
+                                                    Holovibes::instance().get_cd().p_acc_level - 1;
+        ui.PSpinBox->setValue(Holovibes::instance().get_cd().pindex);
+        ui.PAccSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size -
+                                   Holovibes::instance().get_cd().pindex - 1);
     }
     else
     {
-        ui.PSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1);
-        if (ui_descriptor_.holovibes_.get_cd().pindex > ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1)
-            ui_descriptor_.holovibes_.get_cd().pindex = ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
-        ui.PSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().pindex);
+        ui.PSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size - 1);
+        if (Holovibes::instance().get_cd().pindex > Holovibes::instance().get_cd().time_transformation_size - 1)
+            Holovibes::instance().get_cd().pindex = Holovibes::instance().get_cd().time_transformation_size - 1;
+        ui.PSpinBox->setValue(Holovibes::instance().get_cd().pindex);
     }
     ui.PSpinBox->setEnabled(!is_raw);
 
     // q accu
-    bool is_ssa_stft = ui_descriptor_.holovibes_.get_cd().time_transformation == TimeTransformation::SSA_STFT;
+    bool is_ssa_stft = Holovibes::instance().get_cd().time_transformation == TimeTransformation::SSA_STFT;
     ui.Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
     ui.Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
     ui.Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
-    ui.Q_AccuCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().q_acc_enabled);
-    ui.Q_AccSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1);
-    if (ui_descriptor_.holovibes_.get_cd().q_acc_level >
-        ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1)
-        ui_descriptor_.holovibes_.get_cd().q_acc_level =
-            ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
-    ui.Q_AccSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().q_acc_level);
-    if (ui_descriptor_.holovibes_.get_cd().q_acc_enabled)
+    ui.Q_AccuCheckBox->setChecked(Holovibes::instance().get_cd().q_acc_enabled);
+    ui.Q_AccSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size - 1);
+    if (Holovibes::instance().get_cd().q_acc_level > Holovibes::instance().get_cd().time_transformation_size - 1)
+        Holovibes::instance().get_cd().q_acc_level = Holovibes::instance().get_cd().time_transformation_size - 1;
+    ui.Q_AccSpinBox->setValue(Holovibes::instance().get_cd().q_acc_level);
+    if (Holovibes::instance().get_cd().q_acc_enabled)
     {
-        ui.Q_SpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                 ui_descriptor_.holovibes_.get_cd().q_acc_level - 1);
-        if (ui_descriptor_.holovibes_.get_cd().q_index > ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                                             ui_descriptor_.holovibes_.get_cd().q_acc_level - 1)
-            ui_descriptor_.holovibes_.get_cd().q_index = ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                                         ui_descriptor_.holovibes_.get_cd().q_acc_level - 1;
-        ui.Q_SpinBox->setValue(ui_descriptor_.holovibes_.get_cd().q_index);
-        ui.Q_AccSpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size -
-                                    ui_descriptor_.holovibes_.get_cd().q_index - 1);
+        ui.Q_SpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size -
+                                 Holovibes::instance().get_cd().q_acc_level - 1);
+        if (Holovibes::instance().get_cd().q_index >
+            Holovibes::instance().get_cd().time_transformation_size - Holovibes::instance().get_cd().q_acc_level - 1)
+            Holovibes::instance().get_cd().q_index = Holovibes::instance().get_cd().time_transformation_size -
+                                                     Holovibes::instance().get_cd().q_acc_level - 1;
+        ui.Q_SpinBox->setValue(Holovibes::instance().get_cd().q_index);
+        ui.Q_AccSpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size -
+                                    Holovibes::instance().get_cd().q_index - 1);
     }
     else
     {
-        ui.Q_SpinBox->setMaximum(ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1);
-        if (ui_descriptor_.holovibes_.get_cd().q_index >
-            ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1)
-            ui_descriptor_.holovibes_.get_cd().q_index =
-                ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
-        ui.Q_SpinBox->setValue(ui_descriptor_.holovibes_.get_cd().q_index);
+        ui.Q_SpinBox->setMaximum(Holovibes::instance().get_cd().time_transformation_size - 1);
+        if (Holovibes::instance().get_cd().q_index > Holovibes::instance().get_cd().time_transformation_size - 1)
+            Holovibes::instance().get_cd().q_index = Holovibes::instance().get_cd().time_transformation_size - 1;
+        ui.Q_SpinBox->setValue(Holovibes::instance().get_cd().q_index);
     }
 
     // XY accu
-    ui.XAccuCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().x_accu_enabled);
-    ui.XAccSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().x_acc_level);
-    ui.YAccuCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().y_accu_enabled);
-    ui.YAccSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().y_acc_level);
+    ui.XAccuCheckBox->setChecked(Holovibes::instance().get_cd().x_accu_enabled);
+    ui.XAccSpinBox->setValue(Holovibes::instance().get_cd().x_acc_level);
+    ui.YAccuCheckBox->setChecked(Holovibes::instance().get_cd().y_accu_enabled);
+    ui.YAccSpinBox->setValue(Holovibes::instance().get_cd().y_acc_level);
 
     int max_width = 0;
     int max_height = 0;
-    if (ui_descriptor_.holovibes_.get_gpu_input_queue() != nullptr)
+    if (Holovibes::instance().get_gpu_input_queue() != nullptr)
     {
-        max_width = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd().width - 1;
-        max_height = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd().height - 1;
+        max_width = Holovibes::instance().get_gpu_input_queue()->get_fd().width - 1;
+        max_height = Holovibes::instance().get_gpu_input_queue()->get_fd().height - 1;
     }
     else
     {
-        ui_descriptor_.holovibes_.get_cd().x_cuts = 0;
-        ui_descriptor_.holovibes_.get_cd().y_cuts = 0;
+        Holovibes::instance().get_cd().x_cuts = 0;
+        Holovibes::instance().get_cd().y_cuts = 0;
     }
     ui.XSpinBox->setMaximum(max_width);
     ui.YSpinBox->setMaximum(max_height);
-    QSpinBoxQuietSetValue(ui.XSpinBox, ui_descriptor_.holovibes_.get_cd().x_cuts);
-    QSpinBoxQuietSetValue(ui.YSpinBox, ui_descriptor_.holovibes_.get_cd().y_cuts);
+    QSpinBoxQuietSetValue(ui.XSpinBox, Holovibes::instance().get_cd().x_cuts);
+    QSpinBoxQuietSetValue(ui.YSpinBox, Holovibes::instance().get_cd().y_cuts);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
-    ui.TimeTransformationStrideSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().time_transformation_stride);
-    ui.TimeTransformationStrideSpinBox->setSingleStep(ui_descriptor_.holovibes_.get_cd().batch_size);
-    ui.TimeTransformationStrideSpinBox->setMinimum(ui_descriptor_.holovibes_.get_cd().batch_size);
+    ui.TimeTransformationStrideSpinBox->setValue(Holovibes::instance().get_cd().time_transformation_stride);
+    ui.TimeTransformationStrideSpinBox->setSingleStep(Holovibes::instance().get_cd().batch_size);
+    ui.TimeTransformationStrideSpinBox->setMinimum(Holovibes::instance().get_cd().batch_size);
 
     // Batch
     ui.BatchSizeSpinBox->setEnabled(!is_raw && !ui_descriptor_.is_recording_);
 
-    if (ui_descriptor_.holovibes_.get_cd().batch_size > input_queue_capacity)
-        ui_descriptor_.holovibes_.get_cd().batch_size = input_queue_capacity;
+    if (Holovibes::instance().get_cd().batch_size > input_queue_capacity)
+        Holovibes::instance().get_cd().batch_size = input_queue_capacity;
 
-    ui.BatchSizeSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().batch_size);
+    ui.BatchSizeSpinBox->setValue(Holovibes::instance().get_cd().batch_size);
     ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
     // Image rendering
     ui.SpaceTransformationComboBox->setEnabled(!is_raw &&
-                                               !ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled);
+                                               !Holovibes::instance().get_cd().time_transformation_cuts_enabled);
     ui.SpaceTransformationComboBox->setCurrentIndex(
-        static_cast<int>(ui_descriptor_.holovibes_.get_cd().space_transformation.load()));
+        static_cast<int>(Holovibes::instance().get_cd().space_transformation.load()));
     ui.TimeTransformationComboBox->setEnabled(!is_raw);
     ui.TimeTransformationComboBox->setCurrentIndex(
-        static_cast<int>(ui_descriptor_.holovibes_.get_cd().time_transformation.load()));
+        static_cast<int>(Holovibes::instance().get_cd().time_transformation.load()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
     ui.timeTransformationSizeSpinBox->setEnabled(!is_raw &&
-                                                 !ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled);
-    ui.timeTransformationSizeSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().time_transformation_size);
+                                                 !Holovibes::instance().get_cd().time_transformation_cuts_enabled);
+    ui.timeTransformationSizeSpinBox->setValue(Holovibes::instance().get_cd().time_transformation_size);
     ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
                                                   MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
     ui.WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui.WaveLengthDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().lambda * 1.0e9f);
+    ui.WaveLengthDoubleSpinBox->setValue(Holovibes::instance().get_cd().lambda * 1.0e9f);
     ui.ZDoubleSpinBox->setEnabled(!is_raw);
-    ui.ZDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().zdistance);
-    ui.BoundaryLineEdit->setText(QString::number(ui_descriptor_.holovibes_.get_boundary()));
+    ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
+    ui.BoundaryLineEdit->setText(QString::number(Holovibes::instance().get_boundary()));
 
     // Filter2d
     ui.Filter2D->setEnabled(!is_raw);
-    ui.Filter2D->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().filter2d_enabled);
-    ui.Filter2DView->setEnabled(!is_raw && ui_descriptor_.holovibes_.get_cd().filter2d_enabled);
-    ui.Filter2DView->setChecked(!is_raw && ui_descriptor_.holovibes_.get_cd().filter2d_view_enabled);
-    ui.Filter2DN1SpinBox->setEnabled(!is_raw && ui_descriptor_.holovibes_.get_cd().filter2d_enabled);
-    ui.Filter2DN1SpinBox->setValue(ui_descriptor_.holovibes_.get_cd().filter2d_n1);
+    ui.Filter2D->setChecked(!is_raw && Holovibes::instance().get_cd().filter2d_enabled);
+    ui.Filter2DView->setEnabled(!is_raw && Holovibes::instance().get_cd().filter2d_enabled);
+    ui.Filter2DView->setChecked(!is_raw && Holovibes::instance().get_cd().filter2d_view_enabled);
+    ui.Filter2DN1SpinBox->setEnabled(!is_raw && Holovibes::instance().get_cd().filter2d_enabled);
+    ui.Filter2DN1SpinBox->setValue(Holovibes::instance().get_cd().filter2d_n1);
     ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
-    ui.Filter2DN2SpinBox->setEnabled(!is_raw && ui_descriptor_.holovibes_.get_cd().filter2d_enabled);
-    ui.Filter2DN2SpinBox->setValue(ui_descriptor_.holovibes_.get_cd().filter2d_n2);
+    ui.Filter2DN2SpinBox->setEnabled(!is_raw && Holovibes::instance().get_cd().filter2d_enabled);
+    ui.Filter2DN2SpinBox->setValue(Holovibes::instance().get_cd().filter2d_n2);
 
     // Composite
-    const int time_transformation_size_max = ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
+    const int time_transformation_size_max = Holovibes::instance().get_cd().time_transformation_size - 1;
     ui.PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui.PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui.SpinBox_hue_freq_min->setMaximum(time_transformation_size_max);
@@ -491,44 +484,44 @@ void MainWindow::on_notify()
     ui.SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
     ui.SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
 
-    ui.RenormalizationCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().composite_auto_weights_);
+    ui.RenormalizationCheckBox->setChecked(Holovibes::instance().get_cd().composite_auto_weights_);
 
-    QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, ui_descriptor_.holovibes_.get_cd().composite_p_red);
-    QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, ui_descriptor_.holovibes_.get_cd().composite_p_blue);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, ui_descriptor_.holovibes_.get_cd().weight_r);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, ui_descriptor_.holovibes_.get_cd().weight_g);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, ui_descriptor_.holovibes_.get_cd().weight_b);
+    QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, Holovibes::instance().get_cd().composite_p_red);
+    QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, Holovibes::instance().get_cd().composite_p_blue);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, Holovibes::instance().get_cd().weight_r);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, Holovibes::instance().get_cd().weight_g);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, Holovibes::instance().get_cd().weight_b);
     actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, ui_descriptor_.holovibes_.get_cd().composite_p_min_h);
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, ui_descriptor_.holovibes_.get_cd().composite_p_max_h);
+    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, Holovibes::instance().get_cd().composite_p_min_h);
+    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, Holovibes::instance().get_cd().composite_p_max_h);
     QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_h_threshold_min * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_h_threshold_min * 1000));
     slide_update_threshold_h_min();
     QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_h_threshold_max * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_h_threshold_max * 1000));
     slide_update_threshold_h_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, ui_descriptor_.holovibes_.get_cd().composite_p_min_s);
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, ui_descriptor_.holovibes_.get_cd().composite_p_max_s);
+    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, Holovibes::instance().get_cd().composite_p_min_s);
+    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, Holovibes::instance().get_cd().composite_p_max_s);
     QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_s_threshold_min * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_s_threshold_min * 1000));
     slide_update_threshold_s_min();
     QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_s_threshold_max * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_s_threshold_max * 1000));
     slide_update_threshold_s_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, ui_descriptor_.holovibes_.get_cd().composite_p_min_v);
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, ui_descriptor_.holovibes_.get_cd().composite_p_max_v);
+    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, Holovibes::instance().get_cd().composite_p_min_v);
+    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, Holovibes::instance().get_cd().composite_p_max_v);
     QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_v_threshold_min * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_v_threshold_min * 1000));
     slide_update_threshold_v_min();
     QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max,
-                         (int)(ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max * 1000));
+                         (int)(Holovibes::instance().get_cd().slider_v_threshold_max * 1000));
     slide_update_threshold_v_max();
 
     ui.CompositeGroupBox->setHidden(::holovibes::api::is_raw_mode(ui_descriptor_) ||
-                                    (ui_descriptor_.holovibes_.get_cd().img_type != ImgType::Composite));
+                                    (Holovibes::instance().get_cd().img_type != ImgType::Composite));
 
     bool rgbMode = ui.radioButton_rgb->isChecked();
     ui.groupBox->setHidden(!rgbMode);
@@ -538,21 +531,21 @@ void MainWindow::on_notify()
     ui.groupBox_value->setHidden(rgbMode);
 
     // Reticle
-    ui.ReticleScaleDoubleSpinBox->setEnabled(ui_descriptor_.holovibes_.get_cd().reticle_enabled);
-    ui.ReticleScaleDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().reticle_scale);
-    ui.DisplayReticleCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().reticle_enabled);
+    ui.ReticleScaleDoubleSpinBox->setEnabled(Holovibes::instance().get_cd().reticle_enabled);
+    ui.ReticleScaleDoubleSpinBox->setValue(Holovibes::instance().get_cd().reticle_scale);
+    ui.DisplayReticleCheckBox->setChecked(Holovibes::instance().get_cd().reticle_enabled);
 
     // Lens View
-    ui.LensViewCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().gpu_lens_display_enabled);
+    ui.LensViewCheckBox->setChecked(Holovibes::instance().get_cd().gpu_lens_display_enabled);
 
     // Renormalize
-    ui.RenormalizeCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().renorm_enabled);
+    ui.RenormalizeCheckBox->setChecked(Holovibes::instance().get_cd().renorm_enabled);
 
     // Convolution
-    ui.ConvoCheckBox->setEnabled(ui_descriptor_.holovibes_.get_cd().compute_mode == Computation::Hologram);
-    ui.ConvoCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().convolution_enabled);
-    ui.DivideConvoCheckBox->setChecked(ui_descriptor_.holovibes_.get_cd().convolution_enabled &&
-                                       ui_descriptor_.holovibes_.get_cd().divide_convolution_enabled);
+    ui.ConvoCheckBox->setEnabled(Holovibes::instance().get_cd().compute_mode == Computation::Hologram);
+    ui.ConvoCheckBox->setChecked(Holovibes::instance().get_cd().convolution_enabled);
+    ui.DivideConvoCheckBox->setChecked(Holovibes::instance().get_cd().convolution_enabled &&
+                                       Holovibes::instance().get_cd().divide_convolution_enabled);
 
     QLineEdit* path_line_edit = ui.OutputFilePathLineEdit;
     path_line_edit->clear();
@@ -574,11 +567,11 @@ void MainWindow::notify_error(const std::exception& e)
         {
             auto lambda = [this] {
                 // notify will be in close_critical_compute
-                ui_descriptor_.holovibes_.get_cd().pindex = 0;
-                ui_descriptor_.holovibes_.get_cd().time_transformation_size = 1;
-                if (ui_descriptor_.holovibes_.get_cd().convolution_enabled)
+                Holovibes::instance().get_cd().pindex = 0;
+                Holovibes::instance().get_cd().time_transformation_size = 1;
+                if (Holovibes::instance().get_cd().convolution_enabled)
                 {
-                    ui_descriptor_.holovibes_.get_cd().convolution_enabled = false;
+                    Holovibes::instance().get_cd().convolution_enabled = false;
                 }
                 ::holovibes::api::close_windows(ui_descriptor_);
                 ::holovibes::api::close_critical_compute(ui_descriptor_);
@@ -591,8 +584,8 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
-                ui_descriptor_.holovibes_.get_cd().img_acc_slice_xy_enabled = false;
-                ui_descriptor_.holovibes_.get_cd().img_acc_slice_xy_level = 1;
+                Holovibes::instance().get_cd().img_acc_slice_xy_enabled = false;
+                Holovibes::instance().get_cd().img_acc_slice_xy_level = 1;
             }
             ::holovibes::api::close_critical_compute(ui_descriptor_);
 
@@ -742,7 +735,7 @@ void MainWindow::load_ini(const std::string& path)
             !ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
         view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
-        ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(ui_descriptor_.holovibes_.get_cd().img_type.load()));
+        ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(Holovibes::instance().get_cd().img_type.load()));
         import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_group_box->isHidden()));
 
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
@@ -986,8 +979,8 @@ bool MainWindow::need_refresh(const std::string& last_type, const std::string& n
 // GUI
 void MainWindow::set_composite_values()
 {
-    const unsigned min_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size == 1 ? 0 : 1;
-    const unsigned max_val_composite = ui_descriptor_.holovibes_.get_cd().time_transformation_size - 1;
+    const unsigned min_val_composite = Holovibes::instance().get_cd().time_transformation_size == 1 ? 0 : 1;
+    const unsigned max_val_composite = Holovibes::instance().get_cd().time_transformation_size - 1;
 
     ui.PRedSpinBox_Composite->setValue(min_val_composite);
     ui.SpinBox_hue_freq_min->setValue(min_val_composite);
@@ -1004,7 +997,7 @@ void MainWindow::set_composite_values()
 std::function<void()> MainWindow::get_view_mode_callback()
 {
     auto callback = ([=]() {
-        ui_descriptor_.holovibes_.get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
+        Holovibes::instance().get_cd().img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
         notify();
         layout_toggled();
     });
@@ -1038,9 +1031,9 @@ void MainWindow::update_batch_size()
 
     uint batch_size = ui.BatchSizeSpinBox->value();
     auto callback = [=]() {
-        ui_descriptor_.holovibes_.get_cd().batch_size = batch_size;
+        Holovibes::instance().get_cd().batch_size = batch_size;
         ::holovibes::api::adapt_time_transformation_stride_to_batch_size(ui_descriptor_);
-        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_batch_size();
+        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
         notify();
     };
 
@@ -1058,9 +1051,9 @@ void MainWindow::update_time_transformation_stride()
 
     uint time_transformation_stride = ui.TimeTransformationStrideSpinBox->value();
     auto callback = [=]() {
-        ui_descriptor_.holovibes_.get_cd().time_transformation_stride = time_transformation_stride;
+        Holovibes::instance().get_cd().time_transformation_stride = time_transformation_stride;
         ::holovibes::api::adapt_time_transformation_stride_to_batch_size(ui_descriptor_);
-        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
+        Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
         ui.NumberOfFramesSpinBox->setValue(
             ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
                  (float)ui.TimeTransformationStrideSpinBox->value()));
@@ -1094,10 +1087,10 @@ void MainWindow::cancel_time_transformation_cuts()
 
     std::function<void()> callback = []() { return; };
 
-    if (auto pipe = dynamic_cast<Pipe*>(ui_descriptor_.holovibes_.get_compute_pipe().get()))
+    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
         callback = ([=]() {
-            ui_descriptor_.holovibes_.get_cd().time_transformation_cuts_enabled = false;
+            Holovibes::instance().get_cd().time_transformation_cuts_enabled = false;
             pipe->delete_stft_slice_queue();
 
             ui.TimeTransformationCutsCheckBox->setChecked(false);
@@ -1145,7 +1138,7 @@ void MainWindow::set_filter2d(bool checked)
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
         ::holovibes::api::set_filter2d_n2(ui_descriptor_, ui.Filter2DN2SpinBox->value());
         ::holovibes::api::set_filter2d_n1(ui_descriptor_, ui.Filter2DN1SpinBox->value());
@@ -1242,8 +1235,8 @@ void MainWindow::set_time_transformation_size()
     int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
 
     auto callback = [=]() {
-        ui_descriptor_.holovibes_.get_cd().time_transformation_size = time_transformation_size;
-        ui_descriptor_.holovibes_.get_compute_pipe()->request_update_time_transformation_size();
+        Holovibes::instance().get_cd().time_transformation_size = time_transformation_size;
+        Holovibes::instance().get_compute_pipe()->request_update_time_transformation_size();
         set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.
@@ -1261,7 +1254,7 @@ void MainWindow::set_time_transformation_size()
 void MainWindow::update_lens_view(bool value)
 {
     LOG_INFO;
-    ui_descriptor_.holovibes_.get_cd().gpu_lens_display_enabled = value;
+    Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
 
     const std::optional<bool> res = ::holovibes::api::update_lens_view(*this, ui_descriptor_, value);
 
@@ -1351,7 +1344,7 @@ void MainWindow::set_x_y()
 {
     LOG_INFO;
 
-    const auto& fd = ui_descriptor_.holovibes_.get_gpu_input_queue()->get_fd();
+    const auto& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
 
     ::holovibes::api::set_x_y(ui_descriptor_, fd, ui.XSpinBox->value(), ui.YSpinBox->value());
 }
@@ -1597,12 +1590,12 @@ void MainWindow::slide_update_threshold_h_min()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_max,
+                           Holovibes::instance().get_cd().slider_h_threshold_min,
+                           Holovibes::instance().get_cd().slider_h_threshold_max,
                            *ui.horizontalSlider_hue_threshold_max,
                            *ui.label_hue_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_max);
+                           Holovibes::instance().get_cd().slider_h_threshold_min,
+                           Holovibes::instance().get_cd().slider_h_threshold_max);
 }
 
 // FREE
@@ -1610,12 +1603,12 @@ void MainWindow::slide_update_threshold_h_max()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_min,
+                           Holovibes::instance().get_cd().slider_h_threshold_max,
+                           Holovibes::instance().get_cd().slider_h_threshold_min,
                            *ui.horizontalSlider_hue_threshold_min,
                            *ui.label_hue_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_h_threshold_max);
+                           Holovibes::instance().get_cd().slider_h_threshold_min,
+                           Holovibes::instance().get_cd().slider_h_threshold_max);
 }
 
 // FREE
@@ -1623,12 +1616,12 @@ void MainWindow::slide_update_threshold_s_min()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_max,
+                           Holovibes::instance().get_cd().slider_s_threshold_min,
+                           Holovibes::instance().get_cd().slider_s_threshold_max,
                            *ui.horizontalSlider_saturation_threshold_max,
                            *ui.label_saturation_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_max);
+                           Holovibes::instance().get_cd().slider_s_threshold_min,
+                           Holovibes::instance().get_cd().slider_s_threshold_max);
 }
 
 // FREE
@@ -1636,12 +1629,12 @@ void MainWindow::slide_update_threshold_s_max()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_min,
+                           Holovibes::instance().get_cd().slider_s_threshold_max,
+                           Holovibes::instance().get_cd().slider_s_threshold_min,
                            *ui.horizontalSlider_saturation_threshold_min,
                            *ui.label_saturation_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_s_threshold_max);
+                           Holovibes::instance().get_cd().slider_s_threshold_min,
+                           Holovibes::instance().get_cd().slider_s_threshold_max);
 }
 
 // FREE
@@ -1649,12 +1642,12 @@ void MainWindow::slide_update_threshold_v_min()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_value_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max,
+                           Holovibes::instance().get_cd().slider_v_threshold_min,
+                           Holovibes::instance().get_cd().slider_v_threshold_max,
                            *ui.horizontalSlider_value_threshold_max,
                            *ui.label_value_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max);
+                           Holovibes::instance().get_cd().slider_v_threshold_min,
+                           Holovibes::instance().get_cd().slider_v_threshold_max);
 }
 
 // FREE
@@ -1662,12 +1655,12 @@ void MainWindow::slide_update_threshold_v_max()
 {
     LOG_INFO;
     slide_update_threshold(*ui.horizontalSlider_value_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_min,
+                           Holovibes::instance().get_cd().slider_v_threshold_max,
+                           Holovibes::instance().get_cd().slider_v_threshold_min,
                            *ui.horizontalSlider_value_threshold_min,
                            *ui.label_value_threshold_max,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_min,
-                           ui_descriptor_.holovibes_.get_cd().slider_v_threshold_max);
+                           Holovibes::instance().get_cd().slider_v_threshold_min,
+                           Holovibes::instance().get_cd().slider_v_threshold_max);
 }
 
 // Notify
@@ -1721,7 +1714,7 @@ void MainWindow::increment_z()
 
     if (res)
     {
-        ui.ZDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().zdistance);
+        ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
     }
 }
 
@@ -1734,7 +1727,7 @@ void MainWindow::decrement_z()
 
     if (res)
     {
-        ui.ZDoubleSpinBox->setValue(ui_descriptor_.holovibes_.get_cd().zdistance);
+        ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
     }
 }
 
@@ -2219,7 +2212,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     ui.RawDisplayingCheckBox->setHidden(false);
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
-    ui.BatchSizeSpinBox->setEnabled(ui_descriptor_.holovibes_.get_cd().compute_mode == Computation::Hologram);
+    ui.BatchSizeSpinBox->setEnabled(Holovibes::instance().get_cd().compute_mode == Computation::Hologram);
     ::holovibes::api::record_finished(ui_descriptor_);
 }
 
@@ -2333,7 +2326,7 @@ void MainWindow::import_browse_file()
         // Gather data from the newly opened file
         size_t nb_frames = input_file->get_total_nb_frames();
         ui_descriptor_.file_fd_ = input_file->get_frame_descriptor();
-        input_file->import_compute_settings(ui_descriptor_.holovibes_.get_cd());
+        input_file->import_compute_settings(Holovibes::instance().get_cd());
 
         // Don't need the input file anymore
         delete input_file;

@@ -40,8 +40,6 @@ class UserInterfaceDescriptor
         File,
     };
 
-    Holovibes& holovibes_ = Holovibes::instance();
-
     camera::FrameDescriptor file_fd_;
 
     std::unique_ptr<::holovibes::gui::RawWindow> mainDisplay = nullptr;
