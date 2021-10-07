@@ -156,10 +156,11 @@ void ImportPanel::init_holovibes_import_mode()
                                                   [=]() {
                                                       parent_->synchronize_thread([&]() {
                                                           if (parent_->cd_.is_computation_stopped)
-                                                              parent_->ui.FileReaderProgressBar->hide();
+                                                              parent_->ui.InfoPanel->set_visible_file_reader_progress(
+                                                                  false);
                                                       });
                                                   });
-        parent_->ui.FileReaderProgressBar->show();
+        parent_->ui.InfoPanel->set_visible_file_reader_progress(false);
     }
     catch (const std::exception& e)
     {
