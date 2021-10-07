@@ -580,7 +580,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="ViewGroupBox">
+       <widget class="holovibes::gui::ViewPanel" name="ViewPanel">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -3345,6 +3345,12 @@ p, li { white-space: pre-wrap; }
    <header>info_panel.hh</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ViewPanel</class>
+   <extends>QGroupBox</extends>
+   <header>view_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3672,7 +3678,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_auto_refresh_contrast(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3688,7 +3694,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3720,7 +3726,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImgAccuCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_accumulation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3736,7 +3742,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImgAccuSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3752,7 +3758,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>LogScaleCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3800,7 +3806,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>rotateTexture()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3832,7 +3838,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>FlipPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>flipTexture()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3848,7 +3854,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionView</sender>
    <signal>changed()</signal>
-   <receiver>ViewGroupBox</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3864,7 +3870,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>XAccuCheckBox</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3912,7 +3918,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>TimeTransformationCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>toggle_time_transformation_cuts(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3928,7 +3934,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_fft_shift(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3944,7 +3950,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3976,7 +3982,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ViewModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4040,7 +4046,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>YAccuCheckBox</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4088,7 +4094,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RawDisplayingCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>update_raw_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4152,7 +4158,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>LensViewCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>update_lens_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4344,7 +4350,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>DisplayReticleCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>display_reticle(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4408,7 +4414,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>reticle_scale(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4536,7 +4542,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastMinDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4552,7 +4558,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>AutoContrastPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4568,7 +4574,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4584,7 +4590,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>invert_contrast(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4600,7 +4606,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RenormalizeCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>toggle_renormalize(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4872,7 +4878,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4888,7 +4894,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>XAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4904,7 +4910,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>YAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4920,7 +4926,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4936,7 +4942,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>XSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_y()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4952,7 +4958,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>YSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_y()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4968,7 +4974,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PAccuCheckBox</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4984,7 +4990,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Q_SpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_q(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5000,7 +5006,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Q_AccuCheckBox</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_q_acc()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5016,7 +5022,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Q_AccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_q_acc()</slot>
    <hints>
     <hint type="sourcelabel">

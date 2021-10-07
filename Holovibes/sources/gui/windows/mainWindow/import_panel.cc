@@ -87,7 +87,7 @@ void ImportPanel::import_file(const QString& filename)
 void ImportPanel::import_stop()
 {
     parent_->close_windows();
-    parent_->cancel_time_transformation_cuts();
+    parent_->ui.ViewPanel->cancel_time_transformation_cuts();
 
     parent_->holovibes_.stop_all_worker_controller();
     parent_->holovibes_.start_information_display(false);

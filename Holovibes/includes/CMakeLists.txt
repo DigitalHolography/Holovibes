@@ -10,4 +10,5 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/mainWindow/import_panel.hh
     gui/windows/mainWindow/export_panel.hh
     gui/windows/mainWindow/info_panel.hh
+    gui/windows/mainWindow/view_panel.hh
 )

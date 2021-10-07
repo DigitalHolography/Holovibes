@@ -154,11 +154,11 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
     p_left_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
+    connect(p_left_shortcut_, SIGNAL(activated()), ui.ViewPanel, SLOT(decrement_p()));
 
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+    connect(p_right_shortcut_, SIGNAL(activated()), ui.ViewPanel, SLOT(increment_p()));
 
     QComboBox* window_cbox = ui.WindowSelectionComboBox;
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
@@ -235,7 +235,7 @@ void MainWindow::on_notify()
     {
         ui.CompositeGroupBox->hide();
         ui.ImageRenderingGroupBox->setEnabled(false);
-        ui.ViewGroupBox->setEnabled(false);
+        ui.ViewPanel->setEnabled(false);
         ui.ExportPanel->setEnabled(false);
         layout_toggled();
         return;
@@ -244,7 +244,7 @@ void MainWindow::on_notify()
     if (is_enabled_camera_)
     {
         ui.ImageRenderingGroupBox->setEnabled(true);
-        ui.ViewGroupBox->setEnabled(cd_.compute_mode == Computation::Hologram);
+        ui.ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
         ui.ExportPanel->setEnabled(true);
     }
 
@@ -680,7 +680,7 @@ void MainWindow::load_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
-    GroupBox* view_group_box = ui.ViewGroupBox;
+    Panel* view_panel = ui.ViewPanel;
     Panel* import_panel = ui.ImportPanel;
     Panel* info_panel = ui.InfoPanel;
 
@@ -709,7 +709,7 @@ void MainWindow::load_ini(const std::string& path)
         if (z_step > 0.0f)
             set_z_step(z_step);
 
-        view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
+        view_action->setChecked(!ptree.get<bool>("view.hidden", view_panel->isHidden()));
 
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
@@ -748,7 +748,7 @@ void MainWindow::save_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
-    GroupBox* view_group_box = ui.ViewGroupBox;
+    Panel* view_panel = ui.ViewPanel;
     Frame* import_export_frame = ui.ImportExportFrame;
     Panel* info_panel = ui.InfoPanel;
     Config& config = global::global_config;
@@ -768,7 +768,7 @@ void MainWindow::save_ini(const std::string& path)
 
     ptree.put<double>("image_rendering.z_step", z_step_);
 
-    ptree.put<bool>("view.hidden", view_group_box->isHidden());
+    ptree.put<bool>("view.hidden", view_panel->isHidden());
 
     ptree.put<float>("view.mainWindow_rotate", displayAngle);
     ptree.put<float>("view.xCut_rotate", xzAngle);
@@ -808,7 +808,7 @@ void MainWindow::close_critical_compute()
         set_convolution_mode(false);
 
     if (cd_.time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts();
+        ui.ViewPanel->cancel_time_transformation_cuts();
 
     holovibes_.stop_compute();
 }
@@ -1155,7 +1155,7 @@ bool need_refresh(const QString& last_type, const QString& new_type)
     return false;
 }
 } // namespace
-void MainWindow::set_view_mode(const QString value)
+void MainWindow::set_view_image_type(const QString& value)
 {
     if (is_raw_mode())
         return;
@@ -1194,7 +1194,7 @@ void MainWindow::set_view_mode(const QString value)
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
     if (cd_.time_transformation_cuts_enabled)
-        set_auto_contrast_cuts();
+        ui.ViewPanel->set_auto_contrast_cuts();
 }
 
 bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
@@ -1244,30 +1244,6 @@ void MainWindow::update_batch_size()
 #pragma endregion
 /* ------------ */
 #pragma region STFT
-void MainWindow::cancel_stft_slice_view()
-{
-    cd_.reset_slice_view();
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
-
-    if (mainDisplay)
-    {
-        mainDisplay->setCursor(Qt::ArrowCursor);
-        mainDisplay->getOverlayManager().disable_all(SliceCross);
-        mainDisplay->getOverlayManager().disable_all(Cross);
-    }
-    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.set_time_transformation_cuts_enabled(false);
-            pipe->delete_stft_slice_queue();
-
-            ui.TimeTransformationCutsCheckBox->setChecked(false);
-            notify();
-        });
-    }
-}
-
 void MainWindow::update_time_transformation_stride()
 {
     if (is_raw_mode())
@@ -1294,91 +1270,6 @@ void MainWindow::update_time_transformation_stride()
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
-
-void MainWindow::toggle_time_transformation_cuts(bool checked)
-{
-    QComboBox* winSelection = ui.WindowSelectionComboBox;
-    winSelection->setEnabled(checked);
-    winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-    if (checked)
-    {
-        try
-        {
-            holovibes_.get_compute_pipe()->create_stft_slice_queue();
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
-            QPoint yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
-            const ushort nImg = cd_.time_transformation_size;
-            uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-            if (time_transformation_size > time_transformation_cuts_window_max_size)
-                time_transformation_size = time_transformation_cuts_window_max_size;
-
-            while (holovibes_.get_compute_pipe()->get_update_time_transformation_size_request())
-                continue;
-            while (holovibes_.get_compute_pipe()->get_cuts_request())
-                continue;
-            sliceXZ.reset(new SliceWindow(xzPos,
-                                          QSize(mainDisplay->width(), time_transformation_size),
-                                          holovibes_.get_compute_pipe()->get_stft_slice_queue(0).get(),
-                                          KindOfView::SliceXZ,
-                                          this));
-            sliceXZ->setTitle("XZ view");
-            sliceXZ->setAngle(xzAngle);
-            sliceXZ->setFlip(xzFlip);
-            sliceXZ->setCd(&cd_);
-
-            sliceYZ.reset(new SliceWindow(yzPos,
-                                          QSize(time_transformation_size, mainDisplay->height()),
-                                          holovibes_.get_compute_pipe()->get_stft_slice_queue(1).get(),
-                                          KindOfView::SliceYZ,
-                                          this));
-            sliceYZ->setTitle("YZ view");
-            sliceYZ->setAngle(yzAngle);
-            sliceYZ->setFlip(yzFlip);
-            sliceYZ->setCd(&cd_);
-
-            mainDisplay->getOverlayManager().create_overlay<Cross>();
-            cd_.set_time_transformation_cuts_enabled(true);
-            set_auto_contrast_cuts();
-            auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
-            if (holo)
-                holo->update_slice_transforms();
-            notify();
-        }
-        catch (const std::logic_error& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-            cancel_stft_slice_view();
-        }
-    }
-    else
-    {
-        cancel_stft_slice_view();
-    }
-}
-
-void MainWindow::cancel_time_transformation_cuts()
-{
-    if (cd_.time_transformation_cuts_enabled)
-    {
-        cancel_stft_slice_view();
-        try
-        {
-            // Wait for refresh to be enabled for notify
-            while (holovibes_.get_compute_pipe()->get_refresh_request())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what();
-        }
-        cd_.set_time_transformation_cuts_enabled(false);
-    }
-    notify();
-}
-
 #pragma endregion
 /* ------------ */
 #pragma region Computation
@@ -1389,14 +1280,6 @@ void MainWindow::change_window()
     cd_.change_window(window_cbox->currentIndex());
     pipe_refresh();
     notify();
-}
-
-void MainWindow::toggle_renormalize(bool value)
-{
-    cd_.set_renorm_enabled(value);
-
-    holovibes_.get_compute_pipe()->request_clear_img_acc();
-    pipe_refresh();
 }
 
 void MainWindow::set_filter2d(bool checked)
@@ -1551,15 +1434,6 @@ void MainWindow::cancel_filter2d()
     notify();
 }
 
-void MainWindow::set_fft_shift(const bool value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_fft_shift_enabled(value);
-    pipe_refresh();
-}
-
 void MainWindow::set_time_transformation_size()
 {
     if (is_raw_mode())
@@ -1577,183 +1451,11 @@ void MainWindow::set_time_transformation_size()
         pipe->insert_fn_end_vect([=]() {
             cd_.set_time_transformation_size(time_transformation_size);
             holovibes_.get_compute_pipe()->request_update_time_transformation_size();
-            set_p_accu();
+            ui.ViewPanel->set_p_accu();
             // This will not do anything until
             // SliceWindow::changeTexture() isn't coded.
         });
     }
-}
-
-void MainWindow::update_lens_view(bool value)
-{
-    cd_.set_gpu_lens_display_enabled(value);
-
-    if (value)
-    {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
-            ICompute* pipe = holovibes_.get_compute_pipe().get();
-
-            const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
-
-            lens_window.reset(new RawWindow(pos,
-                                            QSize(lens_window_width, lens_window_height),
-                                            pipe->get_lens_queue().get(),
-                                            KindOfView::Lens));
-
-            lens_window->setTitle("Lens view");
-            lens_window->setCd(&cd_);
-
-            // when the window is destoryed, disable_lens_view() will be triggered
-            connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-        }
-    }
-
-    else
-    {
-        disable_lens_view();
-        lens_window.reset(nullptr);
-    }
-
-    pipe_refresh();
-}
-
-void MainWindow::disable_lens_view()
-{
-    if (lens_window)
-        disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
-
-    cd_.set_gpu_lens_display_enabled(false);
-    holovibes_.get_compute_pipe()->request_disable_lens_view();
-    notify();
-}
-
-void MainWindow::update_raw_view(bool value)
-{
-    if (value)
-    {
-        if (cd_.batch_size > global::global_config.output_queue_max_size)
-        {
-            ui.RawDisplayingCheckBox->setChecked(false);
-            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-            return;
-        }
-
-        auto pipe = holovibes_.get_compute_pipe();
-        pipe->request_raw_view();
-
-        // Wait for the raw view to be enabled for notify
-        while (pipe->get_raw_view_requested())
-            continue;
-
-        const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
-        raw_window.reset(
-            new RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-        raw_window->setTitle("Raw view");
-        raw_window->setCd(&cd_);
-
-        connect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
-    }
-    else
-    {
-        raw_window.reset(nullptr);
-        disable_raw_view();
-    }
-    pipe_refresh();
-}
-
-void MainWindow::disable_raw_view()
-{
-    if (raw_window)
-        disconnect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
-
-    auto pipe = holovibes_.get_compute_pipe();
-    pipe->request_disable_raw_view();
-
-    // Wait for the raw view to be disabled for notify
-    while (pipe->get_disable_raw_view_requested())
-        continue;
-
-    notify();
-}
-
-void MainWindow::set_p_accu()
-{
-    cd_.set_p_accu(ui.PAccuCheckBox->isChecked(), ui.PAccSpinBox->value());
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_x_accu()
-{
-    cd_.set_x_accu(ui.XAccuCheckBox->isChecked(), ui.XAccSpinBox->value());
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_y_accu()
-{
-    cd_.set_y_accu(ui.YAccuCheckBox->isChecked(), ui.YAccSpinBox->value());
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_x_y()
-{
-    auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
-    uint x = ui.XSpinBox->value();
-    uint y = ui.YSpinBox->value();
-
-    if (x < fd.width)
-        cd_.set_x_cuts(x);
-
-    if (y < fd.height)
-        cd_.set_y_cuts(y);
-}
-
-void MainWindow::set_q(int value)
-{
-    cd_.set_q_index(value);
-    notify();
-}
-
-void MainWindow::set_q_acc()
-{
-    cd_.set_q_accu(ui.Q_AccuCheckBox->isChecked(), ui.Q_AccSpinBox->value());
-    notify();
-}
-
-void MainWindow::set_p(int value)
-{
-    if (is_raw_mode())
-        return;
-
-    if (value < static_cast<int>(cd_.time_transformation_size))
-    {
-        cd_.pindex = value;
-        pipe_refresh();
-        notify();
-    }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
 }
 
 void MainWindow::set_composite_intervals()
@@ -1818,7 +1520,7 @@ void MainWindow::set_composite_weights()
 void MainWindow::set_composite_auto_weights(bool value)
 {
     cd_.set_composite_auto_weights(value);
-    set_auto_contrast();
+    ui.ViewPanel->set_auto_contrast();
 }
 
 void MainWindow::click_composite_rgb_or_hsv()
@@ -1970,36 +1672,6 @@ void MainWindow::slide_update_threshold_v_max()
                            cd_.slider_v_threshold_max);
 }
 
-void MainWindow::increment_p()
-{
-    if (is_raw_mode())
-        return;
-
-    if (cd_.pindex < cd_.time_transformation_size)
-    {
-        cd_.set_pindex(cd_.pindex + 1);
-        set_auto_contrast();
-        notify();
-    }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
-}
-
-void MainWindow::decrement_p()
-{
-    if (is_raw_mode())
-        return;
-
-    if (cd_.pindex > 0)
-    {
-        cd_.set_pindex(cd_.pindex - 1);
-        set_auto_contrast();
-        notify();
-    }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
-}
-
 void MainWindow::set_wavelength(const double value)
 {
     if (is_raw_mode())
@@ -2060,35 +1732,6 @@ void MainWindow::set_time_transformation(const QString& value)
     set_holographic_mode();
 }
 
-void MainWindow::set_unwrapping_2d(const bool value)
-{
-    if (is_raw_mode())
-        return;
-
-    holovibes_.get_compute_pipe()->request_unwrapping_2d(value);
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_accumulation(bool value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_accumulation(value);
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_accumulation_level(int value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_accumulation_level(value);
-    pipe_refresh();
-}
-
 void MainWindow::pipe_refresh()
 {
     if (is_raw_mode())
@@ -2108,74 +1751,7 @@ void MainWindow::set_composite_area() { mainDisplay->getOverlayManager().create_
 
 #pragma endregion
 /* ------------ */
-#pragma region Texture
-void MainWindow::rotateTexture()
-{
-    WindowKind curWin = cd_.current_window;
-
-    if (curWin == WindowKind::XYview)
-    {
-        displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
-        mainDisplay->setAngle(displayAngle);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
-        sliceXZ->setAngle(xzAngle);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
-        sliceYZ->setAngle(yzAngle);
-    }
-    notify();
-}
-
-void MainWindow::flipTexture()
-{
-    WindowKind curWin = cd_.current_window;
-
-    if (curWin == WindowKind::XYview)
-    {
-        displayFlip = !displayFlip;
-        mainDisplay->setFlip(displayFlip);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        xzFlip = !xzFlip;
-        sliceXZ->setFlip(xzFlip);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        yzFlip = !yzFlip;
-        sliceYZ->setFlip(yzFlip);
-    }
-    notify();
-}
-
-#pragma endregion
-/* ------------ */
 #pragma region Contrast - Log
-void MainWindow::set_contrast_mode(bool value)
-{
-    if (is_raw_mode())
-        return;
-
-    change_window();
-    cd_.set_contrast_mode(value);
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_auto_contrast_cuts()
-{
-    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XZview);
-        pipe->autocontrast_end_pipe(WindowKind::YZview);
-    }
-}
-
 void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 {
     spinBox->blockSignals(true);
@@ -2195,87 +1771,6 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
     spinBox->blockSignals(true);
     spinBox->setValue(value);
     spinBox->blockSignals(false);
-}
-
-void MainWindow::set_auto_contrast()
-{
-    if (is_raw_mode())
-        return;
-
-    try
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(cd_.current_window);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what() << std::endl;
-    }
-}
-
-void MainWindow::set_contrast_min(const double value)
-{
-    if (is_raw_mode())
-        return;
-
-    if (cd_.contrast_enabled)
-    {
-        const float old_val = cd_.get_truncate_contrast_min();
-        const float val = value;
-        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
-
-        if (abs(old_val - val) > epsilon)
-        {
-            cd_.set_contrast_min(value);
-            pipe_refresh();
-        }
-    }
-}
-
-void MainWindow::set_contrast_max(const double value)
-{
-    if (is_raw_mode())
-        return;
-
-    if (cd_.contrast_enabled)
-    {
-        const float old_val = cd_.get_truncate_contrast_max();
-        const float val = value;
-        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
-
-        if (abs(old_val - val) > epsilon)
-        {
-            cd_.set_contrast_max(value);
-            pipe_refresh();
-        }
-    }
-}
-
-void MainWindow::invert_contrast(bool value)
-{
-    if (!is_raw_mode() && cd_.set_contrast_invert(value))
-    {
-        pipe_refresh();
-    }
-}
-
-void MainWindow::set_auto_refresh_contrast(bool value)
-{
-    cd_.set_contrast_auto_refresh(value);
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_log_scale(const bool value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-    if (value && cd_.contrast_enabled)
-        set_auto_contrast();
-    pipe_refresh();
-    notify();
 }
 #pragma endregion
 /* ------------ */
@@ -2345,33 +1840,6 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 }
 
 #pragma endregion
-/* ------------ */
-#pragma region Reticle
-void MainWindow::display_reticle(bool value)
-{
-    cd_.set_reticle_enabled(value);
-    if (value)
-    {
-        mainDisplay->getOverlayManager().create_overlay<Reticle>();
-        mainDisplay->getOverlayManager().create_default();
-    }
-    else
-    {
-        mainDisplay->getOverlayManager().disable_all(Reticle);
-    }
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::reticle_scale(double value)
-{
-    if (0 > value || value > 1)
-        return;
-
-    cd_.set_reticle_scale(value);
-    pipe_refresh();
-}
-#pragma endregion Reticle
 /* ------------ */
 #pragma region Themes
 void MainWindow::set_night()

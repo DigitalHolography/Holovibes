@@ -212,7 +212,7 @@ void ExportPanel::start_record()
 
     // Start record
     parent_->raw_window.reset(nullptr);
-    parent_->disable_raw_view();
+    parent_->ui.ViewPanel->disable_raw_view();
     parent_->ui.RawDisplayingCheckBox->setHidden(true);
 
     parent_->ui.BatchSizeSpinBox->setEnabled(false);

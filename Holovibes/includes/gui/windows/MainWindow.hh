@@ -184,12 +184,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_divide_convolution_mode(const bool value); // IR
 
-    /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
-     *
-     * \param value true: enable, false: disable
-     */
-    void toggle_renormalize(bool value); // V
-
     /*! \brief Checks if we are currently in raw mode
      *
      * \return true if we are in raw mode, false otherwise
@@ -232,44 +226,11 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the time transformation size from ui value */
     void set_time_transformation_size(); // IR
 
-    /*! \brief Adds or removes lens view
+    /*! \brief Modifies view image type
      *
-     * \param value true: add, false: remove
+     * \param value The new image type
      */
-    void update_lens_view(bool value); // V
-
-    /*! \brief Removes lens view */
-    void disable_lens_view(); // RIEN (V?)
-
-    /*! \brief Adds or removes raw view
-     *
-     * \param value true: add, false: remove
-     */
-    void update_raw_view(bool value); // V
-
-    /*! \brief Removes raw view */
-    void disable_raw_view(); // RIEN (V?)
-
-    /*! \brief Modifies p accumulation from ui value */
-    void set_p_accu(); // V
-
-    /*! \brief Modifies x accumulation from ui value */
-    void set_x_accu(); // V
-
-    /*! \brief Modifies y accumulation from ui value */
-    void set_y_accu(); // V
-
-    /*! \brief Modifies x and y from ui values */
-    void set_x_y(); // V
-
-    /*! \brief Modifies q accumulation from ui value
-     *
-     * \param value The new q value
-     */
-    void set_q(int value); // V
-
-    /*! \brief Modifies q accumulation from ui value */
-    void set_q_acc(); // V
+    void set_view_image_type(const QString& value);
 
     /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
     void set_composite_intervals(); // C
@@ -335,18 +296,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modified Hue blur size from ui value */
     void actualize_kernel_size_blur(); // C
 
-    /*! \brief Modifies p from ui value
-     *
-     * \param value The new value of p
-     */
-    void set_p(int value); // V
-
-    /*! \brief Increment p by 1 on key shortcut */
-    void increment_p(); // V
-
-    /*! \brief Decrement p by 1 on key shortcut */
-    void decrement_p(); // V
-
     /*! \brief Modifies wave length (lambda)
      *
      * \param value The new value of lambda
@@ -383,89 +332,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_time_transformation(const QString& value); // IR
 
-    /*! \brief Enables or Disables time transform cuts views
-     *
-     * \param checked true: enable, false: disable
-     */
-    void toggle_time_transformation_cuts(bool checked); // V
-
-    /*! \brief Disables time transform cuts views */
-    void cancel_stft_slice_view(); // RIEN (V?)
-
     /*! \brief Modifies batch size from ui value */
     void update_batch_size(); // IR
 
     /*! \brief Modifies time transformation stride size from ui value */
     void update_time_transformation_stride(); // IR
-
-    /*! \brief Modifies view image type
-     *
-     * \param value The new image type
-     */
-    void set_view_mode(QString value); // V
-
-    /*! \brief Enables or Disables unwrapping 2d
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_unwrapping_2d(bool value); // V
-
-    /*! \brief Enables or Disables accumulation for the current window
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_accumulation(bool value); // V
-
-    /*! \brief Modifies the accumulation level on the current window
-     *
-     * \param value The new level value
-     */
-    void set_accumulation_level(int value); // V
-
-    /*! \brief Enables or Disables the contrast mode and update the current focused window
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_contrast_mode(bool value); // V
-
-    /*! \brief Enalbles auto-contrast */
-    void set_auto_contrast(); // V
-
-    /*! \brief Modifies the min contrast value on the current window
-     *
-     * \param value The new min contrast value
-     */
-    void set_contrast_min(double value); // V
-
-    /*! \brief Modifies the max contrast value on the current window
-     *
-     * \param value the new max contrast value
-     */
-    void set_contrast_max(double value); // V
-
-    /*! \brief Enables or Disables contrast invertion
-     *
-     * \param value true: enable, false: disable
-     */
-    void invert_contrast(bool value); // V
-
-    /*! \brief Enables or Disables auto refresh contrast
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_auto_refresh_contrast(bool value); // V
-
-    /*! \brief Enables or Disables log scale on the current window
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_log_scale(bool value); // V
-
-    /*! \brief Enables or Disables fft shift mode on the main display window
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_fft_shift(bool value); // V
 
     /*! \brief Make the ui compisite overlay visible */
     void set_composite_area(); // C
@@ -496,24 +367,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Changes the theme of the ui */
     void set_night(); // RIEN
-
-    /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
-    void rotateTexture(); // V
-
-    /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
-    void flipTexture(); // V
-
-    /*! \brief Creates or Removes the reticle overlay
-     *
-     * \param value true: create, false: remove
-     */
-    void display_reticle(bool value); // V
-
-    /*! \brief Modifies reticle scale in ]0, 1[
-     *
-     * \param value The new reticle scale
-     */
-    void reticle_scale(double value); // V
     /*! \} */
 
 #pragma endregion
@@ -569,9 +422,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path); // RIEN
 
-    /*! \brief Remove time transformation cut views */
-    void cancel_time_transformation_cuts(); // RIEN (V?)
-
     /*! \brief Creates the pipeline */
     void createPipe(); // RIEN
 
@@ -589,9 +439,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh(); // RIEN
-
-    /*! \brief Adds auto contrast to the pipe over cut views */
-    void set_auto_contrast_cuts(); // RIEN (V?)
 
     /*! \brief Enable the filter2d mode */
     void set_filter2d_pipe(); // IR
