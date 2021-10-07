@@ -23,9 +23,6 @@ class Config
         this->frame_timeout = 100000;
         this->file_buffer_size = 32;
         this->unwrap_history_size = 20;
-        this->set_cuda_device = true;
-        this->auto_device_number = true;
-        this->device_number = 0;
     }
 
     /*! \brief Copy constructor. */
@@ -41,9 +38,6 @@ class Config
         this->frame_timeout = o.frame_timeout;
         this->file_buffer_size = o.file_buffer_size;
         this->unwrap_history_size = o.unwrap_history_size;
-        this->set_cuda_device = o.set_cuda_device;
-        this->auto_device_number = o.auto_device_number;
-        this->device_number = o.device_number;
         return *this;
     }
 
@@ -66,12 +60,6 @@ class Config
      * are taken in order to be applied to the current phase image.
      */
     unsigned int unwrap_history_size;
-    /*! \brief Determines if Cuda device has to be set */
-    bool set_cuda_device;
-    /*! \brief Determines if Cuda device number is automaticly set */
-    bool auto_device_number;
-    /*! \brief Determines if Cuda device number is set manually */
-    unsigned int device_number;
 };
 } // namespace holovibes
 

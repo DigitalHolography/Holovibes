@@ -110,11 +110,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // Import
     cd.pixel_size = ptree.get<float>("import.pixel_size", cd.pixel_size);
 
-    // Reset button
-    config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
-    config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
-    config.device_number = ptree.get<int>("reset.device_number", config.device_number);
-
     // Composite
     cd.composite_p_red = ptree.get<ushort>("composite.p_red", 1);
     cd.composite_p_blue = ptree.get<ushort>("composite.p_blue", 1);
@@ -242,10 +237,5 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("composite.low_v_threshold", cd.composite_low_v_threshold);
     ptree.put<float>("composite.high_v_threshold", cd.composite_high_v_threshold);
     ptree.put<bool>("composite.auto_weights", cd.composite_auto_weights_);
-
-    // Reset
-    ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
-    ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
-    ptree.put<uint>("reset.device_number", config.device_number);
 }
 } // namespace holovibes::ini
