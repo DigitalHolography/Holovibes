@@ -468,9 +468,21 @@ void ComputeDescriptor::set_fft_shift_enabled(bool value) { fft_shift_enabled = 
 
 void ComputeDescriptor::set_gpu_lens_display_enabled(bool value) { gpu_lens_display_enabled = value; }
 
-void ComputeDescriptor::set_x_cuts(int value) { x_cuts = value; }
+void ComputeDescriptor::set_x_cuts(int value)
+{
+    auto& holo = Holovibes::instance();
+    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    if (value > fd.width)
+        x_cuts = value;
+}
 
-void ComputeDescriptor::set_y_cuts(int value) { y_cuts = value; }
+void ComputeDescriptor::set_y_cuts(int value)
+{
+    auto& holo = Holovibes::instance();
+    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    if (value > fd.height)
+        y_cuts = value;
+}
 
 void ComputeDescriptor::set_pindex(int value) { pindex = value; }
 

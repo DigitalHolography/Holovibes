@@ -1673,15 +1673,11 @@ void MainWindow::set_y_accu()
 
 void MainWindow::set_x_y()
 {
-    auto& fd = holovibes_.get_gpu_input_queue()->get_fd();
     uint x = ui.XSpinBox->value();
     uint y = ui.YSpinBox->value();
 
-    if (x < fd.width)
-        cd_.set_x_cuts(x);
-
-    if (y < fd.height)
-        cd_.set_y_cuts(y);
+    cd_.set_x_cuts(x);
+    cd_.set_y_cuts(y);
 }
 
 void MainWindow::set_q(int value)

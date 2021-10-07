@@ -50,12 +50,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         cd.time_transformation_size = 1;
     else
         cd.time_transformation_size = p_time_transformation_size;
-    const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex);
-    if (p_index >= 0 && p_index < cd.time_transformation_size)
-        cd.pindex = p_index;
-    const ushort q_index = ptree.get<ushort>("image_rendering.q_index", cd.q_index);
-    if (q_index >= 0 && q_index < cd.time_transformation_size)
-        cd.q_index = q_index;
 
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
@@ -75,11 +69,22 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.img_type.exchange(static_cast<ImgType>(ptree.get<int>("view.view_mode", static_cast<int>(cd.img_type.load()))));
 
     // Displaying mode
+    cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
+
     cd.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     cd.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
     cd.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
 
-    cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
+    const ushort p_index = ptree.get<ushort>("view.p_index", cd.pindex);
+    if (p_index >= 0 && p_index < cd.time_transformation_size)
+        cd.pindex = p_index;
+    const ushort q_index = ptree.get<ushort>("view.q_index", cd.q_index);
+    if (q_index >= 0 && q_index < cd.time_transformation_size)
+        cd.q_index = q_index;
+    const ushort x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
+    cd.set_x_cuts(x_cuts);
+    const ushort y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
+    cd.set_y_cuts(y_cuts);
 
     cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
@@ -175,15 +180,17 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<ushort>("image_rendering.raw_bitshift", cd.raw_bitshift);
 
     // View
+    ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
+
     ptree.put<int>("view.view_mode", static_cast<int>(cd.img_type.load()));
     ptree.put<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
 
-    ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-
     ptree.put<ushort>("view.p_index", cd.pindex);
     ptree.put<ushort>("view.q_index", cd.q_index);
+    ptree.put<ushort>("view.x_cuts", cd.x_cuts);
+    ptree.put<ushort>("view.y_cuts", cd.y_cuts);
     ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
     ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
