@@ -450,43 +450,43 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
     return res;
 }
 
-void camera_ids(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_ids(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::IDS);
 }
 
-void camera_phantom(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_phantom(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::Phantom);
 }
 
-void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::BitflowCyton);
 }
 
-void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::Hamamatsu);
 }
 
-void camera_adimec(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_adimec(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::Adimec);
 }
 
-void camera_xiq(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_xiq(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::xiQ);
 }
 
-void camera_xib(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void camera_xib(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     mainwindow.change_camera(::holovibes::CameraKind::xiB);

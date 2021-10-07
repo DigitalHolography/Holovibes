@@ -832,7 +832,7 @@ void MainWindow::camera_ids()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_ids(*this, ui_descriptor_);
+    ::holovibes::api::camera_ids(*this);
 }
 
 // FREE
@@ -840,7 +840,7 @@ void MainWindow::camera_phantom()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_phantom(*this, ui_descriptor_);
+    ::holovibes::api::camera_phantom(*this);
 }
 
 // FREE
@@ -848,7 +848,7 @@ void MainWindow::camera_bitflow_cyton()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_bitflow_cyton(*this, ui_descriptor_);
+    ::holovibes::api::camera_bitflow_cyton(*this);
 }
 
 // FREE
@@ -856,7 +856,7 @@ void MainWindow::camera_hamamatsu()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_hamamatsu(*this, ui_descriptor_);
+    ::holovibes::api::camera_hamamatsu(*this);
 }
 
 // FREE
@@ -864,7 +864,7 @@ void MainWindow::camera_adimec()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_adimec(*this, ui_descriptor_);
+    ::holovibes::api::camera_adimec(*this);
 }
 
 // FREE
@@ -872,7 +872,7 @@ void MainWindow::camera_xiq()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_xiq(*this, ui_descriptor_);
+    ::holovibes::api::camera_xiq(*this);
 }
 
 // FREE
@@ -880,7 +880,7 @@ void MainWindow::camera_xib()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_xib(*this, ui_descriptor_);
+    ::holovibes::api::camera_xib(*this);
 }
 
 // FREE
