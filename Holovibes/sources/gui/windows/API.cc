@@ -880,7 +880,7 @@ bool cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
 
 #pragma region Computation
 
-void change_window(UserInterfaceDescriptor& ui_descriptor, const int index)
+void change_window(const int index)
 {
     LOG_INFO;
 
@@ -940,7 +940,7 @@ void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int ind
         continue;
 
     // Change the focused window
-    change_window(ui_descriptor, index);
+    change_window(index);
 }
 
 std::optional<bool>

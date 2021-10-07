@@ -1115,7 +1115,7 @@ void MainWindow::change_window()
 {
     LOG_INFO;
 
-    ::holovibes::api::change_window(ui_descriptor_, ui.WindowSelectionComboBox->currentIndex());
+    ::holovibes::api::change_window(ui.WindowSelectionComboBox->currentIndex());
 
     notify();
 }
