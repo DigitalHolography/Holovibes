@@ -79,10 +79,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     const ushort q_index = ptree.get<ushort>("view.q_index", cd.q_index);
     if (q_index >= 0 && q_index < cd.time_transformation_size)
         cd.q_index = q_index;
-    const ushort x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
-    cd.set_x_cuts(x_cuts);
-    const ushort y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
-    cd.set_y_cuts(y_cuts);
+    cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
+    cd.y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
 
     cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
