@@ -10,7 +10,7 @@ namespace holovibes::gui
 {
 class MainWindow;
 
-/*! \class InfotPanel
+/*! \class InfoPanel
  *
  * \brief Class representing the Info Panel in the GUI
  */
