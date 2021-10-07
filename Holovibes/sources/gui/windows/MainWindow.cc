@@ -1037,7 +1037,7 @@ void MainWindow::update_batch_size()
         notify();
     };
 
-    ::holovibes::api::update_batch_size(ui_descriptor_, callback, batch_size);
+    ::holovibes::api::update_batch_size(callback, batch_size);
 }
 
 #pragma endregion

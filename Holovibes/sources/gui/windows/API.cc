@@ -722,7 +722,7 @@ void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null
 
 #pragma region Batch
 
-void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size)
+void update_batch_size(std::function<void()> callback, const uint batch_size)
 {
     LOG_INFO;
 

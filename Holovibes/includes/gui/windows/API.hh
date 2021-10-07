@@ -756,11 +756,10 @@ void update_time_transformation_stride(UserInterfaceDescriptor& ui_descriptor,
 
 /*! \brief Modifies batch size from ui value
  *
- * \param ui_descriptor user interface's state
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  * \param batch_size the new value
  */
-void update_batch_size(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback, const uint batch_size);
+void update_batch_size(std::function<void()> callback, const uint batch_size);
 
 /*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
 void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor);
