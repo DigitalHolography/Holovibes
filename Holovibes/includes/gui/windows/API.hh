@@ -61,10 +61,9 @@ void remove_infos();
 
 /*! \brief Checks if we are currently in raw mode
  *
- * \param ui_descriptor user interface's state
  * \return true if we are in raw mode, false otherwise
  */
-bool is_raw_mode(UserInterfaceDescriptor& ui_descriptor);
+bool is_raw_mode();
 
 /*! \brief Enables the divide convolution mode
  *

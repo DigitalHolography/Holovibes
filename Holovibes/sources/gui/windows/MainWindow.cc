@@ -252,7 +252,7 @@ void MainWindow::on_notify()
         ui.ExportGroupBox->setEnabled(true);
     }
 
-    const bool is_raw = ::holovibes::api::is_raw_mode(ui_descriptor_);
+    const bool is_raw = ::holovibes::api::is_raw_mode();
 
     if (is_raw)
     {
@@ -520,7 +520,7 @@ void MainWindow::on_notify()
                          (int)(Holovibes::instance().get_cd().slider_v_threshold_max * 1000));
     slide_update_threshold_v_max();
 
-    ui.CompositeGroupBox->setHidden(::holovibes::api::is_raw_mode(ui_descriptor_) ||
+    ui.CompositeGroupBox->setHidden(::holovibes::api::is_raw_mode() ||
                                     (Holovibes::instance().get_cd().img_type != ImgType::Composite));
 
     bool rgbMode = ui.radioButton_rgb->isChecked();
@@ -1710,7 +1710,7 @@ void MainWindow::increment_z()
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::is_raw_mode(ui_descriptor_);
+    const bool res = ::holovibes::api::is_raw_mode();
 
     if (res)
     {
@@ -2400,7 +2400,7 @@ void MainWindow::import_start()
         ui_descriptor_.mainDisplay.reset(nullptr);
     }
 
-    ui.ImageModeComboBox->setCurrentIndex(::holovibes::api::is_raw_mode(ui_descriptor_) ? 0 : 1);
+    ui.ImageModeComboBox->setCurrentIndex(::holovibes::api::is_raw_mode() ? 0 : 1);
 }
 
 // GUI
