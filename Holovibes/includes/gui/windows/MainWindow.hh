@@ -232,70 +232,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_view_image_type(const QString& value);
 
-    /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
-    void set_composite_intervals(); // C
-
-    /*! \brief Modifies HSV Hue min frequence */
-    void set_composite_intervals_hsv_h_min(); // C
-
-    /*! \brief Modifies HSV Hue max frequence*/
-    void set_composite_intervals_hsv_h_max(); // C
-
-    /*! \brief Modifies HSV Saturation min frequence */
-    void set_composite_intervals_hsv_s_min(); // C
-
-    /*! \brief Modifies HSV Saturation max frequence */
-    void set_composite_intervals_hsv_s_max(); // C
-
-    /*! \brief Modifies HSV Value min frequence */
-    void set_composite_intervals_hsv_v_min(); // C
-
-    /*! \brief Modifies HSV Value min frequence */
-    void set_composite_intervals_hsv_v_max(); // C
-
-    /*! \brief Modifies the RGV from ui values */
-    void set_composite_weights(); // C
-
-    /*! \brief Automatic equalization (Auto-constrast)
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_composite_auto_weights(bool value); // C
-
-    /*! \brief Switchs between RGB mode and HSV mode */
-    void click_composite_rgb_or_hsv(); // C
-
-    /*! \brief Modifies Hue min threshold and guaratees that Hue min threshold does not exceed Hue max threshold */
-    void slide_update_threshold_h_min(); // C
-
-    /*! \brief Modifies Hue max threshold and guaratees that Hue max threshold is higher than Hue min threshold */
-    void slide_update_threshold_h_max(); // C
-
-    /*! \brief Change Saturation min threshold. Saturation min threshold does not exceed max threshold */
-    void slide_update_threshold_s_min(); // C
-
-    /*! \brief Change Saturation max. Saturation max threshold is higher than min threshold */
-    void slide_update_threshold_s_max(); // C
-
-    /*! \brief Change Value min threshold and guarantees that Value min threshold does not exceed Value max threshold */
-    void slide_update_threshold_v_min(); // C
-
-    /*! \brief Modifies Value max threshold and guarantees that Value max threshold is higher than Value min threshold
-     */
-    void slide_update_threshold_v_max(); // C
-
-    /*! \brief Enables or disables Saturation frequency channel min and max from ui checkbox */
-    void actualize_frequency_channel_s(); // C
-
-    /*! \brief Enables or disables Value frequency channel min and max from ui checkbox */
-    void actualize_frequency_channel_v(); // C
-
-    /*! \brief Enables or disables Hue gaussian blur from ui checkbox */
-    void actualize_checkbox_h_gaussian_blur(); // C
-
-    /*! \brief Modified Hue blur size from ui value */
-    void actualize_kernel_size_blur(); // C
-
     /*! \brief Modifies wave length (lambda)
      *
      * \param value The new value of lambda
@@ -338,14 +274,11 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Modifies time transformation stride size from ui value */
     void update_time_transformation_stride(); // IR
 
-    /*! \brief Make the ui compisite overlay visible */
-    void set_composite_area(); // C
-
     /*! \brief Modifies convolution kernel
      *
      * \param value The new kernel to apply
      */
-    void update_convo_kernel(const QString& value); // C
+    void update_convo_kernel(const QString& value); // ?IR?
 
     /*! \brief Changes the focused windows */
     void change_window(); // RIEN

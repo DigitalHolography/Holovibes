@@ -1402,7 +1402,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="CompositeGroupBox">
+       <widget class="holovibes::gui::CompositePanel" name="CompositePanel">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -3351,6 +3351,12 @@ p, li { white-space: pre-wrap; }
    <header>view_panel.hh</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::CompositePanel</class>
+   <extends>QGroupBox</extends>
+   <header>composite_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3886,7 +3892,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3902,7 +3908,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PBlueSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3966,7 +3972,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RenormalizationCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3998,7 +4004,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_R</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4014,7 +4020,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_G</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4062,7 +4068,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBox_value_freq</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_frequency_channel_v()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4078,7 +4084,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>CompositeAreaButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4110,7 +4116,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4126,7 +4132,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_B</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4142,7 +4148,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_hue_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4174,7 +4180,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>radioButton_rgb</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>click_composite_rgb_or_hsv()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4190,7 +4196,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>radioButton_hsv</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>click_composite_rgb_or_hsv()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4206,7 +4212,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4222,7 +4228,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_value_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4238,7 +4244,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_value_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4254,7 +4260,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_value_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4270,7 +4276,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4286,7 +4292,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_value_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4302,7 +4308,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBox_h_gaussian_blur</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_checkbox_h_gaussian_blur()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4318,7 +4324,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_saturation_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4334,7 +4340,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_saturation_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4366,7 +4372,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBox_saturation_freq</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_frequency_channel_s()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4430,7 +4436,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_saturation_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4462,7 +4468,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_blur_kernel_size</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_kernel_size_blur()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4478,7 +4484,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_saturation_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
