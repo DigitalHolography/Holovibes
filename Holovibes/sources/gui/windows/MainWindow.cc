@@ -734,8 +734,8 @@ void MainWindow::load_ini(const std::string& path)
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
         info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
-        theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
+        theme_index_ = ptree.get<int>("display.theme_type", theme_index_);
         window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
         time_transformation_cuts_window_max_size =
             ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
@@ -785,8 +785,8 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 
     ptree.put<bool>("info.hidden", info_group_box->isHidden());
-    ptree.put<ushort>("info.theme_type", theme_index_);
 
+    ptree.put<ushort>("display.theme_type", theme_index_);
     ptree.put<uint>("display.main_window_max_size", window_max_size);
     ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
     ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
