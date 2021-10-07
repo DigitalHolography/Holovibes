@@ -30,7 +30,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.display_rate = ptree.get<float>("config.display_rate", cd.display_rate);
 
     // Image rendering
-    cd.compute_mode = static_cast<Computation>(ptree.get<int>("image_rendering.image_mode", cd.compute_mode));
+    cd.compute_mode = static_cast<Computation>(
+        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
     cd.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
 
     cd.filter2d_n2 = ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
