@@ -645,7 +645,7 @@ void MainWindow::configure_holovibes()
 void MainWindow::write_ini()
 {
     LOG_INFO;
-    ::holovibes::api::write_ini(*this, ui_descriptor_);
+    ::holovibes::api::write_ini(*this);
 }
 
 // Notify
@@ -653,7 +653,7 @@ void MainWindow::write_ini(QString filename)
 {
     LOG_INFO;
 
-    ::holovibes::api::write_ini(*this, ui_descriptor_, filename.toStdString());
+    ::holovibes::api::write_ini(*this, filename.toStdString());
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     notify();
 }
@@ -663,7 +663,7 @@ void MainWindow::write_ini(const std::string& filename)
 {
     LOG_INFO;
 
-    ::holovibes::api::write_ini(*this, ui_descriptor_, filename);
+    ::holovibes::api::write_ini(*this, filename);
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     notify();
 }

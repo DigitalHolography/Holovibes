@@ -167,16 +167,14 @@ void configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void write_ini(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void write_ini(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
 
     mainwindow.write_ini((QString) "");
 }
 
-void write_ini(::holovibes::gui::MainWindow& mainwindow,
-               UserInterfaceDescriptor& ui_descriptor,
-               const std::string& filename)
+void write_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename)
 {
     LOG_INFO;
 
