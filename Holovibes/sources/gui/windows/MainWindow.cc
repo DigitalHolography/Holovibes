@@ -674,7 +674,7 @@ void MainWindow::browse_export_ini()
     LOG_INFO;
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
-    ::holovibes::api::browse_export_ini(*this, ui_descriptor_, filename.toStdString());
+    ::holovibes::api::browse_export_ini(*this, filename.toStdString());
 }
 
 // GUI

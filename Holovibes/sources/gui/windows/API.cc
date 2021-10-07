@@ -183,9 +183,7 @@ void write_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& file
     mainwindow.save_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
 }
 
-void browse_export_ini(::holovibes::gui::MainWindow& mainwindow,
-                       UserInterfaceDescriptor& ui_descriptor,
-                       const std::string& filename)
+void browse_export_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename)
 {
     LOG_INFO;
 
