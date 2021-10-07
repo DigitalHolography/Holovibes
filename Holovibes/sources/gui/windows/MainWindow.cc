@@ -83,7 +83,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     setWindowIcon(QIcon("Holovibes.ico"));
 
     auto display_info_text_fun = [=](const std::string& text) {
-        synchronize_thread([=]() { ui.InfoTextEdit->setText(text.c_str()); });
+        synchronize_thread([=]() { ui.InfoPanel->set_text(text.c_str()); });
     };
     Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
 
@@ -92,13 +92,11 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
             switch (type)
             {
             case InformationContainer::ProgressType::FILE_READ:
-                ui.FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
-                ui.FileReaderProgressBar->setValue(static_cast<int>(value));
+                ui.InfoPanel->init_file_reader_progress(static_cast<int>(value), static_cast<int>(max_size));
                 break;
             case InformationContainer::ProgressType::CHART_RECORD:
             case InformationContainer::ProgressType::FRAME_RECORD:
-                ui.RecordProgressBar->setMaximum(static_cast<int>(max_size));
-                ui.RecordProgressBar->setValue(static_cast<int>(value));
+                ui.InfoPanel->init_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                 break;
             default:
                 return;
@@ -106,8 +104,8 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         });
     };
     Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
-    ui.FileReaderProgressBar->hide();
-    ui.RecordProgressBar->hide();
+    ui.InfoPanel->set_visible_file_reader_progress(false);
+    ui.InfoPanel->set_visible_record_progress(false);
 
     ui.ExportPanel->set_record_mode(QString::fromUtf8("Raw Image"));
 
@@ -684,7 +682,7 @@ void MainWindow::load_ini(const std::string& path)
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     Panel* import_panel = ui.ImportPanel;
-    GroupBox* info_group_box = ui.InfoGroupBox;
+    Panel* info_panel = ui.InfoPanel;
 
     QAction* image_rendering_action = ui.actionImage_rendering;
     QAction* view_action = ui.actionView;
@@ -734,7 +732,7 @@ void MainWindow::load_ini(const std::string& path)
 
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
-        info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
+        info_action->setChecked(!ptree.get<bool>("info.hidden", info_panel->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
         window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
@@ -752,7 +750,7 @@ void MainWindow::save_ini(const std::string& path)
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     Frame* import_export_frame = ui.ImportExportFrame;
-    GroupBox* info_group_box = ui.InfoGroupBox;
+    Panel* info_panel = ui.InfoPanel;
     Config& config = global::global_config;
 
     // Save general compute data
@@ -785,7 +783,7 @@ void MainWindow::save_ini(const std::string& path)
 
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 
-    ptree.put<bool>("info.hidden", info_group_box->isHidden());
+    ptree.put<bool>("info.hidden", info_panel->isHidden());
     ptree.put<ushort>("info.theme_type", theme_index_);
 
     ptree.put<uint>("display.main_window_max_size", window_max_size);
@@ -2420,7 +2418,7 @@ RawWindow* MainWindow::get_main_display() { return mainDisplay.get(); }
 
 void MainWindow::update_file_reader_index(int n)
 {
-    auto lambda = [this, n]() { ui.FileReaderProgressBar->setValue(n); };
+    auto lambda = [this, n]() { ui.InfoPanel->update_file_reader_progress(n); };
     synchronize_thread(lambda);
 }
 #pragma endregion

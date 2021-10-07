@@ -2885,7 +2885,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="InfoGroupBox">
+       <widget class="holovibes::gui::InfoPanel" name="InfoPanel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -2922,7 +2922,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
@@ -3339,6 +3339,12 @@ p, li { white-space: pre-wrap; }
    <header>export_panel.hh</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::InfoPanel</class>
+   <extends>QGroupBox</extends>
+   <header>info_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
@@ -3692,22 +3698,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>305</x>
      <y>310</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionInfo</sender>
-   <signal>changed()</signal>
-   <receiver>InfoGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1361</x>
-     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -5148,6 +5138,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>859</x>
      <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionInfo</sender>
+   <signal>changed()</signal>
+   <receiver>InfoPanel</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1361</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>

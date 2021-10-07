@@ -170,7 +170,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
         info = "Frame record finished";
 
-    parent_->ui.RecordProgressBar->hide();
+    parent_->ui.InfoPanel->set_visible_record_progress(false);
 
     if (parent_->ui.BatchGroupBox->isChecked())
         info = "Batch " + info;
@@ -221,8 +221,7 @@ void ExportPanel::start_record()
     parent_->ui.ExportRecPushButton->setEnabled(false);
     parent_->ui.ExportStopPushButton->setEnabled(true);
 
-    parent_->ui.RecordProgressBar->reset();
-    parent_->ui.RecordProgressBar->show();
+    parent_->ui.InfoPanel->set_visible_record_progress(true);
 
     auto callback = [record_mode = parent_->record_mode_, this]() {
         parent_->synchronize_thread([=]() { record_finished(record_mode); });
