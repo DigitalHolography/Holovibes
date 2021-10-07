@@ -92,6 +92,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     cd.contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
     cd.contrast_auto_refresh = ptree.get<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
+    cd.contrast_invert = ptree.get<bool>("view.contrast_invert", cd.contrast_invert);
     cd.contrast_lower_threshold = ptree.get<float>("view.contrast_lower_threshold", cd.contrast_lower_threshold);
     cd.contrast_upper_threshold = ptree.get<float>("view.contrast_upper_threshold", cd.contrast_upper_threshold);
 
@@ -169,8 +170,6 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()));
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()));
     ptree.put<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
-    ptree.put<ushort>("image_rendering.p_index", cd.pindex);
-    ptree.put<ushort>("image_rendering.q_index", cd.q_index);
     ptree.put<float>("image_rendering.lambda", cd.lambda);
     ptree.put<float>("image_rendering.z_distance", cd.zdistance);
     ptree.put<ushort>("image_rendering.raw_bitshift", cd.raw_bitshift);
@@ -180,12 +179,11 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
-    ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
-    ptree.put<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
-    ptree.put<float>("view.contrast_lower_threshold", cd.contrast_lower_threshold);
-    ptree.put<float>("view.contrast_upper_threshold", cd.contrast_upper_threshold);
 
+    ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
+
+    ptree.put<ushort>("view.p_index", cd.pindex);
+    ptree.put<ushort>("view.q_index", cd.q_index);
     ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
     ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
@@ -195,6 +193,11 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<short>("view.x_acc_level", cd.x_acc_level);
     ptree.put<short>("view.y_acc_level", cd.y_acc_level);
 
+    ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
+    ptree.put<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
+    ptree.put<bool>("view.contrast_invert", cd.contrast_invert);
+    ptree.put<float>("view.contrast_lower_threshold", cd.contrast_lower_threshold);
+    ptree.put<float>("view.contrast_upper_threshold", cd.contrast_upper_threshold);
     ptree.put<float>("view.contrast_min", cd.contrast_min_slice_xy);
     ptree.put<float>("view.contrast_max", cd.contrast_max_slice_xy);
     ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
