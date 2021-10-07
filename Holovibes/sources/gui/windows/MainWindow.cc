@@ -888,7 +888,7 @@ void MainWindow::configure_camera()
 {
     LOG_INFO;
 
-    ::holovibes::api::configure_camera(ui_descriptor_);
+    ::holovibes::api::configure_camera();
 }
 #pragma endregion
 /* ------------ */

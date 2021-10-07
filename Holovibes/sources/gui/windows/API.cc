@@ -492,7 +492,7 @@ void camera_xib(::holovibes::gui::MainWindow& mainwindow)
     mainwindow.change_camera(::holovibes::CameraKind::xiB);
 }
 
-void configure_camera(UserInterfaceDescriptor& ui_descriptor)
+void configure_camera()
 {
     LOG_INFO;
     open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
