@@ -29,11 +29,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_slice_xy_level);
     cd.display_rate = ptree.get<float>("config.display_rate", cd.display_rate);
 
-    // Renormalize
-    cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
-    cd.renorm_constant = ptree.get<uint>("view.renorm_constant", cd.renorm_constant);
-
     // Image rendering
+    cd.compute_mode = static_cast<Computation>(ptree.get<int>("image_rendering.image_mode", cd.compute_mode));
     cd.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
 
     cd.filter2d_n2 = ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
@@ -95,12 +92,13 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.x_acc_level = ptree.get<short>("view.x_acc_level", cd.x_acc_level);
     cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
 
+    cd.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
+
     cd.contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
     cd.contrast_auto_refresh = ptree.get<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
     cd.contrast_invert = ptree.get<bool>("view.contrast_invert", cd.contrast_invert);
     cd.contrast_lower_threshold = ptree.get<float>("view.contrast_lower_threshold", cd.contrast_lower_threshold);
     cd.contrast_upper_threshold = ptree.get<float>("view.contrast_upper_threshold", cd.contrast_upper_threshold);
-
     cd.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", cd.contrast_min_slice_xy);
     cd.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", cd.contrast_max_slice_xy);
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
@@ -109,9 +107,9 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     else if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 
-    cd.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
-
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", 0.5f);
+    cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
+    cd.renorm_constant = ptree.get<uint>("view.renorm_constant", cd.renorm_constant);
 
     // Import
     cd.pixel_size = ptree.get<float>("import.pixel_size", cd.pixel_size);
@@ -165,6 +163,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate));
 
     // Image rendering
+    ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
@@ -180,9 +179,10 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<ushort>("image_rendering.raw_bitshift", cd.raw_bitshift);
 
     // View
+    ptree.put<int>("view.view_mode", static_cast<int>(cd.img_type.load()));
+
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
 
-    ptree.put<int>("view.view_mode", static_cast<int>(cd.img_type.load()));
     ptree.put<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
     ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
@@ -200,6 +200,8 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<short>("view.x_acc_level", cd.x_acc_level);
     ptree.put<short>("view.y_acc_level", cd.y_acc_level);
 
+    ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
+
     ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
     ptree.put<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
     ptree.put<bool>("view.contrast_invert", cd.contrast_invert);
@@ -208,7 +210,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("view.contrast_min", cd.contrast_min_slice_xy);
     ptree.put<float>("view.contrast_max", cd.contrast_max_slice_xy);
     ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
-    ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
+
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
