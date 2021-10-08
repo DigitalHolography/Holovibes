@@ -22,11 +22,6 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
-    /*! \brief Removes lens view */
-    void disable_lens_view();
-    /*! \brief Removes raw view */
-    void disable_raw_view();
-
     /*! \brief Disables time transform cuts views */
     void cancel_stft_slice_view();
     /*! \brief Remove time transformation cut views */
@@ -61,11 +56,15 @@ class ViewPanel : public Panel
      * \param value true: add, false: remove
      */
     void update_lens_view(bool value);
+    /*! \brief Removes lens view */
+    void disable_lens_view();
     /*! \brief Adds or removes raw view
      *
      * \param value true: add, false: remove
      */
     void update_raw_view(bool value);
+    /*! \brief Removes raw view */
+    void disable_raw_view();
 
     /*! \brief Modifies x and y from ui values */
     void set_x_y();

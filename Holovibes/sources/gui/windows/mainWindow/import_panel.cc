@@ -158,7 +158,7 @@ void ImportPanel::init_holovibes_import_mode()
                                                               ui_->InfoPanel->set_visible_file_reader_progress(false);
                                                       });
                                                   });
-        ui_->InfoPanel->set_visible_file_reader_progress(false);
+        ui_->InfoPanel->set_visible_file_reader_progress(true);
     }
     catch (const std::exception& e)
     {

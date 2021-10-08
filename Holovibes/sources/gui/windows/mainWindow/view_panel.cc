@@ -180,7 +180,7 @@ void ViewPanel::update_lens_view(bool value)
             parent_->lens_window->setCd(&(parent_->cd_));
 
             // when the window is destoryed, disable_lens_view() will be triggered
-            connect(parent_->lens_window.get(), SIGNAL(destroyed()), parent_, SLOT(disable_lens_view()));
+            connect(parent_->lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
         catch (const std::exception& e)
         {
@@ -200,7 +200,7 @@ void ViewPanel::update_lens_view(bool value)
 void ViewPanel::disable_lens_view()
 {
     if (parent_->lens_window)
-        disconnect(parent_->lens_window.get(), SIGNAL(destroyed()), parent_, SLOT(disable_lens_view()));
+        disconnect(parent_->lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
     parent_->cd_.set_gpu_lens_display_enabled(false);
     parent_->holovibes_.get_compute_pipe()->request_disable_lens_view();
@@ -239,7 +239,7 @@ void ViewPanel::update_raw_view(bool value)
         parent_->raw_window->setTitle("Raw view");
         parent_->raw_window->setCd(&(parent_->cd_));
 
-        connect(parent_->raw_window.get(), SIGNAL(destroyed()), parent_, SLOT(disable_raw_view()));
+        connect(parent_->raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
     }
     else
     {
@@ -252,7 +252,7 @@ void ViewPanel::update_raw_view(bool value)
 void ViewPanel::disable_raw_view()
 {
     if (parent_->raw_window)
-        disconnect(parent_->raw_window.get(), SIGNAL(destroyed()), parent_, SLOT(disable_raw_view()));
+        disconnect(parent_->raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
 
     auto pipe = parent_->holovibes_.get_compute_pipe();
     pipe->request_disable_raw_view();
