@@ -723,6 +723,7 @@ void MainWindow::load_ini(const std::string& path)
         xzFlip = ptree.get("view.xCut_flip", xzFlip);
         yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
+        // Move it into cd
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
