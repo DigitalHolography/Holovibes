@@ -654,35 +654,33 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index);
 
 /*! \brief Changes display mode to Holographic
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param observer parent of the new window that can be triggered on event
  * \param fd the frame descriptor that will be initialized and returned by reference
  * \return true on success
  * \return false on failure
  */
-bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
-
-                          camera::FrameDescriptor& fd);
+bool set_holographic_mode(::holovibes::gui::MainWindow& observer, camera::FrameDescriptor& fd);
 
 /*! \brief Creates the windows for processed image output
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param observer parent of the new window that can be triggered on event
  */
-void createHoloWindow(::holovibes::gui::MainWindow& mainwindow);
+void createHoloWindow(::holovibes::gui::MainWindow& observer);
 
 /*! \brief Creates the pipeline
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param observer parent of the new window that can be triggered on event
  */
-void createPipe(::holovibes::gui::MainWindow& mainwindow);
+void createPipe(::holovibes::gui::MainWindow& observer);
 
 /*!
  * \brief Set the raw mode object
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param observer parent of the new window that can be triggered on event
  * \return true on success
  * \return false on failure
  */
-bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow);
+bool set_raw_mode(::holovibes::gui::MainWindow& observer);
 
 /*! \brief Configures the camera */
 void configure_camera();

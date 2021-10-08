@@ -484,11 +484,9 @@ void init_image_mode(QPoint& position, QSize& size)
     }
 }
 
-bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow)
+bool set_raw_mode(::holovibes::gui::MainWindow& observer)
 {
     LOG_INFO;
-    close_windows();
-    close_critical_compute();
 
     if (UserInterfaceDescriptor::instance().is_enabled_camera_)
     {
@@ -498,9 +496,9 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow)
         unsigned short height = fd.height;
         get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
         QSize size(width, height);
-        mainwindow.init_image_mode(pos, size);
+        init_image_mode(pos, size);
         Holovibes::instance().get_cd().compute_mode = Computation::Raw;
-        createPipe(mainwindow);
+        createPipe(observer);
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new holovibes::gui::RawWindow(pos, size, Holovibes::instance().get_gpu_input_queue().get()));
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
@@ -520,13 +518,13 @@ bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow)
     return false;
 }
 
-void createPipe(::holovibes::gui::MainWindow& mainwindow)
+void createPipe(::holovibes::gui::MainWindow& observer)
 {
     LOG_INFO;
     try
     {
         Holovibes::instance().start_compute();
-        Holovibes::instance().get_compute_pipe()->register_observer(mainwindow);
+        Holovibes::instance().get_compute_pipe()->register_observer(observer);
     }
     catch (const std::runtime_error& e)
     {
@@ -534,7 +532,7 @@ void createPipe(::holovibes::gui::MainWindow& mainwindow)
     }
 }
 
-void createHoloWindow(::holovibes::gui::MainWindow& mainwindow)
+void createHoloWindow(::holovibes::gui::MainWindow& observer)
 {
     LOG_INFO;
     QPoint pos(0, 0);
@@ -543,7 +541,7 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow)
     unsigned short height = fd.height;
     get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
     QSize size(width, height);
-    mainwindow.init_image_mode(pos, size);
+    init_image_mode(pos, size);
     /* ---------- */
     try
     {
@@ -554,7 +552,7 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow)
                                              Holovibes::instance().get_compute_pipe(),
                                              UserInterfaceDescriptor::instance().sliceXZ,
                                              UserInterfaceDescriptor::instance().sliceYZ,
-                                             &mainwindow));
+                                             &observer));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->setCd(&Holovibes::instance().get_cd());
@@ -570,24 +568,17 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow)
     }
 }
 
-bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
-
-                          camera::FrameDescriptor& fd)
+bool set_holographic_mode(::holovibes::gui::MainWindow& observer, camera::FrameDescriptor& fd)
 {
     LOG_INFO;
-    // That function is used to reallocate the buffers since the Square
-    // input mode could have changed
-    /* Close windows & destory thread compute */
-    close_windows();
-    close_critical_compute();
 
     /* ---------- */
     try
     {
         Holovibes::instance().get_cd().compute_mode = Computation::Hologram;
         /* Pipe & Window */
-        mainwindow.createPipe();
-        mainwindow.createHoloWindow();
+        createPipe(observer);
+        createHoloWindow(observer);
         /* Info Manager */
         fd = Holovibes::instance().get_gpu_output_queue()->get_fd();
         std::string fd_info =

@@ -916,6 +916,9 @@ void MainWindow::set_raw_mode()
 {
     LOG_INFO;
 
+    ::holovibes::api::close_windows();
+    ::holovibes::api::close_critical_compute();
+
     const bool res = ::holovibes::api::set_raw_mode(*this);
 
     if (res)
@@ -945,6 +948,12 @@ void MainWindow::createHoloWindow()
 void MainWindow::set_holographic_mode()
 {
     LOG_INFO;
+
+    // That function is used to reallocate the buffers since the Square
+    // input mode could have changed
+    /* Close windows & destory thread compute */
+    ::holovibes::api::close_windows();
+    ::holovibes::api::close_critical_compute();
 
     FrameDescriptor fd;
     const bool res = ::holovibes::api::set_holographic_mode(*this, fd);
