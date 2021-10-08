@@ -1708,10 +1708,11 @@ void MainWindow::decrement_p()
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::decrement_p(*this);
+    bool res = ::holovibes::api::decrement_p();
 
     if (res)
     {
+        set_auto_contrast();
         notify();
     }
 }

@@ -321,11 +321,10 @@ bool increment_p();
 
 /*! \brief Decrement p by 1
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \return true on success
  * \return false on failure
  */
-bool decrement_p(::holovibes::gui::MainWindow& mainwindow);
+bool decrement_p();
 
 /*!
  * \brief Modifies wave length (represented by lambda symbol in phisics)

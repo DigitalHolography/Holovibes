@@ -1447,7 +1447,7 @@ bool increment_p()
     return false;
 }
 
-bool decrement_p(::holovibes::gui::MainWindow& mainwindow)
+bool decrement_p()
 {
     LOG_INFO;
 
@@ -1457,7 +1457,6 @@ bool decrement_p(::holovibes::gui::MainWindow& mainwindow)
     if (Holovibes::instance().get_cd().pindex > 0)
     {
         Holovibes::instance().get_cd().pindex--;
-        mainwindow.set_auto_contrast();
         return true;
     }
 
