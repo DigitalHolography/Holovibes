@@ -1043,6 +1043,9 @@ void MainWindow::set_view_mode(const QString value)
         }
     }
     ::holovibes::api::set_view_mode(str, get_view_mode_callback());
+
+    // Force cuts views autocontrast if needed
+    set_auto_contrast_cuts();
 }
 
 // FREE
@@ -1124,11 +1127,23 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
 
-    const bool res = ::holovibes::api::toggle_time_transformation_cuts(*this, checked);
+    if (!checked)
+    {
+        api::set_auto_contrast_cuts();
+        cancel_time_transformation_cuts();
+        return;
+    }
+
+    const bool res = ::holovibes::api::toggle_time_transformation_cuts(*this);
 
     if (res)
     {
+        set_auto_contrast_cuts();
         notify();
+    }
+    else
+    {
+        cancel_time_transformation_cuts();
     }
 }
 

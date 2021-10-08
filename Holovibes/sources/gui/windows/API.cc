@@ -645,7 +645,6 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
     // Force XYview autocontrast
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
-    set_auto_contrast_cuts();
 }
 
 #pragma endregion
@@ -692,17 +691,9 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
-bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
-
-                                     const bool checked)
+bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& observer)
 {
     LOG_INFO;
-
-    if (!checked)
-    {
-        mainwindow.cancel_time_transformation_cuts();
-        return false;
-    }
 
     // if checked
     try
@@ -730,7 +721,7 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
             QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
             Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(0).get(),
             ::holovibes::gui::KindOfView::SliceXZ,
-            &mainwindow));
+            &observer));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
         UserInterfaceDescriptor::instance().sliceXZ->setAngle(UserInterfaceDescriptor::instance().xzAngle);
         UserInterfaceDescriptor::instance().sliceXZ->setFlip(UserInterfaceDescriptor::instance().xzFlip);
@@ -741,7 +732,7 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
             QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
             Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(1).get(),
             ::holovibes::gui::KindOfView::SliceYZ,
-            &mainwindow));
+            &observer));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(UserInterfaceDescriptor::instance().yzAngle);
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(UserInterfaceDescriptor::instance().yzFlip);
@@ -749,7 +740,6 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Cross>();
         Holovibes::instance().get_cd().time_transformation_cuts_enabled = true;
-        set_auto_contrast_cuts();
         auto holo = dynamic_cast<::holovibes::gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -758,7 +748,6 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
     catch (const std::logic_error& e)
     {
         LOG_ERROR << e.what() << std::endl;
-        mainwindow.cancel_time_transformation_cuts();
     }
 
     return false;
@@ -1616,11 +1605,6 @@ bool set_contrast_mode(bool value)
 void set_auto_contrast_cuts()
 {
     LOG_INFO;
-
-    if (!Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-    {
-        return;
-    }
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {

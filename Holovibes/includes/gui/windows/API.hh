@@ -611,14 +611,11 @@ void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param checked true: enable, false: disable
+ * \param observer parent of the new window that can be triggered on event
  * \return true on success
  * \return false on failure
  */
-bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
-
-                                     const bool checked);
+bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& observer);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
