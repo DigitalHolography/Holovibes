@@ -2131,7 +2131,7 @@ void record_finished()
 
 #pragma region Import
 
-void import_stop(::holovibes::gui::MainWindow& mainwindow)
+void import_stop()
 {
     LOG_INFO;
 
@@ -2140,26 +2140,13 @@ void import_stop(::holovibes::gui::MainWindow& mainwindow)
 
     close_critical_compute();
 
-    // FIXME: import_stop() and camera_none() call same methods
-    // FIXME: camera_none() weird call because we are dealing with imported file
-    mainwindow.camera_none();
-
     Holovibes::instance().get_cd().is_computation_stopped = true;
 }
 
-bool import_start(::holovibes::gui::MainWindow& mainwindow,
-
-                  std::string& file_path,
-                  unsigned int fps,
-                  size_t first_frame,
-                  bool load_file_in_gpu,
-                  size_t last_frame)
+bool import_start(
+    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     LOG_INFO;
-
-    if (!Holovibes::instance().get_cd().is_computation_stopped)
-        // if computation is running
-        import_stop(mainwindow);
 
     Holovibes::instance().get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel

@@ -2384,7 +2384,10 @@ void MainWindow::import_stop()
     ::holovibes::api::close_windows();
     cancel_time_transformation_cuts();
 
-    ::holovibes::api::import_stop(*this);
+    ::holovibes::api::import_stop();
+    // FIXME: import_stop() and camera_none() call same methods
+    // FIXME: camera_none() weird call because we are dealing with imported file
+    camera_none();
     synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }
@@ -2393,6 +2396,13 @@ void MainWindow::import_stop()
 void MainWindow::import_start()
 {
     LOG_INFO;
+
+    // Check if computation is currently running
+    if (!Holovibes::instance().get_cd().is_computation_stopped)
+    {
+        import_stop();
+    }
+
     // shift main window when camera view appears
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -2407,9 +2417,7 @@ void MainWindow::import_start()
 
     std::string file_path = import_line_edit->text().toStdString();
 
-    bool res_import_start = ::holovibes::api::import_start(*this,
-
-                                                           file_path,
+    bool res_import_start = ::holovibes::api::import_start(file_path,
                                                            fps_spinbox->value(),
                                                            start_spinbox->value(),
                                                            load_file_gpu_box->isChecked(),
