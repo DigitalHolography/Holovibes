@@ -9,7 +9,6 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
@@ -18,7 +17,7 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::set_record_frame_step(int value)
 {
     parent_->record_frame_step_ = value;
-    parent_->ui.NumberOfFramesSpinBox->setSingleStep(value);
+    ui_->NumberOfFramesSpinBox->setSingleStep(value);
 }
 
 void ExportPanel::browse_record_output_file()
@@ -65,12 +64,12 @@ void ExportPanel::browse_record_output_file()
     parent_->default_output_filename_ = path.stem().string();
 
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
-    parent_->ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
+    ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
     parent_->notify();
 }
 
-void ExportPanel::set_nb_frames_mode(bool value) { parent_->ui.NumberOfFramesSpinBox->setEnabled(value); }
+void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
 
 void ExportPanel::browse_batch_input()
 {
@@ -82,7 +81,7 @@ void ExportPanel::browse_batch_input()
                                                     tr("All files (*)"));
 
     // Output the file selected in he ui line edit widget
-    QLineEdit* batch_input_line_edit = parent_->ui.BatchInputPathLineEdit;
+    QLineEdit* batch_input_line_edit = ui_->BatchInputPathLineEdit;
     batch_input_line_edit->clear();
     batch_input_line_edit->insert(filename);
 }
@@ -107,11 +106,11 @@ void ExportPanel::set_record_mode(const QString& value)
 
     if (parent_->record_mode_ == RecordMode::CHART)
     {
-        parent_->ui.RecordExtComboBox->clear();
-        parent_->ui.RecordExtComboBox->insertItem(0, ".csv");
-        parent_->ui.RecordExtComboBox->insertItem(1, ".txt");
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".csv");
+        ui_->RecordExtComboBox->insertItem(1, ".txt");
 
-        parent_->ui.ChartPlotWidget->show();
+        ui_->ChartPlotWidget->show();
 
         if (parent_->mainDisplay)
         {
@@ -126,18 +125,18 @@ void ExportPanel::set_record_mode(const QString& value)
     {
         if (parent_->record_mode_ == RecordMode::RAW)
         {
-            parent_->ui.RecordExtComboBox->clear();
-            parent_->ui.RecordExtComboBox->insertItem(0, ".holo");
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
         }
         else if (parent_->record_mode_ == RecordMode::HOLOGRAM)
         {
-            parent_->ui.RecordExtComboBox->clear();
-            parent_->ui.RecordExtComboBox->insertItem(0, ".holo");
-            parent_->ui.RecordExtComboBox->insertItem(1, ".avi");
-            parent_->ui.RecordExtComboBox->insertItem(2, ".mp4");
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+            ui_->RecordExtComboBox->insertItem(1, ".avi");
+            ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
 
-        parent_->ui.ChartPlotWidget->hide();
+        ui_->ChartPlotWidget->hide();
 
         if (parent_->mainDisplay)
         {
@@ -170,28 +169,28 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
         info = "Frame record finished";
 
-    parent_->ui.InfoPanel->set_visible_record_progress(false);
+    ui_->InfoPanel->set_visible_record_progress(false);
 
-    if (parent_->ui.BatchGroupBox->isChecked())
+    if (ui_->BatchGroupBox->isChecked())
         info = "Batch " + info;
 
     LOG_INFO << "[RECORDER] " << info;
 
-    parent_->ui.RawDisplayingCheckBox->setHidden(false);
-    parent_->ui.ExportRecPushButton->setEnabled(true);
-    parent_->ui.ExportStopPushButton->setEnabled(false);
-    parent_->ui.BatchSizeSpinBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
+    ui_->RawDisplayingCheckBox->setHidden(false);
+    ui_->ExportRecPushButton->setEnabled(true);
+    ui_->ExportStopPushButton->setEnabled(false);
+    ui_->BatchSizeSpinBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
     parent_->is_recording_ = false;
 }
 
 void ExportPanel::start_record()
 {
-    bool batch_enabled = parent_->ui.BatchGroupBox->isChecked();
+    bool batch_enabled = ui_->BatchGroupBox->isChecked();
 
     // Preconditions to start record
 
-    std::optional<unsigned int> nb_frames_to_record = parent_->ui.NumberOfFramesSpinBox->value();
-    if (!parent_->ui.NumberOfFramesCheckBox->isChecked())
+    std::optional<unsigned int> nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
+    if (!ui_->NumberOfFramesCheckBox->isChecked())
         nb_frames_to_record = std::nullopt;
 
     if ((batch_enabled || parent_->record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
@@ -200,10 +199,10 @@ void ExportPanel::start_record()
         return;
     }
 
-    std::string output_path = parent_->ui.OutputFilePathLineEdit->text().toStdString() +
-                              parent_->ui.RecordExtComboBox->currentText().toStdString();
+    std::string output_path =
+        ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
 
-    std::string batch_input_path = parent_->ui.BatchInputPathLineEdit->text().toStdString();
+    std::string batch_input_path = ui_->BatchInputPathLineEdit->text().toStdString();
     if (batch_enabled && batch_input_path.empty())
     {
         LOG_ERROR << "No batch input file";
@@ -212,16 +211,16 @@ void ExportPanel::start_record()
 
     // Start record
     parent_->raw_window.reset(nullptr);
-    parent_->ui.ViewPanel->disable_raw_view();
-    parent_->ui.RawDisplayingCheckBox->setHidden(true);
+    ui_->ViewPanel->disable_raw_view();
+    ui_->RawDisplayingCheckBox->setHidden(true);
 
-    parent_->ui.BatchSizeSpinBox->setEnabled(false);
+    ui_->BatchSizeSpinBox->setEnabled(false);
     parent_->is_recording_ = true;
 
-    parent_->ui.ExportRecPushButton->setEnabled(false);
-    parent_->ui.ExportStopPushButton->setEnabled(true);
+    ui_->ExportRecPushButton->setEnabled(false);
+    ui_->ExportStopPushButton->setEnabled(true);
 
-    parent_->ui.InfoPanel->set_visible_record_progress(true);
+    ui_->InfoPanel->set_visible_record_progress(true);
 
     auto callback = [record_mode = parent_->record_mode_, this]() {
         parent_->synchronize_thread([=]() { record_finished(record_mode); });
@@ -282,7 +281,7 @@ void ExportPanel::start_chart_display()
                                      "Chart");
     connect(parent_->plot_window_.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
 
-    parent_->ui.ChartPlotPushButton->setEnabled(false);
+    ui_->ChartPlotPushButton->setEnabled(false);
 }
 
 void ExportPanel::stop_chart_display()
@@ -306,6 +305,6 @@ void ExportPanel::stop_chart_display()
 
     parent_->plot_window_.reset(nullptr);
 
-    parent_->ui.ChartPlotPushButton->setEnabled(true);
+    ui_->ChartPlotPushButton->setEnabled(true);
 }
 } // namespace holovibes::gui

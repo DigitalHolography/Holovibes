@@ -8,7 +8,6 @@ namespace holovibes::gui
 {
 ViewPanel::ViewPanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
@@ -28,7 +27,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::toggle_time_transformation_cuts(bool checked)
 {
-    QComboBox* winSelection = parent_->ui.WindowSelectionComboBox;
+    QComboBox* winSelection = ui_->WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
     if (checked)
@@ -110,7 +109,7 @@ void ViewPanel::cancel_stft_slice_view()
             parent_->cd_.set_time_transformation_cuts_enabled(false);
             pipe->delete_stft_slice_queue();
 
-            parent_->ui.TimeTransformationCutsCheckBox->setChecked(false);
+            ui_->TimeTransformationCutsCheckBox->setChecked(false);
             parent_->notify();
         });
     }
@@ -214,7 +213,7 @@ void ViewPanel::update_raw_view(bool value)
     {
         if (parent_->cd_.batch_size > global::global_config.output_queue_max_size)
         {
-            parent_->ui.RawDisplayingCheckBox->setChecked(false);
+            ui_->RawDisplayingCheckBox->setChecked(false);
             LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
             return;
         }
@@ -268,8 +267,8 @@ void ViewPanel::disable_raw_view()
 void ViewPanel::set_x_y()
 {
     auto& fd = parent_->holovibes_.get_gpu_input_queue()->get_fd();
-    uint x = parent_->ui.XSpinBox->value();
-    uint y = parent_->ui.YSpinBox->value();
+    uint x = ui_->XSpinBox->value();
+    uint y = ui_->YSpinBox->value();
 
     if (x < fd.width)
         parent_->cd_.set_x_cuts(x);
@@ -280,14 +279,14 @@ void ViewPanel::set_x_y()
 
 void ViewPanel::set_x_accu()
 {
-    parent_->cd_.set_x_accu(parent_->ui.XAccuCheckBox->isChecked(), parent_->ui.XAccSpinBox->value());
+    parent_->cd_.set_x_accu(ui_->XAccuCheckBox->isChecked(), ui_->XAccSpinBox->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    parent_->cd_.set_y_accu(parent_->ui.YAccuCheckBox->isChecked(), parent_->ui.YAccSpinBox->value());
+    parent_->cd_.set_y_accu(ui_->YAccuCheckBox->isChecked(), ui_->YAccSpinBox->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
@@ -339,7 +338,7 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    parent_->cd_.set_p_accu(parent_->ui.PAccuCheckBox->isChecked(), parent_->ui.PAccSpinBox->value());
+    parent_->cd_.set_p_accu(ui_->PAccuCheckBox->isChecked(), ui_->PAccSpinBox->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
@@ -352,7 +351,7 @@ void ViewPanel::set_q(int value)
 
 void ViewPanel::set_q_acc()
 {
-    parent_->cd_.set_q_accu(parent_->ui.Q_AccuCheckBox->isChecked(), parent_->ui.Q_AccSpinBox->value());
+    parent_->cd_.set_q_accu(ui_->Q_AccuCheckBox->isChecked(), ui_->Q_AccSpinBox->value());
     parent_->notify();
 }
 

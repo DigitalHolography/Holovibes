@@ -64,7 +64,7 @@ class MainWindow : public QMainWindow, public Observer
 
     RawWindow* get_main_display();
 
-    Ui::MainWindow ui;                                         // RIEN
+    Ui::MainWindow* ui;                                        // RIEN
     Holovibes& holovibes_;                                     // RIEN
     ComputeDescriptor& cd_;                                    // RIEN (TOUT?)
     camera::FrameDescriptor file_fd_;                          // RIEN (I/IR/V?)

@@ -9,7 +9,6 @@ namespace holovibes::gui
 {
 ImportPanel::ImportPanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
@@ -17,8 +16,8 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::set_start_stop_buttons(bool value)
 {
-    parent_->ui.ImportStartPushButton->setEnabled(value);
-    parent_->ui.ImportStopPushButton->setEnabled(value);
+    ui_->ImportStartPushButton->setEnabled(value);
+    ui_->ImportStopPushButton->setEnabled(value);
 }
 
 void ImportPanel::import_browse_file()
@@ -41,7 +40,7 @@ void ImportPanel::import_browse_file()
 void ImportPanel::import_file(const QString& filename)
 {
     // Get the widget (output bar) from the ui linked to the file explorer
-    QLineEdit* import_line_edit = parent_->ui.ImportPathLineEdit;
+    QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
     // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
@@ -62,8 +61,8 @@ void ImportPanel::import_file(const QString& filename)
             delete input_file;
 
             // Update the ui with the gathered data
-            parent_->ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
-            parent_->ui.ImportEndIndexSpinBox->setValue(nb_frames);
+            ui_->ImportEndIndexSpinBox->setMaximum(nb_frames);
+            ui_->ImportEndIndexSpinBox->setValue(nb_frames);
 
             // We can now launch holovibes over this file
             set_start_stop_buttons(true);
@@ -87,7 +86,7 @@ void ImportPanel::import_file(const QString& filename)
 void ImportPanel::import_stop()
 {
     parent_->close_windows();
-    parent_->ui.ViewPanel->cancel_time_transformation_cuts();
+    ui_->ViewPanel->cancel_time_transformation_cuts();
 
     parent_->holovibes_.stop_all_worker_controller();
     parent_->holovibes_.start_information_display(false);
@@ -119,17 +118,17 @@ void ImportPanel::import_start()
     // Gather all the useful data from the ui import panel
     init_holovibes_import_mode();
 
-    parent_->ui.ImageModeComboBox->setCurrentIndex(parent_->is_raw_mode() ? 0 : 1);
+    ui_->ImageModeComboBox->setCurrentIndex(parent_->is_raw_mode() ? 0 : 1);
 }
 
 void ImportPanel::init_holovibes_import_mode()
 {
     // Get all the useful ui items
-    QLineEdit* import_line_edit = parent_->ui.ImportPathLineEdit;
-    QSpinBox* fps_spinbox = parent_->ui.ImportInputFpsSpinBox;
-    QSpinBox* start_spinbox = parent_->ui.ImportStartIndexSpinBox;
-    QCheckBox* load_file_gpu_box = parent_->ui.LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = parent_->ui.ImportEndIndexSpinBox;
+    QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
+    QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
+    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+    QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
+    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
     parent_->cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
@@ -156,11 +155,10 @@ void ImportPanel::init_holovibes_import_mode()
                                                   [=]() {
                                                       parent_->synchronize_thread([&]() {
                                                           if (parent_->cd_.is_computation_stopped)
-                                                              parent_->ui.InfoPanel->set_visible_file_reader_progress(
-                                                                  false);
+                                                              ui_->InfoPanel->set_visible_file_reader_progress(false);
                                                       });
                                                   });
-        parent_->ui.InfoPanel->set_visible_file_reader_progress(false);
+        ui_->InfoPanel->set_visible_file_reader_progress(false);
     }
     catch (const std::exception& e)
     {
@@ -173,10 +171,10 @@ void ImportPanel::init_holovibes_import_mode()
     }
 
     parent_->is_enabled_camera_ = true;
-    parent_->ui.ImageRenderingPanel->set_image_mode(nullptr);
+    ui_->ImageRenderingPanel->set_image_mode(nullptr);
 
     // Make camera's settings menu unaccessible
-    QAction* settings = parent_->ui.actionSettings;
+    QAction* settings = ui_->actionSettings;
     settings->setEnabled(false);
 
     import_type_ = ImportType::File;
@@ -186,8 +184,8 @@ void ImportPanel::init_holovibes_import_mode()
 
 void ImportPanel::import_start_spinbox_update()
 {
-    QSpinBox* start_spinbox = parent_->ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = parent_->ui.ImportEndIndexSpinBox;
+    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
     if (start_spinbox->value() > end_spinbox->value())
         end_spinbox->setValue(start_spinbox->value());
@@ -195,8 +193,8 @@ void ImportPanel::import_start_spinbox_update()
 
 void ImportPanel::import_end_spinbox_update()
 {
-    QSpinBox* start_spinbox = parent_->ui.ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = parent_->ui.ImportEndIndexSpinBox;
+    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
     if (end_spinbox->value() < start_spinbox->value())
         start_spinbox->setValue(end_spinbox->value());

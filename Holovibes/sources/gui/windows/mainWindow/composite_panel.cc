@@ -8,7 +8,6 @@ namespace holovibes::gui
 {
 CompositePanel::CompositePanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
@@ -17,61 +16,61 @@ CompositePanel::~CompositePanel() {}
 void CompositePanel::set_composite_intervals()
 {
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
-    parent_->ui.PRedSpinBox_Composite->setValue(
-        std::min(parent_->ui.PRedSpinBox_Composite->value(), parent_->ui.PBlueSpinBox_Composite->value()));
-    parent_->cd_.set_composite_p_red(parent_->ui.PRedSpinBox_Composite->value());
-    parent_->cd_.set_composite_p_blue(parent_->ui.PBlueSpinBox_Composite->value());
+    ui_->PRedSpinBox_Composite->setValue(
+        std::min(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value()));
+    parent_->cd_.set_composite_p_red(ui_->PRedSpinBox_Composite->value());
+    parent_->cd_.set_composite_p_blue(ui_->PBlueSpinBox_Composite->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_min()
 {
-    parent_->cd_.set_composite_p_min_h(parent_->ui.SpinBox_hue_freq_min->value());
+    parent_->cd_.set_composite_p_min_h(ui_->SpinBox_hue_freq_min->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_max()
 {
-    parent_->cd_.set_composite_p_max_h(parent_->ui.SpinBox_hue_freq_max->value());
+    parent_->cd_.set_composite_p_max_h(ui_->SpinBox_hue_freq_max->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_min()
 {
-    parent_->cd_.set_composite_p_min_s(parent_->ui.SpinBox_saturation_freq_min->value());
+    parent_->cd_.set_composite_p_min_s(ui_->SpinBox_saturation_freq_min->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_max()
 {
-    parent_->cd_.set_composite_p_max_s(parent_->ui.SpinBox_saturation_freq_max->value());
+    parent_->cd_.set_composite_p_max_s(ui_->SpinBox_saturation_freq_max->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_min()
 {
-    parent_->cd_.set_composite_p_min_v(parent_->ui.SpinBox_value_freq_min->value());
+    parent_->cd_.set_composite_p_min_v(ui_->SpinBox_value_freq_min->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_max()
 {
-    parent_->cd_.set_composite_p_max_v(parent_->ui.SpinBox_value_freq_max->value());
+    parent_->cd_.set_composite_p_max_v(ui_->SpinBox_value_freq_max->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
 
 void CompositePanel::set_composite_weights()
 {
-    parent_->cd_.set_weight_rgb(parent_->ui.WeightSpinBox_R->value(),
-                                parent_->ui.WeightSpinBox_G->value(),
-                                parent_->ui.WeightSpinBox_B->value());
+    parent_->cd_.set_weight_rgb(ui_->WeightSpinBox_R->value(),
+                                ui_->WeightSpinBox_G->value(),
+                                ui_->WeightSpinBox_B->value());
     parent_->pipe_refresh();
     parent_->notify();
 }
@@ -79,25 +78,25 @@ void CompositePanel::set_composite_weights()
 void CompositePanel::set_composite_auto_weights(bool value)
 {
     parent_->cd_.set_composite_auto_weights(value);
-    parent_->ui.ViewPanel->set_auto_contrast();
+    ui_->ViewPanel->set_auto_contrast();
 }
 
 void CompositePanel::click_composite_rgb_or_hsv()
 {
-    parent_->cd_.set_composite_kind(parent_->ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV);
-    if (parent_->ui.radioButton_rgb->isChecked())
+    parent_->cd_.set_composite_kind(ui_->radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV);
+    if (ui_->radioButton_rgb->isChecked())
     {
-        parent_->ui.PRedSpinBox_Composite->setValue(parent_->ui.SpinBox_hue_freq_min->value());
-        parent_->ui.PBlueSpinBox_Composite->setValue(parent_->ui.SpinBox_hue_freq_max->value());
+        ui_->PRedSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_min->value());
+        ui_->PBlueSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_max->value());
     }
     else
     {
-        parent_->ui.SpinBox_hue_freq_min->setValue(parent_->ui.PRedSpinBox_Composite->value());
-        parent_->ui.SpinBox_hue_freq_max->setValue(parent_->ui.PBlueSpinBox_Composite->value());
-        parent_->ui.SpinBox_saturation_freq_min->setValue(parent_->ui.PRedSpinBox_Composite->value());
-        parent_->ui.SpinBox_saturation_freq_max->setValue(parent_->ui.PBlueSpinBox_Composite->value());
-        parent_->ui.SpinBox_value_freq_min->setValue(parent_->ui.PRedSpinBox_Composite->value());
-        parent_->ui.SpinBox_value_freq_max->setValue(parent_->ui.PBlueSpinBox_Composite->value());
+        ui_->SpinBox_hue_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
+        ui_->SpinBox_hue_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
+        ui_->SpinBox_saturation_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
+        ui_->SpinBox_saturation_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
+        ui_->SpinBox_value_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
+        ui_->SpinBox_value_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
     }
     parent_->notify();
 }
@@ -145,93 +144,93 @@ void slide_update_threshold(QSlider& slider,
 
 void CompositePanel::slide_update_threshold_h_min()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_hue_threshold_min,
+    slide_update_threshold(*ui_->horizontalSlider_hue_threshold_min,
                            parent_->cd_.slider_h_threshold_min,
                            parent_->cd_.slider_h_threshold_max,
-                           *parent_->ui.horizontalSlider_hue_threshold_max,
-                           *parent_->ui.label_hue_threshold_min,
+                           *ui_->horizontalSlider_hue_threshold_max,
+                           *ui_->label_hue_threshold_min,
                            parent_->cd_.slider_h_threshold_min,
                            parent_->cd_.slider_h_threshold_max);
 }
 
 void CompositePanel::slide_update_threshold_h_max()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_hue_threshold_max,
+    slide_update_threshold(*ui_->horizontalSlider_hue_threshold_max,
                            parent_->cd_.slider_h_threshold_max,
                            parent_->cd_.slider_h_threshold_min,
-                           *parent_->ui.horizontalSlider_hue_threshold_min,
-                           *parent_->ui.label_hue_threshold_max,
+                           *ui_->horizontalSlider_hue_threshold_min,
+                           *ui_->label_hue_threshold_max,
                            parent_->cd_.slider_h_threshold_min,
                            parent_->cd_.slider_h_threshold_max);
 }
 
 void CompositePanel::slide_update_threshold_s_min()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_saturation_threshold_min,
+    slide_update_threshold(*ui_->horizontalSlider_saturation_threshold_min,
                            parent_->cd_.slider_s_threshold_min,
                            parent_->cd_.slider_s_threshold_max,
-                           *parent_->ui.horizontalSlider_saturation_threshold_max,
-                           *parent_->ui.label_saturation_threshold_min,
+                           *ui_->horizontalSlider_saturation_threshold_max,
+                           *ui_->label_saturation_threshold_min,
                            parent_->cd_.slider_s_threshold_min,
                            parent_->cd_.slider_s_threshold_max);
 }
 
 void CompositePanel::slide_update_threshold_s_max()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_saturation_threshold_max,
+    slide_update_threshold(*ui_->horizontalSlider_saturation_threshold_max,
                            parent_->cd_.slider_s_threshold_max,
                            parent_->cd_.slider_s_threshold_min,
-                           *parent_->ui.horizontalSlider_saturation_threshold_min,
-                           *parent_->ui.label_saturation_threshold_max,
+                           *ui_->horizontalSlider_saturation_threshold_min,
+                           *ui_->label_saturation_threshold_max,
                            parent_->cd_.slider_s_threshold_min,
                            parent_->cd_.slider_s_threshold_max);
 }
 
 void CompositePanel::slide_update_threshold_v_min()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_value_threshold_min,
+    slide_update_threshold(*ui_->horizontalSlider_value_threshold_min,
                            parent_->cd_.slider_v_threshold_min,
                            parent_->cd_.slider_v_threshold_max,
-                           *parent_->ui.horizontalSlider_value_threshold_max,
-                           *parent_->ui.label_value_threshold_min,
+                           *ui_->horizontalSlider_value_threshold_max,
+                           *ui_->label_value_threshold_min,
                            parent_->cd_.slider_v_threshold_min,
                            parent_->cd_.slider_v_threshold_max);
 }
 
 void CompositePanel::slide_update_threshold_v_max()
 {
-    slide_update_threshold(*parent_->ui.horizontalSlider_value_threshold_max,
+    slide_update_threshold(*ui_->horizontalSlider_value_threshold_max,
                            parent_->cd_.slider_v_threshold_max,
                            parent_->cd_.slider_v_threshold_min,
-                           *parent_->ui.horizontalSlider_value_threshold_min,
-                           *parent_->ui.label_value_threshold_max,
+                           *ui_->horizontalSlider_value_threshold_min,
+                           *ui_->label_value_threshold_max,
                            parent_->cd_.slider_v_threshold_min,
                            parent_->cd_.slider_v_threshold_max);
 }
 
 void CompositePanel::actualize_frequency_channel_s()
 {
-    parent_->cd_.set_composite_p_activated_s(parent_->ui.checkBox_saturation_freq->isChecked());
-    parent_->ui.SpinBox_saturation_freq_min->setDisabled(!parent_->ui.checkBox_saturation_freq->isChecked());
-    parent_->ui.SpinBox_saturation_freq_max->setDisabled(!parent_->ui.checkBox_saturation_freq->isChecked());
+    parent_->cd_.set_composite_p_activated_s(ui_->checkBox_saturation_freq->isChecked());
+    ui_->SpinBox_saturation_freq_min->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
+    ui_->SpinBox_saturation_freq_max->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
 }
 
 void CompositePanel::actualize_frequency_channel_v()
 {
-    parent_->cd_.set_composite_p_activated_v(parent_->ui.checkBox_value_freq->isChecked());
-    parent_->ui.SpinBox_value_freq_min->setDisabled(!parent_->ui.checkBox_value_freq->isChecked());
-    parent_->ui.SpinBox_value_freq_max->setDisabled(!parent_->ui.checkBox_value_freq->isChecked());
+    parent_->cd_.set_composite_p_activated_v(ui_->checkBox_value_freq->isChecked());
+    ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
+    ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
 }
 
 void CompositePanel::actualize_checkbox_h_gaussian_blur()
 {
-    parent_->cd_.set_h_blur_activated(parent_->ui.checkBox_h_gaussian_blur->isChecked());
-    parent_->ui.SpinBox_hue_blur_kernel_size->setEnabled(parent_->ui.checkBox_h_gaussian_blur->isChecked());
+    parent_->cd_.set_h_blur_activated(ui_->checkBox_h_gaussian_blur->isChecked());
+    ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
 }
 
 void CompositePanel::actualize_kernel_size_blur()
 {
-    parent_->cd_.set_h_blur_kernel_size(parent_->ui.SpinBox_hue_blur_kernel_size->value());
+    parent_->cd_.set_h_blur_kernel_size(ui_->SpinBox_hue_blur_kernel_size->value());
 }
 
 void CompositePanel::set_composite_area() { parent_->mainDisplay->getOverlayManager().create_overlay<CompositeArea>(); }

@@ -10,7 +10,6 @@ namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
@@ -21,7 +20,7 @@ void ImageRenderingPanel::set_image_mode(QString mode)
     if (mode != nullptr)
     {
         // Call comes from ui
-        if (parent_->ui.ImageModeComboBox->currentIndex() == 0)
+        if (ui_->ImageModeComboBox->currentIndex() == 0)
             set_raw_mode();
         else
             set_holographic_mode();
@@ -91,12 +90,12 @@ void ImageRenderingPanel::set_holographic_mode()
         parent_->cd_.set_contrast_enabled(true);
 
         /* Filter2D */
-        parent_->ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
         /* Record Frame Calculation */
-        parent_->ui.NumberOfFramesSpinBox->setValue(
-            ceil((parent_->ui.ImportEndIndexSpinBox->value() - parent_->ui.ImportStartIndexSpinBox->value()) /
-                 (float)parent_->ui.TimeTransformationStrideSpinBox->value()));
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeTransformationStrideSpinBox->value()));
 
         /* Notify */
         parent_->notify();
@@ -109,11 +108,11 @@ void ImageRenderingPanel::set_holographic_mode()
 
 void ImageRenderingPanel::set_computation_mode()
 {
-    if (parent_->ui.ImageModeComboBox->currentIndex() == 0)
+    if (ui_->ImageModeComboBox->currentIndex() == 0)
     {
         parent_->cd_.set_compute_mode(Computation::Raw);
     }
-    else if (parent_->ui.ImageModeComboBox->currentIndex() == 1)
+    else if (ui_->ImageModeComboBox->currentIndex() == 1)
     {
         parent_->cd_.set_compute_mode(Computation::Hologram);
     }
@@ -124,7 +123,7 @@ void ImageRenderingPanel::update_batch_size()
     if (parent_->is_raw_mode())
         return;
 
-    int value = parent_->ui.BatchSizeSpinBox->value();
+    int value = ui_->BatchSizeSpinBox->value();
 
     if (value == parent_->cd_.batch_size)
         return;
@@ -148,7 +147,7 @@ void ImageRenderingPanel::update_time_transformation_stride()
     if (parent_->is_raw_mode())
         return;
 
-    int value = parent_->ui.TimeTransformationStrideSpinBox->value();
+    int value = ui_->TimeTransformationStrideSpinBox->value();
 
     if (value == parent_->cd_.time_transformation_stride)
         return;
@@ -160,9 +159,9 @@ void ImageRenderingPanel::update_time_transformation_stride()
             parent_->cd_.set_time_transformation_stride(value);
             parent_->cd_.adapt_time_transformation_stride();
             parent_->holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
-            parent_->ui.NumberOfFramesSpinBox->setValue(
-                ceil((parent_->ui.ImportEndIndexSpinBox->value() - parent_->ui.ImportStartIndexSpinBox->value()) /
-                     (float)parent_->ui.TimeTransformationStrideSpinBox->value()));
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeTransformationStrideSpinBox->value()));
             parent_->notify();
         });
     }
@@ -185,9 +184,9 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         const camera::FrameDescriptor& fd = parent_->holovibes_.get_gpu_input_queue()->get_fd();
 
         // Set the input box related to the filter2d
-        parent_->ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        set_filter2d_n2(parent_->ui.Filter2DN2SpinBox->value());
-        set_filter2d_n1(parent_->ui.Filter2DN1SpinBox->value());
+        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        set_filter2d_n2(ui_->Filter2DN2SpinBox->value());
+        set_filter2d_n1(ui_->Filter2DN1SpinBox->value());
 
         if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get()))
             pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -345,7 +344,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     if (parent_->is_raw_mode())
         return;
 
-    int time_transformation_size = parent_->ui.timeTransformationSizeSpinBox->value();
+    int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
     time_transformation_size = std::max(1, time_transformation_size);
 
     if (time_transformation_size == parent_->cd_.time_transformation_size)
@@ -357,7 +356,7 @@ void ImageRenderingPanel::set_time_transformation_size()
         pipe->insert_fn_end_vect([=]() {
             parent_->cd_.set_time_transformation_size(time_transformation_size);
             parent_->holovibes_.get_compute_pipe()->request_update_time_transformation_size();
-            parent_->ui.ViewPanel->set_p_accu();
+            ui_->ViewPanel->set_p_accu();
             // This will not do anything until
             // SliceWindow::changeTexture() isn't coded.
         });
@@ -385,7 +384,7 @@ void ImageRenderingPanel::set_z(const double value)
 void ImageRenderingPanel::set_z_step(const double value)
 {
     parent_->z_step_ = value;
-    parent_->ui.ZDoubleSpinBox->setSingleStep(value);
+    ui_->ZDoubleSpinBox->setSingleStep(value);
 }
 
 void ImageRenderingPanel::increment_z()
@@ -394,7 +393,7 @@ void ImageRenderingPanel::increment_z()
         return;
 
     set_z(parent_->cd_.zdistance + parent_->z_step_);
-    parent_->ui.ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
+    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -403,12 +402,12 @@ void ImageRenderingPanel::decrement_z()
         return;
 
     set_z(parent_->cd_.zdistance - parent_->z_step_);
-    parent_->ui.ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
+    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    parent_->cd_.set_convolution(value, parent_->ui.KernelQuickSelectComboBox->currentText().toStdString());
+    parent_->cd_.set_convolution(value, ui_->KernelQuickSelectComboBox->currentText().toStdString());
 
     try
     {
@@ -442,7 +441,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
     if (parent_->cd_.convolution_enabled)
     {
-        parent_->cd_.set_convolution(true, parent_->ui.KernelQuickSelectComboBox->currentText().toStdString());
+        parent_->cd_.set_convolution(true, ui_->KernelQuickSelectComboBox->currentText().toStdString());
 
         try
         {

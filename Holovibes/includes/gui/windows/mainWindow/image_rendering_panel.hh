@@ -118,8 +118,6 @@ class ImageRenderingPanel : public Panel
     void set_divide_convolution_mode(const bool value);
 
   private:
-    MainWindow* parent_;
-
     /*! \brief Changes display mode to Raw */
     void set_raw_mode();
 

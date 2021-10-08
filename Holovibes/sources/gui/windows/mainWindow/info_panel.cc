@@ -6,50 +6,49 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
-    , parent_(find_main_window(parent))
 {
 }
 
 InfoPanel::~InfoPanel() {}
 
-void InfoPanel::set_text(const char* text) { parent_->ui.InfoTextEdit->setText(text); }
+void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
 
 void InfoPanel::init_file_reader_progress(int value, int max)
 {
-    parent_->ui.FileReaderProgressBar->setMaximum(static_cast<int>(max));
-    parent_->ui.FileReaderProgressBar->setValue(static_cast<int>(value));
+    ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max));
+    ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
 }
 
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {
     if (visible)
     {
-        parent_->ui.FileReaderProgressBar->show();
+        ui_->FileReaderProgressBar->show();
     }
     else
     {
-        parent_->ui.FileReaderProgressBar->hide();
+        ui_->FileReaderProgressBar->hide();
     }
 }
 
-void InfoPanel::update_file_reader_progress(int value) { parent_->ui.FileReaderProgressBar->setValue(value); }
+void InfoPanel::update_file_reader_progress(int value) { ui_->FileReaderProgressBar->setValue(value); }
 
 void InfoPanel::init_record_progress(int value, int max)
 {
-    parent_->ui.RecordProgressBar->setMaximum(static_cast<int>(max));
-    parent_->ui.RecordProgressBar->setValue(static_cast<int>(value));
+    ui_->RecordProgressBar->setMaximum(static_cast<int>(max));
+    ui_->RecordProgressBar->setValue(static_cast<int>(value));
 }
 
 void InfoPanel::set_visible_record_progress(bool visible)
 {
     if (visible)
     {
-        parent_->ui.RecordProgressBar->reset();
-        parent_->ui.RecordProgressBar->show();
+        ui_->RecordProgressBar->reset();
+        ui_->RecordProgressBar->show();
     }
     else
     {
-        parent_->ui.RecordProgressBar->hide();
+        ui_->RecordProgressBar->hide();
     }
 }
 } // namespace holovibes::gui

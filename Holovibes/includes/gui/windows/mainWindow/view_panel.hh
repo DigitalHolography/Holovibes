@@ -158,8 +158,5 @@ class ViewPanel : public Panel
      * \param value The new reticle scale
      */
     void reticle_scale(double value);
-
-  private:
-    MainWindow* parent_;
 };
 } // namespace holovibes::gui

@@ -36,8 +36,5 @@ class InfoPanel : public Panel
     void init_record_progress(int value, int max);
     /*! \brief Show or hdie the record progress */
     void set_visible_record_progress(bool visible);
-
-  private:
-    MainWindow* parent_;
 };
 } // namespace holovibes::gui

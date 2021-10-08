@@ -6,6 +6,8 @@ namespace holovibes::gui
 {
 Panel::Panel(QWidget* parent)
     : QGroupBox(parent)
+    , parent_(find_main_window(parent))
+    , ui_(parent_->ui)
 {
 }
 

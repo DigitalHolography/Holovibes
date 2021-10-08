@@ -71,8 +71,9 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     : QMainWindow(parent)
     , holovibes_(holovibes)
     , cd_(holovibes_.get_cd())
+    , ui(new Ui::MainWindow)
 {
-    ui.setupUi(this);
+    ui->setupUi(this);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -83,7 +84,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     setWindowIcon(QIcon("Holovibes.ico"));
 
     auto display_info_text_fun = [=](const std::string& text) {
-        synchronize_thread([=]() { ui.InfoPanel->set_text(text.c_str()); });
+        synchronize_thread([=]() { ui->InfoPanel->set_text(text.c_str()); });
     };
     Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
 
@@ -92,11 +93,11 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
             switch (type)
             {
             case InformationContainer::ProgressType::FILE_READ:
-                ui.InfoPanel->init_file_reader_progress(static_cast<int>(value), static_cast<int>(max_size));
+                ui->InfoPanel->init_file_reader_progress(static_cast<int>(value), static_cast<int>(max_size));
                 break;
             case InformationContainer::ProgressType::CHART_RECORD:
             case InformationContainer::ProgressType::FRAME_RECORD:
-                ui.InfoPanel->init_record_progress(static_cast<int>(value), static_cast<int>(max_size));
+                ui->InfoPanel->init_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                 break;
             default:
                 return;
@@ -104,10 +105,10 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         });
     };
     Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
-    ui.InfoPanel->set_visible_file_reader_progress(false);
-    ui.InfoPanel->set_visible_record_progress(false);
+    ui->InfoPanel->set_visible_file_reader_progress(false);
+    ui->InfoPanel->set_visible_record_progress(false);
 
-    ui.ExportPanel->set_record_mode(QString::fromUtf8("Raw Image"));
+    ui->ExportPanel->set_record_mode(QString::fromUtf8("Raw Image"));
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -117,7 +118,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
 
     // Hide non default tab
-    ui.CompositePanel->hide();
+    ui->CompositePanel->hide();
 
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
@@ -139,28 +140,28 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         save_ini(::holovibes::ini::get_global_ini_path());
     }
 
-    ui.ImageRenderingPanel->set_z_step(z_step_);
-    ui.ExportPanel->set_record_frame_step(record_frame_step_);
+    ui->ImageRenderingPanel->set_z_step(z_step_);
+    ui->ExportPanel->set_record_frame_step(record_frame_step_);
     set_night();
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_up_shortcut_, SIGNAL(activated()), ui.ImageRenderingPanel, SLOT(increment_z()));
+    connect(z_up_shortcut_, SIGNAL(activated()), ui->ImageRenderingPanel, SLOT(increment_z()));
 
     z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
     z_down_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_down_shortcut_, SIGNAL(activated()), ui.ImageRenderingPanel, SLOT(decrement_z()));
+    connect(z_down_shortcut_, SIGNAL(activated()), ui->ImageRenderingPanel, SLOT(decrement_z()));
 
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
     p_left_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_left_shortcut_, SIGNAL(activated()), ui.ViewPanel, SLOT(decrement_p()));
+    connect(p_left_shortcut_, SIGNAL(activated()), ui->ViewPanel, SLOT(decrement_p()));
 
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_right_shortcut_, SIGNAL(activated()), ui.ViewPanel, SLOT(increment_p()));
+    connect(p_right_shortcut_, SIGNAL(activated()), ui->ViewPanel, SLOT(increment_p()));
 
-    QComboBox* window_cbox = ui.WindowSelectionComboBox;
+    QComboBox* window_cbox = ui->WindowSelectionComboBox;
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
     // Display default values
@@ -169,10 +170,10 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
-    spinBoxDecimalPointReplacement(ui.WaveLengthDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui.ZDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui.ContrastMaxDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui->WaveLengthDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui->ZDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui->ContrastMaxDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui->ContrastMinDoubleSpinBox);
 
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
@@ -186,7 +187,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
             files.push_back(QString(file.path().filename().string().c_str()));
         }
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
-        ui.KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
+        ui->KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
     Holovibes::instance().start_information_display(false);
@@ -205,6 +206,8 @@ MainWindow::~MainWindow()
     remove_infos();
 
     Holovibes::instance().stop_all_worker_controller();
+
+    delete ui;
 }
 
 #pragma endregion
@@ -228,150 +231,150 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
-    ui.InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
+    ui->InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
 
     // Tabs
     if (cd_.is_computation_stopped)
     {
-        ui.CompositePanel->hide();
-        ui.ImageRenderingPanel->setEnabled(false);
-        ui.ViewPanel->setEnabled(false);
-        ui.ExportPanel->setEnabled(false);
+        ui->CompositePanel->hide();
+        ui->ImageRenderingPanel->setEnabled(false);
+        ui->ViewPanel->setEnabled(false);
+        ui->ExportPanel->setEnabled(false);
         layout_toggled();
         return;
     }
 
     if (is_enabled_camera_)
     {
-        ui.ImageRenderingPanel->setEnabled(true);
-        ui.ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
-        ui.ExportPanel->setEnabled(true);
+        ui->ImageRenderingPanel->setEnabled(true);
+        ui->ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
+        ui->ExportPanel->setEnabled(true);
     }
 
     const bool is_raw = is_raw_mode();
 
     if (is_raw)
     {
-        ui.RecordImageModeComboBox->removeItem(ui.RecordImageModeComboBox->findText("Processed Image"));
-        ui.RecordImageModeComboBox->removeItem(ui.RecordImageModeComboBox->findText("Chart"));
+        ui->RecordImageModeComboBox->removeItem(ui->RecordImageModeComboBox->findText("Processed Image"));
+        ui->RecordImageModeComboBox->removeItem(ui->RecordImageModeComboBox->findText("Chart"));
     }
     else // Hologram mode
     {
-        if (ui.RecordImageModeComboBox->findText("Processed Image") == -1)
-            ui.RecordImageModeComboBox->insertItem(1, "Processed Image");
-        if (ui.RecordImageModeComboBox->findText("Chart") == -1)
-            ui.RecordImageModeComboBox->insertItem(2, "Chart");
+        if (ui->RecordImageModeComboBox->findText("Processed Image") == -1)
+            ui->RecordImageModeComboBox->insertItem(1, "Processed Image");
+        if (ui->RecordImageModeComboBox->findText("Chart") == -1)
+            ui->RecordImageModeComboBox->insertItem(2, "Chart");
     }
 
     // Raw view
-    ui.RawDisplayingCheckBox->setEnabled(!is_raw);
-    ui.RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view_enabled);
+    ui->RawDisplayingCheckBox->setEnabled(!is_raw);
+    ui->RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view_enabled);
 
-    QPushButton* signalBtn = ui.ChartSignalPushButton;
+    QPushButton* signalBtn = ui->ChartSignalPushButton;
     signalBtn->setStyleSheet(
         (mainDisplay && signalBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
             ? "QPushButton {color: #8E66D9;}"
             : "");
 
-    QPushButton* noiseBtn = ui.ChartNoisePushButton;
+    QPushButton* noiseBtn = ui->ChartNoisePushButton;
     noiseBtn->setStyleSheet(
         (mainDisplay && noiseBtn->isEnabled() && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
             ? "QPushButton {color: #00A4AB;}"
             : "");
 
-    ui.PhaseUnwrap2DCheckBox->setEnabled(cd_.img_type == ImgType::PhaseIncrease || cd_.img_type == ImgType::Argument);
+    ui->PhaseUnwrap2DCheckBox->setEnabled(cd_.img_type == ImgType::PhaseIncrease || cd_.img_type == ImgType::Argument);
 
     // Time transformation cuts
-    ui.TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
+    ui->TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
 
     // Contrast
-    ui.ContrastCheckBox->setChecked(!is_raw && cd_.contrast_enabled);
-    ui.ContrastCheckBox->setEnabled(true);
-    ui.AutoRefreshContrastCheckBox->setChecked(cd_.contrast_auto_refresh);
+    ui->ContrastCheckBox->setChecked(!is_raw && cd_.contrast_enabled);
+    ui->ContrastCheckBox->setEnabled(true);
+    ui->AutoRefreshContrastCheckBox->setChecked(cd_.contrast_auto_refresh);
 
     // Contrast SpinBox:
-    ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
-    ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
+    ui->ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+    ui->ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
+    ui->ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+    ui->ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
 
     // FFT shift
-    ui.FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
-    ui.FFTShiftCheckBox->setEnabled(true);
+    ui->FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
+    ui->FFTShiftCheckBox->setEnabled(true);
 
     // Window selection
-    QComboBox* window_selection = ui.WindowSelectionComboBox;
+    QComboBox* window_selection = ui->WindowSelectionComboBox;
     window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
     window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(cd_.current_window.load()) : 0);
 
-    ui.LogScaleCheckBox->setEnabled(true);
-    ui.LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window.load()));
-    ui.ImgAccuCheckBox->setEnabled(true);
-    ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window.load()));
-    ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
+    ui->LogScaleCheckBox->setEnabled(true);
+    ui->LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window.load()));
+    ui->ImgAccuCheckBox->setEnabled(true);
+    ui->ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window.load()));
+    ui->ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
     if (cd_.current_window == WindowKind::XYview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
+        ui->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
+        ui->FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
     }
     else if (cd_.current_window == WindowKind::XZview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
+        ui->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
+        ui->FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
     }
     else if (cd_.current_window == WindowKind::YZview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
+        ui->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
+        ui->FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
     }
 
     // p accu
-    ui.PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
-    ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
-    ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    ui->PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
+    ui->PAccuCheckBox->setChecked(cd_.p_accu_enabled);
+    ui->PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
 
     cd_.check_p_limits();
-    ui.PAccSpinBox->setValue(cd_.p_acc_level);
-    ui.PSpinBox->setValue(cd_.pindex);
-    ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
+    ui->PAccSpinBox->setValue(cd_.p_acc_level);
+    ui->PSpinBox->setValue(cd_.pindex);
+    ui->PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     if (cd_.p_accu_enabled)
     {
-        ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
+        ui->PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
+        ui->PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
     }
     else
     {
-        ui.PSpinBox->setMaximum(cd_.time_transformation_size - 1);
+        ui->PSpinBox->setMaximum(cd_.time_transformation_size - 1);
     }
-    ui.PSpinBox->setEnabled(!is_raw);
+    ui->PSpinBox->setEnabled(!is_raw);
 
     // q accu
     bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
-    ui.Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
-    ui.Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
-    ui.Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui->Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
+    ui->Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui->Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
-    ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
-    ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    ui->Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
+    ui->Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
 
     cd_.check_q_limits();
-    ui.Q_AccSpinBox->setValue(cd_.q_acc_level);
-    ui.Q_SpinBox->setValue(cd_.q_index);
+    ui->Q_AccSpinBox->setValue(cd_.q_acc_level);
+    ui->Q_SpinBox->setValue(cd_.q_index);
     if (cd_.q_acc_enabled)
     {
-        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
-        ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
+        ui->Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
+        ui->Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
     }
     else
     {
-        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
+        ui->Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
     }
 
     // XY accu
-    ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
-    ui.XAccSpinBox->setValue(cd_.x_acc_level);
-    ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
-    ui.YAccSpinBox->setValue(cd_.y_acc_level);
+    ui->XAccuCheckBox->setChecked(cd_.x_accu_enabled);
+    ui->XAccSpinBox->setValue(cd_.x_acc_level);
+    ui->YAccuCheckBox->setChecked(cd_.y_accu_enabled);
+    ui->YAccSpinBox->setValue(cd_.y_acc_level);
 
     int max_width = 0;
     int max_height = 0;
@@ -385,125 +388,125 @@ void MainWindow::on_notify()
         cd_.x_cuts = 0;
         cd_.y_cuts = 0;
     }
-    ui.XSpinBox->setMaximum(max_width);
-    ui.YSpinBox->setMaximum(max_height);
-    QSpinBoxQuietSetValue(ui.XSpinBox, cd_.x_cuts);
-    QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
+    ui->XSpinBox->setMaximum(max_width);
+    ui->YSpinBox->setMaximum(max_height);
+    QSpinBoxQuietSetValue(ui->XSpinBox, cd_.x_cuts);
+    QSpinBoxQuietSetValue(ui->YSpinBox, cd_.y_cuts);
 
     // Time transformation
-    ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
+    ui->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
-    ui.TimeTransformationStrideSpinBox->setValue(cd_.time_transformation_stride);
-    ui.TimeTransformationStrideSpinBox->setSingleStep(cd_.batch_size);
-    ui.TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
+    ui->TimeTransformationStrideSpinBox->setValue(cd_.time_transformation_stride);
+    ui->TimeTransformationStrideSpinBox->setSingleStep(cd_.batch_size);
+    ui->TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     // Batch
-    ui.BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
+    ui->BatchSizeSpinBox->setEnabled(!is_raw && !is_recording_);
 
     cd_.check_batch_size_limit(input_queue_capacity);
-    ui.BatchSizeSpinBox->setValue(cd_.batch_size);
-    ui.BatchSizeSpinBox->setMaximum(input_queue_capacity);
+    ui->BatchSizeSpinBox->setValue(cd_.batch_size);
+    ui->BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
     // Image rendering
-    ui.SpaceTransformationComboBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
-    ui.SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.space_transformation.load()));
-    ui.TimeTransformationComboBox->setEnabled(!is_raw);
-    ui.TimeTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.time_transformation.load()));
+    ui->SpaceTransformationComboBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
+    ui->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.space_transformation.load()));
+    ui->TimeTransformationComboBox->setEnabled(!is_raw);
+    ui->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.time_transformation.load()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui.timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
-    ui.timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
-    ui.TimeTransformationCutsCheckBox->setEnabled(ui.timeTransformationSizeSpinBox->value() >=
-                                                  MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
+    ui->timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
+    ui->timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
+    ui->TimeTransformationCutsCheckBox->setEnabled(ui->timeTransformationSizeSpinBox->value() >=
+                                                   MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
-    ui.WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui.WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
-    ui.ZDoubleSpinBox->setEnabled(!is_raw);
-    ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-    ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
+    ui->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
+    ui->WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
+    ui->ZDoubleSpinBox->setEnabled(!is_raw);
+    ui->ZDoubleSpinBox->setValue(cd_.zdistance);
+    ui->BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
     // Filter2d
-    ui.Filter2D->setEnabled(!is_raw);
-    ui.Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
-    ui.Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
-    ui.Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
-    ui.Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
-    ui.Filter2DN1SpinBox->setValue(cd_.filter2d_n1);
-    ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
-    ui.Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
-    ui.Filter2DN2SpinBox->setValue(cd_.filter2d_n2);
+    ui->Filter2D->setEnabled(!is_raw);
+    ui->Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
+    ui->Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui->Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
+    ui->Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui->Filter2DN1SpinBox->setValue(cd_.filter2d_n1);
+    ui->Filter2DN1SpinBox->setMaximum(ui->Filter2DN2SpinBox->value() - 1);
+    ui->Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui->Filter2DN2SpinBox->setValue(cd_.filter2d_n2);
 
     // Composite
     const int time_transformation_size_max = cd_.time_transformation_size - 1;
-    ui.PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
-    ui.PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
-    ui.SpinBox_hue_freq_min->setMaximum(time_transformation_size_max);
-    ui.SpinBox_hue_freq_max->setMaximum(time_transformation_size_max);
-    ui.SpinBox_saturation_freq_min->setMaximum(time_transformation_size_max);
-    ui.SpinBox_saturation_freq_max->setMaximum(time_transformation_size_max);
-    ui.SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
-    ui.SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
+    ui->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
+    ui->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
+    ui->SpinBox_hue_freq_min->setMaximum(time_transformation_size_max);
+    ui->SpinBox_hue_freq_max->setMaximum(time_transformation_size_max);
+    ui->SpinBox_saturation_freq_min->setMaximum(time_transformation_size_max);
+    ui->SpinBox_saturation_freq_max->setMaximum(time_transformation_size_max);
+    ui->SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
+    ui->SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
 
-    ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights_);
+    ui->RenormalizationCheckBox->setChecked(cd_.composite_auto_weights_);
 
-    QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, cd_.composite_p_red);
-    QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, cd_.composite_p_blue);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, cd_.weight_r);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, cd_.weight_g);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, cd_.weight_b);
-    ui.CompositePanel->actualize_frequency_channel_v();
+    QSpinBoxQuietSetValue(ui->PRedSpinBox_Composite, cd_.composite_p_red);
+    QSpinBoxQuietSetValue(ui->PBlueSpinBox_Composite, cd_.composite_p_blue);
+    QDoubleSpinBoxQuietSetValue(ui->WeightSpinBox_R, cd_.weight_r);
+    QDoubleSpinBoxQuietSetValue(ui->WeightSpinBox_G, cd_.weight_g);
+    QDoubleSpinBoxQuietSetValue(ui->WeightSpinBox_B, cd_.weight_b);
+    ui->CompositePanel->actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.composite_p_min_h);
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, cd_.composite_p_max_h);
-    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.slider_h_threshold_min * 1000));
-    ui.CompositePanel->slide_update_threshold_h_min();
-    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(cd_.slider_h_threshold_max * 1000));
-    ui.CompositePanel->slide_update_threshold_h_max();
+    QSpinBoxQuietSetValue(ui->SpinBox_hue_freq_min, cd_.composite_p_min_h);
+    QSpinBoxQuietSetValue(ui->SpinBox_hue_freq_max, cd_.composite_p_max_h);
+    QSliderQuietSetValue(ui->horizontalSlider_hue_threshold_min, (int)(cd_.slider_h_threshold_min * 1000));
+    ui->CompositePanel->slide_update_threshold_h_min();
+    QSliderQuietSetValue(ui->horizontalSlider_hue_threshold_max, (int)(cd_.slider_h_threshold_max * 1000));
+    ui->CompositePanel->slide_update_threshold_h_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, cd_.composite_p_min_s);
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, cd_.composite_p_max_s);
-    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min, (int)(cd_.slider_s_threshold_min * 1000));
-    ui.CompositePanel->slide_update_threshold_s_min();
-    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max, (int)(cd_.slider_s_threshold_max * 1000));
-    ui.CompositePanel->slide_update_threshold_s_max();
+    QSpinBoxQuietSetValue(ui->SpinBox_saturation_freq_min, cd_.composite_p_min_s);
+    QSpinBoxQuietSetValue(ui->SpinBox_saturation_freq_max, cd_.composite_p_max_s);
+    QSliderQuietSetValue(ui->horizontalSlider_saturation_threshold_min, (int)(cd_.slider_s_threshold_min * 1000));
+    ui->CompositePanel->slide_update_threshold_s_min();
+    QSliderQuietSetValue(ui->horizontalSlider_saturation_threshold_max, (int)(cd_.slider_s_threshold_max * 1000));
+    ui->CompositePanel->slide_update_threshold_s_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, cd_.composite_p_min_v);
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, cd_.composite_p_max_v);
-    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.slider_v_threshold_min * 1000));
-    ui.CompositePanel->slide_update_threshold_v_min();
-    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(cd_.slider_v_threshold_max * 1000));
-    ui.CompositePanel->slide_update_threshold_v_max();
+    QSpinBoxQuietSetValue(ui->SpinBox_value_freq_min, cd_.composite_p_min_v);
+    QSpinBoxQuietSetValue(ui->SpinBox_value_freq_max, cd_.composite_p_max_v);
+    QSliderQuietSetValue(ui->horizontalSlider_value_threshold_min, (int)(cd_.slider_v_threshold_min * 1000));
+    ui->CompositePanel->slide_update_threshold_v_min();
+    QSliderQuietSetValue(ui->horizontalSlider_value_threshold_max, (int)(cd_.slider_v_threshold_max * 1000));
+    ui->CompositePanel->slide_update_threshold_v_max();
 
-    ui.CompositePanel->setHidden(is_raw_mode() || (cd_.img_type != ImgType::Composite));
+    ui->CompositePanel->setHidden(is_raw_mode() || (cd_.img_type != ImgType::Composite));
 
-    bool rgbMode = ui.radioButton_rgb->isChecked();
-    ui.groupBox->setHidden(!rgbMode);
-    ui.groupBox_5->setHidden(!rgbMode && !ui.RenormalizationCheckBox->isChecked());
-    ui.groupBox_hue->setHidden(rgbMode);
-    ui.groupBox_saturation->setHidden(rgbMode);
-    ui.groupBox_value->setHidden(rgbMode);
+    bool rgbMode = ui->radioButton_rgb->isChecked();
+    ui->groupBox->setHidden(!rgbMode);
+    ui->groupBox_5->setHidden(!rgbMode && !ui->RenormalizationCheckBox->isChecked());
+    ui->groupBox_hue->setHidden(rgbMode);
+    ui->groupBox_saturation->setHidden(rgbMode);
+    ui->groupBox_value->setHidden(rgbMode);
 
     // Reticle
-    ui.ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
-    ui.ReticleScaleDoubleSpinBox->setValue(cd_.reticle_scale);
-    ui.DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
+    ui->ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
+    ui->ReticleScaleDoubleSpinBox->setValue(cd_.reticle_scale);
+    ui->DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
 
     // Lens View
-    ui.LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
+    ui->LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
 
     // Renormalize
-    ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
+    ui->RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
 
     // Convolution
-    ui.ConvoCheckBox->setEnabled(cd_.compute_mode == Computation::Hologram);
-    ui.ConvoCheckBox->setChecked(cd_.convolution_enabled);
-    ui.DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
+    ui->ConvoCheckBox->setEnabled(cd_.compute_mode == Computation::Hologram);
+    ui->ConvoCheckBox->setChecked(cd_.convolution_enabled);
+    ui->DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
 
-    QLineEdit* path_line_edit = ui.OutputFilePathLineEdit;
+    QLineEdit* path_line_edit = ui->OutputFilePathLineEdit;
     path_line_edit->clear();
 
     std::string record_output_path =
@@ -656,7 +659,7 @@ void MainWindow::reload_ini() { reload_ini(""); }
 
 void MainWindow::reload_ini(QString filename)
 {
-    ui.ImportPanel->import_stop();
+    ui->ImportPanel->import_stop();
     try
     {
         load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
@@ -668,7 +671,7 @@ void MainWindow::reload_ini(QString filename)
     }
 
     if (import_type_ == ImportType::File)
-        ui.ImportPanel->import_start();
+        ui->ImportPanel->import_start();
     else if (import_type_ == ImportType::Camera)
     {
         change_camera(kCamera);
@@ -679,15 +682,15 @@ void MainWindow::reload_ini(QString filename)
 void MainWindow::load_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    Panel* image_rendering_panel = ui.ImageRenderingPanel;
-    Panel* view_panel = ui.ViewPanel;
-    Panel* import_panel = ui.ImportPanel;
-    Panel* info_panel = ui.InfoPanel;
+    Panel* image_rendering_panel = ui->ImageRenderingPanel;
+    Panel* view_panel = ui->ViewPanel;
+    Panel* import_panel = ui->ImportPanel;
+    Panel* info_panel = ui->InfoPanel;
 
-    QAction* image_rendering_action = ui.actionImage_rendering;
-    QAction* view_action = ui.actionView;
-    QAction* import_export_action = ui.actionImportExport;
-    QAction* info_action = ui.actionInfo;
+    QAction* image_rendering_action = ui->actionImage_rendering;
+    QAction* view_action = ui->actionView;
+    QAction* import_export_action = ui->actionImportExport;
+    QAction* info_action = ui->actionInfo;
 
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -707,13 +710,13 @@ void MainWindow::load_ini(const std::string& path)
 
         const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
         if (z_step > 0.0f)
-            ui.ImageRenderingPanel->set_z_step(z_step);
+            ui->ImageRenderingPanel->set_z_step(z_step);
 
         view_action->setChecked(!ptree.get<bool>("view.hidden", view_panel->isHidden()));
 
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
-        ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
+        ui->ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
         displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
         xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
@@ -726,11 +729,11 @@ void MainWindow::load_ini(const std::string& path)
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
         const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
-        ui.ExportPanel->set_record_frame_step(record_frame_step);
+        ui->ExportPanel->set_record_frame_step(record_frame_step);
 
         import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_panel->isHidden()));
 
-        ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
+        ui->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
         info_action->setChecked(!ptree.get<bool>("info.hidden", info_panel->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
@@ -747,10 +750,10 @@ void MainWindow::load_ini(const std::string& path)
 void MainWindow::save_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    Panel* image_rendering_panel = ui.ImageRenderingPanel;
-    Panel* view_panel = ui.ViewPanel;
-    Frame* import_export_frame = ui.ImportExportFrame;
-    Panel* info_panel = ui.InfoPanel;
+    Panel* image_rendering_panel = ui->ImageRenderingPanel;
+    Panel* view_panel = ui->ViewPanel;
+    Frame* import_export_frame = ui->ImportExportFrame;
+    Panel* info_panel = ui->InfoPanel;
     Config& config = global::global_config;
 
     // Save general compute data
@@ -805,10 +808,10 @@ void MainWindow::open_file(const std::string& path)
 void MainWindow::close_critical_compute()
 {
     if (cd_.convolution_enabled)
-        ui.ImageRenderingPanel->set_convolution_mode(false);
+        ui->ImageRenderingPanel->set_convolution_mode(false);
 
     if (cd_.time_transformation_cuts_enabled)
-        ui.ViewPanel->cancel_time_transformation_cuts();
+        ui->ViewPanel->cancel_time_transformation_cuts();
 
     holovibes_.stop_compute();
 }
@@ -823,7 +826,7 @@ void MainWindow::camera_none()
     remove_infos();
 
     // Make camera's settings menu unaccessible
-    ui.actionSettings->setEnabled(false);
+    ui->actionSettings->setEnabled(false);
     is_enabled_camera_ = false;
 
     cd_.set_computation_stopped(true);
@@ -923,16 +926,16 @@ void MainWindow::change_camera(CameraKind c)
 
             set_camera_timeout();
 
-            ui.ImageRenderingPanel->set_computation_mode();
+            ui->ImageRenderingPanel->set_computation_mode();
 
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
-            ui.ImageRenderingPanel->set_image_mode(nullptr);
+            ui->ImageRenderingPanel->set_image_mode(nullptr);
             import_type_ = ImportType::Camera;
             kCamera = c;
 
             // Make camera's settings menu accessible
-            QAction* settings = ui.actionSettings;
+            QAction* settings = ui->actionSettings;
             settings->setEnabled(true);
 
             cd_.set_computation_stopped(false);
@@ -1039,7 +1042,7 @@ void MainWindow::refreshViewMode()
     }
     close_windows();
     close_critical_compute();
-    cd_.img_type = static_cast<ImgType>(ui.ViewModeComboBox->currentIndex());
+    cd_.img_type = static_cast<ImgType>(ui->ViewModeComboBox->currentIndex());
     try
     {
         createPipe();
@@ -1081,15 +1084,15 @@ void MainWindow::set_view_image_type(const QString& value)
             const unsigned min_val_composite = cd_.time_transformation_size == 1 ? 0 : 1;
             const unsigned max_val_composite = cd_.time_transformation_size - 1;
 
-            ui.PRedSpinBox_Composite->setValue(min_val_composite);
-            ui.SpinBox_hue_freq_min->setValue(min_val_composite);
-            ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
-            ui.SpinBox_value_freq_min->setValue(min_val_composite);
+            ui->PRedSpinBox_Composite->setValue(min_val_composite);
+            ui->SpinBox_hue_freq_min->setValue(min_val_composite);
+            ui->SpinBox_saturation_freq_min->setValue(min_val_composite);
+            ui->SpinBox_value_freq_min->setValue(min_val_composite);
 
-            ui.PBlueSpinBox_Composite->setValue(max_val_composite);
-            ui.SpinBox_hue_freq_max->setValue(max_val_composite);
-            ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
-            ui.SpinBox_value_freq_max->setValue(max_val_composite);
+            ui->PBlueSpinBox_Composite->setValue(max_val_composite);
+            ui->SpinBox_hue_freq_max->setValue(max_val_composite);
+            ui->SpinBox_saturation_freq_max->setValue(max_val_composite);
+            ui->SpinBox_value_freq_max->setValue(max_val_composite);
         }
     }
     last_img_type_ = value;
@@ -1097,7 +1100,7 @@ void MainWindow::set_view_image_type(const QString& value)
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
 
     pipe->insert_fn_end_vect([=]() {
-        cd_.set_img_type(static_cast<ImgType>(ui.ViewModeComboBox->currentIndex()));
+        cd_.set_img_type(static_cast<ImgType>(ui->ViewModeComboBox->currentIndex()));
         notify();
         layout_toggled();
     });
@@ -1107,7 +1110,7 @@ void MainWindow::set_view_image_type(const QString& value)
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
     if (cd_.time_transformation_cuts_enabled)
-        ui.ViewPanel->set_auto_contrast_cuts();
+        ui->ViewPanel->set_auto_contrast_cuts();
 }
 
 bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
@@ -1116,7 +1119,7 @@ bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
 #pragma region Computation
 void MainWindow::change_window()
 {
-    QComboBox* window_cbox = ui.WindowSelectionComboBox;
+    QComboBox* window_cbox = ui->WindowSelectionComboBox;
 
     cd_.change_window(window_cbox->currentIndex());
     pipe_refresh();
@@ -1208,7 +1211,7 @@ RawWindow* MainWindow::get_main_display() { return mainDisplay.get(); }
 
 void MainWindow::update_file_reader_index(int n)
 {
-    auto lambda = [this, n]() { ui.InfoPanel->update_file_reader_progress(n); };
+    auto lambda = [this, n]() { ui->InfoPanel->update_file_reader_progress(n); };
     synchronize_thread(lambda);
 }
 #pragma endregion

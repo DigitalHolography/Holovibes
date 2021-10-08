@@ -61,7 +61,5 @@ class ImportPanel : public Panel
     };
 
     ImportType import_type_ = ImportType::None;
-
-    MainWindow* parent_;
 };
 } // namespace holovibes::gui

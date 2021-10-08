@@ -88,8 +88,5 @@ class CompositePanel : public Panel
 
     /*! \brief Make the ui composite overlay visible */
     void set_composite_area();
-
-  private:
-    MainWindow* parent_;
 };
 } // namespace holovibes::gui

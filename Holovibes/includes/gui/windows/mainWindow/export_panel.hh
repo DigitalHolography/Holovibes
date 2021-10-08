@@ -72,8 +72,5 @@ class ExportPanel : public Panel
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
-
-  private:
-    MainWindow* parent_;
 };
 } // namespace holovibes::gui

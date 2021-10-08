@@ -7,6 +7,11 @@
 #include <QGroupBox>
 #include <QObject>
 
+namespace Ui
+{
+class MainWindow;
+}
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -32,6 +37,8 @@ class Panel : public QGroupBox
     void ShowOrHide();
 
   protected:
+    MainWindow* parent_;
+    Ui::MainWindow* ui_;
     /*! \brief Recursively search the parent tree to find the MainWindow */
     MainWindow* find_main_window(QObject* widget);
 };
