@@ -115,6 +115,7 @@ class MainWindow : public QMainWindow, public Observer
      * \param value true for raw mode, false for hologram mode.
      */
     void set_image_mode(QString mode);
+    void set_image_mode(const Computation computation);
 
     void refreshViewMode();
 

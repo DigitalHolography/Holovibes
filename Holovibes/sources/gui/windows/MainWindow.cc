@@ -825,13 +825,17 @@ void MainWindow::change_camera(CameraKind c)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::change_camera(*this,
+    // Weird call to setup none camera before changing
+    camera_none();
 
-                                                     c,
-                                                     ui.ImageModeComboBox->currentIndex());
+    const Computation computation = static_cast<Computation>(ui.ImageModeComboBox->currentIndex());
+
+    const bool res = ::holovibes::api::change_camera(c, computation);
 
     if (res)
     {
+        set_image_mode(computation);
+
         // Make camera's settings menu accessible
         QAction* settings = ui.actionSettings;
         settings->setEnabled(true);
@@ -1030,9 +1034,29 @@ void MainWindow::set_view_mode(const QString value)
 void MainWindow::set_image_mode(QString mode)
 {
     LOG_INFO;
-    const bool is_null_mode = (mode == nullptr);
-    ::holovibes::api::set_image_mode(*this, is_null_mode, ui.ImageModeComboBox->currentIndex());
+
+    if (mode != nullptr)
+    {
+        // Call comes from ui
+        if (ui.ImageModeComboBox->currentIndex() == 0)
+            set_raw_mode();
+        else
+            set_holographic_mode();
+    }
+    else if (Holovibes::instance().get_cd().compute_mode == Computation::Raw)
+        set_raw_mode();
+    else if (Holovibes::instance().get_cd().compute_mode == Computation::Hologram)
+        set_holographic_mode();
 }
+
+void MainWindow::set_image_mode(const Computation computation)
+{
+    if (computation == Computation::Raw)
+        set_raw_mode();
+    else if (computation == Computation::Hologram)
+        set_holographic_mode();
+}
+
 #pragma endregion
 
 #pragma region Batch

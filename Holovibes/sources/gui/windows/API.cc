@@ -413,14 +413,9 @@ void closeEvent()
 #pragma region Cameras
 
 // TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
-bool change_camera(::holovibes::gui::MainWindow& mainwindow,
-
-                   CameraKind c,
-                   const uint image_mode_index)
+bool change_camera(CameraKind c, const Computation computation)
 {
     LOG_INFO;
-
-    mainwindow.camera_none();
 
     bool res = false;
 
@@ -438,11 +433,10 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
 
         set_camera_timeout();
 
-        set_computation_mode(Holovibes::instance(), image_mode_index);
+        set_computation_mode(computation);
 
         Holovibes::instance().start_camera_frame_read(c);
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        set_image_mode(mainwindow, true, image_mode_index);
         UserInterfaceDescriptor::instance().import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
         UserInterfaceDescriptor::instance().kCamera = c;
 
@@ -713,23 +707,6 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
     set_auto_contrast_cuts();
-}
-
-void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null_mode, const uint image_mode_index)
-{
-    LOG_INFO;
-    if (!is_null_mode)
-    {
-        // Call comes from ui
-        if (image_mode_index == 0)
-            mainwindow.set_raw_mode();
-        else
-            mainwindow.set_holographic_mode();
-    }
-    else if (Holovibes::instance().get_cd().compute_mode == Computation::Raw)
-        mainwindow.set_raw_mode();
-    else if (Holovibes::instance().get_cd().compute_mode == Computation::Hologram)
-        mainwindow.set_holographic_mode();
 }
 
 #pragma endregion
@@ -1604,17 +1581,11 @@ void set_composite_area()
         .create_overlay<::holovibes::gui::CompositeArea>();
 }
 
-void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
+void set_computation_mode(const Computation computation)
 {
     LOG_INFO;
-    if (image_mode_index == 0)
-    {
-        holovibes.get_cd().compute_mode = Computation::Raw;
-    }
-    else if (image_mode_index == 1)
-    {
-        holovibes.get_cd().compute_mode = Computation::Hologram;
-    }
+
+    Holovibes::instance().get_cd().compute_mode = computation;
 }
 
 void close_critical_compute()

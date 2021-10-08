@@ -129,31 +129,26 @@ void close_windows();
 
 /*! \brief Sets the computation mode
  *
- * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
+ * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-void set_computation_mode(Holovibes& holovibes, const uint image_mode_index);
+void set_computation_mode(const Computation computation);
 
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
 /*! \brief Changes the current camera used
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
- * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
+ * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-bool change_camera(::holovibes::gui::MainWindow& mainwindow,
-
-                   CameraKind c,
-                   const uint image_mode_index);
+bool change_camera(CameraKind c, const Computation computation);
 
 /*! \brief Sets the image mode
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param is_null_mode if the selection is null
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null_mode, const uint image_mode_index);
+void set_image_mode(const bool is_null_mode, const uint image_mode_index);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
