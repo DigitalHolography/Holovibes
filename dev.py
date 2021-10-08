@@ -340,7 +340,7 @@ if __name__ == '__main__':
     args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        args = GoalArgs(args.b, args.g, args.e, args.p, args.v, goal_args)
-        run_goal(goal, args)
+        run_goal(goal, GoalArgs(args.b, args.g,
+                 args.e, args.p, args.v, goal_args))
 
     exit(0)
