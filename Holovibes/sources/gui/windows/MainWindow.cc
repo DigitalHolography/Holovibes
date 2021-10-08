@@ -1029,7 +1029,20 @@ void MainWindow::set_view_mode(const QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_view_mode(*this, value.toStdString());
+    if (api::is_raw_mode())
+        return;
+
+    const std::string& str = value.toStdString();
+
+    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
+    {
+        refreshViewMode();
+        if (Holovibes::instance().get_cd().img_type == ImgType::Composite)
+        {
+            set_composite_values();
+        }
+    }
+    ::holovibes::api::set_view_mode(str, get_view_mode_callback());
 }
 
 // FREE

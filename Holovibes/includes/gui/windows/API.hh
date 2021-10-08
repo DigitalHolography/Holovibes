@@ -639,18 +639,16 @@ void adapt_time_transformation_stride_to_batch_size();
 
 /*! \brief Modifies view image type
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param value The new image type
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
-
-                   const std::string& value);
+void set_view_mode(const std::string& value, std::function<void()> callback);
 
 /*! \brief Restarts everything to change the view mode
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
+ * \param observer parent of the new window that can be triggered on event
  */
-void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index);
+void refreshViewMode(::holovibes::gui::MainWindow& observer, uint index);
 
 /*! \brief Changes display mode to Holographic
  *

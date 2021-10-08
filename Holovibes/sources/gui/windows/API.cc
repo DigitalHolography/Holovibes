@@ -598,7 +598,7 @@ bool set_holographic_mode(::holovibes::gui::MainWindow& observer, camera::FrameD
     return false;
 }
 
-void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index)
+void refreshViewMode(::holovibes::gui::MainWindow& observer, uint index)
 {
     LOG_INFO;
     float old_scale = 1.f;
@@ -616,8 +616,8 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index)
 
     try
     {
-        mainwindow.createPipe();
-        mainwindow.createHoloWindow();
+        createPipe(observer);
+        createHoloWindow(observer);
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
@@ -628,28 +628,18 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index)
     }
 }
 
-void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
-
-                   const std::string& value)
+void set_view_mode(const std::string& value, std::function<void()> callback)
 {
     LOG_INFO;
 
     if (is_raw_mode())
         return;
 
-    if (mainwindow.need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value))
-    {
-        mainwindow.refreshViewMode();
-        if (Holovibes::instance().get_cd().img_type == ImgType::Composite)
-        {
-            mainwindow.set_composite_values();
-        }
-    }
     UserInterfaceDescriptor::instance().last_img_type_ = value;
 
     auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
 
-    pipe->insert_fn_end_vect(mainwindow.get_view_mode_callback());
+    pipe->insert_fn_end_vect(callback);
     pipe_refresh();
 
     // Force XYview autocontrast
