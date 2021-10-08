@@ -398,16 +398,14 @@ void reset(::holovibes::gui::MainWindow& mainwindow)
     }
 }
 
-void closeEvent(::holovibes::gui::MainWindow& mainwindow)
+void closeEvent()
 {
     LOG_INFO;
 
     close_windows();
     if (!Holovibes::instance().get_cd().is_computation_stopped)
         close_critical_compute();
-    mainwindow.camera_none();
     remove_infos();
-    mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
 }
 
 #pragma endregion

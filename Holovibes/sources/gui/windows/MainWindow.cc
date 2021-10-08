@@ -812,7 +812,9 @@ void MainWindow::closeEvent(QCloseEvent*)
 {
     LOG_INFO;
 
-    ::holovibes::api::closeEvent(*this);
+    ::holovibes::api::closeEvent();
+    camera_none();
+    save_ini(::holovibes::ini::get_global_ini_path());
 }
 #pragma endregion
 /* ------------ */

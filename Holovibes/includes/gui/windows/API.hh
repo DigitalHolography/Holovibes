@@ -748,11 +748,8 @@ void camera_xiq(::holovibes::gui::MainWindow& mainwindow);
  */
 void camera_xib(::holovibes::gui::MainWindow& mainwindow);
 
-/*! \brief Last call before the program is closed
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void closeEvent(::holovibes::gui::MainWindow& mainwindow);
+/*! \brief Last call before the program is closed */
+void closeEvent();
 
 /*! \brief Resets the whole program in reload .ini file
  *
