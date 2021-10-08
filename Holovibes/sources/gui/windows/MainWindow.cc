@@ -194,8 +194,8 @@ MainWindow::~MainWindow()
     delete p_left_shortcut_;
     delete p_right_shortcut_;
 
-    ::holovibes::api::close_windows(UserInterfaceDescriptor::instance());
-    ::holovibes::api::close_critical_compute(UserInterfaceDescriptor::instance());
+    ::holovibes::api::close_windows();
+    ::holovibes::api::close_critical_compute();
     camera_none();
     ::holovibes::api::remove_infos();
 
@@ -581,8 +581,8 @@ void MainWindow::notify_error(const std::exception& e)
                 {
                     Holovibes::instance().get_cd().convolution_enabled = false;
                 }
-                ::holovibes::api::close_windows(UserInterfaceDescriptor::instance());
-                ::holovibes::api::close_critical_compute(UserInterfaceDescriptor::instance());
+                ::holovibes::api::close_windows();
+                ::holovibes::api::close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
                 notify();
             };
@@ -595,7 +595,7 @@ void MainWindow::notify_error(const std::exception& e)
                 Holovibes::instance().get_cd().img_acc_slice_xy_enabled = false;
                 Holovibes::instance().get_cd().img_acc_slice_xy_level = 1;
             }
-            ::holovibes::api::close_critical_compute(UserInterfaceDescriptor::instance());
+            ::holovibes::api::close_critical_compute();
 
             LOG_ERROR << "GPU computing error occured.";
             notify();
@@ -694,7 +694,7 @@ void MainWindow::browse_import_ini()
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
-    ::holovibes::api::browse_import_ini(*this, UserInterfaceDescriptor::instance(), filename.toStdString());
+    ::holovibes::api::browse_import_ini(*this, filename.toStdString());
 
     notify();
 }
@@ -712,7 +712,7 @@ void MainWindow::reload_ini(QString filename)
 {
     LOG_INFO;
 
-    ::holovibes::api::reload_ini(*this, UserInterfaceDescriptor::instance(), filename.toStdString());
+    ::holovibes::api::reload_ini(*this, filename.toStdString());
 
     notify();
 }
@@ -725,7 +725,7 @@ void MainWindow::load_ini(const std::string& path)
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
-    ::holovibes::api::load_ini(*this, UserInterfaceDescriptor::instance(), path, ptree);
+    ::holovibes::api::load_ini(*this, path, ptree);
 
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -775,7 +775,7 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<ushort>("info.theme_type", theme_index_);
 
     // ... then the general data to save in ptree
-    ::holovibes::api::save_ini(UserInterfaceDescriptor::instance(), path, ptree);
+    ::holovibes::api::save_ini(path, ptree);
 
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
@@ -789,7 +789,7 @@ void MainWindow::camera_none()
 {
     LOG_INFO;
 
-    ::holovibes::api::camera_none(UserInterfaceDescriptor::instance());
+    ::holovibes::api::camera_none();
 
     // Make camera's settings menu unaccessible
     ui.actionSettings->setEnabled(false);
@@ -802,7 +802,7 @@ void MainWindow::reset()
 {
     LOG_INFO;
 
-    ::holovibes::api::reset(*this, UserInterfaceDescriptor::instance());
+    ::holovibes::api::reset(*this);
 
     notify();
 }
@@ -812,7 +812,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 {
     LOG_INFO;
 
-    ::holovibes::api::closeEvent(*this, UserInterfaceDescriptor::instance());
+    ::holovibes::api::closeEvent(*this);
 }
 #pragma endregion
 /* ------------ */
@@ -824,7 +824,7 @@ void MainWindow::change_camera(CameraKind c)
     LOG_INFO;
 
     const bool res = ::holovibes::api::change_camera(*this,
-                                                     UserInterfaceDescriptor::instance(),
+
                                                      c,
                                                      ui.ImageModeComboBox->currentIndex());
 
@@ -909,7 +909,7 @@ void MainWindow::init_image_mode(QPoint& position, QSize& size)
 {
     LOG_INFO;
 
-    ::holovibes::api::init_image_mode(UserInterfaceDescriptor::instance(), position, size);
+    ::holovibes::api::init_image_mode(position, size);
 }
 
 // Notify
@@ -917,7 +917,7 @@ void MainWindow::set_raw_mode()
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_raw_mode(*this, UserInterfaceDescriptor::instance());
+    const bool res = ::holovibes::api::set_raw_mode(*this);
 
     if (res)
     {
@@ -939,7 +939,7 @@ void MainWindow::createHoloWindow()
 {
     LOG_INFO;
 
-    ::holovibes::api::createHoloWindow(*this, UserInterfaceDescriptor::instance());
+    ::holovibes::api::createHoloWindow(*this);
 }
 
 // GUI
@@ -948,7 +948,7 @@ void MainWindow::set_holographic_mode()
     LOG_INFO;
 
     FrameDescriptor fd;
-    const bool res = ::holovibes::api::set_holographic_mode(*this, UserInterfaceDescriptor::instance(), fd);
+    const bool res = ::holovibes::api::set_holographic_mode(*this, fd);
 
     if (res)
     {
@@ -970,7 +970,7 @@ void MainWindow::refreshViewMode()
 {
     LOG_INFO;
 
-    ::holovibes::api::refreshViewMode(*this, UserInterfaceDescriptor::instance(), ui.ViewModeComboBox->currentIndex());
+    ::holovibes::api::refreshViewMode(*this, ui.ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();
@@ -1021,7 +1021,7 @@ void MainWindow::set_view_mode(const QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_view_mode(*this, UserInterfaceDescriptor::instance(), value.toStdString());
+    ::holovibes::api::set_view_mode(*this, value.toStdString());
 }
 
 // FREE
@@ -1043,7 +1043,7 @@ void MainWindow::update_batch_size()
     uint batch_size = ui.BatchSizeSpinBox->value();
     auto callback = [=]() {
         Holovibes::instance().get_cd().batch_size = batch_size;
-        ::holovibes::api::adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor::instance());
+        ::holovibes::api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_batch_size();
         notify();
     };
@@ -1063,7 +1063,7 @@ void MainWindow::update_time_transformation_stride()
     uint time_transformation_stride = ui.TimeTransformationStrideSpinBox->value();
     auto callback = [=]() {
         Holovibes::instance().get_cd().time_transformation_stride = time_transformation_stride;
-        ::holovibes::api::adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor::instance());
+        ::holovibes::api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
         ui.NumberOfFramesSpinBox->setValue(
             ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
@@ -1083,8 +1083,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
 
-    const bool res =
-        ::holovibes::api::toggle_time_transformation_cuts(*this, UserInterfaceDescriptor::instance(), checked);
+    const bool res = ::holovibes::api::toggle_time_transformation_cuts(*this, checked);
 
     if (res)
     {
@@ -1110,7 +1109,7 @@ void MainWindow::cancel_time_transformation_cuts()
         });
     }
 
-    const bool res = ::holovibes::api::cancel_time_transformation_cuts(UserInterfaceDescriptor::instance(), callback);
+    const bool res = ::holovibes::api::cancel_time_transformation_cuts(callback);
 
     if (res)
     {
@@ -1137,7 +1136,7 @@ void MainWindow::toggle_renormalize(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::toggle_renormalize(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::toggle_renormalize(value);
 }
 
 // GUI
@@ -1145,15 +1144,15 @@ void MainWindow::set_filter2d(bool checked)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_filter2d(*this, UserInterfaceDescriptor::instance(), checked);
+    const bool res = ::holovibes::api::set_filter2d(*this, checked);
 
     if (checked)
     {
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        ::holovibes::api::set_filter2d_n2(UserInterfaceDescriptor::instance(), ui.Filter2DN2SpinBox->value());
-        ::holovibes::api::set_filter2d_n1(UserInterfaceDescriptor::instance(), ui.Filter2DN1SpinBox->value());
+        ::holovibes::api::set_filter2d_n2(ui.Filter2DN2SpinBox->value());
+        ::holovibes::api::set_filter2d_n1(ui.Filter2DN1SpinBox->value());
     }
 
     if (res)
@@ -1167,8 +1166,7 @@ void MainWindow::disable_filter2d_view()
 {
     LOG_INFO;
 
-    ::holovibes::api::disable_filter2d_view(UserInterfaceDescriptor::instance(),
-                                            ui.WindowSelectionComboBox->currentIndex());
+    ::holovibes::api::disable_filter2d_view(ui.WindowSelectionComboBox->currentIndex());
 
     if (UserInterfaceDescriptor::instance().filter2d_window)
     {
@@ -1187,8 +1185,7 @@ void MainWindow::update_filter2d_view(bool checked)
 {
     LOG_INFO;
 
-    const std::optional<bool> res =
-        ::holovibes::api::update_filter2d_view(*this, UserInterfaceDescriptor::instance(), checked);
+    const std::optional<bool> res = ::holovibes::api::update_filter2d_view(*this, checked);
 
     if (res.has_value())
     {
@@ -1208,7 +1205,7 @@ void MainWindow::set_filter2d_n1(int n)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_filter2d_n1(UserInterfaceDescriptor::instance(), n);
+    const bool res = ::holovibes::api::set_filter2d_n1(n);
 
     if (res)
     {
@@ -1221,7 +1218,7 @@ void MainWindow::set_filter2d_n2(int n)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_filter2d_n2(UserInterfaceDescriptor::instance(), n);
+    const bool res = ::holovibes::api::set_filter2d_n2(n);
 
     if (res)
     {
@@ -1234,7 +1231,7 @@ void MainWindow::cancel_filter2d()
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::cancel_filter2d(*this, UserInterfaceDescriptor::instance());
+    const bool res = ::holovibes::api::cancel_filter2d(*this);
 
     notify();
 }
@@ -1244,7 +1241,7 @@ void MainWindow::set_fft_shift(const bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_fft_shift(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_fft_shift(value);
 }
 
 // GUI
@@ -1262,9 +1259,7 @@ void MainWindow::set_time_transformation_size()
         // SliceWindow::changeTexture() isn't coded.
     };
 
-    const bool res = ::holovibes::api::set_time_transformation_size(UserInterfaceDescriptor::instance(),
-                                                                    time_transformation_size,
-                                                                    callback);
+    const bool res = ::holovibes::api::set_time_transformation_size(time_transformation_size, callback);
 
     if (res)
     {
@@ -1278,8 +1273,7 @@ void MainWindow::update_lens_view(bool value)
     LOG_INFO;
     Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
 
-    const std::optional<bool> res =
-        ::holovibes::api::update_lens_view(*this, UserInterfaceDescriptor::instance(), value);
+    const std::optional<bool> res = ::holovibes::api::update_lens_view(*this, value);
 
     if (res.has_value() && res.value())
     {
@@ -1301,7 +1295,7 @@ void MainWindow::disable_lens_view()
                    this,
                    SLOT(disable_lens_view()));
 
-    ::holovibes::api::disable_lens_view(UserInterfaceDescriptor::instance());
+    ::holovibes::api::disable_lens_view();
 
     notify();
 }
@@ -1311,8 +1305,7 @@ void MainWindow::update_raw_view(bool value)
 {
     LOG_INFO;
 
-    const std::optional<bool> res =
-        ::holovibes::api::update_raw_view(*this, UserInterfaceDescriptor::instance(), value);
+    const std::optional<bool> res = ::holovibes::api::update_raw_view(*this, value);
 
     if (!res.has_value())
     {
@@ -1340,7 +1333,7 @@ void MainWindow::disable_raw_view()
                    this,
                    SLOT(disable_raw_view()));
 
-    ::holovibes::api::disable_raw_view(UserInterfaceDescriptor::instance());
+    ::holovibes::api::disable_raw_view();
 
     notify();
 }
@@ -1350,9 +1343,7 @@ void MainWindow::set_p_accu()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_p_accu(UserInterfaceDescriptor::instance(),
-                                 ui.PAccuCheckBox->isChecked(),
-                                 ui.PAccSpinBox->value());
+    ::holovibes::api::set_p_accu(ui.PAccuCheckBox->isChecked(), ui.PAccSpinBox->value());
 
     notify();
 }
@@ -1362,9 +1353,7 @@ void MainWindow::set_x_accu()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_x_accu(UserInterfaceDescriptor::instance(),
-                                 ui.XAccuCheckBox->isChecked(),
-                                 ui.XAccSpinBox->value());
+    ::holovibes::api::set_x_accu(ui.XAccuCheckBox->isChecked(), ui.XAccSpinBox->value());
 
     notify();
 }
@@ -1374,9 +1363,7 @@ void MainWindow::set_y_accu()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_y_accu(UserInterfaceDescriptor::instance(),
-                                 ui.YAccuCheckBox->isChecked(),
-                                 ui.YAccSpinBox->value());
+    ::holovibes::api::set_y_accu(ui.YAccuCheckBox->isChecked(), ui.YAccSpinBox->value());
 
     notify();
 }
@@ -1388,7 +1375,7 @@ void MainWindow::set_x_y()
 
     const auto& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
 
-    ::holovibes::api::set_x_y(UserInterfaceDescriptor::instance(), fd, ui.XSpinBox->value(), ui.YSpinBox->value());
+    ::holovibes::api::set_x_y(fd, ui.XSpinBox->value(), ui.YSpinBox->value());
 }
 
 // Notify
@@ -1396,7 +1383,7 @@ void MainWindow::set_q(int value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_q(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_q(value);
 
     notify();
 }
@@ -1406,9 +1393,7 @@ void MainWindow::set_q_acc()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_q_accu(UserInterfaceDescriptor::instance(),
-                                 ui.Q_AccuCheckBox->isChecked(),
-                                 ui.Q_AccSpinBox->value());
+    ::holovibes::api::set_q_accu(ui.Q_AccuCheckBox->isChecked(), ui.Q_AccSpinBox->value());
 
     notify();
 }
@@ -1418,7 +1403,7 @@ void MainWindow::set_p(int value)
 {
     LOG_INFO;
 
-    const bool set_p_succeed = ::holovibes::api::set_p(UserInterfaceDescriptor::instance(), value);
+    const bool set_p_succeed = ::holovibes::api::set_p(value);
 
     if (set_p_succeed)
     {
@@ -1433,9 +1418,7 @@ void MainWindow::set_composite_intervals()
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
 
-    ::holovibes::api::set_composite_intervals(UserInterfaceDescriptor::instance(),
-                                              ui.PRedSpinBox_Composite->value(),
-                                              ui.PBlueSpinBox_Composite->value());
+    ::holovibes::api::set_composite_intervals(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value());
 
     notify();
 }
@@ -1445,8 +1428,7 @@ void MainWindow::set_composite_intervals_hsv_h_min()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_h_min(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_hue_freq_min->value());
+    ::holovibes::api::set_composite_intervals_hsv_h_min(ui.SpinBox_hue_freq_min->value());
 
     notify();
 }
@@ -1456,8 +1438,7 @@ void MainWindow::set_composite_intervals_hsv_h_max()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_h_max(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_hue_freq_max->value());
+    ::holovibes::api::set_composite_intervals_hsv_h_max(ui.SpinBox_hue_freq_max->value());
 
     notify();
 }
@@ -1467,8 +1448,7 @@ void MainWindow::set_composite_intervals_hsv_s_min()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_s_min(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_saturation_freq_min->value());
+    ::holovibes::api::set_composite_intervals_hsv_s_min(ui.SpinBox_saturation_freq_min->value());
 
     notify();
 }
@@ -1478,8 +1458,7 @@ void MainWindow::set_composite_intervals_hsv_s_max()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_s_max(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_saturation_freq_max->value());
+    ::holovibes::api::set_composite_intervals_hsv_s_max(ui.SpinBox_saturation_freq_max->value());
 
     notify();
 }
@@ -1489,8 +1468,7 @@ void MainWindow::set_composite_intervals_hsv_v_min()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_v_min(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_value_freq_min->value());
+    ::holovibes::api::set_composite_intervals_hsv_v_min(ui.SpinBox_value_freq_min->value());
 
     notify();
 }
@@ -1500,8 +1478,7 @@ void MainWindow::set_composite_intervals_hsv_v_max()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_intervals_hsv_v_max(UserInterfaceDescriptor::instance(),
-                                                        ui.SpinBox_value_freq_max->value());
+    ::holovibes::api::set_composite_intervals_hsv_v_max(ui.SpinBox_value_freq_max->value());
 
     notify();
 }
@@ -1511,8 +1488,7 @@ void MainWindow::set_composite_weights()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_weights(UserInterfaceDescriptor::instance(),
-                                            ui.WeightSpinBox_R->value(),
+    ::holovibes::api::set_composite_weights(ui.WeightSpinBox_R->value(),
                                             ui.WeightSpinBox_G->value(),
                                             ui.WeightSpinBox_B->value());
 
@@ -1524,7 +1500,7 @@ void MainWindow::set_composite_auto_weights(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_auto_weights(*this, UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_composite_auto_weights(*this, value);
 }
 
 // GUI
@@ -1534,13 +1510,13 @@ void MainWindow::click_composite_rgb_or_hsv()
 
     if (ui.radioButton_rgb->isChecked())
     {
-        ::holovibes::api::select_composite_rgb(UserInterfaceDescriptor::instance());
+        ::holovibes::api::select_composite_rgb();
         ui.PRedSpinBox_Composite->setValue(ui.SpinBox_hue_freq_min->value());
         ui.PBlueSpinBox_Composite->setValue(ui.SpinBox_hue_freq_max->value());
     }
     else
     {
-        ::holovibes::api::select_composite_hsv(UserInterfaceDescriptor::instance());
+        ::holovibes::api::select_composite_hsv();
         ui.SpinBox_hue_freq_min->setValue(ui.PRedSpinBox_Composite->value());
         ui.SpinBox_hue_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
         ui.SpinBox_saturation_freq_min->setValue(ui.PRedSpinBox_Composite->value());
@@ -1557,8 +1533,7 @@ void MainWindow::actualize_frequency_channel_s()
 {
     LOG_INFO;
 
-    ::holovibes::api::actualize_frequency_channel_s(UserInterfaceDescriptor::instance(),
-                                                    ui.checkBox_saturation_freq->isChecked());
+    ::holovibes::api::actualize_frequency_channel_s(ui.checkBox_saturation_freq->isChecked());
 
     ui.SpinBox_saturation_freq_min->setDisabled(!ui.checkBox_saturation_freq->isChecked());
     ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
@@ -1569,8 +1544,7 @@ void MainWindow::actualize_frequency_channel_v()
 {
     LOG_INFO;
 
-    ::holovibes::api::actualize_frequency_channel_v(UserInterfaceDescriptor::instance(),
-                                                    ui.checkBox_value_freq->isChecked());
+    ::holovibes::api::actualize_frequency_channel_v(ui.checkBox_value_freq->isChecked());
 
     ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
     ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
@@ -1581,8 +1555,7 @@ void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
     LOG_INFO;
 
-    ::holovibes::api::actualize_selection_h_gaussian_blur(UserInterfaceDescriptor::instance(),
-                                                          ui.checkBox_h_gaussian_blur->isChecked());
+    ::holovibes::api::actualize_selection_h_gaussian_blur(ui.checkBox_h_gaussian_blur->isChecked());
 
     ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 }
@@ -1592,8 +1565,7 @@ void MainWindow::actualize_kernel_size_blur()
 {
     LOG_INFO;
 
-    ::holovibes::api::actualize_kernel_size_blur(UserInterfaceDescriptor::instance(),
-                                                 ui.SpinBox_hue_blur_kernel_size->value());
+    ::holovibes::api::actualize_kernel_size_blur(ui.SpinBox_hue_blur_kernel_size->value());
 }
 
 // LOCAL
@@ -1722,7 +1694,7 @@ void MainWindow::increment_p()
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::increment_p(*this, UserInterfaceDescriptor::instance());
+    bool res = ::holovibes::api::increment_p(*this);
 
     if (res)
     {
@@ -1735,7 +1707,7 @@ void MainWindow::decrement_p()
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::decrement_p(*this, UserInterfaceDescriptor::instance());
+    bool res = ::holovibes::api::decrement_p(*this);
 
     if (res)
     {
@@ -1748,7 +1720,7 @@ void MainWindow::set_wavelength(const double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_wavelength(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_wavelength(value);
 }
 
 // FREE
@@ -1756,7 +1728,7 @@ void MainWindow::set_z(const double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_z(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_z(value);
 }
 
 // GUI
@@ -1777,7 +1749,7 @@ void MainWindow::decrement_z()
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::decrement_z(UserInterfaceDescriptor::instance());
+    bool res = ::holovibes::api::decrement_z();
 
     if (res)
     {
@@ -1790,7 +1762,7 @@ void MainWindow::set_z_step(const double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_z_step(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_z_step(value);
 
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
@@ -1800,7 +1772,7 @@ void MainWindow::set_space_transformation(const QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_space_transformation(*this, UserInterfaceDescriptor::instance(), value.toStdString());
+    ::holovibes::api::set_space_transformation(*this, value.toStdString());
 }
 
 // FREE
@@ -1808,7 +1780,7 @@ void MainWindow::set_time_transformation(QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_time_transformation(*this, UserInterfaceDescriptor::instance(), value.toStdString());
+    ::holovibes::api::set_time_transformation(*this, value.toStdString());
 }
 
 // Notify
@@ -1816,7 +1788,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::set_unwrapping_2d(UserInterfaceDescriptor::instance(), value);
+    bool res = ::holovibes::api::set_unwrapping_2d(value);
 
     if (res)
     {
@@ -1828,7 +1800,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
 void MainWindow::set_accumulation(bool value)
 {
     LOG_INFO;
-    bool res = ::holovibes::api::set_accumulation(UserInterfaceDescriptor::instance(), value);
+    bool res = ::holovibes::api::set_accumulation(value);
 
     if (res)
     {
@@ -1841,7 +1813,7 @@ void MainWindow::set_accumulation_level(int value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_accumulation_level(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_accumulation_level(value);
 }
 
 // FREE
@@ -1849,7 +1821,7 @@ void MainWindow::set_composite_area()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_area(UserInterfaceDescriptor::instance());
+    ::holovibes::api::set_composite_area();
 }
 
 #pragma endregion
@@ -1861,7 +1833,7 @@ void MainWindow::rotateTexture()
 {
     LOG_INFO;
 
-    ::holovibes::api::rotateTexture(UserInterfaceDescriptor::instance());
+    ::holovibes::api::rotateTexture();
 
     notify();
 }
@@ -1871,7 +1843,7 @@ void MainWindow::flipTexture()
 {
     LOG_INFO;
 
-    ::holovibes::api::flipTexture(UserInterfaceDescriptor::instance());
+    ::holovibes::api::flipTexture();
 
     notify();
 }
@@ -1885,7 +1857,7 @@ void MainWindow::set_contrast_mode(bool value)
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::set_contrast_mode(*this, UserInterfaceDescriptor::instance(), value);
+    bool res = ::holovibes::api::set_contrast_mode(*this, value);
 
     if (res)
     {
@@ -1898,7 +1870,7 @@ void MainWindow::set_auto_contrast_cuts()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_auto_contrast_cuts(UserInterfaceDescriptor::instance());
+    ::holovibes::api::set_auto_contrast_cuts();
 }
 
 // GUI
@@ -1933,7 +1905,7 @@ void MainWindow::set_auto_contrast()
 {
     LOG_INFO;
 
-    ::holovibes::api::set_auto_contrast(UserInterfaceDescriptor::instance());
+    ::holovibes::api::set_auto_contrast();
 }
 
 // FREE
@@ -1941,7 +1913,7 @@ void MainWindow::set_contrast_min(const double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_contrast_min(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_contrast_min(value);
 }
 
 // FREE
@@ -1949,7 +1921,7 @@ void MainWindow::set_contrast_max(const double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_contrast_max(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_contrast_max(value);
 }
 
 // FREE
@@ -1957,7 +1929,7 @@ void MainWindow::invert_contrast(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::invert_contrast(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::invert_contrast(value);
 }
 
 // Notify
@@ -1965,7 +1937,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_auto_refresh_contrast(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_auto_refresh_contrast(value);
 
     notify();
 }
@@ -1975,7 +1947,7 @@ void MainWindow::set_log_scale(const bool value)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_log_scale(UserInterfaceDescriptor::instance(), value);
+    const bool res = ::holovibes::api::set_log_scale(value);
 
     if (res)
     {
@@ -1991,7 +1963,7 @@ void MainWindow::update_convo_kernel(const QString& value)
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::update_convo_kernel(UserInterfaceDescriptor::instance(), value.toStdString());
+    bool res = ::holovibes::api::update_convo_kernel(value.toStdString());
 
     if (res)
     {
@@ -2008,11 +1980,11 @@ void MainWindow::set_convolution_mode(const bool value)
     {
         std::string str = ui.KernelQuickSelectComboBox->currentText().toStdString();
 
-        ::holovibes::api::set_convolution_mode(UserInterfaceDescriptor::instance(), str);
+        ::holovibes::api::set_convolution_mode(str);
     }
     else
     {
-        ::holovibes::api::unset_convolution_mode(UserInterfaceDescriptor::instance());
+        ::holovibes::api::unset_convolution_mode();
     }
 
     notify();
@@ -2023,7 +1995,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_divide_convolution_mode(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_divide_convolution_mode(value);
 
     notify();
 }
@@ -2037,7 +2009,7 @@ void MainWindow::display_reticle(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::display_reticle(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::display_reticle(value);
 
     notify();
 }
@@ -2047,7 +2019,7 @@ void MainWindow::reticle_scale(double value)
 {
     LOG_INFO;
 
-    ::holovibes::api::reticle_scale(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::reticle_scale(value);
 }
 #pragma endregion Reticle
 /* ------------ */
@@ -2058,7 +2030,7 @@ void MainWindow::activeSignalZone()
 {
     LOG_INFO;
 
-    ::holovibes::api::activeSignalZone(UserInterfaceDescriptor::instance());
+    ::holovibes::api::activeSignalZone();
 
     notify();
 }
@@ -2068,7 +2040,7 @@ void MainWindow::activeNoiseZone()
 {
     LOG_INFO;
 
-    ::holovibes::api::activeNoiseZone(UserInterfaceDescriptor::instance());
+    ::holovibes::api::activeNoiseZone();
 
     notify();
 }
@@ -2078,7 +2050,7 @@ void MainWindow::start_chart_display()
 {
     LOG_INFO;
 
-    holovibes::api::start_chart_display(UserInterfaceDescriptor::instance());
+    holovibes::api::start_chart_display();
 
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
             SIGNAL(closed()),
@@ -2093,7 +2065,7 @@ void MainWindow::stop_chart_display()
 {
     LOG_INFO;
 
-    holovibes::api::stop_chart_display(UserInterfaceDescriptor::instance());
+    holovibes::api::stop_chart_display();
 
     ui.ChartPlotPushButton->setEnabled(true);
 }
@@ -2106,7 +2078,7 @@ void MainWindow::set_record_frame_step(int value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_record_frame_step(UserInterfaceDescriptor::instance(), value);
+    ::holovibes::api::set_record_frame_step(value);
 
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
@@ -2155,8 +2127,7 @@ void MainWindow::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
-    const std::string file_ext =
-        ::holovibes::api::browse_record_output_file(UserInterfaceDescriptor::instance(), std_filepath);
+    const std::string file_ext = ::holovibes::api::browse_record_output_file(std_filepath);
 
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui.RecordExtComboBox->setCurrentText(file_ext.c_str());
@@ -2188,10 +2159,10 @@ void MainWindow::set_record_mode(const QString& value)
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
-    ::holovibes::api::stop_record(UserInterfaceDescriptor::instance());
+    ::holovibes::api::stop_record();
 
     const std::string text = value.toStdString();
-    ::holovibes::api::set_record_mode(UserInterfaceDescriptor::instance(), text);
+    ::holovibes::api::set_record_mode(text);
 
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
     {
@@ -2243,7 +2214,7 @@ void MainWindow::set_record_mode(const QString& value)
 void MainWindow::stop_record()
 {
     LOG_INFO;
-    ::holovibes::api::stop_record(UserInterfaceDescriptor::instance());
+    ::holovibes::api::stop_record();
 }
 
 // GUI
@@ -2268,7 +2239,7 @@ void MainWindow::record_finished(RecordMode record_mode)
     ui.ExportRecPushButton->setEnabled(true);
     ui.ExportStopPushButton->setEnabled(false);
     ui.BatchSizeSpinBox->setEnabled(Holovibes::instance().get_cd().compute_mode == Computation::Hologram);
-    ::holovibes::api::record_finished(UserInterfaceDescriptor::instance());
+    ::holovibes::api::record_finished();
 }
 
 // GUI
@@ -2286,8 +2257,7 @@ void MainWindow::start_record()
     std::string batch_input_path = ui.BatchInputPathLineEdit->text().toStdString();
 
     // Preconditions to start record
-    const bool preconditions = ::holovibes::api::start_record_preconditions(UserInterfaceDescriptor::instance(),
-                                                                            batch_enabled,
+    const bool preconditions = ::holovibes::api::start_record_preconditions(batch_enabled,
                                                                             nb_frame_checked,
                                                                             nb_frames_to_record,
                                                                             batch_input_path);
@@ -2318,12 +2288,7 @@ void MainWindow::start_record()
         synchronize_thread([=]() { record_finished(record_mode); });
     };
 
-    ::holovibes::api::start_record(UserInterfaceDescriptor::instance(),
-                                   batch_enabled,
-                                   nb_frames_to_record,
-                                   output_path,
-                                   batch_input_path,
-                                   callback);
+    ::holovibes::api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);
 }
 #pragma endregion
 /* ------------ */
@@ -2402,10 +2367,10 @@ void MainWindow::import_browse_file()
 void MainWindow::import_stop()
 {
     LOG_INFO;
-    ::holovibes::api::close_windows(UserInterfaceDescriptor::instance());
+    ::holovibes::api::close_windows();
     cancel_time_transformation_cuts();
 
-    ::holovibes::api::import_stop(*this, UserInterfaceDescriptor::instance());
+    ::holovibes::api::import_stop(*this);
     synchronize_thread([&]() { ui.FileReaderProgressBar->hide(); });
     notify();
 }
@@ -2429,7 +2394,7 @@ void MainWindow::import_start()
     std::string file_path = import_line_edit->text().toStdString();
 
     bool res_import_start = ::holovibes::api::import_start(*this,
-                                                           UserInterfaceDescriptor::instance(),
+
                                                            file_path,
                                                            fps_spinbox->value(),
                                                            start_spinbox->value(),

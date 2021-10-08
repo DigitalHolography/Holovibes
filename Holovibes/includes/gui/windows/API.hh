@@ -5,7 +5,6 @@
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
 #include "MainWindow.hh"
-#include "user_interface_descriptor.hh"
 #include "ini_config.hh"
 
 namespace holovibes::api
@@ -30,7 +29,7 @@ std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::str
  * \return false on failure
  */
 bool import_start(::holovibes::gui::MainWindow& mainwindow,
-                  UserInterfaceDescriptor& ui_descriptor,
+
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
@@ -42,19 +41,19 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+void import_stop(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Switchs operating camera to none
  *
  * \param ui_descriptor user interface's state
  */
-void camera_none(UserInterfaceDescriptor& ui_descriptor);
+void camera_none();
 
 /*! \brief Stops the program compute
  *
  * \param ui_descriptor user interface's state
  */
-void close_critical_compute(UserInterfaceDescriptor& ui_descriptor);
+void close_critical_compute();
 
 /*! \brief Removes info container in holovibes */
 void remove_infos();
@@ -70,13 +69,13 @@ bool is_raw_mode();
  * \param ui_descriptor user interface's state
  * \param str the file containing the convolution's settings
  */
-void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str);
+void set_convolution_mode(std::string& str);
 
 /*! \brief Disables the divide convolution mode
  *
  * \param ui_descriptor user interface's state
  */
-void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor);
+void unset_convolution_mode();
 
 /*! \brief Removes time transformation from computation
  *
@@ -85,14 +84,14 @@ void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback);
+bool cancel_time_transformation_cuts(std::function<void()> callback);
 
 /*! \brief Set the record frame step object
  *
  * \param ui_descriptor user interface's state
  * \param value the new value
  */
-void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value);
+void set_record_frame_step(int value);
 
 /*! \brief Checks preconditions to start recording
  *
@@ -104,8 +103,7 @@ void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value);
  * \return true on success
  * \return false on failure
  */
-bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
-                                const bool batch_enabled,
+bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
                                 const std::string& batch_input_path);
@@ -119,8 +117,7 @@ bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void start_record(UserInterfaceDescriptor& ui_descriptor,
-                  const bool batch_enabled,
+void start_record(const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
                   std::string& output_path,
                   std::string& batch_input_path,
@@ -130,7 +127,7 @@ void start_record(UserInterfaceDescriptor& ui_descriptor,
  *
  * \param ui_descriptor user interface's state
  */
-void stop_record(UserInterfaceDescriptor& ui_descriptor);
+void stop_record();
 
 /*! \brief Gets the destination of the output file
  *
@@ -138,20 +135,20 @@ void stop_record(UserInterfaceDescriptor& ui_descriptor);
  * \param std_filepath the output filepath FIXME: shouldn't be stored in the wild.
  * \return const std::string the extension of the output file
  */
-const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath);
+const std::string browse_record_output_file(std::string& std_filepath);
 
 /*! \brief Set the record mode object
  *
  * \param text the catched mode
  * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
  */
-void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text);
+void set_record_mode(const std::string& text);
 
 /*! \brief Closes all the currently displaying windows
  *
  * \param ui_descriptor user interface's state
  */
-void close_windows(UserInterfaceDescriptor& ui_descriptor);
+void close_windows();
 
 /*! \brief Sets the computation mode
  *
@@ -171,7 +168,7 @@ void set_camera_timeout();
  * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
 bool change_camera(::holovibes::gui::MainWindow& mainwindow,
-                   UserInterfaceDescriptor& ui_descriptor,
+
                    CameraKind c,
                    const uint image_mode_index);
 
@@ -192,7 +189,7 @@ void pipe_refresh();
  * \param is_p_accu if p accumulation is allowed
  * \param p_value the new value of p accu
  */
-void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_value);
+void set_p_accu(bool is_p_accu, uint p_value);
 
 /*! \brief Modifies x accumulation
  *
@@ -200,7 +197,7 @@ void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_v
  * \param is_x_accu if x accumulation is allowed
  * \param x_value the new value of x accu
  */
-void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_value);
+void set_x_accu(bool is_x_accu, uint x_value);
 
 /*! \brief Modifies y accumulation
  *
@@ -208,7 +205,7 @@ void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_v
  * \param is_y_accu if y accumulation is allowed
  * \param y_value the new value of y accu
  */
-void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value);
+void set_y_accu(bool is_y_accu, uint y_value);
 
 /*! \brief Modifies q accumulation
  *
@@ -216,7 +213,7 @@ void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_v
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_value);
+void set_q_accu(bool is_q_accu, uint q_value);
 
 /*! \brief Modifies x and y
  *
@@ -225,7 +222,7 @@ void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_v
  * \param x value to modify
  * \param y value to modify
  */
-void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescriptor& frame_descriptor, uint x, uint y);
+void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y);
 
 /*! \brief Modifies p
  *
@@ -234,14 +231,14 @@ void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescript
  * \return true on success
  * \return false on failure
  */
-const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value);
+const bool set_p(int value);
 
 /*! \brief Modifies q
  *
  * \param ui_descriptor user interface's state
  * \param value the new value of q
  */
-void set_q(UserInterfaceDescriptor& ui_descriptor, int value);
+void set_q(int value);
 
 /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
  *
@@ -249,42 +246,42 @@ void set_q(UserInterfaceDescriptor& ui_descriptor, int value);
  * \param composite_p_red the new value
  * \param composite_p_blue the new value
  */
-void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint composite_p_red, uint composite_p_blue);
+void set_composite_intervals(uint composite_p_red, uint composite_p_blue);
 
 /*! \brief Modifies HSV Hue min frequence
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_min_h the new value
  */
-void set_composite_intervals_hsv_h_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_h);
+void set_composite_intervals_hsv_h_min(uint composite_p_min_h);
 
 /*! \brief Modifies HSV Hue max frequence
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_max_h the new value
  */
-void set_composite_intervals_hsv_h_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_h);
+void set_composite_intervals_hsv_h_max(uint composite_p_max_h);
 
 /*! \brief Modifies HSV Hue max frequence
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_min_s the new value
  */
-void set_composite_intervals_hsv_s_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_s);
+void set_composite_intervals_hsv_s_min(uint composite_p_min_s);
 
 /*! \brief Modifies HSV Saturation max frequence
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_max_s the new value
  */
-void set_composite_intervals_hsv_s_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_s);
+void set_composite_intervals_hsv_s_max(uint composite_p_max_s);
 
 /*! \brief Modifies HSV Value min frequence
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_min_v the new value
  */
-void set_composite_intervals_hsv_v_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_v);
+void set_composite_intervals_hsv_v_min(uint composite_p_min_v);
 
 /*!
  * \brief Modifies HSV Value min frequence
@@ -292,7 +289,7 @@ void set_composite_intervals_hsv_v_min(UserInterfaceDescriptor& ui_descriptor, u
  * \param ui_descriptor user interface's state
  * \param composite_p_max_v the new value
  */
-void set_composite_intervals_hsv_v_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_v);
+void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
 
 /*! \brief Modifies the RGB
  *
@@ -301,7 +298,7 @@ void set_composite_intervals_hsv_v_max(UserInterfaceDescriptor& ui_descriptor, u
  * \param weight_g the new value of Green
  * \param weight_b the new value of blue
  */
-void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r, uint weight_g, uint weight_b);
+void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
 
 /*! \brief Automatic equalization (Auto-constrast)
  *
@@ -310,48 +307,48 @@ void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r
  * \param value the new value of composite auto weight
  */
 void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
-                                UserInterfaceDescriptor& ui_descriptor,
+
                                 bool value);
 
 /*! \brief Switchs between to RGB mode
  *
  * \param ui_descriptor user interface's state
  */
-void select_composite_rgb(UserInterfaceDescriptor& ui_descriptor);
+void select_composite_rgb();
 
 /*! \brief Switchs between to HSV mode
  *
  * \param ui_descriptor user interface's state
  */
-void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor);
+void select_composite_hsv();
 
 /*! \brief Enables or disables Saturation frequency channel min and max
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_activated_s true: enable, false: disable
  */
-void actualize_frequency_channel_s(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_s);
+void actualize_frequency_channel_s(bool composite_p_activated_s);
 
 /*! \brief Enables or disables Value frequency channel min and max
  *
  * \param ui_descriptor user interface's state
  * \param composite_p_activated_v true: enable, false: disable
  */
-void actualize_frequency_channel_v(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_v);
+void actualize_frequency_channel_v(bool composite_p_activated_v);
 
 /*! \brief Enables or disables Hue gaussian blur
  *
  * \param ui_descriptor user interface's state
  * \param h_blur_activated true: enable, false: disable
  */
-void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_activated);
+void actualize_selection_h_gaussian_blur(bool h_blur_activated);
 
 /*! \brief Modified Hue blur size
  *
  * \param ui_descriptor user interface's state
  * \param h_blur_kernel_size the new value
  */
-void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, uint h_blur_kernel_size);
+void actualize_kernel_size_blur(uint h_blur_kernel_size);
 
 /*! \brief Increment p by 1
  *
@@ -360,7 +357,7 @@ void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, uint h_b
  * \return true on success
  * \return false on failure
  */
-bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+bool increment_p(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Decrement p by 1
  *
@@ -369,7 +366,7 @@ bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
  * \return true on success
  * \return false on failure
  */
-bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+bool decrement_p(::holovibes::gui::MainWindow& mainwindow);
 
 /*!
  * \brief Modifies wave length (represented by lambda symbol in phisics)
@@ -379,7 +376,7 @@ bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
  * \return true on success
  * \return false on failure
  */
-bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value);
+bool set_wavelength(const double value);
 
 /*! \brief Modifies z
  *
@@ -388,7 +385,7 @@ bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value);
  * \return true on success
  * \return false on failure
  */
-bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value);
+bool set_z(const double value);
 
 /*! \brief Increment z by 1
  *
@@ -396,7 +393,7 @@ bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value);
  * \return true on success
  * \return false on failure
  */
-bool increment_z(UserInterfaceDescriptor& ui_descriptor);
+bool increment_z();
 
 /*! \brief Decrement z by 1
  *
@@ -404,14 +401,14 @@ bool increment_z(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool decrement_z(UserInterfaceDescriptor& ui_descriptor);
+bool decrement_z();
 
 /*! \brief Modifies the z step
  *
  * \param ui_descriptor user interface's state
  * \param value the new value
  */
-void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value);
+void set_z_step(const double value);
 
 /*! \brief Modifies space transform calculation
  *
@@ -422,7 +419,7 @@ void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value);
  * \return false on failure
  */
 bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
-                              UserInterfaceDescriptor& ui_descriptor,
+
                               const std::string& value);
 
 /*! \brief Modifies time transform calculation
@@ -434,7 +431,7 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
  * \return false on failure
  */
 bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
-                             UserInterfaceDescriptor& ui_descriptor,
+
                              const std::string& value);
 
 /*! \brief Enables or Disables unwrapping 2d
@@ -444,7 +441,7 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
  * \return true on success
  * \return false on failure
  */
-bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value);
+bool set_unwrapping_2d(const bool value);
 
 /*! \brief Enables or Disables accumulation for the current window
  *
@@ -453,7 +450,7 @@ bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
  * \return true on success
  * \return false on failure
  */
-bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value);
+bool set_accumulation(bool value);
 
 /*! \brief Modifies the accumulation level on the current window
  *
@@ -462,25 +459,25 @@ bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value);
  * \return true on success
  * \return false on failure
  */
-bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value);
+bool set_accumulation_level(int value);
 
 /*! \brief Make the ui compisite overlay visible
  *
  * \param ui_descriptor user interface's state
  */
-void set_composite_area(UserInterfaceDescriptor& ui_descriptor);
+void set_composite_area();
 
 /*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
  *
  * \param ui_descriptor user interface's state
  */
-void rotateTexture(UserInterfaceDescriptor& ui_descriptor);
+void rotateTexture();
 
 /*! \brief Flips the current selected output display window (XYview or XZview or YZview)
  *
  * \param ui_descriptor user interface's state
  */
-void flipTexture(UserInterfaceDescriptor& ui_descriptor);
+void flipTexture();
 
 /*! \brief Enables or Disables the contrast mode and update the current focused window
  *
@@ -490,13 +487,13 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
+bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, bool value);
 
 /*! \brief Adds auto contrast to the pipe over cut views
  *
  * \param ui_descriptor user interface's state
  */
-void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor);
+void set_auto_contrast_cuts();
 
 /*! \brief Adds auto contrast to the pipe over cut views
  *
@@ -504,7 +501,7 @@ void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor);
+bool set_auto_contrast();
 
 /*! \brief Modifies the min contrast value on the current window
  *
@@ -513,7 +510,7 @@ bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value);
+bool set_contrast_min(const double value);
 
 /*! \brief Modifies the max contrast value on the current window
  *
@@ -522,7 +519,7 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
  * \return true on success
  * \return false on failure
  */
-bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value);
+bool set_contrast_max(const double value);
 
 /*! \brief Enables or Disables contrast invertion
  *
@@ -531,14 +528,14 @@ bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value
  * \return true on success
  * \return false on failure
  */
-bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value);
+bool invert_contrast(bool value);
 
 /*! \brief Enables or Disables auto refresh contrast
  *
  * \param ui_descriptor user interface's state
  * \param value true: enable, false: disable
  */
-void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value);
+void set_auto_refresh_contrast(bool value);
 
 /*! \brief Enables or Disables log scale on the current window
  *
@@ -547,7 +544,7 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
  * \return true on success
  * \return false on failure
  */
-bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value);
+bool set_log_scale(const bool value);
 
 /*! \brief Modifies convolution kernel
  *
@@ -556,21 +553,21 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value);
  * \return true on success
  * \return false on failure
  */
-bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value);
+bool update_convo_kernel(const std::string& value);
 
 /*! \brief Enable the divide convolution mode
  *
  * \param ui_descriptor user interface's state
  * \param value true: enable, false: disable
  */
-void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value);
+void set_divide_convolution_mode(const bool value);
 
 /*! \brief Creates or Removes the reticle overlay
  *
  * \param ui_descriptor user interface's state
  * \param value true: create, false: remove
  */
-void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
+void display_reticle(bool value);
 
 /*! \brief Modifies reticle scale in ]0, 1[
  *
@@ -579,38 +576,38 @@ void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value);
  * \return true on success
  * \return false on failure
  */
-bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value);
+bool reticle_scale(double value);
 
 /*! \brief Restores attributs when recording ends
  *
  * \param ui_descriptor user interface's state
  */
-void record_finished(UserInterfaceDescriptor& ui_descriptor);
+void record_finished();
 
 /*! \brief Creates Noise overlay
  *
  * \param ui_descriptor user interface's state
  */
-void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor);
+void activeNoiseZone();
 
 /*! \brief Creates Signal overlay
  *
  * \param ui_descriptor user interface's state
  */
 
-void activeSignalZone(const UserInterfaceDescriptor& ui_descriptor);
+void activeSignalZone();
 
 /*! \brief Opens Chart window
  *
  * \param ui_descriptor user interface's state
  */
-void start_chart_display(UserInterfaceDescriptor& ui_descriptor);
+void start_chart_display();
 
 /*! \brief Closes Chart window
  *
  * \param ui_descriptor user interface's state
  */
-void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
+void stop_chart_display();
 
 /*! \brief Adds or removes lens view
  *
@@ -619,14 +616,13 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor);
  * \param value true: add, false: remove
  * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
  */
-std::optional<bool>
-update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
+std::optional<bool> update_lens_view(::holovibes::gui::MainWindow& mainwindow, bool value);
 
 /*! \brief Removes lens view
  *
  * \param ui_descriptor user interface's state
  */
-void disable_lens_view(UserInterfaceDescriptor& ui_descriptor);
+void disable_lens_view();
 
 /*! \brief Adds or removes raw view
  *
@@ -635,14 +631,13 @@ void disable_lens_view(UserInterfaceDescriptor& ui_descriptor);
  * \param value true: add, false: remove
  * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
  */
-std::optional<bool>
-update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value);
+std::optional<bool> update_raw_view(::holovibes::gui::MainWindow& mainwindow, bool value);
 
 /*! \brief Removes raw view
  *
  * \param ui_descriptor user interface's state
  */
-void disable_raw_view(UserInterfaceDescriptor& ui_descriptor);
+void disable_raw_view();
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -652,9 +647,7 @@ void disable_raw_view(UserInterfaceDescriptor& ui_descriptor);
  * \return true on success
  * \return false on failure
  */
-bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
-                                  int time_transformation_size,
-                                  std::function<void()> callback);
+bool set_time_transformation_size(int time_transformation_size, std::function<void()> callback);
 
 /*! \brief Removes 2d filter on output display
  *
@@ -663,14 +656,14 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
  * \return true on success
  * \return false on failure
  */
-bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Enables or Disables fft shift mode on the main display window
  *
  * \param ui_descriptor user interface's state
  * \param value true: enable, false: disable
  */
-void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value);
+void set_fft_shift(const bool value);
 
 /*! \brief Modifies filter2d n2
  *
@@ -679,7 +672,7 @@ void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value);
  * \return true on success
  * \return false on failure
  */
-bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n);
+bool set_filter2d_n2(int n);
 
 /*!
  * \brief Modifies filter2d n1
@@ -689,7 +682,7 @@ bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n);
  * \return true on success
  * \return false on failure
  */
-bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n);
+bool set_filter2d_n1(int n);
 
 /*! \brief Adds or removes filter 2d view
  *
@@ -698,8 +691,7 @@ bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n);
  * \param checked true: enable, false: disable
  * \return std::optional<bool> nullopt: on anticipated return, false: on failure, true: on success
  */
-std::optional<bool>
-update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
+std::optional<bool> update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, bool checked);
 
 /*! \brief Changes the focused windows
  *
@@ -712,7 +704,7 @@ void change_window(const int index);
  * \param ui_descriptor user interface's state
  * \param index the index representing the window to select
  */
-void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index);
+void disable_filter2d_view(const int index);
 
 /*! \brief Deactivates filter2d view
  *
@@ -722,14 +714,14 @@ void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int ind
  * \return true on success
  * \return false on failure
  */
-bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked);
+bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, bool checked);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
  * \param ui_descriptor user interface's state
  * \param value true: enable, false: disable
  */
-void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value);
+void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
@@ -740,7 +732,7 @@ void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value);
  * \return false on failure
  */
 bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
-                                     UserInterfaceDescriptor& ui_descriptor,
+
                                      const bool checked);
 
 /*! \brief Modifies time transformation stride size from ui value
@@ -758,7 +750,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
 void update_batch_size(std::function<void()> callback, const uint batch_size);
 
 /*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
-void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor);
+void adapt_time_transformation_stride_to_batch_size();
 
 /*! \brief Modifies view image type
  *
@@ -767,7 +759,7 @@ void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_
  * \param value The new image type
  */
 void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
-                   UserInterfaceDescriptor& ui_descriptor,
+
                    const std::string& value);
 
 /*! \brief Restarts everything to change the view mode
@@ -775,7 +767,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, uint index);
+void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index);
 
 /*! \brief Changes display mode to Holographic
  *
@@ -786,7 +778,7 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
  * \return false on failure
  */
 bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
-                          UserInterfaceDescriptor& ui_descriptor,
+
                           camera::FrameDescriptor& fd);
 
 /*! \brief Creates the windows for processed image output
@@ -794,7 +786,7 @@ bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+void createHoloWindow(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Creates the pipeline
  *
@@ -810,7 +802,7 @@ void createPipe(::holovibes::gui::MainWindow& mainwindow);
  * \return true on success
  * \return false on failure
  */
-bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Configures the camera */
 void configure_camera();
@@ -821,7 +813,7 @@ void configure_camera();
  * \param position the position to fill
  * \param size the size to fill
  */
-void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size);
+void init_image_mode(QPoint& position, QSize& size);
 
 /*! \brief Switches camera to ids
  *
@@ -870,14 +862,14 @@ void camera_xib(::holovibes::gui::MainWindow& mainwindow);
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+void closeEvent(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Resets the whole program in reload .ini file
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param ui_descriptor user interface's state
  */
-void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor);
+void reset(::holovibes::gui::MainWindow& mainwindow);
 
 /*! \brief Opens holovibes configuration file */
 void configure_holovibes();
@@ -888,7 +880,7 @@ void configure_holovibes();
  * \param path The location of the .ini file saved
  * \param ptree the object containing the .ini parameters to serialize
  */
-void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree);
+void save_ini(const std::string& path, boost::property_tree::ptree& ptree);
 
 /*! \brief Setups program from .ini file
  *
@@ -898,7 +890,7 @@ void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, b
  * \param ptree the object containing the .ini parameters to serialize
  */
 void load_ini(::holovibes::gui::MainWindow& mainwindow,
-              UserInterfaceDescriptor& ui_descriptor,
+
               const std::string& path,
               boost::property_tree::ptree& ptree);
 
@@ -909,7 +901,7 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
  * \param filename filename to read to load .ini data
  */
 void reload_ini(::holovibes::gui::MainWindow& mainwindow,
-                UserInterfaceDescriptor& ui_descriptor,
+
                 const std::string& filename);
 
 /*! \brief Reloads .ini file that store program's state
@@ -925,7 +917,7 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow);
  * \param filename filename to read to load .ini data
  */
 void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
-                       UserInterfaceDescriptor& ui_descriptor,
+
                        const std::string& filename);
 
 /*! \brief Saves the current state of holovibes in .ini file

@@ -29,12 +29,8 @@ void pipe_refresh()
     }
 }
 
-bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
-                                std::string& file_path,
-                                unsigned int fps,
-                                size_t first_frame,
-                                bool load_file_in_gpu,
-                                size_t last_frame)
+bool init_holovibes_import_mode(
+    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     LOG_INFO;
 
@@ -43,12 +39,12 @@ bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
     Holovibes::instance().get_cd().batch_size = 1;
 
     // Because we are in import mode
-    ui_descriptor.is_enabled_camera_ = false;
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
 
     try
     {
 
-        Holovibes::instance().init_input_queue(ui_descriptor.file_fd_);
+        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_);
         Holovibes::instance().start_file_frame_read(file_path,
                                                     true,
                                                     fps,
@@ -60,12 +56,12 @@ bool init_holovibes_import_mode(UserInterfaceDescriptor& ui_descriptor,
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        ui_descriptor.is_enabled_camera_ = false;
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
         return false;
     }
-    ui_descriptor.is_enabled_camera_ = true;
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
     return true;
 }
 
@@ -135,23 +131,23 @@ void remove_infos()
     Holovibes::instance().get_info_container().clear();
 }
 
-void close_windows(UserInterfaceDescriptor& ui_descriptor)
+void close_windows()
 {
     LOG_INFO;
-    ui_descriptor.sliceXZ.reset(nullptr);
-    ui_descriptor.sliceYZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
-    ui_descriptor.plot_window_.reset(nullptr);
-    ui_descriptor.mainDisplay.reset(nullptr);
+    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
+    UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
-    ui_descriptor.lens_window.reset(nullptr);
+    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     Holovibes::instance().get_cd().gpu_lens_display_enabled = false;
 
-    ui_descriptor.filter2d_window.reset(nullptr);
+    UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
     Holovibes::instance().get_cd().filter2d_view_enabled = false;
 
     /* Raw view & recording */
-    ui_descriptor.raw_window.reset(nullptr);
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
     Holovibes::instance().get_cd().raw_view_enabled = false;
 
     // Disable overlays
@@ -191,16 +187,16 @@ void browse_export_ini(::holovibes::gui::MainWindow& mainwindow, const std::stri
 }
 
 void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
-                       UserInterfaceDescriptor& ui_descriptor,
+
                        const std::string& filename)
 {
     LOG_INFO;
 
-    ::holovibes::api::reload_ini(mainwindow, ui_descriptor, filename);
+    ::holovibes::api::reload_ini(mainwindow, filename);
 }
 
 void reload_ini(::holovibes::gui::MainWindow& mainwindow,
-                UserInterfaceDescriptor& ui_descriptor,
+
                 const std::string& filename)
 {
     LOG_INFO;
@@ -214,13 +210,14 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow,
         LOG_ERROR << e.what();
         LOG_INFO << e.what() << std::endl;
     }
-    if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
+    if (UserInterfaceDescriptor::instance().import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
     {
         mainwindow.import_start();
     }
-    else if (ui_descriptor.import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
+    else if (UserInterfaceDescriptor::instance().import_type_ ==
+             ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
     {
-        mainwindow.change_camera(ui_descriptor.kCamera);
+        mainwindow.change_camera(UserInterfaceDescriptor::instance().kCamera);
     }
 }
 
@@ -231,7 +228,7 @@ void reload_ini(::holovibes::gui::MainWindow& mainwindow)
 }
 
 void load_ini(::holovibes::gui::MainWindow& mainwindow,
-              UserInterfaceDescriptor& ui_descriptor,
+
               const std::string& path,
               boost::property_tree::ptree& ptree)
 {
@@ -245,44 +242,58 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
         ini::load_ini(ptree, Holovibes::instance().get_cd());
 
         // Load window specific data
-        ui_descriptor.default_output_filename_ =
-            ptree.get<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
-        ui_descriptor.record_output_directory_ =
-            ptree.get<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
-        ui_descriptor.file_input_directory_ =
-            ptree.get<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
-        ui_descriptor.batch_input_directory_ =
-            ptree.get<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+        UserInterfaceDescriptor::instance().default_output_filename_ =
+            ptree.get<std::string>("files.default_output_filename",
+                                   UserInterfaceDescriptor::instance().default_output_filename_);
+        UserInterfaceDescriptor::instance().record_output_directory_ =
+            ptree.get<std::string>("files.record_output_directory",
+                                   UserInterfaceDescriptor::instance().record_output_directory_);
+        UserInterfaceDescriptor::instance().file_input_directory_ =
+            ptree.get<std::string>("files.file_input_directory",
+                                   UserInterfaceDescriptor::instance().file_input_directory_);
+        UserInterfaceDescriptor::instance().batch_input_directory_ =
+            ptree.get<std::string>("files.batch_input_directory",
+                                   UserInterfaceDescriptor::instance().batch_input_directory_);
 
-        const float z_step = ptree.get<float>("image_rendering.z_step", ui_descriptor.z_step_);
+        const float z_step = ptree.get<float>("image_rendering.z_step", UserInterfaceDescriptor::instance().z_step_);
         if (z_step > 0.0f)
             mainwindow.set_z_step(z_step);
 
-        ui_descriptor.last_img_type_ = Holovibes::instance().get_cd().img_type == ImgType::Composite
-                                           ? "Composite image"
-                                           : ui_descriptor.last_img_type_;
+        UserInterfaceDescriptor::instance().last_img_type_ =
+            Holovibes::instance().get_cd().img_type == ImgType::Composite
+                ? "Composite image"
+                : UserInterfaceDescriptor::instance().last_img_type_;
 
-        ui_descriptor.displayAngle = ptree.get("view.mainWindow_rotate", ui_descriptor.displayAngle);
-        ui_descriptor.xzAngle = ptree.get<float>("view.xCut_rotate", ui_descriptor.xzAngle);
-        ui_descriptor.yzAngle = ptree.get<float>("view.yCut_rotate", ui_descriptor.yzAngle);
-        ui_descriptor.displayFlip = ptree.get("view.mainWindow_flip", ui_descriptor.displayFlip);
-        ui_descriptor.xzFlip = ptree.get("view.xCut_flip", ui_descriptor.xzFlip);
-        ui_descriptor.yzFlip = ptree.get("view.yCut_flip", ui_descriptor.yzFlip);
+        UserInterfaceDescriptor::instance().displayAngle =
+            ptree.get("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
+        UserInterfaceDescriptor::instance().xzAngle =
+            ptree.get<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle);
+        UserInterfaceDescriptor::instance().yzAngle =
+            ptree.get<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle);
+        UserInterfaceDescriptor::instance().displayFlip =
+            ptree.get("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
+        UserInterfaceDescriptor::instance().xzFlip =
+            ptree.get("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip);
+        UserInterfaceDescriptor::instance().yzFlip =
+            ptree.get("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip);
 
-        ui_descriptor.auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+        UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
+            ptree.get<size_t>("chart.auto_scale_point_threshold",
+                              UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
 
-        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+        const uint record_frame_step =
+            ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
         mainwindow.set_record_frame_step(record_frame_step);
 
-        ui_descriptor.window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        ui_descriptor.time_transformation_cuts_window_max_size =
+        UserInterfaceDescriptor::instance().window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
+        UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size =
             ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
-        ui_descriptor.auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
+        UserInterfaceDescriptor::instance().auxiliary_window_max_size =
+            ptree.get<uint>("display.auxiliary_window_max_size", 512);
     }
 }
 
-void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, boost::property_tree::ptree& ptree)
+void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
     LOG_INFO;
 
@@ -290,30 +301,33 @@ void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, b
     ini::save_ini(ptree, Holovibes::instance().get_cd());
 
     // Save window specific data
-    ptree.put<std::string>("files.default_output_filename", ui_descriptor.default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory", ui_descriptor.record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", ui_descriptor.file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", ui_descriptor.batch_input_directory_);
+    ptree.put<std::string>("files.default_output_filename",
+                           UserInterfaceDescriptor::instance().default_output_filename_);
+    ptree.put<std::string>("files.record_output_directory",
+                           UserInterfaceDescriptor::instance().record_output_directory_);
+    ptree.put<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
+    ptree.put<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
 
-    ptree.put<int>("image_rendering.camera", static_cast<int>(ui_descriptor.kCamera));
+    ptree.put<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera));
 
-    ptree.put<double>("image_rendering.z_step", ui_descriptor.z_step_);
+    ptree.put<double>("image_rendering.z_step", UserInterfaceDescriptor::instance().z_step_);
 
-    ptree.put<float>("view.mainWindow_rotate", ui_descriptor.displayAngle);
-    ptree.put<float>("view.xCut_rotate", ui_descriptor.xzAngle);
-    ptree.put<float>("view.yCut_rotate", ui_descriptor.yzAngle);
-    ptree.put<int>("view.mainWindow_flip", ui_descriptor.displayFlip);
-    ptree.put<int>("view.xCut_flip", ui_descriptor.xzFlip);
-    ptree.put<int>("view.yCut_flip", ui_descriptor.yzFlip);
+    ptree.put<float>("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
+    ptree.put<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle);
+    ptree.put<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle);
+    ptree.put<int>("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
+    ptree.put<int>("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip);
+    ptree.put<int>("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip);
 
-    ptree.put<size_t>("chart.auto_scale_point_threshold", ui_descriptor.auto_scale_point_threshold_);
+    ptree.put<size_t>("chart.auto_scale_point_threshold",
+                      UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
 
-    ptree.put<uint>("record.record_frame_step", ui_descriptor.record_frame_step_);
+    ptree.put<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
 
-    ptree.put<uint>("display.main_window_max_size", ui_descriptor.window_max_size);
+    ptree.put<uint>("display.main_window_max_size", UserInterfaceDescriptor::instance().window_max_size);
     ptree.put<uint>("display.time_transformation_cuts_window_max_size",
-                    ui_descriptor.time_transformation_cuts_window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", ui_descriptor.auxiliary_window_max_size);
+                    UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size);
+    ptree.put<uint>("display.auxiliary_window_max_size", UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
     boost::property_tree::write_ini(path, ptree);
 
@@ -324,27 +338,27 @@ void save_ini(UserInterfaceDescriptor& ui_descriptor, const std::string& path, b
 
 #pragma region Close Compute
 
-void camera_none(UserInterfaceDescriptor& ui_descriptor)
+void camera_none()
 {
     LOG_INFO;
-    close_windows(ui_descriptor);
-    close_critical_compute(ui_descriptor);
+    close_windows();
+    close_critical_compute();
     if (!is_raw_mode())
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
     remove_infos();
 
-    ui_descriptor.is_enabled_camera_ = false;
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
     Holovibes::instance().get_cd().is_computation_stopped = true;
 }
 
-void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void reset(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     Config& config = global::global_config;
     int device = 0;
 
-    close_critical_compute(ui_descriptor);
+    close_critical_compute();
     mainwindow.camera_none();
 
     // TOD: qApp must be strongly related to qt window
@@ -355,7 +369,7 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
     Holovibes::instance().stop_frame_read();
     Holovibes::instance().get_cd().pindex = 0;
     Holovibes::instance().get_cd().time_transformation_size = 1;
-    ui_descriptor.is_enabled_camera_ = false;
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
     if (config.set_cuda_device)
     {
         if (config.auto_device_number)
@@ -369,7 +383,7 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
     }
     cudaDeviceSynchronize();
     cudaDeviceReset();
-    close_windows(ui_descriptor);
+    close_windows();
     remove_infos();
     Holovibes::instance().reload_streams();
     try
@@ -384,13 +398,13 @@ void reset(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui
     }
 }
 
-void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void closeEvent(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
 
-    close_windows(ui_descriptor);
+    close_windows();
     if (!Holovibes::instance().get_cd().is_computation_stopped)
-        close_critical_compute(ui_descriptor);
+        close_critical_compute();
     mainwindow.camera_none();
     remove_infos();
     mainwindow.save_ini(::holovibes::ini::get_global_ini_path());
@@ -402,7 +416,7 @@ void closeEvent(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
 
 // TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
 bool change_camera(::holovibes::gui::MainWindow& mainwindow,
-                   UserInterfaceDescriptor& ui_descriptor,
+
                    CameraKind c,
                    const uint image_mode_index)
 {
@@ -419,7 +433,7 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
 
     try
     {
-        ui_descriptor.mainDisplay.reset(nullptr);
+        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
         if (!is_raw_mode())
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
@@ -429,10 +443,10 @@ bool change_camera(::holovibes::gui::MainWindow& mainwindow,
         set_computation_mode(Holovibes::instance(), image_mode_index);
 
         Holovibes::instance().start_camera_frame_read(c);
-        ui_descriptor.is_enabled_camera_ = true;
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
         set_image_mode(mainwindow, true, image_mode_index);
-        ui_descriptor.import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
-        ui_descriptor.kCamera = c;
+        UserInterfaceDescriptor::instance().import_type_ = ::holovibes::UserInterfaceDescriptor::ImportType::Camera;
+        UserInterfaceDescriptor::instance().kCamera = c;
 
         Holovibes::instance().get_cd().is_computation_stopped = false;
 
@@ -508,46 +522,47 @@ void set_camera_timeout()
 
 #pragma region Image Mode
 
-void init_image_mode(UserInterfaceDescriptor& ui_descriptor, QPoint& position, QSize& size)
+void init_image_mode(QPoint& position, QSize& size)
 {
     LOG_INFO;
 
-    if (ui_descriptor.mainDisplay)
+    if (UserInterfaceDescriptor::instance().mainDisplay)
     {
-        position = ui_descriptor.mainDisplay->framePosition();
-        size = ui_descriptor.mainDisplay->size();
-        ui_descriptor.mainDisplay.reset(nullptr);
+        position = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
+        size = UserInterfaceDescriptor::instance().mainDisplay->size();
+        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
     }
 }
 
-bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+bool set_raw_mode(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
-    close_windows(ui_descriptor);
-    close_critical_compute(ui_descriptor);
+    close_windows();
+    close_critical_compute();
 
-    if (ui_descriptor.is_enabled_camera_)
+    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
     {
         QPoint pos(0, 0);
         const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         unsigned short width = fd.width;
         unsigned short height = fd.height;
-        get_good_size(width, height, ui_descriptor.window_max_size);
+        get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
         QSize size(width, height);
         mainwindow.init_image_mode(pos, size);
         Holovibes::instance().get_cd().compute_mode = Computation::Raw;
         createPipe(mainwindow);
-        ui_descriptor.mainDisplay.reset(
+        UserInterfaceDescriptor::instance().mainDisplay.reset(
             new holovibes::gui::RawWindow(pos, size, Holovibes::instance().get_gpu_input_queue().get()));
-        ui_descriptor.mainDisplay->setTitle(QString("XY view"));
-        ui_descriptor.mainDisplay->setCd(&Holovibes::instance().get_cd());
-        ui_descriptor.mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
+        UserInterfaceDescriptor::instance().mainDisplay->setCd(&Holovibes::instance().get_cd());
+        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
+                                                                  static_cast<float>(height));
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
                                                                   fd_info);
-        unset_convolution_mode(ui_descriptor);
-        set_divide_convolution_mode(ui_descriptor, false);
+        unset_convolution_mode();
+        set_divide_convolution_mode(false);
 
         return true;
     }
@@ -569,34 +584,35 @@ void createPipe(::holovibes::gui::MainWindow& mainwindow)
     }
 }
 
-void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void createHoloWindow(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
-    get_good_size(width, height, ui_descriptor.window_max_size);
+    get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
     QSize size(width, height);
     mainwindow.init_image_mode(pos, size);
     /* ---------- */
     try
     {
-        ui_descriptor.mainDisplay.reset(
+        UserInterfaceDescriptor::instance().mainDisplay.reset(
             new ::holovibes::gui::HoloWindow(pos,
                                              size,
                                              Holovibes::instance().get_gpu_output_queue().get(),
                                              Holovibes::instance().get_compute_pipe(),
-                                             ui_descriptor.sliceXZ,
-                                             ui_descriptor.sliceYZ,
+                                             UserInterfaceDescriptor::instance().sliceXZ,
+                                             UserInterfaceDescriptor::instance().sliceYZ,
                                              &mainwindow));
-        ui_descriptor.mainDisplay->set_is_resize(false);
-        ui_descriptor.mainDisplay->setTitle(QString("XY view"));
-        ui_descriptor.mainDisplay->setCd(&Holovibes::instance().get_cd());
-        ui_descriptor.mainDisplay->resetTransform();
-        ui_descriptor.mainDisplay->setAngle(ui_descriptor.displayAngle);
-        ui_descriptor.mainDisplay->setFlip(ui_descriptor.displayFlip);
-        ui_descriptor.mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+        UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
+        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
+        UserInterfaceDescriptor::instance().mainDisplay->setCd(&Holovibes::instance().get_cd());
+        UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(UserInterfaceDescriptor::instance().displayAngle);
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(UserInterfaceDescriptor::instance().displayFlip);
+        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
+                                                                  static_cast<float>(height));
     }
     catch (const std::runtime_error& e)
     {
@@ -605,15 +621,15 @@ void createHoloWindow(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDes
 }
 
 bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
-                          UserInterfaceDescriptor& ui_descriptor,
+
                           camera::FrameDescriptor& fd)
 {
     LOG_INFO;
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
-    close_windows(ui_descriptor);
-    close_critical_compute(ui_descriptor);
+    close_windows();
+    close_critical_compute();
 
     /* ---------- */
     try
@@ -641,19 +657,19 @@ bool set_holographic_mode(::holovibes::gui::MainWindow& mainwindow,
     return false;
 }
 
-void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, uint index)
+void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, uint index)
 {
     LOG_INFO;
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
-    if (ui_descriptor.mainDisplay)
+    if (UserInterfaceDescriptor::instance().mainDisplay)
     {
-        old_scale = ui_descriptor.mainDisplay->getScale();
-        old_translation = ui_descriptor.mainDisplay->getTranslate();
+        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
+        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
     }
 
-    close_windows(ui_descriptor);
-    close_critical_compute(ui_descriptor);
+    close_windows();
+    close_critical_compute();
 
     Holovibes::instance().get_cd().img_type = static_cast<ImgType>(index);
 
@@ -661,18 +677,18 @@ void refreshViewMode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     {
         mainwindow.createPipe();
         mainwindow.createHoloWindow();
-        ui_descriptor.mainDisplay->setScale(old_scale);
-        ui_descriptor.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+        UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
+        UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
     catch (const std::runtime_error& e)
     {
-        ui_descriptor.mainDisplay.reset(nullptr);
+        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
         LOG_ERROR << "refreshViewMode: " << e.what();
     }
 }
 
 void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
-                   UserInterfaceDescriptor& ui_descriptor,
+
                    const std::string& value)
 {
     LOG_INFO;
@@ -680,7 +696,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     if (is_raw_mode())
         return;
 
-    if (mainwindow.need_refresh(ui_descriptor.last_img_type_, value))
+    if (mainwindow.need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value))
     {
         mainwindow.refreshViewMode();
         if (Holovibes::instance().get_cd().img_type == ImgType::Composite)
@@ -688,7 +704,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
             mainwindow.set_composite_values();
         }
     }
-    ui_descriptor.last_img_type_ = value;
+    UserInterfaceDescriptor::instance().last_img_type_ = value;
 
     auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
 
@@ -698,7 +714,7 @@ void set_view_mode(::holovibes::gui::MainWindow& mainwindow,
     // Force XYview autocontrast
     pipe->autocontrast_end_pipe(WindowKind::XYview);
     // Force cuts views autocontrast if needed
-    set_auto_contrast_cuts(ui_descriptor);
+    set_auto_contrast_cuts();
 }
 
 void set_image_mode(::holovibes::gui::MainWindow& mainwindow, const bool is_null_mode, const uint image_mode_index)
@@ -763,7 +779,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
 }
 
 bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
-                                     UserInterfaceDescriptor& ui_descriptor,
+
                                      const bool checked)
 {
     LOG_INFO;
@@ -780,45 +796,47 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
         Holovibes::instance().get_compute_pipe()->create_stft_slice_queue();
         // set positions of new windows according to the position of the
         // main GL window
-        QPoint xzPos = ui_descriptor.mainDisplay->framePosition() + QPoint(0, ui_descriptor.mainDisplay->height() + 42);
-        QPoint yzPos = ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 20, 0);
+        QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                       QPoint(0, UserInterfaceDescriptor::instance().mainDisplay->height() + 42);
+        QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                       QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
         const ushort nImg = Holovibes::instance().get_cd().time_transformation_size;
         uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
 
-        if (time_transformation_size > ui_descriptor.time_transformation_cuts_window_max_size)
-            time_transformation_size = ui_descriptor.time_transformation_cuts_window_max_size;
+        if (time_transformation_size > UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size)
+            time_transformation_size = UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size;
 
         while (Holovibes::instance().get_compute_pipe()->get_update_time_transformation_size_request())
             continue;
         while (Holovibes::instance().get_compute_pipe()->get_cuts_request())
             continue;
 
-        ui_descriptor.sliceXZ.reset(
-            new ::holovibes::gui::SliceWindow(xzPos,
-                                              QSize(ui_descriptor.mainDisplay->width(), time_transformation_size),
-                                              Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(0).get(),
-                                              ::holovibes::gui::KindOfView::SliceXZ,
-                                              &mainwindow));
-        ui_descriptor.sliceXZ->setTitle("XZ view");
-        ui_descriptor.sliceXZ->setAngle(ui_descriptor.xzAngle);
-        ui_descriptor.sliceXZ->setFlip(ui_descriptor.xzFlip);
-        ui_descriptor.sliceXZ->setCd(&Holovibes::instance().get_cd());
+        UserInterfaceDescriptor::instance().sliceXZ.reset(new ::holovibes::gui::SliceWindow(
+            xzPos,
+            QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
+            Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(0).get(),
+            ::holovibes::gui::KindOfView::SliceXZ,
+            &mainwindow));
+        UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(UserInterfaceDescriptor::instance().xzAngle);
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(UserInterfaceDescriptor::instance().xzFlip);
+        UserInterfaceDescriptor::instance().sliceXZ->setCd(&Holovibes::instance().get_cd());
 
-        ui_descriptor.sliceYZ.reset(
-            new ::holovibes::gui::SliceWindow(yzPos,
-                                              QSize(time_transformation_size, ui_descriptor.mainDisplay->height()),
-                                              Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(1).get(),
-                                              ::holovibes::gui::KindOfView::SliceYZ,
-                                              &mainwindow));
-        ui_descriptor.sliceYZ->setTitle("YZ view");
-        ui_descriptor.sliceYZ->setAngle(ui_descriptor.yzAngle);
-        ui_descriptor.sliceYZ->setFlip(ui_descriptor.yzFlip);
-        ui_descriptor.sliceYZ->setCd(&Holovibes::instance().get_cd());
+        UserInterfaceDescriptor::instance().sliceYZ.reset(new ::holovibes::gui::SliceWindow(
+            yzPos,
+            QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
+            Holovibes::instance().get_compute_pipe()->get_stft_slice_queue(1).get(),
+            ::holovibes::gui::KindOfView::SliceYZ,
+            &mainwindow));
+        UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(UserInterfaceDescriptor::instance().yzAngle);
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(UserInterfaceDescriptor::instance().yzFlip);
+        UserInterfaceDescriptor::instance().sliceYZ->setCd(&Holovibes::instance().get_cd());
 
-        ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Cross>();
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Cross>();
         Holovibes::instance().get_cd().time_transformation_cuts_enabled = true;
-        set_auto_contrast_cuts(ui_descriptor);
-        auto holo = dynamic_cast<::holovibes::gui::HoloWindow*>(ui_descriptor.mainDisplay.get());
+        set_auto_contrast_cuts();
+        auto holo = dynamic_cast<::holovibes::gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
         return true;
@@ -832,7 +850,7 @@ bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& mainwindow,
     return false;
 }
 
-bool cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std::function<void()> callback)
+bool cancel_time_transformation_cuts(std::function<void()> callback)
 {
     LOG_INFO;
 
@@ -863,14 +881,14 @@ bool cancel_time_transformation_cuts(UserInterfaceDescriptor& ui_descriptor, std
 
     Holovibes::instance().get_cd().time_transformation_cuts_enabled = false;
 
-    ui_descriptor.sliceXZ.reset(nullptr);
-    ui_descriptor.sliceYZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
-    if (ui_descriptor.mainDisplay)
+    if (UserInterfaceDescriptor::instance().mainDisplay)
     {
-        ui_descriptor.mainDisplay->setCursor(Qt::ArrowCursor);
-        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::SliceCross);
-        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Cross);
+        UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(::holovibes::gui::SliceCross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Cross);
     }
 
     return true;
@@ -896,7 +914,7 @@ void change_window(const int index)
     pipe_refresh();
 }
 
-void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value)
+void toggle_renormalize(bool value)
 {
     LOG_INFO;
 
@@ -906,7 +924,7 @@ void toggle_renormalize(UserInterfaceDescriptor& ui_descriptor, bool value)
     pipe_refresh();
 }
 
-bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked)
+bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, bool checked)
 {
     LOG_INFO;
     if (::holovibes::api::is_raw_mode())
@@ -928,7 +946,7 @@ bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescrip
     return true;
 }
 
-void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int index)
+void disable_filter2d_view(const int index)
 {
     LOG_INFO;
 
@@ -943,8 +961,7 @@ void disable_filter2d_view(UserInterfaceDescriptor& ui_descriptor, const int ind
     change_window(index);
 }
 
-std::optional<bool>
-update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool checked)
+std::optional<bool> update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, bool checked)
 {
     LOG_INFO;
     if (::holovibes::api::is_raw_mode())
@@ -958,8 +975,8 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
         {
             // set positions of new windows according to the position of the
             // main GL window
-            QPoint pos =
-                ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
+            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
             auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
             if (pipe)
             {
@@ -968,20 +985,22 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
                 const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_output_queue()->get_fd();
                 ushort filter2d_window_width = fd.width;
                 ushort filter2d_window_height = fd.height;
-                get_good_size(filter2d_window_width, filter2d_window_height, ui_descriptor.auxiliary_window_max_size);
+                get_good_size(filter2d_window_width,
+                              filter2d_window_height,
+                              UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
                 // Wait for the filter2d view to be enabled for notify
                 while (pipe->get_filter2d_view_requested())
                     continue;
 
-                ui_descriptor.filter2d_window.reset(
+                UserInterfaceDescriptor::instance().filter2d_window.reset(
                     new ::holovibes::gui::Filter2DWindow(pos,
                                                          QSize(filter2d_window_width, filter2d_window_height),
                                                          pipe->get_filter2d_view_queue().get(),
                                                          &mainwindow));
 
-                ui_descriptor.filter2d_window->setTitle("Filter2D view");
-                ui_descriptor.filter2d_window->setCd(&Holovibes::instance().get_cd());
+                UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+                UserInterfaceDescriptor::instance().filter2d_window->setCd(&Holovibes::instance().get_cd());
 
                 Holovibes::instance().get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
@@ -997,7 +1016,7 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     else
     {
         mainwindow.disable_filter2d_view();
-        ui_descriptor.filter2d_window.reset(nullptr);
+        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
         res = false;
     }
 
@@ -1005,7 +1024,7 @@ update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     return res;
 }
 
-bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n)
+bool set_filter2d_n2(int n)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1029,7 +1048,7 @@ bool set_filter2d_n2(UserInterfaceDescriptor& ui_descriptor, int n)
     return true;
 }
 
-bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n)
+bool set_filter2d_n1(int n)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1053,7 +1072,7 @@ bool set_filter2d_n1(UserInterfaceDescriptor& ui_descriptor, int n)
     return true;
 }
 
-bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
 
@@ -1068,7 +1087,7 @@ bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDesc
     return true;
 }
 
-void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
+void set_fft_shift(const bool value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1078,9 +1097,7 @@ void set_fft_shift(UserInterfaceDescriptor& ui_descriptor, const bool value)
     pipe_refresh();
 }
 
-bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
-                                  int time_transformation_size,
-                                  std::function<void()> callback)
+bool set_time_transformation_size(int time_transformation_size, std::function<void()> callback)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1100,8 +1117,7 @@ bool set_time_transformation_size(UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
-std::optional<bool>
-update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+std::optional<bool> update_lens_view(::holovibes::gui::MainWindow& mainwindow, bool value)
 {
     LOG_INFO;
 
@@ -1115,23 +1131,25 @@ update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
         {
             // set positions of new windows according to the position of the
             // main GL window
-            QPoint pos =
-                ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
+            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
             ICompute* pipe = Holovibes::instance().get_compute_pipe().get();
 
             const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
             ushort lens_window_width = fd.width;
             ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, ui_descriptor.auxiliary_window_max_size);
+            get_good_size(lens_window_width,
+                          lens_window_height,
+                          UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
-            ui_descriptor.lens_window.reset(
+            UserInterfaceDescriptor::instance().lens_window.reset(
                 new ::holovibes::gui::RawWindow(pos,
                                                 QSize(lens_window_width, lens_window_height),
                                                 pipe->get_lens_queue().get(),
                                                 ::holovibes::gui::KindOfView::Lens));
 
-            ui_descriptor.lens_window->setTitle("Lens view");
-            ui_descriptor.lens_window->setCd(&Holovibes::instance().get_cd());
+            UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
+            UserInterfaceDescriptor::instance().lens_window->setCd(&Holovibes::instance().get_cd());
         }
         catch (const std::exception& e)
         {
@@ -1143,7 +1161,7 @@ update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     else
     {
         mainwindow.disable_lens_view();
-        ui_descriptor.lens_window.reset(nullptr);
+        UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
         res = false;
     }
 
@@ -1151,7 +1169,7 @@ update_lens_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     return res;
 }
 
-void disable_lens_view(UserInterfaceDescriptor& ui_descriptor)
+void disable_lens_view()
 {
     LOG_INFO;
 
@@ -1159,8 +1177,7 @@ void disable_lens_view(UserInterfaceDescriptor& ui_descriptor)
     Holovibes::instance().get_compute_pipe()->request_disable_lens_view();
 }
 
-std::optional<bool>
-update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+std::optional<bool> update_raw_view(::holovibes::gui::MainWindow& mainwindow, bool value)
 {
     LOG_INFO;
 
@@ -1184,21 +1201,25 @@ update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
         const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         ushort raw_window_width = fd.width;
         ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, ui_descriptor.auxiliary_window_max_size);
+        get_good_size(raw_window_width,
+                      raw_window_height,
+                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
         // set positions of new windows according to the position of the main GL
         // window and Lens window
-        QPoint pos = ui_descriptor.mainDisplay->framePosition() + QPoint(ui_descriptor.mainDisplay->width() + 310, 0);
-        ui_descriptor.raw_window.reset(new ::holovibes::gui::RawWindow(pos,
-                                                                       QSize(raw_window_width, raw_window_height),
-                                                                       pipe->get_raw_view_queue().get()));
+        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+        UserInterfaceDescriptor::instance().raw_window.reset(
+            new ::holovibes::gui::RawWindow(pos,
+                                            QSize(raw_window_width, raw_window_height),
+                                            pipe->get_raw_view_queue().get()));
 
-        ui_descriptor.raw_window->setTitle("Raw view");
-        ui_descriptor.raw_window->setCd(&Holovibes::instance().get_cd());
+        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
+        UserInterfaceDescriptor::instance().raw_window->setCd(&Holovibes::instance().get_cd());
     }
     else
     {
-        ui_descriptor.raw_window.reset(nullptr);
+        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
         mainwindow.disable_raw_view();
         res = false;
     }
@@ -1207,7 +1228,7 @@ update_raw_view(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescripto
     return res;
 }
 
-void disable_raw_view(UserInterfaceDescriptor& ui_descriptor)
+void disable_raw_view()
 {
     LOG_INFO;
 
@@ -1219,14 +1240,14 @@ void disable_raw_view(UserInterfaceDescriptor& ui_descriptor)
         continue;
 }
 
-void set_p_accu(UserInterfaceDescriptor& ui_descriptor, bool is_p_accu, uint p_value)
+void set_p_accu(bool is_p_accu, uint p_value)
 {
     Holovibes::instance().get_cd().p_accu_enabled = is_p_accu;
     Holovibes::instance().get_cd().p_acc_level = p_value;
     pipe_refresh();
 }
 
-void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_value)
+void set_x_accu(bool is_x_accu, uint x_value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().x_accu_enabled = is_x_accu;
@@ -1234,7 +1255,7 @@ void set_x_accu(UserInterfaceDescriptor& ui_descriptor, bool is_x_accu, uint x_v
     pipe_refresh();
 }
 
-void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_value)
+void set_y_accu(bool is_y_accu, uint y_value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().y_accu_enabled = is_y_accu;
@@ -1242,7 +1263,7 @@ void set_y_accu(UserInterfaceDescriptor& ui_descriptor, bool is_y_accu, uint y_v
     pipe_refresh();
 }
 
-void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
+void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
 {
     LOG_INFO;
 
@@ -1253,13 +1274,13 @@ void set_x_y(UserInterfaceDescriptor& ui_descriptor, const camera::FrameDescript
         Holovibes::instance().get_cd().y_cuts = y;
 }
 
-void set_q(UserInterfaceDescriptor& ui_descriptor, int value)
+void set_q(int value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().q_index = value;
 }
 
-void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_value)
+void set_q_accu(bool is_q_accu, uint q_value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().q_acc_enabled = is_q_accu;
@@ -1267,7 +1288,7 @@ void set_q_accu(UserInterfaceDescriptor& ui_descriptor, bool is_q_accu, uint q_v
     pipe_refresh();
 }
 
-const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
+const bool set_p(int value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1284,7 +1305,7 @@ const bool set_p(UserInterfaceDescriptor& ui_descriptor, int value)
     return false;
 }
 
-void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint composite_p_red, uint composite_p_blue)
+void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_red = composite_p_red;
@@ -1292,49 +1313,49 @@ void set_composite_intervals(UserInterfaceDescriptor& ui_descriptor, uint compos
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_h_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_h)
+void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_h = composite_p_min_h;
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_h_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_h)
+void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_h = composite_p_max_h;
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_s_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_s)
+void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_s = composite_p_min_s;
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_s_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_s)
+void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_s = composite_p_max_s;
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_v_min(UserInterfaceDescriptor& ui_descriptor, uint composite_p_min_v)
+void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_min_v = composite_p_min_v;
     pipe_refresh();
 }
 
-void set_composite_intervals_hsv_v_max(UserInterfaceDescriptor& ui_descriptor, uint composite_p_max_v)
+void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_max_v = composite_p_max_v;
     pipe_refresh();
 }
 
-void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r, uint weight_g, uint weight_b)
+void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().weight_r = weight_r;
@@ -1344,7 +1365,7 @@ void set_composite_weights(UserInterfaceDescriptor& ui_descriptor, uint weight_r
 }
 
 void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
-                                UserInterfaceDescriptor& ui_descriptor,
+
                                 bool value)
 {
     LOG_INFO;
@@ -1352,39 +1373,39 @@ void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
     mainwindow.set_auto_contrast();
 }
 
-void select_composite_rgb(UserInterfaceDescriptor& ui_descriptor)
+void select_composite_rgb()
 {
     LOG_INFO;
 
     Holovibes::instance().get_cd().composite_kind = CompositeKind::RGB;
 }
 
-void select_composite_hsv(UserInterfaceDescriptor& ui_descriptor)
+void select_composite_hsv()
 {
     LOG_INFO;
 
     Holovibes::instance().get_cd().composite_kind = CompositeKind::HSV;
 }
 
-void actualize_frequency_channel_s(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_s)
+void actualize_frequency_channel_s(bool composite_p_activated_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_activated_s = composite_p_activated_s;
 }
 
-void actualize_frequency_channel_v(UserInterfaceDescriptor& ui_descriptor, bool composite_p_activated_v)
+void actualize_frequency_channel_v(bool composite_p_activated_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_activated_v = composite_p_activated_v;
 }
 
-void actualize_selection_h_gaussian_blur(UserInterfaceDescriptor& ui_descriptor, bool h_blur_activated)
+void actualize_selection_h_gaussian_blur(bool h_blur_activated)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().h_blur_activated = h_blur_activated;
 }
 
-void actualize_kernel_size_blur(UserInterfaceDescriptor& ui_descriptor, uint h_blur_kernel_size)
+void actualize_kernel_size_blur(uint h_blur_kernel_size)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().h_blur_kernel_size = h_blur_kernel_size;
@@ -1410,7 +1431,7 @@ bool slide_update_threshold(const int slider_value,
     return false;
 }
 
-bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+bool increment_p(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1427,7 +1448,7 @@ bool increment_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     return false;
 }
 
-bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+bool decrement_p(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
 
@@ -1445,7 +1466,7 @@ bool decrement_p(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
     return false;
 }
 
-bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value)
+bool set_wavelength(const double value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1456,7 +1477,7 @@ bool set_wavelength(UserInterfaceDescriptor& ui_descriptor, const double value)
     return true;
 }
 
-bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value)
+bool set_z(const double value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1467,34 +1488,34 @@ bool set_z(UserInterfaceDescriptor& ui_descriptor, const double value)
     return true;
 }
 
-bool increment_z(UserInterfaceDescriptor& ui_descriptor)
+bool increment_z()
 {
     LOG_INFO;
     if (is_raw_mode())
         return false;
 
-    set_z(ui_descriptor, Holovibes::instance().get_cd().zdistance + ui_descriptor.z_step_);
+    set_z(Holovibes::instance().get_cd().zdistance + UserInterfaceDescriptor::instance().z_step_);
     return true;
 }
 
-bool decrement_z(UserInterfaceDescriptor& ui_descriptor)
+bool decrement_z()
 {
     LOG_INFO;
     if (is_raw_mode())
         return false;
 
-    set_z(ui_descriptor, Holovibes::instance().get_cd().zdistance - ui_descriptor.z_step_);
+    set_z(Holovibes::instance().get_cd().zdistance - UserInterfaceDescriptor::instance().z_step_);
     return true;
 }
 
-void set_z_step(UserInterfaceDescriptor& ui_descriptor, const double value)
+void set_z_step(const double value)
 {
     LOG_INFO;
-    ui_descriptor.z_step_ = value;
+    UserInterfaceDescriptor::instance().z_step_ = value;
 }
 
 bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
-                              UserInterfaceDescriptor& ui_descriptor,
+
                               const std::string& value)
 {
     LOG_INFO;
@@ -1520,7 +1541,7 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
 }
 
 bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
-                             UserInterfaceDescriptor& ui_descriptor,
+
                              const std::string& value)
 {
     LOG_INFO;
@@ -1541,7 +1562,7 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
     return true;
 }
 
-void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_descriptor)
+void adapt_time_transformation_stride_to_batch_size()
 {
     if (Holovibes::instance().get_cd().time_transformation_stride < Holovibes::instance().get_cd().batch_size)
         Holovibes::instance().get_cd().time_transformation_stride = Holovibes::instance().get_cd().batch_size.load();
@@ -1551,7 +1572,7 @@ void adapt_time_transformation_stride_to_batch_size(UserInterfaceDescriptor& ui_
             Holovibes::instance().get_cd().time_transformation_stride % Holovibes::instance().get_cd().batch_size;
 }
 
-bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
+bool set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
 
@@ -1563,7 +1584,7 @@ bool set_unwrapping_2d(UserInterfaceDescriptor& ui_descriptor, const bool value)
     return true;
 }
 
-bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value)
+bool set_accumulation(bool value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1574,7 +1595,7 @@ bool set_accumulation(UserInterfaceDescriptor& ui_descriptor, bool value)
     return true;
 }
 
-bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value)
+bool set_accumulation_level(int value)
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1585,10 +1606,12 @@ bool set_accumulation_level(UserInterfaceDescriptor& ui_descriptor, int value)
     return true;
 }
 
-void set_composite_area(UserInterfaceDescriptor& ui_descriptor)
+void set_composite_area()
 {
     LOG_INFO;
-    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::CompositeArea>();
+    UserInterfaceDescriptor::instance()
+        .mainDisplay->getOverlayManager()
+        .create_overlay<::holovibes::gui::CompositeArea>();
 }
 
 void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
@@ -1604,14 +1627,14 @@ void set_computation_mode(Holovibes& holovibes, const uint image_mode_index)
     }
 }
 
-void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
+void close_critical_compute()
 {
     LOG_INFO;
     if (Holovibes::instance().get_cd().convolution_enabled)
-        unset_convolution_mode(ui_descriptor);
+        unset_convolution_mode();
 
     if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts(ui_descriptor, []() { return; });
+        cancel_time_transformation_cuts([]() { return; });
 
     Holovibes::instance().stop_compute();
 }
@@ -1620,7 +1643,7 @@ void close_critical_compute(UserInterfaceDescriptor& ui_descriptor)
 
 #pragma region Texture
 
-void rotateTexture(UserInterfaceDescriptor& ui_descriptor)
+void rotateTexture()
 {
     LOG_INFO;
 
@@ -1628,22 +1651,29 @@ void rotateTexture(UserInterfaceDescriptor& ui_descriptor)
 
     if (curWin == WindowKind::XYview)
     {
-        ui_descriptor.displayAngle = (ui_descriptor.displayAngle == 270.f) ? 0.f : ui_descriptor.displayAngle + 90.f;
-        ui_descriptor.mainDisplay->setAngle(ui_descriptor.displayAngle);
+        UserInterfaceDescriptor::instance().displayAngle =
+            (UserInterfaceDescriptor::instance().displayAngle == 270.f)
+                ? 0.f
+                : UserInterfaceDescriptor::instance().displayAngle + 90.f;
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(UserInterfaceDescriptor::instance().displayAngle);
     }
-    else if (ui_descriptor.sliceXZ && curWin == WindowKind::XZview)
+    else if (UserInterfaceDescriptor::instance().sliceXZ && curWin == WindowKind::XZview)
     {
-        ui_descriptor.xzAngle = (ui_descriptor.xzAngle == 270.f) ? 0.f : ui_descriptor.xzAngle + 90.f;
-        ui_descriptor.sliceXZ->setAngle(ui_descriptor.xzAngle);
+        UserInterfaceDescriptor::instance().xzAngle = (UserInterfaceDescriptor::instance().xzAngle == 270.f)
+                                                          ? 0.f
+                                                          : UserInterfaceDescriptor::instance().xzAngle + 90.f;
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(UserInterfaceDescriptor::instance().xzAngle);
     }
-    else if (ui_descriptor.sliceYZ && curWin == WindowKind::YZview)
+    else if (UserInterfaceDescriptor::instance().sliceYZ && curWin == WindowKind::YZview)
     {
-        ui_descriptor.yzAngle = (ui_descriptor.yzAngle == 270.f) ? 0.f : ui_descriptor.yzAngle + 90.f;
-        ui_descriptor.sliceYZ->setAngle(ui_descriptor.yzAngle);
+        UserInterfaceDescriptor::instance().yzAngle = (UserInterfaceDescriptor::instance().yzAngle == 270.f)
+                                                          ? 0.f
+                                                          : UserInterfaceDescriptor::instance().yzAngle + 90.f;
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(UserInterfaceDescriptor::instance().yzAngle);
     }
 }
 
-void flipTexture(UserInterfaceDescriptor& ui_descriptor)
+void flipTexture()
 {
     LOG_INFO;
 
@@ -1651,18 +1681,18 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor)
 
     if (curWin == WindowKind::XYview)
     {
-        ui_descriptor.displayFlip = !ui_descriptor.displayFlip;
-        ui_descriptor.mainDisplay->setFlip(ui_descriptor.displayFlip);
+        UserInterfaceDescriptor::instance().displayFlip = !UserInterfaceDescriptor::instance().displayFlip;
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(UserInterfaceDescriptor::instance().displayFlip);
     }
-    else if (ui_descriptor.sliceXZ && curWin == WindowKind::XZview)
+    else if (UserInterfaceDescriptor::instance().sliceXZ && curWin == WindowKind::XZview)
     {
-        ui_descriptor.xzFlip = !ui_descriptor.xzFlip;
-        ui_descriptor.sliceXZ->setFlip(ui_descriptor.xzFlip);
+        UserInterfaceDescriptor::instance().xzFlip = !UserInterfaceDescriptor::instance().xzFlip;
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(UserInterfaceDescriptor::instance().xzFlip);
     }
-    else if (ui_descriptor.sliceYZ && curWin == WindowKind::YZview)
+    else if (UserInterfaceDescriptor::instance().sliceYZ && curWin == WindowKind::YZview)
     {
-        ui_descriptor.yzFlip = !ui_descriptor.yzFlip;
-        ui_descriptor.sliceYZ->setFlip(ui_descriptor.yzFlip);
+        UserInterfaceDescriptor::instance().yzFlip = !UserInterfaceDescriptor::instance().yzFlip;
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(UserInterfaceDescriptor::instance().yzFlip);
     }
 }
 
@@ -1670,7 +1700,7 @@ void flipTexture(UserInterfaceDescriptor& ui_descriptor)
 
 #pragma region Contrast - Log
 
-bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor, bool value)
+bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, bool value)
 {
     LOG_INFO;
 
@@ -1684,7 +1714,7 @@ bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDe
     return true;
 }
 
-void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
+void set_auto_contrast_cuts()
 {
     LOG_INFO;
 
@@ -1700,7 +1730,7 @@ void set_auto_contrast_cuts(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
-bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
+bool set_auto_contrast()
 {
     LOG_INFO;
 
@@ -1723,7 +1753,7 @@ bool set_auto_contrast(UserInterfaceDescriptor& ui_descriptor)
     return false;
 }
 
-bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value)
+bool set_contrast_min(const double value)
 {
     LOG_INFO;
 
@@ -1748,7 +1778,7 @@ bool set_contrast_min(UserInterfaceDescriptor& ui_descriptor, const double value
     return false;
 }
 
-bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value)
+bool set_contrast_max(const double value)
 {
     LOG_INFO;
 
@@ -1773,7 +1803,7 @@ bool set_contrast_max(UserInterfaceDescriptor& ui_descriptor, const double value
     return false;
 }
 
-bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+bool invert_contrast(bool value)
 {
     LOG_INFO;
 
@@ -1790,7 +1820,7 @@ bool invert_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
     return false;
 }
 
-void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool value)
+void set_auto_refresh_contrast(bool value)
 {
     LOG_INFO;
 
@@ -1798,7 +1828,7 @@ void set_auto_refresh_contrast(UserInterfaceDescriptor& ui_descriptor, bool valu
     pipe_refresh();
 }
 
-bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
+bool set_log_scale(const bool value)
 {
     LOG_INFO;
 
@@ -1807,7 +1837,7 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
 
     Holovibes::instance().get_cd().set_log_scale_slice_enabled(Holovibes::instance().get_cd().current_window, value);
     if (value && Holovibes::instance().get_cd().contrast_enabled)
-        set_auto_contrast(ui_descriptor);
+        set_auto_contrast();
 
     pipe_refresh();
     return true;
@@ -1817,7 +1847,7 @@ bool set_log_scale(UserInterfaceDescriptor& ui_descriptor, const bool value)
 
 #pragma region Convolution
 
-bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::string& value)
+bool update_convo_kernel(const std::string& value)
 {
     LOG_INFO;
 
@@ -1844,7 +1874,7 @@ bool update_convo_kernel(UserInterfaceDescriptor& ui_descriptor, const std::stri
     return false;
 }
 
-void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& str)
+void set_convolution_mode(std::string& str)
 {
     LOG_INFO;
 
@@ -1866,7 +1896,7 @@ void set_convolution_mode(UserInterfaceDescriptor& ui_descriptor, std::string& s
     }
 }
 
-void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
+void unset_convolution_mode()
 {
     LOG_INFO;
 
@@ -1886,7 +1916,7 @@ void unset_convolution_mode(UserInterfaceDescriptor& ui_descriptor)
     }
 }
 
-void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const bool value)
+void set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
 
@@ -1899,25 +1929,27 @@ void set_divide_convolution_mode(UserInterfaceDescriptor& ui_descriptor, const b
 
 #pragma region Reticle
 
-void display_reticle(UserInterfaceDescriptor& ui_descriptor, bool value)
+void display_reticle(bool value)
 {
     LOG_INFO;
 
     Holovibes::instance().get_cd().reticle_enabled = value;
     if (value)
     {
-        ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Reticle>();
-        ui_descriptor.mainDisplay->getOverlayManager().create_default();
+        UserInterfaceDescriptor::instance()
+            .mainDisplay->getOverlayManager()
+            .create_overlay<::holovibes::gui::Reticle>();
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
     }
     else
     {
-        ui_descriptor.mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(::holovibes::gui::Reticle);
     }
 
     pipe_refresh();
 }
 
-bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
+bool reticle_scale(double value)
 {
     LOG_INFO;
 
@@ -1933,20 +1965,20 @@ bool reticle_scale(UserInterfaceDescriptor& ui_descriptor, double value)
 
 #pragma region Chart
 
-void activeNoiseZone(const UserInterfaceDescriptor& ui_descriptor)
+void activeNoiseZone()
 {
     LOG_INFO;
 
-    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Noise>();
 }
 
-void activeSignalZone(const UserInterfaceDescriptor& ui_descriptor)
+void activeSignalZone()
 {
     LOG_INFO;
-    ui_descriptor.mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Signal>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<::holovibes::gui::Signal>();
 }
 
-void start_chart_display(UserInterfaceDescriptor& ui_descriptor)
+void start_chart_display()
 {
     LOG_INFO;
     if (Holovibes::instance().get_cd().chart_display_enabled)
@@ -1959,13 +1991,13 @@ void start_chart_display(UserInterfaceDescriptor& ui_descriptor)
     while (pipe->get_chart_display_requested())
         continue;
 
-    ui_descriptor.plot_window_ = std::make_unique<::holovibes::gui::PlotWindow>(
+    UserInterfaceDescriptor::instance().plot_window_ = std::make_unique<::holovibes::gui::PlotWindow>(
         *Holovibes::instance().get_compute_pipe()->get_chart_display_queue(),
-        ui_descriptor.auto_scale_point_threshold_,
+        UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
         "Chart");
 }
 
-void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
+void stop_chart_display()
 {
     LOG_INFO;
     if (!Holovibes::instance().get_cd().chart_display_enabled)
@@ -1985,7 +2017,7 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
         LOG_ERROR << e.what();
     }
 
-    ui_descriptor.plot_window_.reset(nullptr);
+    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 #pragma endregion
@@ -1993,12 +2025,9 @@ void stop_chart_display(UserInterfaceDescriptor& ui_descriptor)
 #pragma region Record
 
 // Check that value is higher or equal than 0
-void set_record_frame_step(UserInterfaceDescriptor& ui_descriptor, int value)
-{
-    ui_descriptor.record_frame_step_ = value;
-}
+void set_record_frame_step(int value) { UserInterfaceDescriptor::instance().record_frame_step_ = value; }
 
-const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descriptor, std::string& std_filepath)
+const std::string browse_record_output_file(std::string& std_filepath)
 {
     LOG_INFO;
 
@@ -2007,29 +2036,28 @@ const std::string browse_record_output_file(UserInterfaceDescriptor& ui_descript
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     // FIXME Opti: we could be all these 3 operations below on a single string processing
-    ui_descriptor.record_output_directory_ = path.parent_path().string();
+    UserInterfaceDescriptor::instance().record_output_directory_ = path.parent_path().string();
     const std::string file_ext = path.extension().string();
-    ui_descriptor.default_output_filename_ = path.stem().string();
+    UserInterfaceDescriptor::instance().default_output_filename_ = path.stem().string();
 
     return file_ext;
 }
 
-void set_record_mode(UserInterfaceDescriptor& ui_descriptor, const std::string& text)
+void set_record_mode(const std::string& text)
 {
     LOG_INFO;
 
     if (text == "Chart")
-        ui_descriptor.record_mode_ = RecordMode::CHART;
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
     else if (text == "Processed Image")
-        ui_descriptor.record_mode_ = RecordMode::HOLOGRAM;
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
-        ui_descriptor.record_mode_ = RecordMode::RAW;
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
     else
         throw std::exception("Record mode not handled");
 }
 
-bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
-                                const bool batch_enabled,
+bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
                                 const std::string& batch_input_path)
@@ -2040,7 +2068,8 @@ bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || ui_descriptor.record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
+        nb_frames_to_record == std::nullopt)
     {
         LOG_ERROR << "Number of frames must be activated";
         return false;
@@ -2055,8 +2084,7 @@ bool start_record_preconditions(const UserInterfaceDescriptor& ui_descriptor,
     return true;
 }
 
-void start_record(UserInterfaceDescriptor& ui_descriptor,
-                  const bool batch_enabled,
+void start_record(const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
                   std::string& output_path,
                   std::string& batch_input_path,
@@ -2069,56 +2097,57 @@ void start_record(UserInterfaceDescriptor& ui_descriptor,
         Holovibes::instance().start_batch_gpib(batch_input_path,
                                                output_path,
                                                nb_frames_to_record.value(),
-                                               ui_descriptor.record_mode_,
+                                               UserInterfaceDescriptor::instance().record_mode_,
                                                callback);
     }
     else
     {
-        if (ui_descriptor.record_mode_ == RecordMode::CHART)
+        if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM)
+        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
         {
             Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
-        else if (ui_descriptor.record_mode_ == RecordMode::RAW)
+        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
         {
             Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }
     }
 }
 
-void stop_record(UserInterfaceDescriptor& ui_descriptor)
+void stop_record()
 {
     LOG_INFO;
     Holovibes::instance().stop_batch_gpib();
 
-    if (ui_descriptor.record_mode_ == RecordMode::CHART)
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (ui_descriptor.record_mode_ == RecordMode::HOLOGRAM || ui_descriptor.record_mode_ == RecordMode::RAW)
+    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
         Holovibes::instance().stop_frame_record();
 }
 
-void record_finished(UserInterfaceDescriptor& ui_descriptor)
+void record_finished()
 {
     LOG_INFO;
 
-    ui_descriptor.is_recording_ = false;
+    UserInterfaceDescriptor::instance().is_recording_ = false;
 }
 
 #pragma endregion
 
 #pragma region Import
 
-void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescriptor& ui_descriptor)
+void import_stop(::holovibes::gui::MainWindow& mainwindow)
 {
     LOG_INFO;
 
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display(false);
 
-    close_critical_compute(ui_descriptor);
+    close_critical_compute();
 
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
@@ -2128,7 +2157,7 @@ void import_stop(::holovibes::gui::MainWindow& mainwindow, UserInterfaceDescript
 }
 
 bool import_start(::holovibes::gui::MainWindow& mainwindow,
-                  UserInterfaceDescriptor& ui_descriptor,
+
                   std::string& file_path,
                   unsigned int fps,
                   size_t first_frame,
@@ -2139,11 +2168,11 @@ bool import_start(::holovibes::gui::MainWindow& mainwindow,
 
     if (!Holovibes::instance().get_cd().is_computation_stopped)
         // if computation is running
-        import_stop(mainwindow, ui_descriptor);
+        import_stop(mainwindow);
 
     Holovibes::instance().get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
-    return init_holovibes_import_mode(ui_descriptor, file_path, fps, first_frame, load_file_in_gpu, last_frame);
+    return init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
 std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename)
