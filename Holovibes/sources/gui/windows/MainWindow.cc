@@ -1027,7 +1027,7 @@ std::function<void()> MainWindow::get_view_mode_callback()
 // FREE
 void MainWindow::set_view_mode(const QString value)
 {
-    LOG_INFO;
+    LOG_ERROR << value.toStdString();
 
     if (api::is_raw_mode())
         return;
@@ -1044,8 +1044,11 @@ void MainWindow::set_view_mode(const QString value)
     }
     ::holovibes::api::set_view_mode(str, get_view_mode_callback());
 
+    LOG_ERROR << "current image mode: " << static_cast<int>(Holovibes::instance().get_cd().img_type.load());
+
     // Force cuts views autocontrast if needed
-    set_auto_contrast_cuts();
+    if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
+        set_auto_contrast_cuts();
 }
 
 // FREE
@@ -1291,7 +1294,15 @@ void MainWindow::cancel_filter2d()
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::cancel_filter2d(*this);
+    if (api::is_raw_mode())
+        return;
+
+    api::cancel_filter2d();
+
+    if (Holovibes::instance().get_cd().filter2d_view_enabled)
+    {
+        update_filter2d_view(false);
+    }
 
     notify();
 }

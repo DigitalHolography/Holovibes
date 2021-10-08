@@ -965,19 +965,11 @@ bool set_filter2d_n1(int n)
     return true;
 }
 
-bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow)
+void cancel_filter2d()
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
-    if (Holovibes::instance().get_cd().filter2d_view_enabled)
-        mainwindow.update_filter2d_view(false);
-
-    pipe_refresh();
-
-    return true;
+    Holovibes::instance().get_cd().filter2d_enabled = false;
 }
 
 void set_fft_shift(const bool value)

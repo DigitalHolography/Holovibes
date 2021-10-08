@@ -543,13 +543,8 @@ void disable_raw_view();
  */
 bool set_time_transformation_size(int time_transformation_size, std::function<void()> callback);
 
-/*! \brief Removes 2d filter on output display
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \return true on success
- * \return false on failure
- */
-bool cancel_filter2d(::holovibes::gui::MainWindow& mainwindow);
+/*! \brief Removes 2d filter on output display */
+void cancel_filter2d();
 
 /*! \brief Enables or Disables fft shift mode on the main display window
  *
