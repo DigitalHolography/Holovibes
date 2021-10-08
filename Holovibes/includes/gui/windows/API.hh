@@ -143,13 +143,6 @@ void set_camera_timeout();
  */
 bool change_camera(CameraKind c, const Computation computation);
 
-/*! \brief Sets the image mode
- *
- * \param is_null_mode if the selection is null
- * \param image_mode_index the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
- */
-void set_image_mode(const bool is_null_mode, const uint image_mode_index);
-
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
 
