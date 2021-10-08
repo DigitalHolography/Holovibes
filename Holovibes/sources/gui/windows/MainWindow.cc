@@ -1200,21 +1200,25 @@ void MainWindow::set_filter2d(bool checked)
 {
     LOG_INFO;
 
-    const bool res = ::holovibes::api::set_filter2d(*this, checked);
+    if (api::is_raw_mode())
+        return;
 
     if (checked)
     {
+        api::set_filter2d();
+
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        ::holovibes::api::set_filter2d_n2(ui.Filter2DN2SpinBox->value());
-        ::holovibes::api::set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+        set_filter2d_n2(ui.Filter2DN2SpinBox->value());
+        set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+    }
+    else
+    {
+        cancel_filter2d();
     }
 
-    if (res)
-    {
-        notify();
-    }
+    notify();
 }
 
 // GUI

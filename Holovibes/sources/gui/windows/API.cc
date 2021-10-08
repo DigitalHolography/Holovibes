@@ -827,26 +827,16 @@ void toggle_renormalize(bool value)
     pipe_refresh();
 }
 
-bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, bool checked)
+void set_filter2d()
 {
     LOG_INFO;
-    if (::holovibes::api::is_raw_mode())
-        return false;
 
-    if (checked)
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-        Holovibes::instance().get_cd().filter2d_enabled = checked;
-    }
-    else
-    {
-        Holovibes::instance().get_cd().filter2d_enabled = checked;
-        mainwindow.cancel_filter2d();
-    }
+    Holovibes::instance().get_cd().filter2d_enabled = true;
+
+    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
+        pipe->autocontrast_end_pipe(WindowKind::XYview);
 
     pipe_refresh();
-    return true;
 }
 
 void disable_filter2d_view(const int index)

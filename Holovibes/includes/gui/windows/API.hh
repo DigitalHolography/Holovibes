@@ -594,14 +594,8 @@ void change_window(const int index);
  */
 void disable_filter2d_view(const int index);
 
-/*! \brief Deactivates filter2d view
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param checked true: enable, false: disable
- * \return true on success
- * \return false on failure
- */
-bool set_filter2d(::holovibes::gui::MainWindow& mainwindow, bool checked);
+/*! \brief Deactivates filter2d view */
+void set_filter2d();
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
