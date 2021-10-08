@@ -20,6 +20,10 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
 
+# "/Wall" : Activate all warnings
+# "/sdl"  : Activate all security warnings
+string(APPEND CMAKE_CXX_FLAGS " /Wall /sdl")
+
 set(HOLO_INCLUDES
     cuda_includes/
     includes/
@@ -137,17 +141,6 @@ add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
 # ---
 # Targets test_* (unit tests)
 # ---
-
-# Fetch googletest git repository during CMake configuration
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.11.0 # Specify the commit you depend on and update it regularly.
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
 set(SRC_TESTS
     unit_tests/test_example.cc
