@@ -1787,7 +1787,12 @@ void MainWindow::set_time_transformation(QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_time_transformation(*this, value.toStdString());
+    const bool res = ::holovibes::api::set_time_transformation(value.toStdString());
+
+    if (res)
+    {
+        set_holographic_mode();
+    }
 }
 
 // Notify
@@ -1864,7 +1869,9 @@ void MainWindow::set_contrast_mode(bool value)
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::set_contrast_mode(*this, value);
+    change_window();
+
+    bool res = ::holovibes::api::set_contrast_mode(value);
 
     if (res)
     {

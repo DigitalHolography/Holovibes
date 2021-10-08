@@ -373,14 +373,11 @@ bool set_space_transformation(const std::string& value);
 
 /*! \brief Modifies time transform calculation
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param value the string to match to determine the kind of time transformation
  * \return true on success
  * \return false on failure
  */
-bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
-
-                             const std::string& value);
+bool set_time_transformation(const std::string& value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -423,12 +420,11 @@ void flipTexture();
 
 /*! \brief Enables or Disables the contrast mode and update the current focused window
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param value true: enable, false: disable
  * \return true on success
  * \return false on failure
  */
-bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, bool value);
+bool set_contrast_mode(bool value);
 
 /*! \brief Adds auto contrast to the pipe over cut views
  *

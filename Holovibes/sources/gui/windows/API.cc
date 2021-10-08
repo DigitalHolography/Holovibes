@@ -1535,9 +1535,7 @@ bool set_space_transformation(const std::string& value)
     return true;
 }
 
-bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
-
-                             const std::string& value)
+bool set_time_transformation(const std::string& value)
 {
     LOG_INFO;
 
@@ -1553,7 +1551,6 @@ bool set_time_transformation(::holovibes::gui::MainWindow& mainwindow,
     else if (value == "SSA_STFT")
         Holovibes::instance().get_cd().time_transformation = TimeTransformation::SSA_STFT;
 
-    mainwindow.set_holographic_mode();
     return true;
 }
 
@@ -1695,14 +1692,13 @@ void flipTexture()
 
 #pragma region Contrast - Log
 
-bool set_contrast_mode(::holovibes::gui::MainWindow& mainwindow, bool value)
+bool set_contrast_mode(bool value)
 {
     LOG_INFO;
 
     if (is_raw_mode())
         return false;
 
-    mainwindow.change_window();
     Holovibes::instance().get_cd().contrast_enabled = value;
     Holovibes::instance().get_cd().contrast_auto_refresh = true;
     pipe_refresh();
