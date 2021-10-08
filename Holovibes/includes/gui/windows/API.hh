@@ -314,11 +314,10 @@ void actualize_kernel_size_blur(uint h_blur_kernel_size);
 
 /*! \brief Increment p by 1
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \return true on success
  * \return false on failure
  */
-bool increment_p(::holovibes::gui::MainWindow& mainwindow);
+bool increment_p();
 
 /*! \brief Decrement p by 1
  *

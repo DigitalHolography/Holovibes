@@ -1431,7 +1431,7 @@ bool slide_update_threshold(const int slider_value,
     return false;
 }
 
-bool increment_p(::holovibes::gui::MainWindow& mainwindow)
+bool increment_p()
 {
     LOG_INFO;
     if (is_raw_mode())
@@ -1440,7 +1440,6 @@ bool increment_p(::holovibes::gui::MainWindow& mainwindow)
     if (Holovibes::instance().get_cd().pindex < Holovibes::instance().get_cd().time_transformation_size)
     {
         Holovibes::instance().get_cd().pindex++;
-        mainwindow.set_auto_contrast();
         return true;
     }
 

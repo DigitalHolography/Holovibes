@@ -1694,10 +1694,11 @@ void MainWindow::increment_p()
 {
     LOG_INFO;
 
-    bool res = ::holovibes::api::increment_p(*this);
+    bool res = ::holovibes::api::increment_p();
 
     if (res)
     {
+        set_auto_contrast();
         notify();
     }
 }
