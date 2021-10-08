@@ -86,6 +86,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.contrast_invert = ptree.get<bool>("view.contrast_invert", cd.contrast_invert);
     cd.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", cd.contrast_min_slice_xy);
     cd.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", cd.contrast_max_slice_xy);
+    // end cur
 
     // // Composite // TODO WHEN IT WILL BE IMPLEMENTED
     // cd.composite_kind =
@@ -192,7 +193,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         cd.filter2d_n1 = cd.filter2d_n2 - 1;
     if (cd.time_transformation_size < 1)
         cd.time_transformation_size = 1;
-    // check convolution type if it  exists
+    // check convolution type if it  exists (when it will be added to cd)
     if (cd.pindex >= cd.time_transformation_size)
         cd.pindex = 0;
     if (cd.q_index >= cd.time_transformation_size)
@@ -205,17 +206,6 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     const Config& config = global::global_config;
 
-    // Config
-    ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
-    ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
-    ptree.put<uint>("config.record_buffer_size", config.frame_record_queue_max_size);
-    ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-    ptree.put<uint>("config.time_transformation_cuts_output_buffer_size",
-                    config.time_transformation_cuts_output_buffer_size);
-    ptree.put<uint>("config.accumulation_buffer_size", cd.img_acc_slice_xy_level);
-    ptree.put<uint>("config.frame_timeout", config.frame_timeout);
-    ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate));
-
     // Image rendering
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
@@ -223,36 +213,75 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
     ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
     ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());
-    ptree.put<int>("image_rendering.filter2d_smooth_low", cd.filter2d_smooth_low.load());
-    ptree.put<int>("image_rendering.filter2d_smooth_high", cd.filter2d_smooth_high.load());
     ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()));
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()));
     ptree.put<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
     ptree.put<float>("image_rendering.lambda", cd.lambda);
     ptree.put<float>("image_rendering.z_distance", cd.zdistance);
-    ptree.put<ushort>("image_rendering.raw_bitshift", cd.raw_bitshift);
+    ptree.put<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
+    // ptree.put<string>("image_rendering.convolution_type", cd.convolution_type);
+    ptree.put<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 
     // View
-    ptree.put<int>("view.view_mode", static_cast<int>(cd.img_type.load()));
-
+    ptree.put<int>("view.view_type", static_cast<int>(cd.img_type.load()));
+    // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
+    ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
+    ptree.put<bool>("view.lens_view_enabled", cd.gpu_lens_display_enabled);
+    ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
+    ptree.put<ushort>("view.x_cuts", cd.x_cuts);
+    ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
+    ptree.put<short>("view.x_acc_level", cd.x_acc_level);
+    ptree.put<ushort>("view.y_cuts", cd.y_cuts);
+    ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
+    ptree.put<short>("view.y_acc_level", cd.y_acc_level);
+    ptree.put<ushort>("view.p_index", cd.pindex);
+    ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
+    ptree.put<short>("view.p_acc_level", cd.p_acc_level);
+    ptree.put<ushort>("view.q_index", cd.q_index);
+    ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
+    ptree.put<short>("view.q_acc_level", cd.q_acc_level);
+    ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
+    ptree.put<bool>("view.reticle_enabled", cd.reticle_enabled);
+    ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
     // to delete // ptree.put<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     // to delete // ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
     // to delete // ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
 
-    ptree.put<ushort>("view.p_index", cd.pindex);
-    ptree.put<ushort>("view.q_index", cd.q_index);
-    ptree.put<ushort>("view.x_cuts", cd.x_cuts);
-    ptree.put<ushort>("view.y_cuts", cd.y_cuts);
-    ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
-    ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
-    ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
-    ptree.put<short>("view.p_acc_level", cd.p_acc_level);
-    ptree.put<short>("view.q_acc_level", cd.q_acc_level);
-    ptree.put<short>("view.x_acc_level", cd.x_acc_level);
-    ptree.put<short>("view.y_acc_level", cd.y_acc_level);
+    // xy
+    ptree.put<bool>("xy.flip", cd.xy.flip);
+    ptree.put<int>("xy.rot", cd.xy.flip);
+    ptree.put<bool>("xy.log_enabled", cd.xy.log_enabled);
+    ptree.put<bool>("xy.img_acc_enabled", cd.xy.img_acc_enabled);
+    ptree.put<ushort>("xy.img_acc_value", cd.xy.img_acc_value);
+    ptree.put<bool>("xy.contrast_enabled", cd.xy.contrast_enabled);
+    ptree.put<bool>("xy.contrast_auto_enabled", cd.xy.auto_contrast_enabled);
+    ptree.put<bool>("xy.contrast_invert_enabled", cd.xy.invert_contrast_enabled);
+    ptree.put<float>("view.contrast_min", cd.xy.contrast_min);
+    ptree.put<float>("view.contrast_max", cd.xy.contrast_max);
+    // xz
+    ptree.put<bool>("xz.flip", cd.xz.flip);
+    ptree.put<int>("xz.rot", cd.xz.flip);
+    ptree.put<bool>("xz.log_enabled", cd.xz.log_enabled);
+    ptree.put<bool>("xz.img_acc_enabled", cd.xz.img_acc_enabled);
+    ptree.put<ushort>("xz.img_acc_value", cd.xz.img_acc_value);
+    ptree.put<bool>("xz.contrast_enabled", cd.xz.contrast_enabled);
+    ptree.put<bool>("xz.contrast_auto_enabled", cd.xz.auto_contrast_enabled);
+    ptree.put<bool>("xz.contrast_invert_enabled", cd.xz.invert_contrast_enabled);
+    ptree.put<float>("xz.contrast_min", cd.xz.contrast_min);
+    ptree.put<float>("xz.contrast_max", cd.xz.contrast_max);
+    // zy
+    ptree.put<bool>("zy.flip", cd.zy.flip);
+    ptree.put<int>("zy.rot", cd.zy.flip);
+    ptree.put<bool>("zy.log_enabled", cd.zy.log_enabled);
+    ptree.put<bool>("zy.img_acc_enabled", cd.zy.img_acc_enabled);
+    ptree.put<ushort>("zy.img_acc_value", cd.zy.img_acc_value);
+    ptree.put<bool>("zy.contrast_enabled", cd.zy.contrast_enabled);
+    ptree.put<bool>("zy.contrast_auto_enabled", cd.zy.auto_contrast_enabled);
+    ptree.put<bool>("zy.contrast_invert_enabled", cd.zy.invert_contrast_enabled);
+    ptree.put<float>("zy.contrast_min", cd.zy.contrast_min);
+    ptree.put<float>("zy.contrast_max", cd.zy.contrast_max);
 
     ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
 
@@ -265,11 +294,6 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("view.contrast_max", cd.contrast_max_slice_xy);
     ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 
-    ptree.put<float>("view.reticle_scale", cd.reticle_scale);
-
-    ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
-    ptree.put<uint>("view.renorm_constant", cd.renorm_constant);
-
     // Import
     ptree.put<float>("import.pixel_size", cd.pixel_size);
 
@@ -280,6 +304,7 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("composite.weight_g", cd.weight_g);
     ptree.put<float>("composite.weight_b", cd.weight_b);
 
+    // Current
     ptree.put<ushort>("composite.p_min_h", cd.composite_p_min_h);
     ptree.put<ushort>("composite.p_max_h", cd.composite_p_max_h);
     ptree.put<float>("composite.slider_h_threshold_min", cd.slider_h_threshold_min);
@@ -303,5 +328,19 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("composite.low_v_threshold", cd.composite_low_v_threshold);
     ptree.put<float>("composite.high_v_threshold", cd.composite_high_v_threshold);
     ptree.put<bool>("composite.auto_weights", cd.composite_auto_weights_);
+
+    // Config
+    ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
+    ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
+    ptree.put<uint>("config.record_buffer_size", config.frame_record_queue_max_size);
+    ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
+    ptree.put<uint>("config.time_transformation_cuts_output_buffer_size",
+                    config.time_transformation_cuts_output_buffer_size);
+    ptree.put<uint>("config.accumulation_buffer_size", cd.img_acc_slice_xy_level);
+    ptree.put<uint>("config.frame_timeout", config.frame_timeout);
+    ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate));
+    ptree.put<int>("image_rendering.filter2d_smooth_low", cd.filter2d_smooth_low.load());
+    ptree.put<int>("image_rendering.filter2d_smooth_high", cd.filter2d_smooth_high.load());
+    ptree.put<uint>("view.renorm_constant", cd.renorm_constant);
 }
 } // namespace holovibes::ini
