@@ -604,7 +604,7 @@ class MainWindow : public QMainWindow, public Observer
 /* ---------- */
 #pragma region Fields
 
-    UserInterfaceDescriptor ui_descriptor_;
+    // UserInterfaceDescriptor ui_descriptor_;
     Ui::MainWindow ui;
 
     // Shortcuts (initialized in constructor)
