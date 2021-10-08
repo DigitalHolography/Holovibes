@@ -62,16 +62,16 @@ class ExportPanel : public Panel
     void start_record();
 
     /*! \brief Creates Signal overlay */
-    void activeSignalZone(); // ?
+    void activeSignalZone();
 
     /*! \brief Creates Noise overlay */
-    void activeNoiseZone(); // ?
+    void activeNoiseZone();
 
     /*! \brief Opens Chart window */
-    void start_chart_display(); // ?
+    void start_chart_display();
 
     /*! \brief Closes Chart window */
-    void stop_chart_display(); // ?
+    void stop_chart_display();
 
   private:
     MainWindow* parent_;

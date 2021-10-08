@@ -98,7 +98,7 @@ class ViewPanel : public Panel
      *
      * \param value true: enable, false: disable
      */
-    void set_log_scale(bool value); // V
+    void set_log_scale(bool value);
 
     /*! \brief Enables or Disables accumulation for the current window
      *

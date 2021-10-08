@@ -127,6 +127,6 @@ class ImageRenderingPanel : public Panel
     void set_holographic_mode();
 
     /*! \brief Enable the filter2d mode */
-    void set_filter2d_pipe(); // IR
+    void set_filter2d_pipe();
 };
 } // namespace holovibes::gui

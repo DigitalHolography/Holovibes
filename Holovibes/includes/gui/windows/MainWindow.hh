@@ -160,16 +160,16 @@ class MainWindow : public QMainWindow, public Observer
      * * Set visibility to true
      */
 
-    void refreshViewMode(); // ?
+    void refreshViewMode();
 
     /*! \brief Checks if we are currently in raw mode
      *
      * \return true if we are in raw mode, false otherwise
      */
-    bool is_raw_mode(); // RIEN
+    bool is_raw_mode();
 
     /*! \brief Resets the whole program in reload .ini file */
-    void reset(); // RIEN
+    void reset();
 
     /*! \brief Modifies view image type
      *
@@ -178,25 +178,25 @@ class MainWindow : public QMainWindow, public Observer
     void set_view_image_type(const QString& value);
 
     /*! \brief Changes the focused windows */
-    void change_window(); // RIEN
+    void change_window();
 
     /*! \brief Browses to import/ export .ini file */
-    void browse_import_ini(); // RIEN
-    void browse_export_ini(); // RIEN
+    void browse_import_ini();
+    void browse_export_ini();
 
     /*! \brief Reloads .ini file that store program's state */
-    void reload_ini(QString filename); // RIEN
-    void reload_ini();                 // RIEN
+    void reload_ini(QString filename);
+    void reload_ini();
 
     /*! \brief Saves the current state of holovibes in .ini file */
-    void write_ini(QString filename); // RIEN
-    void write_ini();                 // RIEN
+    void write_ini(QString filename);
+    void write_ini();
 
     /*! \brief Changes the theme of the ui */
-    void set_classic(); // RIEN
+    void set_classic();
 
     /*! \brief Changes the theme of the ui */
-    void set_night(); // RIEN
+    void set_night();
     /*! \} */
 
 #pragma endregion
@@ -206,81 +206,81 @@ class MainWindow : public QMainWindow, public Observer
      *
      * \param f
      */
-    void synchronize_thread_signal(std::function<void()> f); // RIEN
+    void synchronize_thread_signal(std::function<void()> f);
 #pragma region Protected / Private Methods
   protected:
     /*! \brief Last call before the program is closed
      *
      * \param event Unused
      */
-    virtual void closeEvent(QCloseEvent* event) override; // RIEN
+    virtual void closeEvent(QCloseEvent* event) override;
 
   public:
     /*! \brief Sets camera frame timout */
-    void set_camera_timeout(); // RIEN
+    void set_camera_timeout();
 
     /*! \brief Changes camera
      *
      * \param c The new camera
      */
-    void change_camera(CameraKind c); // RIEN
+    void change_camera(CameraKind c);
 
     /*! \brief Opens a file
      *
      * \param path The path of the file to open
      */
-    void open_file(const std::string& path); // RIEN
+    void open_file(const std::string& path);
 
     /*! \brief Setups program from .ini file
      *
      * \param path The path where the .ini file is
      */
-    void load_ini(const std::string& path); // RIEN
+    void load_ini(const std::string& path);
 
     /*! \brief Saves the current state of holovibes
      *
      * \param path The location of the .ini file saved
      */
-    void save_ini(const std::string& path); // RIEN
+    void save_ini(const std::string& path);
 
     /*! \brief Creates the pipeline */
-    void createPipe(); // RIEN
+    void createPipe();
 
     /*! \brief Creates the windows for processed image output */
-    void createHoloWindow(); // RIEN
+    void createHoloWindow();
 
     /*! \brief Closes all the displayed windows */
-    void close_windows(); // RIEN
+    void close_windows();
 
     /*! \brief Stops critical compute */
-    void close_critical_compute(); // RIEN
+    void close_critical_compute();
 
     /*! \brief Clears the info container (real time data bench panel) */
-    void remove_infos(); // INFO
+    void remove_infos();
 
     /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh(); // RIEN
+    void pipe_refresh();
 
     /*! \brief Changes Box value without triggering any signal
      *
      * \param spinBox The box to change
      * \param value The value to set
      */
-    void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value); // RIEN (MERE?)
+    void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
 
     /*! \brief Changes Slider value without triggering any signal
      *
      * \param slider The slider to change
      * \param value The value to set
      */
-    void QSliderQuietSetValue(QSlider* slider, int value); // RIEN (MERE?)
+    void QSliderQuietSetValue(QSlider* slider, int value);
 
     /*! \brief Changes SpinBox value without triggering any signal
      *
      * \param spinBox The spinbox to change
      * \param value The value to set
      */
-    void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value); // RIEN (MERE?)
+    void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
 #pragma endregion
 /* ---------- */
