@@ -1774,7 +1774,12 @@ void MainWindow::set_space_transformation(const QString value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_space_transformation(*this, value.toStdString());
+    const bool res = ::holovibes::api::set_space_transformation(value.toStdString());
+
+    if (res)
+    {
+        set_holographic_mode();
+    }
 }
 
 // FREE

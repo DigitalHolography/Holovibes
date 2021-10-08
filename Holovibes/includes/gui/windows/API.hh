@@ -365,14 +365,11 @@ void set_z_step(const double value);
 
 /*! \brief Modifies space transform calculation
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param value the string to match to determine the kind of space transformation
  * \return true on success
  * \return false on failure
  */
-bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
-
-                              const std::string& value);
+bool set_space_transformation(const std::string& value);
 
 /*! \brief Modifies time transform calculation
  *

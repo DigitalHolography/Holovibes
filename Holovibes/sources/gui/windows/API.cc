@@ -1512,9 +1512,7 @@ void set_z_step(const double value)
     UserInterfaceDescriptor::instance().z_step_ = value;
 }
 
-bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
-
-                              const std::string& value)
+bool set_space_transformation(const std::string& value)
 {
     LOG_INFO;
 
@@ -1534,7 +1532,6 @@ bool set_space_transformation(::holovibes::gui::MainWindow& mainwindow,
         LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
 
-    mainwindow.set_holographic_mode();
     return true;
 }
 
