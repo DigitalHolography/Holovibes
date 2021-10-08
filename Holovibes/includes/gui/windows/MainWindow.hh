@@ -160,29 +160,7 @@ class MainWindow : public QMainWindow, public Observer
      * * Set visibility to true
      */
 
-    /*! \brief Set image mode either to raw or hologram mode
-     *
-     * Check if Camera has been enabled, then create a new GuiGLWindow keeping
-     * its old position and size if it was previously opened, set visibility
-     * and call notify().
-     *
-     * \param value true for raw mode, false for hologram mode.
-     */
-    void set_image_mode(QString mode); // IR
-
     void refreshViewMode(); // ?
-
-    /*! \brief Enable the convolution mode
-     *
-     * \param enable true: enable, false: disable
-     */
-    void set_convolution_mode(const bool enable); // IR
-
-    /*! \brief Enable the divide convolution mode
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_divide_convolution_mode(const bool value); // IR
 
     /*! \brief Checks if we are currently in raw mode
      *
@@ -193,92 +171,11 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Resets the whole program in reload .ini file */
     void reset(); // RIEN
 
-    /*! \brief adds or removes filter 2d view
-     *
-     * \param checked true: enable, false: disable
-     */
-    void update_filter2d_view(bool checked); // IR
-
-    /*! \brief Deactivates filter2d view */
-    void disable_filter2d_view(); // RIEN (IR?)
-
-    /*! \brief Applies or removes 2d filter on output display
-     *
-     * \param checked true: enable, false: disable
-     */
-    void set_filter2d(bool checked); // IR
-
-    /*! \brief Modifies filter2d n1 (first value)
-     *
-     * \param n The new filter2d n1 value
-     */
-    void set_filter2d_n1(int n); // IR
-
-    /*! \brief Modifies filter2d n2 (second value)
-     *
-     * \param n The new filter2d n2 value
-     */
-    void set_filter2d_n2(int n); // IR
-
-    /*! \brief Removes 2d filter on output display */
-    void cancel_filter2d(); // RIEN (IR)
-
-    /*! \brief Changes the time transformation size from ui value */
-    void set_time_transformation_size(); // IR
-
     /*! \brief Modifies view image type
      *
      * \param value The new image type
      */
     void set_view_image_type(const QString& value);
-
-    /*! \brief Modifies wave length (lambda)
-     *
-     * \param value The new value of lambda
-     */
-    void set_wavelength(double value); // IR
-
-    /*! \brief Modifies z from ui value
-     *
-     * \param value The new value of z
-     */
-    void set_z(double value); // IR
-
-    /*! \brief Increment z by 1 on key shortcut */
-    void increment_z(); // IR
-
-    /*! \brief Decrement z by 1 on key shortcut */
-    void decrement_z(); // IR
-
-    /*! \brief Modifies the z step on scroll
-     *
-     * \param value The new incrementation/decrementation step
-     */
-    void set_z_step(double value); // IR
-
-    /*! \brief Modifies space transform calculation
-     *
-     * \param value The new space transform to apply
-     */
-    void set_space_transformation(const QString& value); // IR
-
-    /*! \brief Modifies time transform calculation
-     *
-     * \param value The new time transform to apply
-     */
-    void set_time_transformation(const QString& value); // IR
-
-    /*! \brief Modifies batch size from ui value */
-    void update_batch_size(); // IR
-
-    /*! \brief Modifies time transformation stride size from ui value */
-    void update_time_transformation_stride(); // IR
-
-    /*! \brief Modifies convolution kernel
-     *
-     * \param value The new kernel to apply
-     */
-    void update_convo_kernel(const QString& value); // ?IR?
 
     /*! \brief Changes the focused windows */
     void change_window(); // RIEN
@@ -319,15 +216,6 @@ class MainWindow : public QMainWindow, public Observer
     virtual void closeEvent(QCloseEvent* event) override; // RIEN
 
   public:
-    /*! \brief Changes display mode to Raw */
-    void set_raw_mode(); // IR
-
-    /*! \brief Changes display mode to Holographic */
-    void set_holographic_mode(); // IR
-
-    /*! \brief Set computation mode from ui value (Raw or Holographic) */
-    void set_computation_mode(); // IR
-
     /*! \brief Sets camera frame timout */
     void set_camera_timeout(); // RIEN
 
@@ -372,9 +260,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh(); // RIEN
-
-    /*! \brief Enable the filter2d mode */
-    void set_filter2d_pipe(); // IR
 
     /*! \brief Changes Box value without triggering any signal
      *

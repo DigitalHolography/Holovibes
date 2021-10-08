@@ -58,6 +58,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/mainWindow/info_panel.cc
     gui/windows/mainWindow/view_panel.cc
     gui/windows/mainWindow/composite_panel.cc
+    gui/windows/mainWindow/image_rendering_panel.cc
 
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc

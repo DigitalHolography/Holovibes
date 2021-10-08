@@ -139,18 +139,18 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         save_ini(::holovibes::ini::get_global_ini_path());
     }
 
-    set_z_step(z_step_);
+    ui.ImageRenderingPanel->set_z_step(z_step_);
     ui.ExportPanel->set_record_frame_step(record_frame_step_);
     set_night();
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
+    connect(z_up_shortcut_, SIGNAL(activated()), ui.ImageRenderingPanel, SLOT(increment_z()));
 
     z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
     z_down_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
+    connect(z_down_shortcut_, SIGNAL(activated()), ui.ImageRenderingPanel, SLOT(decrement_z()));
 
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
     p_left_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -234,7 +234,7 @@ void MainWindow::on_notify()
     if (cd_.is_computation_stopped)
     {
         ui.CompositePanel->hide();
-        ui.ImageRenderingGroupBox->setEnabled(false);
+        ui.ImageRenderingPanel->setEnabled(false);
         ui.ViewPanel->setEnabled(false);
         ui.ExportPanel->setEnabled(false);
         layout_toggled();
@@ -243,7 +243,7 @@ void MainWindow::on_notify()
 
     if (is_enabled_camera_)
     {
-        ui.ImageRenderingGroupBox->setEnabled(true);
+        ui.ImageRenderingPanel->setEnabled(true);
         ui.ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
         ui.ExportPanel->setEnabled(true);
     }
@@ -679,7 +679,7 @@ void MainWindow::reload_ini(QString filename)
 void MainWindow::load_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
+    Panel* image_rendering_panel = ui.ImageRenderingPanel;
     Panel* view_panel = ui.ViewPanel;
     Panel* import_panel = ui.ImportPanel;
     Panel* info_panel = ui.InfoPanel;
@@ -703,11 +703,11 @@ void MainWindow::load_ini(const std::string& path)
         batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
 
         image_rendering_action->setChecked(
-            !ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
+            !ptree.get<bool>("image_rendering.hidden", image_rendering_panel->isHidden()));
 
         const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
         if (z_step > 0.0f)
-            set_z_step(z_step);
+            ui.ImageRenderingPanel->set_z_step(z_step);
 
         view_action->setChecked(!ptree.get<bool>("view.hidden", view_panel->isHidden()));
 
@@ -747,7 +747,7 @@ void MainWindow::load_ini(const std::string& path)
 void MainWindow::save_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
+    Panel* image_rendering_panel = ui.ImageRenderingPanel;
     Panel* view_panel = ui.ViewPanel;
     Frame* import_export_frame = ui.ImportExportFrame;
     Panel* info_panel = ui.InfoPanel;
@@ -762,7 +762,7 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<std::string>("files.file_input_directory", file_input_directory_);
     ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
 
-    ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
+    ptree.put<bool>("image_rendering.hidden", image_rendering_panel->isHidden());
 
     ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
 
@@ -805,7 +805,7 @@ void MainWindow::open_file(const std::string& path)
 void MainWindow::close_critical_compute()
 {
     if (cd_.convolution_enabled)
-        set_convolution_mode(false);
+        ui.ImageRenderingPanel->set_convolution_mode(false);
 
     if (cd_.time_transformation_cuts_enabled)
         ui.ViewPanel->cancel_time_transformation_cuts();
@@ -923,11 +923,11 @@ void MainWindow::change_camera(CameraKind c)
 
             set_camera_timeout();
 
-            set_computation_mode();
+            ui.ImageRenderingPanel->set_computation_mode();
 
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
-            set_image_mode(nullptr);
+            ui.ImageRenderingPanel->set_image_mode(nullptr);
             import_type_ = ImportType::Camera;
             kCamera = c;
 
@@ -980,40 +980,6 @@ void MainWindow::init_image_mode(QPoint& position, QSize& size)
     }
 }
 
-void MainWindow::set_raw_mode()
-{
-    close_windows();
-    close_critical_compute();
-
-    if (is_enabled_camera_)
-    {
-        QPoint pos(0, 0);
-        const FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-        unsigned short width = fd.width;
-        unsigned short height = fd.height;
-
-        get_good_size(width, height, window_max_size);
-        QSize size(width, height);
-        init_image_mode(pos, size);
-        cd_.set_compute_mode(Computation::Raw);
-        createPipe();
-
-        mainDisplay.reset(new RawWindow(pos, size, holovibes_.get_gpu_input_queue().get()));
-        mainDisplay->setTitle(QString("XY view"));
-        mainDisplay->setCd(&cd_);
-        mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                                                                  fd_info);
-        set_convolution_mode(false);
-        set_divide_convolution_mode(false);
-        notify();
-        layout_toggled();
-    }
-}
-
 void MainWindow::createPipe()
 {
     try
@@ -1057,59 +1023,6 @@ void MainWindow::createHoloWindow()
     catch (const std::runtime_error& e)
     {
         LOG_ERROR << "createHoloWindow: " << e.what();
-    }
-}
-
-void MainWindow::set_holographic_mode()
-{
-    // That function is used to reallocate the buffers since the Square
-    // input mode could have changed
-    /* Close windows & destory thread compute */
-    close_windows();
-    close_critical_compute();
-
-    /* ---------- */
-    try
-    {
-        cd_.set_compute_mode(Computation::Hologram);
-        /* Pipe & Window */
-        createPipe();
-        createHoloWindow();
-        /* Info Manager */
-        const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
-                                                                  fd_info);
-        /* Contrast */
-        cd_.set_contrast_enabled(true);
-
-        /* Filter2D */
-        ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-
-        /* Record Frame Calculation */
-        ui.NumberOfFramesSpinBox->setValue(
-            ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
-                 (float)ui.TimeTransformationStrideSpinBox->value()));
-
-        /* Notify */
-        notify();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << "cannot set holographic mode: " << e.what();
-    }
-}
-
-void MainWindow::set_computation_mode()
-{
-    if (ui.ImageModeComboBox->currentIndex() == 0)
-    {
-        cd_.set_compute_mode(Computation::Raw);
-    }
-    else if (ui.ImageModeComboBox->currentIndex() == 1)
-    {
-        cd_.set_compute_mode(Computation::Hologram);
     }
 }
 
@@ -1198,78 +1111,6 @@ void MainWindow::set_view_image_type(const QString& value)
 }
 
 bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
-
-void MainWindow::set_image_mode(QString mode)
-{
-    if (mode != nullptr)
-    {
-        // Call comes from ui
-        if (ui.ImageModeComboBox->currentIndex() == 0)
-            set_raw_mode();
-        else
-            set_holographic_mode();
-    }
-    else if (cd_.compute_mode == Computation::Raw)
-        set_raw_mode();
-    else if (cd_.compute_mode == Computation::Hologram)
-        set_holographic_mode();
-}
-#pragma endregion
-
-#pragma region Batch
-void MainWindow::update_batch_size()
-{
-    if (is_raw_mode())
-        return;
-
-    int value = ui.BatchSizeSpinBox->value();
-
-    if (value == cd_.batch_size)
-        return;
-
-    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.set_batch_size(value);
-            cd_.adapt_time_transformation_stride();
-            holovibes_.get_compute_pipe()->request_update_batch_size();
-            notify();
-        });
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
-}
-
-#pragma endregion
-/* ------------ */
-#pragma region STFT
-void MainWindow::update_time_transformation_stride()
-{
-    if (is_raw_mode())
-        return;
-
-    int value = ui.TimeTransformationStrideSpinBox->value();
-
-    if (value == cd_.time_transformation_stride)
-        return;
-
-    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.set_time_transformation_stride(value);
-            cd_.adapt_time_transformation_stride();
-            holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
-            ui.NumberOfFramesSpinBox->setValue(
-                ceil((ui.ImportEndIndexSpinBox->value() - ui.ImportStartIndexSpinBox->value()) /
-                     (float)ui.TimeTransformationStrideSpinBox->value()));
-            notify();
-        });
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
-}
 #pragma endregion
 /* ------------ */
 #pragma region Computation
@@ -1280,242 +1121,6 @@ void MainWindow::change_window()
     cd_.change_window(window_cbox->currentIndex());
     pipe_refresh();
     notify();
-}
-
-void MainWindow::set_filter2d(bool checked)
-{
-    if (is_raw_mode())
-        return;
-
-    if (!checked)
-    {
-        cd_.set_filter2d_enabled(checked);
-        cancel_filter2d();
-    }
-    else
-    {
-        const camera::FrameDescriptor& fd = holovibes_.get_gpu_input_queue()->get_fd();
-
-        // Set the input box related to the filter2d
-        ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        set_filter2d_n2(ui.Filter2DN2SpinBox->value());
-        set_filter2d_n1(ui.Filter2DN1SpinBox->value());
-
-        if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-        cd_.set_filter2d_enabled(checked);
-    }
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::disable_filter2d_view()
-{
-
-    auto pipe = holovibes_.get_compute_pipe();
-    pipe->request_disable_filter2d_view();
-
-    // Wait for the filter2d view to be disabled for notify
-    while (pipe->get_disable_filter2d_view_requested())
-        continue;
-
-    if (filter2d_window)
-    {
-        // Remove the on triggered event
-
-        disconnect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-    }
-
-    // Change the focused window
-    change_window();
-
-    notify();
-}
-
-void MainWindow::update_filter2d_view(bool checked)
-{
-    if (is_raw_mode())
-        return;
-
-    if (checked)
-    {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 310, 0);
-            auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-            if (pipe)
-            {
-                pipe->request_filter2d_view();
-
-                const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
-                ushort filter2d_window_width = fd.width;
-                ushort filter2d_window_height = fd.height;
-                get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
-
-                // Wait for the filter2d view to be enabled for notify
-                while (pipe->get_filter2d_view_requested())
-                    continue;
-
-                filter2d_window.reset(new Filter2DWindow(pos,
-                                                         QSize(filter2d_window_width, filter2d_window_height),
-                                                         pipe->get_filter2d_view_queue().get(),
-                                                         this));
-
-                filter2d_window->setTitle("Filter2D view");
-                filter2d_window->setCd(&cd_);
-
-                connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-                cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-            }
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-        }
-    }
-
-    else
-    {
-        disable_filter2d_view();
-        filter2d_window.reset(nullptr);
-    }
-
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_filter2d_pipe()
-{
-    if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (cd_.time_transformation_cuts_enabled)
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (cd_.filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
-
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_filter2d_n1(int n)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_filter2d_n1(n);
-    set_filter2d_pipe();
-}
-
-void MainWindow::set_filter2d_n2(int n)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_filter2d_n2(n);
-    set_filter2d_pipe();
-}
-
-void MainWindow::cancel_filter2d()
-{
-    if (is_raw_mode())
-        return;
-
-    if (cd_.filter2d_view_enabled)
-        update_filter2d_view(false);
-    pipe_refresh();
-    notify();
-}
-
-void MainWindow::set_time_transformation_size()
-{
-    if (is_raw_mode())
-        return;
-
-    int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
-    time_transformation_size = std::max(1, time_transformation_size);
-
-    if (time_transformation_size == cd_.time_transformation_size)
-        return;
-    notify();
-    auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
-    if (pipe)
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.set_time_transformation_size(time_transformation_size);
-            holovibes_.get_compute_pipe()->request_update_time_transformation_size();
-            ui.ViewPanel->set_p_accu();
-            // This will not do anything until
-            // SliceWindow::changeTexture() isn't coded.
-        });
-    }
-}
-
-void MainWindow::set_wavelength(const double value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_lambda(static_cast<float>(value) * 1.0e-9f);
-    pipe_refresh();
-}
-
-void MainWindow::set_z(const double value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_zdistance(static_cast<float>(value));
-    pipe_refresh();
-}
-
-void MainWindow::increment_z()
-{
-    if (is_raw_mode())
-        return;
-
-    set_z(cd_.zdistance + z_step_);
-    ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-}
-
-void MainWindow::decrement_z()
-{
-    if (is_raw_mode())
-        return;
-
-    set_z(cd_.zdistance - z_step_);
-    ui.ZDoubleSpinBox->setValue(cd_.zdistance);
-}
-
-void MainWindow::set_z_step(const double value)
-{
-    z_step_ = value;
-    ui.ZDoubleSpinBox->setSingleStep(value);
-}
-
-void MainWindow::set_space_transformation(const QString& value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_space_transformation_from_string(value.toStdString());
-    set_holographic_mode();
-}
-
-void MainWindow::set_time_transformation(const QString& value)
-{
-    if (is_raw_mode())
-        return;
-
-    cd_.set_time_transformation_from_string(value.toStdString());
-    set_holographic_mode();
 }
 
 void MainWindow::pipe_refresh()
@@ -1556,73 +1161,6 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
     spinBox->setValue(value);
     spinBox->blockSignals(false);
 }
-#pragma endregion
-/* ------------ */
-#pragma region Convolution
-void MainWindow::update_convo_kernel(const QString& value)
-{
-    if (cd_.convolution_enabled)
-    {
-        cd_.set_convolution(true, ui.KernelQuickSelectComboBox->currentText().toStdString());
-
-        try
-        {
-            auto pipe = holovibes_.get_compute_pipe();
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            cd_.set_convolution_enabled(false);
-            LOG_ERROR << e.what();
-        }
-
-        notify();
-    }
-}
-
-void MainWindow::set_convolution_mode(const bool value)
-{
-    cd_.set_convolution(value, ui.KernelQuickSelectComboBox->currentText().toStdString());
-
-    try
-    {
-        auto pipe = holovibes_.get_compute_pipe();
-
-        if (value)
-        {
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        else
-        {
-            pipe->request_disable_convolution();
-            // Wait for the convolution to be disabled for notify
-            while (pipe->get_disable_convolution_requested())
-                continue;
-        }
-    }
-    catch (const std::exception& e)
-    {
-        cd_.set_convolution_enabled(false);
-        LOG_ERROR << e.what();
-    }
-
-    notify();
-}
-
-void MainWindow::set_divide_convolution_mode(const bool value)
-{
-    cd_.set_divide_convolution_mode(value);
-
-    pipe_refresh();
-    notify();
-}
-
 #pragma endregion
 /* ------------ */
 #pragma region Themes

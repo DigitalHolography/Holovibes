@@ -173,7 +173,7 @@ void ImportPanel::init_holovibes_import_mode()
     }
 
     parent_->is_enabled_camera_ = true;
-    parent_->set_image_mode(nullptr);
+    parent_->ui.ImageRenderingPanel->set_image_mode(nullptr);
 
     // Make camera's settings menu unaccessible
     QAction* settings = parent_->ui.actionSettings;
