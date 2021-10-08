@@ -848,56 +848,49 @@ void MainWindow::change_camera(CameraKind c)
 void MainWindow::camera_ids()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_ids(*this);
+    change_camera(CameraKind::IDS);
 }
 
 // FREE
 void MainWindow::camera_phantom()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_phantom(*this);
+    change_camera(CameraKind::Phantom);
 }
 
 // FREE
 void MainWindow::camera_bitflow_cyton()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_bitflow_cyton(*this);
+    change_camera(CameraKind::BitflowCyton);
 }
 
 // FREE
 void MainWindow::camera_hamamatsu()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_hamamatsu(*this);
+    change_camera(CameraKind::Hamamatsu);
 }
 
 // FREE
 void MainWindow::camera_adimec()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_adimec(*this);
+    change_camera(CameraKind::Adimec);
 }
 
 // FREE
 void MainWindow::camera_xiq()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_xiq(*this);
+    change_camera(CameraKind::xiQ);
 }
 
 // FREE
 void MainWindow::camera_xib()
 {
     LOG_INFO;
-
-    ::holovibes::api::camera_xib(*this);
+    change_camera(CameraKind::xiB);
 }
 
 // FREE

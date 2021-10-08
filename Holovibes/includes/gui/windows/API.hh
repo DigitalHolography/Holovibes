@@ -694,48 +694,6 @@ void configure_camera();
  */
 void init_image_mode(QPoint& position, QSize& size);
 
-/*! \brief Switches camera to ids
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_ids(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to phantom
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_phantom(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to bitflow_cyton
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_bitflow_cyton(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to hamamatsu
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_hamamatsu(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to adimec
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_adimec(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to xiq
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_xiq(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Switches camera to xib
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void camera_xib(::holovibes::gui::MainWindow& mainwindow);
-
 /*! \brief Last call before the program is closed */
 void closeEvent();
 
