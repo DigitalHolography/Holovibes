@@ -1344,14 +1344,21 @@ void MainWindow::update_lens_view(bool value)
     LOG_INFO;
     Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
 
-    const std::optional<bool> res = ::holovibes::api::update_lens_view(*this, value);
-
-    if (res.has_value() && res.value())
+    if (value)
     {
-        connect(UserInterfaceDescriptor::instance().lens_window.get(),
-                SIGNAL(destroyed()),
-                this,
-                SLOT(disable_lens_view()));
+        const bool res = api::set_lens_view();
+
+        if (res)
+        {
+            connect(UserInterfaceDescriptor::instance().lens_window.get(),
+                    SIGNAL(destroyed()),
+                    this,
+                    SLOT(disable_lens_view()));
+        }
+    }
+    else
+    {
+        disable_lens_view();
     }
 }
 

@@ -510,11 +510,9 @@ void stop_chart_display();
 
 /*! \brief Adds or removes lens view
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param value true: add, false: remove
- * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
+ * \return std::optional<bool> false: on failure, true: on add
  */
-std::optional<bool> update_lens_view(::holovibes::gui::MainWindow& mainwindow, bool value);
+bool set_lens_view();
 
 /*! \brief Removes lens view
  *

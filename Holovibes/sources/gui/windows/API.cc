@@ -1002,54 +1002,50 @@ bool set_time_transformation_size(int time_transformation_size, std::function<vo
     return true;
 }
 
-std::optional<bool> update_lens_view(::holovibes::gui::MainWindow& mainwindow, bool value)
+bool set_lens_view()
 {
     LOG_INFO;
 
-    std::optional<bool> res = true;
+    bool res = false;
 
-    Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
-
-    if (value)
+    try
     {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-            ICompute* pipe = Holovibes::instance().get_compute_pipe().get();
+        // set positions of new windows according to the position of the
+        // main GL window
+        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+        ICompute* pipe = Holovibes::instance().get_compute_pipe().get();
 
-            const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width,
-                          lens_window_height,
-                          UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+        const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
+        ushort lens_window_width = fd.width;
+        ushort lens_window_height = fd.height;
+        get_good_size(lens_window_width,
+                      lens_window_height,
+                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
-            UserInterfaceDescriptor::instance().lens_window.reset(
-                new ::holovibes::gui::RawWindow(pos,
-                                                QSize(lens_window_width, lens_window_height),
-                                                pipe->get_lens_queue().get(),
-                                                ::holovibes::gui::KindOfView::Lens));
+        UserInterfaceDescriptor::instance().lens_window.reset(
+            new ::holovibes::gui::RawWindow(pos,
+                                            QSize(lens_window_width, lens_window_height),
+                                            pipe->get_lens_queue().get(),
+                                            ::holovibes::gui::KindOfView::Lens));
 
-            UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-            UserInterfaceDescriptor::instance().lens_window->setCd(&Holovibes::instance().get_cd());
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-            res = std::nullopt;
-        }
+        UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
+        UserInterfaceDescriptor::instance().lens_window->setCd(&Holovibes::instance().get_cd());
+        res = true;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what() << std::endl;
     }
 
-    else
-    {
-        mainwindow.disable_lens_view();
-        UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-        res = false;
-    }
-
+    /*
+        else
+        {
+            mainwindow.disable_lens_view();
+            UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
+            res = false;
+        }
+    */
     ::holovibes::api::pipe_refresh();
     return res;
 }
@@ -1060,6 +1056,8 @@ void disable_lens_view()
 
     Holovibes::instance().get_cd().gpu_lens_display_enabled = false;
     Holovibes::instance().get_compute_pipe()->request_disable_lens_view();
+    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
+    ::holovibes::api::pipe_refresh();
 }
 
 std::optional<bool> update_raw_view(::holovibes::gui::MainWindow& mainwindow, bool value)
