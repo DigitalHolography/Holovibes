@@ -653,7 +653,10 @@ void MainWindow::configure_holovibes()
 void MainWindow::write_ini()
 {
     LOG_INFO;
-    write_ini("");
+
+    save_ini(::holovibes::ini::get_global_ini_path());
+
+    notify();
 }
 
 // Notify
@@ -685,7 +688,7 @@ void MainWindow::browse_import_ini()
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
-    ::holovibes::api::browse_import_ini(*this, filename.toStdString());
+    reload_ini(filename);
 
     notify();
 }
@@ -695,15 +698,33 @@ void MainWindow::reload_ini()
 {
     LOG_INFO;
 
-    ::holovibes::api::reload_ini(*this);
+    reload_ini("");
 }
 
 // Notify
 void MainWindow::reload_ini(QString filename)
 {
-    LOG_INFO;
 
-    ::holovibes::api::reload_ini(*this, filename.toStdString());
+    LOG_INFO;
+    import_stop();
+    try
+    {
+        load_ini(filename.isEmpty() ? ::holovibes::ini::get_global_ini_path() : filename.toStdString());
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_INFO << e.what() << std::endl;
+    }
+    if (UserInterfaceDescriptor::instance().import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
+    {
+        import_start();
+    }
+    else if (UserInterfaceDescriptor::instance().import_type_ ==
+             ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
+    {
+        change_camera(UserInterfaceDescriptor::instance().kCamera);
+    }
 
     notify();
 }
@@ -2470,7 +2491,7 @@ void MainWindow::import_stop()
 {
     LOG_INFO;
     ::holovibes::api::close_windows();
-    cancel_time_transformation_cuts();
+    // cancel_time_transformation_cuts();
 
     ::holovibes::api::import_stop();
     // FIXME: import_stop() and camera_none() call same methods

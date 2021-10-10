@@ -692,30 +692,6 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
               const std::string& path,
               boost::property_tree::ptree& ptree);
 
-/*! \brief Reloads .ini file that store program's state
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param filename filename to read to load .ini data
- */
-void reload_ini(::holovibes::gui::MainWindow& mainwindow,
-
-                const std::string& filename);
-
-/*! \brief Reloads .ini file that store program's state
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void reload_ini(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Browses to import .ini file
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param filename filename to read to load .ini data
- */
-void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
-
-                       const std::string& filename);
-
 /*! \brief Gets the documentation url
  *
  * \return const QUrl& url

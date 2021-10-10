@@ -163,47 +163,6 @@ void configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
-
-                       const std::string& filename)
-{
-    LOG_INFO;
-
-    ::holovibes::api::reload_ini(mainwindow, filename);
-}
-
-void reload_ini(::holovibes::gui::MainWindow& mainwindow,
-
-                const std::string& filename)
-{
-    LOG_INFO;
-    mainwindow.import_stop();
-    try
-    {
-        mainwindow.load_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_INFO << e.what() << std::endl;
-    }
-    if (UserInterfaceDescriptor::instance().import_type_ == ::holovibes::UserInterfaceDescriptor::ImportType::File)
-    {
-        mainwindow.import_start();
-    }
-    else if (UserInterfaceDescriptor::instance().import_type_ ==
-             ::holovibes::UserInterfaceDescriptor::ImportType::Camera)
-    {
-        mainwindow.change_camera(UserInterfaceDescriptor::instance().kCamera);
-    }
-}
-
-void reload_ini(::holovibes::gui::MainWindow& mainwindow)
-{
-    LOG_INFO;
-    mainwindow.reload_ini("");
-}
-
 void load_ini(::holovibes::gui::MainWindow& mainwindow,
 
               const std::string& path,
