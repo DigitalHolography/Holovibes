@@ -1596,7 +1596,8 @@ void MainWindow::set_composite_auto_weights(bool value)
 {
     LOG_INFO;
 
-    ::holovibes::api::set_composite_auto_weights(*this, value);
+    ::holovibes::api::set_composite_auto_weights(value);
+    set_auto_contrast();
 }
 
 // GUI

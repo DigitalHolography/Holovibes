@@ -1245,13 +1245,10 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
     pipe_refresh();
 }
 
-void set_composite_auto_weights(::holovibes::gui::MainWindow& mainwindow,
-
-                                bool value)
+void set_composite_auto_weights(bool value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_auto_weights_ = value;
-    mainwindow.set_auto_contrast();
 }
 
 void select_composite_rgb()
