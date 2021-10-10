@@ -1060,60 +1060,55 @@ void disable_lens_view()
     ::holovibes::api::pipe_refresh();
 }
 
-std::optional<bool> update_raw_view(::holovibes::gui::MainWindow& mainwindow, bool value)
+void set_raw_view()
 {
     LOG_INFO;
 
-    std::optional<bool> res = true;
-
-    if (value)
+    if (Holovibes::instance().get_cd().batch_size > global::global_config.output_queue_max_size)
     {
-        if (Holovibes::instance().get_cd().batch_size > global::global_config.output_queue_max_size)
+        LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
+        return;
+    }
+
+    auto pipe = Holovibes::instance().get_compute_pipe();
+    pipe->request_raw_view();
+
+    // Wait for the raw view to be enabled for notify
+    while (pipe->get_raw_view_requested())
+        continue;
+
+    const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
+    ushort raw_window_width = fd.width;
+    ushort raw_window_height = fd.height;
+    get_good_size(raw_window_width, raw_window_height, UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+
+    // set positions of new windows according to the position of the main GL
+    // window and Lens window
+    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+    UserInterfaceDescriptor::instance().raw_window.reset(
+        new ::holovibes::gui::RawWindow(pos,
+                                        QSize(raw_window_width, raw_window_height),
+                                        pipe->get_raw_view_queue().get()));
+
+    UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
+    UserInterfaceDescriptor::instance().raw_window->setCd(&Holovibes::instance().get_cd());
+    /*
+        else
         {
-            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-            return std::nullopt;
+            UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+            mainwindow.disable_raw_view();
+            res = false;
         }
-
-        auto pipe = Holovibes::instance().get_compute_pipe();
-        pipe->request_raw_view();
-
-        // Wait for the raw view to be enabled for notify
-        while (pipe->get_raw_view_requested())
-            continue;
-
-        const ::camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width,
-                      raw_window_height,
-                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().raw_window.reset(
-            new ::holovibes::gui::RawWindow(pos,
-                                            QSize(raw_window_width, raw_window_height),
-                                            pipe->get_raw_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-        UserInterfaceDescriptor::instance().raw_window->setCd(&Holovibes::instance().get_cd());
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-        mainwindow.disable_raw_view();
-        res = false;
-    }
-
+    */
     pipe_refresh();
-    return res;
 }
 
 void disable_raw_view()
 {
     LOG_INFO;
+
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_raw_view();
@@ -1121,10 +1116,13 @@ void disable_raw_view()
     // Wait for the raw view to be disabled for notify
     while (pipe->get_disable_raw_view_requested())
         continue;
+
+    pipe_refresh();
 }
 
 void set_p_accu(bool is_p_accu, uint p_value)
 {
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
     Holovibes::instance().get_cd().p_accu_enabled = is_p_accu;
     Holovibes::instance().get_cd().p_acc_level = p_value;
     pipe_refresh();

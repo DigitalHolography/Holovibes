@@ -514,22 +514,13 @@ void stop_chart_display();
  */
 bool set_lens_view();
 
-/*! \brief Removes lens view
- *
- */
+/*! \brief Removes lens view */
 void disable_lens_view();
 
-/*! \brief Adds or removes raw view
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param value true: add, false: remove
- * \return std::optional<bool> nullopt: on failure, false: on remove, true: on add
- */
-std::optional<bool> update_raw_view(::holovibes::gui::MainWindow& mainwindow, bool value);
+/*! \brief Adds or removes raw view */
+void set_raw_view();
 
-/*! \brief Removes raw view
- *
- */
+/*! \brief Removes raw view */
 void disable_raw_view();
 
 /*! \brief Changes the time transformation size from ui value

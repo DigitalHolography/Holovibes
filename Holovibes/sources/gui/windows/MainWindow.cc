@@ -1379,24 +1379,42 @@ void MainWindow::disable_lens_view()
 }
 
 // GUI
+/*
+void MainWindow::update_lens_view(bool value)
+{
+    LOG_INFO;
+    Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
+
+    if (value)
+    {
+        const bool res = api::set_lens_view();
+
+        if (res)
+        {
+            connect(UserInterfaceDescriptor::instance().lens_window.get(),
+                    SIGNAL(destroyed()),
+                    this,
+                    SLOT(disable_lens_view()));
+        }
+    }
+    else
+    {
+        disable_lens_view();
+    }
+}
+*/
+// GUI
 void MainWindow::update_raw_view(bool value)
 {
     LOG_INFO;
 
-    const std::optional<bool> res = ::holovibes::api::update_raw_view(*this, value);
-
-    if (!res.has_value())
+    if (value)
     {
-        ui.RawDisplayingCheckBox->setChecked(false);
-        return;
+        api::set_raw_view();
     }
-
-    if (res.value())
+    else
     {
-        connect(UserInterfaceDescriptor::instance().raw_window.get(),
-                SIGNAL(destroyed()),
-                this,
-                SLOT(disable_raw_view()));
+        disable_raw_view();
     }
 }
 
