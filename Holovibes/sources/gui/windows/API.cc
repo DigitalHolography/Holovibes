@@ -163,29 +163,6 @@ void configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void write_ini(::holovibes::gui::MainWindow& mainwindow)
-{
-    LOG_INFO;
-
-    mainwindow.write_ini((QString) "");
-}
-
-void write_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename)
-{
-    LOG_INFO;
-
-    // boost::property_tree::ptree ptree;
-    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    mainwindow.save_ini(filename.empty() ? ::holovibes::ini::get_global_ini_path() : filename);
-}
-
-void browse_export_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename)
-{
-    LOG_INFO;
-
-    mainwindow.write_ini(filename);
-}
-
 void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
 
                        const std::string& filename)
@@ -330,8 +307,6 @@ void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
     ptree.put<uint>("display.auxiliary_window_max_size", UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
     boost::property_tree::write_ini(path, ptree);
-
-    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path << std::endl;
 }
 
 #pragma endregion

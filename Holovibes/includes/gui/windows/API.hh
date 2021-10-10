@@ -716,26 +716,6 @@ void browse_import_ini(::holovibes::gui::MainWindow& mainwindow,
 
                        const std::string& filename);
 
-/*! \brief Saves the current state of holovibes in .ini file
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void write_ini(::holovibes::gui::MainWindow& mainwindow);
-
-/*! \brief Saves the current state of holovibes in .ini file
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param filename the location of the output filename
- */
-void write_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename);
-
-/*! \brief Browses to export .ini file
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param filename filename to export .ini data
- */
-void browse_export_ini(::holovibes::gui::MainWindow& mainwindow, const std::string& filename);
-
 /*! \brief Gets the documentation url
  *
  * \return const QUrl& url

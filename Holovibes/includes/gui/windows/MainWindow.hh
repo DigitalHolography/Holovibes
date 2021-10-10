@@ -455,7 +455,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Saves the current state of holovibes in .ini file */
     void write_ini(QString filename);
-    void write_ini(const std::string& filename);
     void write_ini();
 
     /*! \brief Changes the theme of the ui */
