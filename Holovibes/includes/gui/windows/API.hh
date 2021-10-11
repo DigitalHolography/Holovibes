@@ -300,10 +300,8 @@ void set_wavelength(const double value);
 /*! \brief Modifies z
  *
  * \param value the new value
- * \return true on success
- * \return false on failure
  */
-bool set_z(const double value);
+void set_z(const double value);
 
 /*! \brief Increment z by 1
  *

@@ -1828,6 +1828,9 @@ void MainWindow::set_z(const double value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     api::set_z(value);
 }
 

@@ -1161,6 +1161,7 @@ void decrement_p()
     Holovibes::instance().get_cd().pindex--;
 }
 
+// VALID
 void set_wavelength(const double value)
 {
     LOG_INFO;
@@ -1170,15 +1171,14 @@ void set_wavelength(const double value)
     pipe_refresh();
 }
 
-bool set_z(const double value)
+// VALID
+void set_z(const double value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().zdistance = static_cast<float>(value);
+
     pipe_refresh();
-    return true;
 }
 
 bool increment_z()
