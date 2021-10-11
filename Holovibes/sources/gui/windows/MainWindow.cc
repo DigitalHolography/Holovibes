@@ -1482,12 +1482,18 @@ void MainWindow::set_p(int value)
 {
     LOG_INFO;
 
-    const bool set_p_succeed = api::set_p(value);
+    if (api::is_raw_mode())
+        return;
 
-    if (set_p_succeed)
+    if (value >= static_cast<int>(Holovibes::instance().get_cd().time_transformation_size))
     {
-        notify();
+        LOG_ERROR << "p param has to be between 1 and #img";
+        return;
     }
+
+    api::set_p(value);
+
+    notify();
 }
 
 // GUI

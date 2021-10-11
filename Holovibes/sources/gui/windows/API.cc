@@ -998,21 +998,12 @@ void set_q_accu(bool is_q_accu, uint q_value)
 }
 
 // VALID
-const bool set_p(int value)
+void set_p(int value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
-    if (value < static_cast<int>(Holovibes::instance().get_cd().time_transformation_size))
-    {
-        Holovibes::instance().get_cd().pindex = value;
-        pipe_refresh();
-        return true;
-    }
-    else
-        LOG_ERROR << "p param has to be between 1 and #img";
-    return false;
+    Holovibes::instance().get_cd().pindex = value;
+    pipe_refresh();
 }
 
 void set_composite_intervals(uint composite_p_red, uint composite_p_blue)

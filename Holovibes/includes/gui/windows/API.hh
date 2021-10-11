@@ -183,10 +183,8 @@ void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y);
 /*! \brief Modifies p
  *
  * \param value the new value of p
- * \return true on success
- * \return false on failure
  */
-const bool set_p(int value);
+void set_p(int value);
 
 /*! \brief Modifies q
  *
