@@ -282,52 +282,6 @@ void camera_none()
     Holovibes::instance().get_cd().is_computation_stopped = true;
 }
 
-void reset(::holovibes::gui::MainWindow& mainwindow)
-{
-    LOG_INFO;
-    Config& config = global::global_config;
-    int device = 0;
-
-    close_critical_compute();
-    mainwindow.camera_none();
-
-    // TOD: qApp must be strongly related to qt window
-    qApp->processEvents();
-
-    if (!is_raw_mode())
-        Holovibes::instance().stop_compute();
-    Holovibes::instance().stop_frame_read();
-    Holovibes::instance().get_cd().pindex = 0;
-    Holovibes::instance().get_cd().time_transformation_size = 1;
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-    if (config.set_cuda_device)
-    {
-        if (config.auto_device_number)
-        {
-            cudaGetDevice(&device);
-            config.device_number = device;
-        }
-        else
-            device = config.device_number;
-        cudaSetDevice(device);
-    }
-    cudaDeviceSynchronize();
-    cudaDeviceReset();
-    close_windows();
-    remove_infos();
-    Holovibes::instance().reload_streams();
-    try
-    {
-        mainwindow.load_ini(::holovibes::ini::get_global_ini_path());
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::get_global_ini_path()
-                 << ": Config file not found. It will use the default values.";
-    }
-}
-
 void closeEvent()
 {
     LOG_INFO;

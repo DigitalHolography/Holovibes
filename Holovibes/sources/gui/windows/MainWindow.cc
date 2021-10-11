@@ -819,14 +819,7 @@ void MainWindow::camera_none()
 }
 
 // Notify
-void MainWindow::reset()
-{
-    LOG_INFO;
-
-    ::holovibes::api::reset(*this);
-
-    notify();
-}
+void MainWindow::reset() { LOG_INFO; }
 
 // FREE
 void MainWindow::closeEvent(QCloseEvent*)

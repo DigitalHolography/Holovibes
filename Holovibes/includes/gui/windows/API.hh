@@ -665,12 +665,6 @@ void init_image_mode(QPoint& position, QSize& size);
 /*! \brief Last call before the program is closed */
 void closeEvent();
 
-/*! \brief Resets the whole program in reload .ini file
- *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- */
-void reset(::holovibes::gui::MainWindow& mainwindow);
-
 /*! \brief Opens holovibes configuration file */
 void configure_holovibes();
 
