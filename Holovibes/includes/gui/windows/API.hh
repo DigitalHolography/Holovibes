@@ -336,10 +336,8 @@ void set_unwrapping_2d(const bool value);
 /*! \brief Enables or Disables accumulation for the current window
  *
  * \param value true: enable, false: disable
- * \return true on success
- * \return false on failure
  */
-bool set_accumulation(bool value);
+void set_accumulation(bool value);
 
 /*! \brief Modifies the accumulation level on the current window
  *

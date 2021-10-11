@@ -1913,12 +1913,13 @@ void MainWindow::set_unwrapping_2d(const bool value)
 void MainWindow::set_accumulation(bool value)
 {
     LOG_INFO;
-    bool res = api::set_accumulation(value);
 
-    if (res)
-    {
-        notify();
-    }
+    if (api::is_raw_mode())
+        return;
+
+    api::set_accumulation(value);
+
+    notify();
 }
 
 // FREE

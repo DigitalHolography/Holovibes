@@ -1249,6 +1249,7 @@ void adapt_time_transformation_stride_to_batch_size()
             Holovibes::instance().get_cd().time_transformation_stride % Holovibes::instance().get_cd().batch_size;
 }
 
+// VALID
 void set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
@@ -1257,15 +1258,13 @@ void set_unwrapping_2d(const bool value)
     pipe_refresh();
 }
 
-bool set_accumulation(bool value)
+void set_accumulation(bool value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().set_accumulation(Holovibes::instance().get_cd().current_window, value);
+
     pipe_refresh();
-    return true;
 }
 
 bool set_accumulation_level(int value)
