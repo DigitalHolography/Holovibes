@@ -1223,6 +1223,7 @@ void set_space_transformation(const std::string& value)
     }
 }
 
+// VALID
 void set_time_transformation(const std::string& value)
 {
     LOG_INFO;
@@ -1237,6 +1238,7 @@ void set_time_transformation(const std::string& value)
         Holovibes::instance().get_cd().time_transformation = TimeTransformation::SSA_STFT;
 }
 
+// VALID
 void adapt_time_transformation_stride_to_batch_size()
 {
     if (Holovibes::instance().get_cd().time_transformation_stride < Holovibes::instance().get_cd().batch_size)
@@ -1247,16 +1249,12 @@ void adapt_time_transformation_stride_to_batch_size()
             Holovibes::instance().get_cd().time_transformation_stride % Holovibes::instance().get_cd().batch_size;
 }
 
-bool set_unwrapping_2d(const bool value)
+void set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
     Holovibes::instance().get_compute_pipe()->request_unwrapping_2d(value);
     pipe_refresh();
-    return true;
 }
 
 bool set_accumulation(bool value)

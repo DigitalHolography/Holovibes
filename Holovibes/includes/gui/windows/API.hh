@@ -330,10 +330,8 @@ void set_time_transformation(const std::string& value);
 /*! \brief Enables or Disables unwrapping 2d
  *
  * \param value true: enable, false: disable
- * \return true on success
- * \return false on failure
  */
-bool set_unwrapping_2d(const bool value);
+void set_unwrapping_2d(const bool value);
 
 /*! \brief Enables or Disables accumulation for the current window
  *

@@ -1901,12 +1901,12 @@ void MainWindow::set_unwrapping_2d(const bool value)
 {
     LOG_INFO;
 
-    bool res = api::set_unwrapping_2d(value);
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
-    {
-        notify();
-    }
+    api::set_unwrapping_2d(value);
+
+    notify();
 }
 
 // Notify
