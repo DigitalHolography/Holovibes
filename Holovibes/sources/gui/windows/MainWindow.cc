@@ -395,7 +395,7 @@ void MainWindow::on_notify()
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
-    const uint input_queue_capacity = global::global_config.input_queue_max_size;
+    const uint input_queue_capacity = cd_.input_buffer_size;
 
     ui.TimeTransformationStrideSpinBox->setValue(cd_.time_transformation_stride);
     ui.TimeTransformationStrideSpinBox->setSingleStep(cd_.batch_size);
@@ -877,8 +877,6 @@ void MainWindow::change_camera(CameraKind c)
                 holovibes_.stop_compute();
             holovibes_.stop_frame_read();
 
-            set_camera_timeout();
-
             set_computation_mode();
 
             holovibes_.start_camera_frame_read(c);
@@ -1068,8 +1066,6 @@ void MainWindow::set_computation_mode()
         cd_.set_compute_mode(Computation::Hologram);
     }
 }
-
-void MainWindow::set_camera_timeout() { camera::FRAME_TIMEOUT = global::global_config.frame_timeout; }
 
 void MainWindow::refreshViewMode()
 {
@@ -1598,7 +1594,7 @@ void MainWindow::update_raw_view(bool value)
 {
     if (value)
     {
-        if (cd_.batch_size > global::global_config.output_queue_max_size)
+        if (cd_.batch_size > cd_.output_queue_max_size)
         {
             ui.RawDisplayingCheckBox->setChecked(false);
             LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
@@ -2751,7 +2747,7 @@ void MainWindow::init_holovibes_import_mode()
 
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
-        holovibes_.init_input_queue(file_fd_);
+        holovibes_.init_input_queue(file_fd_, cd_.input_buffer_size);
         holovibes_.start_file_frame_read(file_path,
                                          true,
                                          cd_.input_fps,

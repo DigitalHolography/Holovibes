@@ -561,9 +561,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Set computation mode from ui value (Raw or Holographic) */
     void set_computation_mode();
 
-    /*! \brief Sets camera frame timout */
-    void set_camera_timeout();
-
     /*! \brief Changes camera
      *
      * \param c The new camera

@@ -163,8 +163,9 @@ class Holovibes
     /*! \brief Initializes the input queue
      *
      * \param fd frame descriptor of the camera
+     * \param input_queue_size size of the input queue
      */
-    void init_input_queue(const camera::FrameDescriptor& fd);
+    void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
 
     /*! \brief Sets and starts the file_read_worker attribute
      *

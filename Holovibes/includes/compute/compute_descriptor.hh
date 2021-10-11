@@ -393,16 +393,13 @@ class ComputeDescriptor : public Observable
     /*! \brief Max number of frames read each time by the thread_reader. */
     std::atomic<uint> file_buffer_size{32};
     /*! \brief Max size of input queue in number of images. */
-    std::atomic<uint> input_queue_max_size{256};
+    std::atomic<uint> input_buffer_size{256};
     /*! \brief Max size of frame record queue in number of images. */
-    std::atomic<uint> frame_record_queue_max_size{64};
+    std::atomic<uint> record_buffer_size{64};
     /*! \brief Max size of output queue in number of images. */
     std::atomic<uint> output_queue_max_size{64};
     /*! \brief Max size of time transformation cuts queue in number of images. */
     std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
-    // #TODO Said to be obsolete
-    /*! Obsolete. Now using the one in the camera ini file. */
-    std::atomic<uint> frame_timeout{100000};
     /*! \brief Number of frame per seconds displayed */
     std::atomic<float> display_rate{30};
     /*! \brief Filter2D low smoothing */

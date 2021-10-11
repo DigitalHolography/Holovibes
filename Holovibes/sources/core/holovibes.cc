@@ -40,11 +40,11 @@ const float Holovibes::get_boundary()
     return 0.f;
 }
 
-void Holovibes::init_input_queue(const camera::FrameDescriptor& fd)
+void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
     camera::FrameDescriptor queue_fd = fd;
 
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(global::global_config.input_queue_max_size, queue_fd);
+    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, queue_fd);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,
@@ -89,7 +89,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         cd_.pixel_size = active_camera_->get_pixel_size();
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
-        init_input_queue(camera_fd);
+        init_input_queue(camera_fd, cd_.input_buffer_size);
 
         camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
@@ -194,9 +194,8 @@ void Holovibes::init_pipe()
             output_fd.depth = 6;
     }
 
-    gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
-                                                    global::global_config.output_queue_max_size,
-                                                    Queue::QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(
+        std::make_shared<Queue>(output_fd, cd.output_queue_max_size, Queue::QueueType::OUTPUT_QUEUE));
 
     compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                *(gpu_output_queue_.load()),

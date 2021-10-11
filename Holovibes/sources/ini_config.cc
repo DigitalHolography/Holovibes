@@ -143,17 +143,16 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     // Advanced
     // // Config
-    // cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
-    // cd.input_buffer_size = ptree.get<ushort>("advanced.input_buffer_size", cd.input_buffer_size);
-    // cd.record_buffer_size = ptree.get<ushort>("advanced.record_buffer_size", cd.record_buffer_size);
-    // cd.output_buffer_size = ptree.get<ushort>("advanced.output_buffer_size", cd.output_buffer_size);
-    // cd.time_transformation_cuts_output_buffer_size =
-    //     ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
-    //                       cd.time_transformation_cuts_output_buffer_size);
-    // cd.accumulation_buffer_size = // img_acc_slice_xy_level => accumulation_buffer_size
-    //     ptree.get<ushort>("advanced.accumulation_buffer_size", cd.accumulation_buffer_size);
-    // cd.frame_timeout = ptree.get<int>("advanced.frame_timeout", cd.frame_timeout);
-    Config& config = global::global_config;
+    Config& config = global::global_config; // To remove
+    config.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", config.file_buffer_size);
+    //==> cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
+    cd.input_buffer_size = ptree.get<ushort>("advanced.input_buffer_size", cd.input_buffer_size);
+    cd.record_buffer_size = ptree.get<ushort>("advanced.record_buffer_size", cd.record_buffer_size);
+    config.output_queue_max_size = ptree.get<int>("advanced.output_buffer_size", config.output_queue_max_size);
+    //==> cd.output_buffer_size = ptree.get<ushort>("advanced.output_buffer_size", cd.output_buffer_size);
+    cd.time_transformation_cuts_output_buffer_size =
+        ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
+                          cd.time_transformation_cuts_output_buffer_size);
     cd.display_rate = ptree.get<float>("advanced.display_rate", cd.display_rate);
     cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
     cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
@@ -161,23 +160,13 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.contrast_upper_threshold = ptree.get<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
     cd.renorm_constant = ptree.get<uint>("advanced.renorm_constant", cd.renorm_constant);
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
-    config.file_buffer_size = ptree.get<int>("advanced.file_buffer_size", config.file_buffer_size);
-    config.input_queue_max_size = ptree.get<int>("advanced.input_buffer_size", config.input_queue_max_size);
-    config.frame_record_queue_max_size =
-        ptree.get<int>("advanced.record_buffer_size", config.frame_record_queue_max_size);
-    config.output_queue_max_size = ptree.get<int>("advanced.output_buffer_size", config.output_queue_max_size);
-    config.time_transformation_cuts_output_buffer_size =
-        ptree.get<int>("advanced.time_transformation_cuts_output_buffer_size",
-                       config.time_transformation_cuts_output_buffer_size);
-    config.frame_timeout = ptree.get<int>("advanced.frame_timeout", config.frame_timeout);
-    // end cur
 
     // CHECKS AFTER IMPORT
     if (cd.filter2d_n1 >= cd.filter2d_n2)
         cd.filter2d_n1 = cd.filter2d_n2 - 1;
     if (cd.time_transformation_size < 1)
         cd.time_transformation_size = 1;
-    // check convolution type if it  exists (when it will be added to cd)
+    // TODO: Check convolution type if it  exists (when it will be added to cd)
     if (cd.p_index >= cd.time_transformation_size)
         cd.p_index = 0;
     if (cd.q_index >= cd.time_transformation_size)
@@ -340,12 +329,11 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     // Advanced
     Config& config = global::global_config;
     ptree.put<uint>("advanced.file_buffer_size", config.file_buffer_size);
-    ptree.put<uint>("advanced.input_buffer_size", config.input_queue_max_size);
-    ptree.put<uint>("advanced.record_buffer_size", config.frame_record_queue_max_size);
+    ptree.put<uint>("advanced.input_buffer_size", cd.input_buffer_size);
+    ptree.put<uint>("advanced.record_buffer_size", cd.record_buffer_size);
     ptree.put<uint>("advanced.output_buffer_size", config.output_queue_max_size);
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
-                    config.time_transformation_cuts_output_buffer_size);
-    ptree.put<uint>("advanced.frame_timeout", config.frame_timeout);
+                    cd.time_transformation_cuts_output_buffer_size);
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(cd.display_rate));
     ptree.put<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low.load());
     ptree.put<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high.load());

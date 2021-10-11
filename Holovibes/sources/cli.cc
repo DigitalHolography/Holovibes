@@ -123,7 +123,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
         holovibes.get_compute_pipe()->request_convolution();
     }
 
-    holovibes.init_input_queue(fd);
+    holovibes.init_input_queue(fd, cd.input_buffer_size);
 
     try
     {

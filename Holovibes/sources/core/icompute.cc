@@ -211,9 +211,9 @@ void ICompute::init_cuts()
     fd_xz.height = cd_.time_transformation_size;
     fd_yz.width = cd_.time_transformation_size;
     time_transformation_env_.gpu_output_queue_xz.reset(
-        new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size));
+        new Queue(fd_xz, cd_.time_transformation_cuts_output_buffer_size));
     time_transformation_env_.gpu_output_queue_yz.reset(
-        new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size));
+        new Queue(fd_yz, cd_.time_transformation_cuts_output_buffer_size));
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
 
