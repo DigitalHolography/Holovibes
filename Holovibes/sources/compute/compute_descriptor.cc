@@ -21,7 +21,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     space_transformation = cd.space_transformation.load();
     time_transformation = cd.time_transformation.load();
     time_transformation_size = cd.time_transformation_size.load();
-    pindex = cd.pindex.load();
+    p_index = cd.p_index.load();
     p_acc_level = cd.p_acc_level.load();
     p_accu_enabled = cd.p_accu_enabled.load();
     lambda = cd.lambda.load();
@@ -58,7 +58,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     current_window = cd.current_window.load();
     cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
     display_rate = cd.display_rate.load();
-    reticle_enabled = cd.reticle_enabled.load();
+    reticle_view_enabled = cd.reticle_view_enabled.load();
     reticle_scale = cd.reticle_scale.load();
     signal_zone = cd.signal_zone;
     noise_zone = cd.noise_zone;
@@ -329,9 +329,9 @@ void ComputeDescriptor::check_p_limits()
         upper_bound -= p_acc_level;
     }
 
-    if (pindex > upper_bound)
+    if (p_index > upper_bound)
     {
-        pindex = upper_bound;
+        p_index = upper_bound;
     }
 }
 
@@ -407,7 +407,7 @@ void ComputeDescriptor::adapt_time_transformation_stride()
 
 void ComputeDescriptor::handle_update_exception()
 {
-    pindex = 0;
+    p_index = 0;
     time_transformation_size = 1;
     convolution_enabled = false;
 }
@@ -446,7 +446,7 @@ void ComputeDescriptor::set_convolution_enabled(bool value) { convolution_enable
 
 void ComputeDescriptor::set_divide_convolution_mode(bool value) { divide_convolution_enabled = value; }
 
-void ComputeDescriptor::set_reticle_enabled(bool value) { reticle_enabled = value; }
+void ComputeDescriptor::set_reticle_view_enabled(bool value) { reticle_view_enabled = value; }
 
 void ComputeDescriptor::set_reticle_scale(double value) { reticle_scale = value; }
 
@@ -466,7 +466,7 @@ void ComputeDescriptor::set_filter2d_n2(int n) { filter2d_n2 = n; }
 
 void ComputeDescriptor::set_fft_shift_enabled(bool value) { fft_shift_enabled = value; }
 
-void ComputeDescriptor::set_gpu_lens_display_enabled(bool value) { gpu_lens_display_enabled = value; }
+void ComputeDescriptor::set_lens_view_enabled(bool value) { lens_view_enabled = value; }
 
 void ComputeDescriptor::set_x_cuts(int value)
 {
@@ -484,7 +484,7 @@ void ComputeDescriptor::set_y_cuts(int value)
         y_cuts = value;
 }
 
-void ComputeDescriptor::set_pindex(int value) { pindex = value; }
+void ComputeDescriptor::set_p_index(int value) { p_index = value; }
 
 void ComputeDescriptor::set_q_index(int value) { q_index = value; }
 
@@ -571,15 +571,15 @@ void ComputeDescriptor::set_rendering_params(float value)
 
 void ComputeDescriptor::reset_windows_display()
 {
-    gpu_lens_display_enabled = false;
+    lens_view_enabled = false;
     filter2d_view_enabled = false;
     raw_view_enabled = false;
-    reticle_enabled = false;
+    reticle_view_enabled = false;
 }
 
 void ComputeDescriptor::reset_gui()
 {
-    pindex = 0;
+    p_index = 0;
     time_transformation_size = 1;
 }
 

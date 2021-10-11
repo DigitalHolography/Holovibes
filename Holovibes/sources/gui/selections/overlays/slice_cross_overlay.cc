@@ -84,7 +84,7 @@ void SliceCrossOverlay::move(QMouseEvent* e)
         pIndex_ = getMousePos(e->pos());
 
         uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
-        cd_->pindex = p;
+        cd_->p_index = p;
         cd_->notify_observers();
     }
 }
@@ -98,7 +98,7 @@ void SliceCrossOverlay::setBuffer()
     units::PointFd bottomRight;
     auto kView = parent_->getKindOfView();
 
-    uint pmin = cd->pindex;
+    uint pmin = cd->p_index;
     uint pmax = pmin;
     if (cd->p_accu_enabled)
         pmax += cd->p_acc_level;

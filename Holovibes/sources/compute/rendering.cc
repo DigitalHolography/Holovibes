@@ -307,7 +307,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled,
+                                   cd_.reticle_view_enabled,
                                    stream_);
         set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_xy, cd_.contrast_max_slice_xy);
         break;
@@ -320,7 +320,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled,
+                                   cd_.reticle_view_enabled,
                                    stream_);
         set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_yz, cd_.contrast_max_slice_yz);
         break;
@@ -333,7 +333,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_enabled,
+                                   cd_.reticle_view_enabled,
                                    stream_);
         set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_xz, cd_.contrast_max_slice_xz);
         break;

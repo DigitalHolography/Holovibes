@@ -135,7 +135,7 @@ class ComputeDescriptor : public Observable
     void set_accumulation(bool value);
     void set_accumulation_level(float value);
 
-    /*! \brief Limit the value of pindex and p_acc according to time_transformation_size */
+    /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
     void check_p_limits();
     /*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
     void check_q_limits();
@@ -161,7 +161,7 @@ class ComputeDescriptor : public Observable
     void set_contrast_enabled(bool value);
     void set_convolution_enabled(bool value);
     void set_divide_convolution_mode(bool value);
-    void set_reticle_enabled(bool value);
+    void set_reticle_view_enabled(bool value);
     void set_reticle_scale(double value);
     void set_img_type(ImgType type);
     void set_computation_stopped(bool value);
@@ -171,10 +171,10 @@ class ComputeDescriptor : public Observable
     void set_filter2d_n1(int n);
     void set_filter2d_n2(int n);
     void set_fft_shift_enabled(bool value);
-    void set_gpu_lens_display_enabled(bool value);
+    void set_lens_view_enabled(bool value);
     void set_x_cuts(int value);
     void set_y_cuts(int value);
-    void set_pindex(int value);
+    void set_p_index(int value);
     void set_q_index(int value);
     void set_lambda(float value);
     void set_zdistance(float value);
@@ -224,96 +224,85 @@ class ComputeDescriptor : public Observable
 
 #pragma region Atomics vars
 
-    /* Fields should be grouped by size otherwise some really weird things
-     * happen due to strange alignment constraints (thanks MSVC)
-     */
-
-    /**************************************/
-    /* 4 BYTE FIELDS (enum / int / float) */
-    /**************************************/
-
+    // Variables are regroup by module. Those are the same as in the compute_settings.ini
+    // Image rendering
     /*! \brief Mode of computation of the image */
     std::atomic<Computation> compute_mode{Computation::Raw};
-
-    /*! \brief Algorithm to apply in hologram mode */
-    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
-    /*! \brief Time transformation to apply in hologram mode */
-    std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
-    /*! \brief type of the image displayed */
-
-    std::atomic<ImgType> img_type{ImgType::Modulus};
-
-    /*! \brief Last window selected */
-    std::atomic<WindowKind> current_window{WindowKind::XYview};
-
     /*! \brief Number of images dequeued from input to gpu_input_queue */
     std::atomic<uint> batch_size{1};
     /*! \brief Number of pipe iterations between two time transformations (STFT/PCA) */
     std::atomic<uint> time_transformation_stride{1};
-    /*! \brief Number of images used by the time transformation */
-    std::atomic<uint> time_transformation_size{1};
-
-    /*! \brief Wave length of the laser */
-    std::atomic<float> lambda{852e-9f};
-    /*! \brief z value used by fresnel transform */
-    std::atomic<float> zdistance{1.50f};
-
-    // TODO: check if function where it is used are ever called.
-    /*! \brief Minimum constrast value in Filter2D view */
-    std::atomic<float> contrast_min_filter2d{1.f};
-    /*! \brief Maximum constrast value in Filter2D view */
-    std::atomic<float> contrast_max_filter2d{65535.f};
-
-    std::atomic<float> contrast_lower_threshold{0.5f};
-    std::atomic<float> contrast_upper_threshold{99.5f};
-    std::atomic<uint> cuts_contrast_p_offset{2};
-
-    /*! \brief Size of a pixel in micron */
-    std::atomic<float> pixel_size{12.0f};
-
-    /*! \brief postprocessing remormalize multiplication constant */
-    std::atomic<unsigned> renorm_constant{5};
+    /*! \brief Enables filter 2D */
+    std::atomic<bool> filter2d_enabled{false};
+    /*! \brief Enables filter 2D View */
+    std::atomic<bool> filter2d_view_enabled{false};
     /*! \brief Filter2D low radius */
     std::atomic<int> filter2d_n1{0};
     /*! \brief Filter2D high radius */
     std::atomic<int> filter2d_n2{1};
-    /*! \brief Filter2D low smoothing */
-    std::atomic<int> filter2d_smooth_low{0};
-    /*! \brief Filter2D high smoothing */
-    std::atomic<int> filter2d_smooth_high{0};
+    /*! \brief Algorithm to apply in hologram mode */
+    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
+    /*! \brief Time transformation to apply in hologram mode */
+    std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
+    /*! \brief Number of images used by the time transformation */
+    std::atomic<uint> time_transformation_size{1};
+    /*! \brief Wave length of the laser */
+    std::atomic<float> lambda{852e-9f};
+    /*! \brief z value used by fresnel transform */
+    std::atomic<float> zdistance{1.50f};
+    /*! \brief Is convolution enabled */
+    std::atomic<bool> convolution_enabled{false};
+    /*! \brief Convolution type (file present in AppData) */
+    // std::atomic<std::string> convolution_type{""};
+    /*! \brief Is divide by convolution enabled */
+    std::atomic<bool> divide_convolution_enabled{false};
 
-    /*! \brief Number of frame per seconds displayed */
-    std::atomic<float> display_rate{30};
-
-    /*! \brief Index in the depth axis */
-    std::atomic<uint> pindex{0};
-    /*! \brief Difference between p min and p max */
-    std::atomic<int> p_acc_level{1};
-
+    // View
+    /*! \brief type of the image displayed */
+    std::atomic<ImgType> img_type{ImgType::Modulus};
+    // TODO: Add unwrap2d
+    /*! \brief Are slices YZ and XZ enabled */
+    std::atomic<bool> time_transformation_cuts_enabled{false};
+    /*! \brief Is shift fft enabled (switching representation diagram) */
+    std::atomic<bool> fft_shift_enabled{false};
+    /*! \brief Is gpu lens display activated */
+    std::atomic<bool> lens_view_enabled{false};
+    /*! \brief Display the raw interferogram when we are in hologram mode. */
+    std::atomic<bool> raw_view_enabled{false};
     /*! \brief x cursor position (used in 3D cuts) */
     std::atomic<uint> x_cuts;
+    /*! \brief Is x average in view YZ enabled (average of columns between both selected columns) */
+    std::atomic<bool> x_accu_enabled{false};
     /*! \brief Difference between x min and x max */
     std::atomic<int> x_acc_level{1};
-
     /*! \brief y cursor position (used in 3D cuts) */
     std::atomic<uint> y_cuts;
+    /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
+    std::atomic<bool> y_accu_enabled{false};
     /*! \brief Difference between y min and y max */
     std::atomic<int> y_acc_level{1};
-
+    /*! \brief Index in the depth axis */
+    std::atomic<uint> p_index{0};
+    /*! \brief Is p average enabled (average image over multiple depth index) */
+    std::atomic<bool> p_accu_enabled{false};
+    /*! \brief Difference between p min and p max */
+    std::atomic<int> p_acc_level{1};
     /*! \brief svd eigen vectors filtering index */
     std::atomic<uint> q_index;
+    /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
+    std::atomic<bool> q_acc_enabled;
     /*! \brief svd eigen vectors filtering size */
     std::atomic<uint> q_acc_level;
-
+    /*! \brief Postprocessing renorm enabled */
+    std::atomic<bool> renorm_enabled{true};
+    /*! \brief Is the reticle overlay enabled */
+    std::atomic<bool> reticle_view_enabled{false};
     /*! \brief Reticle border scale */
     std::atomic<float> reticle_scale{0.5f};
 
-    /*! \brief Number of bits to shift when in raw mode */
-    std::atomic<uint> raw_bitshift{0};
+    /*! \brief Last window selected */
+    std::atomic<WindowKind> current_window{WindowKind::XYview};
 
-    /*! \name View window
-     * \{
-     */
     // XY
     std::atomic<bool> xy_flip_enabled{false};
     std::atomic<float> xy_rot{0};
@@ -354,13 +343,18 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_min_slice_yz{1.f};
     std::atomic<float> contrast_max_slice_yz{65535.f};
 
+    // Filter 2D
+    // TODO: check if function where it is used are ever called.
     /*! \brief Is log scale in Filter2D view enabled */
     std::atomic<bool> log_scale_filter2d_enabled{false};
+    /*! \brief Minimum constrast value in Filter2D view */
+    std::atomic<float> contrast_min_filter2d{1.f};
+    /*! \brief Maximum constrast value in Filter2D view */
+    std::atomic<float> contrast_max_filter2d{65535.f};
 
-    /*! \name Composite images
-     * \{
-     */
+    // Composite images
     std::atomic<CompositeKind> composite_kind;
+    std::atomic<bool> composite_auto_weights;
 
     // RGB
     std::atomic<uint> composite_p_red{0};
@@ -376,8 +370,10 @@ class ComputeDescriptor : public Observable
     std::atomic<float> slider_h_threshold_max{1.0f};
     std::atomic<float> composite_low_h_threshold{0.2f};
     std::atomic<float> composite_high_h_threshold{99.8f};
+    std::atomic<bool> h_blur_activated{false};
     std::atomic<uint> h_blur_kernel_size{1};
 
+    std::atomic<bool> composite_p_activated_s{false};
     std::atomic<uint> composite_p_min_s{0};
     std::atomic<uint> composite_p_max_s{0};
     std::atomic<float> composite_slider_s_threshold_min{0.01f};
@@ -385,81 +381,71 @@ class ComputeDescriptor : public Observable
     std::atomic<float> composite_low_s_threshold{0.2f};
     std::atomic<float> composite_high_s_threshold{99.8f};
 
+    std::atomic<bool> composite_p_activated_v{false};
     std::atomic<uint> composite_p_min_v{0};
     std::atomic<uint> composite_p_max_v{0};
     std::atomic<float> composite_slider_v_threshold_min{0.01f};
     std::atomic<float> slider_v_threshold_max{1.0f};
     std::atomic<float> composite_low_v_threshold{0.2f};
     std::atomic<float> composite_high_v_threshold{99.8f};
-    /*! \} */
 
-    std::atomic<int> unwrap_history_size{1};
+    // Advanced
+    /*! \brief Max number of frames read each time by the thread_reader. */
+    std::atomic<uint> file_buffer_size{32};
+    /*! \brief Max size of input queue in number of images. */
+    std::atomic<uint> input_queue_max_size{256};
+    /*! \brief Max size of frame record queue in number of images. */
+    std::atomic<uint> frame_record_queue_max_size{64};
+    /*! \brief Max size of output queue in number of images. */
+    std::atomic<uint> output_queue_max_size{64};
+    /*! \brief Max size of time transformation cuts queue in number of images. */
+    std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
+    // #TODO Said to be obsolete
+    /*! Obsolete. Now using the one in the camera ini file. */
+    std::atomic<uint> frame_timeout{100000};
+    /*! \brief Number of frame per seconds displayed */
+    std::atomic<float> display_rate{30};
+    /*! \brief Filter2D low smoothing */
+    std::atomic<int> filter2d_smooth_low{0};
+    /*! \brief Filter2D high smoothing */
+    std::atomic<int> filter2d_smooth_high{0};
+    std::atomic<float> contrast_lower_threshold{0.5f};
+    std::atomic<float> contrast_upper_threshold{99.5f};
+    /*! \brief postprocessing remormalize multiplication constant */
+    std::atomic<unsigned> renorm_constant{5};
+    std::atomic<uint> cuts_contrast_p_offset{2};
 
-    /************************/
-    /* 1 BYTE FIELDS (bool) */
-    /************************/
-
+    // Other
     /*! \brief Is the computation stopped */
     std::atomic<bool> is_computation_stopped{true};
-
-    /*! \brief Is convolution enabled */
-    std::atomic<bool> convolution_enabled{false};
-    /*! \brief Is divide by convolution enabled */
-    std::atomic<bool> divide_convolution_enabled{false};
-
-    /*! \brief Postprocessing renorm enabled */
-    std::atomic<bool> renorm_enabled{true};
-    /*! \brief Is shift fft enabled (switching representation diagram) */
-    std::atomic<bool> fft_shift_enabled{false};
     /*! \brief Is holovibes currently recording */
     std::atomic<bool> frame_record_enabled{false};
+    /*! \brief Wait the beginning of the file to start the recording. */
+    std::atomic<bool> synchronized_record{false};
+    /*! \brief Max size of unwrapping corrections in number of images.
+     *
+     * Determines how far, meaning how many iterations back, phase corrections
+     * are taken in order to be applied to the current phase image.
+     */
+    std::atomic<uint> unwrap_history_size{1};
 
-    /*! \brief Enables filter 2D */
-    std::atomic<bool> filter2d_enabled{false};
-    /*! \brief Enables filter 2D View */
-    std::atomic<bool> filter2d_view_enabled{false};
+    /*! \brief Size of a pixel in micron */ // Depends on camera or input file.
+    std::atomic<float> pixel_size{12.0f};
+    /*! \brief Number of bits to shift when in raw mode */
+    std::atomic<uint> raw_bitshift{0}; // Never change and surely not used
 
-    /*! \brief Are slices YZ and XZ enabled */
-    std::atomic<bool> time_transformation_cuts_enabled{false};
-    /*! \brief Is gpu lens display activated */
-    std::atomic<bool> gpu_lens_display_enabled{false};
+    /*! \brief First frame read */
+    std::atomic<uint> start_frame{0};
+    /*! \brief Lasrt frame read */
+    std::atomic<uint> end_frame{0};
+    /*! \brief The input FPS */
+    std::atomic<uint> input_fps{60};
+
+    // Chart
     /*! \brief Enables the signal and noise chart display */
     std::atomic<bool> chart_display_enabled{false};
     /*! \brief Enables the signal and noise chart record */
     std::atomic<bool> chart_record_enabled{false};
-
-    /*! \brief Is p average enabled (average image over multiple depth index) */
-    std::atomic<bool> p_accu_enabled{false};
-    /*! \brief Is x average in view YZ enabled (average of columns between both selected columns) */
-    std::atomic<bool> x_accu_enabled{false};
-    /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
-    std::atomic<bool> y_accu_enabled{false};
-    /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
-    std::atomic<bool> q_acc_enabled;
-
-    /*! \brief Display the raw interferogram when we are in hologram mode. */
-    std::atomic<bool> raw_view_enabled{false};
-
-    /*! \brief Wait the beginning of the file to start the recording. */
-    std::atomic<bool> synchronized_record{false};
-
-    /*! \brief Is the reticle overlay enabled */
-    std::atomic<bool> reticle_enabled{false};
-
-    /*! \name Composite image booleans
-     * \{
-     */
-    std::atomic<bool> h_blur_activated{false};
-    std::atomic<bool> composite_p_activated_s{false};
-    std::atomic<bool> composite_p_activated_v{false};
-    std::atomic<bool> composite_auto_weights;
-    /*! \} */
-
-    std::atomic<bool> fast_pipe{false};
-
-    std::atomic<uint> start_frame{0};
-    std::atomic<uint> end_frame{0};
-    std::atomic<uint> input_fps{60};
 
 #pragma endregion
 };

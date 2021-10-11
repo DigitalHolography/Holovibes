@@ -82,11 +82,11 @@ void Converts::insert_to_ushort()
 void Converts::insert_compute_p_accu()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        pmin_ = cd_.pindex;
+        pmin_ = cd_.p_index;
         if (cd_.p_accu_enabled)
             pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.time_transformation_size)));
         else
-            pmax_ = cd_.pindex;
+            pmax_ = cd_.p_index;
     });
 }
 

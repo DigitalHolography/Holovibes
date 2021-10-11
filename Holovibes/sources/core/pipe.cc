@@ -185,7 +185,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(cd_.time_transformation_size))
         {
             success_allocation = false;
-            cd_.pindex = 0;
+            cd_.p_index = 0;
             cd_.time_transformation_size = 1;
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";

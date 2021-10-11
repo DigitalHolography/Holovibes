@@ -334,12 +334,12 @@ void MainWindow::on_notify()
 
     cd_.check_p_limits();
     ui.PAccSpinBox->setValue(cd_.p_acc_level);
-    ui.PSpinBox->setValue(cd_.pindex);
+    ui.PSpinBox->setValue(cd_.p_index);
     ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
     if (cd_.p_accu_enabled)
     {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
+        ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_index - 1);
     }
     else
     {
@@ -491,12 +491,12 @@ void MainWindow::on_notify()
     ui.groupBox_value->setHidden(rgbMode);
 
     // Reticle
-    ui.ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
+    ui.ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_view_enabled);
     ui.ReticleScaleDoubleSpinBox->setValue(cd_.reticle_scale);
-    ui.DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
+    ui.DisplayReticleCheckBox->setChecked(cd_.reticle_view_enabled);
 
     // Lens View
-    ui.LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
+    ui.LensViewCheckBox->setChecked(cd_.lens_view_enabled);
 
     // Renormalize
     ui.RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
@@ -1542,7 +1542,7 @@ void MainWindow::set_time_transformation_size()
 
 void MainWindow::update_lens_view(bool value)
 {
-    cd_.set_gpu_lens_display_enabled(value);
+    cd_.set_lens_view_enabled(value);
 
     if (value)
     {
@@ -1589,7 +1589,7 @@ void MainWindow::disable_lens_view()
     if (lens_window)
         disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
-    cd_.set_gpu_lens_display_enabled(false);
+    cd_.set_lens_view_enabled(false);
     holovibes_.get_compute_pipe()->request_disable_lens_view();
     notify();
 }
@@ -1700,7 +1700,7 @@ void MainWindow::set_p(int value)
 
     if (value < static_cast<int>(cd_.time_transformation_size))
     {
-        cd_.pindex = value;
+        cd_.p_index = value;
         pipe_refresh();
         notify();
     }
@@ -1927,9 +1927,9 @@ void MainWindow::increment_p()
     if (is_raw_mode())
         return;
 
-    if (cd_.pindex < cd_.time_transformation_size)
+    if (cd_.p_index < cd_.time_transformation_size)
     {
-        cd_.set_pindex(cd_.pindex + 1);
+        cd_.set_p_index(cd_.p_index + 1);
         set_auto_contrast();
         notify();
     }
@@ -1942,9 +1942,9 @@ void MainWindow::decrement_p()
     if (is_raw_mode())
         return;
 
-    if (cd_.pindex > 0)
+    if (cd_.p_index > 0)
     {
-        cd_.set_pindex(cd_.pindex - 1);
+        cd_.set_p_index(cd_.p_index - 1);
         set_auto_contrast();
         notify();
     }
@@ -2301,7 +2301,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 #pragma region Reticle
 void MainWindow::display_reticle(bool value)
 {
-    cd_.set_reticle_enabled(value);
+    cd_.set_reticle_view_enabled(value);
     if (value)
     {
         mainDisplay->getOverlayManager().create_overlay<Reticle>();

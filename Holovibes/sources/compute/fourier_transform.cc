@@ -133,7 +133,7 @@ void FourierTransform::insert_fft2()
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
-    if (!gpu_lens_queue_ && cd_.gpu_lens_display_enabled)
+    if (!gpu_lens_queue_ && cd_.lens_view_enabled)
     {
         auto fd = fd_;
         fd.depth = 8;
@@ -297,7 +297,7 @@ void FourierTransform::insert_store_p_frame()
         /* Copies with DeviceToDevice (which is the case here) are asynchronous
          * with respect to the host but never overlap with kernel execution*/
         cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
-                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + cd_.pindex * frame_res,
+                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + cd_.p_index * frame_res,
                          sizeof(cuComplex) * frame_res,
                          cudaMemcpyDeviceToDevice,
                          stream_);

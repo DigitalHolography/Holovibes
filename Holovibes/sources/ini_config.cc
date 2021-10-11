@@ -22,8 +22,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
     cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
     cd.convolution_enabled = ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
-    // to create
-    // cd.convolution_type= ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
+    // TODO: Think about how to store the type. Some new convolutions type might be added in AppData
+    // cd.convolution_type = ptree.get("image_rendering.convolution_type", cd.convolution_enabled);
     cd.divide_convolution_enabled =
         ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 
@@ -33,23 +33,23 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.time_transformation_cuts_enabled =
         ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
     cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    cd.gpu_lens_display_enabled = ptree.get<bool>("view.lens_view_enabled", cd.gpu_lens_display_enabled);
+    cd.lens_view_enabled = ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
-    // TODO: Create struct
+    // TODO: Create structs
     cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
     cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
     cd.x_acc_level = ptree.get<short>("view.x_acc_level", cd.x_acc_level);
     cd.y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
     cd.y_accu_enabled = ptree.get<bool>("view.y_accu_enabled", cd.y_accu_enabled);
     cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
-    cd.pindex = ptree.get<ushort>("view.pindex", cd.pindex);
+    cd.p_index = ptree.get<ushort>("view.p_index", cd.p_index);
     cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
     cd.q_index = ptree.get<ushort>("view.q_index", cd.q_index);
     cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
     cd.q_acc_level = ptree.get<short>("view.q_acc_level", cd.q_acc_level);
     cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
-    cd.reticle_enabled = ptree.get<bool>("view.reticle_enabled", cd.p_accu_enabled);
+    cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.p_accu_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
     // xy => Settings to merge in a struct (some are in MainWindow, others in cd)
@@ -141,7 +141,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 99.8f);
     // end cur
 
-    // NOT ON GUI SETTINGS
+    // Advanced
     // // Config
     // cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
     // cd.input_buffer_size = ptree.get<ushort>("advanced.input_buffer_size", cd.input_buffer_size);
@@ -170,7 +170,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         ptree.get<int>("advanced.time_transformation_cuts_output_buffer_size",
                        config.time_transformation_cuts_output_buffer_size);
     config.frame_timeout = ptree.get<int>("advanced.frame_timeout", config.frame_timeout);
-    cd.img_acc_slice_xy_level = ptree.get<uint>("advanced.accumulation_buffer_size", cd.img_acc_slice_xy_level);
     // end cur
 
     // CHECKS AFTER IMPORT
@@ -179,8 +178,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     if (cd.time_transformation_size < 1)
         cd.time_transformation_size = 1;
     // check convolution type if it  exists (when it will be added to cd)
-    if (cd.pindex >= cd.time_transformation_size)
-        cd.pindex = 0;
+    if (cd.p_index >= cd.time_transformation_size)
+        cd.p_index = 0;
     if (cd.q_index >= cd.time_transformation_size)
         cd.q_index = 0;
     if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
@@ -221,7 +220,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    ptree.put<bool>("view.lens_view_enabled", cd.gpu_lens_display_enabled);
+    ptree.put<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
     ptree.put<ushort>("view.x_cuts", cd.x_cuts);
     ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
@@ -229,14 +228,14 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<ushort>("view.y_cuts", cd.y_cuts);
     ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
     ptree.put<short>("view.y_acc_level", cd.y_acc_level);
-    ptree.put<ushort>("view.p_index", cd.pindex);
+    ptree.put<ushort>("view.p_index", cd.p_index);
     ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     ptree.put<short>("view.p_acc_level", cd.p_acc_level);
     ptree.put<ushort>("view.q_index", cd.q_index);
     ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
     ptree.put<short>("view.q_acc_level", cd.q_acc_level);
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
-    ptree.put<bool>("view.reticle_enabled", cd.reticle_enabled);
+    ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
     // to delete // ptree.put<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
@@ -346,7 +345,6 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<uint>("advanced.output_buffer_size", config.output_queue_max_size);
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
                     config.time_transformation_cuts_output_buffer_size);
-    ptree.put<uint>("advanced.accumulation_buffer_size", cd.img_acc_slice_xy_level);
     ptree.put<uint>("advanced.frame_timeout", config.frame_timeout);
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(cd.display_rate));
     ptree.put<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low.load());
