@@ -414,10 +414,8 @@ void set_log_scale(const bool value);
 /*! \brief Modifies convolution kernel
  *
  * \param value The new kernel to apply
- * \return true on success
- * \return false on failure
  */
-bool update_convo_kernel(const std::string& value);
+void update_convo_kernel(const std::string& value);
 
 /*! \brief Enable the divide convolution mode
  *

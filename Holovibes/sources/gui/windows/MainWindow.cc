@@ -2115,12 +2115,12 @@ void MainWindow::update_convo_kernel(const QString& value)
 {
     LOG_INFO;
 
-    bool res = api::update_convo_kernel(value.toStdString());
+    if (!Holovibes::instance().get_cd().convolution_enabled)
+        return;
 
-    if (res)
-    {
-        notify();
-    }
+    api::update_convo_kernel(value.toStdString());
+
+    notify();
 }
 
 // Notify

@@ -1465,6 +1465,7 @@ void set_contrast_max(const double value)
     }
 }
 
+// VALID
 void invert_contrast(bool value)
 {
     LOG_INFO;
@@ -1473,6 +1474,7 @@ void invert_contrast(bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_auto_refresh_contrast(bool value)
 {
     LOG_INFO;
@@ -1481,6 +1483,7 @@ void set_auto_refresh_contrast(bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_log_scale(const bool value)
 {
     LOG_INFO;
@@ -1496,31 +1499,25 @@ void set_log_scale(const bool value)
 
 #pragma region Convolution
 
-bool update_convo_kernel(const std::string& value)
+void update_convo_kernel(const std::string& value)
 {
     LOG_INFO;
 
-    if (Holovibes::instance().get_cd().convolution_enabled)
+    Holovibes::instance().get_cd().set_convolution(true, value);
+
+    try
     {
-        Holovibes::instance().get_cd().set_convolution(true, value);
-
-        try
-        {
-            auto pipe = Holovibes::instance().get_compute_pipe();
-            pipe->request_convolution();
-            // Wait for the convolution to be enabled for notify
-            while (pipe->get_convolution_requested())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            Holovibes::instance().get_cd().convolution_enabled = false;
-            LOG_ERROR << e.what();
-        }
-        return true;
+        auto pipe = Holovibes::instance().get_compute_pipe();
+        pipe->request_convolution();
+        // Wait for the convolution to be enabled for notify
+        while (pipe->get_convolution_requested())
+            continue;
     }
-
-    return false;
+    catch (const std::exception& e)
+    {
+        Holovibes::instance().get_cd().convolution_enabled = false;
+        LOG_ERROR << e.what();
+    }
 }
 
 void set_convolution_mode(std::string& str)
