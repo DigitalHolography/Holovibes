@@ -1777,13 +1777,19 @@ void MainWindow::increment_p()
 {
     LOG_INFO;
 
-    bool res = api::increment_p();
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
+    if (Holovibes::instance().get_cd().pindex >= Holovibes::instance().get_cd().time_transformation_size)
     {
-        set_auto_contrast();
-        notify();
+        LOG_ERROR << "p param has to be between 1 and #img";
+        return;
     }
+
+    api::increment_p();
+
+    set_auto_contrast();
+    notify();
 }
 
 // Notify

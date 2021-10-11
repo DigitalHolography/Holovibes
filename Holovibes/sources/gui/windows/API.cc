@@ -1006,6 +1006,7 @@ void set_p(int value)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 {
     LOG_INFO;
@@ -1014,6 +1015,7 @@ void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
     LOG_INFO;
@@ -1021,6 +1023,7 @@ void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
     LOG_INFO;
@@ -1028,6 +1031,7 @@ void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 {
     LOG_INFO;
@@ -1035,6 +1039,7 @@ void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 {
     LOG_INFO;
@@ -1042,6 +1047,7 @@ void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 {
     LOG_INFO;
@@ -1049,6 +1055,7 @@ void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 {
     LOG_INFO;
@@ -1056,6 +1063,7 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 {
     LOG_INFO;
@@ -1065,12 +1073,14 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_auto_weights(bool value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_auto_weights_ = value;
 }
 
+// VALID
 void select_composite_rgb()
 {
     LOG_INFO;
@@ -1078,6 +1088,7 @@ void select_composite_rgb()
     Holovibes::instance().get_cd().composite_kind = CompositeKind::RGB;
 }
 
+// VALID
 void select_composite_hsv()
 {
     LOG_INFO;
@@ -1085,30 +1096,35 @@ void select_composite_hsv()
     Holovibes::instance().get_cd().composite_kind = CompositeKind::HSV;
 }
 
+// VALID
 void actualize_frequency_channel_s(bool composite_p_activated_s)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_activated_s = composite_p_activated_s;
 }
 
+// VALID
 void actualize_frequency_channel_v(bool composite_p_activated_v)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().composite_p_activated_v = composite_p_activated_v;
 }
 
+// VALID
 void actualize_selection_h_gaussian_blur(bool h_blur_activated)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().h_blur_activated = h_blur_activated;
 }
 
+// VALID
 void actualize_kernel_size_blur(uint h_blur_kernel_size)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().h_blur_kernel_size = h_blur_kernel_size;
 }
 
+// VALID
 bool slide_update_threshold(const int slider_value,
                             std::atomic<float>& receiver,
                             std::atomic<float>& bound_to_update,
@@ -1129,20 +1145,12 @@ bool slide_update_threshold(const int slider_value,
     return false;
 }
 
-bool increment_p()
+// VALID
+void increment_p()
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
-    if (Holovibes::instance().get_cd().pindex < Holovibes::instance().get_cd().time_transformation_size)
-    {
-        Holovibes::instance().get_cd().pindex++;
-        return true;
-    }
-
-    LOG_ERROR << "p param has to be between 1 and #img";
-    return false;
+    Holovibes::instance().get_cd().pindex++;
 }
 
 bool decrement_p()
