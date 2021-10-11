@@ -662,9 +662,6 @@ void configure_camera();
  */
 void init_image_mode(QPoint& position, QSize& size);
 
-/*! \brief Last call before the program is closed */
-void closeEvent();
-
 /*! \brief Opens holovibes configuration file */
 void configure_holovibes();
 

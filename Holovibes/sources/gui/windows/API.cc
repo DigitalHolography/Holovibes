@@ -282,16 +282,6 @@ void camera_none()
     Holovibes::instance().get_cd().is_computation_stopped = true;
 }
 
-void closeEvent()
-{
-    LOG_INFO;
-
-    close_windows();
-    if (!Holovibes::instance().get_cd().is_computation_stopped)
-        close_critical_compute();
-    remove_infos();
-}
-
 #pragma endregion
 
 #pragma region Cameras
