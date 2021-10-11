@@ -960,6 +960,7 @@ void MainWindow::set_raw_mode()
     layout_toggled();
 }
 
+// VALID
 // FREE
 void MainWindow::createHoloWindow()
 {
@@ -968,6 +969,7 @@ void MainWindow::createHoloWindow()
     api::createHoloWindow(*this);
 }
 
+// VALID
 // GUI
 void MainWindow::set_holographic_mode()
 {
@@ -997,6 +999,7 @@ void MainWindow::set_holographic_mode()
     }
 }
 
+// VALID
 // Notify
 void MainWindow::refreshViewMode()
 {
@@ -1008,6 +1011,7 @@ void MainWindow::refreshViewMode()
     layout_toggled();
 }
 
+// VALID
 // LOCAL
 // Is there a change in window pixel depth (needs to be re-opened)
 bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
@@ -1019,6 +1023,8 @@ bool MainWindow::need_refresh(const std::string& last_type, const std::string& n
     return false;
 }
 
+// VALID
+// LOCAL
 // GUI
 void MainWindow::set_composite_values()
 {
@@ -1036,6 +1042,7 @@ void MainWindow::set_composite_values()
     ui.SpinBox_value_freq_max->setValue(max_val_composite);
 }
 
+// LOCAL
 // GUI
 std::function<void()> MainWindow::get_view_mode_callback()
 {
@@ -1048,6 +1055,7 @@ std::function<void()> MainWindow::get_view_mode_callback()
     return callback;
 }
 
+// VALID
 // FREE
 void MainWindow::set_view_mode(const QString value)
 {
@@ -1066,16 +1074,16 @@ void MainWindow::set_view_mode(const QString value)
             set_composite_values();
         }
     }
-    api::set_view_mode(str, get_view_mode_callback());
 
-    // LOG_ERROR << "current image mode: " << static_cast<int>(Holovibes::instance().get_cd().img_type.load());
+    api::set_view_mode(str, get_view_mode_callback());
 
     // Force cuts views autocontrast if needed
     if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
         set_auto_contrast_cuts();
 }
 
-// FREE
+// VALID
+// GUI
 void MainWindow::set_image_mode(QString mode)
 {
     LOG_INFO;
@@ -1094,6 +1102,8 @@ void MainWindow::set_image_mode(QString mode)
         set_holographic_mode();
 }
 
+// VALID
+// FREE
 void MainWindow::set_image_mode(const Computation computation)
 {
     if (computation == Computation::Raw)
@@ -1106,6 +1116,7 @@ void MainWindow::set_image_mode(const Computation computation)
 
 #pragma region Batch
 
+// VALID
 // GUI
 void MainWindow::update_batch_size()
 {
@@ -1133,6 +1144,7 @@ void MainWindow::update_batch_size()
 /* ------------ */
 #pragma region STFT
 
+// VALID
 // GUI
 void MainWindow::update_time_transformation_stride()
 {
@@ -1159,6 +1171,7 @@ void MainWindow::update_time_transformation_stride()
     api::update_time_transformation_stride(callback, time_transformation_stride);
 }
 
+// VALID
 // GUI
 void MainWindow::toggle_time_transformation_cuts(bool checked)
 {
@@ -1220,6 +1233,7 @@ void MainWindow::cancel_time_transformation_cuts()
 /* ------------ */
 #pragma region Computation
 
+// VALID
 // Notify
 void MainWindow::change_window()
 {
@@ -1230,6 +1244,7 @@ void MainWindow::change_window()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::toggle_renormalize(bool value)
 {
@@ -1322,6 +1337,7 @@ void MainWindow::cancel_filter2d()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_fft_shift(const bool value)
 {
@@ -1359,6 +1375,7 @@ void MainWindow::set_time_transformation_size()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::update_lens_view(bool value)
 {
@@ -1383,6 +1400,7 @@ void MainWindow::update_lens_view(bool value)
     }
 }
 
+// VALID
 // GUI
 void MainWindow::disable_lens_view()
 {
@@ -1399,6 +1417,7 @@ void MainWindow::disable_lens_view()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::update_raw_view(bool value)
 {
@@ -1420,6 +1439,7 @@ void MainWindow::update_raw_view(bool value)
     }
 }
 
+// VALID
 // GUI
 void MainWindow::disable_raw_view()
 {
@@ -1436,6 +1456,7 @@ void MainWindow::disable_raw_view()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_p_accu()
 {
@@ -1446,6 +1467,7 @@ void MainWindow::set_p_accu()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_x_accu()
 {
@@ -1456,6 +1478,7 @@ void MainWindow::set_x_accu()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_y_accu()
 {
@@ -1466,6 +1489,7 @@ void MainWindow::set_y_accu()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_x_y()
 {
@@ -1476,6 +1500,7 @@ void MainWindow::set_x_y()
     api::set_x_y(fd, ui.XSpinBox->value(), ui.YSpinBox->value());
 }
 
+// VALID
 // Notify
 void MainWindow::set_q(int value)
 {
@@ -1486,6 +1511,7 @@ void MainWindow::set_q(int value)
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_q_acc()
 {
@@ -1496,6 +1522,7 @@ void MainWindow::set_q_acc()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_p(int value)
 {
@@ -1515,6 +1542,7 @@ void MainWindow::set_p(int value)
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::set_composite_intervals()
 {
@@ -1527,6 +1555,7 @@ void MainWindow::set_composite_intervals()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_h_min()
 {
@@ -1537,6 +1566,7 @@ void MainWindow::set_composite_intervals_hsv_h_min()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_h_max()
 {
@@ -1547,6 +1577,7 @@ void MainWindow::set_composite_intervals_hsv_h_max()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_s_min()
 {
@@ -1557,6 +1588,7 @@ void MainWindow::set_composite_intervals_hsv_s_min()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_s_max()
 {
@@ -1567,6 +1599,7 @@ void MainWindow::set_composite_intervals_hsv_s_max()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_v_min()
 {
@@ -1577,6 +1610,7 @@ void MainWindow::set_composite_intervals_hsv_v_min()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_intervals_hsv_v_max()
 {
@@ -1587,6 +1621,7 @@ void MainWindow::set_composite_intervals_hsv_v_max()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_composite_weights()
 {
@@ -1597,6 +1632,7 @@ void MainWindow::set_composite_weights()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_composite_auto_weights(bool value)
 {
@@ -1606,6 +1642,7 @@ void MainWindow::set_composite_auto_weights(bool value)
     set_auto_contrast();
 }
 
+// VALID
 // GUI
 void MainWindow::click_composite_rgb_or_hsv()
 {
@@ -1631,6 +1668,7 @@ void MainWindow::click_composite_rgb_or_hsv()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::actualize_frequency_channel_s()
 {
@@ -1642,6 +1680,7 @@ void MainWindow::actualize_frequency_channel_s()
     ui.SpinBox_saturation_freq_max->setDisabled(!ui.checkBox_saturation_freq->isChecked());
 }
 
+// VALID
 // GUI
 void MainWindow::actualize_frequency_channel_v()
 {
@@ -1653,6 +1692,7 @@ void MainWindow::actualize_frequency_channel_v()
     ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 }
 
+// VALID
 // GUI
 void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
@@ -1663,6 +1703,7 @@ void MainWindow::actualize_checkbox_h_gaussian_blur()
     ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
 }
 
+// VALID
 // FREE
 void MainWindow::actualize_kernel_size_blur()
 {
@@ -1671,6 +1712,7 @@ void MainWindow::actualize_kernel_size_blur()
     api::actualize_kernel_size_blur(ui.SpinBox_hue_blur_kernel_size->value());
 }
 
+// VALID
 // LOCAL
 void fancy_Qslide_text_percent(char* str)
 {
@@ -1688,6 +1730,7 @@ void fancy_Qslide_text_percent(char* str)
     str[len + 2] = '\0';
 }
 
+// VALID
 // LOCAL
 void slide_update_threshold(const QSlider& slider,
                             std::atomic<float>& receiver,
@@ -1713,6 +1756,7 @@ void slide_update_threshold(const QSlider& slider,
     }
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_h_min()
 {
@@ -1726,6 +1770,7 @@ void MainWindow::slide_update_threshold_h_min()
                            Holovibes::instance().get_cd().slider_h_threshold_max);
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_h_max()
 {
@@ -1739,6 +1784,7 @@ void MainWindow::slide_update_threshold_h_max()
                            Holovibes::instance().get_cd().slider_h_threshold_max);
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_s_min()
 {
@@ -1752,6 +1798,7 @@ void MainWindow::slide_update_threshold_s_min()
                            Holovibes::instance().get_cd().slider_s_threshold_max);
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_s_max()
 {
@@ -1765,6 +1812,7 @@ void MainWindow::slide_update_threshold_s_max()
                            Holovibes::instance().get_cd().slider_s_threshold_max);
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_v_min()
 {
@@ -1778,6 +1826,7 @@ void MainWindow::slide_update_threshold_v_min()
                            Holovibes::instance().get_cd().slider_v_threshold_max);
 }
 
+// VALID
 // FREE
 void MainWindow::slide_update_threshold_v_max()
 {
@@ -1791,6 +1840,7 @@ void MainWindow::slide_update_threshold_v_max()
                            Holovibes::instance().get_cd().slider_v_threshold_max);
 }
 
+// VALID
 // Notify
 void MainWindow::increment_p()
 {
@@ -1811,6 +1861,7 @@ void MainWindow::increment_p()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::decrement_p()
 {
@@ -1831,6 +1882,7 @@ void MainWindow::decrement_p()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_wavelength(const double value)
 {
@@ -1842,6 +1894,7 @@ void MainWindow::set_wavelength(const double value)
     api::set_wavelength(value);
 }
 
+// VALID
 // FREE
 void MainWindow::set_z(const double value)
 {
@@ -1853,6 +1906,7 @@ void MainWindow::set_z(const double value)
     api::set_z(value);
 }
 
+// VALID
 // GUI
 void MainWindow::increment_z()
 {
@@ -1866,6 +1920,7 @@ void MainWindow::increment_z()
     ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
 }
 
+// VALID
 // GUI
 void MainWindow::decrement_z()
 {
@@ -1879,6 +1934,7 @@ void MainWindow::decrement_z()
     ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
 }
 
+// VALID
 // GUI
 void MainWindow::set_z_step(const double value)
 {
@@ -1889,6 +1945,7 @@ void MainWindow::set_z_step(const double value)
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
 
+// VALID
 // FREE
 void MainWindow::set_space_transformation(const QString value)
 {
@@ -1902,6 +1959,7 @@ void MainWindow::set_space_transformation(const QString value)
     set_holographic_mode();
 }
 
+// VALID
 // FREE
 void MainWindow::set_time_transformation(QString value)
 {
@@ -1915,6 +1973,7 @@ void MainWindow::set_time_transformation(QString value)
     set_holographic_mode();
 }
 
+// VALID
 // Notify
 void MainWindow::set_unwrapping_2d(const bool value)
 {
@@ -1928,6 +1987,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_accumulation(bool value)
 {
@@ -1941,6 +2001,7 @@ void MainWindow::set_accumulation(bool value)
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_accumulation_level(int value)
 {
@@ -1952,6 +2013,7 @@ void MainWindow::set_accumulation_level(int value)
     api::set_accumulation_level(value);
 }
 
+// VALID
 // FREE
 void MainWindow::set_composite_area()
 {
@@ -1964,6 +2026,7 @@ void MainWindow::set_composite_area()
 /* ------------ */
 #pragma region Texture
 
+// VALID
 // Notify
 void MainWindow::rotateTexture()
 {
@@ -1974,6 +2037,7 @@ void MainWindow::rotateTexture()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::flipTexture()
 {
@@ -1988,6 +2052,7 @@ void MainWindow::flipTexture()
 /* ------------ */
 #pragma region Contrast - Log
 
+// VALID
 // Notify
 void MainWindow::set_contrast_mode(bool value)
 {
@@ -2003,6 +2068,7 @@ void MainWindow::set_contrast_mode(bool value)
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::set_auto_contrast_cuts()
 {
@@ -2011,6 +2077,7 @@ void MainWindow::set_auto_contrast_cuts()
     api::set_auto_contrast_cuts();
 }
 
+// VALID
 // GUI
 void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 {
@@ -2020,6 +2087,7 @@ void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
     spinBox->blockSignals(false);
 }
 
+// VALID
 // GUI
 void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
 {
@@ -2029,6 +2097,7 @@ void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
     slider->blockSignals(false);
 }
 
+// VALID
 // GUI
 void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value)
 {
@@ -2038,6 +2107,7 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
     spinBox->blockSignals(false);
 }
 
+// VALID
 // FREE
 void MainWindow::set_auto_contrast()
 {
@@ -2049,6 +2119,7 @@ void MainWindow::set_auto_contrast()
     api::set_auto_contrast();
 }
 
+// VALID
 // FREE
 void MainWindow::set_auto_contrast_all()
 {
@@ -2065,7 +2136,7 @@ void MainWindow::set_contrast_min(const double value)
     if (api::is_raw_mode())
         return;
 
-    if (Holovibes::instance().get_cd().contrast_enabled)
+    if (!Holovibes::instance().get_cd().contrast_enabled)
     {
         return;
     }
