@@ -855,52 +855,6 @@ void MainWindow::close_windows()
     cd_.reset_windows_display();
 }
 
-void MainWindow::reset()
-{
-    Config& config = global::global_config;
-    int device = 0;
-
-    close_critical_compute();
-    camera_none();
-    qApp->processEvents();
-
-    if (!is_raw_mode())
-        holovibes_.stop_compute();
-    holovibes_.stop_frame_read();
-    cd_.reset_gui();
-    is_enabled_camera_ = false;
-
-    if (config.set_cuda_device)
-    {
-        if (config.auto_device_number)
-        {
-            cudaGetDevice(&device);
-            config.device_number = device;
-        }
-        else
-            device = config.device_number;
-        cudaSetDevice(device);
-    }
-
-    cudaDeviceSynchronize();
-    cudaDeviceReset();
-    close_windows();
-    remove_infos();
-    holovibes_.reload_streams();
-
-    try
-    {
-        load_ini(::holovibes::ini::default_config_filepath);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::default_config_filepath
-                 << ": Config file not found. It will use the default values.";
-    }
-    notify();
-}
-
 void MainWindow::closeEvent(QCloseEvent*)
 {
     close_windows();

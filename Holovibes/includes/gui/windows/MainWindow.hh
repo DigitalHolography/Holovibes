@@ -145,9 +145,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     bool is_raw_mode();
 
-    /*! \brief Resets the whole program in reload .ini file */
-    void reset();
-
     /*! \brief adds or removes filter 2d view
      *
      * \param checked true: enable, false: disable

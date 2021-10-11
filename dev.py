@@ -230,10 +230,8 @@ def build_ref(args) -> int:
 
     dirs = find_tests()
     for name in dirs:
-        sleep(1)
-
         path = os.path.join(TESTS_DATA, name)
-        if os.path.isdir(path):
+        if (os.path.isdir(path) and len(args.goal_args) == 0) or name in args.goal_args:
             input = os.path.join(path, INPUT_FILENAME)
             ref = os.path.join(path, REF_FILENAME)
             cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
@@ -338,7 +336,7 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    args, goals = parse_args()
+    main_args, goals = parse_args()
 
     for goal, goal_args in goals.items():
         run_goal(goal, GoalArgs(args.b, args.g,
