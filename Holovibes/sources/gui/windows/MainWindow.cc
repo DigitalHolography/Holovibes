@@ -1308,6 +1308,9 @@ void MainWindow::set_fft_shift(const bool value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     api::set_fft_shift(value);
 }
 

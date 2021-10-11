@@ -720,7 +720,6 @@ void set_filter2d()
     pipe_refresh();
 }
 
-// VALID
 void disable_filter2d_view(const int index)
 {
     LOG_INFO;
@@ -799,6 +798,7 @@ std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool check
     return res;
 }
 
+// VALID
 void set_filter2d_n2(int n)
 {
     LOG_INFO;
@@ -806,6 +806,7 @@ void set_filter2d_n2(int n)
     Holovibes::instance().get_cd().filter2d_n2 = n;
 }
 
+// VALID
 void set_filter2d_n1(int n)
 {
     LOG_INFO;
@@ -813,6 +814,7 @@ void set_filter2d_n1(int n)
     Holovibes::instance().get_cd().filter2d_n1 = n;
 }
 
+// VALID
 void cancel_filter2d()
 {
     LOG_INFO;
@@ -823,8 +825,6 @@ void cancel_filter2d()
 void set_fft_shift(const bool value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return;
 
     Holovibes::instance().get_cd().fft_shift_enabled = value;
     pipe_refresh();
