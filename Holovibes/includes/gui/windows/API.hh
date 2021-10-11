@@ -595,10 +595,8 @@ void createPipe(gui::MainWindow& observer);
  * \brief Set the raw mode object
  *
  * \param observer parent of the new window that can be triggered on event
- * \return true on success
- * \return false on failure
  */
-bool set_raw_mode(gui::MainWindow& observer);
+void set_raw_mode(gui::MainWindow& observer);
 
 /*! \brief Configures the camera */
 void configure_camera();

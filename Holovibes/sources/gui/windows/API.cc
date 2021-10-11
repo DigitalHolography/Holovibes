@@ -369,38 +369,30 @@ void init_image_mode(QPoint& position, QSize& size)
 }
 
 // TODO: change parameter type to Observer
-bool set_raw_mode(gui::MainWindow& observer)
+void set_raw_mode(gui::MainWindow& observer)
 {
     LOG_INFO;
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
-    {
-        QPoint pos(0, 0);
-        const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
-        unsigned short width = fd.width;
-        unsigned short height = fd.height;
-        get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
-        QSize size(width, height);
-        init_image_mode(pos, size);
-        Holovibes::instance().get_cd().compute_mode = Computation::Raw;
-        createPipe(observer);
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new holovibes::gui::RawWindow(pos, size, Holovibes::instance().get_gpu_input_queue().get()));
-        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-        UserInterfaceDescriptor::instance().mainDisplay->setCd(&Holovibes::instance().get_cd());
-        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
-                                                                  static_cast<float>(height));
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                                                                  fd_info);
-        unset_convolution_mode();
-        set_divide_convolution_mode(false);
-
-        return true;
-    }
-
-    return false;
+    QPoint pos(0, 0);
+    const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
+    QSize size(width, height);
+    init_image_mode(pos, size);
+    Holovibes::instance().get_cd().compute_mode = Computation::Raw;
+    createPipe(observer);
+    UserInterfaceDescriptor::instance().mainDisplay.reset(
+        new holovibes::gui::RawWindow(pos, size, Holovibes::instance().get_gpu_input_queue().get()));
+    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
+    UserInterfaceDescriptor::instance().mainDisplay->setCd(&Holovibes::instance().get_cd());
+    UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+    std::string fd_info =
+        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+    Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
+                                                              fd_info);
+    unset_convolution_mode();
+    set_divide_convolution_mode(false);
 }
 
 // TODO: change parameter type to Observer

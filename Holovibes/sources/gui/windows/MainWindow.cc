@@ -844,6 +844,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 /* ------------ */
 #pragma region Cameras
 
+// VALID
 // GUI
 void MainWindow::change_camera(CameraKind c)
 {
@@ -873,6 +874,7 @@ void MainWindow::change_camera(CameraKind c)
     }
 }
 
+// VALID
 // FREE
 void MainWindow::camera_ids()
 {
@@ -880,6 +882,7 @@ void MainWindow::camera_ids()
     change_camera(CameraKind::IDS);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_phantom()
 {
@@ -887,6 +890,7 @@ void MainWindow::camera_phantom()
     change_camera(CameraKind::Phantom);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_bitflow_cyton()
 {
@@ -894,6 +898,7 @@ void MainWindow::camera_bitflow_cyton()
     change_camera(CameraKind::BitflowCyton);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_hamamatsu()
 {
@@ -901,6 +906,7 @@ void MainWindow::camera_hamamatsu()
     change_camera(CameraKind::Hamamatsu);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_adimec()
 {
@@ -908,6 +914,7 @@ void MainWindow::camera_adimec()
     change_camera(CameraKind::Adimec);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_xiq()
 {
@@ -915,6 +922,7 @@ void MainWindow::camera_xiq()
     change_camera(CameraKind::xiQ);
 }
 
+// VALID
 // FREE
 void MainWindow::camera_xib()
 {
@@ -922,6 +930,7 @@ void MainWindow::camera_xib()
     change_camera(CameraKind::xiB);
 }
 
+// VALID
 // FREE
 void MainWindow::configure_camera()
 {
@@ -941,13 +950,13 @@ void MainWindow::set_raw_mode()
     api::close_windows();
     api::close_critical_compute();
 
-    const bool res = api::set_raw_mode(*this);
+    if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+        return;
 
-    if (res)
-    {
-        notify();
-        layout_toggled();
-    }
+    api::set_raw_mode(*this);
+
+    notify();
+    layout_toggled();
 }
 
 // FREE
