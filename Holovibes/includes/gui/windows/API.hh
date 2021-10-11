@@ -12,9 +12,9 @@ namespace holovibes::api
 /*! \brief Gets an Input file from a given filename
  *
  * \param filename the given filename to open
- * \return std::optional<::holovibes::io_files::InputFrameFile*> the file on success, nullopt on error
+ * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
  */
-std::optional<::holovibes::io_files::InputFrameFile*> import_file(const std::string& filename);
+std::optional<io_files::InputFrameFile*> import_file(const std::string& filename);
 /*! \brief Launchs the reading of a given inputed file
  *
  * \param file_path location of the file to read
@@ -561,7 +561,7 @@ bool set_filter2d_n1(int n);
  * \param checked true: enable, false: disable
  * \return std::optional<bool> nullopt: on anticipated return, false: on failure, true: on success
  */
-std::optional<bool> update_filter2d_view(::holovibes::gui::MainWindow& mainwindow, bool checked);
+std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool checked);
 
 /*! \brief Changes the focused windows
  *
@@ -590,7 +590,7 @@ void toggle_renormalize(bool value);
  * \return true on success
  * \return false on failure
  */
-bool toggle_time_transformation_cuts(::holovibes::gui::MainWindow& observer);
+bool toggle_time_transformation_cuts(gui::MainWindow& observer);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -620,7 +620,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback);
  *
  * \param observer parent of the new window that can be triggered on event
  */
-void refreshViewMode(::holovibes::gui::MainWindow& observer, uint index);
+void refreshViewMode(gui::MainWindow& observer, uint index);
 
 /*! \brief Changes display mode to Holographic
  *
@@ -629,19 +629,19 @@ void refreshViewMode(::holovibes::gui::MainWindow& observer, uint index);
  * \return true on success
  * \return false on failure
  */
-bool set_holographic_mode(::holovibes::gui::MainWindow& observer, camera::FrameDescriptor& fd);
+bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd);
 
 /*! \brief Creates the windows for processed image output
  *
  * \param observer parent of the new window that can be triggered on event
  */
-void createHoloWindow(::holovibes::gui::MainWindow& observer);
+void createHoloWindow(gui::MainWindow& observer);
 
 /*! \brief Creates the pipeline
  *
  * \param observer parent of the new window that can be triggered on event
  */
-void createPipe(::holovibes::gui::MainWindow& observer);
+void createPipe(gui::MainWindow& observer);
 
 /*!
  * \brief Set the raw mode object
@@ -650,7 +650,7 @@ void createPipe(::holovibes::gui::MainWindow& observer);
  * \return true on success
  * \return false on failure
  */
-bool set_raw_mode(::holovibes::gui::MainWindow& observer);
+bool set_raw_mode(gui::MainWindow& observer);
 
 /*! \brief Configures the camera */
 void configure_camera();
