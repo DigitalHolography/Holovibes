@@ -492,9 +492,9 @@ void ComputeDescriptor::set_lambda(float value) { lambda = value; }
 
 void ComputeDescriptor::set_zdistance(float value) { zdistance = value; }
 
-void ComputeDescriptor::set_composite_p_red(int value) { composite_p_red = value; }
+void ComputeDescriptor::set_rgb_p_min(int value) { rgb_p_min = value; }
 
-void ComputeDescriptor::set_composite_p_blue(int value) { composite_p_blue = value; }
+void ComputeDescriptor::set_rgb_p_max(int value) { rgb_p_max = value; }
 
 void ComputeDescriptor::set_composite_p_min_h(int value) { composite_p_min_h = value; }
 

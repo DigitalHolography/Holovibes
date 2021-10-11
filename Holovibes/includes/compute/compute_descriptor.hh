@@ -179,8 +179,8 @@ class ComputeDescriptor : public Observable
     void set_lambda(float value);
     void set_zdistance(float value);
 
-    void set_composite_p_red(int value);
-    void set_composite_p_blue(int value);
+    void set_rgb_p_min(int value);
+    void set_rgb_p_max(int value);
     void set_composite_p_min_h(int value);
     void set_composite_p_max_h(int value);
     void set_composite_p_min_s(int value);
@@ -357,8 +357,8 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> composite_auto_weights;
 
     // RGB
-    std::atomic<uint> composite_p_red{0};
-    std::atomic<uint> composite_p_blue{0};
+    std::atomic<uint> rgb_p_min{0};
+    std::atomic<uint> rgb_p_max{0};
     std::atomic<float> weight_r{1};
     std::atomic<float> weight_g{1};
     std::atomic<float> weight_b{1};
@@ -367,7 +367,7 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> composite_p_min_h{0};
     std::atomic<uint> composite_p_max_h{0};
     std::atomic<float> composite_slider_h_threshold_min{0.01f};
-    std::atomic<float> slider_h_threshold_max{1.0f};
+    std::atomic<float> composite_slider_h_threshold_max{1.0f};
     std::atomic<float> composite_low_h_threshold{0.2f};
     std::atomic<float> composite_high_h_threshold{99.8f};
     std::atomic<bool> h_blur_activated{false};
@@ -377,7 +377,7 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> composite_p_min_s{0};
     std::atomic<uint> composite_p_max_s{0};
     std::atomic<float> composite_slider_s_threshold_min{0.01f};
-    std::atomic<float> slider_s_threshold_max{1.0f};
+    std::atomic<float> composite_slider_s_threshold_max{1.0f};
     std::atomic<float> composite_low_s_threshold{0.2f};
     std::atomic<float> composite_high_s_threshold{99.8f};
 
@@ -385,7 +385,7 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> composite_p_min_v{0};
     std::atomic<uint> composite_p_max_v{0};
     std::atomic<float> composite_slider_v_threshold_min{0.01f};
-    std::atomic<float> slider_v_threshold_max{1.0f};
+    std::atomic<float> composite_slider_v_threshold_max{1.0f};
     std::atomic<float> composite_low_v_threshold{0.2f};
     std::atomic<float> composite_high_v_threshold{99.8f};
 

@@ -119,8 +119,8 @@ void Converts::insert_to_squaredmodulus()
 void Converts::insert_to_composite()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.time_transformation_size) ||
-            !is_between<ushort>(cd_.composite_p_blue, 0, cd_.time_transformation_size))
+        if (!is_between<ushort>(cd_.rgb_p_min, 0, cd_.time_transformation_size) ||
+            !is_between<ushort>(cd_.rgb_p_max, 0, cd_.time_transformation_size))
             return;
 
         if (cd_.composite_kind == CompositeKind::RGB)
@@ -128,8 +128,8 @@ void Converts::insert_to_composite()
                 buffers_.gpu_postprocess_frame,
                 fd_.frame_res(),
                 cd_.composite_auto_weights,
-                cd_.composite_p_red,
-                cd_.composite_p_blue,
+                cd_.rgb_p_min,
+                cd_.rgb_p_max,
                 cd_.weight_r,
                 cd_.weight_g,
                 cd_.weight_b,

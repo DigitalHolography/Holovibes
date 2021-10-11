@@ -466,7 +466,7 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor& cd,
 
     threshold_top_bottom<<<blocks, threads, 0, stream>>>(gpu_arr,
                                                          cd.composite_slider_h_threshold_min,
-                                                         cd.slider_h_threshold_max,
+                                                         cd.composite_slider_h_threshold_max,
                                                          frame_res);
     if (cd.h_blur_activated)
     {
@@ -502,7 +502,7 @@ void apply_operations_on_s(const holovibes::ComputeDescriptor& cd,
 
     threshold_top_bottom<<<blocks, threads, 0, stream>>>(gpu_arr_s,
                                                          cd.composite_slider_s_threshold_min,
-                                                         cd.slider_s_threshold_max,
+                                                         cd.composite_slider_s_threshold_max,
                                                          frame_res);
 
     hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max, stream);
@@ -533,7 +533,7 @@ void apply_operations_on_v(const holovibes::ComputeDescriptor& cd,
 
     threshold_top_bottom<<<blocks, threads, 0, stream>>>(gpu_arr_v,
                                                          cd.composite_slider_v_threshold_min,
-                                                         cd.slider_v_threshold_max,
+                                                         cd.composite_slider_s_threshold_max,
                                                          frame_res);
 
     hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max, stream);
