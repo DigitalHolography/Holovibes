@@ -822,6 +822,7 @@ void cancel_filter2d()
     Holovibes::instance().get_cd().filter2d_enabled = false;
 }
 
+// VALID
 void set_fft_shift(const bool value)
 {
     LOG_INFO;
@@ -830,24 +831,16 @@ void set_fft_shift(const bool value)
     pipe_refresh();
 }
 
-bool set_time_transformation_size(int time_transformation_size, std::function<void()> callback)
+// VALID
+void set_time_transformation_size(std::function<void()> callback)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
-
-    time_transformation_size = std::max(1, time_transformation_size);
-
-    if (time_transformation_size == Holovibes::instance().get_cd().time_transformation_size)
-        return false;
 
     auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
     if (pipe)
     {
         pipe->insert_fn_end_vect(callback);
     }
-
-    return true;
 }
 
 bool set_lens_view()

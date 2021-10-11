@@ -523,12 +523,9 @@ void disable_raw_view();
 
 /*! \brief Changes the time transformation size from ui value
  *
- * \param time_transformation_size the new value
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
- * \return true on success
- * \return false on failure
  */
-bool set_time_transformation_size(int time_transformation_size, std::function<void()> callback);
+void set_time_transformation_size(std::function<void()> callback);
 
 /*! \brief Removes 2d filter on output display */
 void cancel_filter2d();

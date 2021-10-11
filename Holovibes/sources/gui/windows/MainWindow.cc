@@ -1319,7 +1319,13 @@ void MainWindow::set_time_transformation_size()
 {
     LOG_INFO;
 
-    int time_transformation_size = ui.timeTransformationSizeSpinBox->value();
+    if (api::is_raw_mode())
+        return;
+
+    int time_transformation_size = std::max(1, ui.timeTransformationSizeSpinBox->value());
+
+    if (time_transformation_size == Holovibes::instance().get_cd().time_transformation_size)
+        return;
 
     auto callback = [=]() {
         Holovibes::instance().get_cd().time_transformation_size = time_transformation_size;
@@ -1329,12 +1335,9 @@ void MainWindow::set_time_transformation_size()
         // SliceWindow::changeTexture() isn't coded.
     };
 
-    const bool res = api::set_time_transformation_size(time_transformation_size, callback);
+    api::set_time_transformation_size(callback);
 
-    if (res)
-    {
-        notify();
-    }
+    notify();
 }
 
 // GUI
