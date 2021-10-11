@@ -737,7 +737,7 @@ void MainWindow::load_ini(const std::string& path)
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
-    ::holovibes::api::load_ini(*this, path, ptree);
+    api::load_ini(path, ptree);
 
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -762,6 +762,15 @@ void MainWindow::load_ini(const std::string& path)
 
         info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
+
+        const float z_step = ptree.get<float>("image_rendering.z_step", UserInterfaceDescriptor::instance().z_step_);
+        if (z_step > 0.0f)
+            set_z_step(z_step);
+
+        const uint record_frame_step =
+            ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
+        set_record_frame_step(record_frame_step);
+
         notify();
     }
 }

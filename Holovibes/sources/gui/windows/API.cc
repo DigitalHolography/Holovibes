@@ -163,10 +163,7 @@ void configure_holovibes()
     open_file(::holovibes::ini::get_global_ini_path());
 }
 
-void load_ini(::holovibes::gui::MainWindow& mainwindow,
-
-              const std::string& path,
-              boost::property_tree::ptree& ptree)
+void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
     LOG_INFO;
 
@@ -190,11 +187,10 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
         UserInterfaceDescriptor::instance().batch_input_directory_ =
             ptree.get<std::string>("files.batch_input_directory",
                                    UserInterfaceDescriptor::instance().batch_input_directory_);
-
-        const float z_step = ptree.get<float>("image_rendering.z_step", UserInterfaceDescriptor::instance().z_step_);
-        if (z_step > 0.0f)
-            mainwindow.set_z_step(z_step);
-
+        /*
+                const float z_step = ptree.get<float>("image_rendering.z_step",
+           UserInterfaceDescriptor::instance().z_step_); if (z_step > 0.0f) mainwindow.set_z_step(z_step);
+        */
         UserInterfaceDescriptor::instance().last_img_type_ =
             Holovibes::instance().get_cd().img_type == ImgType::Composite
                 ? "Composite image"
@@ -216,11 +212,11 @@ void load_ini(::holovibes::gui::MainWindow& mainwindow,
         UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold",
                               UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-
-        const uint record_frame_step =
-            ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-        mainwindow.set_record_frame_step(record_frame_step);
-
+        /*
+                const uint record_frame_step =
+                    ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
+                mainwindow.set_record_frame_step(record_frame_step);
+        */
         UserInterfaceDescriptor::instance().window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
         UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size =
             ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);

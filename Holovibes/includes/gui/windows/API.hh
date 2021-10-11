@@ -683,14 +683,10 @@ void save_ini(const std::string& path, boost::property_tree::ptree& ptree);
 
 /*! \brief Setups program from .ini file
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
  * \param path the path where the .ini file is
  * \param ptree the object containing the .ini parameters to serialize
  */
-void load_ini(::holovibes::gui::MainWindow& mainwindow,
-
-              const std::string& path,
-              boost::property_tree::ptree& ptree);
+void load_ini(const std::string& path, boost::property_tree::ptree& ptree);
 
 /*! \brief Gets the documentation url
  *
