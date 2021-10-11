@@ -515,7 +515,7 @@ void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
     weight_b = b;
 }
 
-void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights_ = value; }
+void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights = value; }
 
 void ComputeDescriptor::set_composite_kind(CompositeKind kind) { composite_kind = kind; }
 

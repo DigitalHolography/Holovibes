@@ -127,7 +127,7 @@ void Converts::insert_to_composite()
             rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                 buffers_.gpu_postprocess_frame,
                 fd_.frame_res(),
-                cd_.composite_auto_weights_,
+                cd_.composite_auto_weights,
                 cd_.composite_p_red,
                 cd_.composite_p_blue,
                 cd_.weight_r,
@@ -142,7 +142,7 @@ void Converts::insert_to_composite()
                 cd_,
                 stream_);
 
-        if (cd_.composite_auto_weights_)
+        if (cd_.composite_auto_weights)
             postcolor_normalize(buffers_.gpu_postprocess_frame,
                                 fd_.frame_res(),
                                 fd_.width,

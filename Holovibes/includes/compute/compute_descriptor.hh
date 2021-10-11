@@ -344,7 +344,7 @@ class ComputeDescriptor : public Observable
     // HSV
     std::atomic<uint> composite_p_min_h{0};
     std::atomic<uint> composite_p_max_h{0};
-    std::atomic<float> slider_h_threshold_min{0.01f};
+    std::atomic<float> composite_slider_h_threshold_min{0.01f};
     std::atomic<float> slider_h_threshold_max{1.0f};
     std::atomic<float> composite_low_h_threshold{0.2f};
     std::atomic<float> composite_high_h_threshold{99.8f};
@@ -352,14 +352,14 @@ class ComputeDescriptor : public Observable
 
     std::atomic<uint> composite_p_min_s{0};
     std::atomic<uint> composite_p_max_s{0};
-    std::atomic<float> slider_s_threshold_min{0.01f};
+    std::atomic<float> composite_slider_s_threshold_min{0.01f};
     std::atomic<float> slider_s_threshold_max{1.0f};
     std::atomic<float> composite_low_s_threshold{0.2f};
     std::atomic<float> composite_high_s_threshold{99.8f};
 
     std::atomic<uint> composite_p_min_v{0};
     std::atomic<uint> composite_p_max_v{0};
-    std::atomic<float> slider_v_threshold_min{0.01f};
+    std::atomic<float> composite_slider_v_threshold_min{0.01f};
     std::atomic<float> slider_v_threshold_max{1.0f};
     std::atomic<float> composite_low_v_threshold{0.2f};
     std::atomic<float> composite_high_v_threshold{99.8f};
@@ -447,7 +447,7 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> h_blur_activated{false};
     std::atomic<bool> composite_p_activated_s{false};
     std::atomic<bool> composite_p_activated_v{false};
-    std::atomic<bool> composite_auto_weights_;
+    std::atomic<bool> composite_auto_weights;
     /*! \} */
 
     std::atomic<bool> fast_pipe{false};

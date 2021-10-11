@@ -450,7 +450,7 @@ void MainWindow::on_notify()
     ui.SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
     ui.SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
 
-    ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights_);
+    ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights);
 
     QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, cd_.composite_p_red);
     QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, cd_.composite_p_blue);
@@ -461,21 +461,22 @@ void MainWindow::on_notify()
 
     QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.composite_p_min_h);
     QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, cd_.composite_p_max_h);
-    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.slider_h_threshold_min * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.composite_slider_h_threshold_min * 1000));
     slide_update_threshold_h_min();
     QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(cd_.slider_h_threshold_max * 1000));
     slide_update_threshold_h_max();
 
     QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, cd_.composite_p_min_s);
     QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, cd_.composite_p_max_s);
-    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min, (int)(cd_.slider_s_threshold_min * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min,
+                         (int)(cd_.composite_slider_s_threshold_min * 1000));
     slide_update_threshold_s_min();
     QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max, (int)(cd_.slider_s_threshold_max * 1000));
     slide_update_threshold_s_max();
 
     QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, cd_.composite_p_min_v);
     QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, cd_.composite_p_max_v);
-    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.slider_v_threshold_min * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.composite_slider_v_threshold_min * 1000));
     slide_update_threshold_v_min();
     QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(cd_.slider_v_threshold_max * 1000));
     slide_update_threshold_v_max();
@@ -723,7 +724,6 @@ void MainWindow::load_ini(const std::string& path)
         xzFlip = ptree.get("view.xCut_flip", xzFlip);
         yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
-        // Move it into cd
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
@@ -1859,11 +1859,11 @@ void slide_update_threshold(QSlider& slider,
 void MainWindow::slide_update_threshold_h_min()
 {
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_min,
-                           cd_.slider_h_threshold_min,
+                           cd_.composite_slider_h_threshold_min,
                            cd_.slider_h_threshold_max,
                            *ui.horizontalSlider_hue_threshold_max,
                            *ui.label_hue_threshold_min,
-                           cd_.slider_h_threshold_min,
+                           cd_.composite_slider_h_threshold_min,
                            cd_.slider_h_threshold_max);
 }
 
@@ -1871,21 +1871,21 @@ void MainWindow::slide_update_threshold_h_max()
 {
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_max,
                            cd_.slider_h_threshold_max,
-                           cd_.slider_h_threshold_min,
+                           cd_.composite_slider_h_threshold_min,
                            *ui.horizontalSlider_hue_threshold_min,
                            *ui.label_hue_threshold_max,
-                           cd_.slider_h_threshold_min,
+                           cd_.composite_slider_h_threshold_min,
                            cd_.slider_h_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_s_min()
 {
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min,
-                           cd_.slider_s_threshold_min,
+                           cd_.composite_slider_s_threshold_min,
                            cd_.slider_s_threshold_max,
                            *ui.horizontalSlider_saturation_threshold_max,
                            *ui.label_saturation_threshold_min,
-                           cd_.slider_s_threshold_min,
+                           cd_.composite_slider_s_threshold_min,
                            cd_.slider_s_threshold_max);
 }
 
@@ -1893,21 +1893,21 @@ void MainWindow::slide_update_threshold_s_max()
 {
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max,
                            cd_.slider_s_threshold_max,
-                           cd_.slider_s_threshold_min,
+                           cd_.composite_slider_s_threshold_min,
                            *ui.horizontalSlider_saturation_threshold_min,
                            *ui.label_saturation_threshold_max,
-                           cd_.slider_s_threshold_min,
+                           cd_.composite_slider_s_threshold_min,
                            cd_.slider_s_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_v_min()
 {
     slide_update_threshold(*ui.horizontalSlider_value_threshold_min,
-                           cd_.slider_v_threshold_min,
+                           cd_.composite_slider_v_threshold_min,
                            cd_.slider_v_threshold_max,
                            *ui.horizontalSlider_value_threshold_max,
                            *ui.label_value_threshold_min,
-                           cd_.slider_v_threshold_min,
+                           cd_.composite_slider_v_threshold_min,
                            cd_.slider_v_threshold_max);
 }
 
@@ -1915,10 +1915,10 @@ void MainWindow::slide_update_threshold_v_max()
 {
     slide_update_threshold(*ui.horizontalSlider_value_threshold_max,
                            cd_.slider_v_threshold_max,
-                           cd_.slider_v_threshold_min,
+                           cd_.composite_slider_v_threshold_min,
                            *ui.horizontalSlider_value_threshold_min,
                            *ui.label_value_threshold_max,
-                           cd_.slider_v_threshold_min,
+                           cd_.composite_slider_v_threshold_min,
                            cd_.slider_v_threshold_max);
 }
 
