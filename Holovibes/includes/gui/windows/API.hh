@@ -64,10 +64,8 @@ void unset_convolution_mode();
 /*! \brief Removes time transformation from computation
  *
  * \param callback FIXME: Api is not supposed to handdle callback
- * \return true on success
- * \return false on failure
  */
-bool cancel_time_transformation_cuts(std::function<void()> callback);
+void cancel_time_transformation_cuts(std::function<void()> callback);
 
 /*! \brief Set the record frame step object
  *

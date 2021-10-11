@@ -915,13 +915,6 @@ void MainWindow::configure_camera()
 #pragma endregion
 /* ------------ */
 #pragma region Image Mode
-// FREE
-void MainWindow::init_image_mode(QPoint& position, QSize& size)
-{
-    LOG_INFO;
-
-    api::init_image_mode(position, size);
-}
 
 // Notify
 void MainWindow::set_raw_mode()
@@ -1099,7 +1092,14 @@ void MainWindow::update_batch_size()
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     uint batch_size = ui.BatchSizeSpinBox->value();
+
+    if (batch_size == Holovibes::instance().get_cd().batch_size)
+        return;
+
     auto callback = [=]() {
         Holovibes::instance().get_cd().batch_size = batch_size;
         api::adapt_time_transformation_stride_to_batch_size();
@@ -1119,7 +1119,14 @@ void MainWindow::update_time_transformation_stride()
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     uint time_transformation_stride = ui.TimeTransformationStrideSpinBox->value();
+
+    if (time_transformation_stride == Holovibes::instance().get_cd().time_transformation_stride)
+        return;
+
     auto callback = [=]() {
         Holovibes::instance().get_cd().time_transformation_stride = time_transformation_stride;
         api::adapt_time_transformation_stride_to_batch_size();
@@ -1167,6 +1174,11 @@ void MainWindow::cancel_time_transformation_cuts()
 {
     LOG_INFO;
 
+    if (!Holovibes::instance().get_cd().time_transformation_cuts_enabled)
+    {
+        return;
+    }
+
     std::function<void()> callback = []() { return; };
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
@@ -1180,12 +1192,9 @@ void MainWindow::cancel_time_transformation_cuts()
         });
     }
 
-    const bool res = api::cancel_time_transformation_cuts(callback);
+    api::cancel_time_transformation_cuts(callback);
 
-    if (res)
-    {
-        notify();
-    }
+    notify();
 }
 
 #pragma endregion

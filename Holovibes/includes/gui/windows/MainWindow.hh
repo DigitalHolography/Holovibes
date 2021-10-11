@@ -91,7 +91,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Opens the credit display */
     void credits();
     void documentation();
-    void init_image_mode(QPoint& position, QSize& size);
 
     /*! \name Image Rendering
      * \{

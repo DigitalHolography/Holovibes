@@ -6,6 +6,7 @@ namespace holovibes::api
 
 #pragma region Local
 
+// VALID
 void open_file(const std::string& path)
 {
     LOG_INFO;
@@ -29,6 +30,7 @@ void pipe_refresh()
     }
 }
 
+// VALID
 bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
@@ -65,8 +67,10 @@ bool init_holovibes_import_mode(
     return true;
 }
 
+// VALID
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
+// VALID
 const std::string get_credits()
 {
     return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
@@ -119,18 +123,21 @@ const std::string get_credits()
            "Michael Atlan\n";
 }
 
+// VALID
 bool is_raw_mode()
 {
     LOG_INFO;
     return Holovibes::instance().get_cd().compute_mode == Computation::Raw;
 }
 
+// VALID
 void remove_infos()
 {
     LOG_INFO;
     Holovibes::instance().get_info_container().clear();
 }
 
+// VALID
 void close_windows()
 {
     LOG_INFO;
@@ -157,12 +164,15 @@ void close_windows()
 #pragma endregion
 
 #pragma region Ini
+
+// VALID
 void configure_holovibes()
 {
     LOG_INFO;
     open_file(ini::get_global_ini_path());
 }
 
+// VALID
 void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
     LOG_INFO;
@@ -225,6 +235,7 @@ void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
     }
 }
 
+// VALID
 void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
     LOG_INFO;
@@ -268,6 +279,7 @@ void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
 
 #pragma region Close Compute
 
+// VALID
 void camera_none()
 {
     LOG_INFO;
@@ -286,7 +298,7 @@ void camera_none()
 
 #pragma region Cameras
 
-// TODO: we shouldn't use const uint image_mode_index that is a qt drop list concept
+// VALID
 bool change_camera(CameraKind c, const Computation computation)
 {
     LOG_INFO;
@@ -330,12 +342,14 @@ bool change_camera(CameraKind c, const Computation computation)
     return res;
 }
 
+// VALID
 void configure_camera()
 {
     LOG_INFO;
     open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
 }
 
+// VALID
 void set_camera_timeout()
 {
     LOG_INFO;
@@ -346,6 +360,7 @@ void set_camera_timeout()
 
 #pragma region Image Mode
 
+// VALID
 void init_image_mode(QPoint& position, QSize& size)
 {
     LOG_INFO;
@@ -358,6 +373,7 @@ void init_image_mode(QPoint& position, QSize& size)
     }
 }
 
+// TODO: change parameter type to Observer
 bool set_raw_mode(gui::MainWindow& observer)
 {
     LOG_INFO;
@@ -392,6 +408,7 @@ bool set_raw_mode(gui::MainWindow& observer)
     return false;
 }
 
+// TODO: change parameter type to Observer
 void createPipe(gui::MainWindow& observer)
 {
     LOG_INFO;
@@ -406,6 +423,7 @@ void createPipe(gui::MainWindow& observer)
     }
 }
 
+// TODO: change parameter type to Observer
 void createHoloWindow(gui::MainWindow& observer)
 {
     LOG_INFO;
@@ -419,6 +437,7 @@ void createHoloWindow(gui::MainWindow& observer)
     /* ---------- */
     try
     {
+        // TODO: ctor should take Observer as last param instead of MainWindow
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new gui::HoloWindow(pos,
                                 size,
@@ -442,6 +461,7 @@ void createHoloWindow(gui::MainWindow& observer)
     }
 }
 
+// TODO: change parameter type to Observer
 bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd)
 {
     LOG_INFO;
@@ -472,6 +492,7 @@ bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd
     return false;
 }
 
+// TODO: change parameter type to Observer
 void refreshViewMode(gui::MainWindow& observer, uint index)
 {
     LOG_INFO;
@@ -502,12 +523,10 @@ void refreshViewMode(gui::MainWindow& observer, uint index)
     }
 }
 
+// VALID
 void set_view_mode(const std::string& value, std::function<void()> callback)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return;
 
     UserInterfaceDescriptor::instance().last_img_type_ = value;
 
@@ -525,15 +544,10 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 #pragma region Batch
 
+// VALID
 void update_batch_size(std::function<void()> callback, const uint batch_size)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return;
-
-    if (batch_size == Holovibes::instance().get_cd().batch_size)
-        return;
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
@@ -547,15 +561,10 @@ void update_batch_size(std::function<void()> callback, const uint batch_size)
 
 #pragma region STFT
 
+// VALID
 void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return;
-
-    if (time_transformation_stride == Holovibes::instance().get_cd().time_transformation_stride)
-        return;
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
@@ -565,6 +574,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
+// TODO: change parameter type to Observer
 bool toggle_time_transformation_cuts(gui::MainWindow& observer)
 {
     LOG_INFO;
@@ -627,14 +637,10 @@ bool toggle_time_transformation_cuts(gui::MainWindow& observer)
     return false;
 }
 
-bool cancel_time_transformation_cuts(std::function<void()> callback)
+// VALID
+void cancel_time_transformation_cuts(std::function<void()> callback)
 {
     LOG_INFO;
-
-    if (!Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-    {
-        return false;
-    }
 
     Holovibes::instance().get_cd().contrast_max_slice_xz = false;
     Holovibes::instance().get_cd().contrast_max_slice_yz = false;
@@ -667,14 +673,13 @@ bool cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
-
-    return true;
 }
 
 #pragma endregion
 
 #pragma region Computation
 
+// VALID
 void change_window(const int index)
 {
     LOG_INFO;
@@ -691,6 +696,7 @@ void change_window(const int index)
     pipe_refresh();
 }
 
+// VALID
 void toggle_renormalize(bool value)
 {
     LOG_INFO;
@@ -701,6 +707,7 @@ void toggle_renormalize(bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_filter2d()
 {
     LOG_INFO;
@@ -713,6 +720,7 @@ void set_filter2d()
     pipe_refresh();
 }
 
+// VALID
 void disable_filter2d_view(const int index)
 {
     LOG_INFO;
