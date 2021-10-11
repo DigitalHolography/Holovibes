@@ -6,8 +6,6 @@
 
 #include <cufft.h>
 
-#include "config.hh"
-
 namespace holovibes
 {
 /*! \struct UnwrappingResources

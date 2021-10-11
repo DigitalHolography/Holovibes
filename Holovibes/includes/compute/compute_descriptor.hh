@@ -397,7 +397,7 @@ class ComputeDescriptor : public Observable
     /*! \brief Max size of frame record queue in number of images. */
     std::atomic<uint> record_buffer_size{64};
     /*! \brief Max size of output queue in number of images. */
-    std::atomic<uint> output_queue_max_size{64};
+    std::atomic<uint> output_buffer_size{64};
     /*! \brief Max size of time transformation cuts queue in number of images. */
     std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
     /*! \brief Number of frame per seconds displayed */

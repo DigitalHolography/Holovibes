@@ -1,5 +1,5 @@
 #include "pipe.hh"
-#include "config.hh"
+
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
@@ -223,7 +223,7 @@ bool Pipe::make_requests()
     if (raw_view_requested_)
     {
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_queue_max_size));
+        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.raw_view_enabled = true;
         raw_view_requested_ = false;
     }
@@ -231,7 +231,7 @@ bool Pipe::make_requests()
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_queue_max_size));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.filter2d_view_enabled = true;
         filter2d_view_requested_ = false;
     }

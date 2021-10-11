@@ -20,7 +20,6 @@
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "config.hh"
 #include "ini_config.hh"
 #include "tools.hh"
 #include "input_frame_file_factory.hh"
@@ -752,10 +751,9 @@ void MainWindow::save_ini(const std::string& path)
     GroupBox* view_group_box = ui.ViewGroupBox;
     Frame* import_export_frame = ui.ImportExportFrame;
     GroupBox* info_group_box = ui.InfoGroupBox;
-    Config& config = global::global_config;
 
     // Save general compute data
-    ini::save_ini(cd_, path);
+    ini::save_ini(cd_, "tutu.ini");
 
     boost::property_tree::ptree ptree;
 
@@ -1594,7 +1592,7 @@ void MainWindow::update_raw_view(bool value)
 {
     if (value)
     {
-        if (cd_.batch_size > cd_.output_queue_max_size)
+        if (cd_.batch_size > cd_.output_buffer_size)
         {
             ui.RawDisplayingCheckBox->setChecked(false);
             LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";

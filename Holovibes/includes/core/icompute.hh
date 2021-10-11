@@ -7,7 +7,6 @@
 #include <atomic>
 #include <memory>
 
-#include "config.hh"
 #include "rect.hh"
 #include "observable.hh"
 #include "frame_desc.hh"

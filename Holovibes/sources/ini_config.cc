@@ -142,14 +142,10 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // end cur
 
     // Advanced
-    // // Config
-    Config& config = global::global_config; // To remove
-    config.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", config.file_buffer_size);
-    //==> cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
+    cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
     cd.input_buffer_size = ptree.get<ushort>("advanced.input_buffer_size", cd.input_buffer_size);
     cd.record_buffer_size = ptree.get<ushort>("advanced.record_buffer_size", cd.record_buffer_size);
-    config.output_queue_max_size = ptree.get<int>("advanced.output_buffer_size", config.output_queue_max_size);
-    //==> cd.output_buffer_size = ptree.get<ushort>("advanced.output_buffer_size", cd.output_buffer_size);
+    cd.output_buffer_size = ptree.get<ushort>("advanced.output_buffer_size", cd.output_buffer_size);
     cd.time_transformation_cuts_output_buffer_size =
         ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
                           cd.time_transformation_cuts_output_buffer_size);
@@ -327,11 +323,10 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<float>("composite.high_v_threshold", cd.composite_high_v_threshold);
 
     // Advanced
-    Config& config = global::global_config;
-    ptree.put<uint>("advanced.file_buffer_size", config.file_buffer_size);
+    ptree.put<uint>("advanced.file_buffer_size", cd.file_buffer_size);
     ptree.put<uint>("advanced.input_buffer_size", cd.input_buffer_size);
     ptree.put<uint>("advanced.record_buffer_size", cd.record_buffer_size);
-    ptree.put<uint>("advanced.output_buffer_size", config.output_queue_max_size);
+    ptree.put<uint>("advanced.output_buffer_size", cd.output_buffer_size);
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
                     cd.time_transformation_cuts_output_buffer_size);
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(cd.display_rate));
