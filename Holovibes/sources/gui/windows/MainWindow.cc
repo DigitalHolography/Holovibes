@@ -2099,12 +2099,12 @@ void MainWindow::set_log_scale(const bool value)
 {
     LOG_INFO;
 
-    const bool res = api::set_log_scale(value);
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
-    {
-        notify();
-    }
+    api::set_log_scale(value);
+
+    notify();
 }
 #pragma endregion
 /* ------------ */

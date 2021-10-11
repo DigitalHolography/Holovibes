@@ -408,10 +408,8 @@ void set_auto_refresh_contrast(bool value);
 /*! \brief Enables or Disables log scale on the current window
  *
  * \param value true: enable, false: disable
- * \return true on success
- * \return false on failure
  */
-bool set_log_scale(const bool value);
+void set_log_scale(const bool value);
 
 /*! \brief Modifies convolution kernel
  *

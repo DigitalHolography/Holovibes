@@ -1481,19 +1481,15 @@ void set_auto_refresh_contrast(bool value)
     pipe_refresh();
 }
 
-bool set_log_scale(const bool value)
+void set_log_scale(const bool value)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().set_log_scale_slice_enabled(Holovibes::instance().get_cd().current_window, value);
     if (value && Holovibes::instance().get_cd().contrast_enabled)
         set_auto_contrast();
 
     pipe_refresh();
-    return true;
 }
 
 #pragma endregion
