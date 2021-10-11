@@ -1598,6 +1598,7 @@ void display_reticle(bool value)
     pipe_refresh();
 }
 
+// VALID
 void reticle_scale(double value)
 {
     LOG_INFO;
@@ -1610,6 +1611,7 @@ void reticle_scale(double value)
 
 #pragma region Chart
 
+// VALID
 void activeNoiseZone()
 {
     LOG_INFO;
@@ -1617,17 +1619,17 @@ void activeNoiseZone()
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
 }
 
+// VALID
 void activeSignalZone()
 {
     LOG_INFO;
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
 }
 
+// VALID
 void start_chart_display()
 {
     LOG_INFO;
-    if (Holovibes::instance().get_cd().chart_display_enabled)
-        return;
 
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_display_chart();

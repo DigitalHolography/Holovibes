@@ -2205,6 +2205,9 @@ void MainWindow::start_chart_display()
 {
     LOG_INFO;
 
+    if (Holovibes::instance().get_cd().chart_display_enabled)
+        return;
+
     holovibes::api::start_chart_display();
 
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
