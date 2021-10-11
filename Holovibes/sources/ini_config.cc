@@ -2,16 +2,6 @@
 
 namespace holovibes::ini
 {
-
-void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
-{
-    LOG_DEBUG << "Loading ini file at path: " << ini_path;
-
-    boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(ini_path, ptree);
-    load_ini(ptree, cd);
-}
-
 void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
     // Image rendering
@@ -153,36 +143,34 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     // NOT ON GUI SETTINGS
     // // Config
-    // cd.file_buffer_size = ptree.get<ushort>("not_on_gui_settings.file_buffer_size", cd.file_buffer_size);
-    // cd.input_buffer_size = ptree.get<ushort>("not_on_gui_settings.input_buffer_size", cd.input_buffer_size);
-    // cd.record_buffer_size = ptree.get<ushort>("not_on_gui_settings.record_buffer_size", cd.record_buffer_size);
-    // cd.output_buffer_size = ptree.get<ushort>("not_on_gui_settings.output_buffer_size", cd.output_buffer_size);
+    // cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
+    // cd.input_buffer_size = ptree.get<ushort>("advanced.input_buffer_size", cd.input_buffer_size);
+    // cd.record_buffer_size = ptree.get<ushort>("advanced.record_buffer_size", cd.record_buffer_size);
+    // cd.output_buffer_size = ptree.get<ushort>("advanced.output_buffer_size", cd.output_buffer_size);
     // cd.time_transformation_cuts_output_buffer_size =
-    //     ptree.get<ushort>("not_on_gui_settings.time_transformation_cuts_output_buffer_size",
+    //     ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
     //                       cd.time_transformation_cuts_output_buffer_size);
     // cd.accumulation_buffer_size = // img_acc_slice_xy_level => accumulation_buffer_size
-    //     ptree.get<ushort>("not_on_gui_settings.accumulation_buffer_size", cd.accumulation_buffer_size);
-    // cd.frame_timeout = ptree.get<int>("not_on_gui_settings.frame_timeout", cd.frame_timeout);
+    //     ptree.get<ushort>("advanced.accumulation_buffer_size", cd.accumulation_buffer_size);
+    // cd.frame_timeout = ptree.get<int>("advanced.frame_timeout", cd.frame_timeout);
     Config& config = global::global_config;
-    cd.display_rate = ptree.get<float>("not_on_gui_settings.display_rate", cd.display_rate);
-    cd.filter2d_smooth_low = ptree.get<int>("not_on_gui_settings.filter2d_smooth_low", cd.filter2d_smooth_low);
-    cd.filter2d_smooth_high = ptree.get<int>("not_on_gui_settings.filter2d_smooth_high", cd.filter2d_smooth_high);
-    cd.contrast_lower_threshold =
-        ptree.get<float>("not_on_gui_settings.contrast_lower_threshold", cd.contrast_lower_threshold);
-    cd.contrast_upper_threshold =
-        ptree.get<float>("not_on_gui_settings.contrast_upper_threshold", cd.contrast_upper_threshold);
-    cd.renorm_constant = ptree.get<uint>("not_on_gui_settings.renorm_constant", cd.renorm_constant);
+    cd.display_rate = ptree.get<float>("advanced.display_rate", cd.display_rate);
+    cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
+    cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
+    cd.contrast_lower_threshold = ptree.get<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
+    cd.contrast_upper_threshold = ptree.get<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
+    cd.renorm_constant = ptree.get<uint>("advanced.renorm_constant", cd.renorm_constant);
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
-    config.file_buffer_size = ptree.get<int>("config.file_buffer_size", config.file_buffer_size);
-    config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
+    config.file_buffer_size = ptree.get<int>("advanced.file_buffer_size", config.file_buffer_size);
+    config.input_queue_max_size = ptree.get<int>("advanced.input_buffer_size", config.input_queue_max_size);
     config.frame_record_queue_max_size =
-        ptree.get<int>("config.record_buffer_size", config.frame_record_queue_max_size);
-    config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
+        ptree.get<int>("advanced.record_buffer_size", config.frame_record_queue_max_size);
+    config.output_queue_max_size = ptree.get<int>("advanced.output_buffer_size", config.output_queue_max_size);
     config.time_transformation_cuts_output_buffer_size =
-        ptree.get<int>("config.time_transformation_cuts_output_buffer_size",
+        ptree.get<int>("advanced.time_transformation_cuts_output_buffer_size",
                        config.time_transformation_cuts_output_buffer_size);
-    config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
-    cd.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_slice_xy_level);
+    config.frame_timeout = ptree.get<int>("advanced.frame_timeout", config.frame_timeout);
+    cd.img_acc_slice_xy_level = ptree.get<uint>("advanced.accumulation_buffer_size", cd.img_acc_slice_xy_level);
     // end cur
 
     // CHECKS AFTER IMPORT
@@ -199,9 +187,18 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 }
 
-void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
+void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
 {
-    const Config& config = global::global_config;
+    LOG_DEBUG << "Loading ini file at path: " << ini_path;
+
+    boost::property_tree::ptree ptree;
+    boost::property_tree::ini_parser::read_ini(ini_path, ptree);
+    load_ini(ptree, cd);
+}
+
+void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
+{
+    boost::property_tree::ptree ptree;
 
     // Image rendering
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
@@ -342,20 +339,23 @@ void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("composite.high_v_threshold", cd.composite_high_v_threshold);
 
     // Advanced
-    ptree.put<uint>("config.file_buffer_size", config.file_buffer_size);
-    ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
-    ptree.put<uint>("config.record_buffer_size", config.frame_record_queue_max_size);
-    ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-    ptree.put<uint>("config.time_transformation_cuts_output_buffer_size",
+    Config& config = global::global_config;
+    ptree.put<uint>("advanced.file_buffer_size", config.file_buffer_size);
+    ptree.put<uint>("advanced.input_buffer_size", config.input_queue_max_size);
+    ptree.put<uint>("advanced.record_buffer_size", config.frame_record_queue_max_size);
+    ptree.put<uint>("advanced.output_buffer_size", config.output_queue_max_size);
+    ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
                     config.time_transformation_cuts_output_buffer_size);
-    ptree.put<uint>("config.accumulation_buffer_size", cd.img_acc_slice_xy_level);
-    ptree.put<uint>("config.frame_timeout", config.frame_timeout);
-    ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate));
-    ptree.put<int>("image_rendering.filter2d_smooth_low", cd.filter2d_smooth_low.load());
-    ptree.put<int>("image_rendering.filter2d_smooth_high", cd.filter2d_smooth_high.load());
-    ptree.put<float>("view.contrast_lower_threshold", cd.contrast_lower_threshold);
-    ptree.put<float>("view.contrast_upper_threshold", cd.contrast_upper_threshold);
-    ptree.put<uint>("view.renorm_constant", cd.renorm_constant);
-    ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
+    ptree.put<uint>("advanced.accumulation_buffer_size", cd.img_acc_slice_xy_level);
+    ptree.put<uint>("advanced.frame_timeout", config.frame_timeout);
+    ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(cd.display_rate));
+    ptree.put<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low.load());
+    ptree.put<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high.load());
+    ptree.put<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
+    ptree.put<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
+    ptree.put<uint>("advanced.renorm_constant", cd.renorm_constant);
+    ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
+
+    boost::property_tree::write_ini(ini_path, ptree);
 }
 } // namespace holovibes::ini

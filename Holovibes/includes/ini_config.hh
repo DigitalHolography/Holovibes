@@ -22,7 +22,6 @@ namespace holovibes::ini
 const static std::string default_config_filepath = (__CONFIG_FOLDER__ / __CONFIG_FILENAME__).string();
 
 void load_ini(ComputeDescriptor& cd, const std::string& ini_path);
-void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd);
-void save_ini(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd);
+void save_ini(const ComputeDescriptor& cd, const std::string& ini_path);
 
 } // namespace holovibes::ini

@@ -680,7 +680,6 @@ void MainWindow::reload_ini(QString filename)
 
 void MainWindow::load_ini(const std::string& path)
 {
-    boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     GroupBox* import_group_box = ui.ImportGroupBox;
@@ -691,32 +690,51 @@ void MainWindow::load_ini(const std::string& path)
     QAction* import_export_action = ui.actionImportExport;
     QAction* info_action = ui.actionInfo;
 
-    boost::property_tree::ini_parser::read_ini(path, ptree);
+    boost::property_tree::ptree ptree;
+    boost::property_tree::ini_parser::read_ini("global.ini", ptree);
 
     if (!ptree.empty())
     {
         // Load general compute data
-        ini::load_ini(ptree, cd_);
+        ini::load_ini(cd_, "tutu.ini");
 
-        // Load window specific data
+        // Display
+        theme_index_ = ptree.get<int>("display.theme_type", theme_index_);
+        // Gui_steps
+        const float z_step = ptree.get<float>("gui_settings.image_rendering_z_step", z_step_);
+        if (z_step > 0.0f)
+            set_z_step(z_step);
+        const uint record_frame_step = ptree.get<uint>("gui_settings.record_frame_step", record_frame_step_);
+        set_record_frame_step(record_frame_step);
+        // Camera
+        kCamera = static_cast<CameraKind>(ptree.get<int>("image_rendering.camera", static_cast<int>(kCamera)));
+        // Import
+        ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
+        // Chart
+        auto_scale_point_threshold_ =
+            ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
+        // Window
+        image_rendering_action->setChecked(
+            !ptree.get<bool>("window.image_rendering_hidden", image_rendering_group_box->isHidden()));
+        view_action->setChecked(!ptree.get<bool>("window.view_hidden", view_group_box->isHidden()));
+        import_export_action->setChecked(!ptree.get<bool>("window.import_export_hidden", import_group_box->isHidden()));
+        info_action->setChecked(!ptree.get<bool>("window.info_hidden", info_group_box->isHidden()));
+        // File
         default_output_filename_ = ptree.get<std::string>("files.default_output_filename", default_output_filename_);
         record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
         file_input_directory_ = ptree.get<std::string>("files.file_input_directory", file_input_directory_);
         batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
+        // Window_size
+        window_max_size = ptree.get<uint>("window_size.main_window_max_size", 768);
+        time_transformation_cuts_window_max_size =
+            ptree.get<uint>("window_size.time_transformation_cuts_window_max_size", 512);
+        auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
 
-        image_rendering_action->setChecked(
-            !ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
-
-        const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
-        if (z_step > 0.0f)
-            set_z_step(z_step);
-
-        view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
-
+        // TO move in .ini non global
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
-
         ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
+        // to move in cd
         displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
         xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
         yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
@@ -724,31 +742,12 @@ void MainWindow::load_ini(const std::string& path)
         xzFlip = ptree.get("view.xCut_flip", xzFlip);
         yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
-        auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
-
-        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
-        set_record_frame_step(record_frame_step);
-
-        import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_group_box->isHidden()));
-
-        ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
-
-        info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
-
-        theme_index_ = ptree.get<int>("display.theme_type", theme_index_);
-        window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        time_transformation_cuts_window_max_size =
-            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
-        auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
-
         notify();
     }
 }
 
 void MainWindow::save_ini(const std::string& path)
 {
-    boost::property_tree::ptree ptree;
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     Frame* import_export_frame = ui.ImportExportFrame;
@@ -756,21 +755,35 @@ void MainWindow::save_ini(const std::string& path)
     Config& config = global::global_config;
 
     // Save general compute data
-    ini::save_ini(ptree, cd_);
+    ini::save_ini(cd_, path);
 
-    // Save window specific data
+    boost::property_tree::ptree ptree;
+
+    // Display
+    ptree.put<ushort>("display.theme_type", theme_index_);
+    // Gui_settings
+    ptree.put<double>("gui_settings.image_rendering_z_step", z_step_);
+    ptree.put<uint>("gui_settings.record_frame_step", record_frame_step_);
+    // Camera
+    ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
+    // Import
+    ptree.put<uint>("import.fps", ui.ImportInputFpsSpinBox->value());
+    // Chart
+    ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
+    // Window
+    ptree.put<bool>("window.image_rendering_hidden", image_rendering_group_box->isHidden());
+    ptree.put<bool>("window.view_hidden", view_group_box->isHidden());
+    ptree.put<bool>("window.import_export_hidden", import_export_frame->isHidden());
+    ptree.put<bool>("window.info_hidden", info_group_box->isHidden());
+    // Files
     ptree.put<std::string>("files.default_output_filename", default_output_filename_);
     ptree.put<std::string>("files.record_output_directory", record_output_directory_);
     ptree.put<std::string>("files.file_input_directory", file_input_directory_);
     ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
-
-    ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-
-    ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
-
-    ptree.put<double>("image_rendering.z_step", z_step_);
-
-    ptree.put<bool>("view.hidden", view_group_box->isHidden());
+    // Window size
+    ptree.put<uint>("window_size.main_window_max_size", window_max_size);
+    ptree.put<uint>("window_size.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
+    ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
 
     ptree.put<float>("view.mainWindow_rotate", displayAngle);
     ptree.put<float>("view.xCut_rotate", xzAngle);
@@ -779,20 +792,7 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<int>("view.xCut_flip", xzFlip);
     ptree.put<int>("view.yCut_flip", yzFlip);
 
-    ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
-
-    ptree.put<uint>("record.record_frame_step", record_frame_step_);
-
-    ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
-
-    ptree.put<bool>("info.hidden", info_group_box->isHidden());
-
-    ptree.put<ushort>("display.theme_type", theme_index_);
-    ptree.put<uint>("display.main_window_max_size", window_max_size);
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
-
-    boost::property_tree::write_ini(path, ptree);
+    boost::property_tree::write_ini("global.ini", ptree);
 
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path;
 }

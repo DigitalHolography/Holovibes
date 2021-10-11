@@ -258,18 +258,7 @@ class ComputeDescriptor : public Observable
     /*! \brief z value used by fresnel transform */
     std::atomic<float> zdistance{1.50f};
 
-    /*! \brief Minimum constrast value in xy view */
-    std::atomic<float> contrast_min_slice_xy{1.f};
-    /*! \brief Maximum constrast value in xy view */
-    std::atomic<float> contrast_max_slice_xy{65535.f};
-    /*! \brief Minimum constrast value in xz view */
-    std::atomic<float> contrast_min_slice_xz{1.f};
-    /*! \brief Maximum constrast value in xz view */
-    std::atomic<float> contrast_max_slice_xz{65535.f};
-    /*! \brief Minimum constrast value in yz view */
-    std::atomic<float> contrast_min_slice_yz{1.f};
-    /*! \brief Maximum constrast value in yz view */
-    std::atomic<float> contrast_max_slice_yz{65535.f};
+    // TODO: check if function where it is used are ever called.
     /*! \brief Minimum constrast value in Filter2D view */
     std::atomic<float> contrast_min_filter2d{1.f};
     /*! \brief Maximum constrast value in Filter2D view */
@@ -296,13 +285,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Number of frame per seconds displayed */
     std::atomic<float> display_rate{30};
 
-    /*! \brief Number of image in view XY to average */
-    std::atomic<uint> img_acc_slice_xy_level{1};
-    /*! \brief Number of image in view XZ to average */
-    std::atomic<uint> img_acc_slice_xz_level{1};
-    /*! \brief Number of image in view YZ to average */
-    std::atomic<uint> img_acc_slice_yz_level{1};
-
     /*! \brief Index in the depth axis */
     std::atomic<uint> pindex{0};
     /*! \brief Difference between p min and p max */
@@ -328,6 +310,52 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Number of bits to shift when in raw mode */
     std::atomic<uint> raw_bitshift{0};
+
+    /*! \name View window
+     * \{
+     */
+    // XY
+    std::atomic<bool> xy_flip_enabled{false};
+    std::atomic<float> xy_rot{0};
+    std::atomic<bool> log_scale_slice_xy_enabled{false};
+    std::atomic<bool> img_acc_slice_xy_enabled{false};
+    std::atomic<uint> img_acc_slice_xy_level{1};
+
+    std::atomic<bool> contrast_enabled{false};     // add xy spec
+    std::atomic<bool> contrast_auto_refresh{true}; // add xy spec
+    std::atomic<bool> contrast_invert{false};      // add xy spec
+
+    std::atomic<float> contrast_min_slice_xy{1.f};
+    std::atomic<float> contrast_max_slice_xy{65535.f};
+    // XZ
+    std::atomic<bool> xz_flip_enabled{false};
+    std::atomic<float> xz_rot{0};
+    std::atomic<bool> log_scale_slice_xz_enabled{false};
+    std::atomic<bool> img_acc_slice_xz_enabled{false};
+    std::atomic<uint> img_acc_slice_xz_level{1};
+
+    std::atomic<bool> xz_contrast_enabled{false};
+    std::atomic<bool> xz_contrast_auto_refresh{true};
+    std::atomic<bool> xz_contrast_invert{false};
+
+    std::atomic<float> contrast_min_slice_xz{1.f};
+    std::atomic<float> contrast_max_slice_xz{65535.f};
+    // YZ
+    std::atomic<bool> yz_flip_enabled{false};
+    std::atomic<float> yz_rot{0};
+    std::atomic<bool> log_scale_slice_yz_enabled{false};
+    std::atomic<bool> img_acc_slice_yz_enabled{false};
+    std::atomic<uint> img_acc_slice_yz_level{1};
+
+    std::atomic<bool> yz_contrast_enabled{false};
+    std::atomic<bool> yz_contrast_auto_refresh{true};
+    std::atomic<bool> yz_contrast_invert{false};
+
+    std::atomic<float> contrast_min_slice_yz{1.f};
+    std::atomic<float> contrast_max_slice_yz{65535.f};
+
+    /*! \brief Is log scale in Filter2D view enabled */
+    std::atomic<bool> log_scale_filter2d_enabled{false};
 
     /*! \name Composite images
      * \{
@@ -386,22 +414,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Is holovibes currently recording */
     std::atomic<bool> frame_record_enabled{false};
 
-    /*! \brief Is log scale in slice XY enabled */
-    std::atomic<bool> log_scale_slice_xy_enabled{false};
-    /*! \brief Is log scale in slice XZ enabled */
-    std::atomic<bool> log_scale_slice_xz_enabled{false};
-    /*! \brief Is log scale in slice YZ enabled */
-    std::atomic<bool> log_scale_slice_yz_enabled{false};
-    /*! \brief Is log scale in Filter2D view enabled */
-    std::atomic<bool> log_scale_filter2d_enabled{false};
-
-    /*! \brief Enables the contrast for the slice xy, yz and xz */
-    std::atomic<bool> contrast_enabled{false};
-    /*! \brief Enables auto refresh of the contrast */
-    std::atomic<bool> contrast_auto_refresh{true};
-    /*! \brief Invert contrast */
-    std::atomic<bool> contrast_invert{false};
-
     /*! \brief Enables filter 2D */
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
@@ -415,13 +427,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> chart_display_enabled{false};
     /*! \brief Enables the signal and noise chart record */
     std::atomic<bool> chart_record_enabled{false};
-
-    /*! \brief Is img average in view XY enabled */
-    std::atomic<bool> img_acc_slice_xy_enabled{false};
-    /*! \brief Is img average in view XZ enabled */
-    std::atomic<bool> img_acc_slice_xz_enabled{false};
-    /*! \brief Is img average in view YZ enabled */
-    std::atomic<bool> img_acc_slice_yz_enabled{false};
 
     /*! \brief Is p average enabled (average image over multiple depth index) */
     std::atomic<bool> p_accu_enabled{false};
