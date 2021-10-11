@@ -109,7 +109,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
-    if (!get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd))
+    if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))
         return false;
 
     const unsigned int fps = opts.fps.value_or(60);

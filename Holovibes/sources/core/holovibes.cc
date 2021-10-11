@@ -79,10 +79,10 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
-        catch (std::exception&)
+        catch (const std::exception& e)
         {
             // Should never happen
-            LOG_ERROR << "This camera is not handled.";
+            LOG_ERROR << "This camera is not handled. (Exception: " << e.what() << ')';
             throw;
         }
 
@@ -98,6 +98,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     catch (std::exception& e)
     {
         stop_frame_read();
+        LOG_ERROR << "Error at camera frame read start worker. (Exception: " << e.what() << ')';
         throw;
     }
 }

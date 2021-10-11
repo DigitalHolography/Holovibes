@@ -1,3 +1,4 @@
+#pragma warning(push, 0)
 #define LOGURU_WITH_STREAMS 1
 #if defined(__GNUC__) || defined(__clang__)
 // Disable all warnings from gcc/clang:
@@ -2582,3 +2583,5 @@ void install_signal_handlers(const SignalOptions& signal_options)
 #endif
 
 #endif // LOGURU_IMPLEMENTATION
+
+#pragma warning(pop)

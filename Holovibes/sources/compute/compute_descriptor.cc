@@ -319,7 +319,7 @@ void ComputeDescriptor::check_p_limits()
 {
     uint upper_bound = time_transformation_size - 1;
 
-    if (p_acc_level > upper_bound)
+    if (p_acc_level > static_cast<int>(upper_bound))
     {
         p_acc_level = upper_bound;
     }

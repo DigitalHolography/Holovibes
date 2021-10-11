@@ -1,4 +1,7 @@
+// Suppress all warnings in this auto-generated file
+#pragma warning(push, 0)
 #include "ui_plotwindow.h"
+#pragma warning(pop)
 #include "PlotWindow.hh"
 #include "concurrent_deque.hh"
 

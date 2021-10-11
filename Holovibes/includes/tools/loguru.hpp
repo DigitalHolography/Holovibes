@@ -1,3 +1,4 @@
+#pragma warning(push, 0)
 /*
 Loguru logging library for C++, by Emil Ernerfeldt.
 www.github.com/emilk/loguru
@@ -1697,3 +1698,5 @@ inline unsigned long long referenceable_value(unsigned long long t)
 #endif // LOGURU_WITH_STREAMS
 
 #endif // LOGURU_HAS_DECLARED_STREAMS_HEADER
+
+#pragma warning(pop)

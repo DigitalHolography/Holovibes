@@ -83,6 +83,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         // (ex: lowering the GPU memory usage)
         LOG_WARN << "Pipe refresh failed, trying one more time with updated "
                     "compute descriptor";
+        LOG_WARN << "Exception: " << e.what();
         try
         {
             refresh();
@@ -91,8 +92,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            LOG_ERROR << "Pipe could not be initialized";
-            LOG_ERROR << "You might want to restart holovibes";
+            LOG_ERROR << "Pipe could not be initialized, You might want to restart holovibes";
+            LOG_ERROR << "Exception: " << e.what();
             throw e;
         }
     }

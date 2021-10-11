@@ -23,7 +23,11 @@ using json = ::nlohmann::json;
 #include "SliceWindow.hh"
 #include "PlotWindow.hh"
 #include "Filter2DWindow.hh"
+
+// Suppress all warnings in this auto-generated file
+#pragma warning(push, 0)
 #include "ui_mainwindow.h"
+#pragma warning(pop)
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
