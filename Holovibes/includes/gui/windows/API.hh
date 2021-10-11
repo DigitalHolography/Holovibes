@@ -287,12 +287,8 @@ void actualize_kernel_size_blur(uint h_blur_kernel_size);
 /*! \brief Increment p by 1 */
 void increment_p();
 
-/*! \brief Decrement p by 1
- *
- * \return true on success
- * \return false on failure
- */
-bool decrement_p();
+/*! \brief Decrement p by 1 */
+void decrement_p();
 
 /*!
  * \brief Modifies wave length (represented by lambda symbol in phisics)

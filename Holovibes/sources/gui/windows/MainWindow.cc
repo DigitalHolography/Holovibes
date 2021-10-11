@@ -1797,13 +1797,19 @@ void MainWindow::decrement_p()
 {
     LOG_INFO;
 
-    bool res = api::decrement_p();
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
+    if (Holovibes::instance().get_cd().pindex <= 0)
     {
-        set_auto_contrast();
-        notify();
+        LOG_ERROR << "p param has to be between 1 and #img";
+        return;
     }
+
+    api::decrement_p();
+
+    set_auto_contrast();
+    notify();
 }
 
 // FREE

@@ -1153,21 +1153,12 @@ void increment_p()
     Holovibes::instance().get_cd().pindex++;
 }
 
-bool decrement_p()
+// VALID
+void decrement_p()
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
-    if (Holovibes::instance().get_cd().pindex > 0)
-    {
-        Holovibes::instance().get_cd().pindex--;
-        return true;
-    }
-
-    LOG_ERROR << "p param has to be between 1 and #img";
-    return false;
+    Holovibes::instance().get_cd().pindex--;
 }
 
 bool set_wavelength(const double value)
