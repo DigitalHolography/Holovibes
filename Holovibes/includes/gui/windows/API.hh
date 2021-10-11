@@ -363,10 +363,8 @@ void flipTexture();
 /*! \brief Enables or Disables the contrast mode and update the current focused window
  *
  * \param value true: enable, false: disable
- * \return true on success
- * \return false on failure
  */
-bool set_contrast_mode(bool value);
+void set_contrast_mode(bool value);
 
 /*! \brief Adds auto contrast to the pipe over cut views
  *

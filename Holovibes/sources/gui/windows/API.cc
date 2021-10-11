@@ -1259,6 +1259,7 @@ void set_unwrapping_2d(const bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_accumulation(bool value)
 {
     LOG_INFO;
@@ -1268,6 +1269,7 @@ void set_accumulation(bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_accumulation_level(int value)
 {
     LOG_INFO;
@@ -1277,12 +1279,14 @@ void set_accumulation_level(int value)
     pipe_refresh();
 }
 
+// VALID
 void set_composite_area()
 {
     LOG_INFO;
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
 
+// VALID
 void set_computation_mode(const Computation computation)
 {
     LOG_INFO;
@@ -1290,6 +1294,7 @@ void set_computation_mode(const Computation computation)
     Holovibes::instance().get_cd().compute_mode = computation;
 }
 
+// VALID
 void close_critical_compute()
 {
     LOG_INFO;
@@ -1306,6 +1311,7 @@ void close_critical_compute()
 
 #pragma region Texture
 
+// VALID
 void rotateTexture()
 {
     LOG_INFO;
@@ -1336,6 +1342,7 @@ void rotateTexture()
     }
 }
 
+// VALID
 void flipTexture()
 {
     LOG_INFO;
@@ -1363,17 +1370,13 @@ void flipTexture()
 
 #pragma region Contrast - Log
 
-bool set_contrast_mode(bool value)
+void set_contrast_mode(bool value)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().contrast_enabled = value;
     Holovibes::instance().get_cd().contrast_auto_refresh = true;
     pipe_refresh();
-    return true;
 }
 
 void set_auto_contrast_cuts()

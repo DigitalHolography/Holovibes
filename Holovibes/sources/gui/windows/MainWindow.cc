@@ -1976,12 +1976,12 @@ void MainWindow::set_contrast_mode(bool value)
 
     change_window();
 
-    bool res = api::set_contrast_mode(value);
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
-    {
-        notify();
-    }
+    api::set_contrast_mode(value);
+
+    notify();
 }
 
 // FREE
