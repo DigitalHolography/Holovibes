@@ -1875,12 +1875,12 @@ void MainWindow::set_space_transformation(const QString value)
 {
     LOG_INFO;
 
-    const bool res = api::set_space_transformation(value.toStdString());
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
-    {
-        set_holographic_mode();
-    }
+    api::set_space_transformation(value.toStdString());
+
+    set_holographic_mode();
 }
 
 // FREE

@@ -318,10 +318,8 @@ void set_z_step(const double value);
 /*! \brief Modifies space transform calculation
  *
  * \param value the string to match to determine the kind of space transformation
- * \return true on success
- * \return false on failure
  */
-bool set_space_transformation(const std::string& value);
+void set_space_transformation(const std::string& value);
 
 /*! \brief Modifies time transform calculation
  *

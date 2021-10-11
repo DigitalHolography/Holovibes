@@ -1197,18 +1197,16 @@ void decrement_z()
     set_z(Holovibes::instance().get_cd().zdistance - UserInterfaceDescriptor::instance().z_step_);
 }
 
+// VALID
 void set_z_step(const double value)
 {
     LOG_INFO;
     UserInterfaceDescriptor::instance().z_step_ = value;
 }
 
-bool set_space_transformation(const std::string& value)
+void set_space_transformation(const std::string& value)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return false;
 
     if (value == "None")
         Holovibes::instance().get_cd().space_transformation = SpaceTransformation::None;
@@ -1222,8 +1220,6 @@ bool set_space_transformation(const std::string& value)
         Holovibes::instance().get_cd().space_transformation = SpaceTransformation::None;
         LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
-
-    return true;
 }
 
 bool set_time_transformation(const std::string& value)
