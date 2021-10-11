@@ -1647,8 +1647,6 @@ void start_chart_display()
 void stop_chart_display()
 {
     LOG_INFO;
-    if (!Holovibes::instance().get_cd().chart_display_enabled)
-        return;
 
     try
     {

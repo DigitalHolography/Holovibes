@@ -2223,6 +2223,9 @@ void MainWindow::stop_chart_display()
 {
     LOG_INFO;
 
+    if (!Holovibes::instance().get_cd().chart_display_enabled)
+        return;
+
     holovibes::api::stop_chart_display();
 
     ui.ChartPlotPushButton->setEnabled(true);
