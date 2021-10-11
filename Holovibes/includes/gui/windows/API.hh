@@ -342,10 +342,8 @@ void set_accumulation(bool value);
 /*! \brief Modifies the accumulation level on the current window
  *
  * \param value the new value
- * \return true on success
- * \return false on failure
  */
-bool set_accumulation_level(int value);
+void set_accumulation_level(int value);
 
 /*! \brief Make the ui compisite overlay visible
  *

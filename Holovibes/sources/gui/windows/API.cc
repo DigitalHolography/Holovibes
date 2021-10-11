@@ -1255,6 +1255,7 @@ void set_unwrapping_2d(const bool value)
     LOG_INFO;
 
     Holovibes::instance().get_compute_pipe()->request_unwrapping_2d(value);
+
     pipe_refresh();
 }
 
@@ -1267,15 +1268,13 @@ void set_accumulation(bool value)
     pipe_refresh();
 }
 
-bool set_accumulation_level(int value)
+void set_accumulation_level(int value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().set_accumulation_level(Holovibes::instance().get_cd().current_window, value);
+
     pipe_refresh();
-    return true;
 }
 
 void set_composite_area()

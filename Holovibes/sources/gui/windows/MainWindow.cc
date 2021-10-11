@@ -1927,6 +1927,9 @@ void MainWindow::set_accumulation_level(int value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     api::set_accumulation_level(value);
 }
 
