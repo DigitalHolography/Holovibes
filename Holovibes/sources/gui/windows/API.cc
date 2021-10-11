@@ -1204,6 +1204,7 @@ void set_z_step(const double value)
     UserInterfaceDescriptor::instance().z_step_ = value;
 }
 
+// VALID
 void set_space_transformation(const std::string& value)
 {
     LOG_INFO;
@@ -1222,12 +1223,9 @@ void set_space_transformation(const std::string& value)
     }
 }
 
-bool set_time_transformation(const std::string& value)
+void set_time_transformation(const std::string& value)
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return false;
 
     if (value == "STFT")
         Holovibes::instance().get_cd().time_transformation = TimeTransformation::STFT;
@@ -1237,8 +1235,6 @@ bool set_time_transformation(const std::string& value)
         Holovibes::instance().get_cd().time_transformation = TimeTransformation::NONE;
     else if (value == "SSA_STFT")
         Holovibes::instance().get_cd().time_transformation = TimeTransformation::SSA_STFT;
-
-    return true;
 }
 
 void adapt_time_transformation_stride_to_batch_size()

@@ -324,10 +324,8 @@ void set_space_transformation(const std::string& value);
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
- * \return true on success
- * \return false on failure
  */
-bool set_time_transformation(const std::string& value);
+void set_time_transformation(const std::string& value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
