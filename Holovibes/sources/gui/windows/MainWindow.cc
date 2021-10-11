@@ -942,6 +942,7 @@ void MainWindow::configure_camera()
 /* ------------ */
 #pragma region Image Mode
 
+// VALID
 // Notify
 void MainWindow::set_raw_mode()
 {
@@ -957,14 +958,6 @@ void MainWindow::set_raw_mode()
 
     notify();
     layout_toggled();
-}
-
-// FREE
-void MainWindow::createPipe()
-{
-    LOG_INFO;
-
-    api::createPipe(*this);
 }
 
 // FREE

@@ -559,9 +559,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Removes time transformation cut views */
     void cancel_time_transformation_cuts();
 
-    /*! \brief Creates the pipeline */
-    void createPipe();
-
     /*! \brief Creates the windows for processed image output */
     void createHoloWindow();
 
