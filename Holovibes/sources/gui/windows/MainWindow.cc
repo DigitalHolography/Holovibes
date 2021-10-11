@@ -2024,6 +2024,9 @@ void MainWindow::set_auto_contrast()
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     api::set_auto_contrast();
 }
 

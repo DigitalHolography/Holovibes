@@ -1370,6 +1370,7 @@ void flipTexture()
 
 #pragma region Contrast - Log
 
+// VALID
 void set_contrast_mode(bool value)
 {
     LOG_INFO;
@@ -1379,6 +1380,7 @@ void set_contrast_mode(bool value)
     pipe_refresh();
 }
 
+// VALID
 void set_auto_contrast_cuts()
 {
     LOG_INFO;
@@ -1393,9 +1395,6 @@ void set_auto_contrast_cuts()
 bool set_auto_contrast()
 {
     LOG_INFO;
-
-    if (is_raw_mode())
-        return false;
 
     try
     {
