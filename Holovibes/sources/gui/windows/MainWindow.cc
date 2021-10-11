@@ -2156,9 +2156,7 @@ void MainWindow::invert_contrast(bool value)
         return;
 
     if (!Holovibes::instance().get_cd().contrast_enabled)
-    {
         return;
-    }
 
     api::invert_contrast(value);
 }
