@@ -306,12 +306,8 @@ void set_z(const double value);
 /*! \brief Increment z by 1 */
 void increment_z();
 
-/*! \brief Decrement z by 1
- *
- * \return true on success
- * \return false on failure
- */
-bool decrement_z();
+/*! \brief Decrement z by 1 */
+void decrement_z();
 
 /*! \brief Modifies the z step
  *

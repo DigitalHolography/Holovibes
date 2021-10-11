@@ -1181,6 +1181,7 @@ void set_z(const double value)
     pipe_refresh();
 }
 
+// VALID
 void increment_z()
 {
     LOG_INFO;
@@ -1188,14 +1189,12 @@ void increment_z()
     set_z(Holovibes::instance().get_cd().zdistance + UserInterfaceDescriptor::instance().z_step_);
 }
 
-bool decrement_z()
+// VALID
+void decrement_z()
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     set_z(Holovibes::instance().get_cd().zdistance - UserInterfaceDescriptor::instance().z_step_);
-    return true;
 }
 
 void set_z_step(const double value)
