@@ -537,9 +537,7 @@ void update_batch_size(std::function<void()> callback, const uint batch_size)
     LOG_INFO;
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
         pipe->insert_fn_end_vect(callback);
-    }
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
@@ -554,9 +552,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
     LOG_INFO;
 
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
         pipe->insert_fn_end_vect(callback);
-    }
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
@@ -825,9 +821,7 @@ void set_time_transformation_size(std::function<void()> callback)
 
     auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get());
     if (pipe)
-    {
         pipe->insert_fn_end_vect(callback);
-    }
 }
 
 // VALID

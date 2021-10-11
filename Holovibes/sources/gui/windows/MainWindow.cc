@@ -711,7 +711,6 @@ void MainWindow::reload_ini()
 // Notify
 void MainWindow::reload_ini(QString filename)
 {
-
     LOG_INFO;
     import_stop();
     try
@@ -854,9 +853,7 @@ void MainWindow::change_camera(CameraKind c)
     camera_none();
 
     if (c == CameraKind::NONE)
-    {
         return;
-    }
 
     const Computation computation = static_cast<Computation>(ui.ImageModeComboBox->currentIndex());
 
@@ -1055,7 +1052,6 @@ std::function<void()> MainWindow::get_view_mode_callback()
     return callback;
 }
 
-// VALID
 // FREE
 void MainWindow::set_view_mode(const QString value)
 {
@@ -1116,7 +1112,6 @@ void MainWindow::set_image_mode(const Computation computation)
 
 #pragma region Batch
 
-// VALID
 // GUI
 void MainWindow::update_batch_size()
 {
@@ -1144,7 +1139,6 @@ void MainWindow::update_batch_size()
 /* ------------ */
 #pragma region STFT
 
-// VALID
 // GUI
 void MainWindow::update_time_transformation_stride()
 {
@@ -1207,9 +1201,7 @@ void MainWindow::cancel_time_transformation_cuts()
     LOG_INFO;
 
     if (!Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-    {
         return;
-    }
 
     std::function<void()> callback = []() { return; };
 
@@ -1330,9 +1322,7 @@ void MainWindow::cancel_filter2d()
     api::cancel_filter2d();
 
     if (Holovibes::instance().get_cd().filter2d_view_enabled)
-    {
         update_filter2d_view(false);
-    }
 
     notify();
 }
@@ -1751,9 +1741,7 @@ void slide_update_threshold(const QSlider& slider,
     to_be_written_in.setText(QString(array));
 
     if (res)
-    {
         slider_to_update.setValue(slider.value());
-    }
 }
 
 // VALID
@@ -2138,9 +2126,7 @@ void MainWindow::set_contrast_min(const double value)
         return;
 
     if (!Holovibes::instance().get_cd().contrast_enabled)
-    {
         return;
-    }
 
     api::set_contrast_min(value);
 }
@@ -2480,6 +2466,7 @@ void MainWindow::set_record_mode(const QString& value)
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::stop_record()
 {
@@ -2487,6 +2474,7 @@ void MainWindow::stop_record()
     api::stop_record();
 }
 
+// VALID
 // GUI
 void MainWindow::record_finished(RecordMode record_mode)
 {
@@ -2519,6 +2507,7 @@ void MainWindow::start_record()
     bool batch_enabled = ui.BatchGroupBox->isChecked();
     bool nb_frame_checked = ui.NumberOfFramesCheckBox->isChecked();
     std::optional<unsigned int> nb_frames_to_record = std::nullopt;
+
     if (nb_frame_checked)
     {
         nb_frames_to_record = ui.NumberOfFramesSpinBox->value();
@@ -2531,9 +2520,7 @@ void MainWindow::start_record()
         api::start_record_preconditions(batch_enabled, nb_frame_checked, nb_frames_to_record, batch_input_path);
 
     if (!preconditions)
-    {
         return;
-    }
 
     std::string output_path =
         ui.OutputFilePathLineEdit->text().toStdString() + ui.RecordExtComboBox->currentText().toStdString();
@@ -2562,6 +2549,7 @@ void MainWindow::start_record()
 /* ------------ */
 #pragma region Import
 
+// VALID
 // GUI
 void MainWindow::set_start_stop_buttons(bool value)
 {
@@ -2570,6 +2558,7 @@ void MainWindow::set_start_stop_buttons(bool value)
     ui.ImportStopPushButton->setEnabled(value);
 }
 
+// VALID
 // GUI
 void MainWindow::import_browse_file()
 {
@@ -2646,6 +2635,7 @@ void MainWindow::import_stop()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::import_start()
 {
@@ -2653,9 +2643,7 @@ void MainWindow::import_start()
 
     // Check if computation is currently running
     if (!Holovibes::instance().get_cd().is_computation_stopped)
-    {
         import_stop();
-    }
 
     // shift main window when camera view appears
     QRect rec = QGuiApplication::primaryScreen()->geometry();
@@ -2699,6 +2687,7 @@ void MainWindow::import_start()
     ui.ImageModeComboBox->setCurrentIndex(api::is_raw_mode() ? 0 : 1);
 }
 
+// VALID
 // GUI
 void MainWindow::import_start_spinbox_update()
 {
@@ -2710,6 +2699,7 @@ void MainWindow::import_start_spinbox_update()
         end_spinbox->setValue(start_spinbox->value());
 }
 
+// VALID
 // GUI
 void MainWindow::import_end_spinbox_update()
 {
@@ -2725,6 +2715,7 @@ void MainWindow::import_end_spinbox_update()
 
 #pragma region Themes
 
+// VALID
 // GUI
 void MainWindow::set_night()
 {
@@ -2755,6 +2746,7 @@ void MainWindow::set_night()
     theme_index_ = 1;
 }
 
+// VALID
 // GUI
 void MainWindow::set_classic()
 {
@@ -2769,6 +2761,7 @@ void MainWindow::set_classic()
 
 #pragma region Getters
 
+// VALID
 // LOCAL
 RawWindow* MainWindow::get_main_display()
 {
