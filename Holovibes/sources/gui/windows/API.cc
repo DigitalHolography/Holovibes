@@ -1499,6 +1499,7 @@ void set_log_scale(const bool value)
 
 #pragma region Convolution
 
+// VALID
 void update_convo_kernel(const std::string& value)
 {
     LOG_INFO;
@@ -1520,6 +1521,7 @@ void update_convo_kernel(const std::string& value)
     }
 }
 
+// VALID
 void set_convolution_mode(std::string& str)
 {
     LOG_INFO;
@@ -1542,6 +1544,7 @@ void set_convolution_mode(std::string& str)
     }
 }
 
+// VALID
 void unset_convolution_mode()
 {
     LOG_INFO;
@@ -1562,6 +1565,7 @@ void unset_convolution_mode()
     }
 }
 
+// VALID
 void set_divide_convolution_mode(const bool value)
 {
     LOG_INFO;
@@ -1575,6 +1579,7 @@ void set_divide_convolution_mode(const bool value)
 
 #pragma region Reticle
 
+// VALID
 void display_reticle(bool value)
 {
     LOG_INFO;
@@ -1593,16 +1598,12 @@ void display_reticle(bool value)
     pipe_refresh();
 }
 
-bool reticle_scale(double value)
+void reticle_scale(double value)
 {
     LOG_INFO;
 
-    if (0 > value || value > 1)
-        return false;
-
     Holovibes::instance().get_cd().reticle_scale = value;
     pipe_refresh();
-    return true;
 }
 
 #pragma endregion

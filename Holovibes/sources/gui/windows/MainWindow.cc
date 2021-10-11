@@ -2171,6 +2171,9 @@ void MainWindow::reticle_scale(double value)
 {
     LOG_INFO;
 
+    if (0 > value || value > 1)
+        return;
+
     api::reticle_scale(value);
 }
 #pragma endregion Reticle

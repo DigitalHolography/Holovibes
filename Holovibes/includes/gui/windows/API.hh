@@ -432,10 +432,8 @@ void display_reticle(bool value);
 /*! \brief Modifies reticle scale in ]0, 1[
  *
  * \param value the new reticle scale value
- * \return true on success
- * \return false on failure
  */
-bool reticle_scale(double value);
+void reticle_scale(double value);
 
 /*! \brief Restores attributs when recording ends
  *
