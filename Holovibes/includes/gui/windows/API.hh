@@ -405,12 +405,15 @@ bool set_contrast_mode(bool value);
  */
 void set_auto_contrast_cuts();
 
-/*! \brief Adds auto contrast to the pipe over cut views
+/*! \brief Adds auto contrast to the current window
  *
  * \return true on success
  * \return false on failure
  */
 bool set_auto_contrast();
+
+/*! \brief Set the auto contrast to all windows */
+void set_auto_contrast_all();
 
 /*! \brief Modifies the min contrast value on the current window
  *
@@ -539,19 +542,15 @@ void set_fft_shift(const bool value);
 /*! \brief Modifies filter2d n2
  *
  * \param n the new value
- * \return true on success
- * \return false on failure
  */
-bool set_filter2d_n2(int n);
+void set_filter2d_n2(int n);
 
 /*!
  * \brief Modifies filter2d n1
  *
  * \param n the new value
- * \return true on success
- * \return false on failure
  */
-bool set_filter2d_n1(int n);
+void set_filter2d_n1(int n);
 
 /*! \brief Adds or removes filter 2d view
  *

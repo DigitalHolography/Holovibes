@@ -1234,8 +1234,9 @@ void MainWindow::set_filter2d(bool checked)
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        set_filter2d_n2(ui.Filter2DN2SpinBox->value());
-        set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+        api::set_filter2d_n2(ui.Filter2DN2SpinBox->value());
+        api::set_filter2d_n1(ui.Filter2DN1SpinBox->value());
+        set_auto_contrast_all();
     }
     else
     {
@@ -1280,32 +1281,6 @@ void MainWindow::update_filter2d_view(bool checked)
                     this,
                     SLOT(disable_filter2d_view()));
         }
-        notify();
-    }
-}
-
-// Notify
-void MainWindow::set_filter2d_n1(int n)
-{
-    LOG_INFO;
-
-    const bool res = api::set_filter2d_n1(n);
-
-    if (res)
-    {
-        notify();
-    }
-}
-
-// Notify
-void MainWindow::set_filter2d_n2(int n)
-{
-    LOG_INFO;
-
-    const bool res = api::set_filter2d_n2(n);
-
-    if (res)
-    {
         notify();
     }
 }
@@ -2035,6 +2010,14 @@ void MainWindow::set_auto_contrast()
     LOG_INFO;
 
     api::set_auto_contrast();
+}
+
+// FREE
+void MainWindow::set_auto_contrast_all()
+{
+    LOG_INFO;
+
+    api::set_auto_contrast_all();
 }
 
 // FREE

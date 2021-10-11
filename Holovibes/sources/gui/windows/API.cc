@@ -799,52 +799,18 @@ std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool check
     return res;
 }
 
-bool set_filter2d_n2(int n)
+void set_filter2d_n2(int n)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().filter2d_n2 = n;
-
-    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (Holovibes::instance().get_cd().filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
-
-    pipe_refresh();
-    return true;
 }
 
-bool set_filter2d_n1(int n)
+void set_filter2d_n1(int n)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().filter2d_n1 = n;
-
-    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (Holovibes::instance().get_cd().filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
-
-    pipe_refresh();
-    return true;
 }
 
 void cancel_filter2d()
@@ -1487,6 +1453,23 @@ bool set_auto_contrast()
     }
 
     return false;
+}
+
+void set_auto_contrast_all()
+{
+    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
+    {
+        pipe->autocontrast_end_pipe(WindowKind::XYview);
+        if (Holovibes::instance().get_cd().time_transformation_cuts_enabled)
+        {
+            pipe->autocontrast_end_pipe(WindowKind::XZview);
+            pipe->autocontrast_end_pipe(WindowKind::YZview);
+        }
+        if (Holovibes::instance().get_cd().filter2d_view_enabled)
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+
+        pipe_refresh();
+    }
 }
 
 bool set_contrast_min(const double value)

@@ -154,18 +154,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_filter2d(bool checked);
 
-    /*! \brief Modifies filter2d n1 (first value)
-     *
-     * \param n The new filter2d n1 value
-     */
-    void set_filter2d_n1(int n);
-
-    /*! \brief Modifies filter2d n2 (second value)
-     *
-     * \param n The new filter2d n2 value
-     */
-    void set_filter2d_n2(int n);
-
     /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
 
@@ -367,8 +355,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_contrast_mode(bool value);
 
-    /*! \brief Enalbles auto-contrast */
+    /*! \brief Enalbles auto-contrast on selected window*/
     void set_auto_contrast();
+
+    /*! \brief Enalbles auto-contrast on all windows*/
+    void set_auto_contrast_all();
 
     /*! \brief Modifies the min contrast value on the current window
      *
