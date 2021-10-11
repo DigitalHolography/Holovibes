@@ -390,10 +390,8 @@ void set_contrast_min(const double value);
 /*! \brief Modifies the max contrast value on the current window
  *
  * \param value the new value
- * \return true on success
- * \return false on failure
  */
-bool set_contrast_max(const double value);
+void set_contrast_max(const double value);
 
 /*! \brief Enables or Disables contrast invertion
  *

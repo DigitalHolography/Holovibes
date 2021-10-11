@@ -2059,6 +2059,12 @@ void MainWindow::set_contrast_max(const double value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
+    if (Holovibes::instance().get_cd().contrast_enabled)
+        return;
+
     api::set_contrast_max(value);
 }
 

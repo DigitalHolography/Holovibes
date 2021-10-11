@@ -1448,29 +1448,20 @@ void set_contrast_min(const double value)
     }
 }
 
-bool set_contrast_max(const double value)
+void set_contrast_max(const double value)
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
-    if (Holovibes::instance().get_cd().contrast_enabled)
+    // Get the maximum contrast value rounded for the comparison
+    const float old_val =
+        Holovibes::instance().get_cd().get_truncate_contrast_max(Holovibes::instance().get_cd().current_window);
+    // Floating number issue: cast to float for the comparison
+    const float val = value;
+    if (old_val != val)
     {
-        // Get the maximum contrast value rounded for the comparison
-        const float old_val =
-            Holovibes::instance().get_cd().get_truncate_contrast_max(Holovibes::instance().get_cd().current_window);
-        // Floating number issue: cast to float for the comparison
-        const float val = value;
-        if (old_val != val)
-        {
-            Holovibes::instance().get_cd().set_contrast_max(Holovibes::instance().get_cd().current_window, value);
-            pipe_refresh();
-            return true;
-        }
+        Holovibes::instance().get_cd().set_contrast_max(Holovibes::instance().get_cd().current_window, value);
+        pipe_refresh();
     }
-
-    return false;
 }
 
 bool invert_contrast(bool value)
