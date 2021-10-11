@@ -1392,6 +1392,7 @@ void set_auto_contrast_cuts()
     }
 }
 
+// VALID
 bool set_auto_contrast()
 {
     LOG_INFO;
@@ -1412,6 +1413,7 @@ bool set_auto_contrast()
     return false;
 }
 
+// VALID
 void set_auto_contrast_all()
 {
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
@@ -1429,29 +1431,21 @@ void set_auto_contrast_all()
     }
 }
 
-bool set_contrast_min(const double value)
+// VALID
+void set_contrast_min(const double value)
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
-    if (Holovibes::instance().get_cd().contrast_enabled)
+    // Get the minimum contrast value rounded for the comparison
+    const float old_val =
+        Holovibes::instance().get_cd().get_truncate_contrast_min(Holovibes::instance().get_cd().current_window);
+    // Floating number issue: cast to float for the comparison
+    const float val = value;
+    if (old_val != val)
     {
-        // Get the minimum contrast value rounded for the comparison
-        const float old_val =
-            Holovibes::instance().get_cd().get_truncate_contrast_min(Holovibes::instance().get_cd().current_window);
-        // Floating number issue: cast to float for the comparison
-        const float val = value;
-        if (old_val != val)
-        {
-            Holovibes::instance().get_cd().set_contrast_min(Holovibes::instance().get_cd().current_window, value);
-            pipe_refresh();
-            return true;
-        }
+        Holovibes::instance().get_cd().set_contrast_min(Holovibes::instance().get_cd().current_window, value);
+        pipe_refresh();
     }
-
-    return false;
 }
 
 bool set_contrast_max(const double value)
