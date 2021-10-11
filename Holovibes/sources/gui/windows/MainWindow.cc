@@ -2160,6 +2160,7 @@ void MainWindow::set_contrast_max(const double value)
     api::set_contrast_max(value);
 }
 
+// VALID
 // FREE
 void MainWindow::invert_contrast(bool value)
 {
@@ -2176,6 +2177,7 @@ void MainWindow::invert_contrast(bool value)
     api::invert_contrast(value);
 }
 
+// VALID
 // Notify
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
@@ -2186,6 +2188,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_log_scale(const bool value)
 {
@@ -2202,6 +2205,7 @@ void MainWindow::set_log_scale(const bool value)
 /* ------------ */
 #pragma region Convolution
 
+// VALID
 // Notify
 void MainWindow::update_convo_kernel(const QString& value)
 {
@@ -2215,6 +2219,7 @@ void MainWindow::update_convo_kernel(const QString& value)
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_convolution_mode(const bool value)
 {
@@ -2234,6 +2239,7 @@ void MainWindow::set_convolution_mode(const bool value)
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
@@ -2248,6 +2254,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 /* ------------ */
 #pragma region Reticle
 
+// VALID
 // Notify
 void MainWindow::display_reticle(bool value)
 {
@@ -2258,6 +2265,7 @@ void MainWindow::display_reticle(bool value)
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::reticle_scale(double value)
 {
@@ -2272,6 +2280,7 @@ void MainWindow::reticle_scale(double value)
 /* ------------ */
 #pragma region Chart
 
+// VALID
 // Notify
 void MainWindow::activeSignalZone()
 {
@@ -2282,6 +2291,7 @@ void MainWindow::activeSignalZone()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::activeNoiseZone()
 {
@@ -2292,6 +2302,7 @@ void MainWindow::activeNoiseZone()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::start_chart_display()
 {
@@ -2310,6 +2321,7 @@ void MainWindow::start_chart_display()
     ui.ChartPlotPushButton->setEnabled(false);
 }
 
+// VALID
 // GUI
 void MainWindow::stop_chart_display()
 {
@@ -2326,6 +2338,7 @@ void MainWindow::stop_chart_display()
 /* ------------ */
 #pragma region Record
 
+// VALID
 // GUI
 void MainWindow::set_record_frame_step(int value)
 {
@@ -2336,6 +2349,7 @@ void MainWindow::set_record_frame_step(int value)
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
 
+// VALID
 // GUI
 void MainWindow::set_nb_frames_mode(bool value)
 {
@@ -2344,6 +2358,7 @@ void MainWindow::set_nb_frames_mode(bool value)
     ui.NumberOfFramesSpinBox->setEnabled(value);
 }
 
+// VALID
 // GUI
 void MainWindow::browse_record_output_file()
 {
@@ -2388,6 +2403,7 @@ void MainWindow::browse_record_output_file()
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::browse_batch_input()
 {
@@ -2405,6 +2421,7 @@ void MainWindow::browse_batch_input()
     batch_input_line_edit->insert(filename);
 }
 
+// VALID
 // GUI
 void MainWindow::set_record_mode(const QString& value)
 {
@@ -2412,7 +2429,7 @@ void MainWindow::set_record_mode(const QString& value)
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
-    api::stop_record();
+    stop_record();
 
     const std::string text = value.toStdString();
     api::set_record_mode(text);
