@@ -294,10 +294,8 @@ void decrement_p();
  * \brief Modifies wave length (represented by lambda symbol in phisics)
  *
  * \param value the new value
- * \return true on success
- * \return false on failure
  */
-bool set_wavelength(const double value);
+void set_wavelength(const double value);
 
 /*! \brief Modifies z
  *

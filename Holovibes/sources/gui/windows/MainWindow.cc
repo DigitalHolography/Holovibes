@@ -1817,6 +1817,9 @@ void MainWindow::set_wavelength(const double value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
     api::set_wavelength(value);
 }
 

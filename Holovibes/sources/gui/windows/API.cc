@@ -1161,15 +1161,13 @@ void decrement_p()
     Holovibes::instance().get_cd().pindex--;
 }
 
-bool set_wavelength(const double value)
+void set_wavelength(const double value)
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     Holovibes::instance().get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
+
     pipe_refresh();
-    return true;
 }
 
 bool set_z(const double value)
