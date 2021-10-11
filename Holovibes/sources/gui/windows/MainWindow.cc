@@ -2145,6 +2145,7 @@ void MainWindow::set_contrast_min(const double value)
     api::set_contrast_min(value);
 }
 
+// VALID
 // FREE
 void MainWindow::set_contrast_max(const double value)
 {
@@ -2167,7 +2168,7 @@ void MainWindow::invert_contrast(bool value)
     if (api::is_raw_mode())
         return;
 
-    if (Holovibes::instance().get_cd().contrast_enabled)
+    if (!Holovibes::instance().get_cd().contrast_enabled)
     {
         return;
     }
