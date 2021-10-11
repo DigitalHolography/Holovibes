@@ -16,7 +16,11 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+// Suppress all warnings in this auto-generated file
+#pragma warning(push, 0)
 #include "ui_mainwindow.h"
+#pragma warning(pop)
+
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"

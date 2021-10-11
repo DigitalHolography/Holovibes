@@ -20,9 +20,14 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
 
-# "/Wall" : Activate all warnings
-# "/sdl"  : Activate all security warnings
-string(APPEND CMAKE_CXX_FLAGS " /Wall /sdl")
+# "/W3"                     : Activate almost all warningd
+# "/sdl"                    : Activate all security warnings
+# "/WX"                     : Transform all warnings into errors
+# "/DEBUG"                  : Create Debug symbols
+# "/Zi"                     : Create debug database .pdb for debug
+# "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
+# "/external:W0"            : Tells MSVC that external headers should not do any warnings
+string(APPEND CMAKE_CXX_FLAGS " /W3 /sdl /WX /external:anglebrackets /external:W0")
 
 set(HOLO_INCLUDES
     cuda_includes/

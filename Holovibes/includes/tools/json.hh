@@ -1,3 +1,4 @@
+#pragma warning(push, 0)
 /*
         __ _____ _____ _____
  __|  |   __|     |   | |  JSON for Modern C++
@@ -22324,3 +22325,5 @@ inline nlohmann::json::json_pointer operator"" _json_pointer(const char* s, std:
 #undef JSON_HEDLEY_WARN_UNUSED_RESULT
 
 #endif // INCLUDE_NLOHMANN_JSON_HPP_
+
+#pragma warning(pop)
