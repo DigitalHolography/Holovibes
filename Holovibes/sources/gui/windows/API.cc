@@ -843,6 +843,7 @@ void set_time_transformation_size(std::function<void()> callback)
     }
 }
 
+// VALID
 bool set_lens_view()
 {
     LOG_INFO;
@@ -879,18 +880,11 @@ bool set_lens_view()
         LOG_ERROR << e.what() << std::endl;
     }
 
-    /*
-        else
-        {
-            mainwindow.disable_lens_view();
-            UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-            res = false;
-        }
-    */
     api::pipe_refresh();
     return res;
 }
 
+// VALID
 void disable_lens_view()
 {
     LOG_INFO;
@@ -901,15 +895,10 @@ void disable_lens_view()
     api::pipe_refresh();
 }
 
+// VALID
 void set_raw_view()
 {
     LOG_INFO;
-
-    if (Holovibes::instance().get_cd().batch_size > global::global_config.output_queue_max_size)
-    {
-        LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-        return;
-    }
 
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_raw_view();
@@ -932,17 +921,11 @@ void set_raw_view()
 
     UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
     UserInterfaceDescriptor::instance().raw_window->setCd(&Holovibes::instance().get_cd());
-    /*
-        else
-        {
-            UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-            mainwindow.disable_raw_view();
-            res = false;
-        }
-    */
+
     pipe_refresh();
 }
 
+// VALID
 void disable_raw_view()
 {
     LOG_INFO;
@@ -959,6 +942,7 @@ void disable_raw_view()
     pipe_refresh();
 }
 
+// VALID
 void set_p_accu(bool is_p_accu, uint p_value)
 {
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
@@ -967,6 +951,7 @@ void set_p_accu(bool is_p_accu, uint p_value)
     pipe_refresh();
 }
 
+// VALID
 void set_x_accu(bool is_x_accu, uint x_value)
 {
     LOG_INFO;
@@ -975,6 +960,7 @@ void set_x_accu(bool is_x_accu, uint x_value)
     pipe_refresh();
 }
 
+// VALID
 void set_y_accu(bool is_y_accu, uint y_value)
 {
     LOG_INFO;
@@ -983,6 +969,7 @@ void set_y_accu(bool is_y_accu, uint y_value)
     pipe_refresh();
 }
 
+// VALID
 void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
 {
     LOG_INFO;
@@ -994,12 +981,14 @@ void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
         Holovibes::instance().get_cd().y_cuts = y;
 }
 
+// VALID
 void set_q(int value)
 {
     LOG_INFO;
     Holovibes::instance().get_cd().q_index = value;
 }
 
+// VALID
 void set_q_accu(bool is_q_accu, uint q_value)
 {
     LOG_INFO;
@@ -1008,6 +997,7 @@ void set_q_accu(bool is_q_accu, uint q_value)
     pipe_refresh();
 }
 
+// VALID
 const bool set_p(int value)
 {
     LOG_INFO;

@@ -1381,37 +1381,18 @@ void MainWindow::disable_lens_view()
 }
 
 // GUI
-/*
-void MainWindow::update_lens_view(bool value)
-{
-    LOG_INFO;
-    Holovibes::instance().get_cd().gpu_lens_display_enabled = value;
-
-    if (value)
-    {
-        const bool res = api::set_lens_view();
-
-        if (res)
-        {
-            connect(UserInterfaceDescriptor::instance().lens_window.get(),
-                    SIGNAL(destroyed()),
-                    this,
-                    SLOT(disable_lens_view()));
-        }
-    }
-    else
-    {
-        disable_lens_view();
-    }
-}
-*/
-// GUI
 void MainWindow::update_raw_view(bool value)
 {
     LOG_INFO;
 
     if (value)
     {
+        if (Holovibes::instance().get_cd().batch_size > global::global_config.output_queue_max_size)
+        {
+            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
+            return;
+        }
+
         api::set_raw_view();
     }
     else
