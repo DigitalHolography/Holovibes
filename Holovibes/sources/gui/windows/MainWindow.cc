@@ -16,7 +16,11 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+// Suppress all warnings in this auto-generated file
+#pragma warning(push, 0)
 #include "ui_mainwindow.h"
+#pragma warning(pop)
+
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
@@ -2667,8 +2671,8 @@ void MainWindow::import_file(const QString& filename)
             delete input_file;
 
             // Update the ui with the gathered data
-            ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
-            ui.ImportEndIndexSpinBox->setValue(nb_frames);
+            ui.ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
+            ui.ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
 
             // We can now launch holovibes over this file
             set_start_stop_buttons(true);

@@ -74,6 +74,7 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
     {
         meta_data_ = json();
         LOG_WARN << "An error was encountered while trying to export compute settings";
+        LOG_WARN << "Exception: " << e.what();
     }
 }
 
@@ -109,7 +110,7 @@ void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
     if (std::fgetpos(file_, &previous_pos))
         throw FileException("Unable to correct number of written frames");
 
-    holo_file_header_.img_nb = nb_frames_written;
+    holo_file_header_.img_nb = static_cast<uint32_t>(nb_frames_written);
     holo_file_header_.total_data_size = fd_.frame_size() * nb_frames_written;
 
     fpos_t file_begin_pos = 0;

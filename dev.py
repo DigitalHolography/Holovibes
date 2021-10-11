@@ -143,6 +143,7 @@ def build(args):
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
+        sys.stdout.flush()
         run_goal("cmake", args)
 
     cmd = ['cmd.exe', '/c', 'call']
@@ -335,11 +336,10 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    main_args, goals = parse_args()
+    args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        args = GoalArgs(main_args.b, main_args.g, main_args.e,
-                        main_args.p, main_args.v, goal_args)
-        run_goal(goal, args)
+        run_goal(goal, GoalArgs(args.b, args.g,
+                 args.e, args.p, args.v, goal_args))
 
     exit(0)
