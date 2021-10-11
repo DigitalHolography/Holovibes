@@ -1448,6 +1448,7 @@ void set_contrast_min(const double value)
     }
 }
 
+// VALID
 void set_contrast_max(const double value)
 {
     LOG_INFO;
@@ -1464,21 +1465,12 @@ void set_contrast_max(const double value)
     }
 }
 
-bool invert_contrast(bool value)
+void invert_contrast(bool value)
 {
     LOG_INFO;
 
-    if (is_raw_mode())
-        return false;
-
-    if (Holovibes::instance().get_cd().contrast_enabled)
-    {
-        Holovibes::instance().get_cd().contrast_invert = value;
-        pipe_refresh();
-        return true;
-    }
-
-    return false;
+    Holovibes::instance().get_cd().contrast_invert = value;
+    pipe_refresh();
 }
 
 void set_auto_refresh_contrast(bool value)

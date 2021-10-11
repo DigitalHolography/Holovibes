@@ -396,10 +396,8 @@ void set_contrast_max(const double value);
 /*! \brief Enables or Disables contrast invertion
  *
  * \param value true: enable, false: disable
- * \return true on success
- * \return false on failure
  */
-bool invert_contrast(bool value);
+void invert_contrast(bool value);
 
 /*! \brief Enables or Disables auto refresh contrast
  *

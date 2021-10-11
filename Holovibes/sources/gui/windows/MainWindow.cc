@@ -2073,6 +2073,14 @@ void MainWindow::invert_contrast(bool value)
 {
     LOG_INFO;
 
+    if (api::is_raw_mode())
+        return;
+
+    if (Holovibes::instance().get_cd().contrast_enabled)
+    {
+        return;
+    }
+
     api::invert_contrast(value);
 }
 
