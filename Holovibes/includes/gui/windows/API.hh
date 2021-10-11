@@ -303,12 +303,8 @@ void set_wavelength(const double value);
  */
 void set_z(const double value);
 
-/*! \brief Increment z by 1
- *
- * \return true on success
- * \return false on failure
- */
-bool increment_z();
+/*! \brief Increment z by 1 */
+void increment_z();
 
 /*! \brief Decrement z by 1
  *

@@ -1839,12 +1839,12 @@ void MainWindow::increment_z()
 {
     LOG_INFO;
 
-    const bool res = api::is_raw_mode();
+    if (api::is_raw_mode())
+        return;
 
-    if (res)
-    {
-        ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
-    }
+    api::increment_z();
+
+    ui.ZDoubleSpinBox->setValue(Holovibes::instance().get_cd().zdistance);
 }
 
 // GUI

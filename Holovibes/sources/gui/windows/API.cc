@@ -1181,14 +1181,11 @@ void set_z(const double value)
     pipe_refresh();
 }
 
-bool increment_z()
+void increment_z()
 {
     LOG_INFO;
-    if (is_raw_mode())
-        return false;
 
     set_z(Holovibes::instance().get_cd().zdistance + UserInterfaceDescriptor::instance().z_step_);
-    return true;
 }
 
 bool decrement_z()
