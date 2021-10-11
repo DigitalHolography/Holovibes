@@ -2717,8 +2717,8 @@ void MainWindow::import_file(const QString& filename)
             delete input_file;
 
             // Update the ui with the gathered data
-            ui.ImportEndIndexSpinBox->setMaximum(nb_frames);
-            ui.ImportEndIndexSpinBox->setValue(nb_frames);
+            ui.ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
+            ui.ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
 
             // We can now launch holovibes over this file
             set_start_stop_buttons(true);

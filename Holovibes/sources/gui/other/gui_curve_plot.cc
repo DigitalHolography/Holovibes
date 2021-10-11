@@ -106,7 +106,7 @@ void CurvePlot::load_data_vector()
     if (!data_vect_.empty())
     {
         size_t copied_elts_nb = data_vect_.fill_array(chart_vector_, points_nb_);
-        new_data.reserve(copied_elts_nb);
+        new_data.reserve(static_cast<int>(copied_elts_nb));
 
         ++auto_scale_curr_points_;
 

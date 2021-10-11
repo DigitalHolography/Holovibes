@@ -27,7 +27,7 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/Zi"                     : Create debug database .pdb for debug
 # "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
 # "/external:W0"            : Tells MSVC that external headers should not do any warnings
-string(APPEND CMAKE_CXX_FLAGS " /W3 /sdl /WX /external:anglebrackets /external:W0")
+string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
 
 set(HOLO_INCLUDES
     cuda_includes/

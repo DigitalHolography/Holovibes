@@ -93,7 +93,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
         endianness_conversion(reinterpret_cast<ushort*>(new_elt_adress),
                               reinterpret_cast<ushort*>(new_elt_adress),
                               1,
-                              frame_res_,
+                              static_cast<uint>(frame_res_),
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
@@ -169,7 +169,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
         dst.first_size = nb_elts;
     }
 
-    copy_multiple_aux(src, dst, frame_size_, stream);
+    copy_multiple_aux(src, dst, static_cast<uint>(frame_size_), stream);
 
     // Synchronize after every copy has been lauched and before updating the
     // size
@@ -315,7 +315,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
 void Queue::enqueue_from_48bit(void* src, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
 {
     cuda_tools::UniquePtr<uchar> src_uchar(frame_size_);
-    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, frame_size_, stream);
+    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, static_cast<uint>(frame_size_), stream);
     enqueue(src_uchar, stream, cuda_kind);
 }
 

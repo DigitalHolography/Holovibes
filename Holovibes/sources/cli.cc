@@ -105,7 +105,7 @@ static holovibes::io_files::InputFrameFile* open_input_file(holovibes::Holovibes
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     auto& cd = holovibes.get_cd();
-    get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd);
+    get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd);
 
     const unsigned int fps = opts.fps.value_or(60);
     holovibes.init_input_queue(fd);
