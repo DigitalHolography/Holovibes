@@ -642,6 +642,7 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
+// VALID
 // FREE
 void MainWindow::configure_holovibes()
 {
@@ -649,6 +650,7 @@ void MainWindow::configure_holovibes()
     api::configure_holovibes();
 }
 
+// VALID
 // FREE
 void MainWindow::write_ini()
 {
@@ -659,6 +661,7 @@ void MainWindow::write_ini()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::write_ini(QString filename)
 {
@@ -670,6 +673,7 @@ void MainWindow::write_ini(QString filename)
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::browse_export_ini()
 {
@@ -679,6 +683,7 @@ void MainWindow::browse_export_ini()
     write_ini(filename);
 }
 
+// VALID
 // GUI
 void MainWindow::browse_import_ini()
 {
@@ -693,6 +698,7 @@ void MainWindow::browse_import_ini()
     notify();
 }
 
+// VALID
 // FREE
 void MainWindow::reload_ini()
 {
@@ -701,6 +707,7 @@ void MainWindow::reload_ini()
     reload_ini("");
 }
 
+// VALID
 // Notify
 void MainWindow::reload_ini(QString filename)
 {
@@ -728,6 +735,7 @@ void MainWindow::reload_ini(QString filename)
     notify();
 }
 
+// VALID
 // GUI
 void MainWindow::load_ini(const std::string& path)
 {
@@ -774,6 +782,7 @@ void MainWindow::load_ini(const std::string& path)
     }
 }
 
+// VALID
 // GUI
 void MainWindow::save_ini(const std::string& path)
 {
@@ -804,6 +813,7 @@ void MainWindow::save_ini(const std::string& path)
 /* ------------ */
 #pragma region Close Compute
 
+// VALID
 // GUI
 void MainWindow::camera_none()
 {
@@ -817,9 +827,11 @@ void MainWindow::camera_none()
     notify();
 }
 
+// VALID
 // Notify
 void MainWindow::reset() { LOG_INFO; }
 
+// VALID
 // FREE
 void MainWindow::closeEvent(QCloseEvent*)
 {
@@ -839,6 +851,11 @@ void MainWindow::change_camera(CameraKind c)
 
     // Weird call to setup none camera before changing
     camera_none();
+
+    if (c == CameraKind::NONE)
+    {
+        return;
+    }
 
     const Computation computation = static_cast<Computation>(ui.ImageModeComboBox->currentIndex());
 

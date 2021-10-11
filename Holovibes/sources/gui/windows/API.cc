@@ -305,11 +305,6 @@ bool change_camera(CameraKind c, const Computation computation)
 
     bool res = false;
 
-    if (c == CameraKind::NONE)
-    {
-        return res;
-    }
-
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
@@ -1644,6 +1639,7 @@ void start_chart_display()
                                           "Chart");
 }
 
+// VALID
 void stop_chart_display()
 {
     LOG_INFO;
@@ -1669,9 +1665,10 @@ void stop_chart_display()
 
 #pragma region Record
 
-// Check that value is higher or equal than 0
+// VALID
 void set_record_frame_step(int value) { UserInterfaceDescriptor::instance().record_frame_step_ = value; }
 
+// VALID
 const std::string browse_record_output_file(std::string& std_filepath)
 {
     LOG_INFO;
@@ -1688,6 +1685,7 @@ const std::string browse_record_output_file(std::string& std_filepath)
     return file_ext;
 }
 
+// VALID
 void set_record_mode(const std::string& text)
 {
     LOG_INFO;
@@ -1702,6 +1700,7 @@ void set_record_mode(const std::string& text)
         throw std::exception("Record mode not handled");
 }
 
+// VALID
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
@@ -1729,6 +1728,7 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
+// VALID
 void start_record(const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
                   std::string& output_path,
@@ -1762,6 +1762,7 @@ void start_record(const bool batch_enabled,
     }
 }
 
+// VALID
 void stop_record()
 {
     LOG_INFO;
@@ -1774,6 +1775,7 @@ void stop_record()
         Holovibes::instance().stop_frame_record();
 }
 
+// VALID
 void record_finished()
 {
     LOG_INFO;
@@ -1785,6 +1787,7 @@ void record_finished()
 
 #pragma region Import
 
+// VALID
 void import_stop()
 {
     LOG_INFO;
@@ -1797,6 +1800,7 @@ void import_stop()
     Holovibes::instance().get_cd().is_computation_stopped = true;
 }
 
+// VALID
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
@@ -1807,6 +1811,7 @@ bool import_start(
     return init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
 
+// VALID
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     LOG_INFO;
