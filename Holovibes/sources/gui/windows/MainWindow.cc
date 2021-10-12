@@ -314,9 +314,8 @@ void MainWindow::on_notify()
     ui.LogScaleCheckBox->setEnabled(true);
     ui.LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
     ui.ImgAccuCheckBox->setEnabled(true);
-    ui.ImgAccuCheckBox->setChecked(!is_raw &&
-                                   Holovibes::instance().get_cd().get_img_acc_slice_enabled(api::get_current_window()));
-    ui.ImgAccuSpinBox->setValue(Holovibes::instance().get_cd().get_img_acc_slice_level(api::get_current_window()));
+    ui.ImgAccuCheckBox->setChecked(!is_raw && api::get_img_acc_slice_enabled());
+    ui.ImgAccuSpinBox->setValue(api::get_img_acc_slice_level());
     if (api::get_current_window() == WindowKind::XYview)
     {
         ui.RotatePushButton->setText(

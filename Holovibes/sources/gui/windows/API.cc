@@ -1277,6 +1277,20 @@ void stop_all_worker_controller()
     Holovibes::instance().stop_all_worker_controller();
 }
 
+bool get_img_acc_slice_enabled()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_cd().get_img_acc_slice_enabled(api::get_current_window());
+}
+
+unsigned get_img_acc_slice_level()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_cd().get_img_acc_slice_level(api::get_current_window());
+}
+
 #pragma endregion
 
 #pragma region Texture

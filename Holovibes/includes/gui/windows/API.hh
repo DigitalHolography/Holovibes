@@ -44,6 +44,19 @@ void close_critical_compute();
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
+/*! \brief Checks if img acc slice is enabled for a given window
+ *
+ * \return true Enabled
+ * \return false Disabled
+ */
+bool get_img_acc_slice_enabled();
+
+/*! \brief Gets the image accumulation slice level
+ *
+ * \return unsigned accumulation slice level
+ */
+unsigned get_img_acc_slice_level();
+
 /*! \brief Removes info container in holovibes */
 void remove_infos();
 
