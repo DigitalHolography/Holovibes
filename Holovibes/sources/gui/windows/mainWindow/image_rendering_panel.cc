@@ -15,7 +15,57 @@ ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
 
 ImageRenderingPanel::~ImageRenderingPanel() {}
 
-void ImageRenderingPanel::on_notify() {}
+void ImageRenderingPanel::on_notify()
+{
+    const bool is_raw = parent_->is_raw_mode();
+
+    ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
+
+    const uint input_queue_capacity = global::global_config.input_queue_max_size;
+
+    ui_->TimeTransformationStrideSpinBox->setValue(parent_->cd_.time_transformation_stride);
+    ui_->TimeTransformationStrideSpinBox->setSingleStep(parent_->cd_.batch_size);
+    ui_->TimeTransformationStrideSpinBox->setMinimum(parent_->cd_.batch_size);
+
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !parent_->is_recording_);
+
+    parent_->cd_.check_batch_size_limit(input_queue_capacity);
+    ui_->BatchSizeSpinBox->setValue(parent_->cd_.batch_size);
+    ui_->BatchSizeSpinBox->setMaximum(input_queue_capacity);
+
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !parent_->cd_.time_transformation_cuts_enabled);
+    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(parent_->cd_.space_transformation.load()));
+    ui_->TimeTransformationComboBox->setEnabled(!is_raw);
+    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(parent_->cd_.time_transformation.load()));
+
+    // Changing time_transformation_size with time transformation cuts is
+    // supported by the pipe, but some modifications have to be done in
+    // SliceWindow, OpenGl buffers.
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !parent_->cd_.time_transformation_cuts_enabled);
+    ui_->timeTransformationSizeSpinBox->setValue(parent_->cd_.time_transformation_size);
+
+    ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
+    ui_->WaveLengthDoubleSpinBox->setValue(parent_->cd_.lambda * 1.0e9f);
+    ui_->ZDoubleSpinBox->setEnabled(!is_raw);
+    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
+    ui_->BoundaryLineEdit->setText(QString::number(parent_->holovibes_.get_boundary()));
+
+    // Filter2D
+    ui_->Filter2D->setEnabled(!is_raw);
+    ui_->Filter2D->setChecked(!is_raw && parent_->cd_.filter2d_enabled);
+    ui_->Filter2DView->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
+    ui_->Filter2DView->setChecked(!is_raw && parent_->cd_.filter2d_view_enabled);
+    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
+    ui_->Filter2DN1SpinBox->setValue(parent_->cd_.filter2d_n1);
+    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
+    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
+    ui_->Filter2DN2SpinBox->setValue(parent_->cd_.filter2d_n2);
+
+    // Convolution
+    ui_->ConvoCheckBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
+    ui_->ConvoCheckBox->setChecked(parent_->cd_.convolution_enabled);
+    ui_->DivideConvoCheckBox->setChecked(parent_->cd_.convolution_enabled && parent_->cd_.divide_convolution_enabled);
+}
 
 void ImageRenderingPanel::set_image_mode(QString mode)
 {

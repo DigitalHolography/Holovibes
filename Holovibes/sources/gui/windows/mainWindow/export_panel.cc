@@ -14,7 +14,40 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-void ExportPanel::on_notify() {}
+void ExportPanel::on_notify()
+{
+    if (parent_->is_raw_mode())
+    {
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
+    }
+    else // Hologram mode
+    {
+        if (ui_->RecordImageModeComboBox->findText("Processed Image") == -1)
+            ui_->RecordImageModeComboBox->insertItem(1, "Processed Image");
+        if (ui_->RecordImageModeComboBox->findText("Chart") == -1)
+            ui_->RecordImageModeComboBox->insertItem(2, "Chart");
+    }
+
+    QPushButton* signalBtn = ui_->ChartSignalPushButton;
+    signalBtn->setStyleSheet((parent_->mainDisplay && signalBtn->isEnabled() &&
+                              parent_->mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal)
+                                 ? "QPushButton {color: #8E66D9;}"
+                                 : "");
+
+    QPushButton* noiseBtn = ui_->ChartNoisePushButton;
+    noiseBtn->setStyleSheet((parent_->mainDisplay && noiseBtn->isEnabled() &&
+                             parent_->mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise)
+                                ? "QPushButton {color: #00A4AB;}"
+                                : "");
+
+    QLineEdit* path_line_edit = ui_->OutputFilePathLineEdit;
+    path_line_edit->clear();
+
+    std::string record_output_path =
+        (std::filesystem::path(parent_->record_output_directory_) / parent_->default_output_filename_).string();
+    path_line_edit->insert(record_output_path.c_str());
+}
 
 void ExportPanel::set_record_frame_step(int value)
 {

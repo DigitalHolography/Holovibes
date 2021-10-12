@@ -14,7 +14,7 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
-void ImportPanel::on_notify() {}
+void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(parent_->cd_.is_computation_stopped); }
 
 void ImportPanel::set_start_stop_buttons(bool value)
 {

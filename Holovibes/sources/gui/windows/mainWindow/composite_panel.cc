@@ -13,7 +13,61 @@ CompositePanel::CompositePanel(QWidget* parent)
 
 CompositePanel::~CompositePanel() {}
 
-void CompositePanel::on_notify() {}
+void CompositePanel::on_notify()
+{
+    const int time_transformation_size_max = parent_->cd_.time_transformation_size - 1;
+    ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
+    ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_hue_freq_min->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_hue_freq_max->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_saturation_freq_min->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_saturation_freq_max->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_value_freq_min->setMaximum(time_transformation_size_max);
+    ui_->SpinBox_value_freq_max->setMaximum(time_transformation_size_max);
+
+    ui_->RenormalizationCheckBox->setChecked(parent_->cd_.composite_auto_weights_);
+
+    parent_->QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, parent_->cd_.composite_p_red);
+    parent_->QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, parent_->cd_.composite_p_blue);
+    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, parent_->cd_.weight_r);
+    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, parent_->cd_.weight_g);
+    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, parent_->cd_.weight_b);
+    ui_->CompositePanel->actualize_frequency_channel_v();
+
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, parent_->cd_.composite_p_min_h);
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, parent_->cd_.composite_p_max_h);
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
+                                  (int)(parent_->cd_.slider_h_threshold_min * 1000));
+    ui_->CompositePanel->slide_update_threshold_h_min();
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
+                                  (int)(parent_->cd_.slider_h_threshold_max * 1000));
+    ui_->CompositePanel->slide_update_threshold_h_max();
+
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, parent_->cd_.composite_p_min_s);
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, parent_->cd_.composite_p_max_s);
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_min,
+                                  (int)(parent_->cd_.slider_s_threshold_min * 1000));
+    ui_->CompositePanel->slide_update_threshold_s_min();
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_max,
+                                  (int)(parent_->cd_.slider_s_threshold_max * 1000));
+    ui_->CompositePanel->slide_update_threshold_s_max();
+
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_min, parent_->cd_.composite_p_min_v);
+    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_max, parent_->cd_.composite_p_max_v);
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_min,
+                                  (int)(parent_->cd_.slider_v_threshold_min * 1000));
+    ui_->CompositePanel->slide_update_threshold_v_min();
+    parent_->QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_max,
+                                  (int)(parent_->cd_.slider_v_threshold_max * 1000));
+    ui_->CompositePanel->slide_update_threshold_v_max();
+
+    bool rgbMode = ui_->radioButton_rgb->isChecked();
+    ui_->groupBox->setHidden(!rgbMode);
+    ui_->groupBox_5->setHidden(!rgbMode && !ui_->RenormalizationCheckBox->isChecked());
+    ui_->groupBox_hue->setHidden(rgbMode);
+    ui_->groupBox_saturation->setHidden(rgbMode);
+    ui_->groupBox_value->setHidden(rgbMode);
+}
 
 void CompositePanel::set_composite_intervals()
 {
@@ -127,7 +181,7 @@ void slide_update_threshold(QSlider& slider,
                             std::atomic<float>& lower_bound,
                             std::atomic<float>& upper_bound)
 {
-    // Store the slider value in cd_ (ComputeDescriptor)
+    // Store the slider value in parent_->cd_ (ComputeDescriptor)
     receiver = slider.value() / 1000.0f;
 
     char array[10];

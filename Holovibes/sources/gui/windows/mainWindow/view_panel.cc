@@ -4,6 +4,8 @@
 #include "tools.hh"
 #include "frame_desc.hh"
 
+#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
+
 namespace holovibes::gui
 {
 ViewPanel::ViewPanel(QWidget* parent)
@@ -13,7 +15,131 @@ ViewPanel::ViewPanel(QWidget* parent)
 
 ViewPanel::~ViewPanel() {}
 
-void ViewPanel::on_notify() {}
+void ViewPanel::on_notify()
+{
+    const bool is_raw = parent_->is_raw_mode();
+
+    ui_->PhaseUnwrap2DCheckBox->setEnabled(parent_->cd_.img_type == ImgType::PhaseIncrease ||
+                                           parent_->cd_.img_type == ImgType::Argument);
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && parent_->cd_.time_transformation_cuts_enabled);
+    ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
+                                                    MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
+    ui_->FFTShiftCheckBox->setChecked(parent_->cd_.fft_shift_enabled);
+    ui_->FFTShiftCheckBox->setEnabled(true);
+    ui_->LensViewCheckBox->setChecked(parent_->cd_.gpu_lens_display_enabled);
+    ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
+    ui_->RawDisplayingCheckBox->setChecked(!is_raw && parent_->cd_.raw_view_enabled);
+
+    // Contrast
+    ui_->ContrastCheckBox->setChecked(!is_raw && parent_->cd_.contrast_enabled);
+    ui_->ContrastCheckBox->setEnabled(true);
+    ui_->AutoRefreshContrastCheckBox->setChecked(parent_->cd_.contrast_auto_refresh);
+
+    // Contrast Spinbox
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!parent_->cd_.contrast_auto_refresh);
+    ui_->ContrastMinDoubleSpinBox->setValue(parent_->cd_.get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!parent_->cd_.contrast_auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setValue(parent_->cd_.get_contrast_max());
+
+    // Window selection
+    QComboBox* window_selection = ui_->WindowSelectionComboBox;
+    window_selection->setEnabled(parent_->cd_.time_transformation_cuts_enabled);
+    window_selection->setCurrentIndex(
+        window_selection->isEnabled() ? static_cast<int>(parent_->cd_.current_window.load()) : 0);
+
+    ui_->LogScaleCheckBox->setEnabled(true);
+    ui_->LogScaleCheckBox->setChecked(!is_raw &&
+                                      parent_->cd_.get_img_log_scale_slice_enabled(parent_->cd_.current_window.load()));
+    ui_->ImgAccuCheckBox->setEnabled(true);
+    ui_->ImgAccuCheckBox->setChecked(!is_raw &&
+                                     parent_->cd_.get_img_acc_slice_enabled(parent_->cd_.current_window.load()));
+    ui_->ImgAccuSpinBox->setValue(parent_->cd_.get_img_acc_slice_level(parent_->cd_.current_window.load()));
+    if (parent_->cd_.current_window == WindowKind::XYview)
+    {
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->displayAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->displayFlip)).c_str());
+    }
+    else if (parent_->cd_.current_window == WindowKind::XZview)
+    {
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->xzAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->xzFlip)).c_str());
+    }
+    else if (parent_->cd_.current_window == WindowKind::YZview)
+    {
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->yzAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->yzFlip)).c_str());
+    }
+
+    // p accu
+    ui_->PAccuCheckBox->setEnabled(parent_->cd_.img_type != ImgType::PhaseIncrease);
+    ui_->PAccuCheckBox->setChecked(parent_->cd_.p_accu_enabled);
+    ui_->PAccSpinBox->setMaximum(parent_->cd_.time_transformation_size - 1);
+
+    parent_->cd_.check_p_limits();
+    ui_->PAccSpinBox->setValue(parent_->cd_.p_acc_level);
+    ui_->PSpinBox->setValue(parent_->cd_.pindex);
+    ui_->PAccSpinBox->setEnabled(parent_->cd_.img_type != ImgType::PhaseIncrease);
+    if (parent_->cd_.p_accu_enabled)
+    {
+        ui_->PSpinBox->setMaximum(parent_->cd_.time_transformation_size - parent_->cd_.p_acc_level - 1);
+        ui_->PAccSpinBox->setMaximum(parent_->cd_.time_transformation_size - parent_->cd_.pindex - 1);
+    }
+    else
+    {
+        ui_->PSpinBox->setMaximum(parent_->cd_.time_transformation_size - 1);
+    }
+    ui_->PSpinBox->setEnabled(!is_raw);
+
+    // q accu
+    bool is_ssa_stft = parent_->cd_.time_transformation == TimeTransformation::SSA_STFT;
+    ui_->Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
+    ui_->Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui_->Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
+
+    ui_->Q_AccuCheckBox->setChecked(parent_->cd_.q_acc_enabled);
+    ui_->Q_AccSpinBox->setMaximum(parent_->cd_.time_transformation_size - 1);
+
+    parent_->cd_.check_q_limits();
+    ui_->Q_AccSpinBox->setValue(parent_->cd_.q_acc_level);
+    ui_->Q_SpinBox->setValue(parent_->cd_.q_index);
+    if (parent_->cd_.q_acc_enabled)
+    {
+        ui_->Q_SpinBox->setMaximum(parent_->cd_.time_transformation_size - parent_->cd_.q_acc_level - 1);
+        ui_->Q_AccSpinBox->setMaximum(parent_->cd_.time_transformation_size - parent_->cd_.q_index - 1);
+    }
+    else
+    {
+        ui_->Q_SpinBox->setMaximum(parent_->cd_.time_transformation_size - 1);
+    }
+
+    // XY accu
+    ui_->XAccuCheckBox->setChecked(parent_->cd_.x_accu_enabled);
+    ui_->XAccSpinBox->setValue(parent_->cd_.x_acc_level);
+    ui_->YAccuCheckBox->setChecked(parent_->cd_.y_accu_enabled);
+    ui_->YAccSpinBox->setValue(parent_->cd_.y_acc_level);
+
+    int max_width = 0;
+    int max_height = 0;
+    if (parent_->holovibes_.get_gpu_input_queue() != nullptr)
+    {
+        max_width = parent_->holovibes_.get_gpu_input_queue()->get_fd().width - 1;
+        max_height = parent_->holovibes_.get_gpu_input_queue()->get_fd().height - 1;
+    }
+    else
+    {
+        parent_->cd_.x_cuts = 0;
+        parent_->cd_.y_cuts = 0;
+    }
+    ui_->XSpinBox->setMaximum(max_width);
+    ui_->YSpinBox->setMaximum(max_height);
+    parent_->QSpinBoxQuietSetValue(ui_->XSpinBox, parent_->cd_.x_cuts);
+    parent_->QSpinBoxQuietSetValue(ui_->YSpinBox, parent_->cd_.y_cuts);
+
+    ui_->RenormalizeCheckBox->setChecked(parent_->cd_.renorm_enabled);
+    ui_->ReticleScaleDoubleSpinBox->setEnabled(parent_->cd_.reticle_enabled);
+    ui_->ReticleScaleDoubleSpinBox->setValue(parent_->cd_.reticle_scale);
+    ui_->DisplayReticleCheckBox->setChecked(parent_->cd_.reticle_enabled);
+}
 
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
 
