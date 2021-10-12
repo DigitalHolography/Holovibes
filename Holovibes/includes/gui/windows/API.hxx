@@ -103,12 +103,15 @@ inline void set_contrast_lower_threshold(float contrast_lower_threshold)
 {
     Holovibes::instance().get_cd().contrast_lower_threshold = contrast_lower_threshold;
 }
+
 inline float get_contrast_upper_threshold() { return Holovibes::instance().get_cd().contrast_upper_threshold; }
 inline void set_contrast_upper_threshold(float contrast_upper_threshold)
 {
     Holovibes::instance().get_cd().contrast_upper_threshold = contrast_upper_threshold;
 }
+
 inline uint get_cuts_contrast_p_offset() { return Holovibes::instance().get_cd().cuts_contrast_p_offset; }
+
 inline void set_cuts_contrast_p_offset(uint cuts_contrast_p_offset)
 {
     Holovibes::instance().get_cd().cuts_contrast_p_offset = cuts_contrast_p_offset;
@@ -204,15 +207,19 @@ inline void set_composite_p_red(uint composite_p_red)
 {
     Holovibes::instance().get_cd().composite_p_red = composite_p_red;
 }
+
 inline uint get_composite_p_blue() { return Holovibes::instance().get_cd().composite_p_blue; }
 inline void set_composite_p_blue(uint composite_p_blue)
 {
     Holovibes::instance().get_cd().composite_p_blue = composite_p_blue;
 }
+
 inline float get_weight_r() { return Holovibes::instance().get_cd().weight_r; }
 inline void set_weight_r(float weight_r) { Holovibes::instance().get_cd().weight_r = weight_r; }
+
 inline float get_weight_g() { return Holovibes::instance().get_cd().weight_g; }
 inline void set_weight_g(float weight_g) { Holovibes::instance().get_cd().weight_g = weight_g; }
+
 inline float get_weight_b() { return Holovibes::instance().get_cd().weight_b; }
 inline void set_weight_b(float weight_b) { Holovibes::instance().get_cd().weight_b = weight_b; }
 
@@ -222,31 +229,37 @@ inline void set_composite_p_min_h(uint composite_p_min_h)
 {
     Holovibes::instance().get_cd().composite_p_min_h = composite_p_min_h;
 }
+
 inline uint get_composite_p_max_h() { return Holovibes::instance().get_cd().composite_p_max_h; }
 inline void set_composite_p_max_h(uint composite_p_max_h)
 {
     Holovibes::instance().get_cd().composite_p_max_h = composite_p_max_h;
 }
+
 inline float get_slider_h_threshold_min() { return Holovibes::instance().get_cd().slider_h_threshold_min; }
 inline void set_slider_h_threshold_min(float slider_h_threshold_min)
 {
     Holovibes::instance().get_cd().slider_h_threshold_min = slider_h_threshold_min;
 }
+
 inline float get_slider_h_threshold_max() { return Holovibes::instance().get_cd().slider_h_threshold_max; }
 inline void set_slider_h_threshold_max(float slider_h_threshold_max)
 {
     Holovibes::instance().get_cd().slider_h_threshold_max = slider_h_threshold_max;
 }
+
 inline float get_composite_low_h_threshold() { return Holovibes::instance().get_cd().composite_low_h_threshold; }
 inline void set_composite_low_h_threshold(float composite_low_h_threshold)
 {
     Holovibes::instance().get_cd().composite_low_h_threshold = composite_low_h_threshold;
 }
+
 inline float get_composite_high_h_threshold() { return Holovibes::instance().get_cd().composite_high_h_threshold; }
 inline void set_composite_high_h_threshold(float composite_high_h_threshold)
 {
     Holovibes::instance().get_cd().composite_high_h_threshold = composite_high_h_threshold;
 }
+
 inline uint get_h_blur_kernel_size() { return Holovibes::instance().get_cd().h_blur_kernel_size; }
 inline void set_h_blur_kernel_size(uint h_blur_kernel_size)
 {
@@ -258,26 +271,31 @@ inline void set_composite_p_min_s(uint composite_p_min_s)
 {
     Holovibes::instance().get_cd().composite_p_min_s = composite_p_min_s;
 }
+
 inline uint get_composite_p_max_s() { return Holovibes::instance().get_cd().composite_p_max_s; }
 inline void set_composite_p_max_s(uint composite_p_max_s)
 {
     Holovibes::instance().get_cd().composite_p_max_s = composite_p_max_s;
 }
+
 inline float get_slider_s_threshold_min() { return Holovibes::instance().get_cd().slider_s_threshold_min; }
 inline void set_slider_s_threshold_min(float slider_s_threshold_min)
 {
     Holovibes::instance().get_cd().slider_s_threshold_min = slider_s_threshold_min;
 }
+
 inline float get_slider_s_threshold_max() { return Holovibes::instance().get_cd().slider_s_threshold_max; }
 inline void set_slider_s_threshold_max(float slider_s_threshold_max)
 {
     Holovibes::instance().get_cd().slider_s_threshold_max = slider_s_threshold_max;
 }
+
 inline float get_composite_low_s_threshold() { return Holovibes::instance().get_cd().composite_low_s_threshold; }
 inline void set_composite_low_s_threshold(float composite_low_s_threshold)
 {
     Holovibes::instance().get_cd().composite_low_s_threshold = composite_low_s_threshold;
 }
+
 inline float get_composite_high_s_threshold() { return Holovibes::instance().get_cd().composite_high_s_threshold; }
 inline void set_composite_high_s_threshold(float composite_high_s_threshold)
 {
@@ -289,26 +307,31 @@ inline void set_composite_p_min_v(uint composite_p_min_v)
 {
     Holovibes::instance().get_cd().composite_p_min_v = composite_p_min_v;
 }
+
 inline uint get_composite_p_max_v() { return Holovibes::instance().get_cd().composite_p_max_v; }
 inline void set_composite_p_max_v(uint composite_p_max_v)
 {
     Holovibes::instance().get_cd().composite_p_max_v = composite_p_max_v;
 }
+
 inline float get_slider_v_threshold_min() { return Holovibes::instance().get_cd().slider_v_threshold_min; }
 inline void set_slider_v_threshold_min(float slider_v_threshold_min)
 {
     Holovibes::instance().get_cd().slider_v_threshold_min = slider_v_threshold_min;
 }
+
 inline float get_slider_v_threshold_max() { return Holovibes::instance().get_cd().slider_v_threshold_max; }
 inline void set_slider_v_threshold_max(float slider_v_threshold_max)
 {
     Holovibes::instance().get_cd().slider_v_threshold_max = slider_v_threshold_max;
 }
+
 inline float get_composite_low_v_threshold() { return Holovibes::instance().get_cd().composite_low_v_threshold; }
 inline void set_composite_low_v_threshold(float composite_low_v_threshold)
 {
     Holovibes::instance().get_cd().composite_low_v_threshold = composite_low_v_threshold;
 }
+
 inline float get_composite_high_v_threshold() { return Holovibes::instance().get_cd().composite_high_v_threshold; }
 inline void set_composite_high_v_threshold(float composite_high_v_threshold)
 {
@@ -488,16 +511,19 @@ inline void set_h_blur_activated(bool h_blur_activated)
 {
     Holovibes::instance().get_cd().h_blur_activated = h_blur_activated;
 }
+
 inline bool get_composite_p_activated_s() { return Holovibes::instance().get_cd().composite_p_activated_s; }
 inline void set_composite_p_activated_s(bool composite_p_activated_s)
 {
     Holovibes::instance().get_cd().composite_p_activated_s = composite_p_activated_s;
 }
+
 inline bool get_composite_p_activated_v() { return Holovibes::instance().get_cd().composite_p_activated_v; }
 inline void set_composite_p_activated_v(bool composite_p_activated_v)
 {
     Holovibes::instance().get_cd().composite_p_activated_v = composite_p_activated_v;
 }
+
 inline bool get_composite_auto_weights_() { return Holovibes::instance().get_cd().composite_auto_weights_; }
 inline void set_composite_auto_weights_(bool composite_auto_weights_)
 {
@@ -509,6 +535,7 @@ inline void set_fast_pipe(bool fast_pipe) { Holovibes::instance().get_cd().fast_
 
 inline uint get_start_frame() { return Holovibes::instance().get_cd().start_frame; }
 inline void set_start_frame(uint start_frame) { Holovibes::instance().get_cd().start_frame = start_frame; }
+
 inline uint get_end_frame() { return Holovibes::instance().get_cd().end_frame; }
 inline void set_end_frame(uint end_frame) { Holovibes::instance().get_cd().end_frame = end_frame; }
 
