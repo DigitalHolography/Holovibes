@@ -154,6 +154,10 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_filter2d(bool checked);
 
+    void set_filter2d_n1(int n1);
+
+    void set_filter2d_n2(int n2);
+
     /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
 
