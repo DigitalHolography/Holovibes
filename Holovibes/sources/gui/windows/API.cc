@@ -1465,6 +1465,14 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
+// VALID
+float get_contrast_min(const WindowKind king)
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_cd().get_contrast_min(api::get_current_window());
+}
+
 #pragma endregion
 
 #pragma region Convolution

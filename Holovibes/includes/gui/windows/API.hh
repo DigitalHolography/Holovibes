@@ -414,6 +414,14 @@ void set_auto_refresh_contrast(bool value);
  */
 void set_log_scale(const bool value);
 
+/*!
+ * \brief Get the contrast min object
+ *
+ * \param king the window kind
+ * \return float the contrast minimum the the given window kind
+ */
+float get_contrast_min(const WindowKind kind);
+
 /*! \brief Modifies convolution kernel
  *
  * \param value The new kernel to apply

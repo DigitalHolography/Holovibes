@@ -298,7 +298,7 @@ void MainWindow::on_notify()
 
     // Contrast SpinBox:
     ui.ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui.ContrastMinDoubleSpinBox->setValue(Holovibes::instance().get_cd().get_contrast_min(api::get_current_window()));
+    ui.ContrastMinDoubleSpinBox->setValue(api::get_contrast_min(api::get_current_window()));
     ui.ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui.ContrastMaxDoubleSpinBox->setValue(Holovibes::instance().get_cd().get_contrast_max(api::get_current_window()));
 
