@@ -57,6 +57,18 @@ bool get_img_acc_slice_enabled();
  */
 unsigned get_img_acc_slice_level();
 
+/*! \brief Gets the gpu input queue frame desciptor width
+ *
+ * \return int
+ */
+int get_gpu_input_queue_fd_width();
+
+/*! \brief Gets the gpu input queue frame desciptor height object
+ *
+ * \return int
+ */
+int get_gpu_input_queue_fd_height();
+
 /*! \brief Removes info container in holovibes */
 void remove_infos();
 

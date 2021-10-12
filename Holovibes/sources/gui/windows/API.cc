@@ -1300,6 +1300,22 @@ unsigned get_img_acc_slice_level()
     return Holovibes::instance().get_cd().get_img_acc_slice_level(api::get_current_window());
 }
 
+// VALID
+int get_gpu_input_queue_fd_width()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_gpu_input_queue()->get_fd().width;
+}
+
+// VALID
+int get_gpu_input_queue_fd_height()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_gpu_input_queue()->get_fd().height;
+}
+
 #pragma endregion
 
 #pragma region Texture

@@ -398,8 +398,8 @@ void MainWindow::on_notify()
 
     if (api::is_gpu_input_queue())
     {
-        max_width = Holovibes::instance().get_gpu_input_queue()->get_fd().width - 1;
-        max_height = Holovibes::instance().get_gpu_input_queue()->get_fd().height - 1;
+        max_width = api::get_gpu_input_queue_fd_width() - 1;
+        max_height = api::get_gpu_input_queue_fd_height() - 1;
     }
     else
     {
