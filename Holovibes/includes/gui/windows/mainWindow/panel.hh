@@ -32,6 +32,8 @@ class Panel : public QGroupBox
     /*! \brief Panel destructor */
     ~Panel();
 
+    virtual void on_notify() = 0;
+
   public slots:
     /*! \brief Show or hide Panel */
     void ShowOrHide();
@@ -39,6 +41,8 @@ class Panel : public QGroupBox
   protected:
     MainWindow* parent_;
     Ui::MainWindow* ui_;
+
+  private:
     /*! \brief Recursively search the parent tree to find the MainWindow */
     MainWindow* find_main_window(QObject* widget);
 };

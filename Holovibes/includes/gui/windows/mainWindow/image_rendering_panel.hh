@@ -22,6 +22,8 @@ class ImageRenderingPanel : public Panel
     ImageRenderingPanel(QWidget* parent = nullptr);
     ~ImageRenderingPanel();
 
+    void on_notify() override;
+
     /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
     /*! \brief Deactivates filter2d view */

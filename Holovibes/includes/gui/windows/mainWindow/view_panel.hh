@@ -22,6 +22,8 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
+    void on_notify() override;
+
     /*! \brief Disables time transform cuts views */
     void cancel_stft_slice_view();
     /*! \brief Remove time transformation cut views */

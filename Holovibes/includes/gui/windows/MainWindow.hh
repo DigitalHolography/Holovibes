@@ -48,8 +48,7 @@ namespace gui
 class MainWindow : public QMainWindow, public Observer
 {
     Q_OBJECT
-/* ---------- */
-#pragma region Public Methods
+
   public:
     /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
      *
@@ -118,9 +117,7 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* z_down_shortcut_;  // ?
     QShortcut* p_left_shortcut_;  // ?
     QShortcut* p_right_shortcut_; // ?
-#pragma endregion
-/* ---------- */
-#pragma region Public Slots
+
   public slots:
     void on_notify();
     void update_file_reader_index(int n);
@@ -199,15 +196,13 @@ class MainWindow : public QMainWindow, public Observer
     void set_night();
     /*! \} */
 
-#pragma endregion
-    /* ---------- */
   signals:
     /*! \brief TODO: comment
      *
      * \param f
      */
     void synchronize_thread_signal(std::function<void()> f);
-#pragma region Protected / Private Methods
+
   protected:
     /*! \brief Last call before the program is closed
      *
@@ -282,11 +277,8 @@ class MainWindow : public QMainWindow, public Observer
      */
     void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
-#pragma endregion
-/* ---------- */
-#pragma region Fields
-
-#pragma endregion
+  private:
+    std::vector<Panel*> panels_;
 };
 } // namespace gui
 } // namespace holovibes

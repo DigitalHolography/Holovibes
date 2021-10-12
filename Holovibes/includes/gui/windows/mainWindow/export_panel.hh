@@ -23,6 +23,8 @@ class ExportPanel : public Panel
     ExportPanel(QWidget* parent = nullptr);
     ~ExportPanel();
 
+    void on_notify() override;
+
   public slots:
     /*! \brief Modifies the z step on scroll
      *

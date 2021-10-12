@@ -22,6 +22,8 @@ class CompositePanel : public Panel
     CompositePanel(QWidget* parent = nullptr);
     ~CompositePanel();
 
+    void on_notify() override;
+
   public slots:
     /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
     void set_composite_intervals();

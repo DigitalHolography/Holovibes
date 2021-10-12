@@ -14,6 +14,8 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
+void ExportPanel::on_notify() {}
+
 void ExportPanel::set_record_frame_step(int value)
 {
     parent_->record_frame_step_ = value;

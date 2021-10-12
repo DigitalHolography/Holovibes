@@ -22,6 +22,8 @@ class InfoPanel : public Panel
     InfoPanel(QWidget* parent = nullptr);
     ~InfoPanel();
 
+    void on_notify() override;
+
     /*! \brief Change the text in the text area */
     void set_text(const char* text);
 

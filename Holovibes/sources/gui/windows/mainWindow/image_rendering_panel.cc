@@ -15,6 +15,8 @@ ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
 
 ImageRenderingPanel::~ImageRenderingPanel() {}
 
+void ImageRenderingPanel::on_notify() {}
+
 void ImageRenderingPanel::set_image_mode(QString mode)
 {
     if (mode != nullptr)

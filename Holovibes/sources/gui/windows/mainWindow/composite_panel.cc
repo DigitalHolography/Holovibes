@@ -13,6 +13,8 @@ CompositePanel::CompositePanel(QWidget* parent)
 
 CompositePanel::~CompositePanel() {}
 
+void CompositePanel::on_notify() {}
+
 void CompositePanel::set_composite_intervals()
 {
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite

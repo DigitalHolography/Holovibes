@@ -74,6 +74,8 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    panels_ =
+        {ui->ImageRenderingPanel, ui->ViewPanel, ui->CompositePanel, ui->ImportPanel, ui->ExportPanel, ui->InfoPanel};
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -231,6 +233,9 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->on_notify();
+
     ui->InputBrowseToolButton->setEnabled(cd_.is_computation_stopped);
 
     // Tabs

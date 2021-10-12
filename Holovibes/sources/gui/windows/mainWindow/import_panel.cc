@@ -14,6 +14,8 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
+void ImportPanel::on_notify() {}
+
 void ImportPanel::set_start_stop_buttons(bool value)
 {
     ui_->ImportStartPushButton->setEnabled(value);

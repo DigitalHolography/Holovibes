@@ -13,6 +13,8 @@ ViewPanel::ViewPanel(QWidget* parent)
 
 ViewPanel::~ViewPanel() {}
 
+void ViewPanel::on_notify() {}
+
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
 
 void ViewPanel::set_unwrapping_2d(const bool value)

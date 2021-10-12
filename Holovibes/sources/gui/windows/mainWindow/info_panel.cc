@@ -11,6 +11,8 @@ InfoPanel::InfoPanel(QWidget* parent)
 
 InfoPanel::~InfoPanel() {}
 
+void InfoPanel::on_notify() {}
+
 void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
 
 void InfoPanel::init_file_reader_progress(int value, int max)

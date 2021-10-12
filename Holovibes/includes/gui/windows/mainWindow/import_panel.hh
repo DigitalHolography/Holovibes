@@ -22,6 +22,8 @@ class ImportPanel : public Panel
     ImportPanel(QWidget* parent = nullptr);
     ~ImportPanel();
 
+    void on_notify() override;
+
   public slots:
     /*! \brief Sets the start stop buttons object accessibility
      *
