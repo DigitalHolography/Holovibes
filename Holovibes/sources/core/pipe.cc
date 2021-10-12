@@ -100,8 +100,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
 
 bool Pipe::make_requests()
 {
-    LOG_TRACE << "Entering Pipe::make_requests()";
-
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
 
@@ -277,8 +275,6 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
-    LOG_TRACE << "Entering Pipe::refresh()";
-
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();

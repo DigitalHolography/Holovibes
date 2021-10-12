@@ -177,8 +177,6 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              bool raw_record,
                                              unsigned int nb_frames_skip)
 {
-    LOG_TRACE << "Entering Holovibes::start_cli_record_and_compute()";
-
     frame_record_worker_controller_.set_callback([]() {});
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip, cd_.output_buffer_size);
@@ -197,8 +195,6 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 
 void Holovibes::init_pipe()
 {
-    LOG_TRACE << "Entering Holovibes::init_pipe()";
-
     auto& cd = Holovibes::instance().get_cd();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (cd.compute_mode == Computation::Hologram)

@@ -24,8 +24,6 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
 
 void FrameRecordWorker::run()
 {
-    LOG_TRACE << "Entering FrameRecordWorker::run()";
-
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
 
     if (cd.batch_size > cd.record_buffer_size)
@@ -130,8 +128,6 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
 {
-    LOG_TRACE << "Entering FrameRecordWorker::init_gpu_record_queue()";
-
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(4, stream_);

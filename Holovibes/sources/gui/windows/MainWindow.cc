@@ -173,6 +173,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     // Display default values
     cd_.set_compute_mode(Computation::Raw);
+    last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
     notify();
     setFocusPolicy(Qt::StrongFocus);
 
@@ -288,6 +289,8 @@ void MainWindow::on_notify()
             ? "QPushButton {color: #00A4AB;}"
             : "");
 
+    // View
+    ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
     ui.PhaseUnwrap2DCheckBox->setEnabled(cd_.img_type == ImgType::PhaseIncrease || cd_.img_type == ImgType::Argument);
 
     // Time transformation cuts
@@ -744,11 +747,6 @@ void MainWindow::load_gui()
         time_transformation_cuts_window_max_size =
             ptree.get<uint>("window_size.time_transformation_cuts_window_max_size", 512);
         auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
-
-        // TO move in .ini non global
-        last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
-        ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
-        notify();
     }
 }
 void MainWindow::save_gui()
@@ -1133,6 +1131,7 @@ void MainWindow::set_view_mode(const QString value)
 
     auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
 
+    // Move in cd
     pipe->insert_fn_end_vect([=]() {
         cd_.set_img_type(static_cast<ImgType>(ui.ViewModeComboBox->currentIndex()));
         notify();
@@ -1142,6 +1141,7 @@ void MainWindow::set_view_mode(const QString value)
 
     // Force XYview autocontrast
     pipe->autocontrast_end_pipe(WindowKind::XYview);
+
     // Force cuts views autocontrast if needed
     if (cd_.time_transformation_cuts_enabled)
         set_auto_contrast_cuts();

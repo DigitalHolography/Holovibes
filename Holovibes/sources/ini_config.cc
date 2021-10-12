@@ -28,8 +28,9 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 
     // View
-    // TODO: Add a call to set_view_mode(), this fuunction is currently in mainwindow
-    cd.img_type.exchange(static_cast<ImgType>(ptree.get<int>("view.view_mode", static_cast<int>(cd.img_type.load()))));
+    // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
+    cd.img_type = static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load())));
+    LOG_INFO << static_cast<int>(cd.img_type.load());
     // Add unwrap_2d
     cd.time_transformation_cuts_enabled =
         ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
@@ -191,7 +192,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
 void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
 {
-    LOG_DEBUG << "Loading ini file at path: " << ini_path;
+    LOG_INFO << "Compute settings loaded from : " << ini_path;
 
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(ini_path, ptree);
@@ -371,5 +372,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 
     boost::property_tree::write_ini(ini_path, ptree);
+
+    LOG_INFO << "Compute settings overwritten at : " << ini_path;
 }
 } // namespace holovibes::ini
