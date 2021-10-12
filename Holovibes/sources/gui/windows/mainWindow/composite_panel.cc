@@ -27,38 +27,34 @@ void CompositePanel::on_notify()
 
     ui_->RenormalizationCheckBox->setChecked(parent_->cd_.composite_auto_weights_);
 
-    parent_->QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, parent_->cd_.composite_p_red);
-    parent_->QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, parent_->cd_.composite_p_blue);
-    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, parent_->cd_.weight_r);
-    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, parent_->cd_.weight_g);
-    parent_->QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, parent_->cd_.weight_b);
+    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, parent_->cd_.composite_p_red);
+    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, parent_->cd_.composite_p_blue);
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, parent_->cd_.weight_r);
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, parent_->cd_.weight_g);
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, parent_->cd_.weight_b);
     ui_->CompositePanel->actualize_frequency_channel_v();
 
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, parent_->cd_.composite_p_min_h);
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, parent_->cd_.composite_p_max_h);
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
-                                  (int)(parent_->cd_.slider_h_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, parent_->cd_.composite_p_min_h);
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, parent_->cd_.composite_p_max_h);
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min, (int)(parent_->cd_.slider_h_threshold_min * 1000));
     ui_->CompositePanel->slide_update_threshold_h_min();
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
-                                  (int)(parent_->cd_.slider_h_threshold_max * 1000));
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max, (int)(parent_->cd_.slider_h_threshold_max * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
 
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, parent_->cd_.composite_p_min_s);
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, parent_->cd_.composite_p_max_s);
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_min,
-                                  (int)(parent_->cd_.slider_s_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, parent_->cd_.composite_p_min_s);
+    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, parent_->cd_.composite_p_max_s);
+    QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_min,
+                         (int)(parent_->cd_.slider_s_threshold_min * 1000));
     ui_->CompositePanel->slide_update_threshold_s_min();
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_max,
-                                  (int)(parent_->cd_.slider_s_threshold_max * 1000));
+    QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_max,
+                         (int)(parent_->cd_.slider_s_threshold_max * 1000));
     ui_->CompositePanel->slide_update_threshold_s_max();
 
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_min, parent_->cd_.composite_p_min_v);
-    parent_->QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_max, parent_->cd_.composite_p_max_v);
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_min,
-                                  (int)(parent_->cd_.slider_v_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_min, parent_->cd_.composite_p_min_v);
+    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_max, parent_->cd_.composite_p_max_v);
+    QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_min, (int)(parent_->cd_.slider_v_threshold_min * 1000));
     ui_->CompositePanel->slide_update_threshold_v_min();
-    parent_->QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_max,
-                                  (int)(parent_->cd_.slider_v_threshold_max * 1000));
+    QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_max, (int)(parent_->cd_.slider_v_threshold_max * 1000));
     ui_->CompositePanel->slide_update_threshold_v_max();
 
     bool rgbMode = ui_->radioButton_rgb->isChecked();

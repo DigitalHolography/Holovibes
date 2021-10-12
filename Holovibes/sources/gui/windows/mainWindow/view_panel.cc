@@ -132,8 +132,8 @@ void ViewPanel::on_notify()
     }
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
-    parent_->QSpinBoxQuietSetValue(ui_->XSpinBox, parent_->cd_.x_cuts);
-    parent_->QSpinBoxQuietSetValue(ui_->YSpinBox, parent_->cd_.y_cuts);
+    QSpinBoxQuietSetValue(ui_->XSpinBox, parent_->cd_.x_cuts);
+    QSpinBoxQuietSetValue(ui_->YSpinBox, parent_->cd_.y_cuts);
 
     ui_->RenormalizeCheckBox->setChecked(parent_->cd_.renorm_enabled);
     ui_->ReticleScaleDoubleSpinBox->setEnabled(parent_->cd_.reticle_enabled);

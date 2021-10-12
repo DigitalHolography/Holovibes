@@ -34,6 +34,25 @@ class Panel : public QGroupBox
 
     virtual void on_notify() = 0;
 
+    /*! \brief Changes Box value without triggering any signal
+     *
+     * \param spinBox The box to change
+     * \param value The value to set
+     */
+    static void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+    /*! \brief Changes Slider value without triggering any signal
+     *
+     * \param slider The slider to change
+     * \param value The value to set
+     */
+    static void QSliderQuietSetValue(QSlider* slider, int value);
+    /*! \brief Changes SpinBox value without triggering any signal
+     *
+     * \param spinBox The spinbox to change
+     * \param value The value to set
+     */
+    static void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
+
   public slots:
     /*! \brief Show or hide Panel */
     void ShowOrHide();

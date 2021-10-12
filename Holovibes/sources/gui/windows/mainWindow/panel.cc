@@ -21,6 +21,27 @@ void Panel::ShowOrHide()
         show();
 }
 
+void Panel::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
+{
+    spinBox->blockSignals(true);
+    spinBox->setValue(value);
+    spinBox->blockSignals(false);
+}
+
+void Panel::QSliderQuietSetValue(QSlider* slider, int value)
+{
+    slider->blockSignals(true);
+    slider->setValue(value);
+    slider->blockSignals(false);
+}
+
+void Panel::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value)
+{
+    spinBox->blockSignals(true);
+    spinBox->setValue(value);
+    spinBox->blockSignals(false);
+}
+
 MainWindow* Panel::find_main_window(QObject* widget)
 {
     if (widget == nullptr)

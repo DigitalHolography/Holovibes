@@ -887,29 +887,6 @@ void MainWindow::pipe_refresh()
 
 #pragma endregion
 /* ------------ */
-#pragma region Contrast - Log
-void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
-{
-    spinBox->blockSignals(true);
-    spinBox->setValue(value);
-    spinBox->blockSignals(false);
-}
-
-void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
-{
-    slider->blockSignals(true);
-    slider->setValue(value);
-    slider->blockSignals(false);
-}
-
-void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value)
-{
-    spinBox->blockSignals(true);
-    spinBox->setValue(value);
-    spinBox->blockSignals(false);
-}
-#pragma endregion
-/* ------------ */
 #pragma region Themes
 void MainWindow::set_night()
 {
@@ -949,15 +926,6 @@ void MainWindow::set_classic()
 }
 #pragma endregion
 
-#pragma region Getters
-
 RawWindow* MainWindow::get_main_display() { return mainDisplay.get(); }
-
-void MainWindow::update_file_reader_index(int n)
-{
-    auto lambda = [this, n]() { ui->InfoPanel->update_file_reader_progress(n); };
-    synchronize_thread(lambda);
-}
-#pragma endregion
 } // namespace gui
 } // namespace holovibes

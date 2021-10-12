@@ -120,12 +120,12 @@ class MainWindow : public QMainWindow, public Observer
 
   public slots:
     void on_notify();
-    void update_file_reader_index(int n);
     /*! \brief Give a function to execute to the main thread with a signal
      *
      * \param f the function to execute
      */
     void synchronize_thread(std::function<void()> f);
+
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
     void configure_holovibes();
@@ -255,27 +255,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh();
-
-    /*! \brief Changes Box value without triggering any signal
-     *
-     * \param spinBox The box to change
-     * \param value The value to set
-     */
-    void QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
-
-    /*! \brief Changes Slider value without triggering any signal
-     *
-     * \param slider The slider to change
-     * \param value The value to set
-     */
-    void QSliderQuietSetValue(QSlider* slider, int value);
-
-    /*! \brief Changes SpinBox value without triggering any signal
-     *
-     * \param spinBox The spinbox to change
-     * \param value The value to set
-     */
-    void QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
   private:
     std::vector<Panel*> panels_;
