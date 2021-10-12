@@ -514,6 +514,8 @@ inline void set_end_frame(uint end_frame) { Holovibes::instance().get_cd().end_f
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 
+inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
+
 #pragma endregion
 
 } // namespace holovibes::api
