@@ -942,9 +942,11 @@ void set_y_accu(bool is_y_accu, uint y_value)
 }
 
 // VALID
-void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y)
+void set_x_y(uint x, uint y)
 {
     LOG_INFO;
+
+    const camera::FrameDescriptor& frame_descriptor = get_fd();
 
     if (x < frame_descriptor.width)
         Holovibes::instance().get_cd().x_cuts = x;

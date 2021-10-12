@@ -1471,9 +1471,7 @@ void MainWindow::set_x_y()
 {
     LOG_INFO;
 
-    const auto& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
-
-    api::set_x_y(fd, ui.XSpinBox->value(), ui.YSpinBox->value());
+    api::set_x_y(ui.XSpinBox->value(), ui.YSpinBox->value());
 }
 
 // VALID

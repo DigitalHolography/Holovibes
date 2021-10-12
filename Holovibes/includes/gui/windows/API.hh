@@ -215,11 +215,10 @@ void set_q_accu(bool is_q_accu, uint q_value);
 
 /*! \brief Modifies x and y
  *
- * \param frame_descriptor the metadata of the frame
  * \param x value to modify
  * \param y value to modify
  */
-void set_x_y(const camera::FrameDescriptor& frame_descriptor, uint x, uint y);
+void set_x_y(uint x, uint y);
 
 /*! \brief Modifies p
  *
