@@ -307,8 +307,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     // ptree.put<float>("hsv_v.high_threshold", cd.hsv.v.high_threshold);
 
     // Composite
-    // cd.composite_kind =
-    //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
+    ptree.put<int>("composite.mode", static_cast<int>(cd.composite_kind.load()));
     ptree.put<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // RGB
     ptree.put<ushort>("rgb.p_min", cd.rgb_p_min);
