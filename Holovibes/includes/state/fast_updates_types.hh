@@ -11,8 +11,8 @@
  *
  * First decide for an Enum name (named TKey in the following) and an Value type (named TValue in the following)
  *
- * Then you new to create (or import as done with QueueType) an enum with the entries you want
- * and finaly you need to create a specialization of the templated struct TypeValue as follows:
+ * Then you need to create (or import as done with QueueType) an enum with the entries you want
+ * and finally you need to create a specialization of the templated struct TypeValue as follows:
  *
  * template <>
  * struct TypeValue<TKey>
@@ -50,7 +50,7 @@ enum class ProgressType
     CHART_RECORD,
 };
 
-// enum class also
+// enum class
 using QueueType = Queue::QueueType;
 
 /*! \} */
@@ -86,12 +86,30 @@ struct TypeValue<ProgressType>
     using value = std::atomic<unsigned int>;
 };
 
+template <>
+struct TypeValue<QueueType>
+{
+    using key = QueueType;
+    using value = std::atomic<unsigned int>;
+};
+
 } // namespace _internal
 
-template <typename T>
-constexpr bool is_fast_update_key_type = !std::is_same<_internal::TypeValue<T>::value, std::false_type>::value;
-
+/*!
+ * \brief Compile time
+ *
+ * \tparam T The enum class type to get the value of the key
+ *  please do not use before checking is_fast_update_key_type
+ */
 template <typename T>
 using FastUpdateTypeValue = _internal::TypeValue<T>::value;
+
+/*!
+ * \brief compile time boolean to check if the type T matches a key type of the FastUpdateHolder map class
+ *
+ * \tparam T The enum class type to check
+ */
+template <typename T>
+constexpr bool is_fast_update_key_type = !std::is_same<FastUpdateTypeValue<T>, std::false_type>::value;
 
 } // namespace holovibes
