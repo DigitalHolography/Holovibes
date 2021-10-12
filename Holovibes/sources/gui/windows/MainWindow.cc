@@ -25,6 +25,7 @@
 #include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
+#include "gui_group_box.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -118,7 +119,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
 
     // Hide non default tab
-    ui.CompositeGroupBox->hide();
+    // ui.CompositeGroupBox->hide();
 
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
@@ -130,19 +131,25 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     try
     {
-        load_ini(::holovibes::ini::default_config_filepath);
+        load_gui();
     }
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::default_config_filepath << ": Configuration file not found. "
+        LOG_WARN << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
-        save_ini(::holovibes::ini::default_config_filepath);
     }
 
-    set_z_step(z_step_);
-    set_record_frame_step(record_frame_step_);
-    set_night();
+    try
+    {
+        ini::load_ini(cd_, ::holovibes::ini::default_compute_config_filepath);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_WARN << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
+                 << "Initialization with default values.";
+    }
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -175,6 +182,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     spinBoxDecimalPointReplacement(ui.ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
 
+    // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
     std::filesystem::path convo_matrix_path(get_exe_dir());
@@ -553,7 +561,6 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
-
     synchronize_thread([=]() {
         // Resizing to original size, then adjust it to fit the groupboxes
         resize(baseSize());
@@ -628,14 +635,14 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(::holovibes::ini::default_config_filepath); }
+void MainWindow::configure_holovibes() { open_file(::holovibes::ini::default_compute_config_filepath); }
 
 void MainWindow::write_ini() { write_ini(""); }
 
 void MainWindow::write_ini(QString filename)
 {
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
+    ini::save_ini(cd_, filename.isEmpty() ? ::holovibes::ini::default_compute_config_filepath : filename.toStdString());
     notify();
 }
 
@@ -662,7 +669,8 @@ void MainWindow::reload_ini(QString filename)
     import_stop();
     try
     {
-        load_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
+        ini::load_ini(cd_,
+                      filename.isEmpty() ? ::holovibes::ini::default_compute_config_filepath : filename.toStdString());
     }
     catch (const std::exception& e)
     {
@@ -678,7 +686,14 @@ void MainWindow::reload_ini(QString filename)
     notify();
 }
 
-void MainWindow::load_ini(const std::string& path)
+void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
+{
+    LOG_INFO << to_hide;
+    action->setChecked(!to_hide);
+    groupbox->setHidden(to_hide);
+}
+
+void MainWindow::load_gui()
 {
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
@@ -695,30 +710,30 @@ void MainWindow::load_ini(const std::string& path)
 
     if (!ptree.empty())
     {
-        // Load general compute data
-        ini::load_ini(cd_, "tutu.ini");
-
         // Display
-        theme_index_ = ptree.get<int>("display.theme_type", theme_index_);
+        set_theme(ptree.get<int>("display.theme_type", theme_index_));
         // Gui_steps
-        const float z_step = ptree.get<float>("gui_settings.image_rendering_z_step", z_step_);
-        if (z_step > 0.0f)
-            set_z_step(z_step);
-        const uint record_frame_step = ptree.get<uint>("gui_settings.record_frame_step", record_frame_step_);
-        set_record_frame_step(record_frame_step);
+        set_z_step(ptree.get<float>("gui_settings.image_rendering_z_step", z_step_));
+        set_record_frame_step(ptree.get<uint>("gui_settings.record_frame_step", record_frame_step_));
         // Camera
-        kCamera = static_cast<CameraKind>(ptree.get<int>("image_rendering.camera", static_cast<int>(kCamera)));
+        change_camera(static_cast<CameraKind>(ptree.get<int>("image_rendering.camera", static_cast<int>(kCamera))));
         // Import
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
         // Chart
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
         // Window
-        image_rendering_action->setChecked(
-            !ptree.get<bool>("window.image_rendering_hidden", image_rendering_group_box->isHidden()));
-        view_action->setChecked(!ptree.get<bool>("window.view_hidden", view_group_box->isHidden()));
-        import_export_action->setChecked(!ptree.get<bool>("window.import_export_hidden", import_group_box->isHidden()));
-        info_action->setChecked(!ptree.get<bool>("window.info_hidden", info_group_box->isHidden()));
+        // FIXME: After those sets, the visibility is changed. Need to find where.
+        set_module_visibility(image_rendering_action,
+                              image_rendering_group_box,
+                              ptree.get<bool>("window.image_rendering_hidden", image_rendering_group_box->isHidden()));
+        // set_module_visibility(view_action, view_group_box, ptree.get<bool>("window.view_hidden", false));
+        set_module_visibility(import_export_action,
+                              import_group_box,
+                              ptree.get<bool>("window.import_export_hidden", import_group_box->isHidden()));
+        set_module_visibility(info_action,
+                              info_group_box,
+                              ptree.get<bool>("window.info_hidden", info_group_box->isHidden()));
         // File
         default_output_filename_ = ptree.get<std::string>("files.default_output_filename", default_output_filename_);
         record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
@@ -733,28 +748,15 @@ void MainWindow::load_ini(const std::string& path)
         // TO move in .ini non global
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
         ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
-
-        // to move in cd
-        cd_.xy_rot = ptree.get<float>("view.mainWindow_rotate", cd_.xy_rot);
-        cd_.xz_rot = ptree.get<float>("view.xCut_rotate", cd_.xz_rot);
-        cd_.yz_rot = ptree.get<float>("view.yCut_rotate", cd_.yz_rot);
-        cd_.xy_flip_enabled = ptree.get<bool>("view.mainWindow_flip", cd_.xy_flip_enabled);
-        cd_.xz_flip_enabled = ptree.get<bool>("view.xCut_flip", cd_.xz_flip_enabled);
-        cd_.yz_flip_enabled = ptree.get<bool>("view.yCut_flip", cd_.yz_flip_enabled);
-
         notify();
     }
 }
-
-void MainWindow::save_ini(const std::string& path)
+void MainWindow::save_gui()
 {
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
     GroupBox* view_group_box = ui.ViewGroupBox;
     Frame* import_export_frame = ui.ImportExportFrame;
     GroupBox* info_group_box = ui.InfoGroupBox;
-
-    // Save general compute data
-    ini::save_ini(cd_, "tutu.ini");
 
     boost::property_tree::ptree ptree;
 
@@ -784,16 +786,10 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<uint>("window_size.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
     ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
 
-    ptree.put<float>("view.mainWindow_rotate", cd_.xy_rot);
-    ptree.put<float>("view.xCut_rotate", cd_.xz_rot);
-    ptree.put<float>("view.yCut_rotate", cd_.yz_rot);
-    ptree.put<int>("view.mainWindow_flip", cd_.xy_flip_enabled);
-    ptree.put<int>("view.xCut_flip", cd_.xz_flip_enabled);
-    ptree.put<int>("view.yCut_flip", cd_.yz_flip_enabled);
+    auto path = holovibes::ini::global_config_filepath;
+    boost::property_tree::write_ini(path, ptree);
 
-    boost::property_tree::write_ini("global.ini", ptree);
-
-    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path;
+    LOG_INFO << "GUI settings overwritten at " << path;
 }
 
 void MainWindow::open_file(const std::string& path)
@@ -858,7 +854,9 @@ void MainWindow::closeEvent(QCloseEvent*)
         close_critical_compute();
     camera_none();
     remove_infos();
-    save_ini(::holovibes::ini::default_config_filepath);
+
+    save_gui();
+    ini::save_ini(cd_, ::holovibes::ini::default_compute_config_filepath);
 }
 #pragma endregion
 /* ------------ */
@@ -1985,6 +1983,8 @@ void MainWindow::decrement_z()
 
 void MainWindow::set_z_step(const double value)
 {
+    if (value < 0)
+        return;
     z_step_ = value;
     ui.ZDoubleSpinBox->setSingleStep(value);
 }
@@ -2381,6 +2381,9 @@ void MainWindow::stop_chart_display()
 #pragma region Record
 void MainWindow::set_record_frame_step(int value)
 {
+    if (value < 1)
+        return;
+
     record_frame_step_ = value;
     ui.NumberOfFramesSpinBox->setSingleStep(value);
 }
@@ -2739,7 +2742,6 @@ void MainWindow::init_holovibes_import_mode()
         // Gather data from import panel
         std::string file_path = import_line_edit->text().toStdString();
 
-        // TODO: Refacto cd_ access
         cd_.input_fps = fps_spinbox->value();
         cd_.start_frame = start_spinbox->value();
         cd_.end_frame = end_spinbox->value();
@@ -2839,6 +2841,26 @@ void MainWindow::set_classic()
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
     theme_index_ = 0;
+}
+
+void MainWindow::set_theme(const int index)
+{
+    if (index == theme_index_)
+        return;
+
+    switch (index)
+    {
+    case 0:
+        set_classic();
+        break;
+    case 1:
+        set_night();
+        break;
+    default:
+        return;
+    }
+
+    theme_index_ = index;
 }
 #pragma endregion
 

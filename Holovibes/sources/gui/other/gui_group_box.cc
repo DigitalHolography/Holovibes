@@ -1,4 +1,5 @@
 #include "gui_group_box.hh"
+#include "logger.hh"
 
 namespace holovibes
 {

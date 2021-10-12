@@ -473,6 +473,9 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the theme of the ui */
     void set_night();
 
+    /*! \brief Changes the theme of the ui according to its index */
+    void set_theme(const int index);
+
     /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
     void rotateTexture();
 
@@ -573,17 +576,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void open_file(const std::string& path);
 
-    /*! \brief Setups program from .ini file
-     *
-     * \param path The path where the .ini file is
-     */
-    void load_ini(const std::string& path);
+    /*! \brief Setups gui from .ini file */
+    void load_gui();
 
-    /*! \brief Saves the current state of holovibes
-     *
-     * \param path The location of the .ini file saved
-     */
-    void save_ini(const std::string& path);
+    /*! \brief Saves the current state of holovibes */
+    void save_gui();
 
     /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();

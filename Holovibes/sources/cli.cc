@@ -193,7 +193,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         }
         catch (std::exception&)
         {
-            LOG_WARN << "Configuration file not found, initialization with default values.";
+            LOG_WARN << "Configuration file not found.";
+            std::exit(1);
         }
     }
 

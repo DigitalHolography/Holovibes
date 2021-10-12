@@ -36,7 +36,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
     cd.lens_view_enabled = ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
-    // TODO: Create structs
+    // TODO: Create structs and replace 4 * 4 lines by 4 lines
     cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
     cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
     cd.x_acc_level = ptree.get<short>("view.x_acc_level", cd.x_acc_level);
@@ -53,21 +53,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.p_accu_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
-    // xy => Settings to merge in a struct (some are in MainWindow, others in cd)
-    //// cd.xy.flip = ptree.get<bool>("xy.flip", cd.xy.flip);
-    //// cd.xy.rot = ptree.get<float>("xy.rot", cd.xy.rot);
-    //// cd.xy.log_enabled = ptree.get<bool>("xy.log_enabled", cd.xy.log_enabled);
-    //// cd.xy.img_acc_enabled = ptree.get<bool>("xy.img_acc_enabled", cd.xy.img_acc_enabled);
-    //// cd.xy.img_acc_value = ptree.get<ushort>("xy.img_acc_value", cd.p_acc_level);
-    //// cd.xy.auto_enabled = ptree.get<bool>("xy.auto_contrast_enabled", cd.xy.log_enabled);
-    //// cd.xy.invert_enabled = ptree.get<bool>("xy.invert_enabled", cd.xy.invert_enabled);
-    //// cd.xy.range_min = ptree.get<float>("xy.range_min", cd.xy.range_min);
-    //// cd.xy.range_max = ptree.get<float>("xy.range_max", cd.xy.range_max);
-    // xz
-    // ==> Duplicate the section xy (changing all 'xy' by 'xz').
-    // yz
-    // ==> Duplicate the section xy (changing all 'xy' by 'yz').
-    // xy => Settings to merge in a struct (some are in MainWindow, others in cd)
+    // TODO: Struct and 3 function call instead of 3 * 10 lines
+    // xy
     cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
     cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
     cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
@@ -100,18 +87,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.yz_contrast_invert = ptree.get<bool>("yz.invert_enabled", cd.yz_contrast_invert);
     cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
     cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
-    // ==> Duplicate the section xy (changing all 'xy' by 'yz').
-    // Current for xy / xz / yz
-    cd.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
-    cd.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);
-    cd.log_scale_slice_yz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_slice_yz_enabled);
-    cd.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
-    cd.contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
-    cd.contrast_auto_refresh = ptree.get<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
-    cd.contrast_invert = ptree.get<bool>("view.contrast_invert", cd.contrast_invert);
-    cd.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", cd.contrast_min_slice_xy);
-    cd.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", cd.contrast_max_slice_xy);
-    // end cur
 
     // // Composite // TODO WHEN IT WILL BE IMPLEMENTED
     // cd.composite_kind =
