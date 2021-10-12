@@ -10,11 +10,28 @@ namespace holovibes::gui
 ImportPanel::ImportPanel(QWidget* parent)
     : Panel(parent)
 {
+    file_input_directory_ = "C:\\";
 }
 
 ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(parent_->cd_.is_computation_stopped); }
+
+void ImportPanel::load_ini(const boost::property_tree::ptree& ptree)
+{
+    file_input_directory_ = ptree.get<std::string>("files.file_input_directory", file_input_directory_);
+}
+
+void ImportPanel::save_ini(boost::property_tree::ptree& ptree)
+{
+    ptree.put<std::string>("files.file_input_directory", file_input_directory_);
+}
+
+ImportPanel::ImportType ImportPanel::get_import_type() { return import_type_; }
+
+void ImportPanel::set_import_type(ImportPanel::ImportType type) { import_type_ = type; }
+
+std::string& ImportPanel::get_file_input_directory() { return file_input_directory_; }
 
 void ImportPanel::set_start_stop_buttons(bool value)
 {
@@ -30,7 +47,7 @@ void ImportPanel::import_browse_file()
     // and store the chosen file in filename
     filename = QFileDialog::getOpenFileName(this,
                                             tr("import file"),
-                                            "C:\\",
+                                            QString::fromStdString(file_input_directory_),
                                             tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
                                                "(*.cine)"));
     LOG_INFO << filename.toStdString();

@@ -22,7 +22,21 @@ class ImportPanel : public Panel
     ImportPanel(QWidget* parent = nullptr);
     ~ImportPanel();
 
+    enum ImportType
+    {
+        None,
+        Camera,
+        File,
+    };
+
     void on_notify() override;
+
+    void load_ini(const boost::property_tree::ptree& ptree) override;
+    void save_ini(boost::property_tree::ptree& ptree) override;
+
+    ImportType get_import_type();
+    void set_import_type(ImportType type);
+    std::string& get_file_input_directory();
 
   public slots:
     /*! \brief Sets the start stop buttons object accessibility
@@ -55,13 +69,8 @@ class ImportPanel : public Panel
     void import_end_spinbox_update();
 
   private:
-    enum ImportType
-    {
-        None,
-        Camera,
-        File,
-    };
-
     ImportType import_type_ = ImportType::None;
+
+    std::string file_input_directory_;
 };
 } // namespace holovibes::gui

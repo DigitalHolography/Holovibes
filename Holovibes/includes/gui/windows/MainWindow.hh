@@ -90,24 +90,8 @@ class MainWindow : public QMainWindow, public Observer
     bool is_enabled_camera_ = false; // RIEN?IR?
     double z_step_ = 0.005f;         // IR
 
-    bool is_recording_ = false;                // RIEN?
-    unsigned record_frame_step_ = 512;         // E?
-    RecordMode record_mode_ = RecordMode::RAW; // E
-
-    std::string default_output_filename_; // E
-    std::string record_output_directory_; // E
-    std::string file_input_directory_;    // E
-    std::string batch_input_directory_;   // E
-
-    enum ImportType // I
-    {
-        None,
-        Camera,
-        File,
-    };
-    CameraKind kCamera = CameraKind::NONE;      // RIEN?IR?
-    ImportType import_type_ = ImportType::None; // I
-    QString last_img_type_ = "Magnitude";       // V
+    CameraKind kCamera = CameraKind::NONE; // RIEN?IR?
+    QString last_img_type_ = "Magnitude";  // V
 
     size_t auto_scale_point_threshold_ = 100; // RIEN
     ushort theme_index_ = 0;                  // RIEN

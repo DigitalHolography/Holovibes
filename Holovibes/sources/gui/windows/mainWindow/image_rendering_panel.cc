@@ -27,7 +27,7 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeTransformationStrideSpinBox->setSingleStep(parent_->cd_.batch_size);
     ui_->TimeTransformationStrideSpinBox->setMinimum(parent_->cd_.batch_size);
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !parent_->is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !ui_->ExportPanel->is_recording_);
 
     parent_->cd_.check_batch_size_limit(input_queue_capacity);
     ui_->BatchSizeSpinBox->setValue(parent_->cd_.batch_size);

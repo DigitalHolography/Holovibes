@@ -9,6 +9,7 @@ namespace holovibes::gui
 CompositePanel::CompositePanel(QWidget* parent)
     : Panel(parent)
 {
+    hide();
 }
 
 CompositePanel::~CompositePanel() {}

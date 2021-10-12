@@ -11,15 +11,32 @@ InfoPanel::InfoPanel(QWidget* parent)
 
 InfoPanel::~InfoPanel() {}
 
-void InfoPanel::on_notify() {}
+void InfoPanel::init()
+{
+    auto update_progress = [=](InformationContainer::ProgressType type, const size_t value, const size_t max_size) {
+        parent_->synchronize_thread([=]() {
+            switch (type)
+            {
+            case InformationContainer::ProgressType::FILE_READ:
+                ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
+                ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
+                break;
+            case InformationContainer::ProgressType::CHART_RECORD:
+            case InformationContainer::ProgressType::FRAME_RECORD:
+                ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
+                ui_->RecordProgressBar->setValue(static_cast<int>(value));
+                break;
+            default:
+                return;
+            };
+        });
+    };
+    Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
+    set_visible_file_reader_progress(false);
+    set_visible_record_progress(false);
+}
 
 void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
-
-void InfoPanel::init_file_reader_progress(int value, int max)
-{
-    ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max));
-    ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
-}
 
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {
@@ -31,14 +48,6 @@ void InfoPanel::set_visible_file_reader_progress(bool visible)
     {
         ui_->FileReaderProgressBar->hide();
     }
-}
-
-void InfoPanel::update_file_reader_progress(int value) { ui_->FileReaderProgressBar->setValue(value); }
-
-void InfoPanel::init_record_progress(int value, int max)
-{
-    ui_->RecordProgressBar->setMaximum(static_cast<int>(max));
-    ui_->RecordProgressBar->setValue(static_cast<int>(value));
 }
 
 void InfoPanel::set_visible_record_progress(bool visible)

@@ -10,9 +10,14 @@ namespace holovibes::gui
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
 {
+    default_output_filename_ = "capture";
+    record_output_directory_ = (get_user_documents_path() / "Holovibes").string();
+    batch_input_directory_ = "C:\\";
 }
 
 ExportPanel::~ExportPanel() {}
+
+void ExportPanel::init() { set_record_mode(QString::fromUtf8("Raw Image")); }
 
 void ExportPanel::on_notify()
 {
@@ -45,14 +50,24 @@ void ExportPanel::on_notify()
     path_line_edit->clear();
 
     std::string record_output_path =
-        (std::filesystem::path(parent_->record_output_directory_) / parent_->default_output_filename_).string();
+        (std::filesystem::path(record_output_directory_) / default_output_filename_).string();
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void ExportPanel::set_record_frame_step(int value)
+void ExportPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
-    parent_->record_frame_step_ = value;
-    ui_->NumberOfFramesSpinBox->setSingleStep(value);
+    default_output_filename_ = ptree.get<std::string>("files.default_output_filename", default_output_filename_);
+    record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
+    batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
+    record_frame_step_ = ptree.get<uint>("record.record_frame_step", record_frame_step_);
+}
+
+void ExportPanel::save_ini(boost::property_tree::ptree& ptree)
+{
+    ptree.put<std::string>("files.default_output_filename", default_output_filename_);
+    ptree.put<std::string>("files.record_output_directory", record_output_directory_);
+    ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
+    ptree.put<uint>("record.record_frame_step", record_frame_step_);
 }
 
 void ExportPanel::browse_record_output_file()
@@ -61,25 +76,25 @@ void ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (parent_->record_mode_ == RecordMode::CHART)
+    if (record_mode_ == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
-                                                parent_->record_output_directory_.c_str(),
+                                                record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (parent_->record_mode_ == RecordMode::RAW)
+    else if (record_mode_ == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
-                                                parent_->record_output_directory_.c_str(),
+                                                record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (parent_->record_mode_ == RecordMode::HOLOGRAM)
+    else if (record_mode_ == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
-                                                parent_->record_output_directory_.c_str(),
+                                                record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
 
@@ -94,9 +109,9 @@ void ExportPanel::browse_record_output_file()
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     // FIXME Opti: we could be all these 3 operations below on a single string processing
-    parent_->record_output_directory_ = path.parent_path().string();
+    record_output_directory_ = path.parent_path().string();
     const std::string file_ext = path.extension().string();
-    parent_->default_output_filename_ = path.stem().string();
+    default_output_filename_ = path.stem().string();
 
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
@@ -110,10 +125,8 @@ void ExportPanel::browse_batch_input()
 {
 
     // Open file explorer on the fly
-    QString filename = QFileDialog::getOpenFileName(this,
-                                                    tr("Batch input file"),
-                                                    parent_->batch_input_directory_.c_str(),
-                                                    tr("All files (*)"));
+    QString filename =
+        QFileDialog::getOpenFileName(this, tr("Batch input file"), batch_input_directory_.c_str(), tr("All files (*)"));
 
     // Output the file selected in he ui line edit widget
     QLineEdit* batch_input_line_edit = ui_->BatchInputPathLineEdit;
@@ -123,7 +136,7 @@ void ExportPanel::browse_batch_input()
 
 void ExportPanel::set_record_mode(const QString& value)
 {
-    if (parent_->record_mode_ == RecordMode::CHART)
+    if (record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
     stop_record();
@@ -131,15 +144,15 @@ void ExportPanel::set_record_mode(const QString& value)
     const std::string text = value.toStdString();
 
     if (text == "Chart")
-        parent_->record_mode_ = RecordMode::CHART;
+        record_mode_ = RecordMode::CHART;
     else if (text == "Processed Image")
-        parent_->record_mode_ = RecordMode::HOLOGRAM;
+        record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
-        parent_->record_mode_ = RecordMode::RAW;
+        record_mode_ = RecordMode::RAW;
     else
         throw std::exception("Record mode not handled");
 
-    if (parent_->record_mode_ == RecordMode::CHART)
+    if (record_mode_ == RecordMode::CHART)
     {
         ui_->RecordExtComboBox->clear();
         ui_->RecordExtComboBox->insertItem(0, ".csv");
@@ -158,12 +171,12 @@ void ExportPanel::set_record_mode(const QString& value)
     }
     else
     {
-        if (parent_->record_mode_ == RecordMode::RAW)
+        if (record_mode_ == RecordMode::RAW)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
         }
-        else if (parent_->record_mode_ == RecordMode::HOLOGRAM)
+        else if (record_mode_ == RecordMode::HOLOGRAM)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
@@ -189,9 +202,9 @@ void ExportPanel::stop_record()
 {
     parent_->holovibes_.stop_batch_gpib();
 
-    if (parent_->record_mode_ == RecordMode::CHART)
+    if (record_mode_ == RecordMode::CHART)
         parent_->holovibes_.stop_chart_record();
-    else if (parent_->record_mode_ == RecordMode::HOLOGRAM || parent_->record_mode_ == RecordMode::RAW)
+    else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
         parent_->holovibes_.stop_frame_record();
 }
 
@@ -215,7 +228,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
-    parent_->is_recording_ = false;
+    is_recording_ = false;
 }
 
 void ExportPanel::start_record()
@@ -228,7 +241,7 @@ void ExportPanel::start_record()
     if (!ui_->NumberOfFramesCheckBox->isChecked())
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || parent_->record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || record_mode_ == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
     {
         LOG_ERROR << "Number of frames must be activated";
         return;
@@ -250,14 +263,14 @@ void ExportPanel::start_record()
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    parent_->is_recording_ = true;
+    is_recording_ = true;
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = parent_->record_mode_, this]() {
+    auto callback = [record_mode = record_mode_, this]() {
         parent_->synchronize_thread([=]() { record_finished(record_mode); });
     };
 
@@ -266,20 +279,20 @@ void ExportPanel::start_record()
         parent_->holovibes_.start_batch_gpib(batch_input_path,
                                              output_path,
                                              nb_frames_to_record.value(),
-                                             parent_->record_mode_,
+                                             record_mode_,
                                              callback);
     }
     else
     {
-        if (parent_->record_mode_ == RecordMode::CHART)
+        if (record_mode_ == RecordMode::CHART)
         {
             parent_->holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (parent_->record_mode_ == RecordMode::HOLOGRAM)
+        else if (record_mode_ == RecordMode::HOLOGRAM)
         {
             parent_->holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
-        else if (parent_->record_mode_ == RecordMode::RAW)
+        else if (record_mode_ == RecordMode::RAW)
         {
             parent_->holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }

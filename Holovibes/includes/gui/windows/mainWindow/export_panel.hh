@@ -23,15 +23,15 @@ class ExportPanel : public Panel
     ExportPanel(QWidget* parent = nullptr);
     ~ExportPanel();
 
+    void init() override;
     void on_notify() override;
 
-  public slots:
-    /*! \brief Modifies the z step on scroll
-     *
-     * \param value the new incrementation/decrementation step
-     */
-    void set_record_frame_step(int value);
+    void load_ini(const boost::property_tree::ptree& ptree) override;
+    void save_ini(boost::property_tree::ptree& ptree) override;
 
+    bool is_recording_ = false;
+
+  public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
     void browse_record_output_file();
@@ -74,5 +74,13 @@ class ExportPanel : public Panel
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
+
+  private:
+    unsigned record_frame_step_ = 512;
+    RecordMode record_mode_ = RecordMode::RAW;
+
+    std::string default_output_filename_;
+    std::string record_output_directory_;
+    std::string batch_input_directory_;
 };
 } // namespace holovibes::gui

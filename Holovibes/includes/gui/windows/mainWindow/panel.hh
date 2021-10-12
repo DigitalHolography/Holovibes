@@ -7,6 +7,8 @@
 #include <QGroupBox>
 #include <QObject>
 
+#include <boost/property_tree/ptree.hpp>
+
 namespace Ui
 {
 class MainWindow;
@@ -32,7 +34,13 @@ class Panel : public QGroupBox
     /*! \brief Panel destructor */
     ~Panel();
 
-    virtual void on_notify() = 0;
+    virtual void on_notify(){};
+
+    // #TODO Put this into constructors when .ui files exist for every panel
+    virtual void init(){};
+
+    virtual void load_ini(const boost::property_tree::ptree& ptree){};
+    virtual void save_ini(boost::property_tree::ptree& ptree){};
 
     /*! \brief Changes Box value without triggering any signal
      *

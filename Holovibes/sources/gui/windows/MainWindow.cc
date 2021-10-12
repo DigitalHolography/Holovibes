@@ -90,28 +90,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     };
     Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
 
-    auto update_progress = [=](InformationContainer::ProgressType type, const size_t value, const size_t max_size) {
-        synchronize_thread([=]() {
-            switch (type)
-            {
-            case InformationContainer::ProgressType::FILE_READ:
-                ui->InfoPanel->init_file_reader_progress(static_cast<int>(value), static_cast<int>(max_size));
-                break;
-            case InformationContainer::ProgressType::CHART_RECORD:
-            case InformationContainer::ProgressType::FRAME_RECORD:
-                ui->InfoPanel->init_record_progress(static_cast<int>(value), static_cast<int>(max_size));
-                break;
-            default:
-                return;
-            };
-        });
-    };
-    Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
-    ui->InfoPanel->set_visible_file_reader_progress(false);
-    ui->InfoPanel->set_visible_record_progress(false);
-
-    ui->ExportPanel->set_record_mode(QString::fromUtf8("Raw Image"));
-
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();
@@ -119,16 +97,9 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     // need the correct dimensions of main windows
     move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
 
-    // Hide non default tab
-    ui->CompositePanel->hide();
-
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / "Holovibes";
     std::filesystem::create_directory(holovibes_documents_path);
-    default_output_filename_ = "capture";
-    record_output_directory_ = holovibes_documents_path.string();
-    file_input_directory_ = "C:\\";
-    batch_input_directory_ = "C:\\";
 
     try
     {
@@ -143,7 +114,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     }
 
     ui->ImageRenderingPanel->set_z_step(z_step_);
-    ui->ExportPanel->set_record_frame_step(record_frame_step_);
     set_night();
 
     // Keyboard shortcuts
@@ -191,6 +161,10 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         ui->KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
+
+    // Initialize all panels
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->init();
 
     Holovibes::instance().start_information_display(false);
 }
@@ -393,7 +367,7 @@ void MainWindow::browse_import_ini()
 {
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
-                                                    file_input_directory_.c_str(),
+                                                    ui->ImportPanel->get_file_input_directory().c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
     reload_ini(filename);
@@ -414,9 +388,10 @@ void MainWindow::reload_ini(QString filename)
         LOG_INFO << e.what() << std::endl;
     }
 
-    if (import_type_ == ImportType::File)
+    auto import_type = ui->ImportPanel->get_import_type();
+    if (import_type == ImportPanel::ImportType::File)
         ui->ImportPanel->import_start();
-    else if (import_type_ == ImportType::Camera)
+    else if (import_type == ImportPanel::ImportType::Camera)
     {
         change_camera(kCamera);
     }
@@ -443,12 +418,6 @@ void MainWindow::load_ini(const std::string& path)
         // Load general compute data
         ini::load_ini(ptree, cd_);
 
-        // Load window specific data
-        default_output_filename_ = ptree.get<std::string>("files.default_output_filename", default_output_filename_);
-        record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
-        file_input_directory_ = ptree.get<std::string>("files.file_input_directory", file_input_directory_);
-        batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
-
         image_rendering_action->setChecked(
             !ptree.get<bool>("image_rendering.hidden", image_rendering_panel->isHidden()));
 
@@ -472,9 +441,6 @@ void MainWindow::load_ini(const std::string& path)
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
-        const uint record_frame_step = ptree.get<uint>("record.record_frame_step", record_frame_step_);
-        ui->ExportPanel->set_record_frame_step(record_frame_step);
-
         import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_panel->isHidden()));
 
         ui->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
@@ -486,6 +452,9 @@ void MainWindow::load_ini(const std::string& path)
         time_transformation_cuts_window_max_size =
             ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
         auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
+
+        for (auto it = panels_.begin(); it != panels_.end(); it++)
+            (*it)->load_ini(ptree);
 
         notify();
     }
@@ -502,12 +471,6 @@ void MainWindow::save_ini(const std::string& path)
 
     // Save general compute data
     ini::save_ini(ptree, cd_);
-
-    // Save window specific data
-    ptree.put<std::string>("files.default_output_filename", default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory", record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
 
     ptree.put<bool>("image_rendering.hidden", image_rendering_panel->isHidden());
 
@@ -526,8 +489,6 @@ void MainWindow::save_ini(const std::string& path)
 
     ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
-    ptree.put<uint>("record.record_frame_step", record_frame_step_);
-
     ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
 
     ptree.put<bool>("info.hidden", info_panel->isHidden());
@@ -536,6 +497,9 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<uint>("display.main_window_max_size", window_max_size);
     ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
     ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
+
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->save_ini(ptree);
 
     boost::property_tree::write_ini(path, ptree);
 
@@ -675,7 +639,7 @@ void MainWindow::change_camera(CameraKind c)
             holovibes_.start_camera_frame_read(c);
             is_enabled_camera_ = true;
             ui->ImageRenderingPanel->set_image_mode(nullptr);
-            import_type_ = ImportType::Camera;
+            ui->ImportPanel->set_import_type(ImportPanel::ImportType::Camera);
             kCamera = c;
 
             // Make camera's settings menu accessible
