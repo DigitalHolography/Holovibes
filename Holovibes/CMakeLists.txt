@@ -44,6 +44,7 @@ string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
 set(HOLO_INCLUDES
     cuda_includes/
     includes/
+    includes/state/
     includes/compute/
     includes/containers/
     includes/core/

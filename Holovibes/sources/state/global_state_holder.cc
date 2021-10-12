@@ -8,9 +8,7 @@ GSH& GSH::instance()
     // Major issues can spawn here
     std::lock_guard<std::mutex> lock(mutex_);
     if (instance_ == nullptr)
-    {
         instance_ = new GSH();
-    }
     return *instance_;
 }
 
