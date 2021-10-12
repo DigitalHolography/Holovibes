@@ -417,18 +417,24 @@ void set_log_scale(const bool value);
 /*!
  * \brief Gets the contrast min of a given window
  *
- * \param king the window kind
  * \return float the contrast minimum of the given window kind
  */
-float get_contrast_min(const WindowKind kind);
+float get_contrast_min();
 
 /*!
  * \brief Gets the contrast max of a given window
  *
- * \param king the window kind
  * \return float the contrast maximum of the given window kind
  */
-float get_contrast_max(const WindowKind kind);
+float get_contrast_max();
+
+/*!
+ * \brief Checks if log scale is enabled for a given window
+ *
+ * \return true Enabled
+ * \return false Disabled
+ */
+bool get_img_log_scale_slice_enabled();
 
 /*! \brief Modifies convolution kernel
  *

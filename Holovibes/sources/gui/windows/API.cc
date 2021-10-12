@@ -1466,7 +1466,7 @@ void set_log_scale(const bool value)
 }
 
 // VALID
-float get_contrast_min(const WindowKind king)
+float get_contrast_min()
 {
     LOG_INFO;
 
@@ -1474,11 +1474,19 @@ float get_contrast_min(const WindowKind king)
 }
 
 // VALID
-float get_contrast_max(const WindowKind king)
+float get_contrast_max()
 {
     LOG_INFO;
 
     return Holovibes::instance().get_cd().get_contrast_max(api::get_current_window());
+}
+
+// VALID
+bool get_img_log_scale_slice_enabled()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_cd().get_img_log_scale_slice_enabled(api::get_current_window());
 }
 
 #pragma endregion

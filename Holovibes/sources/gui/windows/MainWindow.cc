@@ -298,9 +298,9 @@ void MainWindow::on_notify()
 
     // Contrast SpinBox:
     ui.ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui.ContrastMinDoubleSpinBox->setValue(api::get_contrast_min(api::get_current_window()));
+    ui.ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui.ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui.ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max(api::get_current_window()));
+    ui.ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // FFT shift
     ui.FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
@@ -312,8 +312,7 @@ void MainWindow::on_notify()
     window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(api::get_current_window()) : 0);
 
     ui.LogScaleCheckBox->setEnabled(true);
-    ui.LogScaleCheckBox->setChecked(
-        !is_raw && Holovibes::instance().get_cd().get_img_log_scale_slice_enabled(api::get_current_window()));
+    ui.LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
     ui.ImgAccuCheckBox->setEnabled(true);
     ui.ImgAccuCheckBox->setChecked(!is_raw &&
                                    Holovibes::instance().get_cd().get_img_acc_slice_enabled(api::get_current_window()));
