@@ -110,6 +110,6 @@ using FastUpdateTypeValue = _internal::TypeValue<T>::value;
  * \tparam T The enum class type to check
  */
 template <typename T>
-constexpr bool is_fast_update_key_type = !std::is_same<FastUpdateTypeValue<T>, std::false_type>::value;
+static constexpr bool is_fast_update_key_type = !std::is_same<FastUpdateTypeValue<T>, std::false_type>::value;
 
 } // namespace holovibes

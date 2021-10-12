@@ -26,12 +26,12 @@ class FastUpdatesHolder
      * \param overwrite it there a need to overwrite the previous entry ?
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    std::shared_ptr<Value> create_entry(Key key, bool overwrite = false)
+    Value create_entry(Key key, bool overwrite = false)
     {
         if (map_.contains(key) && !overwrite)
             throw std::runtime_error("Key is already present in map");
 
-        return map_[key] = std::make_shared<Value>;
+        return map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
     }
 
     /*!
@@ -40,7 +40,7 @@ class FastUpdatesHolder
      * \param key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    std::shared_ptr<Value> get_entry(Key key) const { return map_.at(key); }
+    Value get_entry(Key key) const { return map_.at(key); }
 
     /*!
      * \brief Remove an entry from the map
@@ -63,7 +63,7 @@ class FastUpdatesHolder
     void clear() { map_.clear(); }
 
   protected:
-    const std::unordered_map<Key, Value> map_;
+    std::unordered_map<Key, Value> map_;
 };
 
 } // namespace holovibes
