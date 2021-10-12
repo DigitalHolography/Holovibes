@@ -782,22 +782,6 @@ std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool check
 }
 
 // VALID
-void set_filter2d_n2(int n)
-{
-    LOG_INFO;
-
-    Holovibes::instance().get_cd().filter2d_n2 = n;
-}
-
-// VALID
-void set_filter2d_n1(int n)
-{
-    LOG_INFO;
-
-    Holovibes::instance().get_cd().filter2d_n1 = n;
-}
-
-// VALID
 void cancel_filter2d()
 {
     LOG_INFO;

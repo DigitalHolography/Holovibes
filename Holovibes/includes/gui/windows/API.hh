@@ -490,19 +490,6 @@ void cancel_filter2d();
  */
 void set_fft_shift(const bool value);
 
-/*! \brief Modifies filter2d n2
- *
- * \param n the new value
- */
-void set_filter2d_n2(int n);
-
-/*!
- * \brief Modifies filter2d n1
- *
- * \param n the new value
- */
-void set_filter2d_n1(int n);
-
 /*! \brief Adds or removes filter 2d view
  *
  * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
@@ -654,3 +641,5 @@ bool slide_update_threshold(const int slider_value,
                             const std::atomic<float>& upper_bound);
 
 } // namespace holovibes::api
+
+#include "API.hxx"
