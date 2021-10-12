@@ -551,6 +551,9 @@ void ComputeDescriptor::set_q_accu(bool enabled, int level)
     q_acc_level = level;
 }
 
+void ComputeDescriptor::change_angle(std::atomic<float>& var) { var = (var == 270.f) ? 0.f : var + 90.f; }
+void ComputeDescriptor::change_flip(std::atomic<bool>& var) { var = !var; }
+
 void ComputeDescriptor::change_window(int index)
 {
     if (index == 0)

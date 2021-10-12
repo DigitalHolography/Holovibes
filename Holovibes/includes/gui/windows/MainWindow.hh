@@ -661,14 +661,6 @@ class MainWindow : public QMainWindow, public Observer
     uint time_transformation_cuts_window_max_size = 512;
     uint auxiliary_window_max_size = 512;
 
-    float displayAngle = 0.f;
-    float xzAngle = 0.f;
-    float yzAngle = 0.f;
-
-    int displayFlip = 0;
-    int xzFlip = 0;
-    int yzFlip = 0;
-
     bool is_enabled_camera_ = false;
     double z_step_ = 0.005f;
 
@@ -694,6 +686,7 @@ class MainWindow : public QMainWindow, public Observer
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
 
+    // TODO: Remove the two QSpinBox
     QSpinBox* start_spinbox;
     QSpinBox* end_spinbox;
 

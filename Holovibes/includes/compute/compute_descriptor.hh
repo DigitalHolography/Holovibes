@@ -156,6 +156,8 @@ class ComputeDescriptor : public Observable
     void set_time_transformation_size(int value);
     void set_batch_size(int value);
     void set_contrast_mode(bool value);
+    void change_angle(std::atomic<float>& var);
+    void change_flip(std::atomic<bool>& var);
     bool set_contrast_invert(bool value);
     void set_contrast_auto_refresh(bool value);
     void set_contrast_enabled(bool value);

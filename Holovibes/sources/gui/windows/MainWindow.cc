@@ -312,18 +312,18 @@ void MainWindow::on_notify()
     ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
     if (cd_.current_window == WindowKind::XYview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
+        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.xy_rot))).c_str());
+        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.xy_flip_enabled)).c_str());
     }
     else if (cd_.current_window == WindowKind::XZview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
+        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.xz_rot))).c_str());
+        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.xz_flip_enabled)).c_str());
     }
     else if (cd_.current_window == WindowKind::YZview)
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
+        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.yz_rot))).c_str());
+        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.yz_flip_enabled)).c_str());
     }
 
     // p accu
@@ -735,12 +735,12 @@ void MainWindow::load_ini(const std::string& path)
         ui.ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
         // to move in cd
-        displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
-        xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
-        yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
-        displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
-        xzFlip = ptree.get("view.xCut_flip", xzFlip);
-        yzFlip = ptree.get("view.yCut_flip", yzFlip);
+        cd_.xy_rot = ptree.get<float>("view.mainWindow_rotate", cd_.xy_rot);
+        cd_.xz_rot = ptree.get<float>("view.xCut_rotate", cd_.xz_rot);
+        cd_.yz_rot = ptree.get<float>("view.yCut_rotate", cd_.yz_rot);
+        cd_.xy_flip_enabled = ptree.get<bool>("view.mainWindow_flip", cd_.xy_flip_enabled);
+        cd_.xz_flip_enabled = ptree.get<bool>("view.xCut_flip", cd_.xz_flip_enabled);
+        cd_.yz_flip_enabled = ptree.get<bool>("view.yCut_flip", cd_.yz_flip_enabled);
 
         notify();
     }
@@ -784,12 +784,12 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<uint>("window_size.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
     ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
 
-    ptree.put<float>("view.mainWindow_rotate", displayAngle);
-    ptree.put<float>("view.xCut_rotate", xzAngle);
-    ptree.put<float>("view.yCut_rotate", yzAngle);
-    ptree.put<int>("view.mainWindow_flip", displayFlip);
-    ptree.put<int>("view.xCut_flip", xzFlip);
-    ptree.put<int>("view.yCut_flip", yzFlip);
+    ptree.put<float>("view.mainWindow_rotate", cd_.xy_rot);
+    ptree.put<float>("view.xCut_rotate", cd_.xz_rot);
+    ptree.put<float>("view.yCut_rotate", cd_.yz_rot);
+    ptree.put<int>("view.mainWindow_flip", cd_.xy_flip_enabled);
+    ptree.put<int>("view.xCut_flip", cd_.xz_flip_enabled);
+    ptree.put<int>("view.yCut_flip", cd_.yz_flip_enabled);
 
     boost::property_tree::write_ini("global.ini", ptree);
 
@@ -1003,8 +1003,8 @@ void MainWindow::createHoloWindow()
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->resetTransform();
-        mainDisplay->setAngle(displayAngle);
-        mainDisplay->setFlip(displayFlip);
+        mainDisplay->setAngle(cd_.xy_rot);
+        mainDisplay->setFlip(cd_.xy_flip_enabled);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     }
     catch (const std::runtime_error& e)
@@ -1276,8 +1276,8 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
                                           KindOfView::SliceXZ,
                                           this));
             sliceXZ->setTitle("XZ view");
-            sliceXZ->setAngle(xzAngle);
-            sliceXZ->setFlip(xzFlip);
+            sliceXZ->setAngle(cd_.xz_rot);
+            sliceXZ->setFlip(cd_.xz_flip_enabled);
             sliceXZ->setCd(&cd_);
 
             sliceYZ.reset(new SliceWindow(yzPos,
@@ -1286,8 +1286,8 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
                                           KindOfView::SliceYZ,
                                           this));
             sliceYZ->setTitle("YZ view");
-            sliceYZ->setAngle(yzAngle);
-            sliceYZ->setFlip(yzFlip);
+            sliceYZ->setAngle(cd_.yz_rot);
+            sliceYZ->setFlip(cd_.yz_flip_enabled);
             sliceYZ->setCd(&cd_);
 
             mainDisplay->getOverlayManager().create_overlay<Cross>();
@@ -2062,18 +2062,18 @@ void MainWindow::rotateTexture()
 
     if (curWin == WindowKind::XYview)
     {
-        displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
-        mainDisplay->setAngle(displayAngle);
+        cd_.change_angle(cd_.xy_rot);
+        mainDisplay->setAngle(cd_.xy_rot);
     }
     else if (sliceXZ && curWin == WindowKind::XZview)
     {
-        xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
-        sliceXZ->setAngle(xzAngle);
+        cd_.change_angle(cd_.xz_rot);
+        sliceXZ->setAngle(cd_.xz_rot);
     }
     else if (sliceYZ && curWin == WindowKind::YZview)
     {
-        yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
-        sliceYZ->setAngle(yzAngle);
+        cd_.change_angle(cd_.yz_rot);
+        sliceYZ->setAngle(cd_.yz_rot);
     }
     notify();
 }
@@ -2084,18 +2084,18 @@ void MainWindow::flipTexture()
 
     if (curWin == WindowKind::XYview)
     {
-        displayFlip = !displayFlip;
-        mainDisplay->setFlip(displayFlip);
+        cd_.change_flip(cd_.xy_flip_enabled);
+        mainDisplay->setFlip(cd_.xy_flip_enabled);
     }
     else if (sliceXZ && curWin == WindowKind::XZview)
     {
-        xzFlip = !xzFlip;
-        sliceXZ->setFlip(xzFlip);
+        cd_.change_flip(cd_.xz_flip_enabled);
+        sliceXZ->setFlip(cd_.xz_flip_enabled);
     }
     else if (sliceYZ && curWin == WindowKind::YZview)
     {
-        yzFlip = !yzFlip;
-        sliceYZ->setFlip(yzFlip);
+        cd_.change_flip(cd_.yz_flip_enabled);
+        sliceYZ->setFlip(cd_.yz_flip_enabled);
     }
     notify();
 }
