@@ -2321,7 +2321,7 @@ void MainWindow::start_chart_display()
     if (api::get_chart_display_enabled())
         return;
 
-    holovibes::api::start_chart_display();
+    api::start_chart_display();
 
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
             SIGNAL(closed()),
@@ -2340,7 +2340,7 @@ void MainWindow::stop_chart_display()
     if (!api::get_chart_display_enabled())
         return;
 
-    holovibes::api::stop_chart_display();
+    api::stop_chart_display();
 
     ui.ChartPlotPushButton->setEnabled(true);
 }
