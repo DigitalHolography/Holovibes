@@ -3115,7 +3115,6 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionExport"/>
      <addaction name="actionExport_as"/>
     </widget>
-    <addaction name="actionConfigure"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
     <addaction name="actionExit"/>
@@ -3229,11 +3228,6 @@ p, li { white-space: pre-wrap; }
   <action name="actionCredits">
    <property name="text">
     <string>Credits</string>
-   </property>
-  </action>
-  <action name="actionConfigure">
-   <property name="text">
-    <string>Configure</string>
    </property>
   </action>
   <action name="actionImage_rendering">
@@ -3541,22 +3535,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionConfigure</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>configure_holovibes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
      <y>0</y>
     </hint>
    </hints>
@@ -5269,7 +5247,6 @@ p, li { white-space: pre-wrap; }
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
   <slot>start_chart_display()</slot>
-  <slot>configure_holovibes()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>start_record()</slot>
