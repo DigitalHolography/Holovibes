@@ -1473,6 +1473,14 @@ float get_contrast_min(const WindowKind king)
     return Holovibes::instance().get_cd().get_contrast_min(api::get_current_window());
 }
 
+// VALID
+float get_contrast_max(const WindowKind king)
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_cd().get_contrast_max(api::get_current_window());
+}
+
 #pragma endregion
 
 #pragma region Convolution

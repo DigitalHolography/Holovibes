@@ -415,12 +415,20 @@ void set_auto_refresh_contrast(bool value);
 void set_log_scale(const bool value);
 
 /*!
- * \brief Get the contrast min object
+ * \brief Gets the contrast min of a given window
  *
  * \param king the window kind
- * \return float the contrast minimum the the given window kind
+ * \return float the contrast minimum of the given window kind
  */
 float get_contrast_min(const WindowKind kind);
+
+/*!
+ * \brief Gets the contrast max of a given window
+ *
+ * \param king the window kind
+ * \return float the contrast maximum of the given window kind
+ */
+float get_contrast_max(const WindowKind kind);
 
 /*! \brief Modifies convolution kernel
  *

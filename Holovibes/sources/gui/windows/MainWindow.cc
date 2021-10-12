@@ -300,7 +300,7 @@ void MainWindow::on_notify()
     ui.ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui.ContrastMinDoubleSpinBox->setValue(api::get_contrast_min(api::get_current_window()));
     ui.ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui.ContrastMaxDoubleSpinBox->setValue(Holovibes::instance().get_cd().get_contrast_max(api::get_current_window()));
+    ui.ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max(api::get_current_window()));
 
     // FFT shift
     ui.FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
