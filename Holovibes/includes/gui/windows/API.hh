@@ -634,11 +634,8 @@ const std::string get_credits();
  * \return true lower_bound greater than upper_bound
  * \return false else
  */
-bool slide_update_threshold(const int slider_value,
-                            std::atomic<float>& receiver,
-                            std::atomic<float>& bound_to_update,
-                            const std::atomic<float>& lower_bound,
-                            const std::atomic<float>& upper_bound);
+bool slide_update_threshold(
+    const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
 
 } // namespace holovibes::api
 

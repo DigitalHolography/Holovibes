@@ -1090,11 +1090,8 @@ void actualize_kernel_size_blur(uint h_blur_kernel_size)
 }
 
 // VALID
-bool slide_update_threshold(const int slider_value,
-                            std::atomic<float>& receiver,
-                            std::atomic<float>& bound_to_update,
-                            const std::atomic<float>& lower_bound,
-                            const std::atomic<float>& upper_bound)
+bool slide_update_threshold(
+    const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
 {
     // Store the slider value in ui_descriptor_.holovibes_.get_cd() (ComputeDescriptor)
     receiver = slider_value / 1000.0f;

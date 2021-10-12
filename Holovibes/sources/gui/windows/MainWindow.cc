@@ -1710,12 +1710,12 @@ void fancy_Qslide_text_percent(char* str)
 // VALID
 // LOCAL
 void slide_update_threshold(const QSlider& slider,
-                            std::atomic<float>& receiver,
-                            std::atomic<float>& bound_to_update,
+                            float& receiver,
+                            float& bound_to_update,
                             QSlider& slider_to_update,
                             QLabel& to_be_written_in,
-                            const std::atomic<float>& lower_bound,
-                            const std::atomic<float>& upper_bound)
+                            const float lower_bound,
+                            const float& upper_bound)
 {
 
     LOG_INFO;
@@ -1736,13 +1736,20 @@ void slide_update_threshold(const QSlider& slider,
 void MainWindow::slide_update_threshold_h_min()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_h_threshold_min();
+    float bound_to_update = api::get_slider_h_threshold_max();
+
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_min,
-                           api::get_slider_h_threshold_min(),
-                           api::get_slider_h_threshold_max(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_hue_threshold_max,
                            *ui.label_hue_threshold_min,
                            api::get_slider_h_threshold_min(),
                            api::get_slider_h_threshold_max());
+
+    api::set_slider_h_threshold_min(receiver);
+    api::set_slider_h_threshold_max(bound_to_update);
 }
 
 // VALID
@@ -1750,13 +1757,20 @@ void MainWindow::slide_update_threshold_h_min()
 void MainWindow::slide_update_threshold_h_max()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_h_threshold_max();
+    float bound_to_update = api::get_slider_h_threshold_min();
+
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_max,
-                           api::get_slider_h_threshold_max(),
-                           api::get_slider_h_threshold_min(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_hue_threshold_min,
                            *ui.label_hue_threshold_max,
                            api::get_slider_h_threshold_min(),
                            api::get_slider_h_threshold_max());
+
+    api::set_slider_h_threshold_max(receiver);
+    api::set_slider_h_threshold_min(bound_to_update);
 }
 
 // VALID
@@ -1764,13 +1778,20 @@ void MainWindow::slide_update_threshold_h_max()
 void MainWindow::slide_update_threshold_s_min()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_s_threshold_min();
+    float bound_to_update = api::get_slider_s_threshold_max();
+
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min,
-                           api::get_slider_s_threshold_min(),
-                           api::get_slider_s_threshold_max(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_saturation_threshold_max,
                            *ui.label_saturation_threshold_min,
                            api::get_slider_s_threshold_min(),
                            api::get_slider_s_threshold_max());
+
+    api::set_slider_s_threshold_min(receiver);
+    api::set_slider_s_threshold_max(bound_to_update);
 }
 
 // VALID
@@ -1778,13 +1799,20 @@ void MainWindow::slide_update_threshold_s_min()
 void MainWindow::slide_update_threshold_s_max()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_s_threshold_max();
+    float bound_to_update = api::get_slider_s_threshold_min();
+
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max,
-                           api::get_slider_s_threshold_max(),
-                           api::get_slider_s_threshold_min(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_saturation_threshold_min,
                            *ui.label_saturation_threshold_max,
                            api::get_slider_s_threshold_min(),
                            api::get_slider_s_threshold_max());
+
+    api::set_slider_s_threshold_max(receiver);
+    api::set_slider_s_threshold_min(bound_to_update);
 }
 
 // VALID
@@ -1792,13 +1820,20 @@ void MainWindow::slide_update_threshold_s_max()
 void MainWindow::slide_update_threshold_v_min()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_v_threshold_min();
+    float bound_to_update = api::get_slider_v_threshold_max();
+
     slide_update_threshold(*ui.horizontalSlider_value_threshold_min,
-                           api::get_slider_v_threshold_min(),
-                           api::get_slider_v_threshold_max(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_value_threshold_max,
                            *ui.label_value_threshold_min,
                            api::get_slider_v_threshold_min(),
                            api::get_slider_v_threshold_max());
+
+    api::set_slider_v_threshold_min(receiver);
+    api::set_slider_v_threshold_max(bound_to_update);
 }
 
 // VALID
@@ -1806,13 +1841,20 @@ void MainWindow::slide_update_threshold_v_min()
 void MainWindow::slide_update_threshold_v_max()
 {
     LOG_INFO;
+
+    float receiver = api::get_slider_v_threshold_max();
+    float bound_to_update = api::get_slider_v_threshold_min();
+
     slide_update_threshold(*ui.horizontalSlider_value_threshold_max,
-                           api::get_slider_v_threshold_max(),
-                           api::get_slider_v_threshold_min(),
+                           receiver,
+                           bound_to_update,
                            *ui.horizontalSlider_value_threshold_min,
                            *ui.label_value_threshold_max,
                            api::get_slider_v_threshold_min(),
                            api::get_slider_v_threshold_max());
+
+    api::set_slider_v_threshold_max(receiver);
+    api::set_slider_v_threshold_min(bound_to_update);
 }
 
 // VALID
