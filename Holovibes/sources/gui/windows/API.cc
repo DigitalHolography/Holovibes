@@ -1277,6 +1277,7 @@ void stop_all_worker_controller()
     Holovibes::instance().stop_all_worker_controller();
 }
 
+// VALID
 bool get_img_acc_slice_enabled()
 {
     LOG_INFO;
@@ -1284,6 +1285,7 @@ bool get_img_acc_slice_enabled()
     return Holovibes::instance().get_cd().get_img_acc_slice_enabled(api::get_current_window());
 }
 
+// VALID
 unsigned get_img_acc_slice_level()
 {
     LOG_INFO;
