@@ -546,7 +546,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
+    if (cd_.get_contrast_enabled() && cd_.get_contrast_auto_refresh())
         request_autocontrast(cd_.current_window);
 }
 

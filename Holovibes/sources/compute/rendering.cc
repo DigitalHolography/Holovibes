@@ -196,14 +196,14 @@ void Rendering::insert_apply_contrast(WindowKind view)
         case WindowKind::YZview:
             input = buffers_.gpu_postprocess_frame_yz.get();
             size = fd_.height * cd_.time_transformation_size;
-            min = cd_.contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
-            max = cd_.contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
+            min = cd_.yz_contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
+            max = cd_.yz_contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
             break;
         case WindowKind::XZview:
             input = buffers_.gpu_postprocess_frame_xz.get();
             size = fd_.width * cd_.time_transformation_size;
-            min = cd_.contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
-            max = cd_.contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
+            min = cd_.xz_contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
+            max = cd_.xz_contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
             break;
         case WindowKind::Filter2D:
             input = buffers_.gpu_float_filter2d_frame.get();

@@ -226,6 +226,46 @@ unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind) const
     return 0;
 }
 
+bool ComputeDescriptor::get_contrast_enabled() const
+{
+    switch (current_window)
+    {
+    case WindowKind::XYview:
+        return contrast_enabled;
+    case WindowKind::XZview:
+        return xz_contrast_enabled;
+    case WindowKind::YZview:
+        return yz_contrast_enabled;
+    }
+    return contrast_enabled;
+}
+bool ComputeDescriptor::get_contrast_auto_refresh() const
+{
+    switch (current_window)
+    {
+    case WindowKind::XYview:
+        return contrast_auto_refresh;
+    case WindowKind::XZview:
+        return xz_contrast_auto_refresh;
+    case WindowKind::YZview:
+        return yz_contrast_auto_refresh;
+    }
+    return contrast_auto_refresh;
+}
+bool ComputeDescriptor::get_contrast_invert_enabled() const
+{
+    switch (current_window)
+    {
+    case WindowKind::XYview:
+        return contrast_invert;
+    case WindowKind::XZview:
+        return xz_contrast_invert;
+    case WindowKind::YZview:
+        return yz_contrast_invert;
+    }
+    return contrast_invert;
+}
+
 void ComputeDescriptor::set_contrast_min(float value)
 {
     switch (current_window)
@@ -432,10 +472,22 @@ void ComputeDescriptor::set_contrast_mode(bool value)
 
 bool ComputeDescriptor::set_contrast_invert(bool value)
 {
-    if (contrast_enabled)
-        contrast_invert = value;
-
-    return contrast_enabled;
+    // FIXME: Class for xy, zy, yz
+    switch (current_window)
+    {
+    case WindowKind::XZview:
+        if (xz_contrast_enabled)
+            xz_contrast_invert = value;
+        return xz_contrast_enabled;
+    case WindowKind::YZview:
+        if (yz_contrast_enabled)
+            yz_contrast_invert = value;
+        return yz_contrast_enabled;
+    default:
+        if (contrast_enabled)
+            contrast_invert = value;
+        return contrast_enabled;
+    }
 }
 
 void ComputeDescriptor::set_contrast_auto_refresh(bool value) { contrast_auto_refresh = value; }

@@ -67,6 +67,40 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // ==> Duplicate the section xy (changing all 'xy' by 'xz').
     // yz
     // ==> Duplicate the section xy (changing all 'xy' by 'yz').
+    // xy => Settings to merge in a struct (some are in MainWindow, others in cd)
+    cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
+    cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
+    cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
+    cd.img_acc_slice_xy_enabled = ptree.get<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
+    cd.img_acc_slice_xy_level = ptree.get<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
+    cd.contrast_enabled = ptree.get<bool>("xy.contrast_enabled", cd.contrast_enabled);
+    cd.contrast_auto_refresh = ptree.get<bool>("xy.auto_contrast_enabled", cd.contrast_auto_refresh);
+    cd.contrast_invert = ptree.get<bool>("xy.invert_enabled", cd.contrast_invert);
+    cd.contrast_min_slice_xy = ptree.get<float>("xy.range_min", cd.contrast_min_slice_xy);
+    cd.contrast_max_slice_xy = ptree.get<float>("xy.range_max", cd.contrast_max_slice_xy);
+    // xz
+    cd.xz_flip_enabled = ptree.get<bool>("xz.flip", cd.xz_flip_enabled);
+    cd.xz_rot = ptree.get<float>("xz.rot", cd.xz_rot);
+    cd.log_scale_slice_xz_enabled = ptree.get<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
+    cd.img_acc_slice_xz_enabled = ptree.get<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
+    cd.img_acc_slice_xz_level = ptree.get<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
+    cd.xz_contrast_enabled = ptree.get<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
+    cd.xz_contrast_auto_refresh = ptree.get<bool>("xz.auto_contrast_enabled", cd.xz_contrast_auto_refresh);
+    cd.xz_contrast_invert = ptree.get<bool>("xz.invert_enabled", cd.xz_contrast_invert);
+    cd.contrast_min_slice_xz = ptree.get<float>("xz.range_min", cd.contrast_min_slice_xz);
+    cd.contrast_max_slice_xz = ptree.get<float>("xz.range_max", cd.contrast_max_slice_xz);
+    // yz
+    cd.yz_flip_enabled = ptree.get<bool>("yz.flip", cd.yz_flip_enabled);
+    cd.yz_rot = ptree.get<float>("yz.rot", cd.yz_rot);
+    cd.log_scale_slice_yz_enabled = ptree.get<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
+    cd.img_acc_slice_yz_enabled = ptree.get<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
+    cd.img_acc_slice_yz_level = ptree.get<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
+    cd.yz_contrast_enabled = ptree.get<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
+    cd.yz_contrast_auto_refresh = ptree.get<bool>("yz.auto_contrast_enabled", cd.yz_contrast_auto_refresh);
+    cd.yz_contrast_invert = ptree.get<bool>("yz.invert_enabled", cd.yz_contrast_invert);
+    cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
+    cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
+    // ==> Duplicate the section xy (changing all 'xy' by 'yz').
     // Current for xy / xz / yz
     cd.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_slice_xy_enabled);
     cd.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_slice_xz_enabled);

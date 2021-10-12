@@ -128,6 +128,9 @@ class ComputeDescriptor : public Observable
     bool get_img_log_scale_slice_enabled(WindowKind kind) const;
     bool get_img_acc_slice_enabled(WindowKind kind) const;
     unsigned get_img_acc_slice_level(WindowKind kind) const;
+    bool get_contrast_enabled() const;
+    bool get_contrast_auto_refresh() const;
+    bool get_contrast_invert_enabled() const;
 
     void set_contrast_min(float value);
     void set_contrast_max(float value);
