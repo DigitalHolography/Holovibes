@@ -183,7 +183,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         ui.KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
-    Holovibes::instance().start_information_display(false);
+    api::start_information_display(false);
 }
 
 MainWindow::~MainWindow()

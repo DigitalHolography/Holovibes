@@ -1845,4 +1845,15 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 #pragma endregion
 
+#pragma region Information
+
+void start_information_display(bool is_cli, const std::function<void()>& callback)
+{
+    LOG_INFO;
+
+    Holovibes::instance().start_information_display(false, callback);
+}
+
+#pragma endregion
+
 } // namespace holovibes::api

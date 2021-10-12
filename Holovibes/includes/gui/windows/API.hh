@@ -675,6 +675,14 @@ const std::string get_credits();
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
 
+/*! \brief Displays information
+ *
+ * \param is_cli true if the current user interface is CLI
+ * \param callback lambda to execute FIXME: Api is not supposed to handdle callback
+ */
+void start_information_display(
+    bool is_cli, const std::function<void()>& callback = []() {});
+
 } // namespace holovibes::api
 
 #include "API.hxx"
