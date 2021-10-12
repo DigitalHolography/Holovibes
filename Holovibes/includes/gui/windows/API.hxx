@@ -516,6 +516,14 @@ inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().ge
 
 inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
 
+inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };
+
+inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
+
+inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes::instance().get_gpu_input_queue(); };
+
+inline InformationContainer& get_info_container() { return Holovibes::instance().get_info_container(); };
+
 #pragma endregion
 
 } // namespace holovibes::api
