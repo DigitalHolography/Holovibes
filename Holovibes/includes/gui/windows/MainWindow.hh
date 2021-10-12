@@ -76,7 +76,6 @@ class MainWindow : public QMainWindow, public Observer
     void synchronize_thread(std::function<void()> f);
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
-    void configure_holovibes();
     void camera_none();
     void camera_adimec();
     void camera_ids();

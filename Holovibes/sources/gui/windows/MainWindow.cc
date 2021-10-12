@@ -635,8 +635,6 @@ void MainWindow::documentation()
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(::holovibes::ini::default_compute_config_filepath); }
-
 void MainWindow::write_ini() { write_ini(""); }
 
 void MainWindow::write_ini(QString filename)
@@ -706,7 +704,7 @@ void MainWindow::load_gui()
     QAction* info_action = ui.actionInfo;
 
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini("global.ini", ptree);
+    boost::property_tree::ini_parser::read_ini(ini::global_config_filepath, ptree);
 
     if (!ptree.empty())
     {
@@ -719,15 +717,17 @@ void MainWindow::load_gui()
         change_camera(static_cast<CameraKind>(ptree.get<int>("image_rendering.camera", static_cast<int>(kCamera))));
         // Import
         ui.ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
+        ui.LoadFileInGpuCheckBox->setChecked(ptree.get<bool>("import.from_gpu", false));
         // Chart
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
         // Window
-        // FIXME: After those sets, the visibility is changed. Need to find where.
         set_module_visibility(image_rendering_action,
                               image_rendering_group_box,
                               ptree.get<bool>("window.image_rendering_hidden", image_rendering_group_box->isHidden()));
-        // set_module_visibility(view_action, view_group_box, ptree.get<bool>("window.view_hidden", false));
+        set_module_visibility(view_action,
+                              view_group_box,
+                              ptree.get<bool>("window.view_hidden", view_group_box->isHidden()));
         set_module_visibility(import_export_action,
                               import_group_box,
                               ptree.get<bool>("window.import_export_hidden", import_group_box->isHidden()));
@@ -769,6 +769,7 @@ void MainWindow::save_gui()
     ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
     // Import
     ptree.put<uint>("import.fps", ui.ImportInputFpsSpinBox->value());
+    ptree.put<bool>("import.from_gpu", ui.LoadFileInGpuCheckBox->isChecked());
     // Chart
     ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
     // Window
