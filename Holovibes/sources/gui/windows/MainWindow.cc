@@ -105,7 +105,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
             };
         });
     };
-    Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
+    api::set_update_progress_function(update_progress);
     ui.FileReaderProgressBar->hide();
     ui.RecordProgressBar->hide();
 

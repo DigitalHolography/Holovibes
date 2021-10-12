@@ -1856,7 +1856,17 @@ void start_information_display(bool is_cli, const std::function<void()>& callbac
 
 void set_display_info_text_function(const std::function<void(const std::string&)>& display_info_text_fun)
 {
+    LOG_INFO;
+
     Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
+}
+
+void set_update_progress_function(
+    const std::function<void(InformationContainer::ProgressType, size_t, size_t)>& function)
+{
+    LOG_INFO;
+
+    Holovibes::instance().get_info_container().set_update_progress_function(function);
 }
 
 #pragma endregion
