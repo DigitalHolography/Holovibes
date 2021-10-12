@@ -66,6 +66,13 @@ void remove_infos();
  */
 bool is_raw_mode();
 
+/*! \brief Checks if we have an input queue
+ *
+ * \return true on success
+ * \return false on failure
+ */
+bool is_gpu_input_queue();
+
 /*! \brief Enables the divide convolution mode
  *
  * \param str the file containing the convolution's settings

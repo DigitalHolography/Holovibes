@@ -396,7 +396,7 @@ void MainWindow::on_notify()
     int max_width = 0;
     int max_height = 0;
 
-    if (Holovibes::instance().get_gpu_input_queue() != nullptr)
+    if (api::is_gpu_input_queue())
     {
         max_width = Holovibes::instance().get_gpu_input_queue()->get_fd().width - 1;
         max_height = Holovibes::instance().get_gpu_input_queue()->get_fd().height - 1;

@@ -131,6 +131,13 @@ bool is_raw_mode()
 }
 
 // VALID
+bool is_gpu_input_queue()
+{
+    LOG_INFO;
+    return Holovibes::instance().get_gpu_input_queue() != nullptr;
+}
+
+// VALID
 void remove_infos()
 {
     LOG_INFO;
