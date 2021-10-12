@@ -199,7 +199,7 @@ MainWindow::~MainWindow()
     camera_none();
     api::remove_infos();
 
-    Holovibes::instance().stop_all_worker_controller();
+    api::stop_all_worker_controller();
 }
 
 #pragma endregion

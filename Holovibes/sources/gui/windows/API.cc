@@ -1269,6 +1269,14 @@ void close_critical_compute()
     Holovibes::instance().stop_compute();
 }
 
+// VALID
+void stop_all_worker_controller()
+{
+    LOG_INFO;
+
+    Holovibes::instance().stop_all_worker_controller();
+}
+
 #pragma endregion
 
 #pragma region Texture

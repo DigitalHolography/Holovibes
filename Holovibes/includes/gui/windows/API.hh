@@ -41,6 +41,9 @@ void camera_none();
  */
 void close_critical_compute();
 
+/*! \brief Stops holovibes' controllers for computation*/
+void stop_all_worker_controller();
+
 /*! \brief Removes info container in holovibes */
 void remove_infos();
 
