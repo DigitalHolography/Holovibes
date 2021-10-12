@@ -683,6 +683,12 @@ bool slide_update_threshold(
 void start_information_display(
     bool is_cli, const std::function<void()>& callback = []() {});
 
+/*! \brief Set the display info text function
+ *
+ * \param display_info_text_fun display funcion
+ */
+void set_display_info_text_function(const std::function<void(const std::string&)>& display_info_text_fun);
+
 } // namespace holovibes::api
 
 #include "API.hxx"

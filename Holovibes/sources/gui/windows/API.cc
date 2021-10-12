@@ -1854,6 +1854,11 @@ void start_information_display(bool is_cli, const std::function<void()>& callbac
     Holovibes::instance().start_information_display(false, callback);
 }
 
+void set_display_info_text_function(const std::function<void(const std::string&)>& display_info_text_fun)
+{
+    Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
+}
+
 #pragma endregion
 
 } // namespace holovibes::api

@@ -85,7 +85,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     auto display_info_text_fun = [=](const std::string& text) {
         synchronize_thread([=]() { ui.InfoTextEdit->setText(text.c_str()); });
     };
-    Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
+    api::set_display_info_text_function(display_info_text_fun);
 
     auto update_progress = [=](InformationContainer::ProgressType type, const size_t value, const size_t max_size) {
         synchronize_thread([=]() {
@@ -395,6 +395,7 @@ void MainWindow::on_notify()
 
     int max_width = 0;
     int max_height = 0;
+
     if (Holovibes::instance().get_gpu_input_queue() != nullptr)
     {
         max_width = Holovibes::instance().get_gpu_input_queue()->get_fd().width - 1;
