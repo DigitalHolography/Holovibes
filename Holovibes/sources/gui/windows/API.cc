@@ -1316,6 +1316,14 @@ int get_gpu_input_queue_fd_height()
     return Holovibes::instance().get_gpu_input_queue()->get_fd().height;
 }
 
+// VALID
+float get_boundary()
+{
+    LOG_INFO;
+
+    return Holovibes::instance().get_boundary();
+}
+
 #pragma endregion
 
 #pragma region Texture

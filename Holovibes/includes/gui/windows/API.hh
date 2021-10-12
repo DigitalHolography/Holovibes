@@ -69,6 +69,12 @@ int get_gpu_input_queue_fd_width();
  */
 int get_gpu_input_queue_fd_height();
 
+/*! \brief Get the boundary of frame descriptor
+ *
+ * \return float boundary
+ */
+float get_boundary();
+
 /*! \brief Removes info container in holovibes */
 void remove_infos();
 

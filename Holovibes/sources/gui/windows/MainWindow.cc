@@ -447,7 +447,7 @@ void MainWindow::on_notify()
     ui.WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui.ZDoubleSpinBox->setEnabled(!is_raw);
     ui.ZDoubleSpinBox->setValue(api::get_zdistance());
-    ui.BoundaryLineEdit->setText(QString::number(Holovibes::instance().get_boundary()));
+    ui.BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
     // Filter2d
     ui.Filter2D->setEnabled(!is_raw);
@@ -1230,7 +1230,7 @@ void MainWindow::set_filter2d(bool checked)
         api::set_filter2d();
 
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = Holovibes::instance().get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd = api::get_fd();
         ui.Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
         set_filter2d_n2(ui.Filter2DN2SpinBox->value());
         set_filter2d_n1(ui.Filter2DN1SpinBox->value());
