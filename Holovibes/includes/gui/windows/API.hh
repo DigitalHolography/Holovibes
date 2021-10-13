@@ -566,11 +566,8 @@ std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool check
  */
 void change_window(const int index);
 
-/*! \brief Adds or removes filter 2d view
- *
- * \param index the index representing the window to select
- */
-void disable_filter2d_view(const int index);
+/*! \brief Adds or removes filter 2d view */
+void disable_filter2d_view();
 
 /*! \brief Deactivates filter2d view */
 void set_filter2d();

@@ -707,7 +707,7 @@ void set_filter2d()
     pipe_refresh();
 }
 
-void disable_filter2d_view(const int index)
+void disable_filter2d_view()
 {
     LOG_INFO;
 
@@ -717,9 +717,6 @@ void disable_filter2d_view(const int index)
     // Wait for the filter2d view to be disabled for notify
     while (pipe->get_disable_filter2d_view_requested())
         continue;
-
-    // Change the focused window
-    change_window(index);
 }
 
 std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool checked)

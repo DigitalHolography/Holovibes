@@ -1262,7 +1262,7 @@ void MainWindow::disable_filter2d_view()
 {
     LOG_INFO;
 
-    api::disable_filter2d_view(ui.WindowSelectionComboBox->currentIndex());
+    api::disable_filter2d_view();
 
     if (UserInterfaceDescriptor::instance().filter2d_window)
     {
@@ -1272,6 +1272,9 @@ void MainWindow::disable_filter2d_view()
                    this,
                    SLOT(disable_filter2d_view()));
     }
+
+    // Change the focused window
+    change_window();
 
     notify();
 }
