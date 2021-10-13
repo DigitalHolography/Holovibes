@@ -6,6 +6,7 @@
 #include "icompute.hh"
 #include "ini_config.hh"
 #include "input_frame_file_factory.hh"
+#include "global_state_holder.hh"
 
 namespace cli
 {
@@ -150,27 +151,29 @@ static void main_loop(holovibes::Holovibes& holovibes)
     auto& cd = holovibes.get_cd();
     const auto& info = holovibes.get_info_container();
     // Recording progress (used by the progress bar)
-    auto record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
+    std::shared_ptr<std::atomic<std::pair<uint, uint>>> progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !cd.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
-        if (!record_progress)
-            record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
-        else
+        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
-            const auto& progress = record_progress.value();
-            progress_bar(progress.first->load(), progress.second->load(), 40);
-
-            // Very dirty hack
-            // Request auto contrast once we have accumualated enough images
-            // Otherwise the autocontrast is computed at the beginning and we
-            // end up with black images ...
-            if (progress.first->load() >= cd.img_acc_slice_xy_level && !requested_autocontrast)
+            if (!progress)
+                progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(holovibes::ProgressType::FRAME_RECORD);
+            else
             {
-                holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
-                requested_autocontrast = true;
+                progress_bar(progress->load().first, progress->load().second, 40);
+
+                // Very dirty hack
+                // Request auto contrast once we have accumualated enough images
+                // Otherwise the autocontrast is computed at the beginning and we
+                // end up with black images ...
+                if (progress->load().first >= cd.img_acc_slice_xy_level && !requested_autocontrast)
+                {
+                    holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
+                    requested_autocontrast = true;
+                }
             }
         }
         // Don't make the current thread loop too fast

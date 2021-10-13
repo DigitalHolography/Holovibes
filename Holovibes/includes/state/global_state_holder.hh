@@ -15,13 +15,14 @@ class GSH
 
     GSH& instance();
 
+    // inline prevents MSVC from brain-dying, dunno why
     template <class T>
-    static FastUpdatesHolder<T> fast_updates_map;
+    static inline FastUpdatesHolder<T> fast_updates_map;
 
   private:
     GSH() {}
 
-    static GSH* instance_;
-    static std::mutex mutex_;
+    std::mutex mutex_;
 };
+
 } // namespace holovibes

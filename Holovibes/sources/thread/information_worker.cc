@@ -3,6 +3,7 @@
 #include "tools.hh"
 #include <cuda_runtime.h>
 #include <chrono>
+#include "fast_updates_holder.hh"
 
 namespace holovibes::worker
 {

@@ -2,9 +2,11 @@
 
 #include <unordered_map>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 
 #include "fast_updates_types.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -28,10 +30,15 @@ class FastUpdatesHolder
      */
     Value create_entry(Key key, bool overwrite = false)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (map_.contains(key) && !overwrite)
             throw std::runtime_error("Key is already present in map");
 
-        return map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
+        map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
+
+        LOG_DEBUG << "New FastUpdatesHolder entry: 0x" << map_[key];
+
+        return map_[key];
     }
 
     /*!
@@ -40,7 +47,11 @@ class FastUpdatesHolder
      * \param key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    Value get_entry(Key key) const { return map_.at(key); }
+    Value get_entry(Key key)
+    {
+        std::lock_guard<std::mutex> lock(mutex_); 
+        return map_.at(key);
+    }
 
     /*!
      * \brief Remove an entry from the map
@@ -51,6 +62,7 @@ class FastUpdatesHolder
      */
     bool remove_entry(Key key)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         auto it = map_.find(key);
         if (it == map_.end())
             return false;
@@ -59,11 +71,21 @@ class FastUpdatesHolder
         return true;
     }
 
+    bool contains(Key key) noexcept
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return map_.contains(key);
+    }
+
     /*! \brief Clears the map */
-    void clear() { map_.clear(); }
+    void clear() noexcept
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_.clear();
+    }
 
   protected:
+    std::mutex mutex_;
     std::unordered_map<Key, Value> map_;
 };
-
 } // namespace holovibes

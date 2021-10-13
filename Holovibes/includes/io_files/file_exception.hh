@@ -23,9 +23,7 @@ class FileException : public std::exception
     const char* what() const noexcept override;
 
   private:
-    const std::string error_msg_;
-
-    bool display_errno_;
+    std::string error_msg_;
 };
 } // namespace holovibes::io_files
 

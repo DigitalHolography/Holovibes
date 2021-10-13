@@ -83,7 +83,7 @@ template <>
 struct TypeValue<ProgressType>
 {
     using key = ProgressType;
-    using value = std::atomic<unsigned int>;
+    using value = std::atomic<std::pair<unsigned int, unsigned int>>;
 };
 
 template <>

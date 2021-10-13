@@ -3,6 +3,7 @@
 #include "tools.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -32,25 +33,16 @@ void FrameRecordWorker::run()
         return;
     }
 
-    std::atomic<unsigned int> nb_frames_recorded = 0;
-    std::atomic<unsigned int> nb_frames_to_record_atomic = 0;
+    uint nb_frames_recorded = 0;
+    auto fast_update_frame_record = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+
+    if (nb_frames_to_record_.has_value())
+        fast_update_frame_record->store({0, nb_frames_to_record_.value()});
+    else
+        fast_update_frame_record->store({0, 0});
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
-
-    if (nb_frames_to_record_.has_value())
-    {
-        nb_frames_to_record_atomic = nb_frames_to_record_.value();
-        info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD,
-                                nb_frames_recorded,
-                                nb_frames_to_record_atomic);
-    }
-    else
-    {
-        info.add_progress_index(InformationContainer::ProgressType::FRAME_RECORD,
-                                nb_frames_recorded,
-                                nb_frames_recorded);
-    }
 
     auto pipe = Holovibes::instance().get_compute_pipe();
 
@@ -85,14 +77,19 @@ void FrameRecordWorker::run()
             if (nb_frames_skip_ > 0)
             {
                 record_queue.dequeue();
-                --nb_frames_skip_;
+                nb_frames_skip_--;
                 continue;
             }
 
             record_queue.dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
-            ++processed_fps_;
-            ++nb_frames_recorded;
+            processed_fps_++;
+            nb_frames_recorded++;
+
+            if (nb_frames_to_record_.has_value())
+                fast_update_frame_record->store({nb_frames_recorded, nb_frames_to_record_.value()});
+            else
+                fast_update_frame_record->store({nb_frames_recorded, nb_frames_recorded});
         }
 
         if (stop_requested_)
@@ -121,8 +118,9 @@ void FrameRecordWorker::run()
 
     reset_gpu_record_queue(pipe);
 
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
+
     info.remove_processed_fps(InformationContainer::FpsType::SAVING_FPS);
-    info.remove_progress_index(InformationContainer::ProgressType::FRAME_RECORD);
     LOG_TRACE << "Exiting FrameRecordWorker::run()";
 }
 

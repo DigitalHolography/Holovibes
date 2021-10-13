@@ -1,3 +1,5 @@
+#pragma once
+
 #define NAMEOF(name) #name
 
 template <typename T>

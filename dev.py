@@ -197,7 +197,7 @@ def pytest(args):
         print("Please install pytest with '$ python -m pip install pytest'")
         sys.stdout.flush()
 
-    if args.v:
+    if args.verbose:
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
@@ -284,7 +284,7 @@ def run_goal(goal: str, args) -> int:
 
     out = goal_func(args)
     if out != 0:
-        print(f"Goal {goal} Failed, Abort")
+        print(f"Goal {goal} Failed (out: {out})")
         sys.stdout.flush()
         exit(out)
 
