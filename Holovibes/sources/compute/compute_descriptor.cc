@@ -147,7 +147,7 @@ float ComputeDescriptor::get_contrast_min() const
     case WindowKind::YZview:
         return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_slice_yz);
     case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_filter2d);
+        return log_scale_filter2d_enabled ? contrast_min_filter2d.load() : log10(contrast_min_filter2d);
     }
     return 0;
 }
