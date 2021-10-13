@@ -664,10 +664,10 @@ class MainWindow : public QMainWindow, public Observer
     unsigned record_frame_step_ = 512;
     RecordMode record_mode_ = RecordMode::RAW;
 
-    std::string default_output_filename_;
+    std::string default_output_filename_ = "capture";
     std::string record_output_directory_;
-    std::string file_input_directory_;
-    std::string batch_input_directory_;
+    std::string file_input_directory_ = "C:\\";
+    std::string batch_input_directory_ = "C:\\";
 
     CameraKind kCamera = CameraKind::NONE;
     ImportType import_type_ = ImportType::None;

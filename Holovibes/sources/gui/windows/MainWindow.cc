@@ -121,13 +121,10 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     // Hide non default tab
     // ui.CompositeGroupBox->hide();
 
-    // Set default files
+    // Create default folder
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
     std::filesystem::create_directory(holovibes_documents_path);
-    default_output_filename_ = "capture";
     record_output_directory_ = holovibes_documents_path.string();
-    file_input_directory_ = "C:\\";
-    batch_input_directory_ = "C:\\";
 
     try
     {
