@@ -1149,7 +1149,6 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 
     if (!checked)
     {
-        api::set_auto_contrast_cuts();
         cancel_time_transformation_cuts();
         return;
     }
