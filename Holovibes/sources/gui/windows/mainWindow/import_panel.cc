@@ -73,7 +73,7 @@ void ImportPanel::import_file(const QString& filename)
 
             // Gather data from the newly opened file
             size_t nb_frames = input_file->get_total_nb_frames();
-            parent_->file_fd_ = input_file->get_frame_descriptor();
+            file_fd_ = input_file->get_frame_descriptor();
             input_file->import_compute_settings(parent_->cd_);
 
             // Don't need the input file anymore
@@ -164,7 +164,7 @@ void ImportPanel::init_holovibes_import_mode()
         uint last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
-        parent_->holovibes_.init_input_queue(parent_->file_fd_);
+        parent_->holovibes_.init_input_queue(file_fd_);
         parent_->holovibes_.start_file_frame_read(file_path,
                                                   true,
                                                   fps,

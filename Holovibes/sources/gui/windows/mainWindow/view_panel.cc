@@ -141,6 +141,17 @@ void ViewPanel::on_notify()
     ui_->DisplayReticleCheckBox->setChecked(parent_->cd_.reticle_enabled);
 }
 
+void ViewPanel::load_ini(const boost::property_tree::ptree& ptree)
+{
+    time_transformation_cuts_window_max_size_ =
+        ptree.get<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
+}
+
+void ViewPanel::save_ini(boost::property_tree::ptree& ptree)
+{
+    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
+}
+
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
 
 void ViewPanel::set_unwrapping_2d(const bool value)
@@ -170,34 +181,32 @@ void ViewPanel::toggle_time_transformation_cuts(bool checked)
             const ushort nImg = parent_->cd_.time_transformation_size;
             uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
 
-            if (time_transformation_size > parent_->time_transformation_cuts_window_max_size)
-                time_transformation_size = parent_->time_transformation_cuts_window_max_size;
+            if (time_transformation_size > time_transformation_cuts_window_max_size_)
+                time_transformation_size = time_transformation_cuts_window_max_size_;
 
             while (parent_->holovibes_.get_compute_pipe()->get_update_time_transformation_size_request())
                 continue;
             while (parent_->holovibes_.get_compute_pipe()->get_cuts_request())
                 continue;
-            parent_->sliceXZ.reset(
-                new SliceWindow(xzPos,
-                                QSize(parent_->mainDisplay->width(), time_transformation_size),
-                                parent_->holovibes_.get_compute_pipe()->get_stft_slice_queue(0).get(),
-                                KindOfView::SliceXZ,
-                                parent_));
-            parent_->sliceXZ->setTitle("XZ view");
-            parent_->sliceXZ->setAngle(parent_->xzAngle);
-            parent_->sliceXZ->setFlip(parent_->xzFlip);
-            parent_->sliceXZ->setCd(&(parent_->cd_));
+            sliceXZ.reset(new SliceWindow(xzPos,
+                                          QSize(parent_->mainDisplay->width(), time_transformation_size),
+                                          parent_->holovibes_.get_compute_pipe()->get_stft_slice_queue(0).get(),
+                                          KindOfView::SliceXZ,
+                                          parent_));
+            sliceXZ->setTitle("XZ view");
+            sliceXZ->setAngle(parent_->xzAngle);
+            sliceXZ->setFlip(parent_->xzFlip);
+            sliceXZ->setCd(&(parent_->cd_));
 
-            parent_->sliceYZ.reset(
-                new SliceWindow(yzPos,
-                                QSize(time_transformation_size, parent_->mainDisplay->height()),
-                                parent_->holovibes_.get_compute_pipe()->get_stft_slice_queue(1).get(),
-                                KindOfView::SliceYZ,
-                                parent_));
-            parent_->sliceYZ->setTitle("YZ view");
-            parent_->sliceYZ->setAngle(parent_->yzAngle);
-            parent_->sliceYZ->setFlip(parent_->yzFlip);
-            parent_->sliceYZ->setCd(&(parent_->cd_));
+            sliceYZ.reset(new SliceWindow(yzPos,
+                                          QSize(time_transformation_size, parent_->mainDisplay->height()),
+                                          parent_->holovibes_.get_compute_pipe()->get_stft_slice_queue(1).get(),
+                                          KindOfView::SliceYZ,
+                                          parent_));
+            sliceYZ->setTitle("YZ view");
+            sliceYZ->setAngle(parent_->yzAngle);
+            sliceYZ->setFlip(parent_->yzFlip);
+            sliceYZ->setCd(&(parent_->cd_));
 
             parent_->mainDisplay->getOverlayManager().create_overlay<Cross>();
             parent_->cd_.set_time_transformation_cuts_enabled(true);
@@ -222,8 +231,8 @@ void ViewPanel::toggle_time_transformation_cuts(bool checked)
 void ViewPanel::cancel_stft_slice_view()
 {
     parent_->cd_.reset_slice_view();
-    parent_->sliceXZ.reset(nullptr);
-    parent_->sliceYZ.reset(nullptr);
+    sliceXZ.reset(nullptr);
+    sliceYZ.reset(nullptr);
 
     if (parent_->mainDisplay)
     {
@@ -299,16 +308,16 @@ void ViewPanel::update_lens_view(bool value)
             ushort lens_window_height = fd.height;
             get_good_size(lens_window_width, lens_window_height, parent_->auxiliary_window_max_size);
 
-            parent_->lens_window.reset(new RawWindow(pos,
-                                                     QSize(lens_window_width, lens_window_height),
-                                                     pipe->get_lens_queue().get(),
-                                                     KindOfView::Lens));
+            lens_window.reset(new RawWindow(pos,
+                                            QSize(lens_window_width, lens_window_height),
+                                            pipe->get_lens_queue().get(),
+                                            KindOfView::Lens));
 
-            parent_->lens_window->setTitle("Lens view");
-            parent_->lens_window->setCd(&(parent_->cd_));
+            lens_window->setTitle("Lens view");
+            lens_window->setCd(&(parent_->cd_));
 
             // when the window is destoryed, disable_lens_view() will be triggered
-            connect(parent_->lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
+            connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
         }
         catch (const std::exception& e)
         {
@@ -319,7 +328,7 @@ void ViewPanel::update_lens_view(bool value)
     else
     {
         disable_lens_view();
-        parent_->lens_window.reset(nullptr);
+        lens_window.reset(nullptr);
     }
 
     parent_->pipe_refresh();
@@ -327,8 +336,8 @@ void ViewPanel::update_lens_view(bool value)
 
 void ViewPanel::disable_lens_view()
 {
-    if (parent_->lens_window)
-        disconnect(parent_->lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
+    if (lens_window)
+        disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
 
     parent_->cd_.set_gpu_lens_display_enabled(false);
     parent_->holovibes_.get_compute_pipe()->request_disable_lens_view();
@@ -361,17 +370,17 @@ void ViewPanel::update_raw_view(bool value)
         // set positions of new windows according to the position of the main GL
         // window and Lens window
         QPoint pos = parent_->mainDisplay->framePosition() + QPoint(parent_->mainDisplay->width() + 310, 0);
-        parent_->raw_window.reset(
+        raw_window.reset(
             new RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
 
-        parent_->raw_window->setTitle("Raw view");
-        parent_->raw_window->setCd(&(parent_->cd_));
+        raw_window->setTitle("Raw view");
+        raw_window->setCd(&(parent_->cd_));
 
-        connect(parent_->raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+        connect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
     }
     else
     {
-        parent_->raw_window.reset(nullptr);
+        raw_window.reset(nullptr);
         disable_raw_view();
     }
     parent_->pipe_refresh();
@@ -379,8 +388,8 @@ void ViewPanel::update_raw_view(bool value)
 
 void ViewPanel::disable_raw_view()
 {
-    if (parent_->raw_window)
-        disconnect(parent_->raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+    if (raw_window)
+        disconnect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
 
     auto pipe = parent_->holovibes_.get_compute_pipe();
     pipe->request_disable_raw_view();
@@ -492,15 +501,15 @@ void ViewPanel::rotateTexture()
         parent_->displayAngle = (parent_->displayAngle == 270.f) ? 0.f : parent_->displayAngle + 90.f;
         parent_->mainDisplay->setAngle(parent_->displayAngle);
     }
-    else if (parent_->sliceXZ && curWin == WindowKind::XZview)
+    else if (sliceXZ && curWin == WindowKind::XZview)
     {
         parent_->xzAngle = (parent_->xzAngle == 270.f) ? 0.f : parent_->xzAngle + 90.f;
-        parent_->sliceXZ->setAngle(parent_->xzAngle);
+        sliceXZ->setAngle(parent_->xzAngle);
     }
-    else if (parent_->sliceYZ && curWin == WindowKind::YZview)
+    else if (sliceYZ && curWin == WindowKind::YZview)
     {
         parent_->yzAngle = (parent_->yzAngle == 270.f) ? 0.f : parent_->yzAngle + 90.f;
-        parent_->sliceYZ->setAngle(parent_->yzAngle);
+        sliceYZ->setAngle(parent_->yzAngle);
     }
     parent_->notify();
 }
@@ -514,15 +523,15 @@ void ViewPanel::flipTexture()
         parent_->displayFlip = !parent_->displayFlip;
         parent_->mainDisplay->setFlip(parent_->displayFlip);
     }
-    else if (parent_->sliceXZ && curWin == WindowKind::XZview)
+    else if (sliceXZ && curWin == WindowKind::XZview)
     {
         parent_->xzFlip = !parent_->xzFlip;
-        parent_->sliceXZ->setFlip(parent_->xzFlip);
+        sliceXZ->setFlip(parent_->xzFlip);
     }
-    else if (parent_->sliceYZ && curWin == WindowKind::YZview)
+    else if (sliceYZ && curWin == WindowKind::YZview)
     {
         parent_->yzFlip = !parent_->yzFlip;
-        parent_->sliceYZ->setFlip(parent_->yzFlip);
+        sliceYZ->setFlip(parent_->yzFlip);
     }
     parent_->notify();
 }

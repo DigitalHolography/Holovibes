@@ -27,7 +27,7 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeTransformationStrideSpinBox->setSingleStep(parent_->cd_.batch_size);
     ui_->TimeTransformationStrideSpinBox->setMinimum(parent_->cd_.batch_size);
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !ui_->ExportPanel->is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !ui_->ExportPanel->is_recording);
 
     parent_->cd_.check_batch_size_limit(input_queue_capacity);
     ui_->BatchSizeSpinBox->setValue(parent_->cd_.batch_size);
@@ -321,15 +321,15 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
                 while (pipe->get_filter2d_view_requested())
                     continue;
 
-                parent_->filter2d_window.reset(new Filter2DWindow(pos,
-                                                                  QSize(filter2d_window_width, filter2d_window_height),
-                                                                  pipe->get_filter2d_view_queue().get(),
-                                                                  parent_));
+                filter2d_window.reset(new Filter2DWindow(pos,
+                                                         QSize(filter2d_window_width, filter2d_window_height),
+                                                         pipe->get_filter2d_view_queue().get(),
+                                                         parent_));
 
-                parent_->filter2d_window->setTitle("Filter2D view");
-                parent_->filter2d_window->setCd(&(parent_->cd_));
+                filter2d_window->setTitle("Filter2D view");
+                filter2d_window->setCd(&(parent_->cd_));
 
-                connect(parent_->filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
+                connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
                 parent_->cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
             }
@@ -343,7 +343,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
     else
     {
         disable_filter2d_view();
-        parent_->filter2d_window.reset(nullptr);
+        filter2d_window.reset(nullptr);
     }
 
     parent_->pipe_refresh();
@@ -360,11 +360,11 @@ void ImageRenderingPanel::disable_filter2d_view()
     while (pipe->get_disable_filter2d_view_requested())
         continue;
 
-    if (parent_->filter2d_window)
+    if (filter2d_window)
     {
         // Remove the on triggered event
 
-        disconnect(parent_->filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
+        disconnect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
     }
 
     // Change the focused window

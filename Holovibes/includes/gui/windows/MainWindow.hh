@@ -18,9 +18,6 @@ using json = ::nlohmann::json;
 
 // namespace gui
 #include "HoloWindow.hh"
-#include "SliceWindow.hh"
-#include "PlotWindow.hh"
-#include "Filter2DWindow.hh"
 #include "import_panel.hh"
 #include "export_panel.hh"
 #include "ui_mainwindow.h"
@@ -63,21 +60,13 @@ class MainWindow : public QMainWindow, public Observer
 
     RawWindow* get_main_display();
 
-    Ui::MainWindow* ui;                                        // RIEN
-    Holovibes& holovibes_;                                     // RIEN
-    ComputeDescriptor& cd_;                                    // RIEN (TOUT?)
-    camera::FrameDescriptor file_fd_;                          // RIEN (I/IR/V?)
-    std::unique_ptr<RawWindow> mainDisplay = nullptr;          // RIEN
-    std::unique_ptr<SliceWindow> sliceXZ = nullptr;            // RIEN
-    std::unique_ptr<SliceWindow> sliceYZ = nullptr;            // RIEN
-    std::unique_ptr<RawWindow> lens_window = nullptr;          // RIEN
-    std::unique_ptr<RawWindow> raw_window = nullptr;           // RIEN
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr; // RIEN
-    std::unique_ptr<PlotWindow> plot_window_ = nullptr;        // RIEN
+    Ui::MainWindow* ui;
+    Holovibes& holovibes_;
+    ComputeDescriptor& cd_;
+    std::unique_ptr<RawWindow> mainDisplay = nullptr;
 
-    uint window_max_size = 768;                          // RIEN
-    uint time_transformation_cuts_window_max_size = 512; // RIEN
-    uint auxiliary_window_max_size = 512;                // RIEN
+    uint window_max_size = 768;
+    uint auxiliary_window_max_size = 512;
 
     float displayAngle = 0.f; // V?
     float xzAngle = 0.f;      // V?
@@ -128,9 +117,7 @@ class MainWindow : public QMainWindow, public Observer
     void documentation();
     void init_image_mode(QPoint& position, QSize& size);
 
-    /*! \name Image Rendering
-     * \{
-     *
+    /*
      * Lots of these methods stick to the following scheme:
      *
      * * Get pipe
@@ -178,7 +165,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Changes the theme of the ui */
     void set_night();
-    /*! \} */
 
   signals:
     /*! \brief TODO: comment

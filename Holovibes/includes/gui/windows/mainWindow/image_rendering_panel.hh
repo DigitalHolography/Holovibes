@@ -5,6 +5,7 @@
 #pragma once
 
 #include "panel.hh"
+#include "Filter2DWindow.hh"
 
 namespace holovibes::gui
 {
@@ -37,6 +38,8 @@ class ImageRenderingPanel : public Panel
      * \param value The new incrementation/decrementation step
      */
     void set_z_step(double value);
+
+    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode

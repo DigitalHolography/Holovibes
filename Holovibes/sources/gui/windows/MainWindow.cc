@@ -449,8 +449,6 @@ void MainWindow::load_ini(const std::string& path)
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
         window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        time_transformation_cuts_window_max_size =
-            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
         auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
 
         for (auto it = panels_.begin(); it != panels_.end(); it++)
@@ -495,7 +493,6 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<ushort>("info.theme_type", theme_index_);
 
     ptree.put<uint>("display.main_window_max_size", window_max_size);
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
     ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
@@ -545,17 +542,17 @@ void MainWindow::remove_infos() { Holovibes::instance().get_info_container().cle
 
 void MainWindow::close_windows()
 {
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
+    ui->ViewPanel->sliceXZ.reset(nullptr);
+    ui->ViewPanel->sliceYZ.reset(nullptr);
 
-    plot_window_.reset(nullptr);
+    ui->ExportPanel->plot_window.reset(nullptr);
     mainDisplay.reset(nullptr);
 
-    lens_window.reset(nullptr);
-    filter2d_window.reset(nullptr);
+    ui->ViewPanel->lens_window.reset(nullptr);
+    ui->ImageRenderingPanel->filter2d_window.reset(nullptr);
 
     /* Raw view & recording */
-    raw_window.reset(nullptr);
+    ui->ViewPanel->raw_window.reset(nullptr);
 
     // Disable windows and overlays
     cd_.reset_windows_display();
@@ -720,8 +717,8 @@ void MainWindow::createHoloWindow()
                                          size,
                                          holovibes_.get_gpu_output_queue().get(),
                                          holovibes_.get_compute_pipe(),
-                                         sliceXZ,
-                                         sliceYZ,
+                                         ui->ViewPanel->sliceXZ,
+                                         ui->ViewPanel->sliceYZ,
                                          this));
         mainDisplay->set_is_resize(false);
         mainDisplay->setTitle(QString("XY view"));

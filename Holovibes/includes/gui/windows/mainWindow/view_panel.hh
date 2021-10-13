@@ -6,6 +6,9 @@
 
 #include "panel.hh"
 
+#include "HoloWindow.hh"
+#include "SliceWindow.hh"
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -24,12 +27,22 @@ class ViewPanel : public Panel
 
     void on_notify() override;
 
+    void load_ini(const boost::property_tree::ptree& ptree) override;
+    void save_ini(boost::property_tree::ptree& ptree) override;
+
     /*! \brief Disables time transform cuts views */
     void cancel_stft_slice_view();
     /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();
     /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
+
+    std::unique_ptr<SliceWindow> sliceXZ = nullptr;
+    std::unique_ptr<SliceWindow> sliceYZ = nullptr;
+    std::unique_ptr<RawWindow> lens_window = nullptr;
+    std::unique_ptr<RawWindow> raw_window = nullptr;
+
+    uint time_transformation_cuts_window_max_size_ = 512;
 
   public slots:
     /*! \brief Modifies view image type

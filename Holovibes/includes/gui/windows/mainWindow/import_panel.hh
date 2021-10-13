@@ -5,6 +5,7 @@
 #pragma once
 
 #include "panel.hh"
+#include "frame_desc.hh"
 
 namespace holovibes::gui
 {
@@ -71,6 +72,7 @@ class ImportPanel : public Panel
   private:
     ImportType import_type_ = ImportType::None;
 
+    camera::FrameDescriptor file_fd_;
     std::string file_input_directory_;
 };
 } // namespace holovibes::gui

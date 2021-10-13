@@ -228,7 +228,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
-    is_recording_ = false;
+    is_recording = false;
 }
 
 void ExportPanel::start_record()
@@ -258,12 +258,12 @@ void ExportPanel::start_record()
     }
 
     // Start record
-    parent_->raw_window.reset(nullptr);
+    ui_->ViewPanel->raw_window.reset(nullptr);
     ui_->ViewPanel->disable_raw_view();
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    is_recording_ = true;
+    is_recording = true;
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
@@ -323,11 +323,10 @@ void ExportPanel::start_chart_display()
     while (pipe->get_chart_display_requested())
         continue;
 
-    parent_->plot_window_ =
-        std::make_unique<PlotWindow>(*parent_->holovibes_.get_compute_pipe()->get_chart_display_queue(),
-                                     parent_->auto_scale_point_threshold_,
-                                     "Chart");
-    connect(parent_->plot_window_.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
+    plot_window = std::make_unique<PlotWindow>(*parent_->holovibes_.get_compute_pipe()->get_chart_display_queue(),
+                                               parent_->auto_scale_point_threshold_,
+                                               "Chart");
+    connect(plot_window.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
 
     ui_->ChartPlotPushButton->setEnabled(false);
 }
@@ -351,7 +350,7 @@ void ExportPanel::stop_chart_display()
         LOG_ERROR << e.what();
     }
 
-    parent_->plot_window_.reset(nullptr);
+    plot_window.reset(nullptr);
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }

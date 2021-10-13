@@ -6,6 +6,7 @@
 
 #include "enum_record_mode.hh"
 #include "panel.hh"
+#include "PlotWindow.hh"
 
 namespace holovibes::gui
 {
@@ -29,7 +30,8 @@ class ExportPanel : public Panel
     void load_ini(const boost::property_tree::ptree& ptree) override;
     void save_ini(boost::property_tree::ptree& ptree) override;
 
-    bool is_recording_ = false;
+    bool is_recording = false;
+    std::unique_ptr<PlotWindow> plot_window = nullptr;
 
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
