@@ -2351,6 +2351,22 @@ void MainWindow::start_chart_display()
     ui.ChartPlotPushButton->setEnabled(false);
 }
 
+void MainWindow::set_advanced_settings_visibility(bool value) { is_advanced_settings_display = value; }
+
+void MainWindow::open_advanced_settings()
+{
+    if (is_advanced_settings_display)
+        return;
+
+    auto fun = [this]() { this->set_advanced_settings_visibility(false); };
+
+    advanced_settings_window_ = std::make_unique<AdvancedSettingsWindow>(this);
+    connect(advanced_settings_window_.get(),
+            SIGNAL(closed()),
+            SLOT(synchronize_thread(std::function<void()>)),
+            Qt::UniqueConnection);
+}
+
 void MainWindow::stop_chart_display()
 {
     if (!cd_.chart_display_enabled)

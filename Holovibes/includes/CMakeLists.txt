@@ -5,5 +5,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_group_box.hh
     gui/other/gui_frame.hh
     gui/windows/MainWindow.hh
+    gui/windows/AdvancedSettingsWindow.hh
     gui/windows/PlotWindow.hh
 )

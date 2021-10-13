@@ -45,6 +45,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/selections/overlays/zoom_overlay.cc
     gui/selections/overlay_manager.cc
     gui/windows/BasicOpenGLWindow.cc
+    gui/windows/AdvancedSettingsWindow.cc
     gui/windows/RawWindow.cc
     gui/windows/HoloWindow.cc
     gui/windows/MainWindow.cc

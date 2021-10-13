@@ -3103,20 +3103,23 @@ p, li { white-space: pre-wrap; }
     </property>
     <widget class="QMenu" name="menuImport_from_ini">
      <property name="title">
-      <string>Import from .ini</string>
+      <string>Import compute settings</string>
      </property>
      <addaction name="actionReload_ini"/>
      <addaction name="actionBrowse"/>
     </widget>
     <widget class="QMenu" name="menuExport_to_ini">
      <property name="title">
-      <string>Export to .ini</string>
+      <string>Export compute settings</string>
      </property>
      <addaction name="actionExport"/>
      <addaction name="actionExport_as"/>
     </widget>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdvanced"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3365,6 +3368,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionExport_as">
    <property name="text">
     <string>Export as...</string>
+   </property>
+  </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
    </property>
   </action>
  </widget>
@@ -5219,6 +5227,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAdvanced</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_advanced_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5315,5 +5339,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d_n1(int)</slot>
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
+  <slot>open_advanced_settings()</slot>
  </slots>
 </ui>
