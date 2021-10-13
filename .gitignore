@@ -10,6 +10,9 @@
 # python cache from scripts
 __pycache__/
 
+# logs files
+*/*.log
+
 # =========================
 # Windows
 # =========================
