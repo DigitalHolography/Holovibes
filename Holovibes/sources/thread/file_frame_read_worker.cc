@@ -5,6 +5,7 @@
 #include "input_frame_file_factory.hh"
 #include "config.hh"
 #include "holovibes.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -55,7 +56,9 @@ void FileFrameReadWorker::run()
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, "File");
     info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_descriptor_info));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
+
+    processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+
     info.add_progress_index(InformationContainer::ProgressType::FILE_READ,
                             std::ref(current_nb_frames_read_),
                             std::ref(total_nb_frames_to_read_));
@@ -79,7 +82,10 @@ void FileFrameReadWorker::run()
 
     info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
     info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
-    info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
+
+    std::cout << "processed_fps_entry : " << GSH::fast_updates_map<FpsType>.get_entry(FpsType::INPUT_FPS) << std::endl;
+    std::cout << "\n\n processed_fps : " << *processed_fps_;
+    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
     info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
 
     cudaXFree(gpu_packed_buffer_);
@@ -262,7 +268,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
-        processed_fps_++;
+        (*processed_fps_)++;
         frames_enqueued++;
     }
 

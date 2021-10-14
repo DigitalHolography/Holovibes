@@ -3,7 +3,7 @@
 #include "tools.hh"
 #include <cuda_runtime.h>
 #include <chrono>
-#include "fast_updates_holder.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -73,6 +73,7 @@ void InformationWorker::compute_fps(const long long waited_time)
     if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
     {
         std::atomic<unsigned int>* input_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::INPUT_FPS);
+
         input_fps_ = std::round(input_fps_ref->load() * (1000.f / waited_time));
         input_fps_ref->store(0);
     }

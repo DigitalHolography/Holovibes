@@ -35,7 +35,7 @@ class FrameReadWorker : public Worker
     std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue_;
 
     /*! \brief The current fps */
-    std::atomic<unsigned int> processed_fps_;
+    std::shared_ptr<std::atomic<unsigned int>> processed_fps_;
 
     const cudaStream_t stream_;
 };

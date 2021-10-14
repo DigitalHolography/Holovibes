@@ -21,6 +21,7 @@
 #include "pipeline_utils.hh"
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -28,6 +29,7 @@ using camera::FrameDescriptor;
 
 Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream)
     : ICompute(input, output, desc, stream)
+    , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_transformation_stride; };
 
@@ -69,8 +71,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     stream_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
 
+    *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
-    processed_output_fps_.store(0);
 
     try
     {
@@ -98,6 +100,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         }
     }
 }
+
+Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
 bool Pipe::make_requests()
 {
@@ -433,7 +437,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        processed_output_fps_ += cd_.batch_size;
+        *processed_output_fps_ += cd_.batch_size;
 
         // FIXME: It seems this enqueue is useless because the RawWindow use
         // the gpu input queue for display
@@ -451,7 +455,7 @@ void Pipe::insert_dequeue_input()
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     fn_compute_vect_.conditional_push_back([&]() {
-        ++processed_output_fps_;
+        (*processed_output_fps_)++;
 
         safe_enqueue_output(gpu_output_queue_,
                             buffers_.gpu_output_frame.get(),
@@ -554,9 +558,6 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-    Holovibes::instance().get_info_container().add_processed_fps(InformationContainer::FpsType::OUTPUT_FPS,
-                                                                 processed_output_fps_);
-
     if (refresh_requested_)
         refresh();
 
@@ -575,8 +576,6 @@ void Pipe::exec()
             pipe_error(1, e);
         }
     }
-
-    Holovibes::instance().get_info_container().remove_processed_fps(InformationContainer::FpsType::OUTPUT_FPS);
 }
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }

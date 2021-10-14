@@ -1,5 +1,6 @@
 #include "camera_frame_read_worker.hh"
 #include "holovibes.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -21,7 +22,8 @@ void CameraFrameReadWorker::run()
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, camera_->get_name());
     info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_format));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
+
+    processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
 
     try
     {
@@ -44,7 +46,7 @@ void CameraFrameReadWorker::run()
 
     info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
     info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
-    info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
+    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
 
     camera_.reset();
 }
@@ -66,7 +68,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
         gpu_input_queue_.load()->enqueue(ptr, copy_kind);
     }
 
-    processed_fps_ += captured_fd.count1 + captured_fd.count2;
+    *processed_fps_ += captured_fd.count1 + captured_fd.count2;
+
     gpu_input_queue_.load()->sync_current_batch();
 }
 
