@@ -3,7 +3,7 @@
 #include "tools.hh"
 #include <cuda_runtime.h>
 #include <chrono>
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 
 namespace holovibes::worker
 {
@@ -70,27 +70,25 @@ void InformationWorker::run()
 
 void InformationWorker::compute_fps(const long long waited_time)
 {
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
     {
-		auto input_fps_ref = GSH::fast_updates_map<FpsType>.get_entry(FpsType::SAVING_FPS);
+        std::atomic<unsigned int>* input_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::INPUT_FPS);
         input_fps_ = std::round(input_fps_ref->load() * (1000.f / waited_time));
-		input_fps_ref->store(0);
-
+        input_fps_ref->store(0);
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::OUTPUT_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
     {
-		auto output_fps_ref = GSH::fast_updates_map<FpsType>.get_entry(FpsType::SAVING_FPS);
+        std::atomic<unsigned int>* output_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::OUTPUT_FPS);
         output_fps_ = std::round(output_fps_ref->load() * (1000.f / waited_time));
-		output_fps_ref->store(0);
-
+        output_fps_ref->store(0);
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::SAVING_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
     {
-		auto saving_fps_ref = GSH::fast_updates_map<FpsType>.get_entry(FpsType::SAVING_FPS);
+        std::atomic<unsigned int>* saving_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::SAVING_FPS);
         saving_fps_ = std::round(saving_fps_ref->load() * (1000.f / waited_time));
-		saving_fps_ref->store(0);
+        saving_fps_ref->store(0);
     }
 }
 
@@ -120,7 +118,7 @@ void InformationWorker::display_gui_information()
     std::string to_display;
     to_display.reserve(512);
 
-    for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
+    for (auto const& [key, value] : info_.indication_map_)
         to_display += info_.indication_type_to_string_.at(key) + ":\n  " + value + "\n";
 
     for (auto const& [key, value] : info_.queue_size_map_)
@@ -129,31 +127,31 @@ void InformationWorker::display_gui_information()
         to_display += std::to_string(value.first->load()) + "/" + std::to_string(value.second->load()) + "\n";
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(FpsType::INPUT_FPS) + ":\n  " +
+        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::INPUT_FPS) + ":\n  " +
                       std::to_string(input_fps_) + "\n";
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::OUTPUT_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(FpsType::OUTPUT_FPS) + ":\n  " +
+        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::OUTPUT_FPS) + ":\n  " +
                       std::to_string(output_fps_) + "\n";
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::SAVING_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(FpsType::SAVING_FPS) + ":\n  " +
+        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::SAVING_FPS) + ":\n  " +
                       std::to_string(saving_fps_) + "\n";
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::OUTPUT_FPS)
+    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
     {
         to_display += "Input Throughput\n  " + format_throughput(input_throughput_, "B/s") + "\n";
         to_display += "Output Throughput\n  " + format_throughput(output_throughput_, "Voxels/s") + "\n";
     }
 
-    if (GSH::fast_updates_map<FpsType>.contains(FpsType::SAVING_FPS))
+    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
     {
         to_display += "Saving Throughput\n  " + format_throughput(saving_throughput_, "B/s") + "\n";
     }

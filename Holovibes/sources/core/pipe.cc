@@ -554,7 +554,8 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-		GSH::fast_update_map<FpsType>.create_entry(FpsType::OUTPUT_FPS)->store(processed_output_fps_);
+    Holovibes::instance().get_info_container().add_processed_fps(InformationContainer::FpsType::OUTPUT_FPS,
+                                                                 processed_output_fps_);
 
     if (refresh_requested_)
         refresh();
@@ -574,7 +575,8 @@ void Pipe::exec()
             pipe_error(1, e);
         }
     }
-	GHS::fast_update_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS);
+
+    Holovibes::instance().get_info_container().remove_processed_fps(InformationContainer::FpsType::OUTPUT_FPS);
 }
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
