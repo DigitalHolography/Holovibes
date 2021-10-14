@@ -121,7 +121,7 @@ class BatchInputQueue : public DisplayQueue
     {
         sync_current_batch();
         // Return the previous enqueued frame
-        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * frame_size_;
+        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.frame_size();
     }
 
     bool is_empty() const { return size_ == 0; }
@@ -136,10 +136,6 @@ class BatchInputQueue : public DisplayQueue
     uint get_total_nb_frames() const { return total_nb_frames_; }
 
     const camera::FrameDescriptor& get_fd() const { return fd_; }
-
-    uint get_frame_size() const { return frame_size_; }
-
-    uint get_frame_res() const { return frame_res_; }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -185,11 +181,6 @@ class BatchInputQueue : public DisplayQueue
 
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_;
-
-    /*! \brief Resolution of a frame (number of pixels) */
-    const uint frame_res_;
-    /*! \brief Size of a frame (number of pixels * depth) in bytes. Never modified. */
-    const uint frame_size_;
 
     /*! \brief The current number of frames in the queue
      *
