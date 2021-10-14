@@ -20,10 +20,10 @@ class FrameFile
 {
   public:
     /*! \brief Getter on the frame descriptor of the file */
-    camera::FrameDescriptor get_frame_descriptor();
+    camera::FrameDescriptor get_frame_descriptor() { return fd_; }
 
     /*! \brief Getter on the frame descriptor of the file */
-    const camera::FrameDescriptor& get_frame_descriptor() const;
+    const camera::FrameDescriptor& get_frame_descriptor() const { return fd_; }
 
     /*! \brief Getter on the total number of frames in the file */
     virtual size_t get_total_nb_frames() const = 0;
@@ -62,5 +62,3 @@ class FrameFile
     std::FILE* file_ = nullptr;
 };
 } // namespace holovibes::io_files
-
-#include "frame_file.hxx"

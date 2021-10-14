@@ -53,6 +53,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/SliceWindow.cc
     gui/windows/Filter2DWindow.cc
 
+    io_files/file_exception.cc
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc
     io_files/input_holo_file.cc

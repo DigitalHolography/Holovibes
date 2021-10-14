@@ -18,7 +18,7 @@ class OutputAviFile : public OutputFrameFile, public AviFile
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const override;
+    size_t get_total_nb_frames() const override { return img_nb_; }
 
     /*! \brief Export the compute settings in the file
      *
@@ -78,5 +78,3 @@ class OutputAviFile : public OutputFrameFile, public AviFile
     cv::VideoWriter video_writer_;
 };
 } // namespace holovibes::io_files
-
-#include "output_avi_file.hxx"

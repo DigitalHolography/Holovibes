@@ -17,7 +17,7 @@ class InputHoloFile : public InputFrameFile, public HoloFile
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const override;
+    size_t get_total_nb_frames() const override { return HoloFile::get_total_nb_frames(); }
 
     /*! \brief Set the pointer in the file to the frame requested
      *
@@ -47,5 +47,3 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     InputHoloFile(const std::string& file_path);
 };
 } // namespace holovibes::io_files
-
-#include "input_holo_file.hxx"

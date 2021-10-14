@@ -13,14 +13,18 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 #### Clang-Format details
 
 * No brackets in one line ifs
-* Comments should use the doxygen format like the following: /*! \brief This is an example */
+* Comments must use the doxygen format like the following: /*! \brief This is an example */
+* Headers files must have the extention .hh
+* Sources files must have the extention .cc
+* Templated classes must have the extention *.hxx
+* Getters, Setters and inlinable functions must written in *.hh files
 
 #### Naming style
 
-* Classes, Structs, Unions, Enums should be named in CamelCase.
-* Class Members, Variables, Namespaces, Functions, Files should be named in snake_case.
-* A class member getter should be named 'get_{var}'. Idem for setters.
-* Class members should end with '_' as in 'frame_size_'
+* Classes, Structs, Unions, Enums must be named in CamelCase.
+* Class Members, Variables, Namespaces, Functions, Files must be named in snake_case.
+* A class member getter must be named 'get_{var}'. Idem for setters.
+* Class members must end with '_' as in 'frame_size_'
 
 ### Git
 
