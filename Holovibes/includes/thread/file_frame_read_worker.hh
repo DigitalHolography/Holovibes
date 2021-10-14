@@ -105,6 +105,13 @@ class FileFrameReadWorker : public FrameReadWorker
     void enqueue_loop(size_t nb_frames_to_enqueue);
 
   private:
+    FastUpdatesHolder<ProgressType>::Value fast_updates_entry_;
+
+    /*! \brief Current number of frames read */
+    std::atomic<unsigned int>& current_nb_frames_read_;
+    /*! \brief Total number of frames to read at the beginning of the process */
+    std::atomic<unsigned int>& total_nb_frames_to_read_;
+
     /*! \brief The file path */
     const std::string file_path_;
     /*! \brief Whether the reading should start over when meeting the end of the file */
@@ -113,10 +120,6 @@ class FileFrameReadWorker : public FrameReadWorker
     FpsHandler fps_handler_;
     /*! \brief Id of the first frame to read */
     unsigned int first_frame_id_;
-    /*! \brief Current number of frames read */
-    std::atomic<unsigned int> current_nb_frames_read_;
-    /*! \brief Total number of frames to read at the beginning of the process */
-    const std::atomic<unsigned int> total_nb_frames_to_read_;
     /*! \brief Whether the entire file should be loaded in the gpu */
     bool load_file_in_gpu_;
     /*! \brief The input file in which the frames are read */

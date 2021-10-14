@@ -19,9 +19,10 @@ void CameraFrameReadWorker::run()
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
                                std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
 
-    InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, camera_->get_name());
-    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_format));
+    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    *entry1 = camera_->get_name();
+    *entry2 = input_format;
 
     processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
 
@@ -44,8 +45,8 @@ void CameraFrameReadWorker::run()
         LOG_ERROR << "[CAPTURE] " << e.what();
     }
 
-    info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
-    info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
 
     camera_.reset();
