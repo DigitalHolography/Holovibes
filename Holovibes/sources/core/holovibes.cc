@@ -79,10 +79,10 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
-        catch (std::exception&)
+        catch (const std::exception& e)
         {
             // Should never happen
-            LOG_ERROR << "This camera is not handled." << std::endl;
+            LOG_ERROR << "This camera is not handled. (Exception: " << e.what() << ')';
             throw;
         }
 
@@ -98,6 +98,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     catch (std::exception& e)
     {
         stop_frame_read();
+        LOG_ERROR << "Error at camera frame read start worker. (Exception: " << e.what() << ')';
         throw;
     }
 }
@@ -158,6 +159,54 @@ void Holovibes::start_information_display(bool is_cli, const std::function<void(
 
 void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
+void Holovibes::start_cli_record_and_compute(const std::string& path,
+                                             std::optional<unsigned int> nb_frames_to_record,
+                                             bool raw_record,
+                                             unsigned int nb_frames_skip)
+{
+    LOG_TRACE << "Entering Holovibes::start_cli_record_and_compute()";
+
+    frame_record_worker_controller_.set_callback([]() {});
+    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+    frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip);
+
+    while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
+        continue;
+
+    compute_pipe_.load()->request_refresh();
+
+    compute_worker_controller_.set_callback([]() {});
+    compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
+    compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+
+    LOG_TRACE << "Exiting Holovibes::start_cli_compute_and_record()";
+}
+
+void Holovibes::init_pipe()
+{
+    LOG_TRACE << "Entering Holovibes::init_pipe()";
+
+    auto& cd = Holovibes::instance().get_cd();
+    camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
+    if (cd.compute_mode == Computation::Hologram)
+    {
+        output_fd.depth = 2;
+        if (cd.img_type == ImgType::Composite)
+            output_fd.depth = 6;
+    }
+
+    gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
+                                                    global::global_config.output_queue_max_size,
+                                                    Queue::QueueType::OUTPUT_QUEUE));
+
+    compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
+                                               *(gpu_output_queue_.load()),
+                                               cd,
+                                               get_cuda_streams().compute_stream));
+
+    LOG_TRACE << "Exiting Holovibes::init_pipe()";
+}
+
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
     /**
@@ -166,6 +215,16 @@ void Holovibes::start_compute(const std::function<void()>& callback)
      * CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
      */
     CHECK(gpu_input_queue_.load() != nullptr) << "Input queue not initialized";
+
+    try
+    {
+        init_pipe();
+    }
+    catch (std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        return;
+    }
 
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);

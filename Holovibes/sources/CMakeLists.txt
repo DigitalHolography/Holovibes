@@ -69,6 +69,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     io_files/output_mp4_file.cc
     io_files/output_holo_file.cc
     io_files/output_frame_file_factory.cc
+    io_files/output_frame_file.cc
 
     thread/batch_gpib_worker.cc
     thread/camera_frame_read_worker.cc

@@ -18,9 +18,14 @@ using json = ::nlohmann::json;
 
 // namespace gui
 #include "HoloWindow.hh"
+
 #include "import_panel.hh"
 #include "export_panel.hh"
+
+// Suppress all warnings in this auto-generated file
+#pragma warning(push, 0)
 #include "ui_mainwindow.h"
+#pragma warning(pop)
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
@@ -132,9 +137,6 @@ class MainWindow : public QMainWindow, public Observer
      * \return true if we are in raw mode, false otherwise
      */
     bool is_raw_mode();
-
-    /*! \brief Resets the whole program in reload .ini file */
-    void reset();
 
     /*! \brief Modifies view image type
      *

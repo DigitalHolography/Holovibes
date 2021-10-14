@@ -83,6 +83,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         // (ex: lowering the GPU memory usage)
         LOG_WARN << "Pipe refresh failed, trying one more time with updated "
                     "compute descriptor";
+        LOG_WARN << "Exception: " << e.what();
         try
         {
             refresh();
@@ -91,8 +92,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            LOG_ERROR << "Pipe could not be initialized";
-            LOG_ERROR << "You might want to restart holovibes";
+            LOG_ERROR << "Pipe could not be initialized, You might want to restart holovibes";
+            LOG_ERROR << "Exception: " << e.what();
             throw e;
         }
     }
@@ -100,6 +101,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
 
 bool Pipe::make_requests()
 {
+    LOG_TRACE << "Entering Pipe::make_requests()";
+
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
 
@@ -251,6 +254,7 @@ bool Pipe::make_requests()
 
     if (hologram_record_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG << "Hologram Record Request Processing";
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -275,6 +279,8 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    LOG_TRACE << "Entering Pipe::refresh()";
+
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();
@@ -532,7 +538,7 @@ void Pipe::insert_hologram_record()
     if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.conditional_push_back([&]() {
-            if (gpu_output_queue_.get_fd().depth == 6)
+            if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                 frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(), stream_);
             else
                 frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
@@ -550,6 +556,9 @@ void Pipe::exec()
 {
     Holovibes::instance().get_info_container().add_processed_fps(InformationContainer::FpsType::OUTPUT_FPS,
                                                                  processed_output_fps_);
+
+    if (refresh_requested_)
+        refresh();
 
     while (!termination_requested_)
     {

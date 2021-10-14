@@ -3039,7 +3039,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionConfigure"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
-    <addaction name="actionReset"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3240,11 +3239,6 @@ p, li { white-space: pre-wrap; }
     <string>Alt+N</string>
    </property>
   </action>
-  <action name="actionReset">
-   <property name="text">
-    <string>Reset</string>
-   </property>
-  </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
@@ -3309,7 +3303,6 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
    <slots>
     <slot>ShowOrHide()</slot>
-    <slot>reset()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -3578,22 +3571,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>583</x>
      <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionReset</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
     </hint>
    </hints>
   </connection>
@@ -5204,7 +5181,6 @@ p, li { white-space: pre-wrap; }
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>layout_toggled()</slot>
-  <slot>reset()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>

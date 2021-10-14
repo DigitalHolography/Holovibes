@@ -8,6 +8,17 @@ find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 
+# Fetch googletest git repository during CMake configuration
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.11.0 # Specify the commit you depend on and update it regularly.
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 cmake_policy(SET CMP0100 NEW)
 
 # Qt file generators
@@ -19,6 +30,16 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
+
+# "/W3"                     : Activate almost all warningd
+# "/sdl"                    : Activate all security warnings
+# "/WX"                     : Transform all warnings into errors
+# "/DEBUG"                  : Create Debug symbols
+# "/Zi"                     : Create Debug database .pdb for debug with devenv
+# "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
+# "/external:W0"            : Tells MSVC that external headers should not do any warnings
+# "/fsanitize=address       : Add ASAn to build
+string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
 
 set(HOLO_INCLUDES
     cuda_includes/
@@ -138,17 +159,6 @@ add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
 # ---
 # Targets test_* (unit tests)
 # ---
-
-# Fetch googletest git repository during CMake configuration
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.11.0 # Specify the commit you depend on and update it regularly.
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
 set(SRC_TESTS
     unit_tests/test_example.cc

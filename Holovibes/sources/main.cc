@@ -90,17 +90,30 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { LOG_INFO << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
+static void print_version() { std::cerr << "Holovibes " << __HOLOVIBES_VERSION__; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    LOG_INFO << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    LOG_INFO << parser.get_opts_desc();
+    std::cerr << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cerr << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
 {
+
+#ifndef _DEBUG
+    // Put every log message in "everything.log":
+    loguru::add_file("everything.log", loguru::Append, loguru::Verbosity_MAX);
+
+    // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
+    loguru::add_file("latest_readable.log", loguru::Truncate, loguru::Verbosity_INFO);
+
+    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
+#else
+    loguru::g_stderr_verbosity = 2;
+#endif
+
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
 
@@ -137,8 +150,9 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception: " << e.what() << std::endl;
+        LOG_ERROR << "Uncaught exception: " << e.what();
         ret = 1;
     }
+
     return ret;
 }

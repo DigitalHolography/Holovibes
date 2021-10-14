@@ -20,7 +20,9 @@
 
 namespace holovibes
 {
+
 #define __HOLOVIBES_VERSION__ "10.2"
+#define __APPNAME__ "Holovibes"
 
 /*! \class ComputeDescriptor
  *
@@ -452,6 +454,7 @@ class ComputeDescriptor : public Observable
 
     std::atomic<uint> start_frame{0};
     std::atomic<uint> end_frame{0};
+    std::atomic<uint> input_fps{60};
 
 #pragma endregion
 };
