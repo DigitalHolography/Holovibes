@@ -966,9 +966,7 @@ void MainWindow::set_raw_mode()
 
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-		GSH::fast_update_map
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                                                                  fd_info);
+		GSH::fast_update_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT)->store(fd_info);
         set_convolution_mode(false);
         set_divide_convolution_mode(false);
         notify();
@@ -1041,8 +1039,8 @@ void MainWindow::set_holographic_mode()
         const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
-                                                                  fd_info);
+		GSH::fast_update_map<IndicationType>.create_entry(IndicationType::OUTPUT_FORMAT)->store(fd_info);
+
         /* Contrast */
         cd_.set_contrast_enabled(true);
 
