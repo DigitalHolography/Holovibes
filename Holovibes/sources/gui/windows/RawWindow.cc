@@ -64,11 +64,11 @@ void RawWindow::initializeGL()
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
     uint size;
     if (fd_.depth == 8) // cuComplex displayed as a uint
-        size = fd_.frame_res() * sizeof(uint);
+        size = fd_.get_frame_res() * sizeof(uint);
     else if (fd_.depth == 4) // Float are displayed as ushort
-        size = fd_.frame_res() * sizeof(ushort);
+        size = fd_.get_frame_res() * sizeof(ushort);
     else
-        size = fd_.frame_size();
+        size = fd_.get_frame_size();
 
     glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr,
                  GL_STATIC_DRAW); // GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
@@ -257,7 +257,7 @@ void RawWindow::paintGL()
     else
     {
         ushort bitshift = kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
-        convert_frame_for_display(frame, cuPtrToPbo, fd_.frame_res(), fd_.depth, bitshift, cuStream);
+        convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, bitshift, cuStream);
     }
 
     // Release resources (needs to be done at each call) and sync

@@ -121,7 +121,7 @@ class BatchInputQueue : public DisplayQueue
     {
         sync_current_batch();
         // Return the previous enqueued frame
-        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.frame_size();
+        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
 
     bool is_empty() const { return size_ == 0; }

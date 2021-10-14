@@ -55,7 +55,7 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     for (uint i = 0; i < max_size_; ++i)
         cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
 
-    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.frame_size());
+    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
 }
 
 void BatchInputQueue::sync_current_batch() const
@@ -116,11 +116,11 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
     // Static_cast to avoid overflow
     char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.frame_size());
+        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
     cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
-                     sizeof(char) * fd_.frame_size(),
+                     sizeof(char) * fd_.get_frame_size(),
                      memcpy_kind,
                      batch_streams_[end_index_]);
 
@@ -172,8 +172,9 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
     // are still running.
 
     // From the queue
-    const char* const src = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.frame_size());
-    func(src, dest, batch_size_, fd_.frame_res(), depth, batch_streams_[start_index_locked]);
+    const char* const src =
+        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
+    func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
 
     // The consumer has the responsability to give data that
     // finished processing.
@@ -235,7 +236,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     CHECK(size_ > 0) << "Queue is empty. Cannot copy multiple.";
     CHECK(dest.get_max_size() >= nb_elts) << "Copy multiple: the destination queue must have a size at least "
                                              "greater than number of elements to copy.";
-    CHECK(fd_.frame_size() == dest.fd_.frame_size());
+    CHECK(fd_.get_frame_size() == dest.fd_.get_frame_size());
     CHECK(nb_elts <= batch_size_) << "Copy multiple: cannot copy more "
                                      "than a batch of frames";
 
@@ -249,7 +250,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     // Determine source region info
     struct Queue::QueueRegion src;
     // Get the start of the starting batch
-    src.first = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.frame_size());
+    src.first = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
     // Copy multiple nb_elts which might be lower than batch_size.
     src.first_size = nb_elts;
 
@@ -257,7 +258,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     struct Queue::QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
 
-    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.frame_size());
+    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
@@ -274,7 +275,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     // Use the source start index (first batch of frames in the queue) stream
     // An enqueue operation on this stream (if happens) is blocked until the
     // copy is completed. Make the copy according to the region
-    Queue::copy_multiple_aux(src, dst, fd_.frame_size(), batch_streams_[start_index_locked]);
+    Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked]);
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.

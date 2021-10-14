@@ -107,7 +107,7 @@ void CameraHamamatsu::retrieve_pixel_depth()
 
 void CameraHamamatsu::allocate_host_frame_buffer()
 {
-    auto frame_size = fd_.frame_res();
+    auto frame_size = fd_.get_frame_res();
     output_frame_ = std::make_unique<unsigned short[]>(frame_size);
 }
 

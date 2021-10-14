@@ -39,21 +39,21 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
     long long int n[] = {fd.height, fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
-    spatial_transformation_plan_.XtplanMany(2,              // 2D
-                                            n,              // Dimension of inner most & outer most dimension
-                                            n,              // Storage dimension size
-                                            1,              // Between two inputs (pixels) of same image distance is one
-                                            fd.frame_res(), // Distance between 2 same index pixels of 2 images
-                                            CUDA_C_32F,     // Input type
+    spatial_transformation_plan_.XtplanMany(2, // 2D
+                                            n, // Dimension of inner most & outer most dimension
+                                            n, // Storage dimension size
+                                            1, // Between two inputs (pixels) of same image distance is one
+                                            fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
+                                            CUDA_C_32F,         // Input type
                                             n,
                                             1,
-                                            fd.frame_res(), // Ouput layout same as input
-                                            CUDA_C_32F,     // Output type
-                                            cd_.batch_size, // Batch size
-                                            CUDA_C_32F);    // Computation type
+                                            fd.get_frame_res(), // Ouput layout same as input
+                                            CUDA_C_32F,         // Output type
+                                            cd_.batch_size,     // Batch size
+                                            CUDA_C_32F);        // Computation type
 
     int inembed[1];
-    int zone_size = gpu_input_queue_.get_fd().frame_res();
+    int zone_size = gpu_input_queue_.get_fd().get_frame_res();
 
     inembed[0] = cd_.time_transformation_size;
 
@@ -66,15 +66,15 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
 
     // Static cast size_t to avoid overflow
     if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(cd_.batch_size) *
-                                                           gpu_input_queue_.get_fd().frame_res()))
+                                                           gpu_input_queue_.get_fd().get_frame_res()))
         err++;
 
-    int output_buffer_size = gpu_input_queue_.get_fd().frame_res();
+    int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
     if (cd_.img_type == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
-    buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_fd().frame_res();
+    buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_fd().get_frame_res();
 
     if (cd_.img_type == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
@@ -105,14 +105,15 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
     unsigned int err_count = 0;
-    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().frame_res() * time_transformation_size);
+    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
+                                                     time_transformation_size);
 
     if (cd_.time_transformation == TimeTransformation::STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = gpu_input_queue_.get_fd().frame_res();
+        int zone_size = gpu_input_queue_.get_fd().get_frame_res();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -135,7 +136,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = gpu_input_queue_.get_fd().frame_res();
+        int zone_size = gpu_input_queue_.get_fd().get_frame_res();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -181,24 +182,24 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_fd.frame_res());
+    buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_fd.get_frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
     spatial_transformation_plan_.XtplanMany(
-        2,                              // 2D
-        n,                              // Dimension of inner most & outer most dimension
-        n,                              // Storage dimension size
-        1,                              // Between two inputs (pixels) of same image distance is one
-        gpu_input_queue_fd.frame_res(), // Distance between 2 same index pixels of 2 images
-        CUDA_C_32F,                     // Input type
+        2,                                  // 2D
+        n,                                  // Dimension of inner most & outer most dimension
+        n,                                  // Storage dimension size
+        1,                                  // Between two inputs (pixels) of same image distance is one
+        gpu_input_queue_fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
+        CUDA_C_32F,                         // Input type
         n,
         1,
-        gpu_input_queue_fd.frame_res(), // Ouput layout same as input
-        CUDA_C_32F,                     // Output type
-        cd_.batch_size,                 // Batch size
-        CUDA_C_32F);                    // Computation type
+        gpu_input_queue_fd.get_frame_res(), // Ouput layout same as input
+        CUDA_C_32F,                         // Output type
+        cd_.batch_size,                     // Batch size
+        CUDA_C_32F);                        // Computation type
 }
 
 void ICompute::init_cuts()
@@ -214,11 +215,11 @@ void ICompute::init_cuts()
         new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size));
     time_transformation_env_.gpu_output_queue_yz.reset(
         new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size));
-    buffers_.gpu_postprocess_frame_xz.resize(fd_xz.frame_res());
-    buffers_.gpu_postprocess_frame_yz.resize(fd_yz.frame_res());
+    buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
+    buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());
 
-    buffers_.gpu_output_frame_xz.resize(fd_xz.frame_res());
-    buffers_.gpu_output_frame_yz.resize(fd_yz.frame_res());
+    buffers_.gpu_output_frame_xz.resize(fd_xz.get_frame_res());
+    buffers_.gpu_output_frame_yz.resize(fd_yz.get_frame_res());
 }
 
 void ICompute::dispose_cuts()

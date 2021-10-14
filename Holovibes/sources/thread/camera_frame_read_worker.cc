@@ -56,13 +56,13 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
 
     for (unsigned i = 0; i < captured_fd.count1; ++i)
     {
-        auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.frame_size();
+        auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();
         gpu_input_queue_.load()->enqueue(ptr, copy_kind);
     }
 
     for (unsigned i = 0; i < captured_fd.count2; ++i)
     {
-        auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.frame_size();
+        auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.get_frame_size();
         gpu_input_queue_.load()->enqueue(ptr, copy_kind);
     }
 

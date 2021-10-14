@@ -40,8 +40,8 @@ void InformationWorker::run()
 
             if (gpu_output_queue && gpu_input_queue)
             {
-                output_frame_res = gpu_output_queue->get_fd().frame_res();
-                input_frame_size = gpu_input_queue->get_fd().frame_size();
+                output_frame_res = gpu_output_queue->get_fd().get_frame_res();
+                input_frame_size = gpu_input_queue->get_fd().get_frame_size();
             }
 
             try
@@ -50,7 +50,7 @@ void InformationWorker::run()
                 std::unique_ptr<Queue>& gpu_frame_record_queue = pipe->get_frame_record_queue();
 
                 if (gpu_frame_record_queue)
-                    record_frame_size = gpu_frame_record_queue->get_fd().frame_size();
+                    record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
             catch (const std::exception&)
             {

@@ -73,20 +73,20 @@ class Queue : public DisplayQueue
     unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
-    void* get_start() const { return data_.get() + start_index_ * fd_.frame_size(); }
+    void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
-    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.frame_size(); }
+    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
     void* get_last_image() const override
     {
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
-        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.frame_size();
+        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
     }
 
     /*! \return Index of the frame right after the last one containing data */

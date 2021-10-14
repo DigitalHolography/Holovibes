@@ -44,7 +44,7 @@ void FileFrameReadWorker::run()
     }
 
     const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    frame_size_ = fd.frame_size();
+    frame_size_ = fd.get_frame_size();
 
     if (!init_frame_buffers())
         return;
