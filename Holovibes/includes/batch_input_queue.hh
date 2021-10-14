@@ -184,7 +184,7 @@ class BatchInputQueue : public DisplayQueue
     cuda_tools::UniquePtr<char> data_;
 
     /*! \brief FastUpdatesHolder entry */
-    FastUpdatesHolder<QueueType>::Value entry_;
+    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
 
     /*! \brief The current number of frames in the queue
      *

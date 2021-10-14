@@ -33,13 +33,17 @@ void FrameRecordWorker::run()
         return;
     }
 
-    uint nb_frames_recorded = 0;
-    auto fast_update_frame_record = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+    auto fast_update_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+
+    std::atomic<uint>& nb_frames_recorded = fast_update_entry->first;
+    std::atomic<uint>& nb_frames_to_record = fast_update_entry->second;
+
+    nb_frames_recorded = 0;
 
     if (nb_frames_to_record_.has_value())
-        fast_update_frame_record->store({0, nb_frames_to_record_.value()});
+        nb_frames_to_record = nb_frames_to_record_.value();
     else
-        fast_update_frame_record->store({0, 0});
+        nb_frames_to_record = 0;
 
     InformationContainer& info = Holovibes::instance().get_info_container();
     info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
@@ -87,9 +91,7 @@ void FrameRecordWorker::run()
             nb_frames_recorded++;
 
             if (nb_frames_to_record_.has_value())
-                fast_update_frame_record->store({nb_frames_recorded, nb_frames_to_record_.value()});
-            else
-                fast_update_frame_record->store({nb_frames_recorded, nb_frames_recorded});
+                nb_frames_to_record++;
         }
 
         if (stop_requested_)

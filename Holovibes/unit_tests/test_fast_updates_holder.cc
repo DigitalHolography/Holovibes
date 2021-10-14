@@ -10,11 +10,12 @@ TEST(FastUpdatesHolder, testMapInsert)
 {
     auto map = holovibes::FastUpdatesHolder<holovibes::ProgressType>();
     auto entry1 = map.create_entry(holovibes::ProgressType::FRAME_RECORD);
-    entry1->store({2, 2});
+    entry1->first = 2;
+    entry1->second = 2;
 
     auto entry2 = map.get_entry(holovibes::ProgressType::FRAME_RECORD);
-    ASSERT_EQ(entry2->load().first, 2);
-    ASSERT_EQ(entry2->load().second, 2);
+    ASSERT_EQ(entry2->first, 2);
+    ASSERT_EQ(entry2->second, 2);
 }
 
 TEST(FastUpdatesHolder, testMapRemove)

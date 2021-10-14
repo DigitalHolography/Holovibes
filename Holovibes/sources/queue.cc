@@ -22,9 +22,9 @@ Queue::Queue(const camera::FrameDescriptor& fd,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
     : DisplayQueue(fd)
-    , entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
-    , size_(entry_->first)
-    , max_size_(entry_->second)
+    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
+    , size_(fast_updates_entry_->first)
+    , max_size_(fast_updates_entry_->second)
     , type_(type)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)

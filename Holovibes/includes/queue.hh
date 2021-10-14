@@ -228,7 +228,7 @@ class Queue : public DisplayQueue
     /*! \name FastUpdatesHolder entry and all variables linked to it
      * \{
      */
-    FastUpdatesHolder<QueueType>::Value entry_;
+    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
 
     /*! \brief Size of the queue (number of frames currently stored in the queue)
      *

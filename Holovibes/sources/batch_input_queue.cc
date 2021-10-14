@@ -15,9 +15,9 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const camera::Frame
 
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd)
     : DisplayQueue(fd)
-    , entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
-    , curr_nb_frames_(entry_->first)
-    , total_nb_frames_(entry_->second)
+    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
+    , curr_nb_frames_(fast_updates_entry_->first)
+    , total_nb_frames_(fast_updates_entry_->second)
     , frame_capacity_(total_nb_frames)
     , data_(nullptr)
 {
