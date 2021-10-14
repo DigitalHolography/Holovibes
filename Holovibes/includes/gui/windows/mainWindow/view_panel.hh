@@ -44,6 +44,9 @@ class ViewPanel : public Panel
 
     uint time_transformation_cuts_window_max_size_ = 512;
 
+    float displayAngle = 0.f;
+    int displayFlip = 0;
+
   public slots:
     /*! \brief Modifies view image type
      *
@@ -172,5 +175,12 @@ class ViewPanel : public Panel
      * \param value The new reticle scale
      */
     void reticle_scale(double value);
+
+  private:
+    float xzAngle_ = 0.f;
+    float yzAngle_ = 0.f;
+
+    int xzFlip_ = 0;
+    int yzFlip_ = 0;
 };
 } // namespace holovibes::gui

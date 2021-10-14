@@ -68,14 +68,6 @@ class MainWindow : public QMainWindow, public Observer
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
 
-    float displayAngle = 0.f; // V?
-    float xzAngle = 0.f;      // V?
-    float yzAngle = 0.f;      // V?
-
-    int displayFlip = 0; // V?
-    int xzFlip = 0;      // V?
-    int yzFlip = 0;      // V?
-
     bool is_enabled_camera_ = false; // RIEN?IR?
     double z_step_ = 0.005f;         // IR
 

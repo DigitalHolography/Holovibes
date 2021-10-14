@@ -431,13 +431,6 @@ void MainWindow::load_ini(const std::string& path)
 
         ui->ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
-        displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
-        xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
-        yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
-        displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
-        xzFlip = ptree.get("view.xCut_flip", xzFlip);
-        yzFlip = ptree.get("view.yCut_flip", yzFlip);
-
         auto_scale_point_threshold_ =
             ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
@@ -477,13 +470,6 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<double>("image_rendering.z_step", z_step_);
 
     ptree.put<bool>("view.hidden", view_panel->isHidden());
-
-    ptree.put<float>("view.mainWindow_rotate", displayAngle);
-    ptree.put<float>("view.xCut_rotate", xzAngle);
-    ptree.put<float>("view.yCut_rotate", yzAngle);
-    ptree.put<int>("view.mainWindow_flip", displayFlip);
-    ptree.put<int>("view.xCut_flip", xzFlip);
-    ptree.put<int>("view.yCut_flip", yzFlip);
 
     ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 
@@ -724,8 +710,8 @@ void MainWindow::createHoloWindow()
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->resetTransform();
-        mainDisplay->setAngle(displayAngle);
-        mainDisplay->setFlip(displayFlip);
+        mainDisplay->setAngle(ui->ViewPanel->displayAngle);
+        mainDisplay->setFlip(ui->ViewPanel->displayFlip);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     }
     catch (const std::runtime_error& e)

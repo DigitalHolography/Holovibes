@@ -56,18 +56,18 @@ void ViewPanel::on_notify()
     ui_->ImgAccuSpinBox->setValue(parent_->cd_.get_img_acc_slice_level(parent_->cd_.current_window.load()));
     if (parent_->cd_.current_window == WindowKind::XYview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->displayAngle))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->displayFlip)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
     }
     else if (parent_->cd_.current_window == WindowKind::XZview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->xzAngle))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->xzFlip)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle_))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(xzFlip_)).c_str());
     }
     else if (parent_->cd_.current_window == WindowKind::YZview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(parent_->yzAngle))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(parent_->yzFlip)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle_))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(yzFlip_)).c_str());
     }
 
     // p accu
@@ -145,11 +145,25 @@ void ViewPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
     time_transformation_cuts_window_max_size_ =
         ptree.get<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
+
+    displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
+    xzAngle_ = ptree.get<float>("view.xCut_rotate", xzAngle_);
+    yzAngle_ = ptree.get<float>("view.yCut_rotate", yzAngle_);
+    displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
+    xzFlip_ = ptree.get("view.xCut_flip", xzFlip_);
+    yzFlip_ = ptree.get("view.yCut_flip", yzFlip_);
 }
 
 void ViewPanel::save_ini(boost::property_tree::ptree& ptree)
 {
     ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
+
+    ptree.put<float>("view.mainWindow_rotate", displayAngle);
+    ptree.put<float>("view.xCut_rotate", xzAngle_);
+    ptree.put<float>("view.yCut_rotate", yzAngle_);
+    ptree.put<int>("view.mainWindow_flip", displayFlip);
+    ptree.put<int>("view.xCut_flip", xzFlip_);
+    ptree.put<int>("view.yCut_flip", yzFlip_);
 }
 
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
@@ -194,8 +208,8 @@ void ViewPanel::toggle_time_transformation_cuts(bool checked)
                                           KindOfView::SliceXZ,
                                           parent_));
             sliceXZ->setTitle("XZ view");
-            sliceXZ->setAngle(parent_->xzAngle);
-            sliceXZ->setFlip(parent_->xzFlip);
+            sliceXZ->setAngle(xzAngle_);
+            sliceXZ->setFlip(xzFlip_);
             sliceXZ->setCd(&(parent_->cd_));
 
             sliceYZ.reset(new SliceWindow(yzPos,
@@ -204,8 +218,8 @@ void ViewPanel::toggle_time_transformation_cuts(bool checked)
                                           KindOfView::SliceYZ,
                                           parent_));
             sliceYZ->setTitle("YZ view");
-            sliceYZ->setAngle(parent_->yzAngle);
-            sliceYZ->setFlip(parent_->yzFlip);
+            sliceYZ->setAngle(yzAngle_);
+            sliceYZ->setFlip(yzFlip_);
             sliceYZ->setCd(&(parent_->cd_));
 
             parent_->mainDisplay->getOverlayManager().create_overlay<Cross>();
@@ -498,18 +512,18 @@ void ViewPanel::rotateTexture()
 
     if (curWin == WindowKind::XYview)
     {
-        parent_->displayAngle = (parent_->displayAngle == 270.f) ? 0.f : parent_->displayAngle + 90.f;
-        parent_->mainDisplay->setAngle(parent_->displayAngle);
+        displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
+        parent_->mainDisplay->setAngle(displayAngle);
     }
     else if (sliceXZ && curWin == WindowKind::XZview)
     {
-        parent_->xzAngle = (parent_->xzAngle == 270.f) ? 0.f : parent_->xzAngle + 90.f;
-        sliceXZ->setAngle(parent_->xzAngle);
+        xzAngle_ = (xzAngle_ == 270.f) ? 0.f : xzAngle_ + 90.f;
+        sliceXZ->setAngle(xzAngle_);
     }
     else if (sliceYZ && curWin == WindowKind::YZview)
     {
-        parent_->yzAngle = (parent_->yzAngle == 270.f) ? 0.f : parent_->yzAngle + 90.f;
-        sliceYZ->setAngle(parent_->yzAngle);
+        yzAngle_ = (yzAngle_ == 270.f) ? 0.f : yzAngle_ + 90.f;
+        sliceYZ->setAngle(yzAngle_);
     }
     parent_->notify();
 }
@@ -520,18 +534,18 @@ void ViewPanel::flipTexture()
 
     if (curWin == WindowKind::XYview)
     {
-        parent_->displayFlip = !parent_->displayFlip;
-        parent_->mainDisplay->setFlip(parent_->displayFlip);
+        displayFlip = !displayFlip;
+        parent_->mainDisplay->setFlip(displayFlip);
     }
     else if (sliceXZ && curWin == WindowKind::XZview)
     {
-        parent_->xzFlip = !parent_->xzFlip;
-        sliceXZ->setFlip(parent_->xzFlip);
+        xzFlip_ = !xzFlip_;
+        sliceXZ->setFlip(xzFlip_);
     }
     else if (sliceYZ && curWin == WindowKind::YZview)
     {
-        parent_->yzFlip = !parent_->yzFlip;
-        sliceYZ->setFlip(parent_->yzFlip);
+        yzFlip_ = !yzFlip_;
+        sliceYZ->setFlip(yzFlip_);
     }
     parent_->notify();
 }
