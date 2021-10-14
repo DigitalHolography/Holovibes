@@ -74,12 +74,6 @@ class MainWindow : public QMainWindow, public Observer
 
     ushort theme_index_ = 0;
 
-    // Shortcuts (initialized in constructor)
-    QShortcut* z_up_shortcut_;    // ?
-    QShortcut* z_down_shortcut_;  // ?
-    QShortcut* p_left_shortcut_;  // ?
-    QShortcut* p_right_shortcut_; // ?
-
   public slots:
     void on_notify();
     /*! \brief Give a function to execute to the main thread with a signal

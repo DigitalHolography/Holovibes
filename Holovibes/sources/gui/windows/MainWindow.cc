@@ -116,22 +116,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     set_night();
 
     // Keyboard shortcuts
-    z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
-    z_up_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_up_shortcut_, SIGNAL(activated()), ui->ImageRenderingPanel, SLOT(increment_z()));
-
-    z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
-    z_down_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_down_shortcut_, SIGNAL(activated()), ui->ImageRenderingPanel, SLOT(decrement_z()));
-
-    p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
-    p_left_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_left_shortcut_, SIGNAL(activated()), ui->ViewPanel, SLOT(decrement_p()));
-
-    p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
-    p_right_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_right_shortcut_, SIGNAL(activated()), ui->ViewPanel, SLOT(increment_p()));
-
     QComboBox* window_cbox = ui->WindowSelectionComboBox;
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
@@ -170,11 +154,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    delete z_up_shortcut_;
-    delete z_down_shortcut_;
-    delete p_left_shortcut_;
-    delete p_right_shortcut_;
-
     close_windows();
     close_critical_compute();
     camera_none();

@@ -11,9 +11,20 @@ namespace holovibes::gui
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
 {
+    z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
+    z_up_shortcut_->setContext(Qt::ApplicationShortcut);
+    connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
+
+    z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
+    z_down_shortcut_->setContext(Qt::ApplicationShortcut);
+    connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
 }
 
-ImageRenderingPanel::~ImageRenderingPanel() {}
+ImageRenderingPanel::~ImageRenderingPanel()
+{
+    delete z_up_shortcut_;
+    delete z_down_shortcut_;
+}
 
 void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
 

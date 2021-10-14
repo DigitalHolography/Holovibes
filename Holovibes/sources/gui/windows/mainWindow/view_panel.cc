@@ -11,9 +11,20 @@ namespace holovibes::gui
 ViewPanel::ViewPanel(QWidget* parent)
     : Panel(parent)
 {
+    p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
+    p_left_shortcut_->setContext(Qt::ApplicationShortcut);
+    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
+
+    p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
+    p_right_shortcut_->setContext(Qt::ApplicationShortcut);
+    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 }
 
-ViewPanel::~ViewPanel() {}
+ViewPanel::~ViewPanel()
+{
+    delete p_left_shortcut_;
+    delete p_right_shortcut_;
+}
 
 void ViewPanel::on_notify()
 {

@@ -136,6 +136,9 @@ class ImageRenderingPanel : public Panel
     /*! \brief Enable the filter2d mode */
     void set_filter2d_pipe();
 
+    QShortcut* z_up_shortcut_;
+    QShortcut* z_down_shortcut_;
+
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

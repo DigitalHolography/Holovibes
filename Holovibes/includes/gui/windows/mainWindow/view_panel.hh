@@ -177,6 +177,9 @@ class ViewPanel : public Panel
     void reticle_scale(double value);
 
   private:
+    QShortcut* p_left_shortcut_;
+    QShortcut* p_right_shortcut_;
+
     float xzAngle_ = 0.f;
     float yzAngle_ = 0.f;
 
