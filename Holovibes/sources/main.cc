@@ -101,6 +101,13 @@ static void print_help(holovibes::OptionsParser parser)
 
 int main(int argc, char* argv[])
 {
+#ifdef _DEBUG
+
+    loguru::g_stderr_verbosity = loguru::NamedVerbosity::Verbosity_9;
+    loguru::g_internal_verbosity = loguru::NamedVerbosity::Verbosity_9;
+
+#endif
+
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
 
