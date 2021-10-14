@@ -41,8 +41,10 @@ void FrameRecordWorker::run()
     else
         fast_update_frame_record->store({0, 0});
 
-    InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
+    // InformationContainer& info = Holovibes::instance().get_info_container();
+    // info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
+
+	GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS)->store(processed_fps_);
 
     auto pipe = Holovibes::instance().get_compute_pipe();
 
@@ -119,8 +121,9 @@ void FrameRecordWorker::run()
     reset_gpu_record_queue(pipe);
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
+	GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
-    info.remove_processed_fps(InformationContainer::FpsType::SAVING_FPS);
+    //info.remove_processed_fps(InformationContainer::FpsType::SAVING_FPS);
     LOG_TRACE << "Exiting FrameRecordWorker::run()";
 }
 

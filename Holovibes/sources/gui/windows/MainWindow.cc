@@ -31,6 +31,8 @@
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 
+#include "global_state_holder.hh"
+
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
@@ -964,6 +966,7 @@ void MainWindow::set_raw_mode()
 
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+		GSH::fast_update_map
         Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
                                                                   fd_info);
         set_convolution_mode(false);

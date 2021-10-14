@@ -5,6 +5,7 @@
 #include "input_frame_file_factory.hh"
 #include "config.hh"
 #include "holovibes.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -52,13 +53,11 @@ void FileFrameReadWorker::run()
     std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
                                         std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
 
-    InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, "File");
-    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_descriptor_info));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
-    info.add_progress_index(InformationContainer::ProgressType::FILE_READ,
-                            std::ref(current_nb_frames_read_),
-                            std::ref(total_nb_frames_to_read_));
+	GSH::fast_update_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE)->store("File");
+	GSH::fast_update_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT)->store(std::ref(input_descriptor_info));
+	
+	GSH::fast_update_map<FpsType>.create_entry(FpsType::INPUT_FPS)->store(std::ref(processed_fps_));
+	GSH::fast_update_map<ProgressType>.create_entry(ProgressType::FILE_READ)->store(std::ref(current_nb_frames_read_), std::ref(total_nb_frames_to_read_));
 
     try
     {
@@ -77,10 +76,10 @@ void FileFrameReadWorker::run()
     // No more enqueue, thus release the producer ressources
     gpu_input_queue_.load()->stop_producer();
 
-    info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
-    info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
-    info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
-    info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
+	GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+	GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+	GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+	GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);

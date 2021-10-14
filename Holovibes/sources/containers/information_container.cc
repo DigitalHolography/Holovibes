@@ -11,7 +11,6 @@ using MutexGuard = std::lock_guard<std::mutex>;
 
 const std::unordered_map<IndicationType, std::string> InformationContainer::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
-
     {IndicationType::INPUT_FORMAT, "Input Format"},
     {IndicationType::OUTPUT_FORMAT, "Output Format"}};
 
