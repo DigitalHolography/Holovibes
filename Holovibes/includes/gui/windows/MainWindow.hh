@@ -60,9 +60,7 @@ class MainWindow : public QMainWindow, public Observer
 
     RawWindow* get_main_display();
 
-    Ui::MainWindow* ui;
-    Holovibes& holovibes_;
-    ComputeDescriptor& cd_;
+    Holovibes& holovibes;
     std::unique_ptr<RawWindow> mainDisplay = nullptr;
 
     uint window_max_size = 768;
@@ -209,7 +207,14 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Triggers the pipe to make it refresh */
     void pipe_refresh();
 
+    void start_import(QString filename);
+
+    Ui::MainWindow* get_ui();
+    ComputeDescriptor& get_cd();
+
   private:
+    Ui::MainWindow* ui_;
+    ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
 };
 } // namespace gui

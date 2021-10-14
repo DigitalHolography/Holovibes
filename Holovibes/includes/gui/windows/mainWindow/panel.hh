@@ -9,6 +9,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 
+#include "compute_descriptor.hh"
+
 namespace Ui
 {
 class MainWindow;
@@ -68,6 +70,7 @@ class Panel : public QGroupBox
   protected:
     MainWindow* parent_;
     Ui::MainWindow* ui_;
+    ComputeDescriptor& cd_;
 
   private:
     /*! \brief Recursively search the parent tree to find the MainWindow */

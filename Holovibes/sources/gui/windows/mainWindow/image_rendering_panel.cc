@@ -36,48 +36,48 @@ void ImageRenderingPanel::on_notify()
 
     const uint input_queue_capacity = global::global_config.input_queue_max_size;
 
-    ui_->TimeTransformationStrideSpinBox->setValue(parent_->cd_.time_transformation_stride);
-    ui_->TimeTransformationStrideSpinBox->setSingleStep(parent_->cd_.batch_size);
-    ui_->TimeTransformationStrideSpinBox->setMinimum(parent_->cd_.batch_size);
+    ui_->TimeTransformationStrideSpinBox->setValue(cd_.time_transformation_stride);
+    ui_->TimeTransformationStrideSpinBox->setSingleStep(cd_.batch_size);
+    ui_->TimeTransformationStrideSpinBox->setMinimum(cd_.batch_size);
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !ui_->ExportPanel->is_recording);
 
-    parent_->cd_.check_batch_size_limit(input_queue_capacity);
-    ui_->BatchSizeSpinBox->setValue(parent_->cd_.batch_size);
+    cd_.check_batch_size_limit(input_queue_capacity);
+    ui_->BatchSizeSpinBox->setValue(cd_.batch_size);
     ui_->BatchSizeSpinBox->setMaximum(input_queue_capacity);
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !parent_->cd_.time_transformation_cuts_enabled);
-    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(parent_->cd_.space_transformation.load()));
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
+    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.space_transformation.load()));
     ui_->TimeTransformationComboBox->setEnabled(!is_raw);
-    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(parent_->cd_.time_transformation.load()));
+    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(cd_.time_transformation.load()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !parent_->cd_.time_transformation_cuts_enabled);
-    ui_->timeTransformationSizeSpinBox->setValue(parent_->cd_.time_transformation_size);
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !cd_.time_transformation_cuts_enabled);
+    ui_->timeTransformationSizeSpinBox->setValue(cd_.time_transformation_size);
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(parent_->cd_.lambda * 1.0e9f);
+    ui_->WaveLengthDoubleSpinBox->setValue(cd_.lambda * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
-    ui_->BoundaryLineEdit->setText(QString::number(parent_->holovibes_.get_boundary()));
+    ui_->ZDoubleSpinBox->setValue(cd_.zdistance);
+    ui_->BoundaryLineEdit->setText(QString::number(parent_->holovibes.get_boundary()));
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(!is_raw && parent_->cd_.filter2d_enabled);
-    ui_->Filter2DView->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
-    ui_->Filter2DView->setChecked(!is_raw && parent_->cd_.filter2d_view_enabled);
-    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
-    ui_->Filter2DN1SpinBox->setValue(parent_->cd_.filter2d_n1);
+    ui_->Filter2D->setChecked(!is_raw && cd_.filter2d_enabled);
+    ui_->Filter2DView->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui_->Filter2DView->setChecked(!is_raw && cd_.filter2d_view_enabled);
+    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui_->Filter2DN1SpinBox->setValue(cd_.filter2d_n1);
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && parent_->cd_.filter2d_enabled);
-    ui_->Filter2DN2SpinBox->setValue(parent_->cd_.filter2d_n2);
+    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && cd_.filter2d_enabled);
+    ui_->Filter2DN2SpinBox->setValue(cd_.filter2d_n2);
 
     // Convolution
-    ui_->ConvoCheckBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(parent_->cd_.convolution_enabled);
-    ui_->DivideConvoCheckBox->setChecked(parent_->cd_.convolution_enabled && parent_->cd_.divide_convolution_enabled);
+    ui_->ConvoCheckBox->setEnabled(cd_.compute_mode == Computation::Hologram);
+    ui_->ConvoCheckBox->setChecked(cd_.convolution_enabled);
+    ui_->DivideConvoCheckBox->setChecked(cd_.convolution_enabled && cd_.divide_convolution_enabled);
 }
 
 void ImageRenderingPanel::load_ini(const boost::property_tree::ptree& ptree)
@@ -105,9 +105,9 @@ void ImageRenderingPanel::set_image_mode(QString mode)
         else
             set_holographic_mode();
     }
-    else if (parent_->cd_.compute_mode == Computation::Raw)
+    else if (cd_.compute_mode == Computation::Raw)
         set_raw_mode();
-    else if (parent_->cd_.compute_mode == Computation::Hologram)
+    else if (cd_.compute_mode == Computation::Hologram)
         set_holographic_mode();
 }
 
@@ -119,19 +119,19 @@ void ImageRenderingPanel::set_raw_mode()
     if (parent_->is_enabled_camera_)
     {
         QPoint pos(0, 0);
-        const camera::FrameDescriptor& fd = parent_->holovibes_.get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();
         unsigned short width = fd.width;
         unsigned short height = fd.height;
 
         get_good_size(width, height, parent_->window_max_size);
         QSize size(width, height);
         parent_->init_image_mode(pos, size);
-        parent_->cd_.set_compute_mode(Computation::Raw);
+        cd_.set_compute_mode(Computation::Raw);
         parent_->createPipe();
 
-        parent_->mainDisplay.reset(new RawWindow(pos, size, parent_->holovibes_.get_gpu_input_queue().get()));
+        parent_->mainDisplay.reset(new RawWindow(pos, size, parent_->holovibes.get_gpu_input_queue().get()));
         parent_->mainDisplay->setTitle(QString("XY view"));
-        parent_->mainDisplay->setCd(&(parent_->cd_));
+        parent_->mainDisplay->setCd(&(cd_));
         parent_->mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
 
         std::string fd_info =
@@ -156,18 +156,18 @@ void ImageRenderingPanel::set_holographic_mode()
     /* ---------- */
     try
     {
-        parent_->cd_.set_compute_mode(Computation::Hologram);
+        cd_.set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
         parent_->createPipe();
         parent_->createHoloWindow();
         /* Info Manager */
-        const camera::FrameDescriptor& fd = parent_->holovibes_.get_gpu_output_queue()->get_fd();
+        const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_output_queue()->get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
                                                                   fd_info);
         /* Contrast */
-        parent_->cd_.set_contrast_enabled(true);
+        cd_.set_contrast_enabled(true);
 
         /* Filter2D */
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
@@ -190,11 +190,11 @@ void ImageRenderingPanel::set_computation_mode()
 {
     if (ui_->ImageModeComboBox->currentIndex() == 0)
     {
-        parent_->cd_.set_compute_mode(Computation::Raw);
+        cd_.set_compute_mode(Computation::Raw);
     }
     else if (ui_->ImageModeComboBox->currentIndex() == 1)
     {
-        parent_->cd_.set_compute_mode(Computation::Hologram);
+        cd_.set_compute_mode(Computation::Hologram);
     }
 }
 
@@ -205,16 +205,16 @@ void ImageRenderingPanel::update_batch_size()
 
     int value = ui_->BatchSizeSpinBox->value();
 
-    if (value == parent_->cd_.batch_size)
+    if (value == cd_.batch_size)
         return;
 
-    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get());
+    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get());
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            parent_->cd_.set_batch_size(value);
-            parent_->cd_.adapt_time_transformation_stride();
-            parent_->holovibes_.get_compute_pipe()->request_update_batch_size();
+            cd_.set_batch_size(value);
+            cd_.adapt_time_transformation_stride();
+            parent_->holovibes.get_compute_pipe()->request_update_batch_size();
             parent_->notify();
         });
     }
@@ -229,16 +229,16 @@ void ImageRenderingPanel::update_time_transformation_stride()
 
     int value = ui_->TimeTransformationStrideSpinBox->value();
 
-    if (value == parent_->cd_.time_transformation_stride)
+    if (value == cd_.time_transformation_stride)
         return;
 
-    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get());
+    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get());
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            parent_->cd_.set_time_transformation_stride(value);
-            parent_->cd_.adapt_time_transformation_stride();
-            parent_->holovibes_.get_compute_pipe()->request_update_time_transformation_stride();
+            cd_.set_time_transformation_stride(value);
+            cd_.adapt_time_transformation_stride();
+            parent_->holovibes.get_compute_pipe()->request_update_time_transformation_stride();
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeTransformationStrideSpinBox->value()));
@@ -256,21 +256,21 @@ void ImageRenderingPanel::set_filter2d(bool checked)
 
     if (!checked)
     {
-        parent_->cd_.set_filter2d_enabled(checked);
+        cd_.set_filter2d_enabled(checked);
         cancel_filter2d();
     }
     else
     {
-        const camera::FrameDescriptor& fd = parent_->holovibes_.get_gpu_input_queue()->get_fd();
+        const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();
 
         // Set the input box related to the filter2d
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
         set_filter2d_n2(ui_->Filter2DN2SpinBox->value());
         set_filter2d_n1(ui_->Filter2DN1SpinBox->value());
 
-        if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get()))
+        if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get()))
             pipe->autocontrast_end_pipe(WindowKind::XYview);
-        parent_->cd_.set_filter2d_enabled(checked);
+        cd_.set_filter2d_enabled(checked);
     }
     parent_->pipe_refresh();
     parent_->notify();
@@ -281,7 +281,7 @@ void ImageRenderingPanel::cancel_filter2d()
     if (parent_->is_raw_mode())
         return;
 
-    if (parent_->cd_.filter2d_view_enabled)
+    if (cd_.filter2d_view_enabled)
         update_filter2d_view(false);
     parent_->pipe_refresh();
     parent_->notify();
@@ -289,15 +289,15 @@ void ImageRenderingPanel::cancel_filter2d()
 
 void ImageRenderingPanel::set_filter2d_pipe()
 {
-    if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get()))
+    if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (parent_->cd_.time_transformation_cuts_enabled)
+        if (cd_.time_transformation_cuts_enabled)
         {
             pipe->autocontrast_end_pipe(WindowKind::XZview);
             pipe->autocontrast_end_pipe(WindowKind::YZview);
         }
-        if (parent_->cd_.filter2d_view_enabled)
+        if (cd_.filter2d_view_enabled)
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
@@ -310,7 +310,7 @@ void ImageRenderingPanel::set_filter2d_n1(int n)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_filter2d_n1(n);
+    cd_.set_filter2d_n1(n);
     set_filter2d_pipe();
 }
 
@@ -319,7 +319,7 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_filter2d_n2(n);
+    cd_.set_filter2d_n2(n);
     set_filter2d_pipe();
 }
 
@@ -335,12 +335,12 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
             // set positions of new windows according to the position of the
             // main GL window
             QPoint pos = parent_->mainDisplay->framePosition() + QPoint(parent_->mainDisplay->width() + 310, 0);
-            auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get());
+            auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get());
             if (pipe)
             {
                 pipe->request_filter2d_view();
 
-                const camera::FrameDescriptor& fd = parent_->holovibes_.get_gpu_output_queue()->get_fd();
+                const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_output_queue()->get_fd();
                 ushort filter2d_window_width = fd.width;
                 ushort filter2d_window_height = fd.height;
                 get_good_size(filter2d_window_width, filter2d_window_height, parent_->auxiliary_window_max_size);
@@ -355,10 +355,10 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
                                                          parent_));
 
                 filter2d_window->setTitle("Filter2D view");
-                filter2d_window->setCd(&(parent_->cd_));
+                filter2d_window->setCd(&(cd_));
 
                 connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-                parent_->cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+                cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
             }
         }
@@ -381,7 +381,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 void ImageRenderingPanel::disable_filter2d_view()
 {
 
-    auto pipe = parent_->holovibes_.get_compute_pipe();
+    auto pipe = parent_->holovibes.get_compute_pipe();
     pipe->request_disable_filter2d_view();
 
     // Wait for the filter2d view to be disabled for notify
@@ -406,7 +406,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_space_transformation_from_string(value.toStdString());
+    cd_.set_space_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
@@ -415,7 +415,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_time_transformation_from_string(value.toStdString());
+    cd_.set_time_transformation_from_string(value.toStdString());
     set_holographic_mode();
 }
 
@@ -427,15 +427,15 @@ void ImageRenderingPanel::set_time_transformation_size()
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
     time_transformation_size = std::max(1, time_transformation_size);
 
-    if (time_transformation_size == parent_->cd_.time_transformation_size)
+    if (time_transformation_size == cd_.time_transformation_size)
         return;
     parent_->notify();
-    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes_.get_compute_pipe().get());
+    auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get());
     if (pipe)
     {
         pipe->insert_fn_end_vect([=]() {
-            parent_->cd_.set_time_transformation_size(time_transformation_size);
-            parent_->holovibes_.get_compute_pipe()->request_update_time_transformation_size();
+            cd_.set_time_transformation_size(time_transformation_size);
+            parent_->holovibes.get_compute_pipe()->request_update_time_transformation_size();
             ui_->ViewPanel->set_p_accu();
             // This will not do anything until
             // SliceWindow::changeTexture() isn't coded.
@@ -448,7 +448,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_lambda(static_cast<float>(value) * 1.0e-9f);
+    cd_.set_lambda(static_cast<float>(value) * 1.0e-9f);
     parent_->pipe_refresh();
 }
 
@@ -457,7 +457,7 @@ void ImageRenderingPanel::set_z(const double value)
     if (parent_->is_raw_mode())
         return;
 
-    parent_->cd_.set_zdistance(static_cast<float>(value));
+    cd_.set_zdistance(static_cast<float>(value));
     parent_->pipe_refresh();
 }
 
@@ -472,8 +472,8 @@ void ImageRenderingPanel::increment_z()
     if (parent_->is_raw_mode())
         return;
 
-    set_z(parent_->cd_.zdistance + z_step_);
-    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
+    set_z(cd_.zdistance + z_step_);
+    ui_->ZDoubleSpinBox->setValue(cd_.zdistance);
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -481,17 +481,17 @@ void ImageRenderingPanel::decrement_z()
     if (parent_->is_raw_mode())
         return;
 
-    set_z(parent_->cd_.zdistance - z_step_);
-    ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
+    set_z(cd_.zdistance - z_step_);
+    ui_->ZDoubleSpinBox->setValue(cd_.zdistance);
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    parent_->cd_.set_convolution(value, ui_->KernelQuickSelectComboBox->currentText().toStdString());
+    cd_.set_convolution(value, ui_->KernelQuickSelectComboBox->currentText().toStdString());
 
     try
     {
-        auto pipe = parent_->holovibes_.get_compute_pipe();
+        auto pipe = parent_->holovibes.get_compute_pipe();
 
         if (value)
         {
@@ -510,7 +510,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     }
     catch (const std::exception& e)
     {
-        parent_->cd_.set_convolution_enabled(false);
+        cd_.set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 
@@ -519,13 +519,13 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (parent_->cd_.convolution_enabled)
+    if (cd_.convolution_enabled)
     {
-        parent_->cd_.set_convolution(true, ui_->KernelQuickSelectComboBox->currentText().toStdString());
+        cd_.set_convolution(true, ui_->KernelQuickSelectComboBox->currentText().toStdString());
 
         try
         {
-            auto pipe = parent_->holovibes_.get_compute_pipe();
+            auto pipe = parent_->holovibes.get_compute_pipe();
             pipe->request_convolution();
             // Wait for the convolution to be enabled for notify
             while (pipe->get_convolution_requested())
@@ -533,7 +533,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
         }
         catch (const std::exception& e)
         {
-            parent_->cd_.set_convolution_enabled(false);
+            cd_.set_convolution_enabled(false);
             LOG_ERROR << e.what();
         }
 
@@ -543,7 +543,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution_mode(const bool value)
 {
-    parent_->cd_.set_divide_convolution_mode(value);
+    cd_.set_divide_convolution_mode(value);
 
     parent_->pipe_refresh();
     parent_->notify();

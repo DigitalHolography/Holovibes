@@ -15,7 +15,7 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
-void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(parent_->cd_.is_computation_stopped); }
+void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(cd_.is_computation_stopped); }
 
 void ImportPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
@@ -77,7 +77,7 @@ void ImportPanel::import_file(const QString& filename)
             // Gather data from the newly opened file
             size_t nb_frames = input_file->get_total_nb_frames();
             file_fd_ = input_file->get_frame_descriptor();
-            input_file->import_compute_settings(parent_->cd_);
+            input_file->import_compute_settings(cd_);
 
             // Don't need the input file anymore
             delete input_file;
@@ -110,8 +110,8 @@ void ImportPanel::import_stop()
     parent_->close_windows();
     ui_->ViewPanel->cancel_time_transformation_cuts();
 
-    parent_->holovibes_.stop_all_worker_controller();
-    parent_->holovibes_.start_information_display(false);
+    parent_->holovibes.stop_all_worker_controller();
+    parent_->holovibes.start_information_display(false);
 
     parent_->close_critical_compute();
 
@@ -119,7 +119,7 @@ void ImportPanel::import_stop()
     // FIXME: camera_none() weird call because we are dealing with imported file
     parent_->camera_none();
 
-    parent_->cd_.set_computation_stopped(true);
+    cd_.set_computation_stopped(true);
 
     parent_->notify();
 }
@@ -132,11 +132,11 @@ void ImportPanel::import_start()
     int screen_width = rec.width();
     parent_->move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
 
-    if (!parent_->cd_.is_computation_stopped)
+    if (!cd_.is_computation_stopped)
         // if computation is running
         import_stop();
 
-    parent_->cd_.set_computation_stopped(false);
+    cd_.set_computation_stopped(false);
     // Gather all the useful data from the ui import panel
     init_holovibes_import_mode();
 
@@ -153,7 +153,7 @@ void ImportPanel::init_holovibes_import_mode()
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
     // Set the image rendering ui params
-    parent_->cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
+    cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
 
     // Because we are in import mode
     parent_->is_enabled_camera_ = false;
@@ -167,19 +167,19 @@ void ImportPanel::init_holovibes_import_mode()
         uint last_frame = end_spinbox->value();
         bool load_file_in_gpu = load_file_gpu_box->isChecked();
 
-        parent_->holovibes_.init_input_queue(file_fd_);
-        parent_->holovibes_.start_file_frame_read(file_path,
-                                                  true,
-                                                  fps,
-                                                  first_frame - 1,
-                                                  last_frame - first_frame + 1,
-                                                  load_file_in_gpu,
-                                                  [=]() {
-                                                      parent_->synchronize_thread([&]() {
-                                                          if (parent_->cd_.is_computation_stopped)
-                                                              ui_->InfoPanel->set_visible_file_reader_progress(false);
-                                                      });
-                                                  });
+        parent_->holovibes.init_input_queue(file_fd_);
+        parent_->holovibes.start_file_frame_read(file_path,
+                                                 true,
+                                                 fps,
+                                                 first_frame - 1,
+                                                 last_frame - first_frame + 1,
+                                                 load_file_in_gpu,
+                                                 [=]() {
+                                                     parent_->synchronize_thread([&]() {
+                                                         if (cd_.is_computation_stopped)
+                                                             ui_->InfoPanel->set_visible_file_reader_progress(false);
+                                                     });
+                                                 });
         ui_->InfoPanel->set_visible_file_reader_progress(true);
     }
     catch (const std::exception& e)
@@ -187,8 +187,8 @@ void ImportPanel::init_holovibes_import_mode()
         LOG_ERROR << e.what();
         parent_->is_enabled_camera_ = false;
         parent_->mainDisplay.reset(nullptr);
-        parent_->holovibes_.stop_compute();
-        parent_->holovibes_.stop_frame_read();
+        parent_->holovibes.stop_compute();
+        parent_->holovibes.stop_frame_read();
         return;
     }
 

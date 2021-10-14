@@ -202,12 +202,12 @@ void ExportPanel::set_record_mode(const QString& value)
 
 void ExportPanel::stop_record()
 {
-    parent_->holovibes_.stop_batch_gpib();
+    parent_->holovibes.stop_batch_gpib();
 
     if (record_mode_ == RecordMode::CHART)
-        parent_->holovibes_.stop_chart_record();
+        parent_->holovibes.stop_chart_record();
     else if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
-        parent_->holovibes_.stop_frame_record();
+        parent_->holovibes.stop_frame_record();
 }
 
 void ExportPanel::record_finished(RecordMode record_mode)
@@ -229,7 +229,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(cd_.compute_mode == Computation::Hologram);
     is_recording = false;
 }
 
@@ -278,25 +278,25 @@ void ExportPanel::start_record()
 
     if (batch_enabled)
     {
-        parent_->holovibes_.start_batch_gpib(batch_input_path,
-                                             output_path,
-                                             nb_frames_to_record.value(),
-                                             record_mode_,
-                                             callback);
+        parent_->holovibes.start_batch_gpib(batch_input_path,
+                                            output_path,
+                                            nb_frames_to_record.value(),
+                                            record_mode_,
+                                            callback);
     }
     else
     {
         if (record_mode_ == RecordMode::CHART)
         {
-            parent_->holovibes_.start_chart_record(output_path, nb_frames_to_record.value(), callback);
+            parent_->holovibes.start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
         else if (record_mode_ == RecordMode::HOLOGRAM)
         {
-            parent_->holovibes_.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
+            parent_->holovibes.start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
         }
         else if (record_mode_ == RecordMode::RAW)
         {
-            parent_->holovibes_.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+            parent_->holovibes.start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
         }
     }
 }
@@ -315,17 +315,17 @@ void ExportPanel::activeNoiseZone()
 
 void ExportPanel::start_chart_display()
 {
-    if (parent_->cd_.chart_display_enabled)
+    if (cd_.chart_display_enabled)
         return;
 
-    auto pipe = parent_->holovibes_.get_compute_pipe();
+    auto pipe = parent_->holovibes.get_compute_pipe();
     pipe->request_display_chart();
 
     // Wait for the chart display to be enabled for notify
     while (pipe->get_chart_display_requested())
         continue;
 
-    plot_window = std::make_unique<PlotWindow>(*parent_->holovibes_.get_compute_pipe()->get_chart_display_queue(),
+    plot_window = std::make_unique<PlotWindow>(*parent_->holovibes.get_compute_pipe()->get_chart_display_queue(),
                                                auto_scale_point_threshold_,
                                                "Chart");
     connect(plot_window.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
@@ -335,12 +335,12 @@ void ExportPanel::start_chart_display()
 
 void ExportPanel::stop_chart_display()
 {
-    if (!parent_->cd_.chart_display_enabled)
+    if (!cd_.chart_display_enabled)
         return;
 
     try
     {
-        auto pipe = parent_->holovibes_.get_compute_pipe();
+        auto pipe = parent_->holovibes.get_compute_pipe();
         pipe->request_disable_display_chart();
 
         // Wait for the chart display to be disabled for notify
