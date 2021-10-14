@@ -6,11 +6,11 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/other/gui_frame.hh
     gui/windows/MainWindow.hh
     gui/windows/PlotWindow.hh
-    gui/windows/mainWindow/panel.hh
-    gui/windows/mainWindow/import_panel.hh
-    gui/windows/mainWindow/export_panel.hh
-    gui/windows/mainWindow/info_panel.hh
-    gui/windows/mainWindow/view_panel.hh
-    gui/windows/mainWindow/composite_panel.hh
-    gui/windows/mainWindow/image_rendering_panel.hh
+    gui/windows/panels/panel.hh
+    gui/windows/panels/import_panel.hh
+    gui/windows/panels/export_panel.hh
+    gui/windows/panels/info_panel.hh
+    gui/windows/panels/view_panel.hh
+    gui/windows/panels/composite_panel.hh
+    gui/windows/panels/image_rendering_panel.hh
 )

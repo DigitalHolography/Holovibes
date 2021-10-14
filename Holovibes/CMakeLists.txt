@@ -53,7 +53,7 @@ set(HOLO_INCLUDES
     includes/gui/selections/interfaces/
     includes/gui/selections/overlays/
     includes/gui/windows/
-    includes/gui/windows/mainWindow/
+    includes/gui/windows/panels/
     includes/io_files/
     includes/thread/
     includes/tools/
