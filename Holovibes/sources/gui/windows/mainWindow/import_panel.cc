@@ -156,7 +156,7 @@ void ImportPanel::init_holovibes_import_mode()
     cd_.set_rendering_params(static_cast<float>(fps_spinbox->value()));
 
     // Because we are in import mode
-    parent_->is_enabled_camera_ = false;
+    parent_->is_enabled_camera = false;
 
     try
     {
@@ -185,14 +185,14 @@ void ImportPanel::init_holovibes_import_mode()
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        parent_->is_enabled_camera_ = false;
+        parent_->is_enabled_camera = false;
         parent_->mainDisplay.reset(nullptr);
         parent_->holovibes.stop_compute();
         parent_->holovibes.stop_frame_read();
         return;
     }
 
-    parent_->is_enabled_camera_ = true;
+    parent_->is_enabled_camera = true;
     ui_->ImageRenderingPanel->set_image_mode(nullptr);
 
     // Make camera's settings menu unaccessible

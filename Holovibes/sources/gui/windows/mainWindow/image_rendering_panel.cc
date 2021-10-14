@@ -116,7 +116,7 @@ void ImageRenderingPanel::set_raw_mode()
     parent_->close_windows();
     parent_->close_critical_compute();
 
-    if (parent_->is_enabled_camera_)
+    if (parent_->is_enabled_camera)
     {
         QPoint pos(0, 0);
         const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();

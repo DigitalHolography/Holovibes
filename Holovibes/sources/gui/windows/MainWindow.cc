@@ -204,7 +204,7 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (is_enabled_camera_)
+    if (is_enabled_camera)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
@@ -375,7 +375,7 @@ void MainWindow::reload_ini(QString filename)
         ui_->ImportPanel->import_start();
     else if (import_type == ImportPanel::ImportType::Camera)
     {
-        change_camera(kCamera);
+        change_camera(kCamera_);
     }
     notify();
 }
@@ -414,7 +414,7 @@ void MainWindow::save_ini(const std::string& path)
     // Save general compute data
     ini::save_ini(ptree, cd_);
 
-    ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
+    ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera_));
 
     ptree.put<ushort>("info.theme_type", theme_index_);
 
@@ -458,7 +458,7 @@ void MainWindow::camera_none()
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
-    is_enabled_camera_ = false;
+    is_enabled_camera = false;
 
     cd_.set_computation_stopped(true);
     notify();
@@ -497,7 +497,7 @@ void MainWindow::reset()
         holovibes.stop_compute();
     holovibes.stop_frame_read();
     cd_.reset_gui();
-    is_enabled_camera_ = false;
+    is_enabled_camera = false;
 
     if (config.set_cuda_device)
     {
@@ -560,10 +560,10 @@ void MainWindow::change_camera(CameraKind c)
             ui_->ImageRenderingPanel->set_computation_mode();
 
             holovibes.start_camera_frame_read(c);
-            is_enabled_camera_ = true;
+            is_enabled_camera = true;
             ui_->ImageRenderingPanel->set_image_mode(nullptr);
             ui_->ImportPanel->set_import_type(ImportPanel::ImportType::Camera);
-            kCamera = c;
+            kCamera_ = c;
 
             // Make camera's settings menu accessible
             QAction* settings = ui_->actionSettings;

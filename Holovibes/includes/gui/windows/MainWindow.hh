@@ -66,11 +66,7 @@ class MainWindow : public QMainWindow, public Observer
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
 
-    bool is_enabled_camera_ = false;
-    CameraKind kCamera = CameraKind::NONE;
-    QString last_img_type_ = "Magnitude";
-
-    ushort theme_index_ = 0;
+    bool is_enabled_camera = false;
 
   public slots:
     void on_notify();
@@ -216,6 +212,11 @@ class MainWindow : public QMainWindow, public Observer
     Ui::MainWindow* ui_;
     ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
+
+    CameraKind kCamera_ = CameraKind::NONE;
+    QString last_img_type_ = "Magnitude";
+
+    ushort theme_index_ = 0;
 };
 } // namespace gui
 } // namespace holovibes
