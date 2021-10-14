@@ -31,7 +31,7 @@ class FastUpdatesHolder
     Value create_entry(Key key, bool overwrite = false)
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (map_.contains(key) && !overwrite)
+        if (!overwrite && map_.contains(key))
             throw std::runtime_error("Key is already present in map");
 
         map_[key] = std::make_shared<FastUpdateTypeValue<T>>();

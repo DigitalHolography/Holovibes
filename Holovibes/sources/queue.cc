@@ -17,24 +17,27 @@ using camera::FrameDescriptor;
 
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
-             InformationContainer::QueueType type,
+             QueueType type,
              unsigned int input_width,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
     : DisplayQueue(fd)
+    , entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
+    , size_(entry_->first)
+    , max_size_(entry_->second)
     , frame_size_(fd_.frame_size())
     , frame_res_(fd_.frame_res())
-    , max_size_(max_size)
     , type_(type)
-    , size_(0)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
-    , data_()
     , input_width_(input_width)
     , input_height_(input_height)
     , bytes_per_pixel(bytes_per_pixel)
     , has_overridden_(false)
 {
+    max_size_ = max_size;
+    size_ = 0;
+
     if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
     {
         LOG_ERROR << "Queue: could not allocate queue";
@@ -45,11 +48,9 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
 
     fd_.byteEndian = Endianness::LittleEndian;
-
-    Holovibes::instance().get_info_container().add_queue_size(type_, size_, max_size_);
 }
 
-Queue::~Queue() { Holovibes::instance().get_info_container().remove_queue_size(type_); }
+Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
 void Queue::resize(const unsigned int size, const cudaStream_t stream)
 {

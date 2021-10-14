@@ -79,21 +79,21 @@ template <>
 struct TypeValue<FpsType>
 {
     using key = FpsType;
-    using value = std::atomic<unsigned int>;
+    using value = std::atomic<uint>;
 };
 
 template <>
 struct TypeValue<ProgressType>
 {
     using key = ProgressType;
-    using value = std::atomic<std::pair<unsigned int, unsigned int>>;
+    using value = std::atomic<std::pair<uint, uint>>;
 };
 
 template <>
 struct TypeValue<QueueType>
 {
     using key = QueueType;
-    using value = std::atomic<unsigned int>;
+    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
 };
 
 } // namespace _internal

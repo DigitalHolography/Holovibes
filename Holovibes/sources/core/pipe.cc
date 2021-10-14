@@ -257,9 +257,8 @@ bool Pipe::make_requests()
         LOG_DEBUG << "Hologram Record Request Processing";
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
-        frame_record_env_.gpu_frame_record_queue_.reset(new Queue(record_fd,
-                                                                  global::global_config.frame_record_queue_max_size,
-                                                                  InformationContainer::QueueType::RECORD_QUEUE));
+        frame_record_env_.gpu_frame_record_queue_.reset(
+            new Queue(record_fd, global::global_config.frame_record_queue_max_size, QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = false;
         hologram_record_requested_ = std::nullopt;
@@ -269,7 +268,7 @@ bool Pipe::make_requests()
     {
         frame_record_env_.gpu_frame_record_queue_.reset(new Queue(gpu_input_queue_.get_fd(),
                                                                   global::global_config.frame_record_queue_max_size,
-                                                                  InformationContainer::QueueType::RECORD_QUEUE));
+                                                                  QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = true;
         raw_record_requested_ = std::nullopt;

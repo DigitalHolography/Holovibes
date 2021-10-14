@@ -13,7 +13,7 @@
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
 #include "display_queue.hh"
-#include "information_container.hh"
+#include "global_state_holder.hh"
 namespace holovibes
 {
 /*! \class Queue
@@ -51,7 +51,7 @@ class Queue : public DisplayQueue
      */
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
-          InformationContainer::QueueType type = InformationContainer::QueueType::UNDEFINED,
+          QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,
           unsigned int input_height = 0,
           unsigned int bytes_per_pixel = 1);
@@ -225,15 +225,10 @@ class Queue : public DisplayQueue
     /*! \brief Mutex to lock the queue */
     mutable std::mutex mutex_;
 
-    /*! \brief Frame size from the frame descriptor */
-    const size_t frame_size_;
-    /*! \brief Frame resolution from the frame descriptor */
-    const size_t frame_res_;
-    /*! \brief Maximum size of the queue (capacity) */
-    std::atomic<unsigned int> max_size_;
-
-    /*! \brief Type of the queue */
-    InformationContainer::QueueType type_;
+    /*! \name FastUpdatesHolder entry and all variables linked to it
+     * \{
+     */
+    FastUpdatesHolder<QueueType>::Value entry_;
 
     /*! \brief Size of the queue (number of frames currently stored in the queue)
      *
@@ -242,7 +237,20 @@ class Queue : public DisplayQueue
      * for a specific size of the queue. Using an atomic avoid locking the queue.
      * This is only used by the concurrent queue. However, it is needed to be declare in the regular queue.
      */
-    std::atomic<unsigned int> size_;
+    std::atomic<unsigned int>& size_;
+
+    /*! \brief Maximum size of the queue (capacity) */
+    std::atomic<unsigned int>& max_size_;
+
+    /* \} */
+
+    /*! \brief Frame size from the frame descriptor */
+    const size_t frame_size_;
+    /*! \brief Frame resolution from the frame descriptor */
+    const size_t frame_res_;
+
+    /*! \brief Type of the queue */
+    QueueType type_;
 
     /*! \brief The index of the first frame in the queue */
     unsigned int start_index_;
