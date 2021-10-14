@@ -15,18 +15,18 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const camera::Frame
 
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd)
     : DisplayQueue(fd)
-    , total_nb_frames_(total_nb_frames)
+    , entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
+    , curr_nb_frames_(entry_->first)
+    , total_nb_frames_(entry_->second)
     , frame_capacity_(total_nb_frames)
     , data_(nullptr)
 {
+    curr_nb_frames_ = 0;
+    total_nb_frames_ = total_nb_frames;
+
     // Set priority of streams
     // Set batch_size and max_size
     create_queue(batch_size);
-
-    Holovibes::instance().get_info_container().add_queue_size(
-        InformationContainer::InformationContainer::QueueType::INPUT_QUEUE,
-        curr_nb_frames_,
-        total_nb_frames_);
 }
 
 BatchInputQueue::~BatchInputQueue()
@@ -34,8 +34,7 @@ BatchInputQueue::~BatchInputQueue()
     destroy_mutexes_streams();
     // data is free as it is a UniquePtr.
 
-    Holovibes::instance().get_info_container().remove_queue_size(
-        InformationContainer::InformationContainer::QueueType::INPUT_QUEUE);
+    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
 void BatchInputQueue::create_queue(const uint new_batch_size)
