@@ -62,14 +62,9 @@ class Queue : public DisplayQueue
     /*! \name Getters
      * \{
      */
-    /*! \return The size of one frame (i-e element) of the Queue in bytes. */
-    size_t get_frame_size() const { return frame_size_; }
 
     /*! \return Pointer to internal buffer that contains data. */
     void* get_data() const { return data_; }
-
-    /*! \return The size of one frame (i-e element) of the Queue in pixels. */
-    size_t get_frame_res() const { return frame_res_; }
 
     /*! \return The number of elements the Queue currently contains. */
     unsigned int get_size() const { return size_; }
@@ -78,20 +73,20 @@ class Queue : public DisplayQueue
     unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
-    void* get_start() const { return data_.get() + start_index_ * frame_size_; }
+    void* get_start() const { return data_.get() + start_index_ * fd_.frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
-    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * frame_size_; }
+    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.frame_size(); }
 
     /*! \return Pointer to the last image */
     void* get_last_image() const override
     {
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
-        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * frame_size_;
+        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.frame_size();
     }
 
     /*! \return Index of the frame right after the last one containing data */
@@ -248,11 +243,6 @@ class Queue : public DisplayQueue
     std::atomic<unsigned int>& max_size_;
 
     /* \} */
-
-    /*! \brief Frame size from the frame descriptor */
-    const size_t frame_size_;
-    /*! \brief Frame resolution from the frame descriptor */
-    const size_t frame_res_;
 
     /*! \brief Type of the queue */
     QueueType type_;

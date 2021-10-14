@@ -17,7 +17,7 @@ char* get_element_from_queue(holovibes::Queue& q, size_t pos)
     if (pos >= q.get_max_size())
         return nullptr;
 
-    size_t frame_size = q.get_frame_size();
+    size_t frame_size = q.get_fd().frame_size();
 
     char* d_buffer = static_cast<char*>(q.get_data()); // device buffer
     char* h_buffer = new char[frame_size];             // host buffer

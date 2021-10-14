@@ -63,7 +63,7 @@ void FrameRecordWorker::run()
 
         output_frame_file->write_header();
 
-        const size_t output_frame_size = record_queue.get_frame_size();
+        const size_t output_frame_size = record_queue.get_fd().frame_size();
         frame_buffer = new char[output_frame_size];
 
         while (nb_frames_to_record_ == std::nullopt ||
