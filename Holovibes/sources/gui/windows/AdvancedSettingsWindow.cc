@@ -7,6 +7,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+    setWindowIcon(QIcon("Holovibes.ico"));
     this->show();
 }
 

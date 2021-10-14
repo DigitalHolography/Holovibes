@@ -467,8 +467,9 @@ class MainWindow : public QMainWindow, public Observer
     void write_ini(QString filename);
     void write_ini();
 
-    /*! \brief Open Advanced Settings window */
+    /*! \brief Open/Close Advanced Settings window */
     void open_advanced_settings();
+    void close_advanced_settings();
 
     /*! \brief Changes the theme of the ui */
     void set_classic();
@@ -539,8 +540,6 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
-
-    void set_advanced_settings_visibility(bool value);
     /*! \} */
 
 #pragma endregion
@@ -665,7 +664,7 @@ class MainWindow : public QMainWindow, public Observer
     uint auxiliary_window_max_size = 512;
 
     bool is_enabled_camera_ = false;
-    bool is_advanced_settings_display = false;
+    bool is_advanced_settings_displayed = false;
     double z_step_ = 0.005f;
 
     bool is_recording_ = false;

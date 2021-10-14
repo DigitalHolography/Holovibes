@@ -5340,5 +5340,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
+  <slot>close_advanced_settings()</slot>
  </slots>
 </ui>

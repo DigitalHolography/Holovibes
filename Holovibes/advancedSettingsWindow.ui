@@ -6,335 +6,628 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
-    <height>626</height>
+    <width>465</width>
+    <height>449</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <property name="windowTitle">
+   <string>AdvancedSettings</string>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="CentralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>611</width>
-      <height>571</height>
+      <width>441</width>
+      <height>431</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
       <enum>QLayout::SetFixedSize</enum>
      </property>
-     <item row="0" column="1" rowspan="2">
-      <widget class="QGroupBox" name="FileGroupBox">
-       <property name="title">
-        <string>File</string>
-       </property>
-       <widget class="QWidget" name="gridLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>261</width>
-          <height>121</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetFixedSize</enum>
-         </property>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Default output name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_21">
-           <item>
-            <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFolderPathLineEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="dragEnabled">
-              <bool>false</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>Select File</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="OutputBrowseToolButton">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-             <property name="shortcut">
-              <string>Ctrl+O</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Output folder</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Input folder</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Batch input folder</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
-           <item>
-            <widget class="holovibes::gui::Drag_drop_lineedit" name="ImputFolderPathLineEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="dragEnabled">
-              <bool>false</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>Select File</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="InputFolderBrowseToolButton">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-             <property name="shortcut">
-              <string>Ctrl+O</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="5" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_22">
-           <item>
-            <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchFolderPathLineEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="dragEnabled">
-              <bool>false</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>Select File</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="BatchInputBrowseToolButton">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-             <property name="shortcut">
-              <string>Ctrl+O</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="2" column="1">
-          <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputNameLineEdit">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="acceptDrops">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="dragEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>Select File</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="0" column="0" rowspan="7">
-      <widget class="QGroupBox" name="ComputeGroupBox">
+     <item row="0" column="1">
+      <widget class="holovibes::gui::GroupBox" name="FileGroupBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="title">
-        <string>Compute Settings</string>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
        </property>
-       <widget class="QWidget" name="verticalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>271</width>
-          <height>711</height>
-         </rect>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string notr="true"/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="title">
+        <string>File</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_15">
+        <property name="bottomMargin">
+         <number>9</number>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Buffer Size</string>
-           </property>
-           <widget class="QWidget" name="gridLayoutWidget_3">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>20</y>
-              <width>251</width>
-              <height>201</height>
-             </rect>
+        <item>
+         <layout class="QGridLayout" name="FileLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetFixedSize</enum>
+          </property>
+          <item row="3" column="1">
+           <widget class="holovibes::gui::Drag_drop_lineedit" name="ImputFolderPathLineEdit">
+            <property name="enabled">
+             <bool>true</bool>
             </property>
-            <layout class="QGridLayout" name="gridLayout_3">
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="dragEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>Select File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="DefaultNameLabel">
+            <property name="text">
+             <string>Default output name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="OutputFolderLabel">
+            <property name="text">
+             <string>Output folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="InputFolderLabel">
+            <property name="text">
+             <string>Input folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="BatchInputLabel">
+            <property name="text">
+             <string>Batch input folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="InputFolderBrowseToolButton">
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+O</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFolderPathLineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="dragEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>Select File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QToolButton" name="OutputBrowseToolButton">
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+O</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchFolderPathLineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="dragEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>Select File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QToolButton" name="BatchInputBrowseToolButton">
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+O</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputNameLineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="acceptDrops">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="dragEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>Select File</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="holovibes::gui::GroupBox" name="ChartGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string notr="true"/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="title">
+        <string>Chart</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_16">
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="autoScaleLabel">
+            <property name="text">
+             <string>auto_scale_point_threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="autoScalePointThresholdSpinBox"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="holovibes::gui::GroupBox" name="InterfaceGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string notr="true"/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="title">
+        <string>Interface</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <layout class="QGridLayout" name="InterfaceLayout">
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="ZStepSpinBox"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="ZStepLabel">
+            <property name="text">
+             <string>z_step</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="RecordFrameStepLabel">
+            <property name="text">
+             <string>record_frame_step</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="RecordFrameStepSpinBox"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="SettingsLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetFixedSize</enum>
+       </property>
+       <item>
+        <widget class="QPushButton" name="ApplyPushButton">
+         <property name="text">
+          <string>Done</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="CancelChangePushButton">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0" rowspan="4">
+      <widget class="holovibes::gui::GroupBox" name="ComputeSettingsGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>210</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string notr="true"/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="title">
+        <string>Compute settings</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_12">
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <widget class="holovibes::gui::GroupBox" name="BufferSizeGroupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>210</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="title">
+           <string>Buffer size</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <property name="bottomMargin">
+            <number>9</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" name="BufferSizeLayout">
              <property name="sizeConstraint">
               <enum>QLayout::SetMinimumSize</enum>
              </property>
              <item row="0" column="0">
-              <widget class="QLabel" name="label_15">
+              <widget class="QLabel" name="FileBSLabel">
                <property name="text">
                 <string>File</string>
                </property>
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QLabel" name="label_12">
+              <widget class="QLabel" name="OutputLabel">
                <property name="text">
                 <string>Output</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_13">
+              <widget class="QLabel" name="RecordBSLabel">
                <property name="text">
                 <string>Record</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="label_14">
+              <widget class="QLabel" name="InputBSLabel">
                <property name="text">
                 <string>Input</string>
                </property>
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QLabel" name="label_16">
+              <widget class="QLabel" name="Cuts3DbsLabel">
                <property name="text">
                 <string>3D_cuts</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QSpinBox" name="FileSpinBox"/>
+              <widget class="QSpinBox" name="FileBSSpinBox">
+               <property name="wrapping">
+                <bool>false</bool>
+               </property>
+               <property name="showGroupSeparator" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <number>9999999</number>
+               </property>
+              </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="InputSpinBox"/>
+              <widget class="QSpinBox" name="InputBSSpinBox"/>
              </item>
              <item row="2" column="1">
-              <widget class="QSpinBox" name="RecordSpinBox"/>
+              <widget class="QSpinBox" name="RecordBSSpinBox"/>
              </item>
              <item row="3" column="1">
-              <widget class="QSpinBox" name="OutputSpinBox"/>
+              <widget class="QSpinBox" name="OutputBSSpinBox"/>
              </item>
              <item row="4" column="1">
-              <widget class="QSpinBox" name="cuts3DSpinBox"/>
+              <widget class="QSpinBox" name="Cuts3DBSSpinBox"/>
              </item>
             </layout>
-           </widget>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="holovibes::gui::GroupBox" name="AdvancedGroupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>210</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="title">
+           <string>Advanced</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <property name="bottomMargin">
+            <number>9</number>
            </property>
-           <property name="title">
-            <string>Advanced</string>
-           </property>
-           <widget class="QWidget" name="gridLayoutWidget_4">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>20</y>
-              <width>251</width>
-              <height>204</height>
-             </rect>
-            </property>
+           <item>
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="2" column="0">
               <widget class="QLabel" name="label_7">
@@ -407,144 +700,32 @@
               <widget class="QDoubleSpinBox" name="ContrastLowerSpinBox"/>
              </item>
             </layout>
-           </widget>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Preferred</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>269</width>
-             <height>28</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <layout class="QHBoxLayout" name="SettingsLayout">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
-       </property>
-       <item>
-        <widget class="QPushButton" name="ApplyPushButton">
-         <property name="text">
-          <string>Done</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="CancelPushButton">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="2" column="1">
-      <widget class="QGroupBox" name="ChartGroupBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Chart</string>
-       </property>
-       <widget class="QWidget" name="horizontalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>261</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>auto_scale_point_threshold</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="autoScalePointThresholdSpinBox"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="3" column="1" rowspan="3">
-      <widget class="QGroupBox" name="InterfaceGroupBox">
-       <property name="title">
-        <string>Interface</string>
-       </property>
-       <widget class="QWidget" name="gridLayoutWidget_5">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>261</width>
-          <height>71</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="ZStepSpinBox"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>z_step</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>record_frame_step</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="RecordFrameStepSpinBox"/>
-         </item>
-        </layout>
-       </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>659</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
    <class>holovibes::gui::Drag_drop_lineedit</class>
    <extends>QLineEdit</extends>
    <header>gui_drag_drop_lineedit.hh</header>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::GroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>gui_group_box.hh</header>
+   <container>1</container>
+   <slots>
+    <slot>ShowOrHide()</slot>
+    <slot>reset()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
