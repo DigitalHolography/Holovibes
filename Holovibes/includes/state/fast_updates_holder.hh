@@ -47,9 +47,9 @@ class FastUpdatesHolder
      * \param key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    Value get_entry(Key key)
+    Value get_entry(Key key) const
     {
-        std::lock_guard<std::mutex> lock(mutex_); 
+        std::lock_guard<std::mutex> lock(mutex_);
         return map_.at(key);
     }
 
@@ -71,7 +71,7 @@ class FastUpdatesHolder
         return true;
     }
 
-    bool contains(Key key) noexcept
+    bool contains(Key key) const noexcept
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return map_.contains(key);
@@ -85,7 +85,7 @@ class FastUpdatesHolder
     }
 
   protected:
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     std::unordered_map<Key, Value> map_;
 };
 } // namespace holovibes
