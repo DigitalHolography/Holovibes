@@ -1,6 +1,7 @@
 #include "output_holo_file.hh"
 #include "file_exception.hh"
 #include "logger.hh"
+#include "holovibes.hh"
 
 namespace holovibes::io_files
 {
@@ -27,8 +28,9 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
+void OutputHoloFile::export_compute_settings(bool record_raw)
 {
+    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     // export as a json
     try
     {

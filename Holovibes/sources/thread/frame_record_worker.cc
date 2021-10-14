@@ -15,7 +15,6 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
     , file_path_(get_record_filename(file_path))
     , nb_frames_to_record_(nb_frames_to_record)
     , nb_frames_skip_(nb_frames_skip)
-    , processed_fps_(0)
     , raw_record_(raw_record)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
@@ -25,18 +24,17 @@ void FrameRecordWorker::run()
 {
     LOG_TRACE << "Entering FrameRecordWorker::run()";
 
-    ComputeDescriptor& cd = Holovibes::instance().get_cd();
-
-    if (cd.batch_size > global::global_config.frame_record_queue_max_size)
+    if (Holovibes::instance().get_cd().batch_size > global::global_config.frame_record_queue_max_size)
     {
         LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
         return;
     }
 
-    auto fast_update_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+    // Progress recording FastUpdatesHolder entry
 
-    std::atomic<uint>& nb_frames_recorded = fast_update_entry->first;
-    std::atomic<uint>& nb_frames_to_record = fast_update_entry->second;
+    auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+    std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
+    std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
     nb_frames_recorded = 0;
 
@@ -45,35 +43,29 @@ void FrameRecordWorker::run()
     else
         nb_frames_to_record = 0;
 
-    InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_processed_fps(InformationContainer::FpsType::SAVING_FPS, processed_fps_);
+    // Processed FPS FastUpdatesHolder entry
 
-    auto pipe = Holovibes::instance().get_compute_pipe();
-
-    Queue& record_queue = init_gpu_record_queue(pipe);
-
+    std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
+    *processed_fps = 0;
+    Queue& record_queue = init_gpu_record_queue();
+    const size_t output_frame_size = record_queue.get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
 
     try
     {
-        camera::FrameDescriptor file_fd = record_queue.get_fd();
-        output_frame_file = io_files::OutputFrameFileFactory::create(
-            file_path_,
-            file_fd,
-            nb_frames_to_record_.has_value() ? nb_frames_to_record_.value() : 0);
+        output_frame_file =
+            io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
-        output_frame_file->export_compute_settings(cd, raw_record_);
-
+        output_frame_file->export_compute_settings(raw_record_);
         output_frame_file->write_header();
 
-        const size_t output_frame_size = record_queue.get_fd().get_frame_size();
         frame_buffer = new char[output_frame_size];
 
         while (nb_frames_to_record_ == std::nullopt ||
                nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_)
         {
-            wait_for_frames(record_queue, pipe);
+            wait_for_frames(record_queue);
 
             if (stop_requested_)
                 break;
@@ -87,7 +79,7 @@ void FrameRecordWorker::run()
 
             record_queue.dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
-            processed_fps_++;
+            (*processed_fps)++;
             nb_frames_recorded++;
 
             if (nb_frames_to_record_.has_value())
@@ -101,15 +93,13 @@ void FrameRecordWorker::run()
         }
 
         output_frame_file->write_footer();
-
-        delete output_frame_file;
     }
     catch (const io_files::FileException& e)
     {
         LOG_ERROR << "[RECORDER] " << e.what();
-        delete output_frame_file;
     }
 
+    delete output_frame_file;
     delete[] frame_buffer;
 
     if (record_queue.has_overridden())
@@ -118,18 +108,18 @@ void FrameRecordWorker::run()
                     "Resize record buffer if more data is needed.";
     }
 
-    reset_gpu_record_queue(pipe);
+    reset_gpu_record_queue();
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
-
-    info.remove_processed_fps(InformationContainer::FpsType::SAVING_FPS);
+    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
     LOG_TRACE << "Exiting FrameRecordWorker::run()";
 }
 
-Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
+Queue& FrameRecordWorker::init_gpu_record_queue()
 {
     LOG_TRACE << "Entering FrameRecordWorker::init_gpu_record_queue()";
 
+    auto pipe = Holovibes::instance().get_compute_pipe();
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(4, stream_);
@@ -155,8 +145,9 @@ Queue& FrameRecordWorker::init_gpu_record_queue(std::shared_ptr<ICompute> pipe)
     return *pipe->get_frame_record_queue();
 }
 
-void FrameRecordWorker::wait_for_frames(Queue& record_queue, std::shared_ptr<ICompute> pipe)
+void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 {
+    auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
         if (record_queue.get_size() == 0)
@@ -171,8 +162,9 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue, std::shared_ptr<ICo
     }
 }
 
-void FrameRecordWorker::reset_gpu_record_queue(std::shared_ptr<ICompute> pipe)
+void FrameRecordWorker::reset_gpu_record_queue()
 {
+    auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
 
     while (pipe->get_disable_frame_record_requested() && !stop_requested_)

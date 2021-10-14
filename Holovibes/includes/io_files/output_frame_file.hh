@@ -21,7 +21,7 @@ class OutputFrameFile : public FrameFile
      * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
-    virtual void export_compute_settings(const ComputeDescriptor& cd, bool record_raw) = 0;
+    virtual void export_compute_settings(bool record_raw) = 0;
 
     /*! \brief Write the header in the file
      *
@@ -65,7 +65,10 @@ class OutputFrameFile : public FrameFile
      * \param file_path The path of the file to open
      * \throw FileException if an error occurred while opening the file
      */
-    OutputFrameFile(const std::string& file_path);
+    OutputFrameFile(const std::string& file_path)
+        : FrameFile(file_path, FrameFile::OpeningMode::WRITE)
+    {
+    }
 
     /*!
      * \brief Compute the output fps as follow: input_fps / time_transformation_stride.
@@ -75,5 +78,3 @@ class OutputFrameFile : public FrameFile
     double compute_output_fps();
 };
 } // namespace holovibes::io_files
-
-#include "output_frame_file.hxx"
