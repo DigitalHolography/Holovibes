@@ -13,7 +13,7 @@
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
 #include "display_queue.hh"
-
+#include "information_container.hh"
 namespace holovibes
 {
 /*! \class Queue
@@ -39,14 +39,6 @@ class Queue : public DisplayQueue
   public:
     using MutexGuard = std::lock_guard<std::mutex>;
 
-    enum class QueueType
-    {
-        UNDEFINED,
-        INPUT_QUEUE,
-        OUTPUT_QUEUE,
-        RECORD_QUEUE,
-    };
-
   public:
     /*! \brief Queue constructor
      *
@@ -59,7 +51,7 @@ class Queue : public DisplayQueue
      */
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
-          QueueType type = QueueType::UNDEFINED,
+          InformationContainer::QueueType type = InformationContainer::QueueType::UNDEFINED,
           unsigned int input_width = 0,
           unsigned int input_height = 0,
           unsigned int bytes_per_pixel = 1);
@@ -241,7 +233,7 @@ class Queue : public DisplayQueue
     std::atomic<unsigned int> max_size_;
 
     /*! \brief Type of the queue */
-    Queue::QueueType type_;
+    InformationContainer::QueueType type_;
 
     /*! \brief Size of the queue (number of frames currently stored in the queue)
      *

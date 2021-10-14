@@ -4,8 +4,6 @@
 #include <atomic>
 #include <type_traits>
 
-#include "queue.hh"
-
 /*!
  * \brief Documentation on how to add entry types to the FastUpdatesHolder class
  *
@@ -50,8 +48,13 @@ enum class ProgressType
     CHART_RECORD,
 };
 
-// enum class
-using QueueType = Queue::QueueType;
+enum class QueueType
+{
+    UNDEFINED,
+    INPUT_QUEUE,
+    OUTPUT_QUEUE,
+    RECORD_QUEUE,
+};
 
 /*! \} */
 

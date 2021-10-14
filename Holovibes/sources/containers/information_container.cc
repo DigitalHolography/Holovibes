@@ -1,11 +1,10 @@
 #include "information_container.hh"
-#include "queue.hh"
 
 namespace holovibes
 {
 using IndicationType = InformationContainer::IndicationType;
 using FpsType = InformationContainer::FpsType;
-using QueueType = Queue::QueueType;
+using QueueType = InformationContainer::QueueType;
 using ProgressType = InformationContainer::ProgressType;
 using MutexGuard = std::lock_guard<std::mutex>;
 

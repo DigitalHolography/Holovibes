@@ -4,7 +4,10 @@
  */
 #pragma once
 
-#include "queue.hh"
+#include <utility>
+#include <atomic>
+#include <map>
+#include <optional>
 
 namespace holovibes
 {
@@ -20,8 +23,6 @@ class InformationWorker;
 class InformationContainer
 {
   public:
-    using QueueType = Queue::QueueType;
-
     /*! \brief Indication type that is store in maps */
     enum class IndicationType
     {
@@ -45,6 +46,14 @@ class InformationContainer
         FILE_READ,
         FRAME_RECORD,
         CHART_RECORD,
+    };
+
+    enum class QueueType
+    {
+        UNDEFINED,
+        INPUT_QUEUE,
+        OUTPUT_QUEUE,
+        RECORD_QUEUE,
     };
 
     /*! \brief InformationContainer Default constructor */

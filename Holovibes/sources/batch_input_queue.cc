@@ -25,9 +25,10 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
     // Set batch_size and max_size
     create_queue(batch_size);
 
-    Holovibes::instance().get_info_container().add_queue_size(Queue::QueueType::INPUT_QUEUE,
-                                                              curr_nb_frames_,
-                                                              total_nb_frames_);
+    Holovibes::instance().get_info_container().add_queue_size(
+        InformationContainer::InformationContainer::QueueType::INPUT_QUEUE,
+        curr_nb_frames_,
+        total_nb_frames_);
 }
 
 BatchInputQueue::~BatchInputQueue()
@@ -35,7 +36,8 @@ BatchInputQueue::~BatchInputQueue()
     destroy_mutexes_streams();
     // data is free as it is a UniquePtr.
 
-    Holovibes::instance().get_info_container().remove_queue_size(Queue::QueueType::INPUT_QUEUE);
+    Holovibes::instance().get_info_container().remove_queue_size(
+        InformationContainer::InformationContainer::QueueType::INPUT_QUEUE);
 }
 
 void BatchInputQueue::create_queue(const uint new_batch_size)

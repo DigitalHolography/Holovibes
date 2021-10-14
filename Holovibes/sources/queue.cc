@@ -17,7 +17,7 @@ using camera::FrameDescriptor;
 
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
-             Queue::QueueType type,
+             InformationContainer::QueueType type,
              unsigned int input_width,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
