@@ -64,6 +64,8 @@ class MainWindow : public QMainWindow, public Observer
     void notify_error(const std::exception& e) override;
 
     RawWindow* get_main_display();
+
+    friend class AdvancedSettingsWindow;
 #pragma endregion
 /* ---------- */
 #pragma region Public Slots
@@ -664,7 +666,6 @@ class MainWindow : public QMainWindow, public Observer
     uint auxiliary_window_max_size = 512;
 
     bool is_enabled_camera_ = false;
-    bool is_advanced_settings_displayed = false;
     double z_step_ = 0.005f;
 
     bool is_recording_ = false;
@@ -682,6 +683,9 @@ class MainWindow : public QMainWindow, public Observer
 
     size_t auto_scale_point_threshold_ = 100;
     ushort theme_index_ = 0;
+
+    bool is_advanced_settings_displayed = false;
+    bool need_close = false;
 
     // Shortcuts (initialized in constructor)
     QShortcut* z_up_shortcut_;

@@ -2351,7 +2351,13 @@ void MainWindow::start_chart_display()
     ui.ChartPlotPushButton->setEnabled(false);
 }
 
-void MainWindow::close_advanced_settings() { is_advanced_settings_displayed = false; }
+void MainWindow::close_advanced_settings()
+{
+    if (need_close)
+        close();
+    else
+        is_advanced_settings_displayed = false;
+}
 
 void MainWindow::open_advanced_settings()
 {
@@ -2360,7 +2366,7 @@ void MainWindow::open_advanced_settings()
 
     is_advanced_settings_displayed = true;
 
-    advanced_settings_window_ = std::make_unique<AdvancedSettingsWindow>(this);
+    advanced_settings_window_ = std::make_unique<AdvancedSettingsWindow>(cd_, this);
     connect(advanced_settings_window_.get(),
             SIGNAL(closed()),
             this,
