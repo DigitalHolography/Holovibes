@@ -89,48 +89,9 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
     cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
 
-    // // Composite // TODO WHEN IT WILL BE IMPLEMENTED
+    // Composite
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
-    // cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
-    // // RGB
-    // cd.rgb.p_min = ptree.get<ushort>("rgb.p_min", cd.rgb.p_min); // p_red => min
-    // cd.rgb.p_max = ptree.get<ushort>("rgb.p_max", cd.rgb.p_max); // p_blue => max
-    // cd.rgb.r_weight = ptree.get<float>("rgb.weight_r", cd.rgb.r_weight);
-    // cd.rgb.g_weight = ptree.get<float>("rgb.weight_g", cd.rgb.g_weight);
-    // cd.rgb.b_weight = ptree.get<float>("rgb.weight_b", cd.rgb.b_weight);
-    // // HSV
-    // cd.hsv.s_enabled = ptree.get<bool>("hsv.s_enabled", cd.hsv.s_enabled);
-    // cd.hsv.v_enabled = ptree.get<bool>("hsv.v_enabled", cd.hsv.v_enabled);
-    // // HSV_H
-    // cd.hsv.h.p_min = ptree.get<ushort>("hsv_h.p_min", 1);
-    // cd.hsv.h.p_max = ptree.get<ushort>("hsv_h.p_max", 1);
-    // cd.hsv.h.min_value = ptree.get<float>("hsv_h.min_value", 0);
-    // cd.hsv.h.max_value = ptree.get<float>("hsv_h.max_value", 1.0f);
-    // cd.hsv.h.blur_enabled = ptree.get<bool>("hsv_h.blur", cd.hsv.h.blur_enabled); // set_h_blur_kernel_size => blur
-    // cd.hsv.h.blur_size = ptree.get<ushort>("hsv_h.blur_size", cd.hsv.h.blur_size);
-    // cd.hsv.h.low_threshold = ptree.get<float>("hsv_h.low_threshold", 0.2f);
-    // cd.hsv.h.high_threshold = ptree.get<float>("hsv_h.high_threshold", 99.8f);
-    // // HSV_S
-    // cd.hsv.s.p_min = ptree.get<ushort>("hsv_s.p_min", 1);
-    // cd.hsv.s.p_max = ptree.get<ushort>("hsv_s.p_max", 1);
-    // cd.hsv.s.min_value = ptree.get<float>("hsv_s.min_value", 0);
-    // cd.hsv.s.max_value = ptree.get<float>("hsv_s.max_value", 1.0f);
-    // cd.hsv.s.low_threshold = ptree.get<float>("hsv_s.low_threshold", 0.2f);
-    // cd.hsv.s.high_threshold = ptree.get<float>("hsv_s.high_threshold", 99.8f);
-    // // HSV_V
-    // cd.hsv.v.p_min = ptree.get<ushort>("hsv_v.p_min", 1);
-    // cd.hsv.v.p_max = ptree.get<ushort>("hsv_v.p_max", 1);
-    // cd.hsv.v.min_value = ptree.get<float>("hsv_v.min_value", 0);
-    // cd.hsv.v.max_value = ptree.get<float>("hsv_v.max_value", 1.0f);
-    // cd.hsv.v.low_threshold = ptree.get<float>("hsv_v.low_threshold", 0.2f);
-    // cd.hsv.v.high_threshold = ptree.get<float>("hsv_v.high_threshold", 99.8f);
-
-    // Composite
-    // Currently when an import of .ini is done, the composite is not enabled. (see TODO under // VIEW in the current
-    // file)
-    cd.composite_kind =
-        static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // HSV_H
     cd.composite_p_min_h = ptree.get<ushort>("hsv_h.p_min", cd.composite_p_min_h);
