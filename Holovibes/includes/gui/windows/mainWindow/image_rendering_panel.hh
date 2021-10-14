@@ -23,7 +23,11 @@ class ImageRenderingPanel : public Panel
     ImageRenderingPanel(QWidget* parent = nullptr);
     ~ImageRenderingPanel();
 
+    void init() override;
     void on_notify() override;
+
+    void load_ini(const boost::property_tree::ptree& ptree) override;
+    void save_ini(boost::property_tree::ptree& ptree) override;
 
     /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
@@ -131,5 +135,7 @@ class ImageRenderingPanel : public Panel
 
     /*! \brief Enable the filter2d mode */
     void set_filter2d_pipe();
+
+    double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

@@ -15,6 +15,8 @@ ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
 
 ImageRenderingPanel::~ImageRenderingPanel() {}
 
+void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
+
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = parent_->is_raw_mode();
@@ -65,6 +67,18 @@ void ImageRenderingPanel::on_notify()
     ui_->ConvoCheckBox->setEnabled(parent_->cd_.compute_mode == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(parent_->cd_.convolution_enabled);
     ui_->DivideConvoCheckBox->setChecked(parent_->cd_.convolution_enabled && parent_->cd_.divide_convolution_enabled);
+}
+
+void ImageRenderingPanel::load_ini(const boost::property_tree::ptree& ptree)
+{
+    const float z_step_ = ptree.get<float>("image_rendering.z_step", z_step_);
+    if (z_step_ > 0.0f)
+        ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+}
+
+void ImageRenderingPanel::save_ini(boost::property_tree::ptree& ptree)
+{
+    ptree.put<double>("image_rendering.z_step", z_step_);
 }
 
 void ImageRenderingPanel::set_image_mode(QString mode)
@@ -435,7 +449,7 @@ void ImageRenderingPanel::set_z(const double value)
 
 void ImageRenderingPanel::set_z_step(const double value)
 {
-    parent_->z_step_ = value;
+    z_step_ = value;
     ui_->ZDoubleSpinBox->setSingleStep(value);
 }
 
@@ -444,7 +458,7 @@ void ImageRenderingPanel::increment_z()
     if (parent_->is_raw_mode())
         return;
 
-    set_z(parent_->cd_.zdistance + parent_->z_step_);
+    set_z(parent_->cd_.zdistance + z_step_);
     ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
 }
 
@@ -453,7 +467,7 @@ void ImageRenderingPanel::decrement_z()
     if (parent_->is_raw_mode())
         return;
 
-    set_z(parent_->cd_.zdistance - parent_->z_step_);
+    set_z(parent_->cd_.zdistance - z_step_);
     ui_->ZDoubleSpinBox->setValue(parent_->cd_.zdistance);
 }
 

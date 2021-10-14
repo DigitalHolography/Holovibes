@@ -68,11 +68,9 @@ class MainWindow : public QMainWindow, public Observer
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
 
-    bool is_enabled_camera_ = false; // RIEN?IR?
-    double z_step_ = 0.005f;         // IR
-
-    CameraKind kCamera = CameraKind::NONE; // RIEN?IR?
-    QString last_img_type_ = "Magnitude";  // V
+    bool is_enabled_camera_ = false;
+    CameraKind kCamera = CameraKind::NONE;
+    QString last_img_type_ = "Magnitude"; // V
 
     size_t auto_scale_point_threshold_ = 100; // RIEN
     ushort theme_index_ = 0;                  // RIEN

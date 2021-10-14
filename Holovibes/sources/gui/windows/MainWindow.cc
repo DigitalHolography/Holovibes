@@ -113,7 +113,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         save_ini(::holovibes::ini::get_global_ini_path());
     }
 
-    ui->ImageRenderingPanel->set_z_step(z_step_);
     set_night();
 
     // Keyboard shortcuts
@@ -421,10 +420,6 @@ void MainWindow::load_ini(const std::string& path)
         image_rendering_action->setChecked(
             !ptree.get<bool>("image_rendering.hidden", image_rendering_panel->isHidden()));
 
-        const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
-        if (z_step > 0.0f)
-            ui->ImageRenderingPanel->set_z_step(z_step);
-
         view_action->setChecked(!ptree.get<bool>("view.hidden", view_panel->isHidden()));
 
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
@@ -466,8 +461,6 @@ void MainWindow::save_ini(const std::string& path)
     ptree.put<bool>("image_rendering.hidden", image_rendering_panel->isHidden());
 
     ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
-
-    ptree.put<double>("image_rendering.z_step", z_step_);
 
     ptree.put<bool>("view.hidden", view_panel->isHidden());
 
