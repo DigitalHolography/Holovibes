@@ -27,6 +27,7 @@ set(HOLO_INCLUDES
     includes/containers/
     includes/core/
     includes/enum/
+    includes/struct/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/

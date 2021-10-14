@@ -18,6 +18,10 @@
 #include "enum_window_kind.hh"
 #include "enum_composite_kind.hh"
 
+// struct
+#include "composite_struct.hh"
+#include "view_struct.hh"
+
 namespace holovibes
 {
 
@@ -309,6 +313,11 @@ class ComputeDescriptor : public Observable
     std::atomic<WindowKind> current_window{WindowKind::XYview};
 
     // XY
+    WindowView current;
+    WindowView xy{};
+    WindowView xz{};
+    WindowView yz{};
+
     std::atomic<bool> xy_flip_enabled{false};
     std::atomic<float> xy_rot{0};
     std::atomic<bool> log_scale_slice_xy_enabled{false};
@@ -360,6 +369,8 @@ class ComputeDescriptor : public Observable
     // Composite images
     std::atomic<CompositeKind> composite_kind;
     std::atomic<bool> composite_auto_weights;
+    Composite_RGB rgb{};
+    Composite_RGB hsv{};
 
     // RGB
     std::atomic<uint> rgb_p_min{0};

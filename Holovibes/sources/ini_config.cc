@@ -56,43 +56,63 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
     // TODO: Struct and 3 function call instead of 3 * 10 lines
     // xy
-    cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
-    cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
-    cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
-    cd.img_acc_slice_xy_enabled = ptree.get<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
-    cd.img_acc_slice_xy_level = ptree.get<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
-    cd.contrast_enabled = ptree.get<bool>("xy.contrast_enabled", cd.contrast_enabled);
-    cd.contrast_auto_refresh = ptree.get<bool>("xy.auto_contrast_enabled", cd.contrast_auto_refresh);
-    cd.contrast_invert = ptree.get<bool>("xy.invert_enabled", cd.contrast_invert);
-    cd.contrast_min_slice_xy = ptree.get<float>("xy.range_min", cd.contrast_min_slice_xy);
-    cd.contrast_max_slice_xy = ptree.get<float>("xy.range_max", cd.contrast_max_slice_xy);
-    // xz
-    cd.xz_flip_enabled = ptree.get<bool>("xz.flip", cd.xz_flip_enabled);
-    cd.xz_rot = ptree.get<float>("xz.rot", cd.xz_rot);
-    cd.log_scale_slice_xz_enabled = ptree.get<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
-    cd.img_acc_slice_xz_enabled = ptree.get<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
-    cd.img_acc_slice_xz_level = ptree.get<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
-    cd.xz_contrast_enabled = ptree.get<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
-    cd.xz_contrast_auto_refresh = ptree.get<bool>("xz.auto_contrast_enabled", cd.xz_contrast_auto_refresh);
-    cd.xz_contrast_invert = ptree.get<bool>("xz.invert_enabled", cd.xz_contrast_invert);
-    cd.contrast_min_slice_xz = ptree.get<float>("xz.range_min", cd.contrast_min_slice_xz);
-    cd.contrast_max_slice_xz = ptree.get<float>("xz.range_max", cd.contrast_max_slice_xz);
-    // yz
-    cd.yz_flip_enabled = ptree.get<bool>("yz.flip", cd.yz_flip_enabled);
-    cd.yz_rot = ptree.get<float>("yz.rot", cd.yz_rot);
-    cd.log_scale_slice_yz_enabled = ptree.get<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
-    cd.img_acc_slice_yz_enabled = ptree.get<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
-    cd.img_acc_slice_yz_level = ptree.get<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
-    cd.yz_contrast_enabled = ptree.get<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
-    cd.yz_contrast_auto_refresh = ptree.get<bool>("yz.auto_contrast_enabled", cd.yz_contrast_auto_refresh);
-    cd.yz_contrast_invert = ptree.get<bool>("yz.invert_enabled", cd.yz_contrast_invert);
-    cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
-    cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
+
+    auto xyz_get = [&](std::string name, WindowView& view) {
+        view.flip_enabled = ptree.get<bool>(name + ".flip_enabled", view.flip_enabled);
+        view.rot = ptree.get<float>(name + ".rot", view.rot);
+        view.log_scale_slice_enabled = ptree.get<bool>(name + ".log_scale_enabled", view.log_scale_slice_enabled);
+        view.img_acc_slice_enabled = ptree.get<bool>(name + ".img_acc_enabled", view.img_acc_slice_enabled);
+        view.img_acc_slice_level = ptree.get<ushort>(name + ".img_acc_value", view.img_acc_slice_level);
+        view.contrast_enabled = ptree.get<bool>(name + ".contrast_enabled", view.contrast_enabled);
+        view.contrast_auto_refresh = ptree.get<bool>(name + ".auto_contrast_enabled", view.contrast_auto_refresh);
+        view.contrast_invert = ptree.get<bool>(name + ".invert_enabled", view.contrast_invert);
+        view.contrast_min_slice = ptree.get<float>(name + ".contrast_min", view.contrast_min_slice);
+        view.contrast_max_slice = ptree.get<float>(name + ".contrast_max", view.contrast_max_slice);
+    };
+
+    xyz_get("xy", cd.xy);
+    xyz_get("xz", cd.xz);
+    xyz_get("yz", cd.yz);
+
+    // cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
+    // cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
+    // cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
+    // cd.img_acc_slice_xy_enabled = ptree.get<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
+    // cd.img_acc_slice_xy_level = ptree.get<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
+    // cd.contrast_enabled = ptree.get<bool>("xy.contrast_enabled", cd.contrast_enabled);
+    // cd.contrast_auto_refresh = ptree.get<bool>("xy.auto_contrast_enabled", cd.contrast_auto_refresh);
+    // cd.contrast_invert = ptree.get<bool>("xy.invert_enabled", cd.contrast_invert);
+    // cd.contrast_min_slice_xy = ptree.get<float>("xy.range_min", cd.contrast_min_slice_xy);
+    // cd.contrast_max_slice_xy = ptree.get<float>("xy.range_max", cd.contrast_max_slice_xy);
+    // // xz
+    // cd.xz_flip_enabled = ptree.get<bool>("xz.flip", cd.xz_flip_enabled);
+    // cd.xz_rot = ptree.get<float>("xz.rot", cd.xz_rot);
+    // cd.log_scale_slice_xz_enabled = ptree.get<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
+    // cd.img_acc_slice_xz_enabled = ptree.get<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
+    // cd.img_acc_slice_xz_level = ptree.get<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
+    // cd.xz_contrast_enabled = ptree.get<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
+    // cd.xz_contrast_auto_refresh = ptree.get<bool>("xz.auto_contrast_enabled", cd.xz_contrast_auto_refresh);
+    // cd.xz_contrast_invert = ptree.get<bool>("xz.invert_enabled", cd.xz_contrast_invert);
+    // cd.contrast_min_slice_xz = ptree.get<float>("xz.range_min", cd.contrast_min_slice_xz);
+    // cd.contrast_max_slice_xz = ptree.get<float>("xz.range_max", cd.contrast_max_slice_xz);
+    // // yz
+    // cd.yz_flip_enabled = ptree.get<bool>("yz.flip", cd.yz_flip_enabled);
+    // cd.yz_rot = ptree.get<float>("yz.rot", cd.yz_rot);
+    // cd.log_scale_slice_yz_enabled = ptree.get<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
+    // cd.img_acc_slice_yz_enabled = ptree.get<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
+    // cd.img_acc_slice_yz_level = ptree.get<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
+    // cd.yz_contrast_enabled = ptree.get<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
+    // cd.yz_contrast_auto_refresh = ptree.get<bool>("yz.auto_contrast_enabled", cd.yz_contrast_auto_refresh);
+    // cd.yz_contrast_invert = ptree.get<bool>("yz.invert_enabled", cd.yz_contrast_invert);
+    // cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
+    // cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
 
     // Composite
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
+    // RGB
+
     // HSV_H
     cd.composite_p_min_h = ptree.get<ushort>("hsv_h.p_min", cd.composite_p_min_h);
     cd.composite_p_max_h = ptree.get<ushort>("hsv_h.p_max", cd.composite_p_max_h);
@@ -203,39 +223,55 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
+    auto xyz_put = [&](std::string name, const WindowView& view) {
+        ptree.put<bool>(name + ".flip_enabled", view.flip_enabled);
+        ptree.put<int>(name + ".rot", view.rot);
+        ptree.put<bool>(name + ".log_scale_enabled", view.log_scale_slice_enabled);
+        ptree.put<bool>(name + ".img_acc_enabled", view.img_acc_slice_enabled);
+        ptree.put<ushort>(name + ".img_acc_value", view.img_acc_slice_level);
+        ptree.put<bool>(name + ".contrast_enabled", view.contrast_enabled);
+        ptree.put<bool>(name + ".contrast_auto_enabled", view.contrast_auto_refresh);
+        ptree.put<bool>(name + ".contrast_invert_enabled", view.contrast_invert);
+        ptree.put<float>(name + ".contrast_min", view.contrast_min_slice);
+        ptree.put<float>(name + ".contrast_max", view.contrast_max_slice);
+    };
+    xyz_put("xy", cd.xy);
+    xyz_put("xz", cd.xz);
+    xyz_put("yz", cd.yz);
+
     // xy
-    ptree.put<bool>("xy.flip", cd.xy_flip_enabled);
-    ptree.put<int>("xy.rot", cd.xy_rot);
-    ptree.put<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
-    ptree.put<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
-    ptree.put<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
-    ptree.put<bool>("xy.contrast_enabled", cd.contrast_enabled);
-    ptree.put<bool>("xy.contrast_auto_enabled", cd.contrast_auto_refresh);
-    ptree.put<bool>("xy.contrast_invert_enabled", cd.contrast_invert);
-    ptree.put<float>("xy.contrast_min", cd.contrast_min_slice_xy);
-    ptree.put<float>("xy.contrast_max", cd.contrast_max_slice_xy);
-    // xz
-    ptree.put<bool>("xz.flip", cd.xz_flip_enabled);
-    ptree.put<int>("xz.rot", cd.xz_rot);
-    ptree.put<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
-    ptree.put<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
-    ptree.put<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
-    ptree.put<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
-    ptree.put<bool>("xz.contrast_auto_enabled", cd.xz_contrast_auto_refresh);
-    ptree.put<bool>("xz.contrast_invert_enabled", cd.xz_contrast_invert);
-    ptree.put<float>("xz.contrast_min", cd.contrast_min_slice_xz);
-    ptree.put<float>("xz.contrast_max", cd.contrast_max_slice_xz);
-    // yz
-    ptree.put<bool>("yz.flip", cd.yz_flip_enabled);
-    ptree.put<int>("yz.rot", cd.yz_rot);
-    ptree.put<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
-    ptree.put<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
-    ptree.put<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
-    ptree.put<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
-    ptree.put<bool>("yz.contrast_auto_enabled", cd.yz_contrast_auto_refresh);
-    ptree.put<bool>("yz.contrast_invert_enabled", cd.yz_contrast_invert);
-    ptree.put<float>("yz.contrast_min", cd.contrast_min_slice_yz);
-    ptree.put<float>("yz.contrast_max", cd.contrast_max_slice_yz);
+    // ptree.put<bool>("xy.flip", cd.xy_flip_enabled);
+    // ptree.put<int>("xy.rot", cd.xy_rot);
+    // ptree.put<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
+    // ptree.put<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
+    // ptree.put<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
+    // ptree.put<bool>("xy.contrast_enabled", cd.contrast_enabled);
+    // ptree.put<bool>("xy.contrast_auto_enabled", cd.contrast_auto_refresh);
+    // ptree.put<bool>("xy.contrast_invert_enabled", cd.contrast_invert);
+    // ptree.put<float>("xy.contrast_min", cd.contrast_min_slice_xy);
+    // ptree.put<float>("xy.contrast_max", cd.contrast_max_slice_xy);
+    // // xz
+    // ptree.put<bool>("xz.flip", cd.xz_flip_enabled);
+    // ptree.put<int>("xz.rot", cd.xz_rot);
+    // ptree.put<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
+    // ptree.put<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
+    // ptree.put<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
+    // ptree.put<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
+    // ptree.put<bool>("xz.contrast_auto_enabled", cd.xz_contrast_auto_refresh);
+    // ptree.put<bool>("xz.contrast_invert_enabled", cd.xz_contrast_invert);
+    // ptree.put<float>("xz.contrast_min", cd.contrast_min_slice_xz);
+    // ptree.put<float>("xz.contrast_max", cd.contrast_max_slice_xz);
+    // // yz
+    // ptree.put<bool>("yz.flip", cd.yz_flip_enabled);
+    // ptree.put<int>("yz.rot", cd.yz_rot);
+    // ptree.put<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
+    // ptree.put<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
+    // ptree.put<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
+    // ptree.put<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
+    // ptree.put<bool>("yz.contrast_auto_enabled", cd.yz_contrast_auto_refresh);
+    // ptree.put<bool>("yz.contrast_invert_enabled", cd.yz_contrast_invert);
+    // ptree.put<float>("yz.contrast_min", cd.contrast_min_slice_yz);
+    // ptree.put<float>("yz.contrast_max", cd.contrast_max_slice_yz);
 
     // ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
     //
