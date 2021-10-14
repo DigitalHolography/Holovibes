@@ -117,24 +117,29 @@ class BatchInputQueue : public DisplayQueue
 
     bool is_current_batch_full();
 
-    inline void* get_last_image() const override;
+    inline void* get_last_image() const override
+    {
+        sync_current_batch();
+        // Return the previous enqueued frame
+        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * frame_size_;
+    }
 
-    inline bool is_empty() const;
+    bool is_empty() const { return size_ == 0; }
 
-    inline uint get_size() const;
+    uint get_size() const { return size_; }
 
-    inline bool has_overridden() const;
+    bool has_overridden() const { return has_overridden_; }
 
     // HOLO: Can it be removed?
-    inline const void* get_data() const;
+    const void* get_data() const { return data_; }
 
-    inline uint get_total_nb_frames() const;
+    uint get_total_nb_frames() const { return total_nb_frames_; }
 
-    inline const camera::FrameDescriptor& get_fd() const;
+    const camera::FrameDescriptor& get_fd() const { return fd_; }
 
-    inline uint get_frame_size() const;
+    uint get_frame_size() const { return frame_size_; }
 
-    inline uint get_frame_res() const;
+    uint get_frame_res() const { return frame_res_; }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -166,7 +171,17 @@ class BatchInputQueue : public DisplayQueue
      * \param index reference to the index of the batch to lock
      * \return The index where it is currently locked
      */
-    inline uint wait_and_lock(const std::atomic<uint>& index);
+    uint wait_and_lock(const std::atomic<uint>& index)
+    {
+        uint tmp_index;
+        while (true)
+        {
+            tmp_index = index.load();
+            if (batch_mutexes_[tmp_index].try_lock())
+                break;
+        }
+        return tmp_index;
+    }
 
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_;
@@ -226,5 +241,3 @@ class BatchInputQueue : public DisplayQueue
     /*! \} */
 };
 } // namespace holovibes
-
-#include "batch_input_queue.hxx"
