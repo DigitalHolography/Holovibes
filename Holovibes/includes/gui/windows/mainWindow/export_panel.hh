@@ -84,5 +84,7 @@ class ExportPanel : public Panel
     std::string default_output_filename_;
     std::string record_output_directory_;
     std::string batch_input_directory_;
+
+    size_t auto_scale_point_threshold_ = 100;
 };
 } // namespace holovibes::gui

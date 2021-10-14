@@ -143,9 +143,10 @@ void ViewPanel::on_notify()
 
 void ViewPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
+    ui_->actionView->setChecked(!ptree.get<bool>("view.hidden", isHidden()));
+
     time_transformation_cuts_window_max_size_ =
         ptree.get<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
-
     displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
     xzAngle_ = ptree.get<float>("view.xCut_rotate", xzAngle_);
     yzAngle_ = ptree.get<float>("view.yCut_rotate", yzAngle_);
@@ -156,8 +157,9 @@ void ViewPanel::load_ini(const boost::property_tree::ptree& ptree)
 
 void ViewPanel::save_ini(boost::property_tree::ptree& ptree)
 {
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
+    ptree.put<bool>("view.hidden", isHidden());
 
+    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
     ptree.put<float>("view.mainWindow_rotate", displayAngle);
     ptree.put<float>("view.xCut_rotate", xzAngle_);
     ptree.put<float>("view.yCut_rotate", yzAngle_);

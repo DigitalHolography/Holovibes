@@ -36,6 +36,13 @@ void InfoPanel::init()
     set_visible_record_progress(false);
 }
 
+void InfoPanel::load_ini(const boost::property_tree::ptree& ptree)
+{
+    ui_->actionInfo->setChecked(!ptree.get<bool>("info.hidden", isHidden()));
+}
+
+void InfoPanel::save_ini(boost::property_tree::ptree& ptree) { ptree.put<bool>("info.hidden", isHidden()); }
+
 void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
 
 void InfoPanel::set_visible_file_reader_progress(bool visible)

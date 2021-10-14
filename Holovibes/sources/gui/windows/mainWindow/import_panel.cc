@@ -19,11 +19,14 @@ void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(parent_->
 
 void ImportPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
+    ui_->actionImportExport->setChecked(!ptree.get<bool>("import_export.hidden", isHidden()));
     file_input_directory_ = ptree.get<std::string>("files.file_input_directory", file_input_directory_);
+    ui_->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 }
 
 void ImportPanel::save_ini(boost::property_tree::ptree& ptree)
 {
+    ptree.put<bool>("import_export.hidden", ui_->ImportExportFrame->isHidden());
     ptree.put<std::string>("files.file_input_directory", file_input_directory_);
 }
 

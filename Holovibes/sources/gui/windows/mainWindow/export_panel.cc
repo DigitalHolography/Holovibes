@@ -60,6 +60,7 @@ void ExportPanel::load_ini(const boost::property_tree::ptree& ptree)
     record_output_directory_ = ptree.get<std::string>("files.record_output_directory", record_output_directory_);
     batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", batch_input_directory_);
     record_frame_step_ = ptree.get<uint>("record.record_frame_step", record_frame_step_);
+    auto_scale_point_threshold_ = ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 }
 
 void ExportPanel::save_ini(boost::property_tree::ptree& ptree)
@@ -68,6 +69,7 @@ void ExportPanel::save_ini(boost::property_tree::ptree& ptree)
     ptree.put<std::string>("files.record_output_directory", record_output_directory_);
     ptree.put<std::string>("files.batch_input_directory", batch_input_directory_);
     ptree.put<uint>("record.record_frame_step", record_frame_step_);
+    ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
 }
 
 void ExportPanel::browse_record_output_file()
@@ -324,7 +326,7 @@ void ExportPanel::start_chart_display()
         continue;
 
     plot_window = std::make_unique<PlotWindow>(*parent_->holovibes_.get_compute_pipe()->get_chart_display_queue(),
-                                               parent_->auto_scale_point_threshold_,
+                                               auto_scale_point_threshold_,
                                                "Chart");
     connect(plot_window.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
 

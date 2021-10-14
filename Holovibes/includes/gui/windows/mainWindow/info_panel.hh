@@ -24,6 +24,9 @@ class InfoPanel : public Panel
 
     void init() override;
 
+    void load_ini(const boost::property_tree::ptree& ptree) override;
+    void save_ini(boost::property_tree::ptree& ptree) override;
+
     /*! \brief Change the text in the text area */
     void set_text(const char* text);
 

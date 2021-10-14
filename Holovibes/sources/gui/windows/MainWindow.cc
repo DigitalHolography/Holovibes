@@ -400,16 +400,6 @@ void MainWindow::reload_ini(QString filename)
 void MainWindow::load_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    Panel* image_rendering_panel = ui->ImageRenderingPanel;
-    Panel* view_panel = ui->ViewPanel;
-    Panel* import_panel = ui->ImportPanel;
-    Panel* info_panel = ui->InfoPanel;
-
-    QAction* image_rendering_action = ui->actionImage_rendering;
-    QAction* view_action = ui->actionView;
-    QAction* import_export_action = ui->actionImportExport;
-    QAction* info_action = ui->actionInfo;
-
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
     if (!ptree.empty())
@@ -417,23 +407,10 @@ void MainWindow::load_ini(const std::string& path)
         // Load general compute data
         ini::load_ini(ptree, cd_);
 
-        image_rendering_action->setChecked(
-            !ptree.get<bool>("image_rendering.hidden", image_rendering_panel->isHidden()));
-
-        view_action->setChecked(!ptree.get<bool>("view.hidden", view_panel->isHidden()));
-
         last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
         ui->ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
 
-        auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
-
-        import_export_action->setChecked(!ptree.get<bool>("import_export.hidden", import_panel->isHidden()));
-
-        ui->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
-
-        info_action->setChecked(!ptree.get<bool>("info.hidden", info_panel->isHidden()));
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
         window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
@@ -449,26 +426,13 @@ void MainWindow::load_ini(const std::string& path)
 void MainWindow::save_ini(const std::string& path)
 {
     boost::property_tree::ptree ptree;
-    Panel* image_rendering_panel = ui->ImageRenderingPanel;
-    Panel* view_panel = ui->ViewPanel;
-    Frame* import_export_frame = ui->ImportExportFrame;
-    Panel* info_panel = ui->InfoPanel;
     Config& config = global::global_config;
 
     // Save general compute data
     ini::save_ini(ptree, cd_);
 
-    ptree.put<bool>("image_rendering.hidden", image_rendering_panel->isHidden());
-
     ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera));
 
-    ptree.put<bool>("view.hidden", view_panel->isHidden());
-
-    ptree.put<size_t>("chart.auto_scale_point_threshold", auto_scale_point_threshold_);
-
-    ptree.put<bool>("import_export.hidden", import_export_frame->isHidden());
-
-    ptree.put<bool>("info.hidden", info_panel->isHidden());
     ptree.put<ushort>("info.theme_type", theme_index_);
 
     ptree.put<uint>("display.main_window_max_size", window_max_size);

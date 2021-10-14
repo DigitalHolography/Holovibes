@@ -71,6 +71,8 @@ void ImageRenderingPanel::on_notify()
 
 void ImageRenderingPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
+    ui_->ImageRenderingPanel->setChecked(!ptree.get<bool>("image_rendering.hidden", isHidden()));
+
     const float z_step_ = ptree.get<float>("image_rendering.z_step", z_step_);
     if (z_step_ > 0.0f)
         ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -78,6 +80,7 @@ void ImageRenderingPanel::load_ini(const boost::property_tree::ptree& ptree)
 
 void ImageRenderingPanel::save_ini(boost::property_tree::ptree& ptree)
 {
+    ptree.put<bool>("image_rendering.hidden", isHidden());
     ptree.put<double>("image_rendering.z_step", z_step_);
 }
 

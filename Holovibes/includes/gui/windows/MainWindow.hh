@@ -70,10 +70,9 @@ class MainWindow : public QMainWindow, public Observer
 
     bool is_enabled_camera_ = false;
     CameraKind kCamera = CameraKind::NONE;
-    QString last_img_type_ = "Magnitude"; // V
+    QString last_img_type_ = "Magnitude";
 
-    size_t auto_scale_point_threshold_ = 100; // RIEN
-    ushort theme_index_ = 0;                  // RIEN
+    ushort theme_index_ = 0;
 
     // Shortcuts (initialized in constructor)
     QShortcut* z_up_shortcut_;    // ?
