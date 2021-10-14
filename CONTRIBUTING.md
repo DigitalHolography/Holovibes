@@ -2,11 +2,25 @@
 
 ### Coding style
 
+#### Clang-Format
+
 Make sure to configure your IDE to format source code automatically according to the project `.clang-format`.
 
 For instance, on Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
 
 If possible, install a pre-commit hook. Install pre-commit with 'pip install pre-commit' and then use 'pre-commit install' at the root of the project.
+
+#### Clang-Format details
+
+* No brackets in one line ifs
+* Comments should use the doxygen format like the following: /*! \brief This is an example */
+
+#### Naming style
+
+* Classes, Structs, Unions, Enums should be named in CamelCase.
+* Class Members, Variables, Namespaces, Functions, Files should be named in snake_case.
+* A class member getter should be named 'get_{var}'. Idem for setters.
+* Class members should end with '_' as in 'frame_size_'
 
 ### Git
 
