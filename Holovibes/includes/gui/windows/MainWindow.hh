@@ -58,6 +58,26 @@ class MainWindow : public QMainWindow, public Observer
     void notify() override;
     void notify_error(const std::exception& e) override;
 
+    /*! \brief Creates the pipeline */
+    void createPipe();
+
+    /*! \brief Creates the windows for processed image output */
+    void createHoloWindow();
+
+    /*! \brief Closes all the displayed windows */
+    void close_windows();
+
+    /*! \brief Stops critical compute */
+    void close_critical_compute();
+
+    /*! \brief Triggers the pipe to make it refresh */
+    void pipe_refresh();
+
+    /*! \brief Start the import process */
+    void start_import(QString filename);
+
+    Ui::MainWindow* get_ui();
+    ComputeDescriptor& get_cd();
     RawWindow* get_main_display();
 
     Holovibes& holovibes;
@@ -157,7 +177,7 @@ class MainWindow : public QMainWindow, public Observer
      */
     virtual void closeEvent(QCloseEvent* event) override;
 
-  public:
+  private:
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
@@ -185,30 +205,9 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path);
 
-    /*! \brief Creates the pipeline */
-    void createPipe();
-
-    /*! \brief Creates the windows for processed image output */
-    void createHoloWindow();
-
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
-
-    /*! \brief Stops critical compute */
-    void close_critical_compute();
-
     /*! \brief Clears the info container (real time data bench panel) */
     void remove_infos();
 
-    /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh();
-
-    void start_import(QString filename);
-
-    Ui::MainWindow* get_ui();
-    ComputeDescriptor& get_cd();
-
-  private:
     Ui::MainWindow* ui_;
     ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
