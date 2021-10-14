@@ -23,7 +23,10 @@ Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* m
 Filter2DWindow::~Filter2DWindow()
 {
     if (cuResource)
-        cudaGraphicsUnregisterResource(cuResource);
+    {
+        cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
+        cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
+    }
 }
 
 void Filter2DWindow::initShaders()

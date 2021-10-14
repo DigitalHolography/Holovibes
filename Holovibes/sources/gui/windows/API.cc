@@ -9,13 +9,13 @@ namespace holovibes::api
 // VALID
 void open_file(const std::string& path)
 {
-    LOG_INFO;
+    LOG_FUNC;
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 }
 
 void pipe_refresh()
 {
-    LOG_INFO;
+    LOG_FUNC;
     if (is_raw_mode())
         return;
 
@@ -34,7 +34,7 @@ void pipe_refresh()
 bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Set the image rendering ui params
     get_cd().time_transformation_stride = std::ceil(static_cast<float>(fps) / 20.0f);
@@ -126,28 +126,28 @@ const std::string get_credits()
 // VALID
 bool is_raw_mode()
 {
-    LOG_INFO;
+    LOG_FUNC;
     return get_cd().compute_mode == Computation::Raw;
 }
 
 // VALID
 bool is_gpu_input_queue()
 {
-    LOG_INFO;
+    LOG_FUNC;
     return get_gpu_input_queue() != nullptr;
 }
 
 // VALID
 void remove_infos()
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_info_container().clear();
 }
 
 // VALID
 void close_windows()
 {
-    LOG_INFO;
+    LOG_FUNC;
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -175,14 +175,14 @@ void close_windows()
 // VALID
 void configure_holovibes()
 {
-    LOG_INFO;
+    LOG_FUNC;
     open_file(ini::get_global_ini_path());
 }
 
 // VALID
 void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -244,7 +244,7 @@ void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
 // VALID
 void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Save general compute data
     ini::save_ini(ptree, get_cd());
@@ -288,7 +288,7 @@ void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
 // VALID
 void camera_none()
 {
-    LOG_INFO;
+    LOG_FUNC;
     close_windows();
     close_critical_compute();
     if (!is_raw_mode())
@@ -307,7 +307,7 @@ void camera_none()
 // VALID
 bool change_camera(CameraKind c, const Computation computation)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     bool res = false;
 
@@ -346,14 +346,14 @@ bool change_camera(CameraKind c, const Computation computation)
 // VALID
 void configure_camera()
 {
-    LOG_INFO;
+    LOG_FUNC;
     open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
 }
 
 // VALID
 void set_camera_timeout()
 {
-    LOG_INFO;
+    LOG_FUNC;
     camera::FRAME_TIMEOUT = global::global_config.frame_timeout;
 }
 
@@ -364,7 +364,7 @@ void set_camera_timeout()
 // VALID
 void init_image_mode(QPoint& position, QSize& size)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (UserInterfaceDescriptor::instance().mainDisplay)
     {
@@ -377,7 +377,7 @@ void init_image_mode(QPoint& position, QSize& size)
 // TODO: change parameter type to Observer
 void set_raw_mode(gui::MainWindow& observer)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
@@ -403,7 +403,7 @@ void set_raw_mode(gui::MainWindow& observer)
 // TODO: change parameter type to Observer
 void createPipe(gui::MainWindow& observer)
 {
-    LOG_INFO;
+    LOG_FUNC;
     try
     {
         Holovibes::instance().start_compute();
@@ -418,7 +418,7 @@ void createPipe(gui::MainWindow& observer)
 // TODO: change parameter type to Observer
 void createHoloWindow(gui::MainWindow& observer)
 {
-    LOG_INFO;
+    LOG_FUNC;
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
@@ -456,7 +456,7 @@ void createHoloWindow(gui::MainWindow& observer)
 // TODO: change parameter type to Observer
 bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     /* ---------- */
     try
@@ -486,7 +486,7 @@ bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd
 // TODO: change parameter type to Observer
 void refreshViewMode(gui::MainWindow& observer, uint index)
 {
-    LOG_INFO;
+    LOG_FUNC;
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
     if (UserInterfaceDescriptor::instance().mainDisplay)
@@ -517,7 +517,7 @@ void refreshViewMode(gui::MainWindow& observer, uint index)
 // VALID
 void set_view_mode(const std::string& value, std::function<void()> callback)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     UserInterfaceDescriptor::instance().last_img_type_ = value;
 
@@ -538,7 +538,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 // VALID
 void update_batch_size(std::function<void()> callback, const uint batch_size)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
         pipe->insert_fn_end_vect(callback);
@@ -553,7 +553,7 @@ void update_batch_size(std::function<void()> callback, const uint batch_size)
 // VALID
 void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
         pipe->insert_fn_end_vect(callback);
@@ -564,7 +564,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
 // TODO: change parameter type to Observer
 bool toggle_time_transformation_cuts(gui::MainWindow& observer)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // if checked
     try
@@ -627,7 +627,7 @@ bool toggle_time_transformation_cuts(gui::MainWindow& observer)
 // VALID
 void cancel_time_transformation_cuts(std::function<void()> callback)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().contrast_max_slice_xz = false;
     get_cd().contrast_max_slice_yz = false;
@@ -669,7 +669,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 // VALID
 void change_window(const int index)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (index == 0)
         get_cd().current_window = WindowKind::XYview;
@@ -686,7 +686,7 @@ void change_window(const int index)
 // VALID
 void toggle_renormalize(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().renorm_enabled = value;
     get_compute_pipe()->request_clear_img_acc();
@@ -697,7 +697,7 @@ void toggle_renormalize(bool value)
 // VALID
 void set_filter2d()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().filter2d_enabled = true;
 
@@ -707,85 +707,67 @@ void set_filter2d()
     pipe_refresh();
 }
 
-void disable_filter2d_view()
+void set_filter2d_view(gui::MainWindow& observer)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     auto pipe = get_compute_pipe();
-    pipe->request_disable_filter2d_view();
-
-    // Wait for the filter2d view to be disabled for notify
-    while (pipe->get_disable_filter2d_view_requested())
-        continue;
-}
-
-std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool checked)
-{
-    LOG_INFO;
-    if (api::is_raw_mode())
-        return std::nullopt;
-
-    std::optional<bool> res = true;
-
-    if (checked)
+    if (pipe)
     {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-            auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get());
-            if (pipe)
-            {
-                pipe->request_filter2d_view();
+        pipe->request_filter2d_view();
 
-                const camera::FrameDescriptor& fd = get_fd();
-                ushort filter2d_window_width = fd.width;
-                ushort filter2d_window_height = fd.height;
-                get_good_size(filter2d_window_width,
-                              filter2d_window_height,
-                              UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+        // Wait for the filter2d view to be enabled for notify
+        while (pipe->get_filter2d_view_requested())
+            continue;
 
-                // Wait for the filter2d view to be enabled for notify
-                while (pipe->get_filter2d_view_requested())
-                    continue;
+        const camera::FrameDescriptor& fd = get_fd();
+        ushort filter2d_window_width = fd.width;
+        ushort filter2d_window_height = fd.height;
+        get_good_size(filter2d_window_width,
+                      filter2d_window_height,
+                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
 
-                UserInterfaceDescriptor::instance().filter2d_window.reset(
-                    new gui::Filter2DWindow(pos,
-                                            QSize(filter2d_window_width, filter2d_window_height),
-                                            pipe->get_filter2d_view_queue().get(),
-                                            &mainwindow));
+        // set positions of new windows according to the position of the
+        // main GL window
+        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+        UserInterfaceDescriptor::instance().filter2d_window.reset(
+            new gui::Filter2DWindow(pos,
+                                    QSize(filter2d_window_width, filter2d_window_height),
+                                    pipe->get_filter2d_view_queue().get(),
+                                    &observer));
 
-                UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-                UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
+        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+        UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
-                get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-            }
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-            res = false;
-        }
-    }
-
-    else
-    {
-        mainwindow.disable_filter2d_view();
-        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-        res = false;
+        get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+        pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
     pipe_refresh();
-    return res;
+}
+
+void disable_filter2d_view()
+{
+    LOG_FUNC;
+
+    if (UserInterfaceDescriptor::instance().filter2d_window)
+    {
+        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
+
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_filter2d_view();
+        while (pipe->get_disable_filter2d_view_requested())
+            continue;
+
+        pipe_refresh();
+    }
 }
 
 // VALID
 void cancel_filter2d()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().filter2d_enabled = false;
 }
@@ -793,7 +775,7 @@ void cancel_filter2d()
 // VALID
 void set_fft_shift(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().fft_shift_enabled = value;
     pipe_refresh();
@@ -802,7 +784,7 @@ void set_fft_shift(const bool value)
 // VALID
 void set_time_transformation_size(std::function<void()> callback)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get());
     if (pipe)
@@ -812,7 +794,7 @@ void set_time_transformation_size(std::function<void()> callback)
 // VALID
 bool set_lens_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     bool res = false;
 
@@ -853,7 +835,7 @@ bool set_lens_view()
 // VALID
 void disable_lens_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().gpu_lens_display_enabled = false;
     get_compute_pipe()->request_disable_lens_view();
@@ -864,7 +846,7 @@ void disable_lens_view()
 // VALID
 void set_raw_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     auto pipe = get_compute_pipe();
     pipe->request_raw_view();
@@ -894,7 +876,7 @@ void set_raw_view()
 // VALID
 void disable_raw_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
@@ -920,7 +902,7 @@ void set_p_accu(bool is_p_accu, uint p_value)
 // VALID
 void set_x_accu(bool is_x_accu, uint x_value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().x_accu_enabled = is_x_accu;
     get_cd().x_acc_level = x_value;
     pipe_refresh();
@@ -929,7 +911,7 @@ void set_x_accu(bool is_x_accu, uint x_value)
 // VALID
 void set_y_accu(bool is_y_accu, uint y_value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().y_accu_enabled = is_y_accu;
     get_cd().y_acc_level = y_value;
     pipe_refresh();
@@ -938,7 +920,7 @@ void set_y_accu(bool is_y_accu, uint y_value)
 // VALID
 void set_x_y(uint x, uint y)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     const camera::FrameDescriptor& frame_descriptor = get_fd();
 
@@ -952,14 +934,14 @@ void set_x_y(uint x, uint y)
 // VALID
 void set_q(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().q_index = value;
 }
 
 // VALID
 void set_q_accu(bool is_q_accu, uint q_value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().q_acc_enabled = is_q_accu;
     get_cd().q_acc_level = q_value;
     pipe_refresh();
@@ -968,7 +950,7 @@ void set_q_accu(bool is_q_accu, uint q_value)
 // VALID
 void set_p(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().pindex = value;
     pipe_refresh();
@@ -977,7 +959,7 @@ void set_p(int value)
 // VALID
 void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_red = composite_p_red;
     get_cd().composite_p_blue = composite_p_blue;
     pipe_refresh();
@@ -986,7 +968,7 @@ void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 // VALID
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_min_h = composite_p_min_h;
     pipe_refresh();
 }
@@ -994,7 +976,7 @@ void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 // VALID
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_max_h = composite_p_max_h;
     pipe_refresh();
 }
@@ -1002,7 +984,7 @@ void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 // VALID
 void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_min_s = composite_p_min_s;
     pipe_refresh();
 }
@@ -1010,7 +992,7 @@ void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 // VALID
 void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_max_s = composite_p_max_s;
     pipe_refresh();
 }
@@ -1018,7 +1000,7 @@ void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 // VALID
 void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_min_v = composite_p_min_v;
     pipe_refresh();
 }
@@ -1026,7 +1008,7 @@ void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 // VALID
 void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_max_v = composite_p_max_v;
     pipe_refresh();
 }
@@ -1034,7 +1016,7 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 // VALID
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().weight_r = weight_r;
     get_cd().weight_g = weight_g;
     get_cd().weight_b = weight_b;
@@ -1044,14 +1026,14 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 // VALID
 void set_composite_auto_weights(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_auto_weights_ = value;
 }
 
 // VALID
 void select_composite_rgb()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().composite_kind = CompositeKind::RGB;
 }
@@ -1059,7 +1041,7 @@ void select_composite_rgb()
 // VALID
 void select_composite_hsv()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().composite_kind = CompositeKind::HSV;
 }
@@ -1067,28 +1049,28 @@ void select_composite_hsv()
 // VALID
 void actualize_frequency_channel_s(bool composite_p_activated_s)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_activated_s = composite_p_activated_s;
 }
 
 // VALID
 void actualize_frequency_channel_v(bool composite_p_activated_v)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().composite_p_activated_v = composite_p_activated_v;
 }
 
 // VALID
 void actualize_selection_h_gaussian_blur(bool h_blur_activated)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().h_blur_activated = h_blur_activated;
 }
 
 // VALID
 void actualize_kernel_size_blur(uint h_blur_kernel_size)
 {
-    LOG_INFO;
+    LOG_FUNC;
     get_cd().h_blur_kernel_size = h_blur_kernel_size;
 }
 
@@ -1113,7 +1095,7 @@ bool slide_update_threshold(
 // VALID
 void increment_p()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().pindex++;
 }
@@ -1121,7 +1103,7 @@ void increment_p()
 // VALID
 void decrement_p()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().pindex--;
 }
@@ -1129,7 +1111,7 @@ void decrement_p()
 // VALID
 void set_wavelength(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
 
@@ -1139,7 +1121,7 @@ void set_wavelength(const double value)
 // VALID
 void set_z(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().zdistance = static_cast<float>(value);
 
@@ -1149,7 +1131,7 @@ void set_z(const double value)
 // VALID
 void increment_z()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     set_z(get_cd().zdistance + UserInterfaceDescriptor::instance().z_step_);
 }
@@ -1157,7 +1139,7 @@ void increment_z()
 // VALID
 void decrement_z()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     set_z(get_cd().zdistance - UserInterfaceDescriptor::instance().z_step_);
 }
@@ -1165,14 +1147,14 @@ void decrement_z()
 // VALID
 void set_z_step(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     UserInterfaceDescriptor::instance().z_step_ = value;
 }
 
 // VALID
 void set_space_transformation(const std::string& value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (value == "None")
         get_cd().space_transformation = SpaceTransformation::None;
@@ -1191,7 +1173,7 @@ void set_space_transformation(const std::string& value)
 // VALID
 void set_time_transformation(const std::string& value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (value == "STFT")
         get_cd().time_transformation = TimeTransformation::STFT;
@@ -1216,7 +1198,7 @@ void adapt_time_transformation_stride_to_batch_size()
 // VALID
 void set_unwrapping_2d(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_compute_pipe()->request_unwrapping_2d(value);
 
@@ -1226,7 +1208,7 @@ void set_unwrapping_2d(const bool value)
 // VALID
 void set_accumulation(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().set_accumulation(get_cd().current_window, value);
 
@@ -1236,7 +1218,7 @@ void set_accumulation(bool value)
 // VALID
 void set_accumulation_level(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().set_accumulation_level(get_cd().current_window, value);
 
@@ -1246,14 +1228,14 @@ void set_accumulation_level(int value)
 // VALID
 void set_composite_area()
 {
-    LOG_INFO;
+    LOG_FUNC;
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
 
 // VALID
 void set_computation_mode(const Computation computation)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().compute_mode = computation;
 }
@@ -1261,7 +1243,7 @@ void set_computation_mode(const Computation computation)
 // VALID
 void close_critical_compute()
 {
-    LOG_INFO;
+    LOG_FUNC;
     if (get_cd().convolution_enabled)
         unset_convolution_mode();
 
@@ -1274,7 +1256,7 @@ void close_critical_compute()
 // VALID
 void stop_all_worker_controller()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     Holovibes::instance().stop_all_worker_controller();
 }
@@ -1282,7 +1264,7 @@ void stop_all_worker_controller()
 // VALID
 bool get_img_acc_slice_enabled()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_cd().get_img_acc_slice_enabled(api::get_current_window());
 }
@@ -1290,7 +1272,7 @@ bool get_img_acc_slice_enabled()
 // VALID
 unsigned get_img_acc_slice_level()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_cd().get_img_acc_slice_level(api::get_current_window());
 }
@@ -1298,7 +1280,7 @@ unsigned get_img_acc_slice_level()
 // VALID
 int get_gpu_input_queue_fd_width()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_fd().width;
 }
@@ -1306,7 +1288,7 @@ int get_gpu_input_queue_fd_width()
 // VALID
 int get_gpu_input_queue_fd_height()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_fd().height;
 }
@@ -1314,7 +1296,7 @@ int get_gpu_input_queue_fd_height()
 // VALID
 float get_boundary()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return Holovibes::instance().get_boundary();
 }
@@ -1326,7 +1308,7 @@ float get_boundary()
 // VALID
 void rotateTexture()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     const WindowKind curWin = get_cd().current_window;
 
@@ -1357,7 +1339,7 @@ void rotateTexture()
 // VALID
 void flipTexture()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     const WindowKind curWin = get_cd().current_window;
 
@@ -1385,7 +1367,7 @@ void flipTexture()
 // VALID
 void set_contrast_mode(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().contrast_enabled = value;
     get_cd().contrast_auto_refresh = true;
@@ -1395,7 +1377,7 @@ void set_contrast_mode(bool value)
 // VALID
 void set_auto_contrast_cuts()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
@@ -1407,7 +1389,7 @@ void set_auto_contrast_cuts()
 // VALID
 bool set_auto_contrast()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     try
     {
@@ -1446,7 +1428,7 @@ void set_auto_contrast_all()
 // VALID
 void set_contrast_min(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_cd().get_truncate_contrast_min(get_cd().current_window);
@@ -1462,7 +1444,7 @@ void set_contrast_min(const double value)
 // VALID
 void set_contrast_max(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_cd().get_truncate_contrast_max(get_cd().current_window);
@@ -1478,7 +1460,7 @@ void set_contrast_max(const double value)
 // VALID
 void invert_contrast(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().contrast_invert = value;
     pipe_refresh();
@@ -1487,7 +1469,7 @@ void invert_contrast(bool value)
 // VALID
 void set_auto_refresh_contrast(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().contrast_auto_refresh = value;
     pipe_refresh();
@@ -1496,7 +1478,7 @@ void set_auto_refresh_contrast(bool value)
 // VALID
 void set_log_scale(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().set_log_scale_slice_enabled(get_cd().current_window, value);
     if (value && get_cd().contrast_enabled)
@@ -1508,7 +1490,7 @@ void set_log_scale(const bool value)
 // VALID
 float get_contrast_min()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_cd().get_contrast_min(api::get_current_window());
 }
@@ -1516,7 +1498,7 @@ float get_contrast_min()
 // VALID
 float get_contrast_max()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_cd().get_contrast_max(api::get_current_window());
 }
@@ -1524,7 +1506,7 @@ float get_contrast_max()
 // VALID
 bool get_img_log_scale_slice_enabled()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     return get_cd().get_img_log_scale_slice_enabled(api::get_current_window());
 }
@@ -1536,7 +1518,7 @@ bool get_img_log_scale_slice_enabled()
 // VALID
 void update_convo_kernel(const std::string& value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().set_convolution(true, value);
 
@@ -1558,7 +1540,7 @@ void update_convo_kernel(const std::string& value)
 // VALID
 void set_convolution_mode(std::string& str)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().set_convolution(true, str);
 
@@ -1581,7 +1563,7 @@ void set_convolution_mode(std::string& str)
 // VALID
 void unset_convolution_mode()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     try
     {
@@ -1602,7 +1584,7 @@ void unset_convolution_mode()
 // VALID
 void set_divide_convolution_mode(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().divide_convolution_enabled = value;
 
@@ -1616,7 +1598,7 @@ void set_divide_convolution_mode(const bool value)
 // VALID
 void display_reticle(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().reticle_enabled = value;
     if (value)
@@ -1635,7 +1617,7 @@ void display_reticle(bool value)
 // VALID
 void reticle_scale(double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().reticle_scale = value;
     pipe_refresh();
@@ -1648,7 +1630,7 @@ void reticle_scale(double value)
 // VALID
 void activeNoiseZone()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
 }
@@ -1656,14 +1638,14 @@ void activeNoiseZone()
 // VALID
 void activeSignalZone()
 {
-    LOG_INFO;
+    LOG_FUNC;
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
 }
 
 // VALID
 void start_chart_display()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     auto pipe = get_compute_pipe();
     pipe->request_display_chart();
@@ -1681,7 +1663,7 @@ void start_chart_display()
 // VALID
 void stop_chart_display()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     try
     {
@@ -1710,7 +1692,7 @@ void set_record_frame_step(int value) { UserInterfaceDescriptor::instance().reco
 // VALID
 const std::string browse_record_output_file(std::string& std_filepath)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // FIXME: path separator should depend from system
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
@@ -1727,7 +1709,7 @@ const std::string browse_record_output_file(std::string& std_filepath)
 // VALID
 void set_record_mode(const std::string& text)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (text == "Chart")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
@@ -1745,7 +1727,7 @@ bool start_record_preconditions(const bool batch_enabled,
                                 std::optional<unsigned int> nb_frames_to_record,
                                 const std::string& batch_input_path)
 {
-    LOG_INFO;
+    LOG_FUNC;
     // Preconditions to start record
 
     if (!nb_frame_checked)
@@ -1774,7 +1756,7 @@ void start_record(const bool batch_enabled,
                   std::string& batch_input_path,
                   std::function<void()> callback)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (batch_enabled)
     {
@@ -1804,7 +1786,7 @@ void start_record(const bool batch_enabled,
 // VALID
 void stop_record()
 {
-    LOG_INFO;
+    LOG_FUNC;
     Holovibes::instance().stop_batch_gpib();
 
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
@@ -1817,7 +1799,7 @@ void stop_record()
 // VALID
 void record_finished()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     UserInterfaceDescriptor::instance().is_recording_ = false;
 }
@@ -1829,7 +1811,7 @@ void record_finished()
 // VALID
 void import_stop()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display(false);
@@ -1843,7 +1825,7 @@ void import_stop()
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_cd().is_computation_stopped = false;
     // Gather all the usefull data from the ui import panel
@@ -1853,7 +1835,7 @@ bool import_start(
 // VALID
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (!filename.empty())
     {
@@ -1873,14 +1855,14 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 void start_information_display(bool is_cli, const std::function<void()>& callback)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     Holovibes::instance().start_information_display(false, callback);
 }
 
 void set_display_info_text_function(const std::function<void(const std::string&)>& display_info_text_fun)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_info_container().set_display_info_text_function(display_info_text_fun);
 }
@@ -1888,7 +1870,7 @@ void set_display_info_text_function(const std::function<void(const std::string&)
 void set_update_progress_function(
     const std::function<void(InformationContainer::ProgressType, size_t, size_t)>& function)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     get_info_container().set_update_progress_function(function);
 }

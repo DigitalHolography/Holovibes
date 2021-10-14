@@ -188,7 +188,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    LOG_INFO;
+    LOG_FUNC;
     delete z_up_shortcut_;
     delete z_down_shortcut_;
     delete p_left_shortcut_;
@@ -218,13 +218,13 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
-    LOG_INFO;
+    LOG_FUNC;
     synchronize_thread([this]() { on_notify(); });
 }
 
 void MainWindow::on_notify()
 {
-    LOG_INFO;
+    LOG_FUNC;
     ui.InputBrowseToolButton->setEnabled(api::get_is_computation_stopped());
 
     // Tabs
@@ -452,8 +452,10 @@ void MainWindow::on_notify()
     // Filter2d
     ui.Filter2D->setEnabled(!is_raw);
     ui.Filter2D->setChecked(!is_raw && api::get_filter2d_enabled());
+
     ui.Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui.Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
+
     ui.Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui.Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui.Filter2DN1SpinBox->setMaximum(ui.Filter2DN2SpinBox->value() - 1);
@@ -538,7 +540,7 @@ void MainWindow::on_notify()
 
 void MainWindow::notify_error(const std::exception& e)
 {
-    LOG_INFO;
+    LOG_FUNC;
     const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
@@ -582,7 +584,7 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     synchronize_thread([=]() {
         // Resizing to original size, then adjust it to fit the groupboxes
@@ -593,7 +595,7 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     const std::string msg = api::get_credits();
 
@@ -606,7 +608,7 @@ void MainWindow::credits()
 
 void MainWindow::documentation()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QDesktopServices::openUrl(api::get_documentation_url());
 }
 
@@ -618,7 +620,7 @@ void MainWindow::documentation()
 // FREE
 void MainWindow::configure_holovibes()
 {
-    LOG_INFO;
+    LOG_FUNC;
     api::configure_holovibes();
 }
 
@@ -626,7 +628,7 @@ void MainWindow::configure_holovibes()
 // FREE
 void MainWindow::write_ini()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     save_ini(ini::get_global_ini_path());
 
@@ -637,7 +639,7 @@ void MainWindow::write_ini()
 // Notify
 void MainWindow::write_ini(QString filename)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     save_ini(filename.toStdString());
 
@@ -649,7 +651,7 @@ void MainWindow::write_ini(QString filename)
 // GUI
 void MainWindow::browse_export_ini()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
     write_ini(filename);
@@ -659,7 +661,7 @@ void MainWindow::browse_export_ini()
 // GUI
 void MainWindow::browse_import_ini()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
@@ -674,7 +676,7 @@ void MainWindow::browse_import_ini()
 // FREE
 void MainWindow::reload_ini()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     reload_ini("");
 }
@@ -683,7 +685,7 @@ void MainWindow::reload_ini()
 // Notify
 void MainWindow::reload_ini(QString filename)
 {
-    LOG_INFO;
+    LOG_FUNC;
     import_stop();
     try
     {
@@ -710,7 +712,7 @@ void MainWindow::reload_ini(QString filename)
 // GUI
 void MainWindow::load_ini(const std::string& path)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(path, ptree);
@@ -757,7 +759,7 @@ void MainWindow::load_ini(const std::string& path)
 // GUI
 void MainWindow::save_ini(const std::string& path)
 {
-    LOG_INFO;
+    LOG_FUNC;
     boost::property_tree::ptree ptree;
 
     GroupBox* image_rendering_group_box = ui.ImageRenderingGroupBox;
@@ -788,7 +790,7 @@ void MainWindow::save_ini(const std::string& path)
 // GUI
 void MainWindow::camera_none()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::camera_none();
 
@@ -806,7 +808,7 @@ void MainWindow::reset() { LOG_INFO; }
 // FREE
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     camera_none();
     save_ini(ini::get_global_ini_path());
@@ -819,7 +821,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 // GUI
 void MainWindow::change_camera(CameraKind c)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Weird call to setup none camera before changing
     camera_none();
@@ -847,7 +849,7 @@ void MainWindow::change_camera(CameraKind c)
 // FREE
 void MainWindow::camera_ids()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::IDS);
 }
 
@@ -855,7 +857,7 @@ void MainWindow::camera_ids()
 // FREE
 void MainWindow::camera_phantom()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::Phantom);
 }
 
@@ -863,7 +865,7 @@ void MainWindow::camera_phantom()
 // FREE
 void MainWindow::camera_bitflow_cyton()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::BitflowCyton);
 }
 
@@ -871,7 +873,7 @@ void MainWindow::camera_bitflow_cyton()
 // FREE
 void MainWindow::camera_hamamatsu()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::Hamamatsu);
 }
 
@@ -879,7 +881,7 @@ void MainWindow::camera_hamamatsu()
 // FREE
 void MainWindow::camera_adimec()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::Adimec);
 }
 
@@ -887,7 +889,7 @@ void MainWindow::camera_adimec()
 // FREE
 void MainWindow::camera_xiq()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::xiQ);
 }
 
@@ -895,7 +897,7 @@ void MainWindow::camera_xiq()
 // FREE
 void MainWindow::camera_xib()
 {
-    LOG_INFO;
+    LOG_FUNC;
     change_camera(CameraKind::xiB);
 }
 
@@ -903,7 +905,7 @@ void MainWindow::camera_xib()
 // FREE
 void MainWindow::configure_camera()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::configure_camera();
 }
@@ -915,7 +917,7 @@ void MainWindow::configure_camera()
 // Notify
 void MainWindow::set_raw_mode()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::close_windows();
     api::close_critical_compute();
@@ -933,7 +935,7 @@ void MainWindow::set_raw_mode()
 // FREE
 void MainWindow::createHoloWindow()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::createHoloWindow(*this);
 }
@@ -942,7 +944,7 @@ void MainWindow::createHoloWindow()
 // GUI
 void MainWindow::set_holographic_mode()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
@@ -972,7 +974,7 @@ void MainWindow::set_holographic_mode()
 // Notify
 void MainWindow::refreshViewMode()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::refreshViewMode(*this, ui.ViewModeComboBox->currentIndex());
 
@@ -1027,7 +1029,7 @@ std::function<void()> MainWindow::get_view_mode_callback()
 // FREE
 void MainWindow::set_view_mode(const QString value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1054,7 +1056,7 @@ void MainWindow::set_view_mode(const QString value)
 // GUI
 void MainWindow::set_image_mode(QString mode)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (mode != nullptr)
     {
@@ -1087,7 +1089,7 @@ void MainWindow::set_image_mode(const Computation computation)
 // GUI
 void MainWindow::update_batch_size()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1114,7 +1116,7 @@ void MainWindow::update_batch_size()
 // GUI
 void MainWindow::update_time_transformation_stride()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1141,7 +1143,7 @@ void MainWindow::update_time_transformation_stride()
 // GUI
 void MainWindow::toggle_time_transformation_cuts(bool checked)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     QComboBox* winSelection = ui.WindowSelectionComboBox;
     winSelection->setEnabled(checked);
@@ -1169,7 +1171,7 @@ void MainWindow::toggle_time_transformation_cuts(bool checked)
 // GUI
 void MainWindow::cancel_time_transformation_cuts()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (!api::get_time_transformation_cuts_enabled())
         return;
@@ -1200,7 +1202,7 @@ void MainWindow::cancel_time_transformation_cuts()
 // Notify
 void MainWindow::change_window()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::change_window(ui.WindowSelectionComboBox->currentIndex());
 
@@ -1211,7 +1213,7 @@ void MainWindow::change_window()
 // FREE
 void MainWindow::toggle_renormalize(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::toggle_renormalize(value);
 }
@@ -1219,7 +1221,7 @@ void MainWindow::toggle_renormalize(bool value)
 // GUI
 void MainWindow::set_filter2d(bool checked)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1245,14 +1247,14 @@ void MainWindow::set_filter2d(bool checked)
 
 void MainWindow::set_filter2d_n1(int n1)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_filter2d_n1(n1);
 }
 
 void MainWindow::set_filter2d_n2(int n2)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_filter2d_n2(n2);
 }
@@ -1260,9 +1262,7 @@ void MainWindow::set_filter2d_n2(int n2)
 // GUI
 void MainWindow::disable_filter2d_view()
 {
-    LOG_INFO;
-
-    api::disable_filter2d_view();
+    LOG_FUNC;
 
     if (UserInterfaceDescriptor::instance().filter2d_window)
     {
@@ -1273,8 +1273,10 @@ void MainWindow::disable_filter2d_view()
                    SLOT(disable_filter2d_view()));
     }
 
+    api::disable_filter2d_view();
+
     // Change the focused window
-    change_window();
+    // change_window();
 
     notify();
 }
@@ -1282,27 +1284,25 @@ void MainWindow::disable_filter2d_view()
 // GUI
 void MainWindow::update_filter2d_view(bool checked)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
-    const std::optional<bool> res = api::update_filter2d_view(*this, checked);
+    if (api::is_raw_mode())
+        return;
 
-    if (res.has_value())
+    if (checked)
     {
-        if (res.value())
-        {
-            connect(UserInterfaceDescriptor::instance().filter2d_window.get(),
-                    SIGNAL(destroyed()),
-                    this,
-                    SLOT(disable_filter2d_view()));
-        }
-        notify();
+        api::set_filter2d_view(*this);
+    }
+    else
+    {
+        disable_filter2d_view();
     }
 }
 
 // Notify
 void MainWindow::cancel_filter2d()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1319,7 +1319,7 @@ void MainWindow::cancel_filter2d()
 // FREE
 void MainWindow::set_fft_shift(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1330,7 +1330,7 @@ void MainWindow::set_fft_shift(const bool value)
 // GUI
 void MainWindow::set_time_transformation_size()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1357,7 +1357,7 @@ void MainWindow::set_time_transformation_size()
 // GUI
 void MainWindow::update_lens_view(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     api::set_gpu_lens_display_enabled(value);
 
     if (value)
@@ -1382,7 +1382,7 @@ void MainWindow::update_lens_view(bool value)
 // GUI
 void MainWindow::disable_lens_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (UserInterfaceDescriptor::instance().lens_window)
         disconnect(UserInterfaceDescriptor::instance().lens_window.get(),
@@ -1399,7 +1399,7 @@ void MainWindow::disable_lens_view()
 // GUI
 void MainWindow::update_raw_view(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (value)
     {
@@ -1421,7 +1421,7 @@ void MainWindow::update_raw_view(bool value)
 // GUI
 void MainWindow::disable_raw_view()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (UserInterfaceDescriptor::instance().raw_window)
         disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
@@ -1438,7 +1438,7 @@ void MainWindow::disable_raw_view()
 // Notify
 void MainWindow::set_p_accu()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_p_accu(ui.PAccuCheckBox->isChecked(), ui.PAccSpinBox->value());
 
@@ -1449,7 +1449,7 @@ void MainWindow::set_p_accu()
 // Notify
 void MainWindow::set_x_accu()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_x_accu(ui.XAccuCheckBox->isChecked(), ui.XAccSpinBox->value());
 
@@ -1460,7 +1460,7 @@ void MainWindow::set_x_accu()
 // Notify
 void MainWindow::set_y_accu()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_y_accu(ui.YAccuCheckBox->isChecked(), ui.YAccSpinBox->value());
 
@@ -1471,7 +1471,7 @@ void MainWindow::set_y_accu()
 // FREE
 void MainWindow::set_x_y()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_x_y(ui.XSpinBox->value(), ui.YSpinBox->value());
 }
@@ -1480,7 +1480,7 @@ void MainWindow::set_x_y()
 // Notify
 void MainWindow::set_q(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_q(value);
 
@@ -1491,7 +1491,7 @@ void MainWindow::set_q(int value)
 // Notify
 void MainWindow::set_q_acc()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_q_accu(ui.Q_AccuCheckBox->isChecked(), ui.Q_AccSpinBox->value());
 
@@ -1502,7 +1502,7 @@ void MainWindow::set_q_acc()
 // Notify
 void MainWindow::set_p(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1522,7 +1522,7 @@ void MainWindow::set_p(int value)
 // GUI
 void MainWindow::set_composite_intervals()
 {
-    LOG_INFO;
+    LOG_FUNC;
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
 
@@ -1535,7 +1535,7 @@ void MainWindow::set_composite_intervals()
 // Notify
 void MainWindow::set_composite_intervals_hsv_h_min()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_h_min(ui.SpinBox_hue_freq_min->value());
 
@@ -1546,7 +1546,7 @@ void MainWindow::set_composite_intervals_hsv_h_min()
 // Notify
 void MainWindow::set_composite_intervals_hsv_h_max()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_h_max(ui.SpinBox_hue_freq_max->value());
 
@@ -1557,7 +1557,7 @@ void MainWindow::set_composite_intervals_hsv_h_max()
 // Notify
 void MainWindow::set_composite_intervals_hsv_s_min()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_s_min(ui.SpinBox_saturation_freq_min->value());
 
@@ -1568,7 +1568,7 @@ void MainWindow::set_composite_intervals_hsv_s_min()
 // Notify
 void MainWindow::set_composite_intervals_hsv_s_max()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_s_max(ui.SpinBox_saturation_freq_max->value());
 
@@ -1579,7 +1579,7 @@ void MainWindow::set_composite_intervals_hsv_s_max()
 // Notify
 void MainWindow::set_composite_intervals_hsv_v_min()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_v_min(ui.SpinBox_value_freq_min->value());
 
@@ -1590,7 +1590,7 @@ void MainWindow::set_composite_intervals_hsv_v_min()
 // Notify
 void MainWindow::set_composite_intervals_hsv_v_max()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_intervals_hsv_v_max(ui.SpinBox_value_freq_max->value());
 
@@ -1601,7 +1601,7 @@ void MainWindow::set_composite_intervals_hsv_v_max()
 // Notify
 void MainWindow::set_composite_weights()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_weights(ui.WeightSpinBox_R->value(), ui.WeightSpinBox_G->value(), ui.WeightSpinBox_B->value());
 
@@ -1612,7 +1612,7 @@ void MainWindow::set_composite_weights()
 // FREE
 void MainWindow::set_composite_auto_weights(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_auto_weights(value);
     set_auto_contrast();
@@ -1622,7 +1622,7 @@ void MainWindow::set_composite_auto_weights(bool value)
 // GUI
 void MainWindow::click_composite_rgb_or_hsv()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (ui.radioButton_rgb->isChecked())
     {
@@ -1648,7 +1648,7 @@ void MainWindow::click_composite_rgb_or_hsv()
 // GUI
 void MainWindow::actualize_frequency_channel_s()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::actualize_frequency_channel_s(ui.checkBox_saturation_freq->isChecked());
 
@@ -1660,7 +1660,7 @@ void MainWindow::actualize_frequency_channel_s()
 // GUI
 void MainWindow::actualize_frequency_channel_v()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::actualize_frequency_channel_v(ui.checkBox_value_freq->isChecked());
 
@@ -1672,7 +1672,7 @@ void MainWindow::actualize_frequency_channel_v()
 // GUI
 void MainWindow::actualize_checkbox_h_gaussian_blur()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::actualize_selection_h_gaussian_blur(ui.checkBox_h_gaussian_blur->isChecked());
 
@@ -1683,7 +1683,7 @@ void MainWindow::actualize_checkbox_h_gaussian_blur()
 // FREE
 void MainWindow::actualize_kernel_size_blur()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::actualize_kernel_size_blur(ui.SpinBox_hue_blur_kernel_size->value());
 }
@@ -1717,8 +1717,6 @@ void slide_update_threshold(const QSlider& slider,
                             const float& upper_bound)
 {
 
-    LOG_INFO;
-
     const bool res = api::slide_update_threshold(slider.value(), receiver, bound_to_update, lower_bound, upper_bound);
 
     char array[10];
@@ -1734,7 +1732,6 @@ void slide_update_threshold(const QSlider& slider,
 // FREE
 void MainWindow::slide_update_threshold_h_min()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_h_threshold_min();
     float bound_to_update = api::get_slider_h_threshold_max();
@@ -1755,7 +1752,6 @@ void MainWindow::slide_update_threshold_h_min()
 // FREE
 void MainWindow::slide_update_threshold_h_max()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_h_threshold_max();
     float bound_to_update = api::get_slider_h_threshold_min();
@@ -1776,7 +1772,6 @@ void MainWindow::slide_update_threshold_h_max()
 // FREE
 void MainWindow::slide_update_threshold_s_min()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_s_threshold_min();
     float bound_to_update = api::get_slider_s_threshold_max();
@@ -1797,7 +1792,6 @@ void MainWindow::slide_update_threshold_s_min()
 // FREE
 void MainWindow::slide_update_threshold_s_max()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_s_threshold_max();
     float bound_to_update = api::get_slider_s_threshold_min();
@@ -1818,7 +1812,6 @@ void MainWindow::slide_update_threshold_s_max()
 // FREE
 void MainWindow::slide_update_threshold_v_min()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_v_threshold_min();
     float bound_to_update = api::get_slider_v_threshold_max();
@@ -1839,7 +1832,6 @@ void MainWindow::slide_update_threshold_v_min()
 // FREE
 void MainWindow::slide_update_threshold_v_max()
 {
-    LOG_INFO;
 
     float receiver = api::get_slider_v_threshold_max();
     float bound_to_update = api::get_slider_v_threshold_min();
@@ -1860,7 +1852,7 @@ void MainWindow::slide_update_threshold_v_max()
 // Notify
 void MainWindow::increment_p()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1881,7 +1873,7 @@ void MainWindow::increment_p()
 // Notify
 void MainWindow::decrement_p()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1902,7 +1894,7 @@ void MainWindow::decrement_p()
 // FREE
 void MainWindow::set_wavelength(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1914,7 +1906,7 @@ void MainWindow::set_wavelength(const double value)
 // FREE
 void MainWindow::set_z(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1926,7 +1918,7 @@ void MainWindow::set_z(const double value)
 // GUI
 void MainWindow::increment_z()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1940,7 +1932,7 @@ void MainWindow::increment_z()
 // GUI
 void MainWindow::decrement_z()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1954,7 +1946,7 @@ void MainWindow::decrement_z()
 // GUI
 void MainWindow::set_z_step(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_z_step(value);
 
@@ -1965,7 +1957,7 @@ void MainWindow::set_z_step(const double value)
 // FREE
 void MainWindow::set_space_transformation(const QString value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1979,7 +1971,7 @@ void MainWindow::set_space_transformation(const QString value)
 // FREE
 void MainWindow::set_time_transformation(QString value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -1993,7 +1985,7 @@ void MainWindow::set_time_transformation(QString value)
 // Notify
 void MainWindow::set_unwrapping_2d(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2007,7 +1999,7 @@ void MainWindow::set_unwrapping_2d(const bool value)
 // Notify
 void MainWindow::set_accumulation(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2021,7 +2013,7 @@ void MainWindow::set_accumulation(bool value)
 // FREE
 void MainWindow::set_accumulation_level(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2033,7 +2025,7 @@ void MainWindow::set_accumulation_level(int value)
 // FREE
 void MainWindow::set_composite_area()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_composite_area();
 }
@@ -2046,7 +2038,7 @@ void MainWindow::set_composite_area()
 // Notify
 void MainWindow::rotateTexture()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::rotateTexture();
 
@@ -2057,7 +2049,7 @@ void MainWindow::rotateTexture()
 // Notify
 void MainWindow::flipTexture()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::flipTexture();
 
@@ -2072,7 +2064,7 @@ void MainWindow::flipTexture()
 // Notify
 void MainWindow::set_contrast_mode(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     change_window();
 
@@ -2088,7 +2080,7 @@ void MainWindow::set_contrast_mode(bool value)
 // FREE
 void MainWindow::set_auto_contrast_cuts()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_auto_contrast_cuts();
 }
@@ -2097,7 +2089,6 @@ void MainWindow::set_auto_contrast_cuts()
 // GUI
 void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 {
-    LOG_INFO;
     spinBox->blockSignals(true);
     spinBox->setValue(value);
     spinBox->blockSignals(false);
@@ -2107,7 +2098,6 @@ void MainWindow::QSpinBoxQuietSetValue(QSpinBox* spinBox, int value)
 // GUI
 void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
 {
-    LOG_INFO;
     slider->blockSignals(true);
     slider->setValue(value);
     slider->blockSignals(false);
@@ -2117,7 +2107,6 @@ void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
 // GUI
 void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value)
 {
-    LOG_INFO;
     spinBox->blockSignals(true);
     spinBox->setValue(value);
     spinBox->blockSignals(false);
@@ -2127,7 +2116,7 @@ void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double val
 // FREE
 void MainWindow::set_auto_contrast()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2139,7 +2128,7 @@ void MainWindow::set_auto_contrast()
 // FREE
 void MainWindow::set_auto_contrast_all()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_auto_contrast_all();
 }
@@ -2148,7 +2137,7 @@ void MainWindow::set_auto_contrast_all()
 // FREE
 void MainWindow::set_contrast_min(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2163,7 +2152,7 @@ void MainWindow::set_contrast_min(const double value)
 // FREE
 void MainWindow::set_contrast_max(const double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2178,7 +2167,7 @@ void MainWindow::set_contrast_max(const double value)
 // FREE
 void MainWindow::invert_contrast(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2193,7 +2182,7 @@ void MainWindow::invert_contrast(bool value)
 // Notify
 void MainWindow::set_auto_refresh_contrast(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_auto_refresh_contrast(value);
 
@@ -2204,7 +2193,7 @@ void MainWindow::set_auto_refresh_contrast(bool value)
 // Notify
 void MainWindow::set_log_scale(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::is_raw_mode())
         return;
@@ -2221,7 +2210,7 @@ void MainWindow::set_log_scale(const bool value)
 // Notify
 void MainWindow::update_convo_kernel(const QString& value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (!api::get_convolution_enabled())
         return;
@@ -2235,7 +2224,7 @@ void MainWindow::update_convo_kernel(const QString& value)
 // Notify
 void MainWindow::set_convolution_mode(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (value)
     {
@@ -2255,7 +2244,7 @@ void MainWindow::set_convolution_mode(const bool value)
 // Notify
 void MainWindow::set_divide_convolution_mode(const bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_divide_convolution_mode(value);
 
@@ -2270,7 +2259,7 @@ void MainWindow::set_divide_convolution_mode(const bool value)
 // Notify
 void MainWindow::display_reticle(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::display_reticle(value);
 
@@ -2281,7 +2270,7 @@ void MainWindow::display_reticle(bool value)
 // FREE
 void MainWindow::reticle_scale(double value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (0 > value || value > 1)
         return;
@@ -2296,7 +2285,7 @@ void MainWindow::reticle_scale(double value)
 // Notify
 void MainWindow::activeSignalZone()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::activeSignalZone();
 
@@ -2307,7 +2296,7 @@ void MainWindow::activeSignalZone()
 // Notify
 void MainWindow::activeNoiseZone()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::activeNoiseZone();
 
@@ -2318,7 +2307,7 @@ void MainWindow::activeNoiseZone()
 // GUI
 void MainWindow::start_chart_display()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (api::get_chart_display_enabled())
         return;
@@ -2337,7 +2326,7 @@ void MainWindow::start_chart_display()
 // GUI
 void MainWindow::stop_chart_display()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     if (!api::get_chart_display_enabled())
         return;
@@ -2354,7 +2343,7 @@ void MainWindow::stop_chart_display()
 // GUI
 void MainWindow::set_record_frame_step(int value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     api::set_record_frame_step(value);
 
@@ -2365,7 +2354,7 @@ void MainWindow::set_record_frame_step(int value)
 // GUI
 void MainWindow::set_nb_frames_mode(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     ui.NumberOfFramesSpinBox->setEnabled(value);
 }
@@ -2374,7 +2363,7 @@ void MainWindow::set_nb_frames_mode(bool value)
 // GUI
 void MainWindow::browse_record_output_file()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QString filepath;
 
     // Open file explorer dialog on the fly depending on the record mode
@@ -2419,7 +2408,7 @@ void MainWindow::browse_record_output_file()
 // GUI
 void MainWindow::browse_batch_input()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Open file explorer on the fly
     QString filename = QFileDialog::getOpenFileName(this,
@@ -2437,7 +2426,7 @@ void MainWindow::browse_batch_input()
 // GUI
 void MainWindow::set_record_mode(const QString& value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         stop_chart_display();
 
@@ -2496,7 +2485,7 @@ void MainWindow::set_record_mode(const QString& value)
 // FREE
 void MainWindow::stop_record()
 {
-    LOG_INFO;
+    LOG_FUNC;
     api::stop_record();
 }
 
@@ -2504,7 +2493,7 @@ void MainWindow::stop_record()
 // GUI
 void MainWindow::record_finished(RecordMode record_mode)
 {
-    LOG_INFO;
+    LOG_FUNC;
     std::string info;
 
     if (record_mode == RecordMode::CHART)
@@ -2529,7 +2518,7 @@ void MainWindow::record_finished(RecordMode record_mode)
 // GUI
 void MainWindow::start_record()
 {
-    LOG_INFO;
+    LOG_FUNC;
     bool batch_enabled = ui.BatchGroupBox->isChecked();
     bool nb_frame_checked = ui.NumberOfFramesCheckBox->isChecked();
     std::optional<unsigned int> nb_frames_to_record = std::nullopt;
@@ -2579,7 +2568,7 @@ void MainWindow::start_record()
 // GUI
 void MainWindow::set_start_stop_buttons(bool value)
 {
-    LOG_INFO;
+    LOG_FUNC;
     ui.ImportStartPushButton->setEnabled(value);
     ui.ImportStopPushButton->setEnabled(value);
 }
@@ -2588,7 +2577,7 @@ void MainWindow::set_start_stop_buttons(bool value)
 // GUI
 void MainWindow::import_browse_file()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QString filename = "";
     // Open the file explorer to let the user pick his file
     // and store the chosen file in filename
@@ -2649,7 +2638,7 @@ void MainWindow::import_browse_file()
 // GUI
 void MainWindow::import_stop()
 {
-    LOG_INFO;
+    LOG_FUNC;
     api::close_windows();
     // cancel_time_transformation_cuts();
 
@@ -2665,7 +2654,7 @@ void MainWindow::import_stop()
 // GUI
 void MainWindow::import_start()
 {
-    LOG_INFO;
+    LOG_FUNC;
 
     // Check if computation is currently running
     if (!api::get_is_computation_stopped())
@@ -2717,7 +2706,7 @@ void MainWindow::import_start()
 // GUI
 void MainWindow::import_start_spinbox_update()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
@@ -2729,7 +2718,7 @@ void MainWindow::import_start_spinbox_update()
 // GUI
 void MainWindow::import_end_spinbox_update()
 {
-    LOG_INFO;
+    LOG_FUNC;
     QSpinBox* start_spinbox = ui.ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui.ImportEndIndexSpinBox;
 
@@ -2745,7 +2734,7 @@ void MainWindow::import_end_spinbox_update()
 // GUI
 void MainWindow::set_night()
 {
-    LOG_INFO;
+    LOG_FUNC;
     // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
@@ -2776,7 +2765,7 @@ void MainWindow::set_night()
 // GUI
 void MainWindow::set_classic()
 {
-    LOG_INFO;
+    LOG_FUNC;
     qApp->setPalette(this->style()->standardPalette());
     // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
@@ -2791,14 +2780,14 @@ void MainWindow::set_classic()
 // LOCAL
 RawWindow* MainWindow::get_main_display()
 {
-    LOG_INFO;
+    LOG_FUNC;
     return UserInterfaceDescriptor::instance().mainDisplay.get();
 }
 
 // GUI
 void MainWindow::update_file_reader_index(int n)
 {
-    LOG_INFO;
+    LOG_FUNC;
     auto lambda = [this, n]() { ui.FileReaderProgressBar->setValue(n); };
     synchronize_thread(lambda);
 }

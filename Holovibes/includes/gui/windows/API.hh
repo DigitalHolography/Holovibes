@@ -531,7 +531,7 @@ bool set_lens_view();
 /*! \brief Removes lens view */
 void disable_lens_view();
 
-/*! \brief Adds or removes raw view */
+/*! \brief Adds raw view */
 void set_raw_view();
 
 /*! \brief Removes raw view */
@@ -552,22 +552,20 @@ void cancel_filter2d();
  */
 void set_fft_shift(const bool value);
 
-/*! \brief Adds or removes filter 2d view
+/*! \brief Adds filter2d view
  *
- * \param mainwindow FIXME: bridge between API and MainWindow before MainWindow's methods moved to API
- * \param checked true: enable, false: disable
- * \return std::optional<bool> nullopt: on anticipated return, false: on failure, true: on success
+ * \param observer
  */
-std::optional<bool> update_filter2d_view(gui::MainWindow& mainwindow, bool checked);
+void set_filter2d_view(gui::MainWindow& observer);
+
+/*! \brief Adds or removes filter 2d view */
+void disable_filter2d_view();
 
 /*! \brief Changes the focused windows
  *
  * \param index the index representing the window to select
  */
 void change_window(const int index);
-
-/*! \brief Adds or removes filter 2d view */
-void disable_filter2d_view();
 
 /*! \brief Deactivates filter2d view */
 void set_filter2d();
