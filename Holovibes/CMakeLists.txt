@@ -86,7 +86,8 @@ add_subdirectory(cuda_sources) # Add cuda sources to the target
 add_library("${PROJECT_NAME}_lib" STATIC
      # CMake will automatically generate C++ headers
      # (ui_xxx.h) from the following QT .ui files.
-     # Do not forget to add the relevent .cc in the appropriate CMakeList
+     # Add the relevent .hh in Holovibes/includes/CMakeList.txt
+
      mainwindow.ui
      advancedsettingswindow.ui
      plotwindow.ui
