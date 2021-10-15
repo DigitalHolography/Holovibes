@@ -105,7 +105,7 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.space_transformation = get_value(meta_data_, "algorithm", cd.space_transformation.load());
     cd.time_transformation = get_value(meta_data_, "time_filter", cd.time_transformation.load());
     cd.time_transformation_size = get_value(meta_data_, "#img", cd.time_transformation_size.load());
-    cd.p_index = get_value(meta_data_, "p", cd.p_index.load());
+    cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
     cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
@@ -113,12 +113,12 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.contrast_min_slice_xy = get_value(meta_data_, "contrast_min", cd.contrast_min_slice_xy.load());
     cd.contrast_max_slice_xy = get_value(meta_data_, "contrast_max", cd.contrast_max_slice_xy.load());
     cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
-    cd.x_accu_enabled = get_value(meta_data_, "x_acc_enabled", cd.x_accu_enabled.load());
-    cd.x_acc_level = get_value(meta_data_, "x_acc_level", cd.x_acc_level.load());
-    cd.y_accu_enabled = get_value(meta_data_, "y_acc_enabled", cd.y_accu_enabled.load());
-    cd.y_acc_level = get_value(meta_data_, "y_acc_level", cd.y_acc_level.load());
-    cd.p_accu_enabled = get_value(meta_data_, "p_acc_enabled", cd.p_accu_enabled.load());
-    cd.p_acc_level = get_value(meta_data_, "p_acc_level", cd.p_acc_level.load());
+    cd.x.accu_enabled = get_value(meta_data_, "x_acc_enabled", cd.x.accu_enabled.load());
+    cd.x.accu_level = get_value(meta_data_, "x_acc_level", cd.x.accu_level.load());
+    cd.y.accu_enabled = get_value(meta_data_, "y_acc_enabled", cd.y.accu_enabled.load());
+    cd.y.accu_level = get_value(meta_data_, "y_acc_level", cd.y.accu_level.load());
+    cd.p.accu_enabled = get_value(meta_data_, "p_acc_enabled", cd.p.accu_enabled.load());
+    cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level.load());
     cd.img_acc_slice_xy_enabled = get_value(meta_data_, "img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load());
     cd.img_acc_slice_xz_enabled = get_value(meta_data_, "img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load());
     cd.img_acc_slice_yz_enabled = get_value(meta_data_, "img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load());

@@ -257,8 +257,8 @@ void FourierTransform::insert_ssa_stft()
 
         // filter eigen vectors
         // only keep vectors between q and q + q_acc
-        int q = cd_.q_acc_enabled ? cd_.q_index.load() : 0;
-        int q_acc = cd_.q_acc_enabled ? cd_.q_acc_level.load() : cd_.time_transformation_size.load();
+        int q = cd_.q.accu_enabled ? cd_.q.index.load() : 0;
+        int q_acc = cd_.q.accu_enabled ? cd_.q.accu_level.load() : cd_.time_transformation_size.load();
         int q_index = q * cd_.time_transformation_size;
         int q_acc_index = q_acc * cd_.time_transformation_size;
         cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
@@ -297,7 +297,7 @@ void FourierTransform::insert_store_p_frame()
         /* Copies with DeviceToDevice (which is the case here) are asynchronous
          * with respect to the host but never overlap with kernel execution*/
         cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
-                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + cd_.p_index * frame_res,
+                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + cd_.p.index * frame_res,
                          sizeof(cuComplex) * frame_res,
                          cudaMemcpyDeviceToDevice,
                          stream_);
@@ -316,10 +316,10 @@ void FourierTransform::insert_time_transformation_cuts_view()
             // window
             const ushort width = fd_.width;
             const ushort height = fd_.height;
-            if (cd_.x_cuts < width && cd_.y_cuts < height)
+            if (cd_.x.cuts < width && cd_.y.cuts < height)
             {
-                mouse_posx = cd_.x_cuts;
-                mouse_posy = cd_.y_cuts;
+                mouse_posx = cd_.x.cuts;
+                mouse_posy = cd_.y.cuts;
             }
             // -----------------------------------------------------
             time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
@@ -327,8 +327,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            buffers_.gpu_postprocess_frame_yz.get(),
                                            mouse_posx,
                                            mouse_posy,
-                                           mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),
-                                           mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
+                                           mouse_posx + (cd_.x.accu_enabled ? cd_.x.accu_level.load() : 0),
+                                           mouse_posy + (cd_.y.accu_enabled ? cd_.y.accu_level.load() : 0),
                                            width,
                                            height,
                                            cd_.time_transformation_size,

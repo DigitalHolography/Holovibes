@@ -14,6 +14,7 @@ ComputeDescriptor::ComputeDescriptor()
 
 ComputeDescriptor::~ComputeDescriptor() {}
 
+// FIXME
 ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 {
     is_computation_stopped = is_computation_stopped.load();
@@ -21,9 +22,9 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     space_transformation = cd.space_transformation.load();
     time_transformation = cd.time_transformation.load();
     time_transformation_size = cd.time_transformation_size.load();
-    p_index = cd.p_index.load();
-    p_acc_level = cd.p_acc_level.load();
-    p_accu_enabled = cd.p_accu_enabled.load();
+    p.index = cd.p.index.load();
+    p.accu_level = cd.p.accu_level.load();
+    p.accu_enabled = cd.p.accu_enabled.load();
     lambda = cd.lambda.load();
     zdistance = cd.zdistance.load();
     img_type = cd.img_type.load();
@@ -359,19 +360,19 @@ void ComputeDescriptor::check_p_limits()
 {
     uint upper_bound = time_transformation_size - 1;
 
-    if (p_acc_level > upper_bound)
+    if (p.accu_level > upper_bound)
     {
-        p_acc_level = upper_bound;
+        p.accu_level = upper_bound;
     }
 
-    if (p_accu_enabled)
+    if (p.accu_enabled)
     {
-        upper_bound -= p_acc_level;
+        upper_bound -= p.accu_level;
     }
 
-    if (p_index > upper_bound)
+    if (p.index > upper_bound)
     {
-        p_index = upper_bound;
+        p.index = upper_bound;
     }
 }
 
@@ -379,19 +380,19 @@ void ComputeDescriptor::check_q_limits()
 {
     uint upper_bound = time_transformation_size - 1;
 
-    if (q_acc_level > upper_bound)
+    if (q.accu_level > upper_bound)
     {
-        q_acc_level = upper_bound;
+        q.accu_level = upper_bound;
     }
 
-    if (q_acc_enabled)
+    if (q.accu_enabled)
     {
-        upper_bound -= q_acc_level;
+        upper_bound -= q.accu_level;
     }
 
-    if (q_index > upper_bound)
+    if (q.index > upper_bound)
     {
-        q_index = upper_bound;
+        q.index = upper_bound;
     }
 }
 
@@ -447,7 +448,7 @@ void ComputeDescriptor::adapt_time_transformation_stride()
 
 void ComputeDescriptor::handle_update_exception()
 {
-    p_index = 0;
+    p.index = 0;
     time_transformation_size = 1;
     convolution_enabled = false;
 }
@@ -524,21 +525,23 @@ void ComputeDescriptor::set_x_cuts(int value)
 {
     auto& holo = Holovibes::instance();
     const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value > fd.width)
-        x_cuts = value;
+    if (value < fd.width)
+        x.cuts = value;
 }
 
 void ComputeDescriptor::set_y_cuts(int value)
 {
     auto& holo = Holovibes::instance();
     const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value > fd.height)
-        y_cuts = value;
+    if (value < fd.height)
+        y.cuts = value;
+
+    // LOG_INFO << __func__ << " " << y.cuts;
 }
 
-void ComputeDescriptor::set_p_index(int value) { p_index = value; }
+void ComputeDescriptor::set_p_index(int value) { p.index = value; }
 
-void ComputeDescriptor::set_q_index(int value) { q_index = value; }
+void ComputeDescriptor::set_q_index(int value) { q.index = value; }
 
 void ComputeDescriptor::set_lambda(float value) { lambda = value; }
 
@@ -579,28 +582,28 @@ void ComputeDescriptor::set_h_blur_activated(bool value) { h_blur_activated = va
 
 void ComputeDescriptor::set_h_blur_kernel_size(int value) { h_blur_kernel_size = value; }
 
-void ComputeDescriptor::set_p_accu(bool enabled, int level)
-{
-    p_accu_enabled = enabled;
-    p_acc_level = level;
-}
-
 void ComputeDescriptor::set_x_accu(bool enabled, int level)
 {
-    x_accu_enabled = enabled;
-    x_acc_level = level;
+    x.accu_enabled = enabled;
+    x.accu_level = level;
 }
 
 void ComputeDescriptor::set_y_accu(bool enabled, int level)
 {
-    y_accu_enabled = enabled;
-    y_acc_level = level;
+    y.accu_enabled = enabled;
+    y.accu_level = level;
+}
+
+void ComputeDescriptor::set_p_accu(bool enabled, int level)
+{
+    p.accu_enabled = enabled;
+    p.accu_level = level;
 }
 
 void ComputeDescriptor::set_q_accu(bool enabled, int level)
 {
-    q_acc_enabled = enabled;
-    q_acc_level = level;
+    q.accu_enabled = enabled;
+    q.accu_level = level;
 }
 
 void ComputeDescriptor::change_angle(std::atomic<float>& var) { var = (var == 270.f) ? 0.f : var + 90.f; }
@@ -634,7 +637,7 @@ void ComputeDescriptor::reset_windows_display()
 
 void ComputeDescriptor::reset_gui()
 {
-    p_index = 0;
+    p.index = 0;
     time_transformation_size = 1;
 }
 

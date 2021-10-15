@@ -336,17 +336,17 @@ void MainWindow::on_notify()
 
     // p accu
     ui.PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
-    ui.PAccuCheckBox->setChecked(cd_.p_accu_enabled);
+    ui.PAccuCheckBox->setChecked(cd_.p.accu_enabled);
     ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
 
     cd_.check_p_limits();
-    ui.PAccSpinBox->setValue(cd_.p_acc_level);
-    ui.PSpinBox->setValue(cd_.p_index);
+    ui.PAccSpinBox->setValue(cd_.p.accu_level);
+    ui.PSpinBox->setValue(cd_.p.index);
     ui.PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
-    if (cd_.p_accu_enabled)
+    if (cd_.p.accu_enabled)
     {
-        ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_index - 1);
+        ui.PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p.accu_level - 1);
+        ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.p.index - 1);
     }
     else
     {
@@ -360,16 +360,16 @@ void MainWindow::on_notify()
     ui.Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
     ui.Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
-    ui.Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
+    ui.Q_AccuCheckBox->setChecked(cd_.q.accu_enabled);
     ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
 
     cd_.check_q_limits();
-    ui.Q_AccSpinBox->setValue(cd_.q_acc_level);
-    ui.Q_SpinBox->setValue(cd_.q_index);
-    if (cd_.q_acc_enabled)
+    ui.Q_AccSpinBox->setValue(cd_.q.accu_level);
+    ui.Q_SpinBox->setValue(cd_.q.index);
+    if (cd_.q.accu_enabled)
     {
-        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
-        ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
+        ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q.accu_level - 1);
+        ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q.index - 1);
     }
     else
     {
@@ -377,10 +377,10 @@ void MainWindow::on_notify()
     }
 
     // XY accu
-    ui.XAccuCheckBox->setChecked(cd_.x_accu_enabled);
-    ui.XAccSpinBox->setValue(cd_.x_acc_level);
-    ui.YAccuCheckBox->setChecked(cd_.y_accu_enabled);
-    ui.YAccSpinBox->setValue(cd_.y_acc_level);
+    ui.XAccuCheckBox->setChecked(cd_.x.accu_enabled);
+    ui.XAccSpinBox->setValue(cd_.x.accu_level);
+    ui.YAccuCheckBox->setChecked(cd_.y.accu_enabled);
+    ui.YAccSpinBox->setValue(cd_.y.accu_level);
 
     int max_width = 0;
     int max_height = 0;
@@ -391,13 +391,15 @@ void MainWindow::on_notify()
     }
     else
     {
-        cd_.x_cuts = 0;
-        cd_.y_cuts = 0;
+        cd_.x.cuts = 0;
+        cd_.y.cuts = 0;
+
+        LOG_INFO << "tutu";
     }
     ui.XSpinBox->setMaximum(max_width);
     ui.YSpinBox->setMaximum(max_height);
-    QSpinBoxQuietSetValue(ui.XSpinBox, cd_.x_cuts);
-    QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y_cuts);
+    QSpinBoxQuietSetValue(ui.XSpinBox, cd_.x.cuts);
+    QSpinBoxQuietSetValue(ui.YSpinBox, cd_.y.cuts);
 
     // Time transformation
     ui.TimeTransformationStrideSpinBox->setEnabled(!is_raw);
@@ -1670,6 +1672,10 @@ void MainWindow::set_x_y()
 
     cd_.set_x_cuts(x);
     cd_.set_y_cuts(y);
+
+    // If the value did not change, the value is reset to its current value.
+    ui.XSpinBox->setValue(cd_.x.cuts);
+    ui.YSpinBox->setValue(cd_.y.cuts);
 }
 
 void MainWindow::set_q(int value)
@@ -1691,7 +1697,7 @@ void MainWindow::set_p(int value)
 
     if (value < static_cast<int>(cd_.time_transformation_size))
     {
-        cd_.p_index = value;
+        cd_.p.index = value;
         pipe_refresh();
         notify();
     }
@@ -1918,9 +1924,9 @@ void MainWindow::increment_p()
     if (is_raw_mode())
         return;
 
-    if (cd_.p_index < cd_.time_transformation_size)
+    if (cd_.p.index < cd_.time_transformation_size)
     {
-        cd_.set_p_index(cd_.p_index + 1);
+        cd_.set_p_index(cd_.p.index + 1);
         set_auto_contrast();
         notify();
     }
@@ -1933,9 +1939,9 @@ void MainWindow::decrement_p()
     if (is_raw_mode())
         return;
 
-    if (cd_.p_index > 0)
+    if (cd_.p.index > 0)
     {
-        cd_.set_p_index(cd_.p_index - 1);
+        cd_.set_p_index(cd_.p.index - 1);
         set_auto_contrast();
         notify();
     }

@@ -43,19 +43,19 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
                           {"time_filter", cd.time_transformation.load()},
 
                           {"#img", cd.time_transformation_size.load()},
-                          {"p", cd.p_index.load()},
+                          {"p", cd.p.index.load()},
                           {"lambda", cd.lambda.load()},
                           {"pixel_size", cd.pixel_size.load()},
                           {"z", cd.zdistance.load()},
 
                           {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 
-                          {"x_acc_enabled", cd.x_accu_enabled.load()},
-                          {"x_acc_level", cd.x_acc_level.load()},
-                          {"y_acc_enabled", cd.y_accu_enabled.load()},
-                          {"y_acc_level", cd.y_acc_level.load()},
-                          {"p_acc_enabled", cd.p_accu_enabled.load()},
-                          {"p_acc_level", cd.p_acc_level.load()},
+                          {"x_acc_enabled", cd.x.accu_enabled.load()},
+                          {"x_acc_level", cd.x.accu_level.load()},
+                          {"y_acc_enabled", cd.y.accu_enabled.load()},
+                          {"y_acc_level", cd.y.accu_level.load()},
+                          {"p_acc_enabled", cd.p.accu_enabled.load()},
+                          {"p_acc_level", cd.p.accu_level.load()},
 
                           {"log_scale", cd.log_scale_slice_xy_enabled.load()},
                           {"contrast_min", cd.contrast_min_slice_xy.load()},

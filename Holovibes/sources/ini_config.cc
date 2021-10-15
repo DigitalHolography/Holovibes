@@ -60,11 +60,11 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     // cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
     // cd.q_index = ptree.get<ushort>("view.q_index", cd.q_index);
-    // cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
-    // cd.q_acc_level = ptree.get<short>("view.q_acc_level", cd.q_acc_level);
+    // cd.q.acc_enabled = ptree.get<bool>("view.q.acc_enabled", cd.q.acc_enabled);
+    // cd.q.acc_level = ptree.get<short>("view.q.acc_level", cd.q.acc_level);
 
     cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
-    cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.p_accu_enabled);
+    cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
     auto xyz_get = [&](const std::string name, WindowView& view) {
@@ -172,10 +172,10 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     if (cd.time_transformation_size < 1)
         cd.time_transformation_size = 1;
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (cd.p_index >= cd.time_transformation_size)
-        cd.p_index = 0;
-    if (cd.q_index >= cd.time_transformation_size)
-        cd.q_index = 0;
+    if (cd.p.index >= cd.time_transformation_size)
+        cd.p.index = 0;
+    if (cd.q.index >= cd.time_transformation_size)
+        cd.q.index = 0;
     if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 
@@ -221,7 +221,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
 
     auto xyqp_put = [&](const std::string& name, const AccView& view) {
         ptree.put<bool>("view." + name + "_accu_enabled", view.accu_enabled);
-        ptree.put<short>("view." + name + "_acc_level", view.accu_level);
+        ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
     ptree.put<ushort>("view.x_cuts", cd.x.cuts);
     xyqp_put("x", cd.x);
@@ -242,8 +242,8 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     // ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
     // ptree.put<short>("view.p_acc_level", cd.p_acc_level);
     // ptree.put<ushort>("view.q_index", cd.q_index);
-    // ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
-    // ptree.put<short>("view.q_acc_level", cd.q_acc_level);
+    // ptree.put<bool>("view.q.accu_enabled", cd.q.acc_enabled);
+    // ptree.put<short>("view.q.acc_level", cd.q.acc_level);
 
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
     ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);

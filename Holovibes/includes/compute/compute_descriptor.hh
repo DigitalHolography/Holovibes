@@ -285,29 +285,29 @@ class ComputeDescriptor : public Observable
     PQView q{};
 
     /*! \brief x cursor position (used in 3D cuts) */
-    std::atomic<uint> x_cuts;
+    // std::atomic<uint> x_cuts;
     /*! \brief Is x average in view YZ enabled (average of columns between both selected columns) */
-    std::atomic<bool> x_accu_enabled{false};
+    // std::atomic<bool> x_accu_enabled{false};
     /*! \brief Difference between x min and x max */
-    std::atomic<int> x_acc_level{1};
+    // std::atomic<int> x_acc_level{1};
     /*! \brief y cursor position (used in 3D cuts) */
-    std::atomic<uint> y_cuts;
+    // std::atomic<uint> y_cuts;
     /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
-    std::atomic<bool> y_accu_enabled{false};
+    // std::atomic<bool> y_accu_enabled{false};
     /*! \brief Difference between y min and y max */
-    std::atomic<int> y_acc_level{1};
+    // std::atomic<int> y_acc_level{1};
     /*! \brief Index in the depth axis */
-    std::atomic<uint> p_index{0};
+    // std::atomic<uint> p_index{0};
     /*! \brief Is p average enabled (average image over multiple depth index) */
-    std::atomic<bool> p_accu_enabled{false};
+    // std::atomic<bool> p_accu_enabled{false};
     /*! \brief Difference between p min and p max */
-    std::atomic<int> p_acc_level{1};
+    // std::atomic<int> p_acc_level{1};
     /*! \brief svd eigen vectors filtering index */
-    std::atomic<uint> q_index;
+    // std::atomic<uint> q_index;
     /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
-    std::atomic<bool> q_acc_enabled;
+    // std::atomic<bool> q_acc_enabled;
     /*! \brief svd eigen vectors filtering size */
-    std::atomic<uint> q_acc_level;
+    // std::atomic<uint> q_acc_level;
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};
     /*! \brief Is the reticle overlay enabled */
