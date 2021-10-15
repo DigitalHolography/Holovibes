@@ -154,7 +154,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     auto record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !cd.contrast_auto_refresh;
+    bool requested_autocontrast = !cd.xy.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
         if (!record_progress)

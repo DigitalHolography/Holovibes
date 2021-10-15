@@ -25,7 +25,7 @@ void Holovibes::update_cd_for_cli(const unsigned int input_fps)
     cd_.batch_size = cd_.time_transformation_stride.load();
 
     // We force the contrast to not be enable in CLI mode
-    cd_.contrast_enabled = false;
+    cd_.xy.contrast_enabled = false;
 }
 
 const float Holovibes::get_boundary()

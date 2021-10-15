@@ -294,14 +294,15 @@ void MainWindow::on_notify()
     ui.TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
 
     // Contrast
-    ui.ContrastCheckBox->setChecked(!is_raw && cd_.contrast_enabled);
+    // TODO: Check wich window is the current
+    ui.ContrastCheckBox->setChecked(!is_raw && cd_.xy.contrast_enabled);
     ui.ContrastCheckBox->setEnabled(true);
-    ui.AutoRefreshContrastCheckBox->setChecked(cd_.contrast_auto_refresh);
+    ui.AutoRefreshContrastCheckBox->setChecked(cd_.xy.contrast_auto_refresh);
 
     // Contrast SpinBox:
-    ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+    ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.xy.contrast_auto_refresh);
     ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
-    ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
+    ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.xy.contrast_auto_refresh);
     ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
 
     // FFT shift
@@ -2169,7 +2170,7 @@ void MainWindow::set_contrast_min(const double value)
     if (is_raw_mode())
         return;
 
-    if (cd_.contrast_enabled)
+    if (cd_.xy.contrast_enabled)
     {
         const float old_val = cd_.get_truncate_contrast_min();
         const float val = value;
@@ -2188,7 +2189,7 @@ void MainWindow::set_contrast_max(const double value)
     if (is_raw_mode())
         return;
 
-    if (cd_.contrast_enabled)
+    if (cd_.xy.contrast_enabled)
     {
         const float old_val = cd_.get_truncate_contrast_max();
         const float val = value;
@@ -2223,7 +2224,7 @@ void MainWindow::set_log_scale(const bool value)
         return;
 
     cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-    if (value && cd_.contrast_enabled)
+    if (value && cd_.xy.contrast_enabled)
         set_auto_contrast();
     pipe_refresh();
     notify();

@@ -331,12 +331,12 @@ class ComputeDescriptor : public Observable
     // std::atomic<bool> img_acc_slice_xy_enabled{false};
     // std::atomic<uint> img_acc_slice_xy_level{1};
 
-    std::atomic<bool> contrast_enabled{false};     // add xy spec
-    std::atomic<bool> contrast_auto_refresh{true}; // add xy spec
-    std::atomic<bool> contrast_invert{false};      // add xy spec
+    // std::atomic<bool> xy_contrast_enabled{false};
+    // std::atomic<bool> xy_contrast_auto_refresh{true};
+    // std::atomic<bool> xy_contrast_invert{false};
 
-    std::atomic<float> contrast_min_slice_xy{1.f};
-    std::atomic<float> contrast_max_slice_xy{65535.f};
+    // std::atomic<float> contrast_min_slice_xy{1.f};
+    // std::atomic<float> contrast_max_slice_xy{65535.f};
     // XZ
     // std::atomic<bool> xz_flip_enabled{false};
     // std::atomic<float> xz_rot{0};
@@ -344,12 +344,12 @@ class ComputeDescriptor : public Observable
     // std::atomic<bool> img_acc_slice_xz_enabled{false};
     // std::atomic<uint> img_acc_slice_xz_level{1};
 
-    std::atomic<bool> xz_contrast_enabled{false};
-    std::atomic<bool> xz_contrast_auto_refresh{true};
-    std::atomic<bool> xz_contrast_invert{false};
+    // std::atomic<bool> xz_contrast_enabled{false};
+    // std::atomic<bool> xz_contrast_auto_refresh{true};
+    // std::atomic<bool> xz_contrast_invert{false};
 
-    std::atomic<float> contrast_min_slice_xz{1.f};
-    std::atomic<float> contrast_max_slice_xz{65535.f};
+    // std::atomic<float> contrast_min_slice_xz{1.f};
+    // std::atomic<float> contrast_max_slice_xz{65535.f};
     // YZ
     // std::atomic<bool> yz_flip_enabled{false};
     // std::atomic<float> yz_rot{0};
@@ -357,12 +357,12 @@ class ComputeDescriptor : public Observable
     // std::atomic<bool> img_acc_slice_yz_enabled{false};
     // std::atomic<uint> img_acc_slice_yz_level{1};
 
-    std::atomic<bool> yz_contrast_enabled{false};
-    std::atomic<bool> yz_contrast_auto_refresh{true};
-    std::atomic<bool> yz_contrast_invert{false};
+    // std::atomic<bool> yz_contrast_enabled{false};
+    // std::atomic<bool> yz_contrast_auto_refresh{true};
+    // std::atomic<bool> yz_contrast_invert{false};
 
-    std::atomic<float> contrast_min_slice_yz{1.f};
-    std::atomic<float> contrast_max_slice_yz{65535.f};
+    // std::atomic<float> contrast_min_slice_yz{1.f};
+    // std::atomic<float> contrast_max_slice_yz{65535.f};
 
     // Filter 2D
     /*! \brief Is log scale in Filter2D view enabled */

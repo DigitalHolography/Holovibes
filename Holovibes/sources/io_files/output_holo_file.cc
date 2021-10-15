@@ -27,6 +27,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
+// TODO: To update
 void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
 {
     // export as a json
@@ -58,8 +59,8 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
                           {"p_acc_level", cd.p.accu_level.load()},
 
                           {"log_scale", cd.xy.log_scale_slice_enabled.load()},
-                          {"contrast_min", cd.contrast_min_slice_xy.load()},
-                          {"contrast_max", cd.contrast_max_slice_xy.load()},
+                          {"contrast_min", cd.xy.contrast_min_slice.load()},
+                          {"contrast_max", cd.xy.contrast_max_slice.load()},
 
                           {"img_acc_slice_xy_enabled", cd.xy.img_acc_slice_enabled.load()},
                           {"img_acc_slice_xz_enabled", cd.xz.img_acc_slice_enabled.load()},

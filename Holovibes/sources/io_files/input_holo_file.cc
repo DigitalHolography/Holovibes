@@ -110,8 +110,8 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
     cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
-    cd.contrast_min_slice_xy = get_value(meta_data_, "contrast_min", cd.contrast_min_slice_xy.load());
-    cd.contrast_max_slice_xy = get_value(meta_data_, "contrast_max", cd.contrast_max_slice_xy.load());
+    cd.xy.contrast_min_slice = get_value(meta_data_, "contrast_min", cd.xy.contrast_min_slice.load());
+    cd.xy.contrast_max_slice = get_value(meta_data_, "contrast_max", cd.xy.contrast_max_slice.load());
     cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
     cd.x.accu_enabled = get_value(meta_data_, "x_acc_enabled", cd.x.accu_enabled.load());
     cd.x.accu_level = get_value(meta_data_, "x_acc_level", cd.x.accu_level.load());

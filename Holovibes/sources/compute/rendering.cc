@@ -107,7 +107,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 std::atomic<bool>& autocontrast_filter2d_request)
 {
     // Do not compute contrast or apply contrast if not enabled
-    if (!cd_.contrast_enabled)
+    if (!cd_.xy.contrast_enabled)
         return;
 
     // Compute min and max pixel values if requested
@@ -190,26 +190,26 @@ void Rendering::insert_apply_contrast(WindowKind view)
         case WindowKind::XYview:
             input = buffers_.gpu_postprocess_frame;
             size = buffers_.gpu_postprocess_frame_size;
-            min = cd_.contrast_invert ? cd_.contrast_max_slice_xy : cd_.contrast_min_slice_xy;
-            max = cd_.contrast_invert ? cd_.contrast_min_slice_xy : cd_.contrast_max_slice_xy;
+            min = cd_.xy.contrast_invert ? cd_.xy.contrast_max_slice : cd_.xy.contrast_min_slice;
+            max = cd_.xy.contrast_invert ? cd_.xy.contrast_min_slice : cd_.xy.contrast_max_slice;
             break;
         case WindowKind::YZview:
             input = buffers_.gpu_postprocess_frame_yz.get();
             size = fd_.height * cd_.time_transformation_size;
-            min = cd_.yz_contrast_invert ? cd_.contrast_max_slice_yz : cd_.contrast_min_slice_yz;
-            max = cd_.yz_contrast_invert ? cd_.contrast_min_slice_yz : cd_.contrast_max_slice_yz;
+            min = cd_.yz.contrast_invert ? cd_.yz.contrast_max_slice : cd_.yz.contrast_min_slice;
+            max = cd_.yz.contrast_invert ? cd_.yz.contrast_min_slice : cd_.yz.contrast_max_slice;
             break;
         case WindowKind::XZview:
             input = buffers_.gpu_postprocess_frame_xz.get();
             size = fd_.width * cd_.time_transformation_size;
-            min = cd_.xz_contrast_invert ? cd_.contrast_max_slice_xz : cd_.contrast_min_slice_xz;
-            max = cd_.xz_contrast_invert ? cd_.contrast_min_slice_xz : cd_.contrast_max_slice_xz;
+            min = cd_.xz.contrast_invert ? cd_.xz.contrast_max_slice : cd_.xz.contrast_min_slice;
+            max = cd_.xz.contrast_invert ? cd_.xz.contrast_min_slice : cd_.xz.contrast_max_slice;
             break;
         case WindowKind::Filter2D:
             input = buffers_.gpu_float_filter2d_frame.get();
             size = fd_.width * fd_.height;
-            min = cd_.contrast_invert ? cd_.contrast_max_filter2d : cd_.contrast_min_filter2d;
-            max = cd_.contrast_invert ? cd_.contrast_min_filter2d : cd_.contrast_max_filter2d;
+            min = cd_.xy.contrast_invert ? cd_.contrast_max_filter2d : cd_.contrast_min_filter2d;
+            max = cd_.xy.contrast_invert ? cd_.contrast_min_filter2d : cd_.contrast_max_filter2d;
             break;
         }
 
@@ -309,7 +309,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_xy, cd_.contrast_max_slice_xy);
+        set_contrast_min_max(percent_min_max_, cd_.xy.contrast_min_slice, cd_.xy.contrast_max_slice);
         break;
     case WindowKind::YZview:
         compute_percentile_yz_view(input,
@@ -322,7 +322,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_yz, cd_.contrast_max_slice_yz);
+        set_contrast_min_max(percent_min_max_, cd_.yz.contrast_min_slice, cd_.yz.contrast_max_slice);
         break;
     case WindowKind::XZview:
         compute_percentile_xz_view(input,
@@ -335,7 +335,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.contrast_min_slice_xz, cd_.contrast_max_slice_xz);
+        set_contrast_min_max(percent_min_max_, cd_.xz.contrast_min_slice, cd_.xz.contrast_max_slice);
         break;
     case WindowKind::Filter2D:
         compute_percentile_xy_view(input,

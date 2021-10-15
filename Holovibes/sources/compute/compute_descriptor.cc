@@ -34,19 +34,19 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     yz.log_scale_slice_enabled = cd.yz.log_scale_slice_enabled.load();
     log_scale_filter2d_enabled = cd.log_scale_filter2d_enabled.load();
     fft_shift_enabled = cd.fft_shift_enabled.load();
-    contrast_enabled = cd.contrast_enabled.load();
+    xy.contrast_enabled = cd.xy.contrast_enabled.load();
     convolution_enabled = cd.convolution_enabled.load();
     chart_display_enabled = cd.chart_display_enabled.load();
     chart_record_enabled = cd.chart_record_enabled.load();
-    contrast_min_slice_xy = cd.contrast_min_slice_xy.load();
-    contrast_max_slice_xy = cd.contrast_max_slice_xy.load();
-    contrast_min_slice_xz = cd.contrast_min_slice_xz.load();
-    contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
-    contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
-    contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
+    xy.contrast_min_slice = cd.xy.contrast_min_slice.load();
+    xy.contrast_max_slice = cd.xy.contrast_max_slice.load();
+    xz.contrast_min_slice = cd.xz.contrast_min_slice.load();
+    yz.contrast_min_slice = cd.yz.contrast_min_slice.load();
+    xz.contrast_max_slice = cd.xz.contrast_max_slice.load();
+    yz.contrast_max_slice = cd.yz.contrast_max_slice.load();
     contrast_min_filter2d = cd.contrast_min_filter2d.load();
     contrast_max_filter2d = cd.contrast_max_filter2d.load();
-    contrast_invert = cd.contrast_invert.load();
+    xy.contrast_invert = cd.xy.contrast_invert.load();
     pixel_size = cd.pixel_size.load();
     xy.img_acc_slice_enabled = cd.xy.img_acc_slice_enabled.load();
     xz.img_acc_slice_enabled = cd.xz.img_acc_slice_enabled.load();
@@ -69,7 +69,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     filter2d_n2 = cd.filter2d_n2.load();
     filter2d_smooth_low = cd.filter2d_smooth_low.load();
     filter2d_smooth_high = cd.filter2d_smooth_high.load();
-    contrast_auto_refresh = cd.contrast_auto_refresh.load();
+    xy.contrast_auto_refresh = cd.xy.contrast_auto_refresh.load();
     raw_view_enabled = cd.raw_view_enabled.load();
     frame_record_enabled = cd.frame_record_enabled.load();
     return *this;
@@ -142,11 +142,11 @@ float ComputeDescriptor::get_contrast_min() const
     switch (current_window)
     {
     case WindowKind::XYview:
-        return xy.log_scale_slice_enabled ? contrast_min_slice_xy.load() : log10(contrast_min_slice_xy);
+        return xy.log_scale_slice_enabled ? xy.contrast_min_slice.load() : log10(xy.contrast_min_slice);
     case WindowKind::XZview:
-        return xz.log_scale_slice_enabled ? contrast_min_slice_xz.load() : log10(contrast_min_slice_xz);
+        return xz.log_scale_slice_enabled ? xz.contrast_min_slice.load() : log10(xz.contrast_min_slice);
     case WindowKind::YZview:
-        return yz.log_scale_slice_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_slice_yz);
+        return yz.log_scale_slice_enabled ? yz.contrast_min_slice.load() : log10(yz.contrast_min_slice);
     case WindowKind::Filter2D:
         return log_scale_filter2d_enabled ? contrast_min_filter2d.load() : log10(contrast_min_filter2d);
     }
@@ -158,11 +158,11 @@ float ComputeDescriptor::get_contrast_max() const
     switch (current_window)
     {
     case WindowKind::XYview:
-        return xy.log_scale_slice_enabled ? contrast_max_slice_xy.load() : log10(contrast_max_slice_xy);
+        return xy.log_scale_slice_enabled ? xy.contrast_max_slice.load() : log10(xy.contrast_max_slice);
     case WindowKind::XZview:
-        return xz.log_scale_slice_enabled ? contrast_max_slice_xz.load() : log10(contrast_max_slice_xz);
+        return xz.log_scale_slice_enabled ? xz.contrast_max_slice.load() : log10(xz.contrast_max_slice);
     case WindowKind::YZview:
-        return yz.log_scale_slice_enabled ? contrast_max_slice_yz.load() : log10(contrast_max_slice_yz);
+        return yz.log_scale_slice_enabled ? yz.contrast_max_slice.load() : log10(yz.contrast_max_slice);
     case WindowKind::Filter2D:
         return log_scale_filter2d_enabled ? contrast_max_filter2d.load() : log10(contrast_max_filter2d);
     }
@@ -232,39 +232,39 @@ bool ComputeDescriptor::get_contrast_enabled() const
     switch (current_window)
     {
     case WindowKind::XYview:
-        return contrast_enabled;
+        return xy.contrast_enabled;
     case WindowKind::XZview:
-        return xz_contrast_enabled;
+        return xz.contrast_enabled;
     case WindowKind::YZview:
-        return yz_contrast_enabled;
+        return yz.contrast_enabled;
     }
-    return contrast_enabled;
+    return xy.contrast_enabled;
 }
 bool ComputeDescriptor::get_contrast_auto_refresh() const
 {
     switch (current_window)
     {
     case WindowKind::XYview:
-        return contrast_auto_refresh;
+        return xy.contrast_auto_refresh;
     case WindowKind::XZview:
-        return xz_contrast_auto_refresh;
+        return xz.contrast_auto_refresh;
     case WindowKind::YZview:
-        return yz_contrast_auto_refresh;
+        return yz.contrast_auto_refresh;
     }
-    return contrast_auto_refresh;
+    return xy.contrast_auto_refresh;
 }
 bool ComputeDescriptor::get_contrast_invert_enabled() const
 {
     switch (current_window)
     {
     case WindowKind::XYview:
-        return contrast_invert;
+        return xy.contrast_invert;
     case WindowKind::XZview:
-        return xz_contrast_invert;
+        return xz.contrast_invert;
     case WindowKind::YZview:
-        return yz_contrast_invert;
+        return yz.contrast_invert;
     }
-    return contrast_invert;
+    return xy.contrast_invert;
 }
 
 void ComputeDescriptor::set_contrast_min(float value)
@@ -272,13 +272,13 @@ void ComputeDescriptor::set_contrast_min(float value)
     switch (current_window)
     {
     case WindowKind::XYview:
-        contrast_min_slice_xy = xy.log_scale_slice_enabled ? value : pow(10, value);
+        xy.contrast_min_slice = xy.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::XZview:
-        contrast_min_slice_xz = xz.log_scale_slice_enabled ? value : pow(10, value);
+        xz.contrast_min_slice = xz.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::YZview:
-        contrast_min_slice_yz = yz.log_scale_slice_enabled ? value : pow(10, value);
+        yz.contrast_min_slice = yz.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
         contrast_min_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
@@ -291,13 +291,13 @@ void ComputeDescriptor::set_contrast_max(float value)
     switch (current_window)
     {
     case WindowKind::XYview:
-        contrast_max_slice_xy = xy.log_scale_slice_enabled ? value : pow(10, value);
+        xy.contrast_max_slice = xy.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::XZview:
-        contrast_max_slice_xz = xz.log_scale_slice_enabled ? value : pow(10, value);
+        xz.contrast_max_slice = xz.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::YZview:
-        contrast_max_slice_yz = yz.log_scale_slice_enabled ? value : pow(10, value);
+        yz.contrast_max_slice = yz.log_scale_slice_enabled ? value : pow(10, value);
         break;
     case WindowKind::Filter2D:
         contrast_max_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
@@ -467,8 +467,9 @@ void ComputeDescriptor::set_batch_size(int value) { batch_size = value; }
 
 void ComputeDescriptor::set_contrast_mode(bool value)
 {
-    contrast_enabled = value;
-    contrast_auto_refresh = true;
+    // Switch according to current_window
+    xy.contrast_enabled = value;
+    xy.contrast_auto_refresh = true;
 }
 
 bool ComputeDescriptor::set_contrast_invert(bool value)
@@ -477,23 +478,25 @@ bool ComputeDescriptor::set_contrast_invert(bool value)
     switch (current_window)
     {
     case WindowKind::XZview:
-        if (xz_contrast_enabled)
-            xz_contrast_invert = value;
-        return xz_contrast_enabled;
+        if (xz.contrast_enabled)
+            xz.contrast_invert = value;
+        return xz.contrast_enabled;
     case WindowKind::YZview:
-        if (yz_contrast_enabled)
-            yz_contrast_invert = value;
-        return yz_contrast_enabled;
+        if (yz.contrast_enabled)
+            yz.contrast_invert = value;
+        return yz.contrast_enabled;
     default:
-        if (contrast_enabled)
-            contrast_invert = value;
-        return contrast_enabled;
+        if (xy.contrast_enabled)
+            xy.contrast_invert = value;
+        return xy.contrast_enabled;
     }
 }
 
-void ComputeDescriptor::set_contrast_auto_refresh(bool value) { contrast_auto_refresh = value; }
+// Set according to current_window
+void ComputeDescriptor::set_contrast_auto_refresh(bool value) { xy.contrast_auto_refresh = value; }
 
-void ComputeDescriptor::set_contrast_enabled(bool value) { contrast_enabled = value; }
+// Set according to current_window
+void ComputeDescriptor::set_contrast_enabled(bool value) { xy.contrast_enabled = value; }
 
 void ComputeDescriptor::set_convolution_enabled(bool value) { convolution_enabled = value; }
 
@@ -641,8 +644,8 @@ void ComputeDescriptor::reset_gui()
 
 void ComputeDescriptor::reset_slice_view()
 {
-    contrast_max_slice_xz = false;
-    contrast_max_slice_yz = false;
+    xz.contrast_max_slice = false;
+    yz.contrast_max_slice = false;
     xz.log_scale_slice_enabled = false;
     yz.log_scale_slice_enabled = false;
     xz.img_acc_slice_enabled = false;

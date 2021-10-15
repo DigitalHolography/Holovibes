@@ -338,7 +338,7 @@ void ICompute::request_disable_frame_record()
 void ICompute::request_autocontrast(WindowKind kind)
 {
     // Do not request anything if contrast is not enabled
-    if (!cd_.contrast_enabled)
+    if (!cd_.xy.contrast_enabled)
         return;
 
     if (kind == WindowKind::XYview)
