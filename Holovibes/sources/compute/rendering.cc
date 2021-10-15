@@ -93,7 +93,7 @@ void Rendering::insert_chart()
 
 void Rendering::insert_log()
 {
-    if (cd_.log_scale_slice_xy_enabled)
+    if (cd_.xy.log_scale_slice_enabled)
         insert_main_log();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_log();
@@ -142,7 +142,7 @@ void Rendering::insert_main_log()
 
 void Rendering::insert_slice_log()
 {
-    if (cd_.log_scale_slice_xz_enabled)
+    if (cd_.xz.log_scale_slice_enabled)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_xz.get(),
@@ -151,7 +151,7 @@ void Rendering::insert_slice_log()
                       stream_);
         });
     }
-    if (cd_.log_scale_slice_yz_enabled)
+    if (cd_.yz.log_scale_slice_enabled)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_yz.get(),

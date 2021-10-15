@@ -57,16 +57,16 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
                           {"p_acc_enabled", cd.p.accu_enabled.load()},
                           {"p_acc_level", cd.p.accu_level.load()},
 
-                          {"log_scale", cd.log_scale_slice_xy_enabled.load()},
+                          {"log_scale", cd.xy.log_scale_slice_enabled.load()},
                           {"contrast_min", cd.contrast_min_slice_xy.load()},
                           {"contrast_max", cd.contrast_max_slice_xy.load()},
 
-                          {"img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load()},
-                          {"img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load()},
-                          {"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
-                          {"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
-                          {"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
-                          {"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
+                          {"img_acc_slice_xy_enabled", cd.xy.img_acc_slice_enabled.load()},
+                          {"img_acc_slice_xz_enabled", cd.xz.img_acc_slice_enabled.load()},
+                          {"img_acc_slice_yz_enabled", cd.yz.img_acc_slice_enabled.load()},
+                          {"img_acc_slice_xy_level", cd.xy.img_acc_slice_level.load()},
+                          {"img_acc_slice_xz_level", cd.xz.img_acc_slice_level.load()},
+                          {"img_acc_slice_yz_level", cd.yz.img_acc_slice_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }

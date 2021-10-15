@@ -109,7 +109,7 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
-    cd.log_scale_slice_xy_enabled = get_value(meta_data_, "log_scale", cd.log_scale_slice_xy_enabled.load());
+    cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
     cd.contrast_min_slice_xy = get_value(meta_data_, "contrast_min", cd.contrast_min_slice_xy.load());
     cd.contrast_max_slice_xy = get_value(meta_data_, "contrast_max", cd.contrast_max_slice_xy.load());
     cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
@@ -119,12 +119,12 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.y.accu_level = get_value(meta_data_, "y_acc_level", cd.y.accu_level.load());
     cd.p.accu_enabled = get_value(meta_data_, "p_acc_enabled", cd.p.accu_enabled.load());
     cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level.load());
-    cd.img_acc_slice_xy_enabled = get_value(meta_data_, "img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load());
-    cd.img_acc_slice_xz_enabled = get_value(meta_data_, "img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load());
-    cd.img_acc_slice_yz_enabled = get_value(meta_data_, "img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load());
-    cd.img_acc_slice_xy_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load());
-    cd.img_acc_slice_xz_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load());
-    cd.img_acc_slice_yz_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load());
+    cd.xy.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_xy_enabled", cd.xy.img_acc_slice_enabled.load());
+    cd.xz.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_xz_enabled", cd.xz.img_acc_slice_enabled.load());
+    cd.yz.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_yz_enabled", cd.yz.img_acc_slice_enabled.load());
+    cd.xy.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_acc_slice_level.load());
+    cd.xz.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_acc_slice_level.load());
+    cd.yz.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_acc_slice_level.load());
     cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
 }
 } // namespace holovibes::io_files

@@ -325,11 +325,11 @@ class ComputeDescriptor : public Observable
     WindowView yz{};
 
     // XY
-    std::atomic<bool> xy_flip_enabled{false};
-    std::atomic<float> xy_rot{0};
-    std::atomic<bool> log_scale_slice_xy_enabled{false};
-    std::atomic<bool> img_acc_slice_xy_enabled{false};
-    std::atomic<uint> img_acc_slice_xy_level{1};
+    // std::atomic<bool> xy_flip_enabled{false};
+    // std::atomic<float> xy_rot{0};
+    // std::atomic<bool> log_scale_slice_xy_enabled{false};
+    // std::atomic<bool> img_acc_slice_xy_enabled{false};
+    // std::atomic<uint> img_acc_slice_xy_level{1};
 
     std::atomic<bool> contrast_enabled{false};     // add xy spec
     std::atomic<bool> contrast_auto_refresh{true}; // add xy spec
@@ -338,11 +338,11 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_min_slice_xy{1.f};
     std::atomic<float> contrast_max_slice_xy{65535.f};
     // XZ
-    std::atomic<bool> xz_flip_enabled{false};
-    std::atomic<float> xz_rot{0};
-    std::atomic<bool> log_scale_slice_xz_enabled{false};
-    std::atomic<bool> img_acc_slice_xz_enabled{false};
-    std::atomic<uint> img_acc_slice_xz_level{1};
+    // std::atomic<bool> xz_flip_enabled{false};
+    // std::atomic<float> xz_rot{0};
+    // std::atomic<bool> log_scale_slice_xz_enabled{false};
+    // std::atomic<bool> img_acc_slice_xz_enabled{false};
+    // std::atomic<uint> img_acc_slice_xz_level{1};
 
     std::atomic<bool> xz_contrast_enabled{false};
     std::atomic<bool> xz_contrast_auto_refresh{true};
@@ -351,11 +351,11 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_min_slice_xz{1.f};
     std::atomic<float> contrast_max_slice_xz{65535.f};
     // YZ
-    std::atomic<bool> yz_flip_enabled{false};
-    std::atomic<float> yz_rot{0};
-    std::atomic<bool> log_scale_slice_yz_enabled{false};
-    std::atomic<bool> img_acc_slice_yz_enabled{false};
-    std::atomic<uint> img_acc_slice_yz_level{1};
+    // std::atomic<bool> yz_flip_enabled{false};
+    // std::atomic<float> yz_rot{0};
+    // std::atomic<bool> log_scale_slice_yz_enabled{false};
+    // std::atomic<bool> img_acc_slice_yz_enabled{false};
+    // std::atomic<uint> img_acc_slice_yz_level{1};
 
     std::atomic<bool> yz_contrast_enabled{false};
     std::atomic<bool> yz_contrast_auto_refresh{true};

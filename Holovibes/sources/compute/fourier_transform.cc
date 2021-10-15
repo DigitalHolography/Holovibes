@@ -332,8 +332,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            width,
                                            height,
                                            cd_.time_transformation_size,
-                                           cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
-                                           cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
+                                           cd_.xz.img_acc_slice_enabled ? cd_.xz.img_acc_slice_level.load() : 1,
+                                           cd_.yz.img_acc_slice_enabled ? cd_.yz.img_acc_slice_level.load() : 1,
                                            cd_.img_type.load(),
                                            stream_);
         }
