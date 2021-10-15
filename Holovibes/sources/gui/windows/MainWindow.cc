@@ -915,12 +915,17 @@ void MainWindow::configure_camera()
 
 // VALID
 // Notify
+
 void MainWindow::set_raw_mode()
 {
     LOG_FUNC;
 
     api::close_windows();
+    notify();
+    layout_toggled();
+
     api::close_critical_compute();
+    notify();
 
     if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
         return;
@@ -1419,6 +1424,7 @@ void MainWindow::update_raw_view(bool value)
 
 // VALID
 // GUI
+
 void MainWindow::disable_raw_view()
 {
     LOG_FUNC;

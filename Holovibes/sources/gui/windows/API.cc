@@ -636,6 +636,16 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
     get_cd().img_acc_slice_xz_enabled = false;
     get_cd().img_acc_slice_yz_enabled = false;
 
+    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
+
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+    {
+        UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
+    }
+
     get_compute_pipe().get()->insert_fn_end_vect(callback);
 
     try
@@ -650,16 +660,6 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
     }
 
     get_cd().time_transformation_cuts_enabled = false;
-
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
-    }
 }
 
 #pragma endregion
@@ -1564,6 +1564,8 @@ void set_convolution_mode(std::string& str)
 void unset_convolution_mode()
 {
     LOG_FUNC;
+
+    Holovibes::instance().get_cd().set_convolution(false, "");
 
     try
     {
