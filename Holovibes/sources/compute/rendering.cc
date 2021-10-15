@@ -97,7 +97,7 @@ void Rendering::insert_log()
         insert_main_log();
     if (cd_.time_transformation_cuts_enabled)
         insert_slice_log();
-    if (cd_.log_scale_filter2d_enabled)
+    if (cd_.filter2d.log_scale_slice_enabled)
         insert_filter2d_view_log();
 }
 
@@ -208,8 +208,8 @@ void Rendering::insert_apply_contrast(WindowKind view)
         case WindowKind::Filter2D:
             input = buffers_.gpu_float_filter2d_frame.get();
             size = fd_.width * fd_.height;
-            min = cd_.xy.contrast_invert ? cd_.contrast_max_filter2d : cd_.contrast_min_filter2d;
-            max = cd_.xy.contrast_invert ? cd_.contrast_min_filter2d : cd_.contrast_max_filter2d;
+            min = cd_.filter2d.contrast_invert ? cd_.filter2d.contrast_max_slice : cd_.filter2d.contrast_min_slice;
+            max = cd_.filter2d.contrast_invert ? cd_.filter2d.contrast_min_slice : cd_.filter2d.contrast_max_slice;
             break;
         }
 
@@ -348,7 +348,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    false,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.contrast_min_filter2d, cd_.contrast_max_filter2d);
+        set_contrast_min_max(percent_min_max_, cd_.filter2d.contrast_min_slice, cd_.filter2d.contrast_max_slice);
         break;
     }
     cd_.notify_observers();

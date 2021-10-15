@@ -164,7 +164,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
             const auto& progress = record_progress.value();
             progress_bar(progress.first->load(), progress.second->load(), 40);
 
-            // Very dirty hack
+            // Very dirty hack // FIXME
             // Request auto contrast once we have accumualated enough images
             // Otherwise the autocontrast is computed at the beginning and we
             // end up with black images ...

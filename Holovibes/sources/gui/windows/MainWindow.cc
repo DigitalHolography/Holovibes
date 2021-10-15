@@ -26,6 +26,7 @@
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
+#include "view_struct.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -295,14 +296,14 @@ void MainWindow::on_notify()
 
     // Contrast
     // TODO: Check wich window is the current
-    ui.ContrastCheckBox->setChecked(!is_raw && cd_.xy.contrast_enabled);
+    ui.ContrastCheckBox->setChecked(!is_raw && cd_.get_contrast_enabled());
     ui.ContrastCheckBox->setEnabled(true);
-    ui.AutoRefreshContrastCheckBox->setChecked(cd_.xy.contrast_auto_refresh);
+    ui.AutoRefreshContrastCheckBox->setChecked(cd_.get_contrast_auto_refresh());
 
     // Contrast SpinBox:
-    ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.xy.contrast_auto_refresh);
+    ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.get_contrast_auto_refresh());
     ui.ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
-    ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.xy.contrast_auto_refresh);
+    ui.ContrastMaxDoubleSpinBox->setEnabled(!cd_.get_contrast_auto_refresh());
     ui.ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
 
     // FFT shift
@@ -314,25 +315,31 @@ void MainWindow::on_notify()
     window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
     window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(cd_.current_window.load()) : 0);
 
+    // Log
     ui.LogScaleCheckBox->setEnabled(true);
-    ui.LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window.load()));
-    ui.ImgAccuCheckBox->setEnabled(true);
-    ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window.load()));
-    ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
-    if (cd_.current_window == WindowKind::XYview)
+    ui.LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled());
+
+    // ImgAccWindow
+    auto set_xyzf_visibility = [&](bool val) {
+        ui.ImgAccuCheckBox->setVisible(val);
+        ui.ImgAccuSpinBox->setVisible(val);
+
+        ui.RotatePushButton->setVisible(val);
+        ui.FlipPushButton->setVisible(val);
+    };
+    if (cd_.current_window == WindowKind::Filter2D)
+        set_xyzf_visibility(false);
+    else
     {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.xy.rot))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.xy.flip_enabled)).c_str());
-    }
-    else if (cd_.current_window == WindowKind::XZview)
-    {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.xz.rot))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.xz.flip_enabled)).c_str());
-    }
-    else if (cd_.current_window == WindowKind::YZview)
-    {
-        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(cd_.yz.rot))).c_str());
-        ui.FlipPushButton->setText(("Flip " + std::to_string(cd_.yz.flip_enabled)).c_str());
+        set_xyzf_visibility(true);
+
+        ui.ImgAccuCheckBox->setEnabled(true);
+        ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled());
+        ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level());
+
+        auto w = reinterpret_cast<XY_XZ_YZ_WindowView*>(cd_.current);
+        ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(w->rot))).c_str());
+        ui.FlipPushButton->setText(("Flip " + std::to_string(w->flip_enabled)).c_str());
     }
 
     // p accu
@@ -394,8 +401,6 @@ void MainWindow::on_notify()
     {
         cd_.x.cuts = 0;
         cd_.y.cuts = 0;
-
-        LOG_INFO << "tutu";
     }
     ui.XSpinBox->setMaximum(max_width);
     ui.YSpinBox->setMaximum(max_height);
@@ -681,9 +686,8 @@ void MainWindow::reload_ini(QString filename)
     if (import_type_ == ImportType::File)
         import_start();
     else if (import_type_ == ImportType::Camera)
-    {
         change_camera(kCamera);
-    }
+
     notify();
 }
 
@@ -1054,13 +1058,9 @@ void MainWindow::set_holographic_mode()
 void MainWindow::set_computation_mode()
 {
     if (ui.ImageModeComboBox->currentIndex() == 0)
-    {
         cd_.set_compute_mode(Computation::Raw);
-    }
     else if (ui.ImageModeComboBox->currentIndex() == 1)
-    {
         cd_.set_compute_mode(Computation::Hologram);
-    }
 }
 
 void MainWindow::refreshViewMode()
@@ -1414,6 +1414,7 @@ void MainWindow::update_filter2d_view(bool checked)
             auto pipe = dynamic_cast<Pipe*>(holovibes_.get_compute_pipe().get());
             if (pipe)
             {
+
                 pipe->request_filter2d_view();
 
                 const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
@@ -1434,7 +1435,7 @@ void MainWindow::update_filter2d_view(bool checked)
                 filter2d_window->setCd(&cd_);
 
                 connect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
-                cd_.set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+                cd_.set_log_scale_slice_enabled_filter2d();
                 pipe->autocontrast_end_pipe(WindowKind::Filter2D);
             }
         }
@@ -2063,45 +2064,29 @@ void MainWindow::set_composite_area() { mainDisplay->getOverlayManager().create_
 #pragma region Texture
 void MainWindow::rotateTexture()
 {
-    WindowKind curWin = cd_.current_window;
+    cd_.change_angle();
 
-    if (curWin == WindowKind::XYview)
-    {
-        cd_.change_angle(cd_.xy.rot);
+    if (cd_.current_window == WindowKind::XYview)
         mainDisplay->setAngle(cd_.xy.rot);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        cd_.change_angle(cd_.xz.rot);
+    else if (sliceXZ && cd_.current_window == WindowKind::XZview)
         sliceXZ->setAngle(cd_.xz.rot);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        cd_.change_angle(cd_.yz.rot);
+    else if (sliceYZ && cd_.current_window == WindowKind::YZview)
         sliceYZ->setAngle(cd_.yz.rot);
-    }
+
     notify();
 }
 
 void MainWindow::flipTexture()
 {
-    WindowKind curWin = cd_.current_window;
+    cd_.change_flip();
 
-    if (curWin == WindowKind::XYview)
-    {
-        cd_.change_flip(cd_.xy.flip_enabled);
+    if (cd_.current_window == WindowKind::XYview)
         mainDisplay->setFlip(cd_.xy.flip_enabled);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        cd_.change_flip(cd_.xz.flip_enabled);
+    else if (sliceXZ && cd_.current_window == WindowKind::XZview)
         sliceXZ->setFlip(cd_.xz.flip_enabled);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        cd_.change_flip(cd_.yz.flip_enabled);
+    else if (sliceYZ && cd_.current_window == WindowKind::YZview)
         sliceYZ->setFlip(cd_.yz.flip_enabled);
-    }
+
     notify();
 }
 
@@ -2165,12 +2150,26 @@ void MainWindow::set_auto_contrast()
     }
 }
 
+void MainWindow::invert_contrast(bool value)
+{
+    cd_.set_contrast_invert(value);
+    if (!is_raw_mode() && cd_.get_contrast_invert_enabled())
+        pipe_refresh();
+}
+
+void MainWindow::set_auto_refresh_contrast(bool value)
+{
+    cd_.set_contrast_auto_refresh(value);
+    pipe_refresh();
+    notify();
+}
+
 void MainWindow::set_contrast_min(const double value)
 {
     if (is_raw_mode())
         return;
 
-    if (cd_.xy.contrast_enabled)
+    if (cd_.current->contrast_enabled)
     {
         const float old_val = cd_.get_truncate_contrast_min();
         const float val = value;
@@ -2186,10 +2185,10 @@ void MainWindow::set_contrast_min(const double value)
 
 void MainWindow::set_contrast_max(const double value)
 {
-    if (is_raw_mode())
+    if (is_raw_mode()) // FIXME: Useless because of gui handling
         return;
 
-    if (cd_.xy.contrast_enabled)
+    if (cd_.current->contrast_enabled) // FIXME: Useless because of gui handling
     {
         const float old_val = cd_.get_truncate_contrast_max();
         const float val = value;
@@ -2203,32 +2202,18 @@ void MainWindow::set_contrast_max(const double value)
     }
 }
 
-void MainWindow::invert_contrast(bool value)
-{
-    if (!is_raw_mode() && cd_.set_contrast_invert(value))
-    {
-        pipe_refresh();
-    }
-}
-
-void MainWindow::set_auto_refresh_contrast(bool value)
-{
-    cd_.set_contrast_auto_refresh(value);
-    pipe_refresh();
-    notify();
-}
-
 void MainWindow::set_log_scale(const bool value)
 {
     if (is_raw_mode())
         return;
 
-    cd_.set_log_scale_slice_enabled(cd_.current_window, value);
+    cd_.set_log_scale_slice_enabled(value);
     if (value && cd_.xy.contrast_enabled)
         set_auto_contrast();
     pipe_refresh();
     notify();
 }
+
 #pragma endregion
 /* ------------ */
 #pragma region Convolution

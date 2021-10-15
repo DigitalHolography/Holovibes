@@ -67,7 +67,7 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
-    auto xyz_get = [&](const std::string name, WindowView& view) {
+    auto xyz_get = [&](const std::string name, XY_XZ_YZ_WindowView& view) {
         view.flip_enabled = ptree.get<bool>(name + ".flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>(name + ".rot", view.rot);
         view.log_scale_slice_enabled = ptree.get<bool>(name + ".log_scale_enabled", view.log_scale_slice_enabled);
@@ -249,7 +249,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
-    auto xyz_put = [&](std::string name, const WindowView& view) {
+    auto xyz_put = [&](std::string name, const XY_XZ_YZ_WindowView& view) {
         ptree.put<bool>(name + ".flip_enabled", view.flip_enabled);
         ptree.put<int>(name + ".rot", view.rot);
         ptree.put<bool>(name + ".log_scale_enabled", view.log_scale_slice_enabled);

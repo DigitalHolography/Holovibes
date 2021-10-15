@@ -40,7 +40,7 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    cd_->current_window = WindowKind::XYview;
+    cd_->change_window(static_cast<int>(WindowKind::XYview));
     cd_->notify_observers();
 }
 

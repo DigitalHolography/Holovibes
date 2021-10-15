@@ -129,16 +129,19 @@ class ComputeDescriptor : public Observable
      */
     float get_truncate_contrast_min(const int precision = 2) const;
 
-    bool get_img_log_scale_slice_enabled(WindowKind kind) const;
-    bool get_img_acc_slice_enabled(WindowKind kind) const;
-    unsigned get_img_acc_slice_level(WindowKind kind) const;
+    bool get_img_log_scale_slice_enabled() const;
+
+    bool get_img_acc_slice_enabled() const;
+    unsigned get_img_acc_slice_level() const;
+
     bool get_contrast_enabled() const;
     bool get_contrast_auto_refresh() const;
     bool get_contrast_invert_enabled() const;
 
     void set_contrast_min(float value);
     void set_contrast_max(float value);
-    void set_log_scale_slice_enabled(WindowKind kind, bool value);
+    void set_log_scale_slice_enabled(bool value);
+    void set_log_scale_slice_enabled_filter2d() { filter2d.log_scale_slice_enabled = true; }
     void set_accumulation(bool value);
     void set_accumulation_level(float value);
 
@@ -163,9 +166,9 @@ class ComputeDescriptor : public Observable
     void set_time_transformation_size(int value);
     void set_batch_size(int value);
     void set_contrast_mode(bool value);
-    void change_angle(std::atomic<float>& var);
-    void change_flip(std::atomic<bool>& var);
-    bool set_contrast_invert(bool value);
+    void change_angle();
+    void change_flip();
+    void set_contrast_invert(bool value);
     void set_contrast_auto_refresh(bool value);
     void set_contrast_enabled(bool value);
     void set_convolution_enabled(bool value);
@@ -216,7 +219,7 @@ class ComputeDescriptor : public Observable
     /*! \brief Reset values used to check if GUY windows are displayed */
     void reset_windows_display();
     /*! \brief Reset key FFT values when the GUI is reset */
-    void reset_gui();
+    void reset_gui(); // FIXME: Unused!
     /*! \brief Reset values used in the slice view */
     void reset_slice_view();
     /*! \} */
@@ -284,30 +287,6 @@ class ComputeDescriptor : public Observable
     PQView p{};
     PQView q{};
 
-    /*! \brief x cursor position (used in 3D cuts) */
-    // std::atomic<uint> x_cuts;
-    /*! \brief Is x average in view YZ enabled (average of columns between both selected columns) */
-    // std::atomic<bool> x_accu_enabled{false};
-    /*! \brief Difference between x min and x max */
-    // std::atomic<int> x_acc_level{1};
-    /*! \brief y cursor position (used in 3D cuts) */
-    // std::atomic<uint> y_cuts;
-    /*! \brief Is y average in view XZ enabled (average of lines between both selected lines) */
-    // std::atomic<bool> y_accu_enabled{false};
-    /*! \brief Difference between y min and y max */
-    // std::atomic<int> y_acc_level{1};
-    /*! \brief Index in the depth axis */
-    // std::atomic<uint> p_index{0};
-    /*! \brief Is p average enabled (average image over multiple depth index) */
-    // std::atomic<bool> p_accu_enabled{false};
-    /*! \brief Difference between p min and p max */
-    // std::atomic<int> p_acc_level{1};
-    /*! \brief svd eigen vectors filtering index */
-    // std::atomic<uint> q_index;
-    /*! \brief Is q_accu enabled (svd eigen vectors filtering) */
-    // std::atomic<bool> q_acc_enabled;
-    /*! \brief svd eigen vectors filtering size */
-    // std::atomic<uint> q_acc_level;
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};
     /*! \brief Is the reticle overlay enabled */
@@ -317,60 +296,12 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
+    WindowView* current = &xy;
 
-    // TODO: Replace switch current_window
-    WindowView current;
-    WindowView xy{};
-    WindowView xz{};
-    WindowView yz{};
-
-    // XY
-    // std::atomic<bool> xy_flip_enabled{false};
-    // std::atomic<float> xy_rot{0};
-    // std::atomic<bool> log_scale_slice_xy_enabled{false};
-    // std::atomic<bool> img_acc_slice_xy_enabled{false};
-    // std::atomic<uint> img_acc_slice_xy_level{1};
-
-    // std::atomic<bool> xy_contrast_enabled{false};
-    // std::atomic<bool> xy_contrast_auto_refresh{true};
-    // std::atomic<bool> xy_contrast_invert{false};
-
-    // std::atomic<float> contrast_min_slice_xy{1.f};
-    // std::atomic<float> contrast_max_slice_xy{65535.f};
-    // XZ
-    // std::atomic<bool> xz_flip_enabled{false};
-    // std::atomic<float> xz_rot{0};
-    // std::atomic<bool> log_scale_slice_xz_enabled{false};
-    // std::atomic<bool> img_acc_slice_xz_enabled{false};
-    // std::atomic<uint> img_acc_slice_xz_level{1};
-
-    // std::atomic<bool> xz_contrast_enabled{false};
-    // std::atomic<bool> xz_contrast_auto_refresh{true};
-    // std::atomic<bool> xz_contrast_invert{false};
-
-    // std::atomic<float> contrast_min_slice_xz{1.f};
-    // std::atomic<float> contrast_max_slice_xz{65535.f};
-    // YZ
-    // std::atomic<bool> yz_flip_enabled{false};
-    // std::atomic<float> yz_rot{0};
-    // std::atomic<bool> log_scale_slice_yz_enabled{false};
-    // std::atomic<bool> img_acc_slice_yz_enabled{false};
-    // std::atomic<uint> img_acc_slice_yz_level{1};
-
-    // std::atomic<bool> yz_contrast_enabled{false};
-    // std::atomic<bool> yz_contrast_auto_refresh{true};
-    // std::atomic<bool> yz_contrast_invert{false};
-
-    // std::atomic<float> contrast_min_slice_yz{1.f};
-    // std::atomic<float> contrast_max_slice_yz{65535.f};
-
-    // Filter 2D
-    /*! \brief Is log scale in Filter2D view enabled */
-    std::atomic<bool> log_scale_filter2d_enabled{false};
-    /*! \brief Minimum constrast value in Filter2D view */
-    std::atomic<float> contrast_min_filter2d{1.f};
-    /*! \brief Maximum constrast value in Filter2D view */
-    std::atomic<float> contrast_max_filter2d{65535.f};
+    XY_XZ_YZ_WindowView xy{};
+    XY_XZ_YZ_WindowView xz{};
+    XY_XZ_YZ_WindowView yz{};
+    WindowView filter2d{};
 
     // Composite images
     std::atomic<CompositeKind> composite_kind;
@@ -424,7 +355,7 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
     /*! \brief Number of frame per seconds displayed */
     std::atomic<float> display_rate{30};
-    /*! \brief Filter2D low smoothing */
+    /*! \brief Filter2D low smoothing */ // May be moved in filter2d Struct
     std::atomic<int> filter2d_smooth_low{0};
     /*! \brief Filter2D high smoothing */
     std::atomic<int> filter2d_smooth_high{0};
