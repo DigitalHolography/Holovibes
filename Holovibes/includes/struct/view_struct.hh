@@ -17,3 +17,19 @@ struct WindowView
     std::atomic<float> contrast_min_slice{1.f};
     std::atomic<float> contrast_max_slice{65535.f};
 };
+
+struct AccView
+{
+    std::atomic<bool> accu_enabled{false};
+    std::atomic<int> accu_level{1};
+};
+
+struct PQView : public AccView
+{
+    std::atomic<uint> index{0};
+};
+
+struct XYView : public AccView
+{
+    std::atomic<uint> cuts{0};
+};

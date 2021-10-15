@@ -30,34 +30,44 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // View
     // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
     cd.img_type = static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load())));
-    LOG_INFO << static_cast<int>(cd.img_type.load());
     // Add unwrap_2d
     cd.time_transformation_cuts_enabled =
         ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
     cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
     cd.lens_view_enabled = ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
-    // TODO: Create structs and replace 4 * 4 lines by 4 lines
-    cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
-    cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
-    cd.x_acc_level = ptree.get<short>("view.x_acc_level", cd.x_acc_level);
-    cd.y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
-    cd.y_accu_enabled = ptree.get<bool>("view.y_accu_enabled", cd.y_accu_enabled);
-    cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
-    cd.p_index = ptree.get<ushort>("view.p_index", cd.p_index);
-    cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
-    cd.q_index = ptree.get<ushort>("view.q_index", cd.q_index);
-    cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
-    cd.q_acc_level = ptree.get<short>("view.q_acc_level", cd.q_acc_level);
+
+    auto xypq_get = [&](const std::string name, AccView& view) {
+        view.accu_enabled = ptree.get<bool>("view." + name + "_accu_enabled", view.accu_enabled);
+        view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
+    };
+    cd.x.cuts = ptree.get<ushort>("view.x_cuts", cd.x.cuts);
+    xypq_get("x", cd.x);
+    cd.y.cuts = ptree.get<ushort>("view.y_cuts", cd.y.cuts);
+    xypq_get("y", cd.y);
+    cd.p.index = ptree.get<ushort>("view.p_index", cd.p.index);
+    xypq_get("p", cd.p);
+    cd.q.index = ptree.get<ushort>("view.q_index", cd.q.index);
+    xypq_get("q", cd.q);
+
+    // cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
+    // cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
+    // cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_acc_level);
+    // cd.y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
+    // cd.y_accu_enabled = ptree.get<bool>("view.y_accu_enabled", cd.y_accu_enabled);
+    // cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
+    // cd.p_index = ptree.get<ushort>("view.p_index", cd.p_index);
+    // cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
+    // cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
+    // cd.q_index = ptree.get<ushort>("view.q_index", cd.q_index);
+    // cd.q_acc_enabled = ptree.get<bool>("view.q_acc_enabled", cd.q_acc_enabled);
+    // cd.q_acc_level = ptree.get<short>("view.q_acc_level", cd.q_acc_level);
+
     cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
     cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.p_accu_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
-    // TODO: Struct and 3 function call instead of 3 * 10 lines
-    // xy
-
-    auto xyz_get = [&](std::string name, WindowView& view) {
+    auto xyz_get = [&](const std::string name, WindowView& view) {
         view.flip_enabled = ptree.get<bool>(name + ".flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>(name + ".rot", view.rot);
         view.log_scale_slice_enabled = ptree.get<bool>(name + ".log_scale_enabled", view.log_scale_slice_enabled);
@@ -69,11 +79,11 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         view.contrast_min_slice = ptree.get<float>(name + ".contrast_min", view.contrast_min_slice);
         view.contrast_max_slice = ptree.get<float>(name + ".contrast_max", view.contrast_max_slice);
     };
-
     xyz_get("xy", cd.xy);
     xyz_get("xz", cd.xz);
     xyz_get("yz", cd.yz);
 
+    // xy
     // cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
     // cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
     // cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
@@ -112,7 +122,8 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // RGB
-
+    // Where is RGB ?
+    // ==> TODO: lambda
     // HSV_H
     cd.composite_p_min_h = ptree.get<ushort>("hsv_h.p_min", cd.composite_p_min_h);
     cd.composite_p_max_h = ptree.get<ushort>("hsv_h.p_max", cd.composite_p_max_h);
@@ -207,18 +218,33 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
     ptree.put<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
-    ptree.put<ushort>("view.x_cuts", cd.x_cuts);
-    ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
-    ptree.put<short>("view.x_acc_level", cd.x_acc_level);
-    ptree.put<ushort>("view.y_cuts", cd.y_cuts);
-    ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
-    ptree.put<short>("view.y_acc_level", cd.y_acc_level);
-    ptree.put<ushort>("view.p_index", cd.p_index);
-    ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    ptree.put<short>("view.p_acc_level", cd.p_acc_level);
-    ptree.put<ushort>("view.q_index", cd.q_index);
-    ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
-    ptree.put<short>("view.q_acc_level", cd.q_acc_level);
+
+    auto xyqp_put = [&](const std::string& name, const AccView& view) {
+        ptree.put<bool>("view." + name + "_accu_enabled", view.accu_enabled);
+        ptree.put<short>("view." + name + "_acc_level", view.accu_level);
+    };
+    ptree.put<ushort>("view.x_cuts", cd.x.cuts);
+    xyqp_put("x", cd.x);
+    ptree.put<ushort>("view.y_cuts", cd.y.cuts);
+    xyqp_put("y", cd.y);
+    ptree.put<ushort>("view.p_index", cd.p.index);
+    xyqp_put("p", cd.p);
+    ptree.put<ushort>("view.q_index", cd.q.index);
+    xyqp_put("q", cd.q);
+
+    // ptree.put<ushort>("view.x_cuts", cd.x_cuts);
+    // ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
+    // ptree.put<short>("view.x_acc_level", cd.x_acc_level);
+    // ptree.put<ushort>("view.y_cuts", cd.y_cuts);
+    // ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
+    // ptree.put<short>("view.y_acc_level", cd.y_acc_level);
+    // ptree.put<ushort>("view.p_index", cd.p_index);
+    // ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
+    // ptree.put<short>("view.p_acc_level", cd.p_acc_level);
+    // ptree.put<ushort>("view.q_index", cd.q_index);
+    // ptree.put<bool>("view.q_accu_enabled", cd.q_acc_enabled);
+    // ptree.put<short>("view.q_acc_level", cd.q_acc_level);
+
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
     ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
@@ -327,6 +353,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<float>("rgb.weight_r", cd.weight_r);
     ptree.put<float>("rgb.weight_g", cd.weight_g);
     ptree.put<float>("rgb.weight_b", cd.weight_b);
+    // ==> TODO: lambda
     // HSV_H
     ptree.put<ushort>("hsv_h.p_min", cd.composite_p_min_h);
     ptree.put<ushort>("hsv_h.p_max", cd.composite_p_max_h);

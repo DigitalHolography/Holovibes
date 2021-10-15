@@ -278,6 +278,12 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> lens_view_enabled{false};
     /*! \brief Display the raw interferogram when we are in hologram mode. */
     std::atomic<bool> raw_view_enabled{false};
+
+    XYView x{};
+    XYView y{};
+    PQView p{};
+    PQView q{};
+
     /*! \brief x cursor position (used in 3D cuts) */
     std::atomic<uint> x_cuts;
     /*! \brief Is x average in view YZ enabled (average of columns between both selected columns) */
@@ -312,12 +318,13 @@ class ComputeDescriptor : public Observable
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
 
-    // XY
+    // TODO: Replace switch current_window
     WindowView current;
     WindowView xy{};
     WindowView xz{};
     WindowView yz{};
 
+    // XY
     std::atomic<bool> xy_flip_enabled{false};
     std::atomic<float> xy_rot{0};
     std::atomic<bool> log_scale_slice_xy_enabled{false};
@@ -358,7 +365,6 @@ class ComputeDescriptor : public Observable
     std::atomic<float> contrast_max_slice_yz{65535.f};
 
     // Filter 2D
-    // TODO: check if function where it is used are ever called.
     /*! \brief Is log scale in Filter2D view enabled */
     std::atomic<bool> log_scale_filter2d_enabled{false};
     /*! \brief Minimum constrast value in Filter2D view */
@@ -372,7 +378,7 @@ class ComputeDescriptor : public Observable
     Composite_RGB rgb{};
     Composite_RGB hsv{};
 
-    // RGB
+    // RGB //TODO: To replace
     std::atomic<uint> rgb_p_min{0};
     std::atomic<uint> rgb_p_max{0};
     std::atomic<float> weight_r{1};
