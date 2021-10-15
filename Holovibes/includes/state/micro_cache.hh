@@ -24,3 +24,9 @@ class Monitored
         return *this;
     }
 };
+
+// set_ftt {
+//     fft = x
+//     map["fft"].second = fft
+
+// }

@@ -21,8 +21,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/image_accumulation.cc
     compute/svd.cc
 
-    containers/information_container.cc
-
     core/holovibes.cc
     core/icompute.cc
     core/pipe.cc

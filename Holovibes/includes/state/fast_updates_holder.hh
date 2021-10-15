@@ -20,6 +20,7 @@ class FastUpdatesHolder
   public:
     using Key = T;
     using Value = std::shared_ptr<FastUpdateTypeValue<T>>;
+    using const_iterator = std::unordered_map<Key, Value>::const_iterator;
 
     /*!
      * \brief Create a fast update entry object in the map of type T
@@ -47,11 +48,7 @@ class FastUpdatesHolder
      * \param key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    Value get_entry(Key key) const
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return map_.at(key);
-    }
+    Value get_entry(Key key) const { return map_.at(key); }
 
     /*!
      * \brief Remove an entry from the map
@@ -71,11 +68,7 @@ class FastUpdatesHolder
         return true;
     }
 
-    bool contains(Key key) const noexcept
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return map_.contains(key);
-    }
+    bool contains(Key key) const noexcept { return map_.contains(key); }
 
     /*! \brief Clears the map */
     void clear() noexcept
@@ -83,6 +76,13 @@ class FastUpdatesHolder
         std::lock_guard<std::mutex> lock(mutex_);
         map_.clear();
     }
+
+    /*! \brief Iterators */
+
+    const_iterator begin() { return map_.begin(); }
+    const_iterator end() { return map_.end(); }
+
+    const_iterator find(Key key) { return map_.find(key); }
 
   protected:
     mutable std::mutex mutex_;

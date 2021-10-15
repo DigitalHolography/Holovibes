@@ -47,7 +47,6 @@ set(HOLO_INCLUDES
     includes/
     includes/state/
     includes/compute/
-    includes/containers/
     includes/core/
     includes/enum/
     includes/gui/other/

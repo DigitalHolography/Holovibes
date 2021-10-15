@@ -19,6 +19,8 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
+    // static inline map string -> {val}
+
   private:
     GSH() {}
 

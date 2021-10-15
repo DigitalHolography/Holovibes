@@ -149,7 +149,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 static void main_loop(holovibes::Holovibes& holovibes)
 {
     auto& cd = holovibes.get_cd();
-    const auto& info = holovibes.get_info_container();
     // Recording progress (used by the progress bar)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
@@ -209,10 +208,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
 
-    holovibes.start_information_display(true); // Thread
-
     Chrono chrono;
-
     uint nb_frames_skip = 0;
 
     // Skip img acc frames to avoid early black frames
