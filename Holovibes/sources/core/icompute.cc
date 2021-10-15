@@ -335,11 +335,12 @@ void ICompute::request_disable_frame_record()
     request_refresh();
 }
 
+// FIXME: Cyrrently
 void ICompute::request_autocontrast(WindowKind kind)
 {
     // Do not request anything if contrast is not enabled
-    if (!cd_.xy.contrast_enabled)
-        return;
+    if (!cd_.xy.contrast_enabled) // To remove
+        return;                   // To remove
 
     if (kind == WindowKind::XYview)
         autocontrast_requested_ = true;

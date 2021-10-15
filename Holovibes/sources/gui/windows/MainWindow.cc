@@ -312,8 +312,8 @@ void MainWindow::on_notify()
 
     // Window selection
     QComboBox* window_selection = ui.WindowSelectionComboBox;
-    window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
-    window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(cd_.current_window.load()) : 0);
+    window_selection->setEnabled(!is_raw);
+    window_selection->setCurrentIndex(static_cast<int>(cd_.current_window.load()));
 
     // Log
     ui.LogScaleCheckBox->setEnabled(true);
@@ -2153,8 +2153,8 @@ void MainWindow::set_auto_contrast()
 void MainWindow::invert_contrast(bool value)
 {
     cd_.set_contrast_invert(value);
-    if (!is_raw_mode() && cd_.get_contrast_invert_enabled())
-        pipe_refresh();
+    pipe_refresh();
+    notify();
 }
 
 void MainWindow::set_auto_refresh_contrast(bool value)
