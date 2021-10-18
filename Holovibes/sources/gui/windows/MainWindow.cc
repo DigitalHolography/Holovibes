@@ -2088,8 +2088,8 @@ void MainWindow::set_contrast_mode(bool value)
     if (is_raw_mode())
         return;
 
-    change_window();
     cd_.set_contrast_mode(value);
+
     pipe_refresh();
     notify();
 }
