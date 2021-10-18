@@ -27,13 +27,13 @@ struct HSV_struct
 
 struct H_struct : public HSV_struct
 {
-    std::atomic<bool> h_blur_activated{false};
-    std::atomic<uint> h_blur_kernel_size{1};
+    std::atomic<bool> blur_enabled{false};
+    std::atomic<uint> blur_kernel_size{1};
 };
 
 struct SV_struct : public HSV_struct
 {
-    std::atomic<bool> activated{false};
+    std::atomic<bool> p_activated{false};
 };
 
 struct Composite_HSV

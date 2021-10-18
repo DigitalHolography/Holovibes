@@ -467,27 +467,25 @@ void MainWindow::on_notify()
     QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, cd_.rgb.weight_b);
     actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.composite_p_min_h);
-    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, cd_.composite_p_max_h);
-    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.composite_slider_h_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.hsv.h.p_min);
+    QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, cd_.hsv.h.p_max);
+    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(cd_.hsv.h.slider_threshold_min * 1000));
     slide_update_threshold_h_min();
-    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(cd_.composite_slider_h_threshold_max * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(cd_.hsv.h.slider_threshold_max * 1000));
     slide_update_threshold_h_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, cd_.composite_p_min_s);
-    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, cd_.composite_p_max_s);
-    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min,
-                         (int)(cd_.composite_slider_s_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_min, cd_.hsv.s.p_min);
+    QSpinBoxQuietSetValue(ui.SpinBox_saturation_freq_max, cd_.hsv.s.p_max);
+    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_min, (int)(cd_.hsv.s.slider_threshold_min * 1000));
     slide_update_threshold_s_min();
-    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max,
-                         (int)(cd_.composite_slider_s_threshold_max * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_saturation_threshold_max, (int)(cd_.hsv.s.slider_threshold_max * 1000));
     slide_update_threshold_s_max();
 
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, cd_.composite_p_min_v);
-    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, cd_.composite_p_max_v);
-    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.composite_slider_v_threshold_min * 1000));
+    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, cd_.hsv.v.p_min);
+    QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, cd_.hsv.v.p_max);
+    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(cd_.hsv.v.slider_threshold_min * 1000));
     slide_update_threshold_v_min();
-    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(cd_.composite_slider_s_threshold_max * 1000));
+    QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(cd_.hsv.s.slider_threshold_max * 1000));
     slide_update_threshold_v_max();
 
     ui.CompositeGroupBox->setHidden(is_raw_mode() || (cd_.img_type != ImgType::Composite));
@@ -1850,67 +1848,67 @@ void slide_update_threshold(QSlider& slider,
 void MainWindow::slide_update_threshold_h_min()
 {
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_min,
-                           cd_.composite_slider_h_threshold_min,
-                           cd_.composite_slider_h_threshold_max,
+                           cd_.hsv.h.slider_threshold_min,
+                           cd_.hsv.h.slider_threshold_max,
                            *ui.horizontalSlider_hue_threshold_max,
                            *ui.label_hue_threshold_min,
-                           cd_.composite_slider_h_threshold_min,
-                           cd_.composite_slider_h_threshold_max);
+                           cd_.hsv.h.slider_threshold_min,
+                           cd_.hsv.h.slider_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_h_max()
 {
     slide_update_threshold(*ui.horizontalSlider_hue_threshold_max,
-                           cd_.composite_slider_h_threshold_max,
-                           cd_.composite_slider_h_threshold_min,
+                           cd_.hsv.h.slider_threshold_max,
+                           cd_.hsv.h.slider_threshold_min,
                            *ui.horizontalSlider_hue_threshold_min,
                            *ui.label_hue_threshold_max,
-                           cd_.composite_slider_h_threshold_min,
-                           cd_.composite_slider_h_threshold_max);
+                           cd_.hsv.h.slider_threshold_min,
+                           cd_.hsv.h.slider_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_s_min()
 {
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_min,
-                           cd_.composite_slider_s_threshold_min,
-                           cd_.composite_slider_s_threshold_max,
+                           cd_.hsv.s.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max,
                            *ui.horizontalSlider_saturation_threshold_max,
                            *ui.label_saturation_threshold_min,
-                           cd_.composite_slider_s_threshold_min,
-                           cd_.composite_slider_s_threshold_max);
+                           cd_.hsv.s.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_s_max()
 {
     slide_update_threshold(*ui.horizontalSlider_saturation_threshold_max,
-                           cd_.composite_slider_s_threshold_max,
-                           cd_.composite_slider_s_threshold_min,
+                           cd_.hsv.s.slider_threshold_max,
+                           cd_.hsv.s.slider_threshold_min,
                            *ui.horizontalSlider_saturation_threshold_min,
                            *ui.label_saturation_threshold_max,
-                           cd_.composite_slider_s_threshold_min,
-                           cd_.composite_slider_s_threshold_max);
+                           cd_.hsv.s.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_v_min()
 {
     slide_update_threshold(*ui.horizontalSlider_value_threshold_min,
-                           cd_.composite_slider_v_threshold_min,
-                           cd_.composite_slider_s_threshold_max,
+                           cd_.hsv.v.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max,
                            *ui.horizontalSlider_value_threshold_max,
                            *ui.label_value_threshold_min,
-                           cd_.composite_slider_v_threshold_min,
-                           cd_.composite_slider_s_threshold_max);
+                           cd_.hsv.v.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max);
 }
 
 void MainWindow::slide_update_threshold_v_max()
 {
     slide_update_threshold(*ui.horizontalSlider_value_threshold_max,
-                           cd_.composite_slider_s_threshold_max,
-                           cd_.composite_slider_v_threshold_min,
+                           cd_.hsv.s.slider_threshold_max,
+                           cd_.hsv.v.slider_threshold_min,
                            *ui.horizontalSlider_value_threshold_min,
                            *ui.label_value_threshold_max,
-                           cd_.composite_slider_v_threshold_min,
-                           cd_.composite_slider_s_threshold_max);
+                           cd_.hsv.v.slider_threshold_min,
+                           cd_.hsv.s.slider_threshold_max);
 }
 
 void MainWindow::increment_p()

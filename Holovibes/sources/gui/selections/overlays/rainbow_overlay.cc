@@ -126,8 +126,8 @@ void RainbowOverlay::setBuffer()
     }
     else
     {
-        red = cd->composite_p_min_h;
-        blue = cd->composite_p_max_h;
+        red = cd->hsv.h.p_min;
+        blue = cd->hsv.h.p_max;
     }
     int green = (red + blue) / 2;
     units::PointFd red1;
@@ -198,8 +198,8 @@ void RainbowOverlay::move(QMouseEvent* e)
             }
             else
             {
-                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().x());
-                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().x());
+                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().x());
+                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().x());
             }
         }
         else
@@ -211,8 +211,8 @@ void RainbowOverlay::move(QMouseEvent* e)
             }
             else
             {
-                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().y());
-                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().y());
+                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().y());
+                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().y());
             }
         }
         parent_->getCd()->notify_observers();

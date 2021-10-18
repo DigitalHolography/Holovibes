@@ -339,17 +339,17 @@ void ComputeDescriptor::set_rgb_p_min(int value) { rgb.p_min = value; }
 
 void ComputeDescriptor::set_rgb_p_max(int value) { rgb.p_max = value; }
 
-void ComputeDescriptor::set_composite_p_min_h(int value) { composite_p_min_h = value; }
+void ComputeDescriptor::set_composite_p_min_h(int value) { hsv.h.p_min = value; }
 
-void ComputeDescriptor::set_composite_p_max_h(int value) { composite_p_max_h = value; }
+void ComputeDescriptor::set_composite_p_max_h(int value) { hsv.h.p_max = value; }
 
-void ComputeDescriptor::set_composite_p_min_s(int value) { composite_p_min_s = value; }
+void ComputeDescriptor::set_composite_p_min_s(int value) { hsv.s.p_min = value; }
 
-void ComputeDescriptor::set_composite_p_max_s(int value) { composite_p_max_s = value; }
+void ComputeDescriptor::set_composite_p_max_s(int value) { hsv.s.p_max = value; }
 
-void ComputeDescriptor::set_composite_p_min_v(int value) { composite_p_min_v = value; }
+void ComputeDescriptor::set_composite_p_min_v(int value) { hsv.v.p_min = value; }
 
-void ComputeDescriptor::set_composite_p_max_v(int value) { composite_p_max_v = value; }
+void ComputeDescriptor::set_composite_p_max_v(int value) { hsv.v.p_max = value; }
 
 void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
 {
@@ -362,13 +362,13 @@ void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_
 
 void ComputeDescriptor::set_composite_kind(CompositeKind kind) { composite_kind = kind; }
 
-void ComputeDescriptor::set_composite_p_activated_s(bool value) { composite_p_activated_s = value; }
+void ComputeDescriptor::set_composite_p_activated_s(bool value) { hsv.s.p_activated = value; }
 
-void ComputeDescriptor::set_composite_p_activated_v(bool value) { composite_p_activated_v = value; }
+void ComputeDescriptor::set_composite_p_activated_v(bool value) { hsv.v.p_activated = value; }
 
-void ComputeDescriptor::set_h_blur_activated(bool value) { h_blur_activated = value; }
+void ComputeDescriptor::set_h_blur_activated(bool value) { hsv.h.blur_enabled = value; }
 
-void ComputeDescriptor::set_h_blur_kernel_size(int value) { h_blur_kernel_size = value; }
+void ComputeDescriptor::set_h_blur_kernel_size(int value) { hsv.h.blur_kernel_size = value; }
 
 void ComputeDescriptor::set_x_accu(bool enabled, int level)
 {

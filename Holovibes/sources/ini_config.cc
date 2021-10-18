@@ -50,19 +50,6 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.q.index = ptree.get<ushort>("view.q_index", cd.q.index);
     xypq_get("q", cd.q);
 
-    // cd.x_cuts = ptree.get<ushort>("view.x_cuts", cd.x_cuts);
-    // cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_accu_enabled);
-    // cd.x_accu_enabled = ptree.get<bool>("view.x_accu_enabled", cd.x_acc_level);
-    // cd.y_cuts = ptree.get<ushort>("view.y_cuts", cd.y_cuts);
-    // cd.y_accu_enabled = ptree.get<bool>("view.y_accu_enabled", cd.y_accu_enabled);
-    // cd.y_acc_level = ptree.get<short>("view.y_acc_level", cd.y_acc_level);
-    // cd.p_index = ptree.get<ushort>("view.p_index", cd.p_index);
-    // cd.p_accu_enabled = ptree.get<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    // cd.p_acc_level = ptree.get<short>("view.p_acc_level", cd.p_acc_level);
-    // cd.q_index = ptree.get<ushort>("view.q_index", cd.q_index);
-    // cd.q.acc_enabled = ptree.get<bool>("view.q.acc_enabled", cd.q.acc_enabled);
-    // cd.q.acc_level = ptree.get<short>("view.q.acc_level", cd.q.acc_level);
-
     cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
     cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
@@ -83,72 +70,41 @@ void load_ini(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     xyz_get("xz", cd.xz);
     xyz_get("yz", cd.yz);
 
-    // xy
-    // cd.xy_flip_enabled = ptree.get<bool>("xy.flip", cd.xy_flip_enabled);
-    // cd.xy_rot = ptree.get<float>("xy.rot", cd.xy_rot);
-    // cd.log_scale_slice_xy_enabled = ptree.get<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
-    // cd.img_acc_slice_xy_enabled = ptree.get<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
-    // cd.img_acc_slice_xy_level = ptree.get<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
-    // cd.contrast_enabled = ptree.get<bool>("xy.contrast_enabled", cd.contrast_enabled);
-    // cd.contrast_auto_refresh = ptree.get<bool>("xy.auto_contrast_enabled", cd.contrast_auto_refresh);
-    // cd.contrast_invert = ptree.get<bool>("xy.invert_enabled", cd.contrast_invert);
-    // cd.contrast_min_slice_xy = ptree.get<float>("xy.range_min", cd.contrast_min_slice_xy);
-    // cd.contrast_max_slice_xy = ptree.get<float>("xy.range_max", cd.contrast_max_slice_xy);
-    // // xz
-    // cd.xz_flip_enabled = ptree.get<bool>("xz.flip", cd.xz_flip_enabled);
-    // cd.xz_rot = ptree.get<float>("xz.rot", cd.xz_rot);
-    // cd.log_scale_slice_xz_enabled = ptree.get<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
-    // cd.img_acc_slice_xz_enabled = ptree.get<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
-    // cd.img_acc_slice_xz_level = ptree.get<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
-    // cd.xz_contrast_enabled = ptree.get<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
-    // cd.xz_contrast_auto_refresh = ptree.get<bool>("xz.auto_contrast_enabled", cd.xz_contrast_auto_refresh);
-    // cd.xz_contrast_invert = ptree.get<bool>("xz.invert_enabled", cd.xz_contrast_invert);
-    // cd.contrast_min_slice_xz = ptree.get<float>("xz.range_min", cd.contrast_min_slice_xz);
-    // cd.contrast_max_slice_xz = ptree.get<float>("xz.range_max", cd.contrast_max_slice_xz);
-    // // yz
-    // cd.yz_flip_enabled = ptree.get<bool>("yz.flip", cd.yz_flip_enabled);
-    // cd.yz_rot = ptree.get<float>("yz.rot", cd.yz_rot);
-    // cd.log_scale_slice_yz_enabled = ptree.get<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
-    // cd.img_acc_slice_yz_enabled = ptree.get<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
-    // cd.img_acc_slice_yz_level = ptree.get<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
-    // cd.yz_contrast_enabled = ptree.get<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
-    // cd.yz_contrast_auto_refresh = ptree.get<bool>("yz.auto_contrast_enabled", cd.yz_contrast_auto_refresh);
-    // cd.yz_contrast_invert = ptree.get<bool>("yz.invert_enabled", cd.yz_contrast_invert);
-    // cd.contrast_min_slice_yz = ptree.get<float>("yz.range_min", cd.contrast_min_slice_yz);
-    // cd.contrast_max_slice_yz = ptree.get<float>("yz.range_max", cd.contrast_max_slice_yz);
-
-    // Composite
+    //// Composite
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // RGB
-    // Where is RGB ?
-    // ==> TODO: lambda
+    cd.rgb.p_max = ptree.get<ushort>("rgb.p_min", cd.rgb.p_max);
+    cd.rgb.p_min = ptree.get<ushort>("rgb.p_max", cd.rgb.p_min);
+    cd.rgb.weight_r = ptree.get<float>("rgb.weight_r", cd.rgb.weight_r);
+    cd.rgb.weight_g = ptree.get<float>("rgb.weight_g", cd.rgb.weight_g);
+    cd.rgb.weight_b = ptree.get<float>("rgb.weight_b", cd.rgb.weight_b);
     // HSV_H
-    cd.composite_p_min_h = ptree.get<ushort>("hsv_h.p_min", cd.composite_p_min_h);
-    cd.composite_p_max_h = ptree.get<ushort>("hsv_h.p_max", cd.composite_p_max_h);
-    cd.composite_slider_h_threshold_min = ptree.get<float>("hsv_h.min_value", cd.composite_slider_h_threshold_min);
-    cd.composite_slider_h_threshold_max = ptree.get<float>("hsv_h.min_value", cd.composite_slider_h_threshold_max);
-    cd.composite_low_h_threshold = ptree.get<float>("hsv_h.low_threshold", cd.composite_low_h_threshold);
-    cd.composite_high_h_threshold = ptree.get<float>("hsv_h.high_threshold", cd.composite_high_h_threshold);
-    cd.h_blur_activated = ptree.get<bool>("hsv_h.blur_enabled", cd.h_blur_activated);
-    cd.h_blur_activated = ptree.get<uint>("hsv_h.blur_size", cd.h_blur_activated);
+    cd.hsv.h.p_min = ptree.get<ushort>("hsv_h.p_min", cd.hsv.h.p_min);
+    cd.hsv.h.p_max = ptree.get<ushort>("hsv_h.p_max", cd.hsv.h.p_max);
+    cd.hsv.h.slider_threshold_min = ptree.get<float>("hsv_h.min_value", cd.hsv.h.slider_threshold_min);
+    cd.hsv.h.slider_threshold_max = ptree.get<float>("hsv_h.min_value", cd.hsv.h.slider_threshold_max);
+    cd.hsv.h.low_threshold = ptree.get<float>("hsv_h.low_threshold", cd.hsv.h.low_threshold);
+    cd.hsv.h.high_threshold = ptree.get<float>("hsv_h.high_threshold", cd.hsv.h.high_threshold);
+    cd.hsv.h.blur_enabled = ptree.get<bool>("hsv_h.blur_enabled", cd.hsv.h.blur_enabled);
+    cd.hsv.h.blur_kernel_size = ptree.get<uint>("hsv_h.blur_size", cd.hsv.h.blur_kernel_size);
     // HSV_S
-    cd.composite_p_activated_s = ptree.get<bool>("hsv_s.enabled", cd.composite_p_activated_s);
-    cd.composite_p_min_s = ptree.get<ushort>("hsv_s.p_min", cd.composite_p_min_s);
-    cd.composite_p_max_s = ptree.get<ushort>("hsv_s.p_max", cd.composite_p_max_s);
-    cd.composite_slider_s_threshold_min = ptree.get<float>("hsv_s.min_value", cd.composite_slider_s_threshold_min);
-    cd.composite_slider_s_threshold_max = ptree.get<float>("hsv_s.min_value", cd.composite_slider_s_threshold_max);
-    cd.composite_low_s_threshold = ptree.get<float>("hsv_s.low_threshold", cd.composite_low_s_threshold);
-    cd.composite_high_s_threshold = ptree.get<float>("hsv_s.high_threshold", cd.composite_high_h_threshold);
+    cd.hsv.s.p_activated = ptree.get<bool>("hsv_s.enabled", cd.hsv.s.p_activated);
+    cd.hsv.s.p_min = ptree.get<ushort>("hsv_s.p_min", cd.hsv.s.p_min);
+    cd.hsv.s.p_max = ptree.get<ushort>("hsv_s.p_max", cd.hsv.s.p_max);
+    cd.hsv.s.slider_threshold_min = ptree.get<float>("hsv_s.min_value", cd.hsv.s.slider_threshold_min);
+    cd.hsv.s.slider_threshold_max = ptree.get<float>("hsv_s.min_value", cd.hsv.s.slider_threshold_max);
+    cd.hsv.s.low_threshold = ptree.get<float>("hsv_s.low_threshold", cd.hsv.s.low_threshold);
+    cd.hsv.s.high_threshold = ptree.get<float>("hsv_s.high_threshold", cd.hsv.s.high_threshold);
     // HSV_V
-    cd.composite_p_activated_v = ptree.get<bool>("hsv_v.enabled", cd.composite_p_activated_v);
-    cd.composite_p_min_v = ptree.get<ushort>("hsv_v.p_min", cd.composite_p_min_v);
-    cd.composite_p_max_v = ptree.get<ushort>("hsv_v.p_max", cd.composite_p_max_v);
-    cd.composite_slider_v_threshold_min = ptree.get<float>("hsv_v.min_value", cd.composite_slider_v_threshold_min);
-    cd.composite_slider_v_threshold_max = ptree.get<float>("hsv_v.min_value", cd.composite_slider_v_threshold_max);
-    cd.composite_low_v_threshold = ptree.get<float>("hsv_v.low_threshold", cd.composite_low_v_threshold);
-    cd.composite_high_v_threshold = ptree.get<float>("hsv_v.high_threshold", cd.composite_high_h_threshold);
+    cd.hsv.v.p_activated = ptree.get<bool>("hsv_v.enabled", cd.hsv.v.p_activated);
+    cd.hsv.v.p_min = ptree.get<ushort>("hsv_v.p_min", cd.hsv.v.p_min);
+    cd.hsv.v.p_max = ptree.get<ushort>("hsv_v.p_max", cd.hsv.v.p_max);
+    cd.hsv.v.slider_threshold_min = ptree.get<float>("hsv_v.min_value", cd.hsv.v.slider_threshold_min);
+    cd.hsv.v.slider_threshold_max = ptree.get<float>("hsv_v.min_value", cd.hsv.v.slider_threshold_max);
+    cd.hsv.v.low_threshold = ptree.get<float>("hsv_v.low_threshold", cd.hsv.v.low_threshold);
+    cd.hsv.v.high_threshold = ptree.get<float>("hsv_v.high_threshold", cd.hsv.v.high_threshold);
 
     // Advanced
     cd.file_buffer_size = ptree.get<ushort>("advanced.file_buffer_size", cd.file_buffer_size);
@@ -195,7 +151,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
 {
     boost::property_tree::ptree ptree;
 
-    // Image rendering
+    //// Image rendering
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
@@ -211,7 +167,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     // ptree.put<string>("image_rendering.convolution_type", cd.convolution_type);
     ptree.put<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 
-    // View
+    //// View
     ptree.put<int>("view.view_type", static_cast<int>(cd.img_type.load()));
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
@@ -252,44 +208,7 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     xyz_put("xz", cd.xz);
     xyz_put("yz", cd.yz);
 
-    // // Composite
-    // cd.composite_kind =
-    //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
-    // ptree.put<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
-    // // RGB
-    // ptree.put<ushort>("rgb.p_min", cd.rgb.min);
-    // ptree.put<ushort>("rgb.p_max", cd.rgb.max);
-    // ptree.put<float>("rgb.weight_r", cd.rgb.r_weight);
-    // ptree.put<float>("rgb.weight_g", cd.rgb.g_weight);
-    // ptree.put<float>("rgb.weight_b", cd.rgb.b_weight);
-    // // HSV
-    // ptree.put<bool>("hsv.s_enabled", cd.hsv.s_enabled);
-    // ptree.put<bool>("hsv.v_enabled", cd.hsv.v_enabled);
-    // // HSV_H
-    // ptree.put<ushort>("hsv_h.p_min", cd.hsv.h.p_min);
-    // ptree.put<ushort>("hsv_h.p_max", cd.hsv.h.p_max);
-    // ptree.put<float>("hsv_h.min_value", cd.hsv.h.min_value);
-    // ptree.put<float>("hsv_h.max_value", cd.hsv.h.max_value);
-    // ptree.put<bool>("hsv_h.blur_enabled", cd.hsv.h.blur_enabled);
-    // ptree.put<ushort>("hsv_h.blur_size", cd.hsv.h.blur_size);
-    // ptree.put<float>("hsv_h.low_threshold", cd.hsv.h.low_threshold);
-    // ptree.put<float>("hsv_h.high_threshold", cd.hsv.h.high_threshold);
-    // // HSV_S
-    // ptree.put<ushort>("hsv_s.p_min", cd.hsv.s.p_min);
-    // ptree.put<ushort>("hsv_s.p_max", cd.hsv.s.p_max);
-    // ptree.put<float>("hsv_s.min_value", cd.hsv.s.min_value);
-    // ptree.put<float>("hsv_s.max_value", cd.hsv.s.max_value);
-    // ptree.put<float>("hsv_s.low_threshold", cd.hsv.s.low_threshold);
-    // ptree.put<float>("hsv_s.high_threshold", cd.hsv.s.high_threshold);
-    // // HSV_V
-    // ptree.put<ushort>("hsv_v.p_min", cd.hsv.v.p_min);
-    // ptree.put<ushort>("hsv_v.p_max", cd.hsv.v.p_max);
-    // ptree.put<float>("hsv_v.min_value", cd.hsv.v.min_value);
-    // ptree.put<float>("hsv_v.max_value", cd.hsv.v.max_value);
-    // ptree.put<float>("hsv_v.low_threshold", cd.hsv.v.low_threshold);
-    // ptree.put<float>("hsv_v.high_threshold", cd.hsv.v.high_threshold);
-
-    // Composite
+    //// Composite
     ptree.put<int>("composite.mode", static_cast<int>(cd.composite_kind.load()));
     ptree.put<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // RGB
@@ -298,32 +217,31 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<float>("rgb.weight_r", cd.rgb.weight_r);
     ptree.put<float>("rgb.weight_g", cd.rgb.weight_g);
     ptree.put<float>("rgb.weight_b", cd.rgb.weight_b);
-    // ==> TODO: lambda
     // HSV_H
-    ptree.put<ushort>("hsv_h.p_min", cd.composite_p_min_h);
-    ptree.put<ushort>("hsv_h.p_max", cd.composite_p_max_h);
-    ptree.put<float>("hsv_h.min_value", cd.composite_slider_h_threshold_min);
-    ptree.put<float>("hsv_h.max_value", cd.composite_slider_h_threshold_max);
-    ptree.put<float>("hsv_h.low_threshold", cd.composite_low_h_threshold);
-    ptree.put<float>("hsv_h.high_threshold", cd.composite_high_h_threshold);
-    ptree.put<bool>("hsv_h.blur_enabled", cd.h_blur_activated);
-    ptree.put<ushort>("hsv_h.blur_size", cd.h_blur_kernel_size);
+    ptree.put<ushort>("hsv_h.p_min", cd.hsv.h.p_min);
+    ptree.put<ushort>("hsv_h.p_max", cd.hsv.h.p_max);
+    ptree.put<float>("hsv_h.min_value", cd.hsv.h.slider_threshold_min);
+    ptree.put<float>("hsv_h.max_value", cd.hsv.h.slider_threshold_max);
+    ptree.put<float>("hsv_h.low_threshold", cd.hsv.h.low_threshold);
+    ptree.put<float>("hsv_h.high_threshold", cd.hsv.h.high_threshold);
+    ptree.put<bool>("hsv_h.blur_enabled", cd.hsv.h.blur_enabled);
+    ptree.put<ushort>("hsv_h.blur_size", cd.hsv.h.blur_kernel_size);
     // HSV_S
-    ptree.put<bool>("hsv_s.p_enabled", cd.composite_p_activated_s);
-    ptree.put<ushort>("hsv_s.p_min", cd.composite_p_min_s);
-    ptree.put<ushort>("hsv_s.p_max", cd.composite_p_max_s);
-    ptree.put<float>("hsv_s.min_value", cd.composite_slider_s_threshold_min);
-    ptree.put<float>("hsv_s.max_value", cd.composite_slider_s_threshold_max);
-    ptree.put<float>("hsv_s.low_threshold", cd.composite_low_s_threshold);
-    ptree.put<float>("hsv_s.high_threshold", cd.composite_high_s_threshold);
+    ptree.put<bool>("hsv_s.p_enabled", cd.hsv.s.p_activated);
+    ptree.put<ushort>("hsv_s.p_min", cd.hsv.s.p_min);
+    ptree.put<ushort>("hsv_s.p_max", cd.hsv.s.p_max);
+    ptree.put<float>("hsv_s.min_value", cd.hsv.s.slider_threshold_min);
+    ptree.put<float>("hsv_s.max_value", cd.hsv.s.slider_threshold_max);
+    ptree.put<float>("hsv_s.low_threshold", cd.hsv.s.low_threshold);
+    ptree.put<float>("hsv_s.high_threshold", cd.hsv.s.high_threshold);
     // HSV_V
-    ptree.put<bool>("hsv_v.p_enabled", cd.composite_p_activated_v);
-    ptree.put<ushort>("hsv_v.p_min", cd.composite_p_min_v);
-    ptree.put<ushort>("hsv_v.p_max", cd.composite_p_max_v);
-    ptree.put<float>("hsv_v.min_value", cd.composite_slider_v_threshold_min);
-    ptree.put<float>("hsv_v.max_value", cd.composite_slider_v_threshold_max);
-    ptree.put<float>("hsv_v.low_threshold", cd.composite_low_v_threshold);
-    ptree.put<float>("hsv_v.high_threshold", cd.composite_high_v_threshold);
+    ptree.put<bool>("hsv_v.p_enabled", cd.hsv.v.p_activated);
+    ptree.put<ushort>("hsv_v.p_min", cd.hsv.v.p_min);
+    ptree.put<ushort>("hsv_v.p_max", cd.hsv.v.p_max);
+    ptree.put<float>("hsv_v.min_value", cd.hsv.v.slider_threshold_min);
+    ptree.put<float>("hsv_v.max_value", cd.hsv.v.slider_threshold_max);
+    ptree.put<float>("hsv_v.low_threshold", cd.hsv.v.low_threshold);
+    ptree.put<float>("hsv_v.high_threshold", cd.hsv.v.high_threshold);
 
     // Advanced
     ptree.put<uint>("advanced.file_buffer_size", cd.file_buffer_size);

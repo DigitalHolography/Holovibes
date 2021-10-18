@@ -305,33 +305,7 @@ class ComputeDescriptor : public Observable
     std::atomic<CompositeKind> composite_kind;
     std::atomic<bool> composite_auto_weights;
     Composite_RGB rgb{};
-    Composite_RGB hsv{};
-
-    // HSV
-    std::atomic<uint> composite_p_min_h{0};
-    std::atomic<uint> composite_p_max_h{0};
-    std::atomic<float> composite_slider_h_threshold_min{0.01f};
-    std::atomic<float> composite_slider_h_threshold_max{1.0f};
-    std::atomic<float> composite_low_h_threshold{0.2f};
-    std::atomic<float> composite_high_h_threshold{99.8f};
-    std::atomic<bool> h_blur_activated{false};
-    std::atomic<uint> h_blur_kernel_size{1};
-
-    std::atomic<bool> composite_p_activated_s{false};
-    std::atomic<uint> composite_p_min_s{0};
-    std::atomic<uint> composite_p_max_s{0};
-    std::atomic<float> composite_slider_s_threshold_min{0.01f};
-    std::atomic<float> composite_slider_s_threshold_max{1.0f};
-    std::atomic<float> composite_low_s_threshold{0.2f};
-    std::atomic<float> composite_high_s_threshold{99.8f};
-
-    std::atomic<bool> composite_p_activated_v{false};
-    std::atomic<uint> composite_p_min_v{0};
-    std::atomic<uint> composite_p_max_v{0};
-    std::atomic<float> composite_slider_v_threshold_min{0.01f};
-    std::atomic<float> composite_slider_v_threshold_max{1.0f};
-    std::atomic<float> composite_low_v_threshold{0.2f};
-    std::atomic<float> composite_high_v_threshold{99.8f};
+    Composite_HSV hsv{};
 
     // Advanced
     /*! \brief Max number of frames read each time by the thread_reader. */
