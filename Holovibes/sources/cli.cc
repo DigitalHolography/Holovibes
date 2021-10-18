@@ -223,7 +223,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
                                     true,
                                     opts.fps.value_or(60),
                                     cd.start_frame - 1,
-                                    static_cast<unsigned int>(input_nb_frames),
+                                    static_cast<uint>(input_nb_frames),
                                     opts.gpu);
 
     if (opts.verbose)
