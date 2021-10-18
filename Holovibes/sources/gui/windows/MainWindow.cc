@@ -460,11 +460,11 @@ void MainWindow::on_notify()
 
     ui.RenormalizationCheckBox->setChecked(cd_.composite_auto_weights);
 
-    QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, cd_.rgb_p_min);
-    QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, cd_.rgb_p_max);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, cd_.weight_r);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, cd_.weight_g);
-    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, cd_.weight_b);
+    QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, cd_.rgb.p_min);
+    QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, cd_.rgb.p_max);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, cd_.rgb.weight_r);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, cd_.rgb.weight_g);
+    QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, cd_.rgb.weight_b);
     actualize_frequency_channel_v();
 
     QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, cd_.composite_p_min_h);

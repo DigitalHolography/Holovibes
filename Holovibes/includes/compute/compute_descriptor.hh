@@ -307,13 +307,6 @@ class ComputeDescriptor : public Observable
     Composite_RGB rgb{};
     Composite_RGB hsv{};
 
-    // RGB //TODO: To replace
-    std::atomic<uint> rgb_p_min{0};
-    std::atomic<uint> rgb_p_max{0};
-    std::atomic<float> weight_r{1};
-    std::atomic<float> weight_g{1};
-    std::atomic<float> weight_b{1};
-
     // HSV
     std::atomic<uint> composite_p_min_h{0};
     std::atomic<uint> composite_p_max_h{0};

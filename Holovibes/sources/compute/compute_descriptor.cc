@@ -335,9 +335,9 @@ void ComputeDescriptor::set_lambda(float value) { lambda = value; }
 
 void ComputeDescriptor::set_zdistance(float value) { zdistance = value; }
 
-void ComputeDescriptor::set_rgb_p_min(int value) { rgb_p_min = value; }
+void ComputeDescriptor::set_rgb_p_min(int value) { rgb.p_min = value; }
 
-void ComputeDescriptor::set_rgb_p_max(int value) { rgb_p_max = value; }
+void ComputeDescriptor::set_rgb_p_max(int value) { rgb.p_max = value; }
 
 void ComputeDescriptor::set_composite_p_min_h(int value) { composite_p_min_h = value; }
 
@@ -353,9 +353,9 @@ void ComputeDescriptor::set_composite_p_max_v(int value) { composite_p_max_v = v
 
 void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
 {
-    weight_r = r;
-    weight_g = g;
-    weight_b = b;
+    rgb.weight_r = r;
+    rgb.weight_g = g;
+    rgb.weight_b = b;
 }
 
 void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights = value; }

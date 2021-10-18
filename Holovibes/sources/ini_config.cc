@@ -232,19 +232,6 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<ushort>("view.q_index", cd.q.index);
     xyqp_put("q", cd.q);
 
-    // ptree.put<ushort>("view.x_cuts", cd.x_cuts);
-    // ptree.put<bool>("view.x_accu_enabled", cd.x_accu_enabled);
-    // ptree.put<short>("view.x_acc_level", cd.x_acc_level);
-    // ptree.put<ushort>("view.y_cuts", cd.y_cuts);
-    // ptree.put<bool>("view.y_accu_enabled", cd.y_accu_enabled);
-    // ptree.put<short>("view.y_acc_level", cd.y_acc_level);
-    // ptree.put<ushort>("view.p_index", cd.p_index);
-    // ptree.put<bool>("view.p_accu_enabled", cd.p_accu_enabled);
-    // ptree.put<short>("view.p_acc_level", cd.p_acc_level);
-    // ptree.put<ushort>("view.q_index", cd.q_index);
-    // ptree.put<bool>("view.q.accu_enabled", cd.q.acc_enabled);
-    // ptree.put<short>("view.q.acc_level", cd.q.acc_level);
-
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
     ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
@@ -265,48 +252,6 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     xyz_put("xz", cd.xz);
     xyz_put("yz", cd.yz);
 
-    // xy
-    // ptree.put<bool>("xy.flip", cd.xy_flip_enabled);
-    // ptree.put<int>("xy.rot", cd.xy_rot);
-    // ptree.put<bool>("xy.log_enabled", cd.log_scale_slice_xy_enabled);
-    // ptree.put<bool>("xy.img_acc_enabled", cd.img_acc_slice_xy_enabled);
-    // ptree.put<ushort>("xy.img_acc_value", cd.img_acc_slice_xy_level);
-    // ptree.put<bool>("xy.contrast_enabled", cd.contrast_enabled);
-    // ptree.put<bool>("xy.contrast_auto_enabled", cd.contrast_auto_refresh);
-    // ptree.put<bool>("xy.contrast_invert_enabled", cd.contrast_invert);
-    // ptree.put<float>("xy.contrast_min", cd.contrast_min_slice_xy);
-    // ptree.put<float>("xy.contrast_max", cd.contrast_max_slice_xy);
-    // // xz
-    // ptree.put<bool>("xz.flip", cd.xz_flip_enabled);
-    // ptree.put<int>("xz.rot", cd.xz_rot);
-    // ptree.put<bool>("xz.log_enabled", cd.log_scale_slice_xz_enabled);
-    // ptree.put<bool>("xz.img_acc_enabled", cd.img_acc_slice_xz_enabled);
-    // ptree.put<ushort>("xz.img_acc_value", cd.img_acc_slice_xz_level);
-    // ptree.put<bool>("xz.contrast_enabled", cd.xz_contrast_enabled);
-    // ptree.put<bool>("xz.contrast_auto_enabled", cd.xz_contrast_auto_refresh);
-    // ptree.put<bool>("xz.contrast_invert_enabled", cd.xz_contrast_invert);
-    // ptree.put<float>("xz.contrast_min", cd.contrast_min_slice_xz);
-    // ptree.put<float>("xz.contrast_max", cd.contrast_max_slice_xz);
-    // // yz
-    // ptree.put<bool>("yz.flip", cd.yz_flip_enabled);
-    // ptree.put<int>("yz.rot", cd.yz_rot);
-    // ptree.put<bool>("yz.log_enabled", cd.log_scale_slice_yz_enabled);
-    // ptree.put<bool>("yz.img_acc_enabled", cd.img_acc_slice_yz_enabled);
-    // ptree.put<ushort>("yz.img_acc_value", cd.img_acc_slice_yz_level);
-    // ptree.put<bool>("yz.contrast_enabled", cd.yz_contrast_enabled);
-    // ptree.put<bool>("yz.contrast_auto_enabled", cd.yz_contrast_auto_refresh);
-    // ptree.put<bool>("yz.contrast_invert_enabled", cd.yz_contrast_invert);
-    // ptree.put<float>("yz.contrast_min", cd.contrast_min_slice_yz);
-    // ptree.put<float>("yz.contrast_max", cd.contrast_max_slice_yz);
-
-    // ptree.put<bool>("view.accumulation_enabled", cd.img_acc_slice_xy_enabled);
-    //
-    // ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
-    // ptree.put<bool>("view.contrast_auto_refresh", cd.contrast_auto_refresh);
-    // ptree.put<bool>("view.contrast_invert", cd.contrast_invert);
-    // ptree.put<float>("view.contrast_min", cd.contrast_min_slice_xy);
-    // ptree.put<float>("view.contrast_max", cd.contrast_max_slice_xy);
-    //
     // // Composite
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
@@ -348,11 +293,11 @@ void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
     ptree.put<int>("composite.mode", static_cast<int>(cd.composite_kind.load()));
     ptree.put<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
     // RGB
-    ptree.put<ushort>("rgb.p_min", cd.rgb_p_min);
-    ptree.put<ushort>("rgb.p_max", cd.rgb_p_max);
-    ptree.put<float>("rgb.weight_r", cd.weight_r);
-    ptree.put<float>("rgb.weight_g", cd.weight_g);
-    ptree.put<float>("rgb.weight_b", cd.weight_b);
+    ptree.put<ushort>("rgb.p_min", cd.rgb.p_min);
+    ptree.put<ushort>("rgb.p_max", cd.rgb.p_max);
+    ptree.put<float>("rgb.weight_r", cd.rgb.weight_r);
+    ptree.put<float>("rgb.weight_g", cd.rgb.weight_g);
+    ptree.put<float>("rgb.weight_b", cd.rgb.weight_b);
     // ==> TODO: lambda
     // HSV_H
     ptree.put<ushort>("hsv_h.p_min", cd.composite_p_min_h);
