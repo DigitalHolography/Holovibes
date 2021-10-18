@@ -320,10 +320,10 @@ void MainWindow::on_notify()
     auto set_xyzf_visibility = [&](bool val) {
         ui.ImgAccuCheckBox->setVisible(val);
         ui.ImgAccuSpinBox->setVisible(val);
-
         ui.RotatePushButton->setVisible(val);
         ui.FlipPushButton->setVisible(val);
     };
+
     if (cd_.current_window == WindowKind::Filter2D)
         set_xyzf_visibility(false);
     else
@@ -354,9 +354,7 @@ void MainWindow::on_notify()
         ui.PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.p.index - 1);
     }
     else
-    {
         ui.PSpinBox->setMaximum(cd_.time_transformation_size - 1);
-    }
     ui.PSpinBox->setEnabled(!is_raw);
 
     // q accu
@@ -377,9 +375,7 @@ void MainWindow::on_notify()
         ui.Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q.index - 1);
     }
     else
-    {
         ui.Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
-    }
 
     // XY accu
     ui.XAccuCheckBox->setChecked(cd_.x.accu_enabled);
@@ -1329,12 +1325,12 @@ void MainWindow::cancel_time_transformation_cuts()
 #pragma endregion
 /* ------------ */
 #pragma region Computation
-void MainWindow::change_window()
+void MainWindow::change_window(int index)
 {
-    QComboBox* window_cbox = ui.WindowSelectionComboBox;
+    cd_.change_window(index);
 
-    cd_.change_window(window_cbox->currentIndex());
-    pipe_refresh();
+    // pipe_refresh();
+
     notify();
 }
 
@@ -1375,7 +1371,6 @@ void MainWindow::set_filter2d(bool checked)
 
 void MainWindow::disable_filter2d_view()
 {
-
     auto pipe = holovibes_.get_compute_pipe();
     pipe->request_disable_filter2d_view();
 
@@ -2205,7 +2200,7 @@ void MainWindow::set_log_scale(const bool value)
         return;
 
     cd_.set_log_scale_slice_enabled(value);
-    if (value && cd_.xy.contrast_enabled)
+    if (value && cd_.current->contrast_enabled)
         set_auto_contrast();
     pipe_refresh();
     notify();

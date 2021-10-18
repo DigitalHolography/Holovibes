@@ -106,10 +106,6 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 std::atomic<bool>& autocontrast_slice_yz_request,
                                 std::atomic<bool>& autocontrast_filter2d_request)
 {
-    // Do not compute contrast or apply contrast if not enabled
-    if (!cd_.xy.contrast_enabled)
-        return;
-
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
                                 autocontrast_slice_xz_request,
@@ -117,16 +113,20 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 autocontrast_filter2d_request);
 
     // Apply contrast on the main view
-    insert_apply_contrast(WindowKind::XYview);
+    if (cd_.xy.contrast_enabled)
+        insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
     if (cd_.time_transformation_cuts_enabled)
     {
-        insert_apply_contrast(WindowKind::XZview);
-        insert_apply_contrast(WindowKind::YZview);
+        if (cd_.xz.contrast_enabled)
+            insert_apply_contrast(WindowKind::XZview);
+        if (cd_.yz.contrast_enabled)
+
+            insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (cd_.filter2d_view_enabled)
+    if (cd_.filter2d_view_enabled && cd_.filter2d.contrast_enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -185,32 +185,40 @@ void Rendering::insert_apply_contrast(WindowKind view)
         float min = 0;
         float max = 0;
 
+        WindowView* wind;
         switch (view)
         {
         case WindowKind::XYview:
             input = buffers_.gpu_postprocess_frame;
             size = buffers_.gpu_postprocess_frame_size;
-            min = cd_.xy.contrast_invert ? cd_.xy.contrast_max_slice : cd_.xy.contrast_min_slice;
-            max = cd_.xy.contrast_invert ? cd_.xy.contrast_min_slice : cd_.xy.contrast_max_slice;
+            wind = &cd_.xy;
             break;
         case WindowKind::YZview:
             input = buffers_.gpu_postprocess_frame_yz.get();
             size = fd_.height * cd_.time_transformation_size;
-            min = cd_.yz.contrast_invert ? cd_.yz.contrast_max_slice : cd_.yz.contrast_min_slice;
-            max = cd_.yz.contrast_invert ? cd_.yz.contrast_min_slice : cd_.yz.contrast_max_slice;
+            wind = &cd_.yz;
             break;
         case WindowKind::XZview:
             input = buffers_.gpu_postprocess_frame_xz.get();
             size = fd_.width * cd_.time_transformation_size;
-            min = cd_.xz.contrast_invert ? cd_.xz.contrast_max_slice : cd_.xz.contrast_min_slice;
-            max = cd_.xz.contrast_invert ? cd_.xz.contrast_min_slice : cd_.xz.contrast_max_slice;
+            wind = &cd_.xz;
             break;
         case WindowKind::Filter2D:
             input = buffers_.gpu_float_filter2d_frame.get();
             size = fd_.width * fd_.height;
-            min = cd_.filter2d.contrast_invert ? cd_.filter2d.contrast_max_slice : cd_.filter2d.contrast_min_slice;
-            max = cd_.filter2d.contrast_invert ? cd_.filter2d.contrast_min_slice : cd_.filter2d.contrast_max_slice;
+            wind = &cd_.filter2d;
             break;
+        }
+
+        if (wind->contrast_invert)
+        {
+            min = wind->contrast_max_slice;
+            max = wind->contrast_min_slice;
+        }
+        else
+        {
+            min = wind->contrast_min_slice;
+            max = wind->contrast_max_slice;
         }
 
         apply_contrast_correction(input, size, dynamic_range, min, max, stream_);

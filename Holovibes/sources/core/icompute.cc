@@ -335,20 +335,15 @@ void ICompute::request_disable_frame_record()
     request_refresh();
 }
 
-// FIXME: Cyrrently
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    // Do not request anything if contrast is not enabled
-    if (!cd_.xy.contrast_enabled) // To remove
-        return;                   // To remove
-
-    if (kind == WindowKind::XYview)
+    if (kind == WindowKind::XYview && cd_.xy.contrast_enabled)
         autocontrast_requested_ = true;
-    else if (kind == WindowKind::XZview)
+    else if (kind == WindowKind::XZview && cd_.xz.contrast_enabled && cd_.time_transformation_cuts_enabled)
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview)
+    else if (kind == WindowKind::YZview && cd_.yz.contrast_enabled && cd_.time_transformation_cuts_enabled)
         autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D)
+    else if (kind == WindowKind::Filter2D && cd_.filter2d.contrast_enabled && cd_.filter2d_enabled)
         autocontrast_filter2d_requested_ = true;
 }
 
