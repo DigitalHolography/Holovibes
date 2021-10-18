@@ -32,7 +32,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
 
-    frame_size_ = fd_.frame_size();
+    frame_size_ = fd_.get_frame_size();
 
     // perform a checksum
     if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)

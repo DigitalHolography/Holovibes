@@ -63,6 +63,8 @@ class Pipe : public ICompute
      */
     Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
 
+    ~Pipe();
+
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
 
@@ -158,7 +160,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
 
-    std::atomic<unsigned int> processed_output_fps_;
+    std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
 
     /*! \brief Iterates and executes function of the pipe.
      *

@@ -21,8 +21,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/image_accumulation.cc
     compute/svd.cc
 
-    containers/information_container.cc
-
     core/holovibes.cc
     core/icompute.cc
     core/pipe.cc
@@ -60,6 +58,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/composite_panel.cc
     gui/windows/panels/image_rendering_panel.cc
 
+    io_files/file_exception.cc
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc
     io_files/input_holo_file.cc
@@ -93,4 +92,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/units/real_position.cc
     tools/units/window_pixel.cc
     tools/tools_debug.cc
+
+    state/global_state_holder.cc
 )

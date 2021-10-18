@@ -45,7 +45,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
 {
-    gpu_lens_.resize(fd_.frame_res());
+    gpu_lens_.resize(fd_.get_frame_res());
 }
 
 void FourierTransform::insert_fft()
@@ -102,7 +102,7 @@ void FourierTransform::insert_fft1()
               cd_.batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
-              fd_.frame_res(),
+              fd_.get_frame_res(),
               stream_);
     });
 }
@@ -155,7 +155,7 @@ void FourierTransform::enqueue_lens()
         if (cd_.space_transformation == SpaceTransformation::FFT2)
             shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
-        normalize_complex(copied_lens_ptr, fd_.frame_res(), stream_);
+        normalize_complex(copied_lens_ptr, fd_.get_frame_res(), stream_);
     }
 }
 
@@ -179,7 +179,7 @@ void FourierTransform::insert_time_transform()
         fn_compute_vect_.conditional_push_back([=]() {
             cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
             auto& q = time_transformation_env_.gpu_time_transformation_queue;
-            size_t size = cd_.time_transformation_size * fd_.frame_res() * sizeof(cuComplex);
+            size_t size = cd_.time_transformation_size * fd_.get_frame_res() * sizeof(cuComplex);
 
             cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
         });
@@ -206,7 +206,7 @@ void FourierTransform::insert_pca()
         cuComplex* V = nullptr;
 
         // cov = H' * H
-        cov_matrix(H, fd_.frame_res(), cd_.time_transformation_size, cov);
+        cov_matrix(H, fd_.get_frame_res(), cd_.time_transformation_size, cov);
 
         // Find eigen values and eigen vectors of cov
         // pca_eigen_values will contain sorted eigen values
@@ -222,7 +222,7 @@ void FourierTransform::insert_pca()
         // gpu_p_acc_buffer = H * V
         matrix_multiply(H,
                         V,
-                        fd_.frame_res(),
+                        fd_.get_frame_res(),
                         cd_.time_transformation_size,
                         cd_.time_transformation_size,
                         time_transformation_env_.gpu_p_acc_buffer);
@@ -243,7 +243,7 @@ void FourierTransform::insert_ssa_stft()
         cuComplex* V = nullptr;
 
         // cov = H' * H
-        cov_matrix(H, fd_.frame_res(), cd_.time_transformation_size, cov);
+        cov_matrix(H, fd_.get_frame_res(), cd_.time_transformation_size, cov);
 
         // pca_eigen_values = sorted eigen values of cov
         // cov and V = eigen vectors of cov
@@ -278,7 +278,7 @@ void FourierTransform::insert_ssa_stft()
         // H = H * tmp
         matrix_multiply(H,
                         tmp_matrix,
-                        fd_.frame_res(),
+                        fd_.get_frame_res(),
                         cd_.time_transformation_size,
                         cd_.time_transformation_size,
                         time_transformation_env_.gpu_p_acc_buffer);
@@ -292,7 +292,7 @@ void FourierTransform::insert_ssa_stft()
 void FourierTransform::insert_store_p_frame()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        const int frame_res = fd_.frame_res();
+        const int frame_res = fd_.get_frame_res();
 
         /* Copies with DeviceToDevice (which is the case here) are asynchronous
          * with respect to the host but never overlap with kernel execution*/

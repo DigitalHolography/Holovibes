@@ -4,6 +4,9 @@
  */
 #pragma once
 
+#include <exception>
+#include <string>
+
 namespace holovibes::io_files
 {
 /*! \class FileException
@@ -20,13 +23,9 @@ class FileException : public std::exception
      */
     FileException(const std::string& error_msg, bool display_errno = true);
 
-    const char* what() const noexcept override;
+    const char* what() const noexcept override { return error_msg_.c_str(); }
 
   private:
-    const std::string error_msg_;
-
-    bool display_errno_;
+    std::string error_msg_;
 };
 } // namespace holovibes::io_files
-
-#include "file_exception.hxx"

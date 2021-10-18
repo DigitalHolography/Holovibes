@@ -41,10 +41,12 @@ void ChartRecordWorker::run()
 
     auto& chart_queue = *pipe->get_chart_record_queue();
 
-    std::atomic<unsigned int> i = 0;
-    Holovibes::instance().get_info_container().add_progress_index(InformationContainer::ProgressType::CHART_RECORD,
-                                                                  i,
-                                                                  nb_frames_to_record_);
+    auto entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
+
+    std::atomic<unsigned int>& i = entry->first;
+    std::atomic<unsigned int>& nb_frames_to_record = entry->second;
+    i = 0;
+    nb_frames_to_record = nb_frames_to_record_;
 
     for (; i < nb_frames_to_record_; ++i)
     {
@@ -64,7 +66,7 @@ void ChartRecordWorker::run()
     while (pipe->get_disable_chart_record_requested() && !stop_requested_)
         continue;
 
-    Holovibes::instance().get_info_container().remove_progress_index(InformationContainer::ProgressType::CHART_RECORD);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);
 }
 
 } // namespace holovibes::worker

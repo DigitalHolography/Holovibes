@@ -17,39 +17,38 @@ using camera::FrameDescriptor;
 
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
-             Queue::QueueType type,
+             QueueType type,
              unsigned int input_width,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
     : DisplayQueue(fd)
-    , frame_size_(fd_.frame_size())
-    , frame_res_(fd_.frame_res())
-    , max_size_(max_size)
+    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
+    , size_(fast_updates_entry_->first)
+    , max_size_(fast_updates_entry_->second)
     , type_(type)
-    , size_(0)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
-    , data_()
     , input_width_(input_width)
     , input_height_(input_height)
     , bytes_per_pixel(bytes_per_pixel)
     , has_overridden_(false)
 {
-    if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
+    max_size_ = max_size;
+    size_ = 0;
+
+    if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR << "Queue: could not allocate queue";
         throw std::logic_error("Could not allocate queue");
     }
 
     // Needed if input is embedded into a bigger square
-    cudaXMemset(data_.get(), 0, frame_size_ * max_size_);
+    cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
     fd_.byteEndian = Endianness::LittleEndian;
-
-    Holovibes::instance().get_info_container().add_queue_size(type_, size_, max_size_);
 }
 
-Queue::~Queue() { Holovibes::instance().get_info_container().remove_queue_size(type_); }
+Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
 void Queue::resize(const unsigned int size, const cudaStream_t stream)
 {
@@ -57,14 +56,14 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     max_size_ = size;
 
-    if (max_size_ == 0 || !data_.resize(frame_size_ * max_size_))
+    if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR << "Queue: could not resize queue";
         throw std::logic_error("Could not resize queue");
     }
 
     // Needed if input is embedded into a bigger square
-    cudaXMemsetAsync(data_.get(), 0, frame_size_ * max_size_, stream);
+    cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
     cudaXStreamSynchronize(stream);
 
     size_ = 0;
@@ -76,11 +75,11 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     MutexGuard mGuard(mutex_);
 
     const uint end_ = (start_index_ + size_) % max_size_;
-    char* new_elt_adress = data_.get() + (end_ * frame_size_);
+    char* new_elt_adress = data_.get() + (end_ * fd_.get_frame_size());
 
     cudaError_t cuda_status;
     // No async needed for Qt buffer
-    cuda_status = cudaMemcpyAsync(new_elt_adress, elt, frame_size_, cuda_kind, stream);
+    cuda_status = cudaMemcpyAsync(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind, stream);
 
     if (cuda_status != CUDA_SUCCESS)
     {
@@ -93,7 +92,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
         endianness_conversion(reinterpret_cast<ushort*>(new_elt_adress),
                               reinterpret_cast<ushort*>(new_elt_adress),
                               1,
-                              static_cast<uint>(frame_res_),
+                              static_cast<uint>(fd_.get_frame_res()),
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
@@ -113,13 +112,13 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
 void Queue::enqueue_multiple_aux(
     void* out, void* in, unsigned int nb_elts, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
 {
-    cudaXMemcpyAsync(out, in, nb_elts * frame_size_, cuda_kind, stream);
+    cudaXMemcpyAsync(out, in, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
 
     if (is_big_endian_)
         endianness_conversion(reinterpret_cast<ushort*>(out),
                               reinterpret_cast<ushort*>(out),
                               nb_elts,
-                              fd_.frame_res(),
+                              fd_.get_frame_res(),
                               stream);
 }
 
@@ -155,7 +154,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
 
     struct QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
-    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.frame_size_);
+    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
@@ -169,7 +168,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
         dst.first_size = nb_elts;
     }
 
-    copy_multiple_aux(src, dst, static_cast<uint>(frame_size_), stream);
+    copy_multiple_aux(src, dst, static_cast<uint>(fd_.get_frame_size()), stream);
 
     // Synchronize after every copy has been lauched and before updating the
     // size
@@ -274,21 +273,21 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
     char* elts_char = static_cast<char*>(elts);
     if (nb_elts > max_size_)
     {
-        elts_char = elts_char + nb_elts * frame_size_ - max_size_ * frame_size_;
+        elts_char = elts_char + nb_elts * fd_.get_frame_size() - max_size_ * fd_.get_frame_size();
         // skip overwritten elts
         start_index_ = (start_index_ + nb_elts - max_size_) % max_size_;
         nb_elts = max_size_;
     }
 
     const uint begin_to_enqueue_index = (start_index_ + size_) % max_size_;
-    void* begin_to_enqueue = data_.get() + (begin_to_enqueue_index * frame_size_);
+    void* begin_to_enqueue = data_.get() + (begin_to_enqueue_index * fd_.get_frame_size());
 
     if (begin_to_enqueue_index + nb_elts > max_size_)
     {
         unsigned int nb_elts_to_insert_at_end = max_size_ - begin_to_enqueue_index;
         enqueue_multiple_aux(begin_to_enqueue, elts_char, nb_elts_to_insert_at_end, stream, cuda_kind);
 
-        elts_char += nb_elts_to_insert_at_end * frame_size_;
+        elts_char += nb_elts_to_insert_at_end * fd_.get_frame_size();
 
         unsigned int nb_elts_to_insert_at_beginning = nb_elts - nb_elts_to_insert_at_end;
         enqueue_multiple_aux(data_.get(), elts_char, nb_elts_to_insert_at_beginning, stream, cuda_kind);
@@ -314,8 +313,8 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
 
 void Queue::enqueue_from_48bit(void* src, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
 {
-    cuda_tools::UniquePtr<uchar> src_uchar(frame_size_);
-    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, static_cast<uint>(frame_size_), stream);
+    cuda_tools::UniquePtr<uchar> src_uchar(fd_.get_frame_size());
+    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, static_cast<uint>(fd_.get_frame_size()), stream);
     enqueue(src_uchar, stream, cuda_kind);
 }
 
@@ -324,8 +323,8 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
     MutexGuard mGuard(mutex_);
 
     CHECK(size_ > 0) << "Queue size cannot be empty at dequeue";
-    void* first_img = data_.get() + start_index_ * frame_size_;
-    cudaXMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream);
+    void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
+    cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
     cudaXStreamSynchronize(stream);
 
@@ -359,7 +358,8 @@ bool Queue::is_full() const { return max_size_ == size_; }
 
 std::string Queue::calculate_size(void) const
 {
-    std::string display_size = std::to_string((get_max_size() * get_frame_size()) >> 20); // get_size() / (1024 * 1024)
+    std::string display_size =
+        std::to_string((get_max_size() * fd_.get_frame_res()) >> 20); // get_size() / (1024 * 1024)
     size_t pos = display_size.find(".");
 
     if (pos != std::string::npos)

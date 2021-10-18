@@ -52,7 +52,7 @@ void fft_2(cuComplex* input,
            const FrameDescriptor& fd,
            const cudaStream_t stream)
 {
-    const uint frame_resolution = fd.frame_res();
+    const uint frame_resolution = fd.get_frame_res();
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_resolution, threads);
 

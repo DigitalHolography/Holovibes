@@ -287,7 +287,7 @@ void unwrap_2d(float* input,
     dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
     kernel_init_unwrap_2d<<<lblocks, lthreads, 0, stream>>>(fd.width,
                                                             fd.height,
-                                                            fd.frame_res(),
+                                                            fd.get_frame_res(),
                                                             input,
                                                             res->gpu_fx_,
                                                             res->gpu_fy_,
@@ -304,7 +304,7 @@ void unwrap_2d(float* input,
                                                      middley,
                                                      fd.width,
                                                      fd.height,
-                                                     fd.frame_res());
+                                                     fd.get_frame_res());
     cudaCheckError();
     circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fy_,
                                                      res->gpu_shift_fy_,
@@ -313,7 +313,7 @@ void unwrap_2d(float* input,
                                                      middley,
                                                      fd.width,
                                                      fd.height,
-                                                     fd.frame_res());
+                                                     fd.get_frame_res());
     cudaCheckError();
     gradient_unwrap_2d(plan2d, res, fd, stream);
     eq_unwrap_2d(plan2d, res, fd, stream);
@@ -335,14 +335,14 @@ void gradient_unwrap_2d(const cufftHandle plan2d,
                                                                          res->gpu_shift_fy_,
                                                                          res->gpu_grad_eq_x_,
                                                                          res->gpu_grad_eq_y_,
-                                                                         fd.frame_res());
+                                                                         fd.get_frame_res());
     cudaCheckError();
     cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
     cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_INVERSE);
     kernel_multiply_complexes_by_single_complex<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                                                 res->gpu_grad_eq_y_,
                                                                                 single_complex,
-                                                                                fd.frame_res());
+                                                                                fd.get_frame_res());
     cudaCheckError();
 }
 
@@ -357,14 +357,14 @@ void eq_unwrap_2d(const cufftHandle plan2d,
 
     kernel_multiply_complex_by_single_complex<<<blocks, threads, 0, stream>>>(res->gpu_z_,
                                                                               single_complex,
-                                                                              fd.frame_res());
+                                                                              fd.get_frame_res());
     cudaCheckError();
-    kernel_conjugate_complex<<<blocks, threads, 0, stream>>>(res->gpu_z_, fd.frame_res());
+    kernel_conjugate_complex<<<blocks, threads, 0, stream>>>(res->gpu_z_, fd.get_frame_res());
     cudaCheckError();
     kernel_multiply_complex_frames_by_complex_frame<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                                                     res->gpu_grad_eq_y_,
                                                                                     res->gpu_z_,
-                                                                                    fd.frame_res());
+                                                                                    fd.get_frame_res());
     cudaCheckError();
     cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
     cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
@@ -372,7 +372,7 @@ void eq_unwrap_2d(const cufftHandle plan2d,
                                                       res->gpu_shift_fy_,
                                                       res->gpu_grad_eq_x_,
                                                       res->gpu_grad_eq_y_,
-                                                      fd.frame_res());
+                                                      fd.get_frame_res());
     cudaCheckError();
 }
 
@@ -385,9 +385,11 @@ void phi_unwrap_2d(const cufftHandle plan2d,
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
-    kernel_add_complex_frames<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_, res->gpu_grad_eq_y_, fd.frame_res());
+    kernel_add_complex_frames<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
+                                                              res->gpu_grad_eq_y_,
+                                                              fd.get_frame_res());
     cudaCheckError();
     cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
-    kernel_unwrap2d_last_step<<<blocks, threads, 0, stream>>>(output, res->gpu_grad_eq_x_, fd.frame_res());
+    kernel_unwrap2d_last_step<<<blocks, threads, 0, stream>>>(output, res->gpu_grad_eq_x_, fd.get_frame_res());
     cudaCheckError();
 }

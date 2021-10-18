@@ -1,6 +1,7 @@
 #include "output_holo_file.hh"
 #include "file_exception.hh"
 #include "logger.hh"
+#include "holovibes.hh"
 
 namespace holovibes::io_files
 {
@@ -22,13 +23,14 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.img_nb = img_nb;
     holo_file_header_.endianness = camera::Endianness::LittleEndian;
 
-    holo_file_header_.total_data_size = fd_.frame_size() * img_nb;
+    holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
+void OutputHoloFile::export_compute_settings(bool record_raw)
 {
+    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     // export as a json
     try
     {
@@ -111,7 +113,7 @@ void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
         throw FileException("Unable to correct number of written frames");
 
     holo_file_header_.img_nb = static_cast<uint32_t>(nb_frames_written);
-    holo_file_header_.total_data_size = fd_.frame_size() * nb_frames_written;
+    holo_file_header_.total_data_size = fd_.get_frame_size() * nb_frames_written;
 
     fpos_t file_begin_pos = 0;
 

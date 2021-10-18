@@ -40,12 +40,13 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/external:W0"            : Tells MSVC that external headers should not do any warnings
 # "/fsanitize=address       : Add ASAn to build
 string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
+#string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
 
 set(HOLO_INCLUDES
     cuda_includes/
     includes/
+    includes/state/
     includes/compute/
-    includes/containers/
     includes/core/
     includes/enum/
     includes/gui/other/
@@ -168,6 +169,7 @@ set(SRC_TESTS
     unit_tests/test_map.cc
     unit_tests/test_batch_input_queue.cc
     unit_tests/test_subsample_frame.cc
+    unit_tests/test_fast_updates_holder.cc
     # Add your test files here
 )
 

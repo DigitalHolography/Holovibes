@@ -18,8 +18,6 @@ inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe()
 
 inline ComputeDescriptor& Holovibes::get_cd() { return cd_; }
 
-inline InformationContainer& Holovibes::get_info_container() { return info_container_; }
-
 inline void Holovibes::set_cd(const ComputeDescriptor& cd) { cd_ = cd; }
 
 inline const char* Holovibes::get_camera_ini_path() const { return active_camera_->get_ini_path(); }
