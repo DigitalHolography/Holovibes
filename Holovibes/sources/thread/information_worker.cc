@@ -11,7 +11,6 @@ using MutexGuard = std::lock_guard<std::mutex>;
 
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
-
     {IndicationType::INPUT_FORMAT, "Input Format"},
     {IndicationType::OUTPUT_FORMAT, "Output Format"}};
 
@@ -68,9 +67,8 @@ void InformationWorker::run()
                 if (gpu_frame_record_queue)
                     record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
-            catch (const std::exception& e)
+            catch (const std::exception&)
             {
-                LOG_WARN << e.what();
                 record_frame_size = 0;
             }
 
@@ -124,6 +122,7 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     std::string unit_ = (throughput > 1e9 ? " G" : " M") + unit;
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
+
     return ss.str();
 }
 
@@ -139,23 +138,26 @@ void InformationWorker::display_gui_information()
 
     for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
     {
+        if (key == QueueType::UNDEFINED)
+            continue;
+
         to_display << queue_type_to_string_.at(key) << ":\n  ";
-        to_display << std::to_string(value->first.load()) << "/" << std::to_string(value->second.load()) << "\n";
+        to_display << value->first.load() << "/" << value->second.load() << "\n";
     }
 
     if (fps_map.contains(FpsType::INPUT_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":\n  " << std::to_string(input_fps_) << "\n";
+        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":\n  " << input_fps_ << "\n";
     }
 
     if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":\n  " << std::to_string(output_fps_) << "\n";
+        to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":\n  " << output_fps_ << "\n";
     }
 
     if (fps_map.contains(FpsType::SAVING_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":\n  " << std::to_string(saving_fps_) << "\n";
+        to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":\n  " << saving_fps_ << "\n";
     }
 
     if (fps_map.contains(FpsType::OUTPUT_FPS))
@@ -171,9 +173,10 @@ void InformationWorker::display_gui_information()
 
     size_t free, total;
     cudaMemGetInfo(&free, &total);
+
     to_display << "GPU memory:\n"
-               << std::string("  ") << engineering_notation(free, 3)
-               << "B free,\n" + std::string("  ") + engineering_notation(total, 3) + "B total";
+               << std::string("  ") << engineering_notation(free, 3) << "B free,\n"
+               << "  " << engineering_notation(total, 3) + "B total";
 
     display_info_text_function_(to_display.str());
 

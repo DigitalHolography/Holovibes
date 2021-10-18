@@ -30,6 +30,7 @@
 #include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
+#include "information_worker.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -86,30 +87,31 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     setWindowIcon(QIcon("Holovibes.ico"));
 
-    auto display_info_text_fun = [=](const std::string& text) {
+    // TODO/FIXME/HELP: Remove this
+    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text) {
         synchronize_thread([=]() { ui.InfoTextEdit->setText(text.c_str()); });
     };
-    Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
 
-    auto update_progress = [=](InformationContainer::ProgressType type, const size_t value, const size_t max_size) {
-        synchronize_thread([=]() {
-            switch (type)
-            {
-            case InformationContainer::ProgressType::FILE_READ:
-                ui.FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
-                ui.FileReaderProgressBar->setValue(static_cast<int>(value));
-                break;
-            case InformationContainer::ProgressType::CHART_RECORD:
-            case InformationContainer::ProgressType::FRAME_RECORD:
-                ui.RecordProgressBar->setMaximum(static_cast<int>(max_size));
-                ui.RecordProgressBar->setValue(static_cast<int>(value));
-                break;
-            default:
-                return;
-            };
-        });
-    };
-    Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
+    ::holovibes::worker::InformationWorker::update_progress_function_ =
+        [=](ProgressType type, const size_t value, const size_t max_size) {
+            synchronize_thread([=]() {
+                switch (type)
+                {
+                case ProgressType::FILE_READ:
+                    ui.FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
+                    ui.FileReaderProgressBar->setValue(static_cast<int>(value));
+                    break;
+                case ProgressType::CHART_RECORD:
+                case ProgressType::FRAME_RECORD:
+                    ui.RecordProgressBar->setMaximum(static_cast<int>(max_size));
+                    ui.RecordProgressBar->setValue(static_cast<int>(value));
+                    break;
+                default:
+                    return;
+                };
+            });
+        };
+
     ui.FileReaderProgressBar->hide();
     ui.RecordProgressBar->hide();
 
@@ -195,7 +197,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         ui.KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
-    Holovibes::instance().start_information_display(false);
+    Holovibes::instance().start_information_display();
 }
 
 MainWindow::~MainWindow()
@@ -208,7 +210,6 @@ MainWindow::~MainWindow()
     close_windows();
     close_critical_compute();
     camera_none();
-    remove_infos();
 
     Holovibes::instance().stop_all_worker_controller();
 }
@@ -835,7 +836,7 @@ void MainWindow::camera_none()
     notify();
 }
 
-void MainWindow::remove_infos() { Holovibes::instance().get_info_container().clear(); }
+void MainWindow::remove_infos() { LOG_DEBUG << "MainWindow::remove_infos()"; }
 
 void MainWindow::close_windows()
 {
@@ -961,11 +962,10 @@ void MainWindow::set_raw_mode()
         mainDisplay->setTitle(QString("XY view"));
         mainDisplay->setCd(&cd_);
         mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-
-        std::string fd_info =
+        auto entry = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+        *entry =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                                                                  fd_info);
+        ;
         set_convolution_mode(false);
         set_divide_convolution_mode(false);
         notify();
@@ -1036,10 +1036,9 @@ void MainWindow::set_holographic_mode()
         createHoloWindow();
         /* Info Manager */
         const FrameDescriptor& fd = holovibes_.get_gpu_output_queue()->get_fd();
-        std::string fd_info =
+        auto entry = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::OUTPUT_FORMAT, true);
+        *entry =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
-                                                                  fd_info);
         /* Contrast */
         cd_.set_contrast_enabled(true);
 
@@ -2699,7 +2698,7 @@ void MainWindow::import_stop()
     cancel_time_transformation_cuts();
 
     holovibes_.stop_all_worker_controller();
-    holovibes_.start_information_display(false);
+    holovibes_.start_information_display();
 
     close_critical_compute();
 
