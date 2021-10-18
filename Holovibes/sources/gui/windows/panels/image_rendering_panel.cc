@@ -134,10 +134,9 @@ void ImageRenderingPanel::set_raw_mode()
         parent_->mainDisplay->setCd(&(cd_));
         parent_->mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
 
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::INPUT_FORMAT,
-                                                                  fd_info);
+        auto entry = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+        *entry = std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+
         set_convolution_mode(false);
         set_divide_convolution_mode(false);
         parent_->notify();
@@ -162,10 +161,8 @@ void ImageRenderingPanel::set_holographic_mode()
         parent_->createHoloWindow();
         /* Info Manager */
         const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_output_queue()->get_fd();
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        Holovibes::instance().get_info_container().add_indication(InformationContainer::IndicationType::OUTPUT_FORMAT,
-                                                                  fd_info);
+        auto entry = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::OUTPUT_FORMAT, true);
+        *entry = std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         cd_.set_contrast_enabled(true);
 

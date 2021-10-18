@@ -207,9 +207,6 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path);
 
-    /*! \brief Clears the info container (real time data bench panel) */
-    void remove_infos();
-
     Ui::MainWindow* ui_;
     ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;

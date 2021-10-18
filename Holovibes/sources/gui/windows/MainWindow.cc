@@ -93,10 +93,9 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
 
     setWindowIcon(QIcon("Holovibes.ico"));
 
-    auto display_info_text_fun = [=](const std::string& text) {
+    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text) {
         synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); });
     };
-    Holovibes::instance().get_info_container().set_display_info_text_function(display_info_text_fun);
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -157,7 +156,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    Holovibes::instance().start_information_display(false);
+    Holovibes::instance().start_information_display();
 }
 
 MainWindow::~MainWindow()
@@ -165,7 +164,6 @@ MainWindow::~MainWindow()
     close_windows();
     close_critical_compute();
     camera_none();
-    remove_infos();
 
     Holovibes::instance().stop_all_worker_controller();
 
@@ -457,7 +455,6 @@ void MainWindow::camera_none()
     if (!is_raw_mode())
         holovibes.stop_compute();
     holovibes.stop_frame_read();
-    remove_infos();
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
@@ -466,8 +463,6 @@ void MainWindow::camera_none()
     cd_.set_computation_stopped(true);
     notify();
 }
-
-void MainWindow::remove_infos() { Holovibes::instance().get_info_container().clear(); }
 
 void MainWindow::close_windows()
 {
@@ -493,7 +488,6 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (!cd_.is_computation_stopped)
         close_critical_compute();
     camera_none();
-    remove_infos();
     save_ini(::holovibes::ini::default_config_filepath);
 }
 #pragma endregion

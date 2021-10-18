@@ -111,7 +111,6 @@ void ImportPanel::import_stop()
     ui_->ViewPanel->cancel_time_transformation_cuts();
 
     parent_->holovibes.stop_all_worker_controller();
-    parent_->holovibes.start_information_display(false);
 
     parent_->close_critical_compute();
 
