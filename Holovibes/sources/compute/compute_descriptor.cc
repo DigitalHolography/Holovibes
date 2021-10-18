@@ -443,12 +443,6 @@ void ComputeDescriptor::reset_windows_display()
     reticle_view_enabled = false;
 }
 
-void ComputeDescriptor::reset_gui()
-{
-    p.index = 0;
-    time_transformation_size = 1;
-}
-
 void ComputeDescriptor::reset_slice_view()
 {
     xz.contrast_max_slice = false;

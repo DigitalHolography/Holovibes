@@ -218,8 +218,6 @@ class ComputeDescriptor : public Observable
     void set_rendering_params(float value);
     /*! \brief Reset values used to check if GUY windows are displayed */
     void reset_windows_display();
-    /*! \brief Reset key FFT values when the GUI is reset */
-    void reset_gui(); // FIXME: Unused!
     /*! \brief Reset values used in the slice view */
     void reset_slice_view();
     /*! \} */
