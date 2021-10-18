@@ -4,7 +4,7 @@
 
 typedef unsigned int uint;
 
-struct WindowView
+struct View_Window
 {
     std::atomic<bool> log_scale_slice_enabled{false};
 
@@ -15,7 +15,7 @@ struct WindowView
     std::atomic<float> contrast_max_slice{65535.f};
 };
 
-struct XY_XZ_YZ_WindowView : public WindowView
+struct View_XYZ : public View_Window
 {
     std::atomic<bool> flip_enabled{false};
     std::atomic<float> rot{0};
@@ -24,18 +24,18 @@ struct XY_XZ_YZ_WindowView : public WindowView
     std::atomic<uint> img_acc_slice_level{1};
 };
 
-struct AccView
+struct View_Accu
 {
     std::atomic<bool> accu_enabled{false};
     std::atomic<int> accu_level{1};
 };
 
-struct PQView : public AccView
+struct View_PQ : public View_Accu
 {
     std::atomic<uint> index{0};
 };
 
-struct XYView : public AccView
+struct View_XY : public View_Accu
 {
     std::atomic<uint> cuts{0};
 };

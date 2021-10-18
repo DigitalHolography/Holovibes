@@ -280,10 +280,10 @@ class ComputeDescriptor : public Observable
     /*! \brief Display the raw interferogram when we are in hologram mode. */
     std::atomic<bool> raw_view_enabled{false};
 
-    XYView x{};
-    XYView y{};
-    PQView p{};
-    PQView q{};
+    View_XY x{};
+    View_XY y{};
+    View_PQ p{};
+    View_PQ q{};
 
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};
@@ -294,12 +294,12 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
-    WindowView* current = &xy;
+    View_Window* current = &xy;
 
-    XY_XZ_YZ_WindowView xy{};
-    XY_XZ_YZ_WindowView xz{};
-    XY_XZ_YZ_WindowView yz{};
-    WindowView filter2d{};
+    View_XYZ xy{};
+    View_XYZ xz{};
+    View_XYZ yz{};
+    View_Window filter2d{};
 
     // Composite images
     std::atomic<CompositeKind> composite_kind;

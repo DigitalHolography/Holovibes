@@ -185,7 +185,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
         float min = 0;
         float max = 0;
 
-        WindowView* wind;
+        View_Window* wind;
         switch (view)
         {
         case WindowKind::XYview:

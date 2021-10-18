@@ -145,12 +145,12 @@ bool ComputeDescriptor::get_img_log_scale_slice_enabled() const { return current
 
 bool ComputeDescriptor::get_img_acc_slice_enabled() const
 {
-    return reinterpret_cast<XY_XZ_YZ_WindowView*>(current)->img_acc_slice_enabled;
+    return reinterpret_cast<View_XYZ*>(current)->img_acc_slice_enabled;
 }
 
 unsigned ComputeDescriptor::get_img_acc_slice_level() const
 {
-    return reinterpret_cast<XY_XZ_YZ_WindowView*>(current)->img_acc_slice_level;
+    return reinterpret_cast<View_XYZ*>(current)->img_acc_slice_level;
 }
 
 float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
@@ -186,12 +186,12 @@ void ComputeDescriptor::set_log_scale_slice_enabled(bool value) { current->log_s
 
 void ComputeDescriptor::set_accumulation(bool value)
 {
-    reinterpret_cast<XY_XZ_YZ_WindowView*>(current)->img_acc_slice_enabled = value;
+    reinterpret_cast<View_XYZ*>(current)->img_acc_slice_enabled = value;
 }
 
 void ComputeDescriptor::set_accumulation_level(float value)
 {
-    reinterpret_cast<XY_XZ_YZ_WindowView*>(current)->img_acc_slice_level = value;
+    reinterpret_cast<View_XYZ*>(current)->img_acc_slice_level = value;
 }
 
 void ComputeDescriptor::check_p_limits()
@@ -396,12 +396,12 @@ void ComputeDescriptor::set_q_accu(bool enabled, int level)
 
 void ComputeDescriptor::change_angle()
 {
-    auto w = reinterpret_cast<XY_XZ_YZ_WindowView*>(current);
+    auto w = reinterpret_cast<View_XYZ*>(current);
     w->rot = (w->rot == 270.f) ? 0.f : w->rot + 90.f;
 }
 void ComputeDescriptor::change_flip()
 {
-    auto w = reinterpret_cast<XY_XZ_YZ_WindowView*>(current);
+    auto w = reinterpret_cast<View_XYZ*>(current);
     w->flip_enabled = !w->flip_enabled;
 }
 

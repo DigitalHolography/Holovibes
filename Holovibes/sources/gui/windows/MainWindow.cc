@@ -334,7 +334,7 @@ void MainWindow::on_notify()
         ui.ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled());
         ui.ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level());
 
-        auto w = reinterpret_cast<XY_XZ_YZ_WindowView*>(cd_.current);
+        auto w = reinterpret_cast<View_XYZ*>(cd_.current);
         ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(w->rot))).c_str());
         ui.FlipPushButton->setText(("Flip " + std::to_string(w->flip_enabled)).c_str());
     }
