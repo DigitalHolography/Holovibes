@@ -166,9 +166,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
-    QComboBox* window_cbox = ui.WindowSelectionComboBox;
-    connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
-
     // Display default values
     cd_.set_compute_mode(Computation::Raw);
     last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;

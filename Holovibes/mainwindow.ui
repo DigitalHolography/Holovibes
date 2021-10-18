@@ -5243,6 +5243,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>WindowSelectionComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_window(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(QString)</slot>
@@ -5267,6 +5283,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
+  <slot>change_window(int)</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>

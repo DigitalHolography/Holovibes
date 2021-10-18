@@ -455,7 +455,7 @@ class MainWindow : public QMainWindow, public Observer
     void import_end_spinbox_update();
 
     /*! \brief Changes the focused windows */
-    void change_window();
+    void change_window(int index = 0);
 
     /*! \brief Browses to import/ export .ini file */
     void browse_import_ini();
