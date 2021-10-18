@@ -292,10 +292,10 @@ void MainWindow::on_notify()
     ui.TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
 
     // Contrast
-    // TODO: Check wich window is the current
     ui.ContrastCheckBox->setChecked(!is_raw && cd_.get_contrast_enabled());
     ui.ContrastCheckBox->setEnabled(true);
     ui.AutoRefreshContrastCheckBox->setChecked(cd_.get_contrast_auto_refresh());
+    ui.InvertContrastCheckBox->setChecked(cd_.get_contrast_invert_enabled());
 
     // Contrast SpinBox:
     ui.ContrastMinDoubleSpinBox->setEnabled(!cd_.get_contrast_auto_refresh());
