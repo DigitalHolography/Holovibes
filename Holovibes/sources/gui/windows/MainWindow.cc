@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <list>
+#include <optional>
 #include <atomic>
 
 #include <QAction>
@@ -30,6 +31,7 @@
 #include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
+#include "API.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -71,10 +73,8 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 }
 } // namespace
 #pragma region Constructor - Destructor
-MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , holovibes(holovibes)
-    , cd_(holovibes.get_cd())
     , ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
@@ -117,7 +117,6 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
         LOG_ERROR << e.what();
         LOG_WARN << ::holovibes::ini::default_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
-        save_ini(::holovibes::ini::default_config_filepath);
     }
 
     set_night();
@@ -127,7 +126,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
     // Display default values
-    cd_.set_compute_mode(Computation::Raw);
+    api::set_compute_mode(Computation::Raw);
     notify();
     setFocusPolicy(Qt::StrongFocus);
 
@@ -156,16 +155,18 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    Holovibes::instance().start_information_display();
+    api::start_information_display();
 }
 
 MainWindow::~MainWindow()
 {
-    close_windows();
-    close_critical_compute();
-    camera_none();
+    LOG_FUNC;
 
-    Holovibes::instance().stop_all_worker_controller();
+    api::close_windows();
+    api::close_critical_compute();
+    api::stop_all_worker_controller();
+
+    camera_none();
 
     delete ui_;
 }
@@ -186,17 +187,20 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
+    LOG_FUNC;
     synchronize_thread([this]() { on_notify(); });
 }
 
 void MainWindow::on_notify()
 {
+    LOG_FUNC;
+
     // Notify all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->on_notify();
 
     // Tabs
-    if (cd_.is_computation_stopped)
+    if (api::get_is_computation_stopped())
     {
         ui_->CompositePanel->hide();
         ui_->ImageRenderingPanel->setEnabled(false);
@@ -206,43 +210,46 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (is_enabled_camera)
+    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
-        ui_->ViewPanel->setEnabled(cd_.compute_mode == Computation::Hologram);
+        ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
         ui_->ExportPanel->setEnabled(true);
     }
 
-    ui_->CompositePanel->setHidden(is_raw_mode() || (cd_.img_type != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
 }
 
 void MainWindow::notify_error(const std::exception& e)
 {
+    LOG_FUNC;
     const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
         const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
         if (err_update_ptr)
         {
-            auto lambda = [this] {
+            auto lambda = [&, this] {
                 // notify will be in close_critical_compute
-                cd_.handle_update_exception();
-                close_windows();
-                close_critical_compute();
+                api::get_cd().handle_update_exception();
+                api::close_windows();
+                api::close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
+                LOG_ERROR << e.what();
                 notify();
             };
             synchronize_thread(lambda);
         }
 
-        auto lambda = [this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
+        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
             if (accu)
             {
-                cd_.handle_accumulation_exception();
+                api::get_cd().handle_accumulation_exception();
             }
-            close_critical_compute();
+            api::close_critical_compute();
 
             LOG_ERROR << "GPU computing error occured.";
+            LOG_ERROR << e.what();
             notify();
         };
         synchronize_thread(lambda);
@@ -250,11 +257,13 @@ void MainWindow::notify_error(const std::exception& e)
     else
     {
         LOG_ERROR << "Unknown error occured.";
+        LOG_ERROR << e.what();
     }
 }
 
 void MainWindow::layout_toggled()
 {
+    LOG_FUNC;
 
     synchronize_thread([=]() {
         // Resizing to original size, then adjust it to fit the groupboxes
@@ -265,54 +274,9 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    std::string msg = "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
-                      "\n\n"
+    LOG_FUNC;
 
-                      "Developers:\n\n"
-
-                      "Philippe Bernet\n"
-                      "Eliott Bouhana\n"
-                      "Fabien Colmagro\n"
-                      "Marius Dubosc\n"
-                      "Guillaume Poisson\n"
-
-                      "Anthony Strazzella\n"
-                      "Ilan Guenet\n"
-                      "Nicolas Blin\n"
-                      "Quentin Kaci\n"
-                      "Theo Lepage\n"
-
-                      "Loïc Bellonnet-Mottet\n"
-                      "Antoine Martin\n"
-                      "François Te\n"
-
-                      "Ellena Davoine\n"
-                      "Clement Fang\n"
-                      "Danae Marmai\n"
-                      "Hugo Verjus\n"
-
-                      "Eloi Charpentier\n"
-                      "Julien Gautier\n"
-                      "Florian Lapeyre\n"
-
-                      "Thomas Jarrossay\n"
-                      "Alexandre Bartz\n"
-
-                      "Cyril Cetre\n"
-                      "Clement Ledant\n"
-
-                      "Eric Delanghe\n"
-                      "Arnaud Gaillard\n"
-                      "Geoffrey Le Gourrierec\n"
-
-                      "Jeffrey Bencteux\n"
-                      "Thomas Kostas\n"
-                      "Pierre Pagnoux\n"
-
-                      "Antoine Dillée\n"
-                      "Romain Cancillière\n"
-
-                      "Michael Atlan\n";
+    const std::string msg = api::get_credits();
 
     // Creation on the fly of the message box to display
     QMessageBox msg_box;
@@ -323,42 +287,81 @@ void MainWindow::credits()
 
 void MainWindow::documentation()
 {
-    QDesktopServices::openUrl(QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"));
+    LOG_FUNC;
+    QDesktopServices::openUrl(api::get_documentation_url());
 }
 
 #pragma endregion
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { open_file(::holovibes::ini::default_config_filepath); }
-
-void MainWindow::write_ini() { write_ini(""); }
-
-void MainWindow::write_ini(QString filename)
+// VALID
+// FREE
+void MainWindow::configure_holovibes()
 {
-    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    save_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
+    LOG_FUNC;
+    api::configure_holovibes();
+}
+
+// VALID
+// FREE
+void MainWindow::write_ini()
+{
+    LOG_FUNC;
+
+    save_ini(::holovibes::ini::default_config_filepath);
+
     notify();
 }
 
+// VALID
+// Notify
+void MainWindow::write_ini(QString filename)
+{
+    LOG_FUNC;
+
+    save_ini(filename.toStdString());
+
+    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
+    notify();
+}
+
+// VALID
+// GUI
 void MainWindow::browse_export_ini()
 {
+    LOG_FUNC;
+
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
     write_ini(filename);
 }
 
+// VALID
+// GUI
 void MainWindow::browse_import_ini()
 {
+    LOG_FUNC;
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
-                                                    ui_->ImportPanel->get_file_input_directory().c_str(),
+                                                    UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
     reload_ini(filename);
+
+    notify();
 }
 
-void MainWindow::reload_ini() { reload_ini(""); }
+// VALID
+// FREE
+void MainWindow::reload_ini()
+{
+    LOG_FUNC;
 
+    reload_ini("");
+}
+
+// VALID
+// Notify
 void MainWindow::reload_ini(QString filename)
 {
     ui_->ImportPanel->import_stop();
@@ -371,34 +374,35 @@ void MainWindow::reload_ini(QString filename)
         LOG_ERROR << e.what();
     }
 
-    auto import_type = ui_->ImportPanel->get_import_type();
-    if (import_type == ImportPanel::ImportType::File)
-        ui_->ImportPanel->import_start();
-    else if (import_type == ImportPanel::ImportType::Camera)
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
     {
-        change_camera(kCamera_);
+        ui_->ImportPanel->import_start();
     }
+    else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+    {
+        change_camera(UserInterfaceDescriptor::instance().kCamera);
+    }
+
     notify();
 }
 
+// VALID
+// GUI
 void MainWindow::load_ini(const std::string& path)
 {
+    LOG_FUNC;
+
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
+    api::load_ini(path, ptree);
+
     if (!ptree.empty())
     {
-        // Load general compute data
-        ini::load_ini(ptree, cd_);
-
-        last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
-
-        ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(cd_.img_type.load()));
-
         theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
-        window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        auxiliary_window_max_size = ptree.get<uint>("display.auxiliary_window_max_size", 512);
+        UserInterfaceDescriptor::instance().record_frame_step_ =
+            ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
 
         for (auto it = panels_.begin(); it != panels_.end(); it++)
             (*it)->load_ini(ptree);
@@ -407,327 +411,263 @@ void MainWindow::load_ini(const std::string& path)
     }
 }
 
+// VALID
+// GUI
 void MainWindow::save_ini(const std::string& path)
 {
+    LOG_FUNC;
     boost::property_tree::ptree ptree;
-    Config& config = global::global_config;
 
-    // Save general compute data
-    ini::save_ini(ptree, cd_);
-
-    ptree.put<int>("image_rendering.camera", static_cast<int>(kCamera_));
-
+    // We save in the ptree the .ini parameters that are directly linked with MainWindow ...
     ptree.put<ushort>("info.theme_type", theme_index_);
-
-    ptree.put<uint>("display.main_window_max_size", window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", auxiliary_window_max_size);
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_ini(ptree);
 
-    boost::property_tree::write_ini(path, ptree);
+    // ... then the general data to save in ptree
+    api::save_ini(path, ptree);
 
     LOG_INFO << "Configuration file holovibes.ini overwritten at " << path;
 }
 
-void MainWindow::open_file(const std::string& path)
-{
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
-}
 #pragma endregion
 /* ------------ */
 #pragma region Close Compute
-void MainWindow::close_critical_compute()
-{
-    if (cd_.convolution_enabled)
-        ui_->ImageRenderingPanel->set_convolution_mode(false);
 
-    if (cd_.time_transformation_cuts_enabled)
-        ui_->ViewPanel->cancel_time_transformation_cuts();
-
-    holovibes.stop_compute();
-}
-
-void MainWindow::camera_none()
-{
-    close_windows();
-    close_critical_compute();
-    if (!is_raw_mode())
-        holovibes.stop_compute();
-    holovibes.stop_frame_read();
-
-    // Make camera's settings menu unaccessible
-    ui_->actionSettings->setEnabled(false);
-    is_enabled_camera = false;
-
-    cd_.set_computation_stopped(true);
-    notify();
-}
-
-void MainWindow::close_windows()
-{
-    ui_->ViewPanel->sliceXZ.reset(nullptr);
-    ui_->ViewPanel->sliceYZ.reset(nullptr);
-
-    ui_->ExportPanel->plot_window.reset(nullptr);
-    mainDisplay.reset(nullptr);
-
-    ui_->ViewPanel->lens_window.reset(nullptr);
-    ui_->ImageRenderingPanel->filter2d_window.reset(nullptr);
-
-    /* Raw view & recording */
-    ui_->ViewPanel->raw_window.reset(nullptr);
-
-    // Disable windows and overlays
-    cd_.reset_windows_display();
-}
-
+// VALID
+// FREE
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    close_windows();
-    if (!cd_.is_computation_stopped)
-        close_critical_compute();
+    LOG_FUNC;
+
     camera_none();
+
     save_ini(::holovibes::ini::default_config_filepath);
 }
 #pragma endregion
 /* ------------ */
 #pragma region Cameras
+
+// VALID
+// GUI
 void MainWindow::change_camera(CameraKind c)
 {
+    LOG_FUNC;
+
+    // Weird call to setup none camera before changing
     camera_none();
 
-    if (c != CameraKind::NONE)
+
+    if (c == CameraKind::NONE)
+        return;
+
+    const Computation computation = static_cast<Computation>(ui_->ImageModeComboBox->currentIndex());
+
+    const bool res = api::change_camera(c, computation);
+
+    if (res)
     {
-        try
-        {
-            mainDisplay.reset(nullptr);
-            if (!is_raw_mode())
-                holovibes.stop_compute();
-            holovibes.stop_frame_read();
+        ui_->ImageRenderingPanel->set_image_mode(nullptr);
 
-            set_camera_timeout();
+        // Make camera's settings menu accessible
+        QAction* settings = ui_->actionSettings;
+        settings->setEnabled(true);
 
-            ui_->ImageRenderingPanel->set_computation_mode();
-
-            holovibes.start_camera_frame_read(c);
-            is_enabled_camera = true;
-            ui_->ImageRenderingPanel->set_image_mode(nullptr);
-            ui_->ImportPanel->set_import_type(ImportPanel::ImportType::Camera);
-            kCamera_ = c;
-
-            // Make camera's settings menu accessible
-            QAction* settings = ui_->actionSettings;
-            settings->setEnabled(true);
-
-            cd_.set_computation_stopped(false);
-            notify();
-        }
-        catch (const camera::CameraException& e)
-        {
-            LOG_ERROR << "[CAMERA] " << e.what();
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what();
-        }
+        notify();
     }
 }
 
-void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
+// VALID
+// GUI
+void MainWindow::camera_none()
+{
+    LOG_FUNC;
 
-void MainWindow::camera_phantom() { change_camera(CameraKind::Phantom); }
+    api::camera_none();
 
-void MainWindow::camera_bitflow_cyton() { change_camera(CameraKind::BitflowCyton); }
+    // Make camera's settings menu unaccessible
+    ui_->actionSettings->setEnabled(false);
 
-void MainWindow::camera_hamamatsu() { change_camera(CameraKind::Hamamatsu); }
+    notify();
+}
+// VALID
+// FREE
+void MainWindow::camera_ids()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::IDS);
+}
 
-void MainWindow::camera_adimec() { change_camera(CameraKind::Adimec); }
+// VALID
+// FREE
+void MainWindow::camera_phantom()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::Phantom);
+}
 
-void MainWindow::camera_xiq() { change_camera(CameraKind::xiQ); }
+// VALID
+// FREE
+void MainWindow::camera_bitflow_cyton()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::BitflowCyton);
+}
 
-void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
+// VALID
+// FREE
+void MainWindow::camera_hamamatsu()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::Hamamatsu);
+}
 
+// VALID
+// FREE
+void MainWindow::camera_adimec()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::Adimec);
+}
+
+// VALID
+// FREE
+void MainWindow::camera_xiq()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::xiQ);
+}
+
+// VALID
+// FREE
+void MainWindow::camera_xib()
+{
+    LOG_FUNC;
+    change_camera(CameraKind::xiB);
+}
+
+// VALID
+// FREE
 void MainWindow::configure_camera()
 {
-    open_file(std::filesystem::current_path().generic_string() + "/" + holovibes.get_camera_ini_path());
+    LOG_FUNC;
+
+    api::configure_camera();
 }
 #pragma endregion
 /* ------------ */
 #pragma region Image Mode
-void MainWindow::init_image_mode(QPoint& position, QSize& size)
+
+
+// VALID
+// FREE
+void MainWindow::create_holo_window()
 {
-    if (mainDisplay)
-    {
-        position = mainDisplay->framePosition();
-        size = mainDisplay->size();
-        mainDisplay.reset(nullptr);
-    }
+    LOG_FUNC;
+
+    api::create_holo_window(*this);
 }
 
-void MainWindow::createPipe()
+// VALID
+// Notify
+void MainWindow::refresh_view_mode()
 {
-    try
-    {
-        holovibes.start_compute();
-        holovibes.get_compute_pipe()->register_observer(*this);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << "cannot create Pipe: " << e.what();
-    }
-}
+    LOG_FUNC;
 
-void MainWindow::createHoloWindow()
-{
-    QPoint pos(0, 0);
-    const FrameDescriptor& fd = holovibes.get_gpu_input_queue()->get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_max_size);
-    QSize size(width, height);
-    init_image_mode(pos, size);
-    /* ---------- */
-    try
-    {
-        mainDisplay.reset(new HoloWindow(pos,
-                                         size,
-                                         holovibes.get_gpu_output_queue().get(),
-                                         holovibes.get_compute_pipe(),
-                                         ui_->ViewPanel->sliceXZ,
-                                         ui_->ViewPanel->sliceYZ,
-                                         this));
-        mainDisplay->set_is_resize(false);
-        mainDisplay->setTitle(QString("XY view"));
-        mainDisplay->setCd(&cd_);
-        mainDisplay->resetTransform();
-        mainDisplay->setAngle(ui_->ViewPanel->displayAngle);
-        mainDisplay->setFlip(ui_->ViewPanel->displayFlip);
-        mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << "createHoloWindow: " << e.what();
-    }
-}
+    api::refresh_view_mode(*this, ui_->ViewModeComboBox->currentIndex());
 
-void MainWindow::set_camera_timeout() { camera::FRAME_TIMEOUT = global::global_config.frame_timeout; }
-
-void MainWindow::refreshViewMode()
-{
-    float old_scale = 1.f;
-    glm::vec2 old_translation(0.f, 0.f);
-    if (mainDisplay)
-    {
-        old_scale = mainDisplay->getScale();
-        old_translation = mainDisplay->getTranslate();
-    }
-    close_windows();
-    close_critical_compute();
-    cd_.img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    try
-    {
-        createPipe();
-        createHoloWindow();
-        mainDisplay->setScale(old_scale);
-        mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-    }
-    catch (const std::runtime_error& e)
-    {
-        mainDisplay.reset(nullptr);
-        LOG_ERROR << "refreshViewMode: " << e.what();
-    }
     notify();
     layout_toggled();
 }
 
-namespace
-{
+// VALID
+// LOCAL
 // Is there a change in window pixel depth (needs to be re-opened)
-bool need_refresh(const QString& last_type, const QString& new_type)
+bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
 {
-    std::vector<QString> types_needing_refresh({"Composite image"});
+    std::vector<std::string> types_needing_refresh({"Composite image"});
     for (auto& type : types_needing_refresh)
         if ((last_type == type) != (new_type == type))
             return true;
     return false;
 }
-} // namespace
+
+void MainWindow::set_composite_values()
+{
+    const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
+    const unsigned max_val_composite = api::get_time_transformation_size() - 1;
+
+    ui_->PRedSpinBox_Composite->setValue(min_val_composite);
+    ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
+    ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
+    ui_->SpinBox_value_freq_min->setValue(min_val_composite);
+
+    ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
+    ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
+    ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
+    ui_->SpinBox_value_freq_max->setValue(max_val_composite);
+}
+
+// FREE
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (is_raw_mode())
+    LOG_FUNC;
+
+    if (api::is_raw_mode())
         return;
 
-    if (need_refresh(last_img_type_, value))
+    const std::string& str = value.toStdString();
+
+    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
     {
-        refreshViewMode();
-        if (cd_.img_type == ImgType::Composite)
+        refresh_view_mode();
+        if (api::get_img_type() == ImgType::Composite)
         {
-            const unsigned min_val_composite = cd_.time_transformation_size == 1 ? 0 : 1;
-            const unsigned max_val_composite = cd_.time_transformation_size - 1;
-
-            ui_->PRedSpinBox_Composite->setValue(min_val_composite);
-            ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
-            ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
-            ui_->SpinBox_value_freq_min->setValue(min_val_composite);
-
-            ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
-            ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
-            ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
-            ui_->SpinBox_value_freq_max->setValue(max_val_composite);
+            set_composite_values();
         }
     }
-    last_img_type_ = value;
 
-    auto pipe = dynamic_cast<Pipe*>(holovibes.get_compute_pipe().get());
-
-    pipe->insert_fn_end_vect([=]() {
-        cd_.set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
+    auto callback = ([=]() {
+        api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
         notify();
         layout_toggled();
     });
-    pipe_refresh();
 
-    // Force XYview autocontrast
-    pipe->autocontrast_end_pipe(WindowKind::XYview);
+    api::set_view_mode(str, callback);
+
     // Force cuts views autocontrast if needed
-    if (cd_.time_transformation_cuts_enabled)
-        ui_->ViewPanel->set_auto_contrast_cuts();
+    if (api::get_time_transformation_cuts_enabled())
+        api::set_auto_contrast_cuts();
 }
 
-bool MainWindow::is_raw_mode() { return cd_.compute_mode == Computation::Raw; }
 #pragma endregion
+
 /* ------------ */
-#pragma region Computation
+
 void MainWindow::change_window()
 {
-    QComboBox* window_cbox = ui_->WindowSelectionComboBox;
+    api::change_window(ui_->WindowSelectionComboBox->currentIndex());
 
-    cd_.change_window(window_cbox->currentIndex());
-    pipe_refresh();
     notify();
 }
 
-void MainWindow::pipe_refresh()
+void MainWindow::start_import(QString filename)
 {
-    if (is_raw_mode())
-        return;
-
-    try
-    {
-        holovibes.get_compute_pipe()->soft_request_refresh();
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what();
-    }
+    ui_->ImportPanel->import_file(filename);
+    ui_->ImportPanel->import_start();
 }
+
+Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
 /* ------------ */
 #pragma region Themes
+
+// VALID
+// GUI
 void MainWindow::set_night()
 {
+    LOG_FUNC;
     // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
@@ -754,8 +694,11 @@ void MainWindow::set_night()
     theme_index_ = 1;
 }
 
+// VALID
+// GUI
 void MainWindow::set_classic()
 {
+    LOG_FUNC;
     qApp->setPalette(this->style()->standardPalette());
     // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
@@ -763,17 +706,5 @@ void MainWindow::set_classic()
     theme_index_ = 0;
 }
 #pragma endregion
-
-void MainWindow::start_import(QString filename)
-{
-    ui_->ImportPanel->import_file(filename);
-    ui_->ImportPanel->import_start();
-}
-
-RawWindow* MainWindow::get_main_display() { return mainDisplay.get(); }
-
-Ui::MainWindow* MainWindow::get_ui() { return ui_; }
-
-ComputeDescriptor& MainWindow::get_cd() { return cd_; }
 } // namespace gui
 } // namespace holovibes

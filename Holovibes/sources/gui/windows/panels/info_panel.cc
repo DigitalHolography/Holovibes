@@ -2,6 +2,9 @@
 #include "MainWindow.hh"
 #include "logger.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
+
+namespace api = ::holovibes::api;
 
 namespace holovibes::gui
 {

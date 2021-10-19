@@ -3,8 +3,11 @@
 #include "logger.hh"
 #include "tools.hh"
 #include "frame_desc.hh"
+#include "API.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
+
+namespace api = ::holovibes::api;
 
 namespace holovibes::gui
 {
@@ -28,669 +31,503 @@ ViewPanel::~ViewPanel()
 
 void ViewPanel::on_notify()
 {
-    const bool is_raw = parent_->is_raw_mode();
+    const bool is_raw = api::is_raw_mode();
 
-    ui_->PhaseUnwrap2DCheckBox->setEnabled(cd_.img_type == ImgType::PhaseIncrease || cd_.img_type == ImgType::Argument);
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && cd_.time_transformation_cuts_enabled);
+    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
+
+    ui_->PhaseUnwrap2DCheckBox->setEnabled(api::get_cd().img_type == ImgType::PhaseIncrease || api::get_cd().img_type == ImgType::Argument);
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cd().time_transformation_cuts_enabled);
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
-    ui_->FFTShiftCheckBox->setChecked(cd_.fft_shift_enabled);
+    ui_->FFTShiftCheckBox->setChecked(api::get_cd().fft_shift_enabled);
     ui_->FFTShiftCheckBox->setEnabled(true);
-    ui_->LensViewCheckBox->setChecked(cd_.gpu_lens_display_enabled);
+    ui_->LensViewCheckBox->setChecked(api::get_cd().gpu_lens_display_enabled);
     ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
-    ui_->RawDisplayingCheckBox->setChecked(!is_raw && cd_.raw_view_enabled);
+    ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_cd().raw_view_enabled);
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && cd_.contrast_enabled);
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_cd().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(cd_.contrast_auto_refresh);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_cd().contrast_auto_refresh);
 
     // Contrast Spinbox
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui_->ContrastMinDoubleSpinBox->setValue(cd_.get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!cd_.contrast_auto_refresh);
-    ui_->ContrastMaxDoubleSpinBox->setValue(cd_.get_contrast_max());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_cd().contrast_auto_refresh);
+    ui_->ContrastMinDoubleSpinBox->setValue(api::get_cd().get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_cd().contrast_auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_cd().get_contrast_max());
 
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
-    window_selection->setEnabled(cd_.time_transformation_cuts_enabled);
-    window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(cd_.current_window.load()) : 0);
+    window_selection->setEnabled(api::get_cd().time_transformation_cuts_enabled);
+    window_selection->setCurrentIndex(window_selection->isEnabled() ? static_cast<int>(api::get_cd().current_window.load()) : 0);
 
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && cd_.get_img_log_scale_slice_enabled(cd_.current_window.load()));
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_cd().get_img_log_scale_slice_enabled(api::get_cd().current_window.load()));
     ui_->ImgAccuCheckBox->setEnabled(true);
-    ui_->ImgAccuCheckBox->setChecked(!is_raw && cd_.get_img_acc_slice_enabled(cd_.current_window.load()));
-    ui_->ImgAccuSpinBox->setValue(cd_.get_img_acc_slice_level(cd_.current_window.load()));
-    if (cd_.current_window == WindowKind::XYview)
+    ui_->ImgAccuCheckBox->setChecked(!is_raw && api::get_cd().get_img_acc_slice_enabled(api::get_cd().current_window.load()));
+    ui_->ImgAccuSpinBox->setValue(api::get_cd().get_img_acc_slice_level(api::get_cd().current_window.load()));
+    if (api::get_cd().current_window == WindowKind::XYview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(UserInterfaceDescriptor::instance().displayAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(UserInterfaceDescriptor::instance().displayFlip)).c_str());
     }
-    else if (cd_.current_window == WindowKind::XZview)
+    else if (api::get_cd().current_window == WindowKind::XZview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle_))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(xzFlip_)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(UserInterfaceDescriptor::instance().xzAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(UserInterfaceDescriptor::instance().xzFlip)).c_str());
     }
-    else if (cd_.current_window == WindowKind::YZview)
+    else if (api::get_cd().current_window == WindowKind::YZview)
     {
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle_))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(yzFlip_)).c_str());
+        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(UserInterfaceDescriptor::instance().yzAngle))).c_str());
+        ui_->FlipPushButton->setText(("Flip " + std::to_string(UserInterfaceDescriptor::instance().yzFlip)).c_str());
     }
 
     // p accu
-    ui_->PAccuCheckBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
-    ui_->PAccuCheckBox->setChecked(cd_.p_accu_enabled);
-    ui_->PAccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    ui_->PAccuCheckBox->setEnabled(api::get_cd().img_type != ImgType::PhaseIncrease);
+    ui_->PAccuCheckBox->setChecked(api::get_cd().p_accu_enabled);
+    ui_->PAccSpinBox->setMaximum(api::get_cd().time_transformation_size - 1);
 
-    cd_.check_p_limits();
-    ui_->PAccSpinBox->setValue(cd_.p_acc_level);
-    ui_->PSpinBox->setValue(cd_.pindex);
-    ui_->PAccSpinBox->setEnabled(cd_.img_type != ImgType::PhaseIncrease);
-    if (cd_.p_accu_enabled)
+    api::get_cd().check_p_limits();
+    ui_->PAccSpinBox->setValue(api::get_cd().p_acc_level);
+    ui_->PSpinBox->setValue(api::get_cd().pindex);
+    ui_->PAccSpinBox->setEnabled(api::get_cd().img_type != ImgType::PhaseIncrease);
+    if (api::get_cd().p_accu_enabled)
     {
-        ui_->PSpinBox->setMaximum(cd_.time_transformation_size - cd_.p_acc_level - 1);
-        ui_->PAccSpinBox->setMaximum(cd_.time_transformation_size - cd_.pindex - 1);
+        ui_->PSpinBox->setMaximum(api::get_cd().time_transformation_size - api::get_cd().p_acc_level - 1);
+        ui_->PAccSpinBox->setMaximum(api::get_cd().time_transformation_size - api::get_cd().pindex - 1);
     }
     else
     {
-        ui_->PSpinBox->setMaximum(cd_.time_transformation_size - 1);
+        ui_->PSpinBox->setMaximum(api::get_cd().time_transformation_size - 1);
     }
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
-    bool is_ssa_stft = cd_.time_transformation == TimeTransformation::SSA_STFT;
+    bool is_ssa_stft = api::get_cd().time_transformation == TimeTransformation::SSA_STFT;
     ui_->Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
     ui_->Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
     ui_->Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
-    ui_->Q_AccuCheckBox->setChecked(cd_.q_acc_enabled);
-    ui_->Q_AccSpinBox->setMaximum(cd_.time_transformation_size - 1);
+    ui_->Q_AccuCheckBox->setChecked(api::get_cd().q_acc_enabled);
+    ui_->Q_AccSpinBox->setMaximum(api::get_cd().time_transformation_size - 1);
 
-    cd_.check_q_limits();
-    ui_->Q_AccSpinBox->setValue(cd_.q_acc_level);
-    ui_->Q_SpinBox->setValue(cd_.q_index);
-    if (cd_.q_acc_enabled)
+    api::get_cd().check_q_limits();
+    ui_->Q_AccSpinBox->setValue(api::get_cd().q_acc_level);
+    ui_->Q_SpinBox->setValue(api::get_cd().q_index);
+    if (api::get_cd().q_acc_enabled)
     {
-        ui_->Q_SpinBox->setMaximum(cd_.time_transformation_size - cd_.q_acc_level - 1);
-        ui_->Q_AccSpinBox->setMaximum(cd_.time_transformation_size - cd_.q_index - 1);
+        ui_->Q_SpinBox->setMaximum(api::get_cd().time_transformation_size - api::get_cd().q_acc_level - 1);
+        ui_->Q_AccSpinBox->setMaximum(api::get_cd().time_transformation_size - api::get_cd().q_index - 1);
     }
     else
     {
-        ui_->Q_SpinBox->setMaximum(cd_.time_transformation_size - 1);
+        ui_->Q_SpinBox->setMaximum(api::get_cd().time_transformation_size - 1);
     }
 
     // XY accu
-    ui_->XAccuCheckBox->setChecked(cd_.x_accu_enabled);
-    ui_->XAccSpinBox->setValue(cd_.x_acc_level);
-    ui_->YAccuCheckBox->setChecked(cd_.y_accu_enabled);
-    ui_->YAccSpinBox->setValue(cd_.y_acc_level);
+    ui_->XAccuCheckBox->setChecked(api::get_cd().x_accu_enabled);
+    ui_->XAccSpinBox->setValue(api::get_cd().x_acc_level);
+    ui_->YAccuCheckBox->setChecked(api::get_cd().y_accu_enabled);
+    ui_->YAccSpinBox->setValue(api::get_cd().y_acc_level);
 
     int max_width = 0;
     int max_height = 0;
-    if (parent_->holovibes.get_gpu_input_queue() != nullptr)
+    if (api::get_gpu_input_queue() != nullptr)
     {
-        max_width = parent_->holovibes.get_gpu_input_queue()->get_fd().width - 1;
-        max_height = parent_->holovibes.get_gpu_input_queue()->get_fd().height - 1;
+        max_width = api::get_gpu_input_queue_fd_width() - 1;
+        max_height = api::get_gpu_input_queue_fd_height() - 1;
     }
     else
     {
-        cd_.x_cuts = 0;
-        cd_.y_cuts = 0;
+        api::get_cd().x_cuts = 0;
+        api::get_cd().y_cuts = 0;
     }
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
-    QSpinBoxQuietSetValue(ui_->XSpinBox, cd_.x_cuts);
-    QSpinBoxQuietSetValue(ui_->YSpinBox, cd_.y_cuts);
+    QSpinBoxQuietSetValue(ui_->XSpinBox, api::get_cd().x_cuts);
+    QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_cd().y_cuts);
 
-    ui_->RenormalizeCheckBox->setChecked(cd_.renorm_enabled);
-    ui_->ReticleScaleDoubleSpinBox->setEnabled(cd_.reticle_enabled);
-    ui_->ReticleScaleDoubleSpinBox->setValue(cd_.reticle_scale);
-    ui_->DisplayReticleCheckBox->setChecked(cd_.reticle_enabled);
+    ui_->RenormalizeCheckBox->setChecked(api::get_cd().renorm_enabled);
+    ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_cd().reticle_enabled);
+    ui_->ReticleScaleDoubleSpinBox->setValue(api::get_cd().reticle_scale);
+    ui_->DisplayReticleCheckBox->setChecked(api::get_cd().reticle_enabled);
 }
 
 void ViewPanel::load_ini(const boost::property_tree::ptree& ptree)
 {
     ui_->actionView->setChecked(!ptree.get<bool>("view.hidden", isHidden()));
 
-    time_transformation_cuts_window_max_size_ =
-        ptree.get<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
-    displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
-    xzAngle_ = ptree.get<float>("view.xCut_rotate", xzAngle_);
-    yzAngle_ = ptree.get<float>("view.yCut_rotate", yzAngle_);
-    displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
-    xzFlip_ = ptree.get("view.xCut_flip", xzFlip_);
-    yzFlip_ = ptree.get("view.yCut_flip", yzFlip_);
+    // UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size_ =
+    //     ptree.get<uint>("display.time_transformation_cuts_window_max_size", UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size_);
+    // UserInterfaceDescriptor::instance().displayAngle = ptree.get("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
+    // UserInterfaceDescriptor::instance().xzAngle_ = ptree.get<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle_);
+    // UserInterfaceDescriptor::instance().yzAngle_ = ptree.get<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle_);
+    // UserInterfaceDescriptor::instance().displayFlip = ptree.get("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
+    // UserInterfaceDescriptor::instance().xzFlip_ = ptree.get("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip_);
+    // UserInterfaceDescriptor::instance().yzFlip_ = ptree.get("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip_);
 }
 
 void ViewPanel::save_ini(boost::property_tree::ptree& ptree)
 {
     ptree.put<bool>("view.hidden", isHidden());
 
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size_);
-    ptree.put<float>("view.mainWindow_rotate", displayAngle);
-    ptree.put<float>("view.xCut_rotate", xzAngle_);
-    ptree.put<float>("view.yCut_rotate", yzAngle_);
-    ptree.put<int>("view.mainWindow_flip", displayFlip);
-    ptree.put<int>("view.xCut_flip", xzFlip_);
-    ptree.put<int>("view.yCut_flip", yzFlip_);
+    // ptree.put<uint>("display.time_transformation_cuts_window_max_size", UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size_);
+    // ptree.put<float>("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
+    // ptree.put<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle_);
+    // ptree.put<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle_);
+    // ptree.put<int>("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
+    // ptree.put<int>("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip_);
+    // ptree.put<int>("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip_);
 }
 
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    parent_->holovibes.get_compute_pipe()->request_unwrapping_2d(value);
-    parent_->pipe_refresh();
+    api::set_unwrapping_2d(value);
+
     parent_->notify();
 }
 
 void ViewPanel::toggle_time_transformation_cuts(bool checked)
 {
+
     QComboBox* winSelection = ui_->WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-    if (checked)
+
+    if (!checked)
     {
-        try
-        {
-            parent_->holovibes.get_compute_pipe()->create_stft_slice_queue();
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint xzPos = parent_->mainDisplay->framePosition() + QPoint(0, parent_->mainDisplay->height() + 42);
-            QPoint yzPos = parent_->mainDisplay->framePosition() + QPoint(parent_->mainDisplay->width() + 20, 0);
-            const ushort nImg = cd_.time_transformation_size;
-            uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
+        cancel_time_transformation_cuts();
+        return;
+    }
 
-            if (time_transformation_size > time_transformation_cuts_window_max_size_)
-                time_transformation_size = time_transformation_cuts_window_max_size_;
+    const bool res = api::toggle_time_transformation_cuts(*parent_);
 
-            while (parent_->holovibes.get_compute_pipe()->get_update_time_transformation_size_request())
-                continue;
-            while (parent_->holovibes.get_compute_pipe()->get_cuts_request())
-                continue;
-            sliceXZ.reset(new SliceWindow(xzPos,
-                                          QSize(parent_->mainDisplay->width(), time_transformation_size),
-                                          parent_->holovibes.get_compute_pipe()->get_stft_slice_queue(0).get(),
-                                          KindOfView::SliceXZ,
-                                          parent_));
-            sliceXZ->setTitle("XZ view");
-            sliceXZ->setAngle(xzAngle_);
-            sliceXZ->setFlip(xzFlip_);
-            sliceXZ->setCd(&(cd_));
-
-            sliceYZ.reset(new SliceWindow(yzPos,
-                                          QSize(time_transformation_size, parent_->mainDisplay->height()),
-                                          parent_->holovibes.get_compute_pipe()->get_stft_slice_queue(1).get(),
-                                          KindOfView::SliceYZ,
-                                          parent_));
-            sliceYZ->setTitle("YZ view");
-            sliceYZ->setAngle(yzAngle_);
-            sliceYZ->setFlip(yzFlip_);
-            sliceYZ->setCd(&(cd_));
-
-            parent_->mainDisplay->getOverlayManager().create_overlay<Cross>();
-            cd_.set_time_transformation_cuts_enabled(true);
-            set_auto_contrast_cuts();
-            auto holo = dynamic_cast<HoloWindow*>(parent_->mainDisplay.get());
-            if (holo)
-                holo->update_slice_transforms();
-            parent_->notify();
-        }
-        catch (const std::logic_error& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
-            cancel_stft_slice_view();
-        }
+    if (res)
+    {
+        set_auto_contrast_cuts();
+        parent_->notify();
     }
     else
     {
-        cancel_stft_slice_view();
+        cancel_time_transformation_cuts();
     }
 }
 
-void ViewPanel::cancel_stft_slice_view()
+void ViewPanel::cancel_time_transformation_cuts()
 {
-    cd_.reset_slice_view();
-    sliceXZ.reset(nullptr);
-    sliceYZ.reset(nullptr);
+    if (!api::get_time_transformation_cuts_enabled())
+        return;
 
-    if (parent_->mainDisplay)
+    std::function<void()> callback = []() { return; };
+
+    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
-        parent_->mainDisplay->setCursor(Qt::ArrowCursor);
-        parent_->mainDisplay->getOverlayManager().disable_all(SliceCross);
-        parent_->mainDisplay->getOverlayManager().disable_all(Cross);
-    }
-    if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect([=]() {
-            cd_.set_time_transformation_cuts_enabled(false);
+        callback = ([=]() {
+            api::set_time_transformation_cuts_enabled(false);
             pipe->delete_stft_slice_queue();
 
             ui_->TimeTransformationCutsCheckBox->setChecked(false);
             parent_->notify();
         });
     }
-}
 
-void ViewPanel::cancel_time_transformation_cuts()
-{
-    if (cd_.time_transformation_cuts_enabled)
-    {
-        cancel_stft_slice_view();
-        try
-        {
-            // Wait for refresh to be enabled for notify
-            while (parent_->holovibes.get_compute_pipe()->get_refresh_request())
-                continue;
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what();
-        }
-        cd_.set_time_transformation_cuts_enabled(false);
-    }
+    api::cancel_time_transformation_cuts(callback);
+
     parent_->notify();
 }
 
 void ViewPanel::set_auto_contrast_cuts()
 {
-    if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get()))
-    {
-        pipe->autocontrast_end_pipe(WindowKind::XZview);
-        pipe->autocontrast_end_pipe(WindowKind::YZview);
-    }
+    api::set_auto_contrast_cuts();
 }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    cd_.set_fft_shift_enabled(value);
-    parent_->pipe_refresh();
+    api::set_fft_shift(value);
+
+    api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool value)
 {
-    cd_.set_gpu_lens_display_enabled(value);
+    api::set_gpu_lens_display_enabled(value);
 
     if (value)
     {
-        try
+        const bool res = api::set_lens_view();
+
+        if (res)
         {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = parent_->mainDisplay->framePosition() + QPoint(parent_->mainDisplay->width() + 310, 0);
-            ICompute* pipe = parent_->holovibes.get_compute_pipe().get();
-
-            const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, parent_->auxiliary_window_max_size);
-
-            lens_window.reset(new RawWindow(pos,
-                                            QSize(lens_window_width, lens_window_height),
-                                            pipe->get_lens_queue().get(),
-                                            KindOfView::Lens));
-
-            lens_window->setTitle("Lens view");
-            lens_window->setCd(&(cd_));
-
-            // when the window is destoryed, disable_lens_view() will be triggered
-            connect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR << e.what() << std::endl;
+            connect(UserInterfaceDescriptor::instance().lens_window.get(),
+                    SIGNAL(destroyed()),
+                    this,
+                    SLOT(disable_lens_view()));
         }
     }
-
     else
     {
         disable_lens_view();
-        lens_window.reset(nullptr);
     }
 
-    parent_->pipe_refresh();
+    api::pipe_refresh();
 }
 
 void ViewPanel::disable_lens_view()
 {
-    if (lens_window)
-        disconnect(lens_window.get(), SIGNAL(destroyed()), this, SLOT(disable_lens_view()));
+    if (UserInterfaceDescriptor::instance().lens_window)
+        disconnect(UserInterfaceDescriptor::instance().lens_window.get(),
+                   SIGNAL(destroyed()),
+                   this,
+                   SLOT(disable_lens_view()));
 
-    cd_.set_gpu_lens_display_enabled(false);
-    parent_->holovibes.get_compute_pipe()->request_disable_lens_view();
+    api::disable_lens_view();
     parent_->notify();
 }
 
 void ViewPanel::update_raw_view(bool value)
 {
+
     if (value)
     {
-        if (cd_.batch_size > global::global_config.output_queue_max_size)
+        if (api::get_batch_size() > global::global_config.output_queue_max_size)
         {
-            ui_->RawDisplayingCheckBox->setChecked(false);
             LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
             return;
         }
 
-        auto pipe = parent_->holovibes.get_compute_pipe();
-        pipe->request_raw_view();
-
-        // Wait for the raw view to be enabled for notify
-        while (pipe->get_raw_view_requested())
-            continue;
-
-        const camera::FrameDescriptor& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, parent_->auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = parent_->mainDisplay->framePosition() + QPoint(parent_->mainDisplay->width() + 310, 0);
-        raw_window.reset(
-            new RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-        raw_window->setTitle("Raw view");
-        raw_window->setCd(&(cd_));
-
-        connect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+        api::set_raw_view();
+        connect(api::get_raw_window().get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
     }
     else
     {
-        raw_window.reset(nullptr);
         disable_raw_view();
     }
-    parent_->pipe_refresh();
-}
 
+}
 void ViewPanel::disable_raw_view()
 {
-    if (raw_window)
-        disconnect(raw_window.get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+    if (UserInterfaceDescriptor::instance().raw_window)
+        disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
+                   SIGNAL(destroyed()),
+                   this,
+                   SLOT(disable_raw_view()));
 
-    auto pipe = parent_->holovibes.get_compute_pipe();
-    pipe->request_disable_raw_view();
-
-    // Wait for the raw view to be disabled for notify
-    while (pipe->get_disable_raw_view_requested())
-        continue;
+    api::disable_raw_view();
 
     parent_->notify();
 }
 
 void ViewPanel::set_x_y()
 {
-    auto& fd = parent_->holovibes.get_gpu_input_queue()->get_fd();
-    uint x = ui_->XSpinBox->value();
-    uint y = ui_->YSpinBox->value();
-
-    if (x < fd.width)
-        cd_.set_x_cuts(x);
-
-    if (y < fd.height)
-        cd_.set_y_cuts(y);
+    api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
 }
 
 void ViewPanel::set_x_accu()
 {
-    cd_.set_x_accu(ui_->XAccuCheckBox->isChecked(), ui_->XAccSpinBox->value());
-    parent_->pipe_refresh();
+    api::set_x_accu(ui_->XAccuCheckBox->isChecked(), ui_->XAccSpinBox->value());
+
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    cd_.set_y_accu(ui_->YAccuCheckBox->isChecked(), ui_->YAccSpinBox->value());
-    parent_->pipe_refresh();
+    api::set_y_accu(ui_->YAccuCheckBox->isChecked(), ui_->YAccSpinBox->value());
+
     parent_->notify();
 }
 
 void ViewPanel::set_p(int value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    if (value < static_cast<int>(cd_.time_transformation_size))
+    if (value >= static_cast<int>(api::get_time_transformation_size()))
     {
-        cd_.pindex = value;
-        parent_->pipe_refresh();
-        parent_->notify();
-    }
-    else
         LOG_ERROR << "p param has to be between 1 and #img";
+        return;
+    }
+
+    api::set_p(value);
+
+    parent_->notify();
 }
 
 void ViewPanel::increment_p()
 {
-    if (parent_->is_raw_mode())
+    LOG_FUNC;
+
+    if (api::is_raw_mode())
         return;
 
-    if (cd_.pindex < cd_.time_transformation_size)
+    if (api::get_pindex() >= api::get_time_transformation_size())
     {
-        cd_.set_pindex(cd_.pindex + 1);
-        set_auto_contrast();
-        parent_->notify();
-    }
-    else
         LOG_ERROR << "p param has to be between 1 and #img";
+        return;
+    }
+
+    api::increment_p();
+
+    set_auto_contrast();
+    parent_->notify();
 }
 
 void ViewPanel::decrement_p()
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    if (cd_.pindex > 0)
+    if (api::get_pindex() <= 0)
     {
-        cd_.set_pindex(cd_.pindex - 1);
-        set_auto_contrast();
-        parent_->notify();
-    }
-    else
         LOG_ERROR << "p param has to be between 1 and #img";
+        return;
+    }
+
+    api::decrement_p();
+
+    set_auto_contrast();
+    parent_->notify();
 }
 
 void ViewPanel::set_p_accu()
 {
-    cd_.set_p_accu(ui_->PAccuCheckBox->isChecked(), ui_->PAccSpinBox->value());
-    parent_->pipe_refresh();
+    api::set_p_accu(ui_->PAccuCheckBox->isChecked(), ui_->PAccSpinBox->value());
+
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    cd_.set_q_index(value);
+    api::set_q(value);
+    
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    cd_.set_q_accu(ui_->Q_AccuCheckBox->isChecked(), ui_->Q_AccSpinBox->value());
+    api::set_q_accu(ui_->Q_AccuCheckBox->isChecked(), ui_->Q_AccSpinBox->value());
+    
     parent_->notify();
 }
 
 void ViewPanel::rotateTexture()
 {
-    WindowKind curWin = cd_.current_window;
+    api::rotateTexture();
 
-    if (curWin == WindowKind::XYview)
-    {
-        displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
-        parent_->mainDisplay->setAngle(displayAngle);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        xzAngle_ = (xzAngle_ == 270.f) ? 0.f : xzAngle_ + 90.f;
-        sliceXZ->setAngle(xzAngle_);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        yzAngle_ = (yzAngle_ == 270.f) ? 0.f : yzAngle_ + 90.f;
-        sliceYZ->setAngle(yzAngle_);
-    }
     parent_->notify();
 }
 
 void ViewPanel::flipTexture()
 {
-    WindowKind curWin = cd_.current_window;
+    api::flipTexture();
 
-    if (curWin == WindowKind::XYview)
-    {
-        displayFlip = !displayFlip;
-        parent_->mainDisplay->setFlip(displayFlip);
-    }
-    else if (sliceXZ && curWin == WindowKind::XZview)
-    {
-        xzFlip_ = !xzFlip_;
-        sliceXZ->setFlip(xzFlip_);
-    }
-    else if (sliceYZ && curWin == WindowKind::YZview)
-    {
-        yzFlip_ = !yzFlip_;
-        sliceYZ->setFlip(yzFlip_);
-    }
     parent_->notify();
 }
 
 void ViewPanel::set_log_scale(const bool value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    cd_.set_log_scale_slice_enabled(cd_.current_window, value);
-    if (value && cd_.contrast_enabled)
-        set_auto_contrast();
-    parent_->pipe_refresh();
+    api::set_log_scale(value);
+
     parent_->notify();
 }
 
 void ViewPanel::set_accumulation(bool value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    cd_.set_accumulation(value);
-    parent_->pipe_refresh();
+    api::set_accumulation(value);
+
     parent_->notify();
 }
 
 void ViewPanel::set_accumulation_level(int value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    cd_.set_accumulation_level(value);
-    parent_->pipe_refresh();
+    api::set_accumulation_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    if (parent_->is_raw_mode())
+    parent_->change_window();
+
+    if (api::is_raw_mode())
         return;
 
-    parent_->change_window();
-    cd_.set_contrast_mode(value);
-    parent_->pipe_refresh();
+    api::set_contrast_mode(value);
+
     parent_->notify();
 }
 
 void ViewPanel::set_auto_contrast()
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    try
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(parent_->holovibes.get_compute_pipe().get()))
-            pipe->autocontrast_end_pipe(cd_.current_window);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR << e.what() << std::endl;
-    }
+    api::set_auto_contrast();
 }
 
 void ViewPanel::set_auto_refresh_contrast(bool value)
 {
-    cd_.set_contrast_auto_refresh(value);
-    parent_->pipe_refresh();
+    api::set_auto_refresh_contrast(value);
+
     parent_->notify();
 }
 
 void ViewPanel::invert_contrast(bool value)
 {
-    if (!parent_->is_raw_mode() && cd_.set_contrast_invert(value))
-    {
-        parent_->pipe_refresh();
-    }
+    if (api::is_raw_mode())
+        return;
+
+    if (!api::get_contrast_enabled())
+        return;
+
+    api::invert_contrast(value);
 }
 
 void ViewPanel::set_contrast_min(const double value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    if (cd_.contrast_enabled)
-    {
-        const float old_val = cd_.get_truncate_contrast_min();
-        const float val = value;
-        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+    if (!api::get_contrast_enabled())
+        return;
 
-        if (abs(old_val - val) > epsilon)
-        {
-            cd_.set_contrast_min(value);
-            parent_->pipe_refresh();
-        }
-    }
+    api::set_contrast_min(value);
 }
 
 void ViewPanel::set_contrast_max(const double value)
 {
-    if (parent_->is_raw_mode())
+    if (api::is_raw_mode())
         return;
 
-    if (cd_.contrast_enabled)
-    {
-        const float old_val = cd_.get_truncate_contrast_max();
-        const float val = value;
-        const float epsilon = 0.001f; // Precision in get_truncate_contrast_min is 2 decimals by default
+    if (!api::get_contrast_enabled())
+        return;
 
-        if (abs(old_val - val) > epsilon)
-        {
-            cd_.set_contrast_max(value);
-            parent_->pipe_refresh();
-        }
-    }
+    api::set_contrast_max(value);
 }
 
 void ViewPanel::toggle_renormalize(bool value)
 {
-    cd_.set_renorm_enabled(value);
-
-    parent_->holovibes.get_compute_pipe()->request_clear_img_acc();
-    parent_->pipe_refresh();
+    api::toggle_renormalize(value);
 }
 
 void ViewPanel::display_reticle(bool value)
 {
-    cd_.set_reticle_enabled(value);
-    if (value)
-    {
-        parent_->mainDisplay->getOverlayManager().create_overlay<Reticle>();
-        parent_->mainDisplay->getOverlayManager().create_default();
-    }
-    else
-    {
-        parent_->mainDisplay->getOverlayManager().disable_all(Reticle);
-    }
-    parent_->pipe_refresh();
+    api::display_reticle(value);
+
     parent_->notify();
 }
 
@@ -699,7 +536,6 @@ void ViewPanel::reticle_scale(double value)
     if (0 > value || value > 1)
         return;
 
-    cd_.set_reticle_scale(value);
-    parent_->pipe_refresh();
+    api::reticle_scale(value);
 }
 } // namespace holovibes::gui
