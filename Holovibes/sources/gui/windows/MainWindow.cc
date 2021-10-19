@@ -32,6 +32,7 @@
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "API.hh"
+#include "information_worker.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
