@@ -14,7 +14,8 @@ ComputeDescriptor::ComputeDescriptor()
 
 ComputeDescriptor::~ComputeDescriptor() {}
 
-// FIXME
+// FIXME: Unused ?
+/*
 ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 {
     is_computation_stopped = is_computation_stopped.load();
@@ -73,6 +74,7 @@ ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
     frame_record_enabled = cd.frame_record_enabled.load();
     return *this;
 }
+*/
 
 void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
 {

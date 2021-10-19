@@ -170,6 +170,7 @@ MainWindow::MainWindow(Holovibes& holovibes, QWidget* parent)
     cd_.set_compute_mode(Computation::Raw);
     last_img_type_ = cd_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
     notify();
+
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -1326,9 +1327,6 @@ void MainWindow::cancel_time_transformation_cuts()
 void MainWindow::change_window(int index)
 {
     cd_.change_window(index);
-
-    // pipe_refresh();
-
     notify();
 }
 
@@ -1382,9 +1380,6 @@ void MainWindow::disable_filter2d_view()
 
         disconnect(filter2d_window.get(), SIGNAL(destroyed()), this, SLOT(disable_filter2d_view()));
     }
-
-    // Change the focused window
-    change_window();
 
     notify();
 }

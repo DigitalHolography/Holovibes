@@ -294,12 +294,13 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
-    View_Window* current = &xy;
 
     View_XYZ xy{};
     View_XYZ xz{};
     View_XYZ yz{};
     View_Window filter2d{};
+
+    View_Window* current = &xy;
 
     // Composite images
     std::atomic<CompositeKind> composite_kind;
