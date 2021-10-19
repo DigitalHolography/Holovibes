@@ -811,7 +811,7 @@ bool set_lens_view()
         LOG_ERROR << e.what() << std::endl;
     }
 
-    api::pipe_refresh();
+    pipe_refresh();
     return res;
 }
 
@@ -823,7 +823,7 @@ void disable_lens_view()
     get_cd().gpu_lens_display_enabled = false;
     get_compute_pipe()->request_disable_lens_view();
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    api::pipe_refresh();
+    pipe_refresh();
 }
 
 // VALID

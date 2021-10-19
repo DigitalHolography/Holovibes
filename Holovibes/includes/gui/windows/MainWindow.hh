@@ -73,9 +73,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Stops critical compute */
     void close_critical_compute();
 
-    /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh();
-
     /*! \brief Start the import process */
     void start_import(QString filename);
 
