@@ -1,32 +1,18 @@
 #pragma once
 
-#define NAMEOF(name) #name
+#include <boost/pfr.hpp>
 
-template <typename T>
-class MicroCache
+struct MicroCache
 {
-    T data;
-    std::shared_ptr<std::unordered_map<std::string, bool>> updated_data;
+    // template <typename... Args>
+    // MicroCached(const Args &... args)
+    // {
+    //     std::tuple<Args...> vars = boost::pfr::structure_tie(*this);
+    //     for (auto x : args...)
+    //     {
 
-    void synchronize();
+    //     }
+    // }
+
+    virtual void synchronize();
 };
-
-template <typename T>
-class Monitored
-{
-    T value;
-    std::shared_ptr<std::unordered_map<std::string, bool>> updated_data;
-
-    Monitored& operator=(T other)
-    {
-        value = other;
-        updated_data[NAMEOF(this)] = true;
-        return *this;
-    }
-};
-
-// set_ftt {
-//     fft = x
-//     map["fft"].second = fft
-
-// }

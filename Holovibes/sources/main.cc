@@ -14,6 +14,7 @@
 #include "compute_descriptor.hh"
 #include "logger.hh"
 #include "cli.hh"
+#include "global_state_holder.hh"
 
 static void check_cuda_graphic_card(bool gui)
 {
