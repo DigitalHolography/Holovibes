@@ -1,6 +1,10 @@
 #include "info_panel.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
+#include "global_state_holder.hh"
+#include "API.hh"
+
+namespace api = ::holovibes::api;
 
 namespace holovibes::gui
 {
@@ -13,16 +17,16 @@ InfoPanel::~InfoPanel() {}
 
 void InfoPanel::init()
 {
-    auto update_progress = [=](InformationContainer::ProgressType type, const size_t value, const size_t max_size) {
+    ::holovibes::worker::InformationWorker::update_progress_function_ = [=](ProgressType type, const size_t value, const size_t max_size) {
         parent_->synchronize_thread([=]() {
             switch (type)
             {
-            case InformationContainer::ProgressType::FILE_READ:
+            case ProgressType::FILE_READ:
                 ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
                 ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
                 break;
-            case InformationContainer::ProgressType::CHART_RECORD:
-            case InformationContainer::ProgressType::FRAME_RECORD:
+            case ProgressType::CHART_RECORD:
+            case ProgressType::FRAME_RECORD:
                 ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                 ui_->RecordProgressBar->setValue(static_cast<int>(value));
                 break;
@@ -31,7 +35,6 @@ void InfoPanel::init()
             };
         });
     };
-    Holovibes::instance().get_info_container().set_update_progress_function(update_progress);
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
 }

@@ -71,6 +71,7 @@ void RectOverlay::init()
 
 void RectOverlay::draw()
 {
+    // trigger basicopenglwindow painwindow() dynamically
     parent_->makeCurrent();
     setBuffer();
     Vao_.bind();

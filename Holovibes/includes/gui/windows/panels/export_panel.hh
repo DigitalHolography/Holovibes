@@ -30,9 +30,6 @@ class ExportPanel : public Panel
     void load_ini(const boost::property_tree::ptree& ptree) override;
     void save_ini(boost::property_tree::ptree& ptree) override;
 
-    bool is_recording = false;
-    std::unique_ptr<PlotWindow> plot_window = nullptr;
-
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -76,15 +73,5 @@ class ExportPanel : public Panel
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
-
-  private:
-    unsigned record_frame_step_ = 512;
-    RecordMode record_mode_ = RecordMode::RAW;
-
-    std::string default_output_filename_;
-    std::string record_output_directory_;
-    std::string batch_input_directory_;
-
-    size_t auto_scale_point_threshold_ = 100;
 };
 } // namespace holovibes::gui

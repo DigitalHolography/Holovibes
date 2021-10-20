@@ -22,6 +22,8 @@ using json = ::nlohmann::json;
 #include "import_panel.hh"
 #include "export_panel.hh"
 
+#include "user_interface_descriptor.hh"
+
 // Suppress all warnings in this auto-generated file
 #pragma warning(push, 0)
 #include "ui_mainwindow.h"
@@ -54,20 +56,16 @@ class MainWindow : public QMainWindow, public Observer
   public:
     /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
      *
-     * \param holovibes holovibes object
      * \param parent Qt parent (should be null as it is the GUI hierarchy top class)
      */
-    MainWindow(Holovibes& holovibes, QWidget* parent = 0);
+    MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
     void notify() override;
     void notify_error(const std::exception& e) override;
 
-    /*! \brief Creates the pipeline */
-    void createPipe();
-
     /*! \brief Creates the windows for processed image output */
-    void createHoloWindow();
+    void create_holo_window();
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
@@ -75,23 +73,13 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Stops critical compute */
     void close_critical_compute();
 
-    /*! \brief Triggers the pipe to make it refresh */
-    void pipe_refresh();
-
     /*! \brief Start the import process */
     void start_import(QString filename);
 
     Ui::MainWindow* get_ui();
-    ComputeDescriptor& get_cd();
-    RawWindow* get_main_display();
-
-    Holovibes& holovibes;
-    std::unique_ptr<RawWindow> mainDisplay = nullptr;
 
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
-
-    bool is_enabled_camera = false;
 
   public slots:
     void on_notify();
@@ -101,9 +89,15 @@ class MainWindow : public QMainWindow, public Observer
      */
     void synchronize_thread(std::function<void()> f);
 
-    /*! \brief Resize windows if one layout is toggled. */
-    void layout_toggled();
     void configure_holovibes();
+    void browse_import_ini();
+    void browse_export_ini();
+    void reload_ini(QString filename);
+    void reload_ini();
+    void write_ini(QString filename);
+    void write_ini();
+
+    void configure_camera();
     void camera_none();
     void camera_adimec();
     void camera_ids();
@@ -112,12 +106,17 @@ class MainWindow : public QMainWindow, public Observer
     void camera_hamamatsu();
     void camera_xiq();
     void camera_xib();
-    void configure_camera();
 
     /*! \brief Opens the credit display */
     void credits();
     void documentation();
-    void init_image_mode(QPoint& position, QSize& size);
+
+    /*! \brief Changes the theme of the ui */
+    void set_classic();
+    void set_night();
+
+    /*! \brief Resize windows if one layout is toggled. */
+    void layout_toggled();
 
     /*
      * Lots of these methods stick to the following scheme:
@@ -130,13 +129,10 @@ class MainWindow : public QMainWindow, public Observer
      * * Set visibility to true
      */
 
-    void refreshViewMode();
+    void refresh_view_mode();
 
-    /*! \brief Checks if we are currently in raw mode
-     *
-     * \return true if we are in raw mode, false otherwise
-     */
-    bool is_raw_mode();
+    bool need_refresh(const std::string& last_type, const std::string& new_type);
+    void set_composite_values();
 
     /*! \brief Modifies view image type
      *
@@ -147,32 +143,14 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the focused windows */
     void change_window();
 
-    /*! \brief Browses to import/ export .ini file */
-    void browse_import_ini();
-    void browse_export_ini();
-
-    /*! \brief Reloads .ini file that store program's state */
-    void reload_ini(QString filename);
-    void reload_ini();
-
-    /*! \brief Saves the current state of holovibes in .ini file */
-    void write_ini(QString filename);
-    void write_ini();
-
-    /*! \brief Changes the theme of the ui */
-    void set_classic();
-
-    /*! \brief Changes the theme of the ui */
-    void set_night();
-
   signals:
     /*! \brief TODO: comment
      *
      * \param f
      */
     void synchronize_thread_signal(std::function<void()> f);
-
-  protected:
+#pragma region Protected / Private Methods
+  public:
     /*! \brief Last call before the program is closed
      *
      * \param event Unused
@@ -182,18 +160,13 @@ class MainWindow : public QMainWindow, public Observer
   private:
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
-
+  
+  public:
     /*! \brief Changes camera
      *
      * \param c The new camera
      */
     void change_camera(CameraKind c);
-
-    /*! \brief Opens a file
-     *
-     * \param path The path of the file to open
-     */
-    void open_file(const std::string& path);
 
     /*! \brief Setups program from .ini file
      *
@@ -207,17 +180,21 @@ class MainWindow : public QMainWindow, public Observer
      */
     void save_ini(const std::string& path);
 
-    /*! \brief Clears the info container (real time data bench panel) */
-    void remove_infos();
+#pragma endregion
+/* ---------- */
+#pragma region Fields
 
     Ui::MainWindow* ui_;
-    ComputeDescriptor& cd_;
+    // ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
 
-    CameraKind kCamera_ = CameraKind::NONE;
-    QString last_img_type_ = "Magnitude";
+    QSpinBox* start_spinbox;
+    QSpinBox* end_spinbox;
 
+    // Additional attributs
     ushort theme_index_ = 0;
+
+#pragma endregion
 };
 } // namespace gui
 } // namespace holovibes

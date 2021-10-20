@@ -94,6 +94,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
 void Holovibes::stop_frame_read()
 {
+    LOG_TRACE << "Entering Holovibes::stop_frame_read()";
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();

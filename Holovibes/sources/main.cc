@@ -73,19 +73,20 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
     // Create the window object that inherit from QMainWindow
-    holovibes::gui::MainWindow window(holovibes);
+    holovibes::gui::MainWindow window;
     window.show();
     splash.finish(&window);
     holovibes.get_cd().register_observer(window);
 
-    // Resizing horizontally the window before starting
-    window.layout_toggled();
-
-    if (filename != "")
+    if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
+        // TODO: to restore
+        LOG_INFO << "TODO";
     }
 
+    // Resizing horizontally the window before starting
+    window.layout_toggled();
     // Launch the Qt app
     return app.exec();
 }
@@ -111,7 +112,7 @@ int main(int argc, char* argv[])
 
     loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
 #else
-    loguru::g_stderr_verbosity = 2;
+    loguru::g_stderr_verbosity = loguru::Verbosity_MAX;
 #endif
 
     holovibes::OptionsParser parser;

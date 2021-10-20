@@ -7,7 +7,11 @@
 #include "panel.hh"
 #include "frame_desc.hh"
 
-namespace holovibes::gui
+namespace holovibes
+{
+enum ImportType;
+
+namespace gui
 {
 class MainWindow;
 
@@ -22,13 +26,6 @@ class ImportPanel : public Panel
   public:
     ImportPanel(QWidget* parent = nullptr);
     ~ImportPanel();
-
-    enum ImportType
-    {
-        None,
-        Camera,
-        File,
-    };
 
     void on_notify() override;
 
@@ -55,9 +52,6 @@ class ImportPanel : public Panel
      */
     void import_file(const QString& filename);
 
-    /*! \brief Sets ui values and constraints + launch FileReadWroker */
-    void init_holovibes_import_mode();
-
     /*! \brief Setups attributes for launching and launchs the imported file */
     void import_start();
     /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
@@ -68,11 +62,6 @@ class ImportPanel : public Panel
 
     /*! \brief Handles the ui output fps */
     void import_end_spinbox_update();
-
-  private:
-    ImportType import_type_ = ImportType::None;
-
-    camera::FrameDescriptor file_fd_;
-    std::string file_input_directory_;
 };
-} // namespace holovibes::gui
+} // namespace gui
+} // namespace holovibes

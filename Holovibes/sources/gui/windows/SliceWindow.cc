@@ -8,7 +8,7 @@
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
-
+#include "API.hh"
 namespace holovibes
 {
 namespace gui
@@ -185,8 +185,8 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
     {
         resetTransform();
-        if (auto main_display = main_window_->get_main_display())
-            main_display->resetTransform();
+        if (holovibes::api::get_main_display())
+            holovibes::api::get_main_display()->resetTransform();
     }
 }
 
