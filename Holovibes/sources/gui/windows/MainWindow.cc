@@ -161,8 +161,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    LOG_FUNC;
-
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
@@ -188,14 +186,11 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
-    LOG_FUNC;
     synchronize_thread([this]() { on_notify(); });
 }
 
 void MainWindow::on_notify()
 {
-    LOG_FUNC;
-
     // Notify all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->on_notify();
@@ -223,7 +218,6 @@ void MainWindow::on_notify()
 
 void MainWindow::notify_error(const std::exception& e)
 {
-    LOG_FUNC;
     const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
     if (err_ptr)
     {
@@ -264,8 +258,6 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
-    LOG_FUNC;
-
     synchronize_thread([=]() {
         // Resizing to original size, then adjust it to fit the groupboxes
         resize(baseSize());
@@ -275,8 +267,6 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    LOG_FUNC;
-
     const std::string msg = api::get_credits();
 
     // Creation on the fly of the message box to display
@@ -286,62 +276,37 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation()
-{
-    LOG_FUNC;
-    QDesktopServices::openUrl(api::get_documentation_url());
-}
+void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
 
 #pragma endregion
 /* ------------ */
 #pragma region Ini
 
-// VALID
-// FREE
-void MainWindow::configure_holovibes()
-{
-    LOG_FUNC;
-    api::configure_holovibes();
-}
+void MainWindow::configure_holovibes() { api::configure_holovibes(); }
 
-// VALID
-// FREE
 void MainWindow::write_ini()
 {
-    LOG_FUNC;
-
     save_ini(::holovibes::ini::default_config_filepath);
 
     notify();
 }
 
-// VALID
-// Notify
 void MainWindow::write_ini(QString filename)
 {
-    LOG_FUNC;
-
     save_ini(filename.toStdString());
 
     // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
     notify();
 }
 
-// VALID
-// GUI
 void MainWindow::browse_export_ini()
 {
-    LOG_FUNC;
-
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
     write_ini(filename);
 }
 
-// VALID
-// GUI
 void MainWindow::browse_import_ini()
 {
-    LOG_FUNC;
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .ini file"),
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
@@ -352,17 +317,8 @@ void MainWindow::browse_import_ini()
     notify();
 }
 
-// VALID
-// FREE
-void MainWindow::reload_ini()
-{
-    LOG_FUNC;
+void MainWindow::reload_ini() { reload_ini(""); }
 
-    reload_ini("");
-}
-
-// VALID
-// Notify
 void MainWindow::reload_ini(QString filename)
 {
     ui_->ImportPanel->import_stop();
@@ -387,12 +343,8 @@ void MainWindow::reload_ini(QString filename)
     notify();
 }
 
-// VALID
-// GUI
 void MainWindow::load_ini(const std::string& path)
 {
-    LOG_FUNC;
-
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -412,11 +364,8 @@ void MainWindow::load_ini(const std::string& path)
     }
 }
 
-// VALID
-// GUI
 void MainWindow::save_ini(const std::string& path)
 {
-    LOG_FUNC;
     boost::property_tree::ptree ptree;
 
     // We save in the ptree the .ini parameters that are directly linked with MainWindow ...
@@ -435,12 +384,8 @@ void MainWindow::save_ini(const std::string& path)
 /* ------------ */
 #pragma region Close Compute
 
-// VALID
-// FREE
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    LOG_FUNC;
-
     camera_none();
 
     save_ini(::holovibes::ini::default_config_filepath);
@@ -449,15 +394,10 @@ void MainWindow::closeEvent(QCloseEvent*)
 /* ------------ */
 #pragma region Cameras
 
-// VALID
-// GUI
 void MainWindow::change_camera(CameraKind c)
 {
-    LOG_FUNC;
-
     // Weird call to setup none camera before changing
     camera_none();
-
 
     if (c == CameraKind::NONE)
         return;
@@ -478,12 +418,8 @@ void MainWindow::change_camera(CameraKind c)
     }
 }
 
-// VALID
-// GUI
 void MainWindow::camera_none()
 {
-    LOG_FUNC;
-
     api::camera_none();
 
     // Make camera's settings menu unaccessible
@@ -491,98 +427,36 @@ void MainWindow::camera_none()
 
     notify();
 }
-// VALID
-// FREE
-void MainWindow::camera_ids()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::IDS);
-}
 
-// VALID
-// FREE
-void MainWindow::camera_phantom()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::Phantom);
-}
+void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
-// VALID
-// FREE
-void MainWindow::camera_bitflow_cyton()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::BitflowCyton);
-}
+void MainWindow::camera_phantom() { change_camera(CameraKind::Phantom); }
 
-// VALID
-// FREE
-void MainWindow::camera_hamamatsu()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::Hamamatsu);
-}
+void MainWindow::camera_bitflow_cyton() { change_camera(CameraKind::BitflowCyton); }
 
-// VALID
-// FREE
-void MainWindow::camera_adimec()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::Adimec);
-}
+void MainWindow::camera_hamamatsu() { change_camera(CameraKind::Hamamatsu); }
 
-// VALID
-// FREE
-void MainWindow::camera_xiq()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::xiQ);
-}
+void MainWindow::camera_adimec() { change_camera(CameraKind::Adimec); }
 
-// VALID
-// FREE
-void MainWindow::camera_xib()
-{
-    LOG_FUNC;
-    change_camera(CameraKind::xiB);
-}
+void MainWindow::camera_xiq() { change_camera(CameraKind::xiQ); }
 
-// VALID
-// FREE
-void MainWindow::configure_camera()
-{
-    LOG_FUNC;
+void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
-    api::configure_camera();
-}
+void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
 /* ------------ */
 #pragma region Image Mode
 
+void MainWindow::create_holo_window() { api::create_holo_window(*this); }
 
-// VALID
-// FREE
-void MainWindow::create_holo_window()
-{
-    LOG_FUNC;
-
-    api::create_holo_window(*this);
-}
-
-// VALID
-// Notify
 void MainWindow::refresh_view_mode()
 {
-    LOG_FUNC;
-
     api::refresh_view_mode(*this, ui_->ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();
 }
 
-// VALID
-// LOCAL
 // Is there a change in window pixel depth (needs to be re-opened)
 bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
 {
@@ -609,11 +483,8 @@ void MainWindow::set_composite_values()
     ui_->SpinBox_value_freq_max->setValue(max_val_composite);
 }
 
-// FREE
 void MainWindow::set_view_image_type(const QString& value)
 {
-    LOG_FUNC;
-
     if (api::is_raw_mode())
         return;
 
@@ -664,11 +535,8 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 /* ------------ */
 #pragma region Themes
 
-// VALID
-// GUI
 void MainWindow::set_night()
 {
-    LOG_FUNC;
     // Dark mode style
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
@@ -695,11 +563,8 @@ void MainWindow::set_night()
     theme_index_ = 1;
 }
 
-// VALID
-// GUI
 void MainWindow::set_classic()
 {
-    LOG_FUNC;
     qApp->setPalette(this->style()->standardPalette());
     // Light mode style
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
