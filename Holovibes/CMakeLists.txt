@@ -64,6 +64,7 @@ set(HOLO_INCLUDES
     includes/tools/exception/
     GPIB/
 
+    "${CMAKE_SOURCE_DIR}/libs/"
     "${CMAKE_SOURCE_DIR}/libs/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"

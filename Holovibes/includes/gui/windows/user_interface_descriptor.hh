@@ -1,7 +1,7 @@
 #pragma once
 // without namespace
 #include "tools.hh"
-#include "json.hh"
+#include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
 #include "enum_record_mode.hh"
@@ -22,10 +22,10 @@ using json = ::nlohmann::json;
 
 namespace holovibes
 {
-/*! \struct ImportType 
+/*! \struct ImportType
  *
  * \brief How the data is imported. Either by camera, file or none
- * 
+ *
  * This should be declared inside UserInterfaceDescriptor but it needs to be used inside another class
  */
 enum ImportType

@@ -6,7 +6,7 @@
 
 // without namespace
 #include "tools.hh"
-#include "json.hh"
+#include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
 // namespace camera
@@ -160,7 +160,7 @@ class MainWindow : public QMainWindow, public Observer
   private:
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
-  
+
   public:
     /*! \brief Changes camera
      *

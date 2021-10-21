@@ -1,12 +1,9 @@
 #include "stft.cuh"
 #include "common.cuh"
-#include "queue.hh"
 
 #include <cassert>
 
-using holovibes::ComputeDescriptor;
 using holovibes::ImgType;
-using holovibes::Queue;
 
 // Short-Time Fourier Transform
 void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
