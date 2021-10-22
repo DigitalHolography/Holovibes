@@ -722,13 +722,19 @@ void set_y_accu(bool is_y_accu, uint y_value)
 
 void set_x_y(uint x, uint y)
 {
-    const camera::FrameDescriptor& frame_descriptor = get_fd();
+    /* TODO: app logic as to be in ManWindow
+            // frame_descriptor can be unvalid
+            const camera::FrameDescriptor& frame_descriptor = get_fd();
 
-    if (x < frame_descriptor.width)
-        get_cd().set_x_cuts(x);
+            if (x < frame_descriptor.width)
+                get_cd().set_x_cuts(x);
 
-    if (y < frame_descriptor.height)
-        get_cd().set_y_cuts(y);
+            if (y < frame_descriptor.height)
+                get_cd().set_y_cuts(y);
+    */
+
+    get_cd().set_x_cuts(x);
+    get_cd().set_y_cuts(y);
 }
 
 void set_q(int value) { get_cd().set_q_index(value); }
