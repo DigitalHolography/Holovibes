@@ -7,4 +7,11 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/MainWindow.hh
     gui/windows/AdvancedSettingsWindow.hh
     gui/windows/PlotWindow.hh
+    gui/windows/panels/panel.hh
+    gui/windows/panels/import_panel.hh
+    gui/windows/panels/export_panel.hh
+    gui/windows/panels/info_panel.hh
+    gui/windows/panels/view_panel.hh
+    gui/windows/panels/composite_panel.hh
+    gui/windows/panels/image_rendering_panel.hh
 )

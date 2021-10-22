@@ -1,6 +1,7 @@
 #include "output_holo_file.hh"
 #include "file_exception.hh"
 #include "logger.hh"
+#include "holovibes.hh"
 
 namespace holovibes::io_files
 {
@@ -22,14 +23,14 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.img_nb = img_nb;
     holo_file_header_.endianness = camera::Endianness::LittleEndian;
 
-    holo_file_header_.total_data_size = fd_.frame_size() * img_nb;
+    holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 
     meta_data_ = json();
 }
 
-// TODO: To update
-void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
+void OutputHoloFile::export_compute_settings(bool record_raw)
 {
+    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     // export as a json
     try
     {
@@ -59,15 +60,15 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
                           {"p_acc_level", cd.p.accu_level.load()},
 
                           {"log_scale", cd.xy.log_scale_slice_enabled.load()},
-                          {"contrast_min", cd.xy.contrast_min_slice.load()},
-                          {"contrast_max", cd.xy.contrast_max_slice.load()},
+                          {"contrast_min", cd.xy.contrast_min.load()},
+                          {"contrast_max", cd.xy.contrast_max.load()},
 
-                          {"img_acc_slice_xy_enabled", cd.xy.img_acc_slice_enabled.load()},
-                          {"img_acc_slice_xz_enabled", cd.xz.img_acc_slice_enabled.load()},
-                          {"img_acc_slice_yz_enabled", cd.yz.img_acc_slice_enabled.load()},
-                          {"img_acc_slice_xy_level", cd.xy.img_acc_slice_level.load()},
-                          {"img_acc_slice_xz_level", cd.xz.img_acc_slice_level.load()},
-                          {"img_acc_slice_yz_level", cd.yz.img_acc_slice_level.load()},
+                          {"img_acc_slice_xy_enabled", cd.xy.img_accu_slice_enabled.load()},
+                          {"img_acc_slice_xz_enabled", cd.xz.img_accu_slice_enabled.load()},
+                          {"img_acc_slice_yz_enabled", cd.yz.img_accu_slice_enabled.load()},
+                          {"img_acc_slice_xy_level", cd.xy.img_accu_slice_level.load()},
+                          {"img_acc_slice_xz_level", cd.xz.img_accu_slice_level.load()},
+                          {"img_acc_slice_yz_level", cd.yz.img_accu_slice_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }
@@ -75,6 +76,7 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
     {
         meta_data_ = json();
         LOG_WARN << "An error was encountered while trying to export compute settings";
+        LOG_WARN << "Exception: " << e.what();
     }
 }
 
@@ -110,8 +112,8 @@ void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
     if (std::fgetpos(file_, &previous_pos))
         throw FileException("Unable to correct number of written frames");
 
-    holo_file_header_.img_nb = nb_frames_written;
-    holo_file_header_.total_data_size = fd_.frame_size() * nb_frames_written;
+    holo_file_header_.img_nb = static_cast<uint32_t>(nb_frames_written);
+    holo_file_header_.total_data_size = fd_.get_frame_size() * nb_frames_written;
 
     fpos_t file_begin_pos = 0;
 

@@ -6,6 +6,8 @@
 #include "icompute.hh"
 #include "ini_config.hh"
 #include "input_frame_file_factory.hh"
+#include "global_state_holder.hh"
+#include "API.hh"
 
 namespace cli
 {
@@ -110,7 +112,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
-    if (!get_first_and_last_frame(opts, input_frame_file->get_total_nb_frames(), cd))
+    if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))
         return false;
 
     const unsigned int fps = opts.fps.value_or(60);
@@ -149,29 +151,31 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 static void main_loop(holovibes::Holovibes& holovibes)
 {
     auto& cd = holovibes.get_cd();
-    const auto& info = holovibes.get_info_container();
     // Recording progress (used by the progress bar)
-    auto record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
+    holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !cd.xy.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
-        if (!record_progress)
-            record_progress = info.get_progress_index(holovibes::InformationContainer::ProgressType::FRAME_RECORD);
-        else
+        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
-            const auto& progress = record_progress.value();
-            progress_bar(progress.first->load(), progress.second->load(), 40);
-
-            // Very dirty hack // FIXME
-            // Request auto contrast once we have accumualated enough images
-            // Otherwise the autocontrast is computed at the beginning and we
-            // end up with black images ...
-            if (progress.first->load() >= cd.xy.img_acc_slice_level && !requested_autocontrast)
+            if (!progress)
+                progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
+                    holovibes::ProgressType::FRAME_RECORD);
+            else
             {
-                holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
-                requested_autocontrast = true;
+                progress_bar(progress->first, progress->second, 40);
+
+                // Very dirty hack
+                // Request auto contrast once we have accumualated enough images
+                // Otherwise the autocontrast is computed at the beginning and we
+                // end up with black images ...
+                if (progress->first >= cd.xy.img_accu_slice_level && !requested_autocontrast)
+                {
+                    holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
+                    requested_autocontrast = true;
+                }
             }
         }
         // Don't make the current thread loop too fast
@@ -189,7 +193,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     {
         try
         {
-            holovibes::ini::load_ini(cd, opts.ini_path.value());
+            holovibes::api::load_compute_settings(opts.ini_path.value());
         }
         catch (std::exception&)
         {
@@ -207,15 +211,12 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
 
-    holovibes.start_information_display(true); // Thread
-
     Chrono chrono;
-
     uint nb_frames_skip = 0;
 
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && cd.xy.img_acc_slice_enabled)
-        nb_frames_skip = cd.xy.img_acc_slice_level;
+    if (!opts.noskip_acc && cd.xy.img_accu_slice_enabled)
+        nb_frames_skip = cd.xy.img_accu_slice_level;
 
     cd.frame_record_enabled = true;
 
@@ -225,7 +226,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
                                     true,
                                     opts.fps.value_or(60),
                                     cd.start_frame - 1,
-                                    input_nb_frames,
+                                    static_cast<uint>(input_nb_frames),
                                     opts.gpu);
 
     if (opts.verbose)

@@ -41,20 +41,20 @@ class FrameRecordWorker : public Worker
      *
      * \return The record queue
      */
-    Queue& init_gpu_record_queue(std::shared_ptr<ICompute> pipe);
+    Queue& init_gpu_record_queue();
 
     /*! \brief Wait for frames to be present in the record queue
      *
      * \param record_queue The record queue
      * \param pipe The compute pipe used to perform the operations
      */
-    void wait_for_frames(Queue& record_queue, std::shared_ptr<ICompute> pipe);
+    void wait_for_frames(Queue& record_queue);
 
     /*! \brief Reset the record queue to free memory
      *
      * \param pipe The compute pipe used to perform the operations
      */
-    void reset_gpu_record_queue(std::shared_ptr<ICompute> pipe);
+    void reset_gpu_record_queue();
 
   private:
     /*! \brief The path of the file to record */
@@ -63,8 +63,6 @@ class FrameRecordWorker : public Worker
     std::optional<unsigned int> nb_frames_to_record_;
     /*! \brief The number of frames to skip before starting the recording */
     unsigned int nb_frames_skip_;
-    /*! \brief The current fps */
-    std::atomic<unsigned int> processed_fps_;
     /*! \brief Whether the raw images are recorded */
     bool raw_record_;
     /*! \brief Output buffer size */

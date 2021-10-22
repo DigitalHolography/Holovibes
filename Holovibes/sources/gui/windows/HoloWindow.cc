@@ -14,11 +14,9 @@ HoloWindow::HoloWindow(QPoint p,
                        DisplayQueue* q,
                        SharedPipe ic,
                        std::unique_ptr<SliceWindow>& xz,
-                       std::unique_ptr<SliceWindow>& yz,
-                       MainWindow* main_window)
+                       std::unique_ptr<SliceWindow>& yz)
     : RawWindow(p, s, q, KindOfView::Hologram)
     , Ic(ic)
-    , main_window_(main_window)
     , xz_slice_(xz)
     , yz_slice_(yz)
 {

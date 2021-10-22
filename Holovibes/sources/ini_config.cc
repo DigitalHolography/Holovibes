@@ -69,16 +69,16 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         view.contrast_auto_refresh =
             ptree.get<bool>("view." + name + "_auto_contrast_enabled", view.contrast_auto_refresh);
         view.contrast_invert = ptree.get<bool>("view." + name + "_invert_enabled", view.contrast_invert);
-        view.contrast_min_slice = ptree.get<float>("view." + name + "_contrast_min", view.contrast_min_slice);
-        view.contrast_max_slice = ptree.get<float>("view." + name + "_contrast_max", view.contrast_max_slice);
+        view.contrast_min = ptree.get<float>("view." + name + "_contrast_min", view.contrast_min);
+        view.contrast_max = ptree.get<float>("view." + name + "_contrast_max", view.contrast_max);
     };
 
     auto xyz_load = [&](const std::string name, View_XYZ& view) {
         view.flip_enabled = ptree.get<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>("view." + name + "_rot", view.rot);
 
-        view.img_acc_slice_enabled = ptree.get<bool>("view." + name + "_img_acc_enabled", view.img_acc_slice_enabled);
-        view.img_acc_slice_level = ptree.get<ushort>("view." + name + "_img_acc_value", view.img_acc_slice_level);
+        view.img_accu_slice_enabled = ptree.get<bool>("view." + name + "_img_acc_enabled", view.img_accu_slice_enabled);
+        view.img_accu_slice_level = ptree.get<ushort>("view." + name + "_img_acc_value", view.img_accu_slice_level);
 
         xyzf_load(name, view);
     };
@@ -159,7 +159,7 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 }
 
-void load_ini(ComputeDescriptor& cd, const std::string& ini_path)
+void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
 {
     LOG_INFO << "Compute settings loaded from : " << ini_path;
 
@@ -231,15 +231,15 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
         ptree.put<bool>("view." + name + "_contrast_enabled", view.contrast_enabled);
         ptree.put<bool>("view." + name + "_contrast_auto_enabled", view.contrast_auto_refresh);
         ptree.put<bool>("view." + name + "_contrast_invert_enabled", view.contrast_invert);
-        ptree.put<float>("view." + name + "_contrast_min", view.contrast_min_slice);
-        ptree.put<float>("view." + name + "_contrast_max", view.contrast_max_slice);
+        ptree.put<float>("view." + name + "_contrast_min", view.contrast_min);
+        ptree.put<float>("view." + name + "_contrast_max", view.contrast_max);
     };
 
     auto xyz_save = [&](const std::string& name, const View_XYZ& view) {
         ptree.put<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         ptree.put<int>("view." + name + "_rot", view.rot);
-        ptree.put<bool>("view." + name + "_img_acc_enabled", view.img_acc_slice_enabled);
-        ptree.put<ushort>("view." + name + "_img_acc_value", view.img_acc_slice_level);
+        ptree.put<bool>("view." + name + "_img_acc_enabled", view.img_accu_slice_enabled);
+        ptree.put<ushort>("view." + name + "_img_acc_value", view.img_accu_slice_level);
 
         xyzf_save(name, view);
     };
@@ -303,7 +303,7 @@ void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& 
     ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 }
 
-void save_ini(const ComputeDescriptor& cd, const std::string& ini_path)
+void save_compute_settings(const ComputeDescriptor& cd, const std::string& ini_path)
 {
     boost::property_tree::ptree ptree;
 

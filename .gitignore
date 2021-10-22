@@ -4,10 +4,14 @@
 
 # Ignore Visual Studio config files
 .vscode/
+.vs/
 *.code-workspace
 
 # python cache from scripts
 __pycache__/
+
+# logs files
+*.log
 
 # =========================
 # Windows

@@ -20,7 +20,7 @@ class CineFile
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const;
+    size_t get_total_nb_frames() const { return cine_file_header_.image_count; }
 
   protected:
 /*! \struct CineFileHeader
@@ -99,7 +99,7 @@ class CineFile
     CineFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~CineFile() = 0;
+    virtual ~CineFile(){};
 
     /*! \brief Default copy constructor */
     CineFile(const CineFile&) = default;
@@ -113,5 +113,3 @@ class CineFile
     BitmapInfoHeader bitmap_info_header_;
 };
 } // namespace holovibes::io_files
-
-#include "cine_file.hxx"

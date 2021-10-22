@@ -13,7 +13,7 @@
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
 #include "display_queue.hh"
-
+#include "global_state_holder.hh"
 namespace holovibes
 {
 /*! \class Queue
@@ -39,14 +39,6 @@ class Queue : public DisplayQueue
   public:
     using MutexGuard = std::lock_guard<std::mutex>;
 
-    enum class QueueType
-    {
-        UNDEFINED,
-        INPUT_QUEUE,
-        OUTPUT_QUEUE,
-        RECORD_QUEUE,
-    };
-
   public:
     /*! \brief Queue constructor
      *
@@ -70,42 +62,42 @@ class Queue : public DisplayQueue
     /*! \name Getters
      * \{
      */
-    /*! \return The size of one frame (i-e element) of the Queue in bytes. */
-    inline size_t get_frame_size() const;
 
     /*! \return Pointer to internal buffer that contains data. */
-    inline void* get_data() const;
-
-    /*! \return The size of one frame (i-e element) of the Queue in pixels. */
-    inline size_t get_frame_res() const;
+    void* get_data() const { return data_; }
 
     /*! \return The number of elements the Queue currently contains. */
-    inline unsigned int get_size() const;
+    unsigned int get_size() const { return size_; }
 
     /*! \return The number of elements the Queue can contains at its maximum. */
-    inline unsigned int get_max_size() const;
+    unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
-    inline void* get_start() const;
+    void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
-    inline unsigned int get_start_index() const;
+    unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
-    inline void* get_end() const;
+    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
-    inline void* get_last_image() const override;
+    void* get_last_image() const override
+    {
+        MutexGuard mGuard(mutex_);
+        // if the queue is empty, return a random frame
+        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+    }
 
     /*! \return Index of the frame right after the last one containing data */
-    inline unsigned int get_end_index() const;
+    unsigned int get_end_index() const { return (start_index_ + size_) % max_size_; }
 
     /*! \return Getter to the queue mutex */
-    inline std::mutex& get_guard();
+    std::mutex& get_guard() { return mutex_; }
     /*! \} */
 
     /*! \return If queue has overridden at least a frame during an enqueue */
-    inline bool has_overridden() const;
+    bool has_overridden() const { return has_overridden_; }
 
     /*! \name Methods
      * \{
@@ -233,15 +225,10 @@ class Queue : public DisplayQueue
     /*! \brief Mutex to lock the queue */
     mutable std::mutex mutex_;
 
-    /*! \brief Frame size from the frame descriptor */
-    const size_t frame_size_;
-    /*! \brief Frame resolution from the frame descriptor */
-    const size_t frame_res_;
-    /*! \brief Maximum size of the queue (capacity) */
-    std::atomic<unsigned int> max_size_;
-
-    /*! \brief Type of the queue */
-    Queue::QueueType type_;
+    /*! \name FastUpdatesHolder entry and all variables linked to it
+     * \{
+     */
+    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
 
     /*! \brief Size of the queue (number of frames currently stored in the queue)
      *
@@ -250,7 +237,15 @@ class Queue : public DisplayQueue
      * for a specific size of the queue. Using an atomic avoid locking the queue.
      * This is only used by the concurrent queue. However, it is needed to be declare in the regular queue.
      */
-    std::atomic<unsigned int> size_;
+    std::atomic<unsigned int>& size_;
+
+    /*! \brief Maximum size of the queue (capacity) */
+    std::atomic<unsigned int>& max_size_;
+
+    /* \} */
+
+    /*! \brief Type of the queue */
+    QueueType type_;
 
     /*! \brief The index of the first frame in the queue */
     unsigned int start_index_;
@@ -303,5 +298,3 @@ class Queue : public DisplayQueue
     };
 };
 } // namespace holovibes
-
-#include "queue.hxx"

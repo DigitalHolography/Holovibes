@@ -14,68 +14,6 @@ ComputeDescriptor::ComputeDescriptor()
 
 ComputeDescriptor::~ComputeDescriptor() {}
 
-// FIXME: Unused ?
-/*
-ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
-{
-    is_computation_stopped = is_computation_stopped.load();
-    compute_mode = cd.compute_mode.load();
-    space_transformation = cd.space_transformation.load();
-    time_transformation = cd.time_transformation.load();
-    time_transformation_size = cd.time_transformation_size.load();
-    p.index = cd.p.index.load();
-    p.accu_level = cd.p.accu_level.load();
-    p.accu_enabled = cd.p.accu_enabled.load();
-    lambda = cd.lambda.load();
-    zdistance = cd.zdistance.load();
-    img_type = cd.img_type.load();
-    unwrap_history_size = cd.unwrap_history_size.load();
-    xy.log_scale_slice_enabled = cd.xy.log_scale_slice_enabled.load();
-    xz.log_scale_slice_enabled = cd.xz.log_scale_slice_enabled.load();
-    yz.log_scale_slice_enabled = cd.yz.log_scale_slice_enabled.load();
-    fft_shift_enabled = cd.fft_shift_enabled.load();
-    xy.contrast_enabled = cd.xy.contrast_enabled.load();
-    convolution_enabled = cd.convolution_enabled.load();
-    chart_display_enabled = cd.chart_display_enabled.load();
-    chart_record_enabled = cd.chart_record_enabled.load();
-    xy.contrast_min_slice = cd.xy.contrast_min_slice.load();
-    xy.contrast_max_slice = cd.xy.contrast_max_slice.load();
-    xz.contrast_min_slice = cd.xz.contrast_min_slice.load();
-    yz.contrast_min_slice = cd.yz.contrast_min_slice.load();
-    xz.contrast_max_slice = cd.xz.contrast_max_slice.load();
-    yz.contrast_max_slice = cd.yz.contrast_max_slice.load();
-    filter2d.contrast_min_slice = cd.filter2d.contrast_min_slice.load();
-    filter2d.contrast_max_slice = cd.filter2d.contrast_max_slice.load();
-    xy.contrast_invert = cd.xy.contrast_invert.load();
-    pixel_size = cd.pixel_size.load();
-    xy.img_acc_slice_enabled = cd.xy.img_acc_slice_enabled.load();
-    xz.img_acc_slice_enabled = cd.xz.img_acc_slice_enabled.load();
-    yz.img_acc_slice_enabled = cd.yz.img_acc_slice_enabled.load();
-    xy.img_acc_slice_level = cd.xy.img_acc_slice_level.load();
-    xz.img_acc_slice_level = cd.xz.img_acc_slice_level.load();
-    yz.img_acc_slice_level = cd.yz.img_acc_slice_level.load();
-    time_transformation_stride = cd.time_transformation_stride.load();
-    time_transformation_cuts_enabled = cd.time_transformation_cuts_enabled.load();
-    current_window = cd.current_window.load();
-    cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
-    display_rate = cd.display_rate.load();
-    reticle_view_enabled = cd.reticle_view_enabled.load();
-    reticle_scale = cd.reticle_scale.load();
-    signal_zone = cd.signal_zone;
-    noise_zone = cd.noise_zone;
-    filter2d_enabled = cd.filter2d_enabled.load();
-    filter2d_view_enabled = cd.filter2d_view_enabled.load();
-    filter2d_n1 = cd.filter2d_n1.load();
-    filter2d_n2 = cd.filter2d_n2.load();
-    filter2d_smooth_low = cd.filter2d_smooth_low.load();
-    filter2d_smooth_high = cd.filter2d_smooth_high.load();
-    xy.contrast_auto_refresh = cd.xy.contrast_auto_refresh.load();
-    raw_view_enabled = cd.raw_view_enabled.load();
-    frame_record_enabled = cd.frame_record_enabled.load();
-    return *this;
-}
-*/
-
 void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
 {
     LockGuard g(mutex_);
@@ -130,29 +68,26 @@ units::RectFd ComputeDescriptor::getReticleZone() const
     return reticle_zone;
 }
 
-bool ComputeDescriptor::get_contrast_enabled() const { return current->contrast_enabled; }
-bool ComputeDescriptor::get_contrast_auto_refresh() const { return current->contrast_auto_refresh; }
-bool ComputeDescriptor::get_contrast_invert_enabled() const { return current->contrast_invert; }
 float ComputeDescriptor::get_contrast_min() const
 {
-    return current->log_scale_slice_enabled ? current->contrast_min_slice.load() : log10(current->contrast_min_slice);
+    return current->log_scale_slice_enabled ? current->contrast_min.load() : log10(current->contrast_min);
 }
 
 float ComputeDescriptor::get_contrast_max() const
 {
-    return current->log_scale_slice_enabled ? current->contrast_max_slice.load() : log10(current->contrast_max_slice);
+    return current->log_scale_slice_enabled ? current->contrast_max.load() : log10(current->contrast_max);
 }
 
 bool ComputeDescriptor::get_img_log_scale_slice_enabled() const { return current->log_scale_slice_enabled; }
 
-bool ComputeDescriptor::get_img_acc_slice_enabled() const
+bool ComputeDescriptor::get_img_accu_slice_enabled() const
 {
-    return reinterpret_cast<View_XYZ*>(current)->img_acc_slice_enabled;
+    return reinterpret_cast<View_XYZ*>(current)->img_accu_slice_enabled;
 }
 
-unsigned ComputeDescriptor::get_img_acc_slice_level() const
+unsigned ComputeDescriptor::get_img_accu_slice_level() const
 {
-    return reinterpret_cast<View_XYZ*>(current)->img_acc_slice_level;
+    return reinterpret_cast<View_XYZ*>(current)->img_accu_slice_level;
 }
 
 float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
@@ -169,36 +104,31 @@ float ComputeDescriptor::get_truncate_contrast_min(const int precision) const
     return std::round(value * multiplier) / multiplier;
 }
 
-void ComputeDescriptor::set_contrast_mode(bool value) { current->contrast_enabled = value; }
-void ComputeDescriptor::set_contrast_invert(bool value) { current->contrast_invert = value; }
-void ComputeDescriptor::set_contrast_auto_refresh(bool value) { current->contrast_auto_refresh = value; }
-void ComputeDescriptor::set_contrast_enabled(bool value) { current->contrast_enabled = value; }
-
 void ComputeDescriptor::set_contrast_min(float value)
 {
-    current->contrast_min_slice = current->log_scale_slice_enabled ? value : pow(10, value);
+    current->contrast_min = current->log_scale_slice_enabled ? value : pow(10, value);
 }
 
 void ComputeDescriptor::set_contrast_max(float value)
 {
-    current->contrast_max_slice = current->log_scale_slice_enabled ? value : pow(10, value);
+    current->contrast_max = current->log_scale_slice_enabled ? value : pow(10, value);
 }
 
 void ComputeDescriptor::set_log_scale_slice_enabled(bool value) { current->log_scale_slice_enabled = value; }
 
 void ComputeDescriptor::set_accumulation(bool value)
 {
-    reinterpret_cast<View_XYZ*>(current)->img_acc_slice_enabled = value;
+    reinterpret_cast<View_XYZ*>(current)->img_accu_slice_enabled = value;
 }
 
 void ComputeDescriptor::set_accumulation_level(float value)
 {
-    reinterpret_cast<View_XYZ*>(current)->img_acc_slice_level = value;
+    reinterpret_cast<View_XYZ*>(current)->img_accu_slice_level = value;
 }
 
 void ComputeDescriptor::check_p_limits()
 {
-    uint upper_bound = time_transformation_size - 1;
+    int upper_bound = time_transformation_size - 1;
 
     if (p.accu_level > upper_bound)
         p.accu_level = upper_bound;
@@ -206,13 +136,13 @@ void ComputeDescriptor::check_p_limits()
     if (p.accu_enabled)
         upper_bound -= p.accu_level;
 
-    if (p.index > upper_bound)
+    if (upper_bound >= 0 && p.index > static_cast<uint>(upper_bound))
         p.index = upper_bound;
 }
 
 void ComputeDescriptor::check_q_limits()
 {
-    uint upper_bound = time_transformation_size - 1;
+    int upper_bound = time_transformation_size - 1;
 
     if (q.accu_level > upper_bound)
         q.accu_level = upper_bound;
@@ -220,17 +150,15 @@ void ComputeDescriptor::check_q_limits()
     if (q.accu_enabled)
         upper_bound -= q.accu_level;
 
-    if (q.index > upper_bound)
+    if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
         q.index = upper_bound;
 }
 
-void ComputeDescriptor::check_batch_size_limit(const uint input_queue_capacity)
+void ComputeDescriptor::check_batch_size_limit()
 {
-    if (batch_size > input_queue_capacity)
-        batch_size = input_queue_capacity;
+    if (batch_size > input_buffer_size)
+        batch_size = input_buffer_size.load();
 }
-
-void ComputeDescriptor::set_compute_mode(Computation mode) { compute_mode = mode; }
 
 void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
 {
@@ -277,41 +205,11 @@ void ComputeDescriptor::handle_update_exception()
 
 void ComputeDescriptor::handle_accumulation_exception()
 {
-    xy.img_acc_slice_enabled = false;
-    xy.img_acc_slice_level = 1;
+    xy.img_accu_slice_enabled = false;
+    xy.img_accu_slice_level = 1;
 }
 
-void ComputeDescriptor::set_time_transformation_stride(int value) { time_transformation_stride = value; }
-
-void ComputeDescriptor::set_time_transformation_size(int value) { time_transformation_size = value; }
-
-void ComputeDescriptor::set_batch_size(int value) { batch_size = value; }
-
-void ComputeDescriptor::set_convolution_enabled(bool value) { convolution_enabled = value; }
-
-void ComputeDescriptor::set_divide_convolution_mode(bool value) { divide_convolution_enabled = value; }
-
-void ComputeDescriptor::set_reticle_view_enabled(bool value) { reticle_view_enabled = value; }
-
-void ComputeDescriptor::set_reticle_scale(double value) { reticle_scale = value; }
-
-void ComputeDescriptor::set_img_type(ImgType type) { img_type = type; }
-
 void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
-
-void ComputeDescriptor::set_time_transformation_cuts_enabled(bool value) { time_transformation_cuts_enabled = value; }
-
-void ComputeDescriptor::set_renorm_enabled(bool value) { renorm_enabled = value; }
-
-void ComputeDescriptor::set_filter2d_enabled(bool value) { filter2d_enabled = value; }
-
-void ComputeDescriptor::set_filter2d_n1(int n) { filter2d_n1 = n; }
-
-void ComputeDescriptor::set_filter2d_n2(int n) { filter2d_n2 = n; }
-
-void ComputeDescriptor::set_fft_shift_enabled(bool value) { fft_shift_enabled = value; }
-
-void ComputeDescriptor::set_lens_view_enabled(bool value) { lens_view_enabled = value; }
 
 void ComputeDescriptor::set_x_cuts(int value)
 {
@@ -329,48 +227,12 @@ void ComputeDescriptor::set_y_cuts(int value)
         y.cuts = value;
 }
 
-void ComputeDescriptor::set_p_index(int value) { p.index = value; }
-
-void ComputeDescriptor::set_q_index(int value) { q.index = value; }
-
-void ComputeDescriptor::set_lambda(float value) { lambda = value; }
-
-void ComputeDescriptor::set_zdistance(float value) { zdistance = value; }
-
-void ComputeDescriptor::set_rgb_p_min(int value) { rgb.p_min = value; }
-
-void ComputeDescriptor::set_rgb_p_max(int value) { rgb.p_max = value; }
-
-void ComputeDescriptor::set_composite_p_min_h(int value) { hsv.h.p_min = value; }
-
-void ComputeDescriptor::set_composite_p_max_h(int value) { hsv.h.p_max = value; }
-
-void ComputeDescriptor::set_composite_p_min_s(int value) { hsv.s.p_min = value; }
-
-void ComputeDescriptor::set_composite_p_max_s(int value) { hsv.s.p_max = value; }
-
-void ComputeDescriptor::set_composite_p_min_v(int value) { hsv.v.p_min = value; }
-
-void ComputeDescriptor::set_composite_p_max_v(int value) { hsv.v.p_max = value; }
-
 void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
 {
     rgb.weight_r = r;
     rgb.weight_g = g;
     rgb.weight_b = b;
 }
-
-void ComputeDescriptor::set_composite_auto_weights(bool value) { composite_auto_weights = value; }
-
-void ComputeDescriptor::set_composite_kind(CompositeKind kind) { composite_kind = kind; }
-
-void ComputeDescriptor::set_composite_p_activated_s(bool value) { hsv.s.p_activated = value; }
-
-void ComputeDescriptor::set_composite_p_activated_v(bool value) { hsv.v.p_activated = value; }
-
-void ComputeDescriptor::set_h_blur_activated(bool value) { hsv.h.blur_enabled = value; }
-
-void ComputeDescriptor::set_h_blur_kernel_size(int value) { hsv.h.blur_kernel_size = value; }
 
 void ComputeDescriptor::set_x_accu(bool enabled, int level)
 {
@@ -399,11 +261,24 @@ void ComputeDescriptor::set_q_accu(bool enabled, int level)
 void ComputeDescriptor::change_angle()
 {
     auto w = reinterpret_cast<View_XYZ*>(current);
+    if (w == nullptr)
+    {
+        LOG_ERROR << "Current window cannot be rotated.";
+        return;
+    }
+
     w->rot = (w->rot == 270.f) ? 0.f : w->rot + 90.f;
 }
+
 void ComputeDescriptor::change_flip()
 {
     auto w = reinterpret_cast<View_XYZ*>(current);
+    if (w == nullptr)
+    {
+        LOG_ERROR << "Current window cannot be flipped.";
+        return;
+    }
+
     w->flip_enabled = !w->flip_enabled;
 }
 
@@ -447,12 +322,12 @@ void ComputeDescriptor::reset_windows_display()
 
 void ComputeDescriptor::reset_slice_view()
 {
-    xz.contrast_max_slice = false;
-    yz.contrast_max_slice = false;
+    xz.contrast_max = false;
+    yz.contrast_max = false;
     xz.log_scale_slice_enabled = false;
     yz.log_scale_slice_enabled = false;
-    xz.img_acc_slice_enabled = false;
-    yz.img_acc_slice_enabled = false;
+    xz.img_accu_slice_enabled = false;
+    yz.img_accu_slice_enabled = false;
 }
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)

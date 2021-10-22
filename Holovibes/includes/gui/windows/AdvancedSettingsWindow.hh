@@ -5,13 +5,6 @@
 #pragma once
 
 #include "ui_advancedsettingswindow.h"
-#include "compute_descriptor.hh"
-
-/* Forward declarations. */
-namespace holovibes::gui
-{
-class MainWindow;
-}
 
 namespace holovibes::gui
 {
@@ -32,7 +25,7 @@ class AdvancedSettingsWindow : public QMainWindow
      * Create a AdvancedSettingsWindow and shows it.
      *
      */
-    AdvancedSettingsWindow(ComputeDescriptor& cd, MainWindow* parent);
+    AdvancedSettingsWindow(QMainWindow* parent = nullptr);
 
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
@@ -50,9 +43,6 @@ class AdvancedSettingsWindow : public QMainWindow
 
   private:
     Ui::AdvancedSettingsWindow ui;
-
-    ComputeDescriptor& cd_;
-    MainWindow& mainwindow_;
 
     /*!
      * \brief Change the correspondant folder lineEdit

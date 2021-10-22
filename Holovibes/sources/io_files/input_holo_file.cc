@@ -32,7 +32,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
 
-    frame_size_ = fd_.frame_size();
+    frame_size_ = fd_.get_frame_size();
 
     // perform a checksum
     if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
@@ -110,8 +110,8 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
     cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
-    cd.xy.contrast_min_slice = get_value(meta_data_, "contrast_min", cd.xy.contrast_min_slice.load());
-    cd.xy.contrast_max_slice = get_value(meta_data_, "contrast_max", cd.xy.contrast_max_slice.load());
+    cd.xy.contrast_min = get_value(meta_data_, "contrast_min", cd.xy.contrast_min.load());
+    cd.xy.contrast_max = get_value(meta_data_, "contrast_max", cd.xy.contrast_max.load());
     cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
     cd.x.accu_enabled = get_value(meta_data_, "x_acc_enabled", cd.x.accu_enabled.load());
     cd.x.accu_level = get_value(meta_data_, "x_acc_level", cd.x.accu_level.load());
@@ -119,12 +119,15 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.y.accu_level = get_value(meta_data_, "y_acc_level", cd.y.accu_level.load());
     cd.p.accu_enabled = get_value(meta_data_, "p_acc_enabled", cd.p.accu_enabled.load());
     cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level.load());
-    cd.xy.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_xy_enabled", cd.xy.img_acc_slice_enabled.load());
-    cd.xz.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_xz_enabled", cd.xz.img_acc_slice_enabled.load());
-    cd.yz.img_acc_slice_enabled = get_value(meta_data_, "img_acc_slice_yz_enabled", cd.yz.img_acc_slice_enabled.load());
-    cd.xy.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_acc_slice_level.load());
-    cd.xz.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_acc_slice_level.load());
-    cd.yz.img_acc_slice_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_acc_slice_level.load());
+    cd.xy.img_accu_slice_enabled =
+        get_value(meta_data_, "img_acc_slice_xy_enabled", cd.xy.img_accu_slice_enabled.load());
+    cd.xz.img_accu_slice_enabled =
+        get_value(meta_data_, "img_acc_slice_xz_enabled", cd.xz.img_accu_slice_enabled.load());
+    cd.yz.img_accu_slice_enabled =
+        get_value(meta_data_, "img_acc_slice_yz_enabled", cd.yz.img_accu_slice_enabled.load());
+    cd.xy.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_accu_slice_level.load());
+    cd.xz.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_accu_slice_level.load());
+    cd.yz.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_accu_slice_level.load());
     cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
 }
 } // namespace holovibes::io_files

@@ -18,14 +18,14 @@ class OutputMp4File : public OutputFrameFile, public Mp4File
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const override;
+    size_t get_total_nb_frames() const override { return img_nb_; }
 
     /*! \brief Export the compute settings in the file
      *
      * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
-    void export_compute_settings(const ComputeDescriptor& cd, bool record_raw) override;
+    void export_compute_settings(bool record_raw) override;
 
     /*! \brief Write the header in the file
      *
@@ -78,5 +78,3 @@ class OutputMp4File : public OutputFrameFile, public Mp4File
     cv::VideoWriter video_writer_;
 };
 } // namespace holovibes::io_files
-
-#include "output_mp4_file.hxx"

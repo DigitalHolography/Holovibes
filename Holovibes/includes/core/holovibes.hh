@@ -24,8 +24,6 @@
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
 
-#include "information_container.hh"
-
 // Threads priority
 constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
 constexpr int THREAD_READER_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
@@ -144,21 +142,7 @@ class Holovibes
      */
     const float get_boundary();
 
-    /*! \brief Get the info container object
-     *
-     * \return InformationContainer&
-     */
-    InformationContainer& get_info_container();
     /*! \} */
-
-    /*! \brief Update the compute descriptor for CLI purpose
-     *
-     * Must be called before the initialization of the thread compute and
-     * recorder
-     *
-     * \param input_fps
-     */
-    void update_cd_for_cli(const unsigned int input_fps);
 
     /*! \brief Initializes the input queue
      *
@@ -197,7 +181,7 @@ class Holovibes
 
     /*! \brief Handle frame reading interruption
      *
-     * Stops both read_worker, clears the info_container, resets the active camera and store the gpu_input_queue
+     * Stops both read_worker, resets the active camera and store the gpu_input_queue
      */
     void stop_frame_read();
 
@@ -233,8 +217,7 @@ class Holovibes
 
     void stop_batch_gpib();
 
-    void start_information_display(
-        bool is_cli, const std::function<void()>& callback = []() {});
+    void start_information_display(const std::function<void()>& callback = []() {});
 
     void stop_information_display();
 
@@ -257,8 +240,6 @@ class Holovibes
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
-
-    InformationContainer info_container_;
 
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;

@@ -20,8 +20,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     compute/image_accumulation.cc
     compute/svd.cc
 
-    containers/information_container.cc
-
     core/holovibes.cc
     core/icompute.cc
     core/pipe.cc
@@ -49,10 +47,19 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/RawWindow.cc
     gui/windows/HoloWindow.cc
     gui/windows/MainWindow.cc
+    gui/windows/API.cc
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
     gui/windows/Filter2DWindow.cc
+    gui/windows/panels/panel.cc
+    gui/windows/panels/import_panel.cc
+    gui/windows/panels/export_panel.cc
+    gui/windows/panels/info_panel.cc
+    gui/windows/panels/view_panel.cc
+    gui/windows/panels/composite_panel.cc
+    gui/windows/panels/image_rendering_panel.cc
 
+    io_files/file_exception.cc
     io_files/input_frame_file.cc
     io_files/input_cine_file.cc
     io_files/input_holo_file.cc
@@ -86,4 +93,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/units/real_position.cc
     tools/units/window_pixel.cc
     tools/tools_debug.cc
+
+    state/global_state_holder.cc
 )

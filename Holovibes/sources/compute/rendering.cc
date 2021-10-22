@@ -212,13 +212,13 @@ void Rendering::insert_apply_contrast(WindowKind view)
 
         if (wind->contrast_invert)
         {
-            min = wind->contrast_max_slice;
-            max = wind->contrast_min_slice;
+            min = wind->contrast_max;
+            max = wind->contrast_min;
         }
         else
         {
-            min = wind->contrast_min_slice;
-            max = wind->contrast_max_slice;
+            min = wind->contrast_min;
+            max = wind->contrast_max;
         }
 
         apply_contrast_correction(input, size, dynamic_range, min, max, stream_);
@@ -317,7 +317,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.xy.contrast_min_slice, cd_.xy.contrast_max_slice);
+        set_contrast_min_max(percent_min_max_, cd_.xy.contrast_min, cd_.xy.contrast_max);
         break;
     case WindowKind::YZview:
         compute_percentile_yz_view(input,
@@ -330,7 +330,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.yz.contrast_min_slice, cd_.yz.contrast_max_slice);
+        set_contrast_min_max(percent_min_max_, cd_.yz.contrast_min, cd_.yz.contrast_max);
         break;
     case WindowKind::XZview:
         compute_percentile_xz_view(input,
@@ -343,7 +343,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_view_enabled,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.xz.contrast_min_slice, cd_.xz.contrast_max_slice);
+        set_contrast_min_max(percent_min_max_, cd_.xz.contrast_min, cd_.xz.contrast_max);
         break;
     case WindowKind::Filter2D:
         compute_percentile_xy_view(input,
@@ -356,7 +356,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    false,
                                    stream_);
-        set_contrast_min_max(percent_min_max_, cd_.filter2d.contrast_min_slice, cd_.filter2d.contrast_max_slice);
+        set_contrast_min_max(percent_min_max_, cd_.filter2d.contrast_min, cd_.filter2d.contrast_max);
         break;
     }
     cd_.notify_observers();

@@ -17,17 +17,6 @@ Holovibes& Holovibes::instance()
     return instance;
 }
 
-void Holovibes::update_cd_for_cli(const unsigned int input_fps)
-{
-    // Compute time filter stride such as output fps = 20
-    const unsigned int expected_output_fps = 20;
-    cd_.time_transformation_stride = std::max(input_fps / expected_output_fps, static_cast<unsigned int>(1));
-    cd_.batch_size = cd_.time_transformation_stride.load();
-
-    // We force the contrast to not be enable in CLI mode
-    cd_.xy.contrast_enabled = false;
-}
-
 const float Holovibes::get_boundary()
 {
     if (gpu_input_queue_.load())
@@ -85,10 +74,10 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
-        catch (std::exception&)
+        catch (const std::exception& e)
         {
             // Should never happen
-            LOG_ERROR << "This camera is not handled.";
+            LOG_ERROR << "This camera is not handled. (Exception: " << e.what() << ')';
             throw;
         }
 
@@ -104,15 +93,16 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     catch (std::exception& e)
     {
         stop_frame_read();
+        LOG_ERROR << "Error at camera frame read start worker. (Exception: " << e.what() << ')';
         throw;
     }
 }
 
 void Holovibes::stop_frame_read()
 {
+    LOG_TRACE << "Entering Holovibes::stop_frame_read()";
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
-    info_container_.clear();
     active_camera_.reset();
     gpu_input_queue_.store(nullptr);
 }
@@ -163,11 +153,11 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
 
-void Holovibes::start_information_display(bool is_cli, const std::function<void()>& callback)
+void Holovibes::start_information_display(const std::function<void()>& callback)
 {
     info_worker_controller_.set_callback(callback);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
-    info_worker_controller_.start(is_cli, info_container_);
+    info_worker_controller_.start();
 }
 
 void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
@@ -204,7 +194,7 @@ void Holovibes::init_pipe()
             output_fd.depth = 6;
     }
 
-    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, Queue::QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
 
     compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                *(gpu_output_queue_.load()),

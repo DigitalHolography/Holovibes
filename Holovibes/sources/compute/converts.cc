@@ -63,7 +63,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
             // Multiply frame by (2 ^ 16) - 1 in case of PCA
             map_multiply(buffers_.gpu_postprocess_frame.get(),
                          buffers_.gpu_postprocess_frame.get(),
-                         fd_.frame_res(),
+                         fd_.get_frame_res(),
                          static_cast<const float>((2 << 16) - 1),
                          stream_);
         });
@@ -99,7 +99,7 @@ void Converts::insert_to_modulus()
                            time_transformation_env_.gpu_p_acc_buffer,
                            pmin_,
                            pmax_,
-                           fd_.frame_res(),
+                           fd_.get_frame_res(),
                            stream_);
     });
 }
@@ -111,7 +111,7 @@ void Converts::insert_to_squaredmodulus()
                                    time_transformation_env_.gpu_p_acc_buffer,
                                    pmin_,
                                    pmax_,
-                                   fd_.frame_res(),
+                                   fd_.get_frame_res(),
                                    stream_);
     });
 }
@@ -126,7 +126,7 @@ void Converts::insert_to_composite()
         if (cd_.composite_kind == CompositeKind::RGB)
             rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                 buffers_.gpu_postprocess_frame,
-                fd_.frame_res(),
+                fd_.get_frame_res(),
                 cd_.composite_auto_weights,
                 cd_.rgb.p_min,
                 cd_.rgb.p_max,
@@ -144,7 +144,7 @@ void Converts::insert_to_composite()
 
         if (cd_.composite_auto_weights)
             postcolor_normalize(buffers_.gpu_postprocess_frame,
-                                fd_.frame_res(),
+                                fd_.get_frame_res(),
                                 fd_.width,
                                 cd_.getCompositeZone(),
                                 cd_.rgb.weight_r,
@@ -161,7 +161,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
                             time_transformation_env_.gpu_p_acc_buffer,
                             pmin_,
                             pmax_,
-                            fd_.frame_res(),
+                            fd_.get_frame_res(),
                             stream_);
     });
 
@@ -170,9 +170,9 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
         try
         {
             if (!unwrap_res_2d_)
-                unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.frame_res(), stream_));
-            if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
-                unwrap_res_2d_->reallocate(fd_.frame_res());
+                unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.get_frame_res(), stream_));
+            if (unwrap_res_2d_->image_resolution_ != fd_.get_frame_res())
+                unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back([=]() {
                 unwrap_2d(buffers_.gpu_postprocess_frame,
@@ -188,7 +188,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
                 rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
                                        buffers_.gpu_postprocess_frame,
                                        unwrap_res_2d_->minmax_buffer_,
-                                       fd_.frame_res(),
+                                       fd_.get_frame_res(),
                                        stream_);
             });
         }
@@ -204,20 +204,20 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.frame_res(), stream_));
+            unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.get_frame_res(), stream_));
         unwrap_res_->reset(cd_.unwrap_history_size);
-        unwrap_res_->reallocate(fd_.frame_res());
+        unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back([=]() {
-            phase_increase(time_transformation_env_.gpu_p_frame, unwrap_res_.get(), fd_.frame_res(), stream_);
+            phase_increase(time_transformation_env_.gpu_p_frame, unwrap_res_.get(), fd_.get_frame_res(), stream_);
         });
 
         if (unwrap_2d_requested)
         {
             if (!unwrap_res_2d_)
-                unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.frame_res(), stream_));
+                unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.get_frame_res(), stream_));
 
-            if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
-                unwrap_res_2d_->reallocate(fd_.frame_res());
+            if (unwrap_res_2d_->image_resolution_ != fd_.get_frame_res())
+                unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back([=]() {
                 unwrap_2d(unwrap_res_->gpu_angle_current_,
@@ -233,7 +233,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
                 rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
                                        buffers_.gpu_postprocess_frame,
                                        unwrap_res_2d_->minmax_buffer_,
-                                       fd_.frame_res(),
+                                       fd_.get_frame_res(),
                                        stream_);
             });
         }
@@ -241,7 +241,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
             fn_compute_vect_.conditional_push_back([=]() {
                 rescale_float(unwrap_res_->gpu_angle_current_,
                               buffers_.gpu_postprocess_frame,
-                              fd_.frame_res(),
+                              fd_.get_frame_res(),
                               stream_);
             });
     }
@@ -266,13 +266,13 @@ void Converts::insert_slice_ushort()
     fn_compute_vect_.conditional_push_back([=]() {
         float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
                         buffers_.gpu_output_frame_xz.get(),
-                        time_transformation_env_.gpu_output_queue_xz->get_fd().frame_res(),
+                        time_transformation_env_.gpu_output_queue_xz->get_fd().get_frame_res(),
                         stream_);
     });
     fn_compute_vect_.conditional_push_back([=]() {
         float_to_ushort(buffers_.gpu_postprocess_frame_yz.get(),
                         buffers_.gpu_output_frame_yz.get(),
-                        time_transformation_env_.gpu_output_queue_yz->get_fd().frame_res(),
+                        time_transformation_env_.gpu_output_queue_yz->get_fd().get_frame_res(),
                         stream_);
     });
 }

@@ -143,6 +143,7 @@ def build(args):
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running configure goal before build")
+        sys.stdout.flush()
         run_goal("cmake", args)
 
     cmd = ['cmd.exe', '/c', 'call']
@@ -165,25 +166,15 @@ def build(args):
 def run(args):
     build_mode = get_build_mode(args.build_mode)
     exe_path = os.path.join(get_build_dir(
-        args.build_dir, get_generator(args.generator)), build_mode)
-    previous_path = os.getcwd()
+        args.build_dir, get_generator(args.generator)), build_mode, "Holovibes.exe")
 
-    if not os.path.isdir(exe_path):
-        print("Cannot find Holovibes.exe at path: " + exe_path)
-        sys.stdout.flush()
-        exit(1)
-
-    os.chdir(exe_path)
-
-    cmd = ["Holovibes.exe", ] + args.goal_args
+    cmd = [exe_path, ] + args.goal_args
 
     if args.verbose:
         print("Run cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     out = subprocess.call(cmd)
-
-    os.chdir(previous_path)
     return out
 
 
@@ -196,7 +187,7 @@ def pytest(args):
         print("Please install pytest with '$ python -m pip install pytest'")
         sys.stdout.flush()
 
-    if args.v:
+    if args.verbose:
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
@@ -283,7 +274,7 @@ def run_goal(goal: str, args) -> int:
 
     out = goal_func(args)
     if out != 0:
-        print(f"Goal {goal} Failed, Abort")
+        print(f"Goal {goal} Failed (out: {out})")
         sys.stdout.flush()
         exit(out)
 
@@ -335,11 +326,10 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    main_args, goals = parse_args()
+    args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        args = GoalArgs(main_args.b, main_args.g, main_args.e,
-                        main_args.p, main_args.v, goal_args)
-        run_goal(goal, args)
+        run_goal(goal, GoalArgs(args.b, args.g,
+                 args.e, args.p, args.v, goal_args))
 
     exit(0)
