@@ -10,21 +10,23 @@ namespace holovibes::worker
 FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
                                      std::optional<unsigned int> nb_frames_to_record,
                                      bool raw_record,
-                                     unsigned int nb_frames_skip)
+                                     unsigned int nb_frames_skip,
+                                     const unsigned int output_buffer_size)
     : Worker()
     , file_path_(get_record_filename(file_path))
     , nb_frames_to_record_(nb_frames_to_record)
     , nb_frames_skip_(nb_frames_skip)
     , raw_record_(raw_record)
+    , output_buffer_size_(output_buffer_size)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
 }
 
 void FrameRecordWorker::run()
 {
-    LOG_TRACE << "Entering FrameRecordWorker::run()";
+    ComputeDescriptor& cd = Holovibes::instance().get_cd();
 
-    if (Holovibes::instance().get_cd().batch_size > global::global_config.frame_record_queue_max_size)
+    if (cd.batch_size > cd.record_buffer_size)
     {
         LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
         return;
@@ -117,8 +119,6 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue()
 {
-    LOG_TRACE << "Entering FrameRecordWorker::init_gpu_record_queue()";
-
     auto pipe = Holovibes::instance().get_compute_pipe();
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
@@ -172,11 +172,10 @@ void FrameRecordWorker::reset_gpu_record_queue()
 
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
-        raw_view_queue->resize(global::global_config.output_queue_max_size, stream_);
+        raw_view_queue->resize(output_buffer_size_, stream_);
 
     std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-
     if (output_queue)
-        output_queue->resize(global::global_config.output_queue_max_size, stream_);
+        output_queue->resize(output_buffer_size_, stream_);
 }
 } // namespace holovibes::worker

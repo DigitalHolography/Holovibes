@@ -41,7 +41,8 @@ class FileFrameReadWorker : public FrameReadWorker
                         unsigned int first_frame_id,
                         unsigned int total_nb_frames_to_read,
                         bool load_file_in_gpu,
-                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
+                        const unsigned int file_buffer_size);
 
     void run() override;
 
@@ -122,6 +123,8 @@ class FileFrameReadWorker : public FrameReadWorker
     unsigned int first_frame_id_;
     /*! \brief Whether the entire file should be loaded in the gpu */
     bool load_file_in_gpu_;
+    /*! \brief Max file buffer size */
+    const unsigned int file_buffer_size_;
     /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
     /*! \brief Size of an input frame */

@@ -12,12 +12,13 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-{}
+{
+}
 
 ExportPanel::~ExportPanel() {}
 
-void ExportPanel::init() 
-{   
+void ExportPanel::init()
+{
     ui_->NumberOfFramesSpinBox->setSingleStep(UserInterfaceDescriptor::instance().record_frame_step_);
     set_record_mode(QString::fromUtf8("Raw Image"));
 }
@@ -53,28 +54,15 @@ void ExportPanel::on_notify()
     path_line_edit->clear();
 
     std::string record_output_path =
-        (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) / UserInterfaceDescriptor::instance().default_output_filename_).string();
+        (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) /
+         UserInterfaceDescriptor::instance().default_output_filename_)
+            .string();
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void ExportPanel::load_ini(const boost::property_tree::ptree& ptree)
-{
+void ExportPanel::load_gui(const boost::property_tree::ptree& ptree) {}
 
-    // UserInterfaceDescriptor::instance().default_output_filename_ = ptree.get<std::string>("files.default_output_filename", UserInterfaceDescriptor::instance().default_output_filename_);
-    // UserInterfaceDescriptor::instance().record_output_directory_ = ptree.get<std::string>("files.record_output_directory", UserInterfaceDescriptor::instance().record_output_directory_);
-    // UserInterfaceDescriptor::instance().batch_input_directory_ = ptree.get<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
-    // UserInterfaceDescriptor::instance().record_frame_step_ = ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-    // UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ptree.get<size_t>("chart.auto_scale_point_threshold", UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-}
-
-void ExportPanel::save_ini(boost::property_tree::ptree& ptree)
-{
-    // ptree.put<std::string>("files.default_output_filename", UserInterfaceDescriptor::instance().default_output_filename_);
-    // ptree.put<std::string>("files.record_output_directory", UserInterfaceDescriptor::instance().record_output_directory_);
-    // ptree.put<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
-    // ptree.put<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-    // ptree.put<size_t>("chart.auto_scale_point_threshold", UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-}
+void ExportPanel::save_gui(boost::property_tree::ptree& ptree) {}
 
 void ExportPanel::browse_record_output_file()
 {
@@ -123,8 +111,10 @@ void ExportPanel::browse_batch_input()
 {
 
     // Open file explorer on the fly
-    QString filename =
-        QFileDialog::getOpenFileName(this, tr("Batch input file"), UserInterfaceDescriptor::instance().batch_input_directory_.c_str(), tr("All files (*)"));
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("Batch input file"),
+                                                    UserInterfaceDescriptor::instance().batch_input_directory_.c_str(),
+                                                    tr("All files (*)"));
 
     // Output the file selected in he ui line edit widget
     QLineEdit* batch_input_line_edit = ui_->BatchInputPathLineEdit;
@@ -189,10 +179,7 @@ void ExportPanel::set_record_mode(const QString& value)
     parent_->notify();
 }
 
-void ExportPanel::stop_record()
-{
-    api::stop_record();
-}
+void ExportPanel::stop_record() { api::stop_record(); }
 
 void ExportPanel::record_finished(RecordMode record_mode)
 {
@@ -213,7 +200,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api::get_cd().compute_mode == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     api::record_finished();
 }
 
@@ -277,7 +264,11 @@ void ExportPanel::start_chart_display()
         return;
 
     api::start_chart_display();
-    connect(UserInterfaceDescriptor::instance().plot_window_.get(), SIGNAL(closed()), this, SLOT(stop_chart_display()), Qt::UniqueConnection);
+    connect(UserInterfaceDescriptor::instance().plot_window_.get(),
+            SIGNAL(closed()),
+            this,
+            SLOT(stop_chart_display()),
+            Qt::UniqueConnection);
 
     ui_->ChartPlotPushButton->setEnabled(false);
 }

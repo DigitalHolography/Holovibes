@@ -2330,15 +2330,63 @@
          </property>
          <item>
           <widget class="holovibes::gui::ImportPanel" name="ImportPanel">
-           <property name="enabled">
-            <bool>true</bool>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>252</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>210</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
            </property>
            <property name="title">
             <string>Import</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetNoConstraint</enum>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
               <item>
                <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
                 <property name="enabled">
@@ -2502,7 +2550,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_29">
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
               <item>
                <widget class="QPushButton" name="ImportStartPushButton">
                 <property name="enabled">
@@ -2530,12 +2578,39 @@
          </item>
          <item>
           <widget class="holovibes::gui::ExportPanel" name="ExportPanel">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>255</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string notr="true"/>
+           </property>
+           <property name="toolTipDuration">
+            <number>-1</number>
+           </property>
            <property name="title">
             <string>Export</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_6">
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_10">
             <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
                <widget class="QComboBox" name="RecordImageModeComboBox">
                 <property name="sizePolicy">
@@ -2621,7 +2696,7 @@
               <property name="lineWidth">
                <number>2</number>
               </property>
-              <layout class="QVBoxLayout" name="recordLayout_2">
+              <layout class="QVBoxLayout" name="recordLayout">
                <property name="spacing">
                 <number>6</number>
                </property>
@@ -2657,7 +2732,7 @@
                    <height>40</height>
                   </size>
                  </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
                   <property name="spacing">
                    <number>0</number>
                   </property>
@@ -2789,7 +2864,7 @@
                  <property name="checked">
                   <bool>false</bool>
                  </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_21">
+                 <layout class="QVBoxLayout" name="verticalLayout_19">
                   <property name="leftMargin">
                    <number>2</number>
                   </property>
@@ -2922,7 +2997,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,0,10">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
@@ -3024,21 +3099,23 @@ p, li { white-space: pre-wrap; }
     </property>
     <widget class="QMenu" name="menuImport_from_ini">
      <property name="title">
-      <string>Import from .ini</string>
+      <string>Import compute settings</string>
      </property>
      <addaction name="actionReload_ini"/>
      <addaction name="actionBrowse"/>
     </widget>
     <widget class="QMenu" name="menuExport_to_ini">
      <property name="title">
-      <string>Export to .ini</string>
+      <string>Export compute settings</string>
      </property>
      <addaction name="actionExport"/>
      <addaction name="actionExport_as"/>
     </widget>
-    <addaction name="actionConfigure"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdvanced"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3150,11 +3227,6 @@ p, li { white-space: pre-wrap; }
   <action name="actionCredits">
    <property name="text">
     <string>Credits</string>
-   </property>
-  </action>
-  <action name="actionConfigure">
-   <property name="text">
-    <string>Configure</string>
    </property>
   </action>
   <action name="actionImage_rendering">
@@ -3294,6 +3366,11 @@ p, li { white-space: pre-wrap; }
     <string>Export as...</string>
    </property>
   </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -3363,6 +3440,19 @@ p, li { white-space: pre-wrap; }
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
+  <tabstop>ChartSignalPushButton</tabstop>
+  <tabstop>ChartNoisePushButton</tabstop>
+  <tabstop>NumberOfFramesSpinBox</tabstop>
+  <tabstop>OutputFilePathLineEdit</tabstop>
+  <tabstop>OutputFileBrowseToolButton</tabstop>
+  <tabstop>ExportRecPushButton</tabstop>
+  <tabstop>ExportStopPushButton</tabstop>
+  <tabstop>BatchInputBrowseToolButton</tabstop>
+  <tabstop>ImportPathLineEdit</tabstop>
+  <tabstop>InputBrowseToolButton</tabstop>
+  <tabstop>ImportInputFpsSpinBox</tabstop>
+  <tabstop>ImportStartIndexSpinBox</tabstop>
+  <tabstop>ImportEndIndexSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -3474,22 +3564,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionConfigure</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>configure_holovibes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
      <y>0</y>
     </hint>
    </hints>
@@ -3683,6 +3757,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>305</x>
      <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionInfo</sender>
+   <signal>changed()</signal>
+   <receiver>InfoGroupBox</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1361</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -4727,6 +4817,54 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>InputBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_browse_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_start_spinbox_update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_end_spinbox_update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>881</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ImportStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ImportPanel</receiver>
@@ -4739,6 +4877,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>859</x>
      <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>797</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -5095,50 +5249,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>InputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>import_browse_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>947</x>
-     <y>501</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>859</x>
-     <y>550</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>import_start()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>808</x>
-     <y>531</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>859</x>
-     <y>550</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionInfo</sender>
-   <signal>changed()</signal>
-   <receiver>InfoPanel</receiver>
-   <slot>ShowOrHide()</slot>
+   <sender>actionAdvanced</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_advanced_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1361</x>
-     <y>279</y>
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WindowSelectionComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_window(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
     </hint>
    </hints>
   </connection>
@@ -5166,11 +5304,11 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
+  <slot>change_window(int)</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
   <slot>start_chart_display()</slot>
-  <slot>configure_holovibes()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>start_record()</slot>
@@ -5239,5 +5377,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d_n1(int)</slot>
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
+  <slot>open_advanced_settings()</slot>
+  <slot>close_advanced_settings()</slot>
  </slots>
 </ui>

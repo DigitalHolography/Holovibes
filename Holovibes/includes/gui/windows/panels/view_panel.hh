@@ -22,13 +22,15 @@ class ViewPanel : public Panel
     Q_OBJECT
 
   public:
+    uint time_transformation_cuts_window_max_size = 512;
+
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
     void on_notify() override;
 
-    void load_ini(const boost::property_tree::ptree& ptree) override;
-    void save_ini(boost::property_tree::ptree& ptree) override;
+    void load_gui(const boost::property_tree::ptree& ptree) override;
+    void save_gui(boost::property_tree::ptree& ptree) override;
 
     /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();

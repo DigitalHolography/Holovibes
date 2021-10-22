@@ -3,7 +3,7 @@
 #include "cuda_memory.cuh"
 #include "unpack.cuh"
 #include "input_frame_file_factory.hh"
-#include "config.hh"
+
 #include "holovibes.hh"
 #include "global_state_holder.hh"
 
@@ -15,7 +15,8 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
                                          unsigned int first_frame_id,
                                          unsigned int total_nb_frames_to_read,
                                          bool load_file_in_gpu,
-                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
+                                         const unsigned int file_buffer_size)
     : FrameReadWorker(gpu_input_queue)
     , file_path_(file_path)
     , loop_(loop)
@@ -25,6 +26,7 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
     , current_nb_frames_read_(fast_updates_entry_->first)
     , total_nb_frames_to_read_(fast_updates_entry_->second)
     , load_file_in_gpu_(load_file_in_gpu)
+    , file_buffer_size_(file_buffer_size)
     , frame_size_(0)
     , input_file_(nullptr)
     , cpu_frame_buffer_(nullptr)
@@ -97,7 +99,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     if (load_file_in_gpu_)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
-        buffer_nb_frames = global::global_config.file_buffer_size;
+        buffer_nb_frames = file_buffer_size_;
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
@@ -169,7 +171,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = global::global_config.file_buffer_size;
+    const unsigned int batch_size = file_buffer_size_;
 
     fps_handler_.begin();
 

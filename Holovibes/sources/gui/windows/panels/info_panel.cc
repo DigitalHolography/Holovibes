@@ -17,34 +17,37 @@ InfoPanel::~InfoPanel() {}
 
 void InfoPanel::init()
 {
-    ::holovibes::worker::InformationWorker::update_progress_function_ = [=](ProgressType type, const size_t value, const size_t max_size) {
-        parent_->synchronize_thread([=]() {
-            switch (type)
-            {
-            case ProgressType::FILE_READ:
-                ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
-                ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
-                break;
-            case ProgressType::CHART_RECORD:
-            case ProgressType::FRAME_RECORD:
-                ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
-                ui_->RecordProgressBar->setValue(static_cast<int>(value));
-                break;
-            default:
-                return;
-            };
-        });
-    };
+    ::holovibes::worker::InformationWorker::update_progress_function_ =
+        [=](ProgressType type, const size_t value, const size_t max_size) {
+            parent_->synchronize_thread([=]() {
+                switch (type)
+                {
+                case ProgressType::FILE_READ:
+                    ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
+                    ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
+                    break;
+                case ProgressType::CHART_RECORD:
+                case ProgressType::FRAME_RECORD:
+                    ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
+                    ui_->RecordProgressBar->setValue(static_cast<int>(value));
+                    break;
+                default:
+                    return;
+                };
+            });
+        };
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
 }
 
-void InfoPanel::load_ini(const boost::property_tree::ptree& ptree)
+void InfoPanel::load_gui(const boost::property_tree::ptree& ptree)
 {
-    ui_->actionInfo->setChecked(!ptree.get<bool>("info.hidden", isHidden()));
+    bool h = ptree.get<bool>("window.info_hidden", isHidden());
+    ui_->actionInfo->setChecked(!h);
+    setHidden(h);
 }
 
-void InfoPanel::save_ini(boost::property_tree::ptree& ptree) { ptree.put<bool>("info.hidden", isHidden()); }
+void InfoPanel::save_gui(boost::property_tree::ptree& ptree) { ptree.put<bool>("window.info_hidden", isHidden()); }
 
 void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
 

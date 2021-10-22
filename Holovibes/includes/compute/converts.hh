@@ -80,7 +80,7 @@ class Converts
     /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
     void insert_filter2d_ushort();
 
-    /*! \brief pindex */
+    /*! \brief p_index */
     unsigned short pmin_;
     /*! \brief Maximum value of p accumulation */
     unsigned short pmax_;

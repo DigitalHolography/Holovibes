@@ -32,13 +32,9 @@ void ComputeWorker::stop()
 
 void ComputeWorker::run()
 {
-    LOG_TRACE << "Entering ComputeWorker::run()";
-
     pipe_.load()->exec();
 
     pipe_.store(nullptr);
     output_.store(nullptr);
-
-    LOG_TRACE << "Exiting ComputeWorker::run()";
 }
 } // namespace holovibes::worker

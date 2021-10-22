@@ -19,14 +19,13 @@ class MainWindow;
 class Filter2DWindow : public BasicOpenGLWindow
 {
   public:
-    Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* main_window = nullptr);
+    Filter2DWindow(QPoint p, QSize s, DisplayQueue* q);
     virtual ~Filter2DWindow();
 
   protected:
     cudaArray_t cuArray;
     cudaResourceDesc cuArrRD;
     cudaSurfaceObject_t cuSurface;
-    MainWindow* main_window_;
 
     virtual void initShaders() override;
     virtual void initializeGL() override;

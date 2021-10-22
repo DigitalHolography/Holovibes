@@ -25,14 +25,17 @@
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "config.hh"
 #include "ini_config.hh"
 #include "tools.hh"
 #include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
-#include "API.hh"
+#include "gui_group_box.hh"
 #include "information_worker.hh"
+
+#include "API.hh"
+
+#include "view_struct.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -111,24 +114,33 @@ MainWindow::MainWindow(QWidget* parent)
 
     try
     {
-        load_ini(::holovibes::ini::default_config_filepath);
+        load_gui();
     }
     catch (const std::exception& e)
     {
         LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::default_config_filepath << ": Configuration file not found. "
+        LOG_WARN << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
     }
 
-    set_night();
-
-    // Keyboard shortcuts
-    QComboBox* window_cbox = ui_->WindowSelectionComboBox;
-    connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
+    try
+    {
+        load_ini();
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        LOG_WARN << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
+                 << "Initialization with default values.";
+    }
 
     // Display default values
     api::set_compute_mode(Computation::Raw);
+    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
+                                                             ? "Composite image"
+                                                             : UserInterfaceDescriptor::instance().last_img_type_;
     notify();
+
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -137,6 +149,7 @@ MainWindow::MainWindow(QWidget* parent)
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
+    // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
     std::filesystem::path convo_matrix_path(get_exe_dir());
@@ -282,22 +295,9 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::configure_holovibes() { api::configure_holovibes(); }
+void MainWindow::write_ini() { api::save_compute_settings(::holovibes::ini::default_compute_config_filepath); }
 
-void MainWindow::write_ini()
-{
-    save_ini(::holovibes::ini::default_config_filepath);
-
-    notify();
-}
-
-void MainWindow::write_ini(QString filename)
-{
-    save_ini(filename.toStdString());
-
-    // Saves the current state of holovibes in holovibes.ini located in Holovibes.exe directory
-    notify();
-}
+void MainWindow::write_ini(QString filename) { api::save_compute_settings(filename.toStdString()); }
 
 void MainWindow::browse_export_ini()
 {
@@ -322,9 +322,11 @@ void MainWindow::reload_ini() { reload_ini(""); }
 void MainWindow::reload_ini(QString filename)
 {
     ui_->ImportPanel->import_stop();
+
     try
     {
-        load_ini(filename.isEmpty() ? ::holovibes::ini::default_config_filepath : filename.toStdString());
+        auto path = filename.isEmpty() ? ::holovibes::ini::default_compute_config_filepath : filename.toStdString();
+        api::load_compute_settings(path);
     }
     catch (const std::exception& e)
     {
@@ -332,52 +334,70 @@ void MainWindow::reload_ini(QString filename)
     }
 
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
-    {
         ui_->ImportPanel->import_start();
-    }
     else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
-    {
         change_camera(UserInterfaceDescriptor::instance().kCamera);
-    }
 
     notify();
 }
 
-void MainWindow::load_ini(const std::string& path)
+void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
+{
+    LOG_INFO << to_hide;
+    action->setChecked(!to_hide);
+    groupbox->setHidden(to_hide);
+}
+
+void MainWindow::load_gui()
 {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(path, ptree);
-
-    api::load_ini(path, ptree);
+    boost::property_tree::ini_parser::read_ini(ini::global_config_filepath, ptree);
 
     if (!ptree.empty())
     {
-        theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
+        set_theme(ptree.get<int>("display.theme_type", theme_index_));
 
-        UserInterfaceDescriptor::instance().record_frame_step_ =
-            ptree.get<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
+        window_max_size = ptree.get<uint>("window_size.main_window_max_size", window_max_size);
+        auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
+
+        api::load_user_preferences(ptree);
 
         for (auto it = panels_.begin(); it != panels_.end(); it++)
-            (*it)->load_ini(ptree);
+            (*it)->load_gui(ptree);
 
         notify();
     }
 }
 
-void MainWindow::save_ini(const std::string& path)
+void MainWindow::save_gui()
 {
     boost::property_tree::ptree ptree;
 
-    // We save in the ptree the .ini parameters that are directly linked with MainWindow ...
-    ptree.put<ushort>("info.theme_type", theme_index_);
+    ptree.put<ushort>("display.theme_type", theme_index_);
+
+    ptree.put<uint>("window_size.main_window_max_size", window_max_size);
+    ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
+
+    api::save_user_preferences(ptree);
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
-        (*it)->save_ini(ptree);
+        (*it)->save_gui(ptree);
 
-    // ... then the general data to save in ptree
-    api::save_ini(path, ptree);
+    auto path = holovibes::ini::global_config_filepath;
+    boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO << "Configuration file holovibes.ini overwritten at " << path;
+    LOG_INFO << "GUI settings overwritten at " << path;
+}
+
+void MainWindow::load_ini() { api::load_compute_settings(ini::global_config_filepath); }
+
+void MainWindow::save_ini()
+{
+    auto path = holovibes::ini::default_compute_config_filepath;
+
+    api::save_compute_settings(path);
+
+    LOG_INFO << "Compute settings overwritten at " << path;
 }
 
 #pragma endregion
@@ -388,8 +408,10 @@ void MainWindow::closeEvent(QCloseEvent*)
 {
     camera_none();
 
-    save_ini(::holovibes::ini::default_config_filepath);
+    save_gui();
+    api::save_compute_settings(::holovibes::ini::default_compute_config_filepath);
 }
+
 #pragma endregion
 /* ------------ */
 #pragma region Cameras
@@ -403,7 +425,6 @@ void MainWindow::change_camera(CameraKind c)
         return;
 
     const Computation computation = static_cast<Computation>(ui_->ImageModeComboBox->currentIndex());
-
     const bool res = api::change_camera(c, computation);
 
     if (res)
@@ -447,11 +468,10 @@ void MainWindow::configure_camera() { api::configure_camera(); }
 /* ------------ */
 #pragma region Image Mode
 
-void MainWindow::create_holo_window() { api::create_holo_window(*this); }
-
 void MainWindow::refresh_view_mode()
 {
-    api::refresh_view_mode(*this, ui_->ViewModeComboBox->currentIndex());
+    // FIXME: Create enum instead of using index.
+    api::refresh_view_mode(*this, window_max_size, ui_->ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();
@@ -505,6 +525,7 @@ void MainWindow::set_view_image_type(const QString& value)
         layout_toggled();
     });
 
+    // Force XYview autocontrast
     api::set_view_mode(str, callback);
 
     // Force cuts views autocontrast if needed
@@ -516,9 +537,9 @@ void MainWindow::set_view_image_type(const QString& value)
 
 /* ------------ */
 
-void MainWindow::change_window()
+void MainWindow::change_window(int index)
 {
-    api::change_window(ui_->WindowSelectionComboBox->currentIndex());
+    api::change_window(index);
 
     notify();
 }
@@ -532,6 +553,33 @@ void MainWindow::start_import(QString filename)
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
+/* ------------ */
+#pragma region Advanced
+
+void MainWindow::close_advanced_settings()
+{
+    if (UserInterfaceDescriptor::instance().need_close)
+        close();
+    else
+        UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+}
+
+void MainWindow::open_advanced_settings()
+{
+    if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
+        return;
+
+    api::open_advanced_settings();
+
+    connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
+            SIGNAL(closed()),
+            this,
+            SLOT(close_advanced_settings()),
+            Qt::UniqueConnection);
+}
+
+#pragma endregion
+
 /* ------------ */
 #pragma region Themes
 
@@ -570,6 +618,26 @@ void MainWindow::set_classic()
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
     theme_index_ = 0;
+}
+
+void MainWindow::set_theme(const int index)
+{
+    if (index == theme_index_)
+        return;
+
+    switch (index)
+    {
+    case 0:
+        set_classic();
+        break;
+    case 1:
+        set_night();
+        break;
+    default:
+        return;
+    }
+
+    theme_index_ = index;
 }
 #pragma endregion
 } // namespace gui

@@ -5,6 +5,8 @@
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
 #include "MainWindow.hh"
+#include "view_panel.hh"
+#include "AdvancedSettingsWindow.hh"
 #include "ini_config.hh"
 
 namespace holovibes::api
@@ -49,13 +51,13 @@ void stop_all_worker_controller();
  * \return true Enabled
  * \return false Disabled
  */
-bool get_img_acc_slice_enabled();
+bool get_img_accu_slice_enabled();
 
 /*! \brief Gets the image accumulation slice level
  *
  * \return unsigned accumulation slice level
  */
-unsigned get_img_acc_slice_level();
+unsigned get_img_accu_slice_level();
 
 /*! \brief Gets the gpu input queue frame desciptor width
  *
@@ -98,6 +100,27 @@ void set_convolution_mode(std::string& str);
  *
  */
 void unset_convolution_mode();
+
+/*! \brief Changes display mode to Raw */
+void set_raw_mode(Observer& observer, uint window_max_size);
+
+/*! \brief Changes display mode to Holographic
+ *
+ * \param observer parent of the new window that can be triggered on event
+ * \param window_size the size of the window
+ * \param fd the frame descriptor that will be initialized and returned by reference
+ * \return true on success
+ * \return false on failure
+ */
+bool set_holographic_mode(Observer& observer, ushort window_size, camera::FrameDescriptor& fd);
+
+/*! \brief Restarts everything to change the view mode
+ *
+ * \param observer parent of the new window that can be triggered on event
+ * \param window_size the size of the window
+ * \param index the index on the new mode
+ */
+void refresh_view_mode(Observer& observer, ushort window_size, uint index);
 
 /*! \brief Removes time transformation from computation
  *
@@ -445,6 +468,13 @@ float get_contrast_min();
 float get_contrast_max();
 
 /*!
+ * \brief Gets the contrast max of a given window
+ *
+ * \return bool the contrast maximum of the given window kind
+ */
+bool get_contrast_invert_enabled();
+
+/*!
  * \brief Checks if log scale is enabled for a given window
  *
  * \return true Enabled
@@ -474,7 +504,7 @@ void display_reticle(bool value);
  *
  * \param value the new reticle scale value
  */
-void reticle_scale(double value);
+void reticle_scale(float value);
 
 /*! \brief Restores attributs when recording ends
  *
@@ -485,7 +515,6 @@ void record_finished();
  *
  */
 void active_noise_zone();
-
 
 /*! \brief Creates Signal overlay
  *
@@ -506,13 +535,13 @@ void stop_chart_display();
  *
  * \return std::optional<bool> false: on failure, true: on add
  */
-bool set_lens_view();
+bool set_lens_view(uint auxiliary_window_max_size);
 
 /*! \brief Removes lens view */
 void disable_lens_view();
 
 /*! \brief Adds raw view */
-void set_raw_view();
+void set_raw_view(uint auxiliary_window_max_size);
 
 /*! \brief Removes raw view */
 void disable_raw_view();
@@ -534,9 +563,9 @@ void set_fft_shift(const bool value);
 
 /*! \brief Adds filter2d view
  *
- * \param observer
+ * \param auxiliary_window_max_size
  */
-void set_filter2d_view(gui::MainWindow& observer);
+void set_filter2d_view(uint auxiliary_window_max_size);
 
 /*! \brief Adds or removes filter 2d view */
 void disable_filter2d_view();
@@ -558,11 +587,10 @@ void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
- * \param observer parent of the new window that can be triggered on event
  * \return true on success
  * \return false on failure
  */
-bool toggle_time_transformation_cuts(gui::MainWindow& observer);
+bool toggle_time_transformation_cuts(uint time_transformation_size);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -590,37 +618,29 @@ void set_view_mode(const std::string& value, std::function<void()> callback);
 
 /*! \brief Restarts everything to change the view mode
  *
- * \param observer parent of the new window that can be triggered on event
  */
-void refresh_view_mode(gui::MainWindow& observer, uint index);
 
 /*! \brief Changes display mode to Holographic
  *
- * \param observer parent of the new window that can be triggered on event
+ * \param window_size size of the window
  * \param fd the frame descriptor that will be initialized and returned by reference
  * \return true on success
  * \return false on failure
  */
-bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd);
 
 /*! \brief Creates the windows for processed image output
  *
- * \param observer parent of the new window that can be triggered on event
+ * \param window_size the size of the window
  */
-void create_holo_window(gui::MainWindow& observer);
 
 /*! \brief Creates the pipeline
  *
- * \param observer parent of the new window that can be triggered on event
  */
-void create_pipe(gui::MainWindow& observer);
 
 /*!
  * \brief Set the raw mode object
  *
- * \param observer parent of the new window that can be triggered on event
  */
-void set_raw_mode(gui::MainWindow& observer);
 
 /*! \brief Configures the camera */
 void configure_camera();
@@ -632,22 +652,24 @@ void configure_camera();
  */
 void init_image_mode(QPoint& position, QSize& size);
 
-/*! \brief Opens holovibes configuration file */
-void configure_holovibes();
-
 /*! \brief Saves the current state of holovibes
  *
  * \param path The location of the .ini file saved
  * \param ptree the object containing the .ini parameters to serialize
  */
-void save_ini(const std::string& path, boost::property_tree::ptree& ptree);
+void save_compute_settings(const std::string& path);
 
 /*! \brief Setups program from .ini file
  *
  * \param path the path where the .ini file is
  * \param ptree the object containing the .ini parameters to serialize
  */
-void load_ini(const std::string& path, boost::property_tree::ptree& ptree);
+void load_compute_settings(const std::string& path);
+
+void save_user_preferences(boost::property_tree::ptree& ptree);
+void load_user_preferences(const boost::property_tree::ptree& ptree);
+
+void check_batch_size_limit();
 
 /*! \brief Gets the documentation url
  *
@@ -680,6 +702,12 @@ bool slide_update_threshold(
  * \param callback lambda to execute FIXME: Api is not supposed to handdle callback
  */
 void start_information_display(const std::function<void()>& callback = []() {});
+
+/*!
+ * \brief
+ *
+ */
+void open_advanced_settings();
 
 ::holovibes::ComputeDescriptor& get_cd();
 

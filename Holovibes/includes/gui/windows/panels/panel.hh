@@ -39,8 +39,8 @@ class Panel : public QGroupBox
     // #TODO Put this into constructors when .ui files exist for every panel
     virtual void init(){};
 
-    virtual void load_ini(const boost::property_tree::ptree& ptree){};
-    virtual void save_ini(boost::property_tree::ptree& ptree){};
+    virtual void load_gui(const boost::property_tree::ptree& ptree){};
+    virtual void save_gui(boost::property_tree::ptree& ptree){};
 
     /*! \brief Changes Box value without triggering any signal
      *

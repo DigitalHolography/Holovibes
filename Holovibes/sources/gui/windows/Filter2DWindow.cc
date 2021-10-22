@@ -13,9 +13,8 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* main_window)
+Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
-    , main_window_(main_window)
 {
     setMinimumSize(s);
 }
@@ -178,7 +177,7 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->current_window = WindowKind::Filter2D;
+        cd_->change_window(static_cast<int>(WindowKind::Filter2D));
         cd_->notify_observers();
     }
 }

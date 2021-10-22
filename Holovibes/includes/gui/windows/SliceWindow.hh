@@ -19,14 +19,13 @@ class MainWindow;
 class SliceWindow : public BasicOpenGLWindow
 {
   public:
-    SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k, MainWindow* main_window = nullptr);
+    SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
     virtual ~SliceWindow();
 
   protected:
     cudaArray_t cuArray;
     cudaResourceDesc cuArrRD;
     cudaSurfaceObject_t cuSurface;
-    MainWindow* main_window_;
 
     virtual void initShaders() override;
     virtual void initializeGL() override;
