@@ -7,13 +7,21 @@
     struct var##_t                                                                                                     \
     {                                                                                                                  \
         type obj;                                                                                                      \
+        type* volatile to_update = nullptr;                                                                            \
     };                                                                                                                 \
     var##_t var;                                                                                                       \
                                                                                                                        \
     void set_##var(type _val)                                                                                          \
     {                                                                                                                  \
         var.obj = _val;                                                                                                \
-        need_update<std::remove_reference_t<decltype(*this)>>(#var, &var.obj);                                         \
+        for (MicroCache * cache : micro_caches_)                                                                       \
+        {                                                                                                              \
+            decltype(this) underlying_cache = dynamic_cast<decltype(this)>(cache);                                     \
+            if (underlying_cache == nullptr)                                                                           \
+                return;                                                                                                \
+                                                                                                                       \
+            underlying_cache->var.to_update = &var.obj;                                                                \
+        }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
@@ -21,34 +29,21 @@
 
 namespace holovibes
 {
-template <class T, class First, class... Args>
-void MicroCache::register_cache(First& elem, Args&&... args)
+template <class First>
+void MicroCache::synchronize(First& elem)
 {
-    const std::string name = std::string(typeid(T).name()) + "::" + typeid(First).name();
-    elem_to_ptr_[name] = &elem;
-    elem_to_size_[name] = sizeof(First);
-    register_cache<T, Args...>(std::forward<Args>(args)...);
-}
-
-template <class T, class First>
-void MicroCache::register_cache(First& elem)
-{
-    const std::string name = std::string(typeid(T).name()) + "::" + typeid(First).name();
-    elem_to_ptr_[name] = &elem;
-    elem_to_size_[name] = sizeof(First);
-}
-
-template <typename T>
-void MicroCache::need_update(const std::string& name, void* ptr)
-{
-    for (MicroCache* cache : micro_caches_)
+    if (elem.to_update != nullptr)
     {
-        T* underlying_cache = reinterpret_cast<T*>(cache);
-        if (underlying_cache == nullptr)
-            return;
-
-        underlying_cache->to_update.emplace_back(name, ptr);
+        elem.obj = *elem.to_update;
+        elem.to_update = nullptr;
     }
+}
+
+template <class First, class... Args>
+void MicroCache::synchronize(First& elem, Args&&... args)
+{
+    synchronize<First>(elem);
+    synchronize<Args...>(std::forward<Args>(args)...);
 }
 
 } // namespace holovibes

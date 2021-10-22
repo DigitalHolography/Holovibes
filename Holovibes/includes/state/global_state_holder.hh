@@ -3,7 +3,6 @@
 #include <mutex>
 
 #include "fast_updates_holder.hh"
-#include "struct_test.hh"
 
 namespace holovibes
 {
