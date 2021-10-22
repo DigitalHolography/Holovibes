@@ -29,22 +29,31 @@
  *      };
  *      a_t a;
  *
- *      void set_a(int _val)
+ *      void set_a(const int& _val)
  *      {
  *          a.obj = _val;
+ *          trigger_a();
+ *      }
+ * 
+ *      int &get_a_ref() noexcept { return a.obj; }
+ *
+ *      void trigger_a()
+ *      {
  *          for (MicroCache * cache : micro_caches_)
  *          {
  *              decltype(this) underlying_cache = dynamic_cast<decltype(this)>(cache);
- *              if (underlying_cache == nullptr)
- *                  return;
+ *              if (this != cache || underlying_cache == nullptr)
+ *                  continue;
  *
  *              underlying_cache->a.to_update = &a.obj;
  *          }
  *      }
  *
- *    public: int get_a() { return a.obj; }
+ *    public:
+ *      const int& get_a() const noexpect { return a.obj; }
  *  };
  *
+ *  Note: for complex type parameters with commas in template parameters please use a 'using' directive
  *
  */
 
@@ -57,21 +66,28 @@
     };                                                                                                                 \
     var##_t var;                                                                                                       \
                                                                                                                        \
-    void set_##var(type _val)                                                                                          \
+    void set_##var(const type& _val)                                                                                   \
     {                                                                                                                  \
         var.obj = _val;                                                                                                \
+        trigger_##var();                                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    type& get_##var##_ref() noexcept { return var.obj; }                                                               \
+                                                                                                                       \
+    void trigger_##var()                                                                                               \
+    {                                                                                                                  \
         for (MicroCache * cache : micro_caches_)                                                                       \
         {                                                                                                              \
             decltype(this) underlying_cache = dynamic_cast<decltype(this)>(cache);                                     \
-            if (underlying_cache == nullptr)                                                                           \
-                return;                                                                                                \
+            if (this == cache || underlying_cache == nullptr)                                                          \
+                continue;                                                                                              \
                                                                                                                        \
             underlying_cache->var.to_update = &var.obj;                                                                \
         }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
-    type get_##var() { return var.obj; }
+    const type& get_##var() const noexcept { return var.obj; }
 
 namespace holovibes
 {
