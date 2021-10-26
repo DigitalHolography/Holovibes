@@ -1,6 +1,4 @@
 #include "API.hh"
-
-#include <optional>
 namespace holovibes::api
 {
 

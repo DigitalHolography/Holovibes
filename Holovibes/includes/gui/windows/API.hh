@@ -1,13 +1,15 @@
 #pragma once
 
+#include <optional>
+
 #include "logger.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
-#include "MainWindow.hh"
 #include "view_panel.hh"
 #include "AdvancedSettingsWindow.hh"
 #include "ini_config.hh"
+#include "user_interface_descriptor.hh"
 
 namespace holovibes::api
 {
