@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <list>
 #include <optional>
-#include <atomic>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -13,25 +12,13 @@
 #include <QShortcut>
 #include <QStyleFactory>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
-// Suppress all warnings in this auto-generated file
-#pragma warning(push, 0)
-#include "ui_mainwindow.h"
-#pragma warning(pop)
-
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
 #include "ini_config.hh"
-#include "tools.hh"
-#include "input_frame_file_factory.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
-#include "information_worker.hh"
 
 #include "API.hh"
 
