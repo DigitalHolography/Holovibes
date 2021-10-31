@@ -1,27 +1,21 @@
 #pragma once
 
-#include <map>
-#include <set>
-#include <type_traits>
 namespace holovibes
 {
 
 struct MicroCache
 {
-    MicroCache();
-
-    ~MicroCache();
+    MicroCache(bool truth);
 
     virtual void synchronize() = 0;
 
   protected:
-    template <class First, class... Args>
-    void synchronize(First& elem, Args&&... args);
+    const bool truth_;
+    template <class T>
+    static inline std::remove_reference_t<T>* cache_truth;
 
-    template <class First>
-    void synchronize(First& elem);
-
-    static inline std::set<MicroCache*> micro_caches_;
+    template <class T>
+    static inline std::set<std::remove_reference_t<T>*> micro_caches;
 };
 } // namespace holovibes
 

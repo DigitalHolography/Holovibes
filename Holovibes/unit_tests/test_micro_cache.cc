@@ -1,40 +1,34 @@
 #include "gtest/gtest.h"
 
+#define MICRO_CACHE_DEBUG
+
 #include "micro_cache.hh"
+
+#undef MICRO_CACHE_DEBUG
+
 #include "global_state_holder.hh"
 
 namespace holovibes
 {
 
-struct TestCache1 : public MicroCache
-{
-    MONITORED_MEMBER(int, a)
-    MONITORED_MEMBER(float, b)
-    MONITORED_MEMBER(long long, c)
+NEW_MICRO_CACHE(TestCache1,
+    (int, a),
+    (float, b),
+    (long long, c)
+)
 
-    void synchronize() override { MicroCache::synchronize(a, b, c); }
+using b_wrapper = std::vector<std::pair<float, double>>;
+using c_wrapper = std::map<std::string, std::string>;
 
-    friend struct TestMicroCache1;
-    friend struct TestMicroCache3;
-};
-
-struct TestCache2 : public MicroCache
-{
-    using b_wrapper = std::vector<std::pair<float, double>>;
-    using c_wrapper = std::map<std::string, std::string>;
-    MONITORED_MEMBER(std::string, a)
-    MONITORED_MEMBER(b_wrapper, b)
-    MONITORED_MEMBER(c_wrapper, c)
-
-    void synchronize() override { MicroCache::synchronize(a, b, c); }
-
-    friend struct TestMicroCache2;
-    friend struct TestMicroCache3;
-};
+NEW_MICRO_CACHE(TestCache2,
+    (std::string, a),
+    (b_wrapper, b),
+    (c_wrapper, c)
+)
 
 struct TestMicroCache1
 {
-    TestCache1 x;
+    TestCache1 x = true;
     TestCache1 y;
 
     TestMicroCache1()
@@ -51,7 +45,7 @@ struct TestMicroCache1
 
 struct TestMicroCache2
 {
-    TestCache2 x;
+    TestCache2 x = true;
     TestCache2 y;
 
     TestMicroCache2()
@@ -68,7 +62,7 @@ struct TestMicroCache2
 
 struct TestMicroCache3
 {
-    TestCache1 x;
+    TestCache1 x = true;
     TestCache2 y;
 
     TestMicroCache3()
@@ -139,16 +133,6 @@ TEST(TestMicroCache, stl_types_after_synchronize)
     ASSERT_EQ(test.y.get_b()[0].second, 2.0);
     ASSERT_EQ(test.y.get_c().size(), 1);
     ASSERT_EQ(test.y.get_c().at("key"), "value");
-}
-
-TEST(TestMicroCache, dont_sync_different_types)
-{
-    TestMicroCache3 test;
-
-    test.y.synchronize();
-    ASSERT_EQ(test.y.get_a(), "");
-    ASSERT_EQ(test.y.get_b().size(), 0);
-    ASSERT_EQ(test.y.get_c().size(), 0);
 }
 
 int main(int argc, char* argv[])

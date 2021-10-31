@@ -1,6 +1,8 @@
 #pragma once
 
 #include "micro_cache.hh"
+#include "map_macro.hh"
+#include "checker.hh"
 
 /*!
  * \brief This macro is the core of the micro-cache's functionning.
@@ -34,7 +36,7 @@
  *          a.obj = _val;
  *          trigger_a();
  *      }
- * 
+ *
  *      int &get_a_ref() noexcept { return a.obj; }
  *
  *      void trigger_a()
@@ -57,12 +59,14 @@
  *
  */
 
+#ifndef MICRO_CACHE_DEBUG
+
 #define MONITORED_MEMBER(type, var)                                                                                    \
   private:                                                                                                             \
     struct var##_t                                                                                                     \
     {                                                                                                                  \
         type obj;                                                                                                      \
-        type* volatile to_update = nullptr;                                                                            \
+        volatile bool to_update;                                                                                       \
     };                                                                                                                 \
     var##_t var;                                                                                                       \
                                                                                                                        \
@@ -76,36 +80,82 @@
                                                                                                                        \
     void trigger_##var()                                                                                               \
     {                                                                                                                  \
-        for (MicroCache * cache : micro_caches_)                                                                       \
-        {                                                                                                              \
-            decltype(this) underlying_cache = dynamic_cast<decltype(this)>(cache);                                     \
-            if (this == cache || underlying_cache == nullptr)                                                          \
-                continue;                                                                                              \
-                                                                                                                       \
-            underlying_cache->var.to_update = &var.obj;                                                                \
-        }                                                                                                              \
+        for (decltype(this) cache : micro_caches<decltype(*this)>)                                                     \
+            cache->var.to_update = true;                                                                               \
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
     const type& get_##var() const noexcept { return var.obj; }
 
-namespace holovibes
-{
-template <class First>
-void MicroCache::synchronize(First& elem)
-{
-    if (elem.to_update != nullptr)
-    {
-        elem.obj = *elem.to_update;
-        elem.to_update = nullptr;
+#else
+
+#define MONITORED_MEMBER(type, var)                                                                                    \
+  public:                                                                                                              \
+    struct var##_t                                                                                                     \
+    {                                                                                                                  \
+        type obj;                                                                                                      \
+        volatile bool to_update;                                                                                       \
+    };                                                                                                                 \
+    var##_t var;                                                                                                       \
+                                                                                                                       \
+    void set_##var(const type& _val)                                                                                   \
+    {                                                                                                                  \
+        var.obj = _val;                                                                                                \
+        trigger_##var();                                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    type& get_##var##_ref() noexcept { return var.obj; }                                                               \
+                                                                                                                       \
+    void trigger_##var()                                                                                               \
+    {                                                                                                                  \
+        for (decltype(this) cache : micro_caches<decltype(*this)>)                                                     \
+            cache->var.to_update = true;                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    const type& get_##var() const noexcept { return var.obj; }
+
+#endif
+
+#define SYNC_VAR(type, var)                                                                                            \
+    var.obj = cache_truth<decltype(*this)>->var.obj;                                                                   \
+    var.to_update = false;
+
+#define IF_NEED_SYNC_VAR(type, var)                                                                                    \
+    if (var.to_update)                                                                                                 \
+    {                                                                                                                  \
+        var.obj = cache_truth<decltype(*this)>->var.obj;                                                               \
+        var.to_update = false;                                                                                         \
     }
-}
 
-template <class First, class... Args>
-void MicroCache::synchronize(First& elem, Args&&... args)
-{
-    synchronize<First>(elem);
-    synchronize<Args...>(std::forward<Args>(args)...);
-}
-
-} // namespace holovibes
+#define NEW_MICRO_CACHE(name, ...)                                                                                     \
+    struct name : MicroCache                                                                                           \
+    {                                                                                                                  \
+        name(bool truth = false)                                                                                       \
+            : MicroCache(truth)                                                                                        \
+        {                                                                                                              \
+            if (truth_)                                                                                                \
+            {                                                                                                          \
+                cache_truth<decltype(*this)> = this;                                                                   \
+                return;                                                                                                \
+            }                                                                                                          \
+                                                                                                                       \
+            CHECK(cache_truth<decltype(*this)> != nullptr) << "You must register a truth cache for class: " << #name;  \
+                                                                                                                       \
+            MAP(SYNC_VAR, __VA_ARGS__)                                                                                 \
+            micro_caches<decltype(*this)>.insert(&(*this));                                                            \
+        }                                                                                                              \
+                                                                                                                       \
+        ~name()                                                                                                        \
+        {                                                                                                              \
+            if (truth_)                                                                                                \
+                cache_truth<decltype(*this)> = nullptr;                                                                \
+            else                                                                                                       \
+                micro_caches<decltype(*this)>.erase(&(*this));                                                         \
+        }                                                                                                              \
+                                                                                                                       \
+        void synchronize() override{MAP(IF_NEED_SYNC_VAR, __VA_ARGS__)}                                                \
+                                                                                                                       \
+        MAP(MONITORED_MEMBER, __VA_ARGS__);                                                                            \
+                                                                                                                       \
+        friend class GSH;                                                                                              \
+    };
