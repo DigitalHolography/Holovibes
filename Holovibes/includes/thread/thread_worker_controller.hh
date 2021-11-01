@@ -9,8 +9,8 @@ namespace holovibes::worker
 // Fast forward declaration
 class Worker;
 
-template <class T, class U>
-concept Derived = std::is_base_of<U, T>::value;
+template <class T>
+concept WorkerDerived = std::is_base_of<Worker, T>::value;
 
 /*! \class ThreadWorkerController
  *
@@ -18,7 +18,7 @@ concept Derived = std::is_base_of<U, T>::value;
  *
  * \details T must derived from the Worker class
  */
-template <Derived<Worker> T>
+template <WorkerDerived T>
 class ThreadWorkerController
 {
   public:
