@@ -23,6 +23,7 @@
  *
  *  struct ExampleCache : public MicroCache
  *  {
+ *    friend class GSH;
  *    private:
  *      struct a_t
  *      {
@@ -43,16 +44,45 @@
  *      {
  *          for (MicroCache * cache : micro_caches_)
  *          {
- *              decltype(this) underlying_cache = dynamic_cast<decltype(this)>(cache);
- *              if (this != cache || underlying_cache == nullptr)
- *                  continue;
- *
- *              underlying_cache->a.to_update = &a.obj;
+ *              for (ExampleCache cache : micro_caches<ExampleCache>) 
+ *                  cache->a.to_update = true;  
  *          }
  *      }
  *
  *    public:
  *      const int& get_a() const noexpect { return a.obj; }
+ *      
+ *    ExampleCache(bool truth = false)
+ *      : MicroCache(truth)
+ *    {
+ *        if (truth)
+ *        {
+ *            cache_truth<ExampleCache> = this;
+ *            return;
+ *        }
+ *          
+ *        assert(cache_truth<ExampleCache> != nullptr);
+ *        a.obj = cache_truth<ExampleCache>.a.obj;
+ *        a.to_update = false;
+ *        micro_caches<ExampleCache>.insert(this);
+ *    }
+ * 
+ *    ~ExampleCache()
+ *    {
+ *        if (truth_)
+ *            cache_truth<ExampleCache> = nullptr;
+ *        else
+ *            micro_caches.erase(this);
+ *    }
+ *    
+ *    void synchronize() override
+ *    {
+ *        if (a.to_update)
+ *        {
+ *            a.obj = cache_truth<ExampleCache>.a.obj;
+ *            a.to_update = false;
+ *        }
+ *    }
  *  };
  *
  *  Note: for complex type parameters with commas in template parameters please use a 'using' directive
