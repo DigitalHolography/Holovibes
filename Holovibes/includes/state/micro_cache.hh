@@ -5,13 +5,15 @@ namespace holovibes
 
 struct MicroCache;
 
+/*! \brief concept used to have better template selection over micro cache classes*/
 template <class T>
 concept MicroCacheDerived = std::is_base_of<MicroCache, std::remove_reference_t<T>>::value;
 
 struct MicroCache
 {
-    MicroCache(bool truth);
+    MicroCache(bool truth) : truth_(truth) {} 
 
+    
     virtual void synchronize() = 0;
 
   protected:
