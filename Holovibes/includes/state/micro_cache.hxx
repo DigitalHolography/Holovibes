@@ -153,7 +153,7 @@
                 micro_caches<decltype(*this)>.erase(&(*this));                                                         \
         }                                                                                                              \
                                                                                                                        \
-        void synchronize() override{MAP(IF_NEED_SYNC_VAR, __VA_ARGS__)}                                                \
+        void synchronize() override { MAP(IF_NEED_SYNC_VAR, __VA_ARGS__); }                                            \
                                                                                                                        \
         MAP(MONITORED_MEMBER, __VA_ARGS__);                                                                            \
                                                                                                                        \

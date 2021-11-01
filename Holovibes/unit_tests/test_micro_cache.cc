@@ -11,20 +11,13 @@
 namespace holovibes
 {
 
-NEW_MICRO_CACHE(TestCache1,
-    (int, a),
-    (float, b),
-    (long long, c)
-)
+NEW_MICRO_CACHE(TestCache1, (int, a), (float, b), (long long, c))
 
+// needed when typing contains commas (which are supposed to divide args of the macro)
 using b_wrapper = std::vector<std::pair<float, double>>;
 using c_wrapper = std::map<std::string, std::string>;
 
-NEW_MICRO_CACHE(TestCache2,
-    (std::string, a),
-    (b_wrapper, b),
-    (c_wrapper, c)
-)
+NEW_MICRO_CACHE(TestCache2, (std::string, a), (b_wrapper, b), (c_wrapper, c))
 
 struct TestMicroCache1
 {
@@ -60,18 +53,19 @@ struct TestMicroCache2
     }
 };
 
-struct TestMicroCache3
+TEST(TestMicroCache, register_truth_works)
 {
     TestCache1 x = true;
-    TestCache2 y;
+}
 
-    TestMicroCache3()
-    {
-        x.set_a(1);
-        x.set_b(2.0);
-        x.set_c(3);
-    }
-};
+TEST(TestMicroCache, assert_not_truth_found)
+{
+    ASSERT_DEATH(
+        {
+            TestCache1 x;
+        }, "You must register a truth cache for class: TestCache1"
+    );
+}
 
 TEST(TestMicroCache, basic_types_simple)
 {
@@ -133,6 +127,43 @@ TEST(TestMicroCache, stl_types_after_synchronize)
     ASSERT_EQ(test.y.get_b()[0].second, 2.0);
     ASSERT_EQ(test.y.get_c().size(), 1);
     ASSERT_EQ(test.y.get_c().at("key"), "value");
+}
+
+TEST(TestMicroCache, basic_types_sync_constructor)
+{
+    TestCache1 x = true;
+
+    x.set_a(1);
+    x.set_b(2.0);
+    x.set_c(3);
+
+    TestCache1 y;
+
+    ASSERT_EQ(y.get_a(), 1);
+    ASSERT_EQ(y.get_b(), 2.0);
+    ASSERT_EQ(y.get_c(), 3);
+}
+
+TEST(TestMicroCache, stl_sync_constructor)
+{
+    TestCache2 x = true;
+
+    x.get_a_ref().append("a");
+    x.get_b_ref().emplace_back(1.0, 2.0);
+    x.get_c_ref().emplace("key", "value");
+
+    x.trigger_a();
+    x.trigger_b();
+    x.trigger_c();
+
+    TestCache2 y;
+
+    ASSERT_EQ(y.get_a(), "a");
+    ASSERT_EQ(y.get_b().size(), 1);
+    ASSERT_EQ(y.get_b()[0].first, 1.0);
+    ASSERT_EQ(y.get_b()[0].second, 2.0);
+    ASSERT_EQ(y.get_c().size(), 1);
+    ASSERT_EQ(y.get_c().at("key"), "value");
 }
 
 int main(int argc, char* argv[])
