@@ -23,7 +23,6 @@
  *         (long long, r42)
  *    )
  *    ```
- *    Note: If you have commas in your variable type, consider using the 'using' directive on it.
  * 2) Put it in the Global State Holder(GSH) class and set it to be the truth cache:
  *    What's a truth cache ? The cache which is considered to be the truth and the one
  *    other caches of the same type will refer when you need to synchronize them.
@@ -50,6 +49,15 @@
  *    * Getter: Each object $X you declared has its own getter named get_$X_ref which returns a ref
  *    * Setter: Each object $X you declared has its own trigger named set_$X which set the variable
  *      and run the trigger_$X method
+ * 
+ * ------- LIMITATIONS --------
+ * 
+ * 1) If you have commas in your variable type, consider using the 'using' directive on it.
+ * 2) You cant have a variable with the same type and the same variable name in the same file
+ * 3) The macro can generate a lot of code.
+ * 4) Some macro hacks were needed to pull this off, 
+ *    for now the macro works fine on any last gen compiler.
+ * 
  */
 
 namespace holovibes
