@@ -87,10 +87,7 @@
  *
  */
 
-#ifndef MICRO_CACHE_DEBUG
-
-#define MONITORED_MEMBER(type, var)                                                                                    \
-  private:                                                                                                             \
+#define __MONITORED_MEMBER(type, var)                                                                                  \
     struct var##_t                                                                                                     \
     {                                                                                                                  \
         type obj;                                                                                                      \
@@ -114,41 +111,26 @@
                                                                                                                        \
   public:                                                                                                              \
     const type& get_##var() const noexcept { return var.obj; }
+
+#ifndef MICRO_CACHE_DEBUG
+
+#define _MONITORED_MEMBER(type, var)                                                                                   \
+  private:                                                                                                             \
+    __MONITORED_MEMBER(type, var)
 
 #else
 
 #define MONITORED_MEMBER(type, var)                                                                                    \
   public:                                                                                                              \
-    struct var##_t                                                                                                     \
-    {                                                                                                                  \
-        type obj;                                                                                                      \
-        volatile bool to_update;                                                                                       \
-    };                                                                                                                 \
-    var##_t var;                                                                                                       \
-                                                                                                                       \
-    void set_##var(const type& _val)                                                                                   \
-    {                                                                                                                  \
-        var.obj = _val;                                                                                                \
-        trigger_##var();                                                                                               \
-    }                                                                                                                  \
-                                                                                                                       \
-    type& get_##var##_ref() noexcept { return var.obj; }                                                               \
-                                                                                                                       \
-    void trigger_##var()                                                                                               \
-    {                                                                                                                  \
-        for (decltype(this) cache : micro_caches<decltype(*this)>)                                                     \
-            cache->var.to_update = true;                                                                               \
-    }                                                                                                                  \
-                                                                                                                       \
-    const type& get_##var() const noexcept { return var.obj; }
+    __MONITORED_MEMBER(type, var)
 
 #endif
 
-#define SYNC_VAR(type, var)                                                                                            \
+#define _SYNC_VAR(type, var)                                                                                           \
     var.obj = cache_truth<decltype(*this)>->var.obj;                                                                   \
     var.to_update = false;
 
-#define IF_NEED_SYNC_VAR(type, var)                                                                                    \
+#define _IF_NEED_SYNC_VAR(type, var)                                                                                   \
     if (var.to_update)                                                                                                 \
     {                                                                                                                  \
         var.obj = cache_truth<decltype(*this)>->var.obj;                                                               \
@@ -169,7 +151,7 @@
                                                                                                                        \
             CHECK(cache_truth<decltype(*this)> != nullptr) << "You must register a truth cache for class: " << #name;  \
                                                                                                                        \
-            MAP(SYNC_VAR, __VA_ARGS__)                                                                                 \
+            MAP(_SYNC_VAR, __VA_ARGS__)                                                                                \
             micro_caches<decltype(*this)>.insert(&(*this));                                                            \
         }                                                                                                              \
                                                                                                                        \
@@ -184,10 +166,10 @@
         void synchronize() override                                                                                    \
         {                                                                                                              \
             CHECK(truth_ == false) << "You can't synchronize a truth cache";                                           \
-            MAP(IF_NEED_SYNC_VAR, __VA_ARGS__);                                                                        \
+            MAP(_IF_NEED_SYNC_VAR, __VA_ARGS__);                                                                       \
         }                                                                                                              \
                                                                                                                        \
-        MAP(MONITORED_MEMBER, __VA_ARGS__);                                                                            \
+        MAP(_MONITORED_MEMBER, __VA_ARGS__);                                                                           \
                                                                                                                        \
         friend class GSH;                                                                                              \
     };
