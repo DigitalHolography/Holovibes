@@ -19,9 +19,39 @@ using c_wrapper = std::map<std::string, std::string>;
 
 NEW_MICRO_CACHE(TestCache2, (std::string, a), (b_wrapper, b), (c_wrapper, c))
 
+// Trying lots of macro recursion
+NEW_MICRO_CACHE(TestCache3,
+                (int, a2),
+                (int, b2),
+                (int, c2),
+                (int, d),
+                (int, e),
+                (int, f),
+                (int, g),
+                (int, h),
+                (int, i),
+                (int, j),
+                (int, k),
+                (int, l),
+                (int, m),
+                (int, a),
+                (int, n),
+                (int, o),
+                (int, p),
+                (int, q),
+                (int, r),
+                (int, s),
+                (int, t),
+                (int, u),
+                (int, v),
+                (int, w),
+                (int, x),
+                (int, y),
+                (int, z))
+
 struct TestMicroCache1
 {
-    TestCache1 x = true;
+    TestCache1 x{true};
     TestCache1 y;
 
     TestMicroCache1()
@@ -38,7 +68,7 @@ struct TestMicroCache1
 
 struct TestMicroCache2
 {
-    TestCache2 x = true;
+    TestCache2 x{true};
     TestCache2 y;
 
     TestMicroCache2()
@@ -53,18 +83,11 @@ struct TestMicroCache2
     }
 };
 
-TEST(TestMicroCache, register_truth_works)
-{
-    TestCache1 x = true;
-}
+TEST(TestMicroCache, register_truth_works) { TestCache1 x{true}; }
 
 TEST(TestMicroCache, assert_not_truth_found)
 {
-    ASSERT_DEATH(
-        {
-            TestCache1 x;
-        }, "You must register a truth cache for class: TestCache1"
-    );
+    ASSERT_DEATH({ TestCache1 x; }, "You must register a truth cache for class: TestCache1");
 }
 
 TEST(TestMicroCache, basic_types_simple)
@@ -131,7 +154,7 @@ TEST(TestMicroCache, stl_types_after_synchronize)
 
 TEST(TestMicroCache, basic_types_sync_constructor)
 {
-    TestCache1 x = true;
+    TestCache1 x{true};
 
     x.set_a(1);
     x.set_b(2.0);
@@ -146,7 +169,7 @@ TEST(TestMicroCache, basic_types_sync_constructor)
 
 TEST(TestMicroCache, stl_sync_constructor)
 {
-    TestCache2 x = true;
+    TestCache2 x{true};
 
     x.get_a_ref().append("a");
     x.get_b_ref().emplace_back(1.0, 2.0);
