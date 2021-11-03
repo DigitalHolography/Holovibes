@@ -95,5 +95,4 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/tools_debug.cc
 
     state/global_state_holder.cc
-    state/micro_cache.cc
 )

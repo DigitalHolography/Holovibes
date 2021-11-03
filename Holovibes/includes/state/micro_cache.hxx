@@ -14,10 +14,7 @@
  *
  * For example, consider this simple struct ExampleCache:
  *
- *  struct ExampleCache : public MicroCache
- *  {
- *      MONITORED_MEMBER(int, a)
- *  };
+ * NEW_MICRO_CACHE(ExampleCache, (int, a))
  *
  * At compile time, it will expand to:
  *
@@ -44,14 +41,14 @@
  *      {
  *          for (MicroCache * cache : micro_caches_)
  *          {
- *              for (ExampleCache cache : micro_caches<ExampleCache>) 
- *                  cache->a.to_update = true;  
+ *              for (ExampleCache cache : micro_caches<ExampleCache>)
+ *                  cache->a.to_update = true;
  *          }
  *      }
  *
  *    public:
  *      const int& get_a() const noexpect { return a.obj; }
- *      
+ *
  *    ExampleCache(bool truth = false)
  *      : MicroCache(truth)
  *    {
@@ -60,13 +57,13 @@
  *            cache_truth<ExampleCache> = this;
  *            return;
  *        }
- *          
+ *
  *        assert(cache_truth<ExampleCache> != nullptr);
  *        a.obj = cache_truth<ExampleCache>.a.obj;
  *        a.to_update = false;
  *        micro_caches<ExampleCache>.insert(this);
  *    }
- * 
+ *
  *    ~ExampleCache()
  *    {
  *        if (truth_)
@@ -74,9 +71,10 @@
  *        else
  *            micro_caches.erase(this);
  *    }
- *    
+ *
  *    void synchronize() override
  *    {
+          assert(cache_truth<ExampleCache> != this);
  *        if (a.to_update)
  *        {
  *            a.obj = cache_truth<ExampleCache>.a.obj;
@@ -183,7 +181,11 @@
                 micro_caches<decltype(*this)>.erase(&(*this));                                                         \
         }                                                                                                              \
                                                                                                                        \
-        void synchronize() override { MAP(IF_NEED_SYNC_VAR, __VA_ARGS__); }                                            \
+        void synchronize() override                                                                                    \
+        {                                                                                                              \
+            CHECK(truth_ == false) << "You can't synchronize a truth cache";                                           \
+            MAP(IF_NEED_SYNC_VAR, __VA_ARGS__);                                                                        \
+        }                                                                                                              \
                                                                                                                        \
         MAP(MONITORED_MEMBER, __VA_ARGS__);                                                                            \
                                                                                                                        \
