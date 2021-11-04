@@ -1,7 +1,7 @@
-#include <filesystem>
-#include <algorithm>
-#include <list>
-#include <optional>
+// #include <filesystem>
+// #include <algorithm>
+// #include <list>
+// #include <optional>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -13,7 +13,7 @@
 #include <QStyleFactory>
 
 #include "MainWindow.hh"
-#include "pipe.hh"
+// #include "pipe.hh"
 #include "logger.hh"
 #include "ini_config.hh"
 #include "update_exception.hh"

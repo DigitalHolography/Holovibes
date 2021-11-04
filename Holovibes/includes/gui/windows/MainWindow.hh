@@ -12,6 +12,8 @@ using json = ::nlohmann::json;
 // namespace camera
 #include "camera_exception.hh"
 
+#include "enum_camera_kind.hh"
+
 // namespace holovibes
 #include "custom_exception.hh"
 
