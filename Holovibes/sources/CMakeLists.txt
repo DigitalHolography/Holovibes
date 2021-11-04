@@ -7,6 +7,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     function_vector.cc
     queue.cc
     batch_input_queue.cc
+    API.cc
 
     tools/loguru.cpp
 
@@ -47,7 +48,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/RawWindow.cc
     gui/windows/HoloWindow.cc
     gui/windows/MainWindow.cc
-    gui/windows/API.cc
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
     gui/windows/Filter2DWindow.cc
