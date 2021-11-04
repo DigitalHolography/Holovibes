@@ -13,8 +13,6 @@ using json = ::nlohmann::json;
 #include "camera_exception.hh"
 
 // namespace holovibes
-#include "holovibes.hh"
-#include "user_interface_descriptor.hh"
 #include "custom_exception.hh"
 
 // panel struct
