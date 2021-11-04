@@ -433,7 +433,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
-// TODO: change parameter type to Observer
 bool toggle_time_transformation_cuts(uint time_transformation_size)
 {
     // if checked
