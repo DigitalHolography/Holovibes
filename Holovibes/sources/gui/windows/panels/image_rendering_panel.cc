@@ -29,7 +29,7 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
-void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(UserInterfaceDescriptor::instance().z_step_); }
+void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
 
 void ImageRenderingPanel::on_notify()
 {
@@ -62,7 +62,7 @@ void ImageRenderingPanel::on_notify()
     ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
-    ui_->ZDoubleSpinBox->setSingleStep(UserInterfaceDescriptor::instance().z_step_);
+    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
     // Filter2D
@@ -84,6 +84,8 @@ void ImageRenderingPanel::on_notify()
 
 void ImageRenderingPanel::load_gui(const boost::property_tree::ptree& ptree)
 {
+    // Step
+    z_step_ = ptree.get<double>("gui_settings.image_rendering_z_step", z_step_);
     bool h = ptree.get<bool>("window.image_rendering_hidden", isHidden());
     ui_->actionImage_rendering->setChecked(!h);
     setHidden(h);
@@ -91,6 +93,7 @@ void ImageRenderingPanel::load_gui(const boost::property_tree::ptree& ptree)
 
 void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
 {
+    ptree.put<double>("gui_settings.image_rendering_z_step", z_step_);
     ptree.put<bool>("window.image_rendering_hidden", isHidden());
 }
 
@@ -357,7 +360,7 @@ void ImageRenderingPanel::increment_z()
     if (api::is_raw_mode())
         return;
 
-    set_z(api::get_zdistance() + UserInterfaceDescriptor::instance().z_step_);
+    set_z(api::get_zdistance() + z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }
 
@@ -366,7 +369,7 @@ void ImageRenderingPanel::decrement_z()
     if (api::is_raw_mode())
         return;
 
-    set_z(api::get_zdistance() - UserInterfaceDescriptor::instance().z_step_);
+    set_z(api::get_zdistance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }
 

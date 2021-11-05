@@ -74,8 +74,6 @@ class UserInterfaceDescriptor
     std::string last_img_type_ = "Magnitude";
     ImportType import_type_ = ImportType::None;
 
-    // In API
-    double z_step_ = 0.005f;
     uint record_frame_step_ = 512;
 
     size_t auto_scale_point_threshold_ = 100;

@@ -12,6 +12,10 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     setWindowIcon(QIcon("Holovibes.ico"));
     this->show();
 
+    // FIXME belong to MainWindow so it shouldn't be accessible from advanced settings whose represent something global
+    ui.ZStepLabel->hide();
+    ui.ZStepSpinBox->hide();
+
     set_current_values();
 }
 
@@ -43,9 +47,6 @@ void AdvancedSettingsWindow::set_current_values()
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
 
-    ui.ZStepSpinBox->setValue(UserInterfaceDescriptor::instance().z_step_);
-    ui.RecordFrameStepSpinBox->setValue(UserInterfaceDescriptor::instance().record_frame_step_);
-
     ui.ReloadLabel->setVisible(false);
 }
 
@@ -71,9 +72,6 @@ void AdvancedSettingsWindow::set_ui_values()
     UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
-
-    UserInterfaceDescriptor::instance().z_step_ = ui.ZStepSpinBox->value();
-    UserInterfaceDescriptor::instance().record_frame_step_ = ui.RecordFrameStepSpinBox->value();
 
     ui.ReloadLabel->setVisible(true);
     UserInterfaceDescriptor::instance().need_close = true;
