@@ -142,7 +142,6 @@ void close_windows()
 void save_user_preferences(boost::property_tree::ptree& ptree)
 {
     // Step
-    ptree.put<double>("gui_settings.image_rendering_z_step", UserInterfaceDescriptor::instance().z_step_);
     ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
     // Camera
     ptree.put<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera));
@@ -160,8 +159,6 @@ void save_user_preferences(boost::property_tree::ptree& ptree)
 void load_user_preferences(const boost::property_tree::ptree& ptree)
 {
     // Step
-    UserInterfaceDescriptor::instance().z_step_ =
-        ptree.get<double>("gui_settings.image_rendering_z_step", UserInterfaceDescriptor::instance().z_step_);
     UserInterfaceDescriptor::instance().record_frame_step_ =
         ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
     // Chart

@@ -373,7 +373,7 @@ void MainWindow::save_gui()
     auto path = holovibes::ini::global_config_filepath;
     boost::property_tree::write_ini(path, ptree);
 
-    LOG_INFO << "GUI settings overwritten at " << path;
+    LOG_INFO << " GUI settings overwritten at " << path;
 }
 
 void MainWindow::load_ini() { api::load_compute_settings(ini::global_config_filepath); }
