@@ -8,7 +8,6 @@
 #include <QStyleFactory>
 
 #include "MainWindow.hh"
-// #include "pipe.hh"
 #include "logger.hh"
 #include "ini_config.hh"
 #include "update_exception.hh"
