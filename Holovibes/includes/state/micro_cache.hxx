@@ -120,7 +120,7 @@
 
 #else
 
-#define MONITORED_MEMBER(type, var)                                                                                    \
+#define _MONITORED_MEMBER(type, var)                                                                                   \
   public:                                                                                                              \
     __MONITORED_MEMBER(type, var)
 

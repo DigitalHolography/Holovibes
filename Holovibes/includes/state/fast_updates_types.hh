@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-#include <atomic>
-#include <type_traits>
-
 /*!
  * \brief Documentation on how to add entry types to the FastUpdatesHolder class
  *
