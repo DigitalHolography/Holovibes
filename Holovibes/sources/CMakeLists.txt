@@ -1,13 +1,13 @@
 target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
     cli.cc
-    config.cc
     ini_config.cc
     gpib_dll.cc
     options_parser.cc
     function_vector.cc
     queue.cc
     batch_input_queue.cc
+    API.cc
 
     tools/loguru.cpp
 
@@ -44,10 +44,10 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/selections/overlays/zoom_overlay.cc
     gui/selections/overlay_manager.cc
     gui/windows/BasicOpenGLWindow.cc
+    gui/windows/AdvancedSettingsWindow.cc
     gui/windows/RawWindow.cc
     gui/windows/HoloWindow.cc
     gui/windows/MainWindow.cc
-    gui/windows/API.cc
     gui/windows/PlotWindow.cc
     gui/windows/SliceWindow.cc
     gui/windows/Filter2DWindow.cc

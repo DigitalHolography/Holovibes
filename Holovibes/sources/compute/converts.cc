@@ -82,11 +82,11 @@ void Converts::insert_to_ushort()
 void Converts::insert_compute_p_accu()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        pmin_ = cd_.pindex;
-        if (cd_.p_accu_enabled)
-            pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.time_transformation_size)));
+        pmin_ = cd_.p.index;
+        if (cd_.p.accu_enabled)
+            pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
         else
-            pmax_ = cd_.pindex;
+            pmax_ = cd_.p.index;
     });
 }
 
@@ -119,20 +119,20 @@ void Converts::insert_to_squaredmodulus()
 void Converts::insert_to_composite()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.time_transformation_size) ||
-            !is_between<ushort>(cd_.composite_p_blue, 0, cd_.time_transformation_size))
+        if (!is_between<ushort>(cd_.rgb.p_min, 0, cd_.time_transformation_size) ||
+            !is_between<ushort>(cd_.rgb.p_max, 0, cd_.time_transformation_size))
             return;
 
         if (cd_.composite_kind == CompositeKind::RGB)
             rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                 buffers_.gpu_postprocess_frame,
                 fd_.get_frame_res(),
-                cd_.composite_auto_weights_,
-                cd_.composite_p_red,
-                cd_.composite_p_blue,
-                cd_.weight_r,
-                cd_.weight_g,
-                cd_.weight_b,
+                cd_.composite_auto_weights,
+                cd_.rgb.p_min,
+                cd_.rgb.p_max,
+                cd_.rgb.weight_r,
+                cd_.rgb.weight_g,
+                cd_.rgb.weight_b,
                 stream_);
         else
             hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -142,14 +142,14 @@ void Converts::insert_to_composite()
                 cd_,
                 stream_);
 
-        if (cd_.composite_auto_weights_)
+        if (cd_.composite_auto_weights)
             postcolor_normalize(buffers_.gpu_postprocess_frame,
                                 fd_.get_frame_res(),
                                 fd_.width,
                                 cd_.getCompositeZone(),
-                                cd_.weight_r,
-                                cd_.weight_g,
-                                cd_.weight_b,
+                                cd_.rgb.weight_r,
+                                cd_.rgb.weight_g,
+                                cd_.rgb.weight_b,
                                 stream_);
     });
 }

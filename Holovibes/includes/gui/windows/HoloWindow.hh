@@ -26,8 +26,7 @@ class HoloWindow : public RawWindow
                DisplayQueue* q,
                SharedPipe ic,
                std::unique_ptr<SliceWindow>& xz,
-               std::unique_ptr<SliceWindow>& yz,
-               MainWindow* main_window = nullptr);
+               std::unique_ptr<SliceWindow>& yz);
     virtual ~HoloWindow();
 
     void update_slice_transforms();
@@ -45,8 +44,6 @@ class HoloWindow : public RawWindow
     void focusInEvent(QFocusEvent* e) override;
 
   private:
-    MainWindow* main_window_;
-
     std::unique_ptr<SliceWindow>& xz_slice_;
     std::unique_ptr<SliceWindow>& yz_slice_;
 };

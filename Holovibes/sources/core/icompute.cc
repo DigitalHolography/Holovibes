@@ -212,9 +212,9 @@ void ICompute::init_cuts()
     fd_xz.height = cd_.time_transformation_size;
     fd_yz.width = cd_.time_transformation_size;
     time_transformation_env_.gpu_output_queue_xz.reset(
-        new Queue(fd_xz, global::global_config.time_transformation_cuts_output_buffer_size));
+        new Queue(fd_xz, cd_.time_transformation_cuts_output_buffer_size));
     time_transformation_env_.gpu_output_queue_yz.reset(
-        new Queue(fd_yz, global::global_config.time_transformation_cuts_output_buffer_size));
+        new Queue(fd_yz, cd_.time_transformation_cuts_output_buffer_size));
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());
 
@@ -338,17 +338,13 @@ void ICompute::request_disable_frame_record()
 
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    // Do not request anything if contrast is not enabled
-    if (!cd_.contrast_enabled)
-        return;
-
-    if (kind == WindowKind::XYview)
+    if (kind == WindowKind::XYview && cd_.xy.contrast_enabled)
         autocontrast_requested_ = true;
-    else if (kind == WindowKind::XZview)
+    else if (kind == WindowKind::XZview && cd_.xz.contrast_enabled && cd_.time_transformation_cuts_enabled)
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview)
+    else if (kind == WindowKind::YZview && cd_.yz.contrast_enabled && cd_.time_transformation_cuts_enabled)
         autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D)
+    else if (kind == WindowKind::Filter2D && cd_.filter2d.contrast_enabled && cd_.filter2d_enabled)
         autocontrast_filter2d_requested_ = true;
 }
 

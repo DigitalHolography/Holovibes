@@ -49,6 +49,7 @@ set(HOLO_INCLUDES
     includes/compute/
     includes/core/
     includes/enum/
+    includes/struct/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/
@@ -110,7 +111,10 @@ add_subdirectory(cuda_sources) # Add cuda sources to the target
 add_library("${PROJECT_NAME}_lib" STATIC
      # CMake will automatically generate C++ headers
      # (ui_xxx.h) from the following QT .ui files.
+     # Add the relevent .hh in Holovibes/includes/CMakeList.txt
+
      mainwindow.ui
+     advancedsettingswindow.ui
      plotwindow.ui
 )
 
@@ -221,6 +225,7 @@ endif()
 
 add_executable("${PROJECT_NAME}"
     mainwindow.ui
+    advancedsettingswindow.ui
     plotwindow.ui
 
     Holovibes.rc

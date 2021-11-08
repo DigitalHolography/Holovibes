@@ -7,6 +7,7 @@
 #include "ini_config.hh"
 #include "input_frame_file_factory.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
 
 namespace cli
 {
@@ -39,8 +40,9 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
 {
     std::cout << "Config:\n";
     boost::property_tree::ptree ptree;
-    holovibes::ini::save_ini(ptree, cd);
-    boost::property_tree::write_ini(std::cout, ptree);
+    // Ask if removable, cli should not change settings
+    // holovibes::ini::save_ini(cd, opts);
+    // boost::property_tree::write_ini(std::cout, ptree);
     std::cout << std::endl;
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
@@ -123,7 +125,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
         holovibes.get_compute_pipe()->request_convolution();
     }
 
-    holovibes.init_input_queue(fd);
+    holovibes.init_input_queue(fd, cd.input_buffer_size);
 
     try
     {
@@ -153,7 +155,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !cd.contrast_auto_refresh;
+    bool requested_autocontrast = !cd.xy.contrast_auto_refresh;
     while (cd.frame_record_enabled)
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -169,7 +171,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= cd.img_acc_slice_xy_level && !requested_autocontrast)
+                if (progress->first >= cd.xy.img_accu_slice_level && !requested_autocontrast)
                 {
                     holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
                     requested_autocontrast = true;
@@ -191,11 +193,12 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     {
         try
         {
-            holovibes::ini::load_ini(cd, opts.ini_path.value());
+            holovibes::api::load_compute_settings(opts.ini_path.value());
         }
         catch (std::exception&)
         {
-            LOG_WARN << "Configuration file not found, initialization with default values.";
+            LOG_WARN << "Configuration file not found.";
+            std::exit(1);
         }
     }
 
@@ -212,8 +215,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     uint nb_frames_skip = 0;
 
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && cd.img_acc_slice_xy_enabled)
-        nb_frames_skip = cd.img_acc_slice_xy_level;
+    if (!opts.noskip_acc && cd.xy.img_accu_slice_enabled)
+        nb_frames_skip = cd.xy.img_accu_slice_level;
 
     cd.frame_record_enabled = true;
 

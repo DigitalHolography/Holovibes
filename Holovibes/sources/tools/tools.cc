@@ -14,6 +14,11 @@ unsigned short upper_window_size(ushort width, ushort height) { return std::max(
 
 void get_good_size(ushort& width, ushort& height, ushort window_size)
 {
+    if (window_size == 0)
+    {
+        return;
+    }
+
     if (width > height)
     {
         height = window_size * height / width;

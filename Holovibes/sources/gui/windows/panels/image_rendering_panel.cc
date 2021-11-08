@@ -37,65 +37,64 @@ void ImageRenderingPanel::on_notify()
 
     ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
-    const uint input_queue_capacity = global::global_config.input_queue_max_size;
-
-    ui_->TimeTransformationStrideSpinBox->setValue(api::get_cd().time_transformation_stride);
-    ui_->TimeTransformationStrideSpinBox->setSingleStep(api::get_cd().batch_size);
-    ui_->TimeTransformationStrideSpinBox->setMinimum(api::get_cd().batch_size);
+    ui_->TimeTransformationStrideSpinBox->setValue(api::get_time_transformation_stride());
+    ui_->TimeTransformationStrideSpinBox->setSingleStep(api::get_batch_size());
+    ui_->TimeTransformationStrideSpinBox->setMinimum(api::get_batch_size());
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
-    api::get_cd().check_batch_size_limit(input_queue_capacity);
-    ui_->BatchSizeSpinBox->setValue(api::get_cd().batch_size);
-    ui_->BatchSizeSpinBox->setMaximum(input_queue_capacity);
+    api::check_batch_size_limit();
+    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_cd().time_transformation_cuts_enabled);
-    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_cd().space_transformation.load()));
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_time_transformation_cuts_enabled());
+    ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
     ui_->TimeTransformationComboBox->setEnabled(!is_raw);
-    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_cd().time_transformation.load()));
+    ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cd().time_transformation_cuts_enabled);
-    ui_->timeTransformationSizeSpinBox->setValue(api::get_cd().time_transformation_size);
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_time_transformation_cuts_enabled());
+    ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_cd().lambda * 1.0e9f);
+    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_cd().zdistance);
+    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(!is_raw && api::get_cd().filter2d_enabled);
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_cd().filter2d_enabled);
-    ui_->Filter2DView->setChecked(!is_raw && api::get_cd().filter2d_view_enabled);
-    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_cd().filter2d_enabled);
-    ui_->Filter2DN1SpinBox->setValue(api::get_cd().filter2d_n1);
+    ui_->Filter2D->setChecked(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
+    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_cd().filter2d_enabled);
-    ui_->Filter2DN2SpinBox->setValue(api::get_cd().filter2d_n2);
+    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
 
     // Convolution
-    ui_->ConvoCheckBox->setEnabled(api::get_cd().compute_mode == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_cd().convolution_enabled);
-    ui_->DivideConvoCheckBox->setChecked(api::get_cd().convolution_enabled && api::get_cd().divide_convolution_enabled);
+    ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+    ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
 }
 
-void ImageRenderingPanel::load_ini(const boost::property_tree::ptree& ptree)
+void ImageRenderingPanel::load_gui(const boost::property_tree::ptree& ptree)
 {
-    ui_->ImageRenderingPanel->setChecked(!ptree.get<bool>("image_rendering.hidden", isHidden()));
-
-    const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
-    if (z_step > 0.0f)
-        ui_->ZDoubleSpinBox->setSingleStep(z_step);
+    // Step
+    z_step_ = ptree.get<double>("gui_settings.image_rendering_z_step", z_step_);
+    bool h = ptree.get<bool>("window.image_rendering_hidden", isHidden());
+    ui_->actionImage_rendering->setChecked(!h);
+    setHidden(h);
 }
 
-void ImageRenderingPanel::save_ini(boost::property_tree::ptree& ptree)
+void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
 {
-    ptree.put<bool>("image_rendering.hidden", isHidden());
-    ptree.put<double>("image_rendering.z_step", z_step_);
+    ptree.put<double>("gui_settings.image_rendering_z_step", z_step_);
+    ptree.put<bool>("window.image_rendering_hidden", isHidden());
 }
 
 void ImageRenderingPanel::set_image_mode(QString mode)
@@ -108,9 +107,9 @@ void ImageRenderingPanel::set_image_mode(QString mode)
         else
             set_holographic_mode();
     }
-    else if (api::get_cd().compute_mode == Computation::Raw)
+    else if (api::get_compute_mode() == Computation::Raw)
         set_raw_mode();
-    else if (api::get_cd().compute_mode == Computation::Hologram)
+    else if (api::get_compute_mode() == Computation::Hologram)
         set_holographic_mode();
 }
 
@@ -126,7 +125,7 @@ void ImageRenderingPanel::set_raw_mode()
     if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
         return;
 
-    api::set_raw_mode(*parent_);
+    api::set_raw_mode(*parent_, parent_->window_max_size);
 
     parent_->notify();
     parent_->layout_toggled();
@@ -142,7 +141,7 @@ void ImageRenderingPanel::set_holographic_mode()
     api::close_critical_compute();
 
     camera::FrameDescriptor fd;
-    const bool res = api::set_holographic_mode(*parent_, fd);
+    const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
 
     if (res)
     {
@@ -269,7 +268,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 
     if (checked)
     {
-        api::set_filter2d_view(*parent_);
+        api::set_filter2d_view(parent_->auxiliary_window_max_size);
     }
     else
     {
@@ -292,9 +291,6 @@ void ImageRenderingPanel::disable_filter2d_view()
     }
 
     api::disable_filter2d_view();
-
-    // Change the focused window
-    parent_->change_window();
 
     parent_->notify();
 }
@@ -327,7 +323,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
     time_transformation_size = std::max(1, time_transformation_size);
 
-    if (time_transformation_size == api::get_cd().time_transformation_size)
+    if (time_transformation_size == api::get_time_transformation_size())
         return;
 
     auto callback = [=]() {
@@ -359,19 +355,13 @@ void ImageRenderingPanel::set_z(const double value)
     api::set_z(value);
 }
 
-void ImageRenderingPanel::set_z_step(const double value)
-{
-    z_step_ = value;
-    ui_->ZDoubleSpinBox->setSingleStep(value);
-}
-
 void ImageRenderingPanel::increment_z()
 {
     if (api::is_raw_mode())
         return;
 
-    set_z(api::get_cd().zdistance + z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_cd().zdistance);
+    set_z(api::get_zdistance() + z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -379,8 +369,8 @@ void ImageRenderingPanel::decrement_z()
     if (api::is_raw_mode())
         return;
 
-    set_z(api::get_cd().zdistance - z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_cd().zdistance);
+    set_z(api::get_zdistance() - z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
@@ -412,7 +402,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 void ImageRenderingPanel::set_divide_convolution_mode(const bool value)
 {
     api::set_divide_convolution_mode(value);
-    
+
     parent_->notify();
 }
 } // namespace holovibes::gui

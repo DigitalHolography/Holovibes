@@ -13,11 +13,10 @@ namespace holovibes
 {
 namespace gui
 {
-SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k, MainWindow* main_window)
+SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
-    , main_window_(main_window)
 {
     setMinimumSize(s);
 }
@@ -195,7 +194,7 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
+        cd_->change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
         cd_->notify_observers();
     }
 }

@@ -2,7 +2,7 @@
 #include <boost/program_options/parsers.hpp>
 
 #include "options_parser.hh"
-#include "config.hh"
+
 #include "logger.hh"
 
 namespace holovibes

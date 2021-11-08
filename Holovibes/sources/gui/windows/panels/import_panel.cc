@@ -13,31 +13,38 @@ namespace holovibes::gui
 ImportPanel::ImportPanel(QWidget* parent)
     : Panel(parent)
 {
-    UserInterfaceDescriptor::instance().file_input_directory_ = "C:\\";
 }
 
 ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped()); }
 
-void ImportPanel::load_ini(const boost::property_tree::ptree& ptree)
+void ImportPanel::load_gui(const boost::property_tree::ptree& ptree)
 {
-    ui_->actionImportExport->setChecked(!ptree.get<bool>("import_export.hidden", isHidden()));
-    // UserInterfaceDescriptor::instance().file_input_directory_ = ptree.get<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
+    bool h = ptree.get<bool>("window.import_export_hidden", ui_->ImportExportFrame->isHidden());
+    ui_->actionImportExport->setChecked(!h);
+    ui_->ImportExportFrame->setHidden(h);
+
     ui_->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
+    ui_->LoadFileInGpuCheckBox->setChecked(ptree.get<bool>("import.from_gpu", false));
 }
 
-void ImportPanel::save_ini(boost::property_tree::ptree& ptree)
+void ImportPanel::save_gui(boost::property_tree::ptree& ptree)
 {
-    ptree.put<bool>("import_export.hidden", ui_->ImportExportFrame->isHidden());
-    // ptree.put<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
+    ptree.put<bool>("window.import_export_hidden", ui_->ImportExportFrame->isHidden());
+
+    ptree.put<uint>("import.fps", ui_->ImportInputFpsSpinBox->value());
+    ptree.put<bool>("import.from_gpu", ui_->LoadFileInGpuCheckBox->isChecked());
 }
 
 ImportType ImportPanel::get_import_type() { return UserInterfaceDescriptor::instance().import_type_; }
 
 void ImportPanel::set_import_type(ImportType type) { UserInterfaceDescriptor::instance().import_type_ = type; }
 
-std::string& ImportPanel::get_file_input_directory() { return UserInterfaceDescriptor::instance().file_input_directory_; }
+std::string& ImportPanel::get_file_input_directory()
+{
+    return UserInterfaceDescriptor::instance().file_input_directory_;
+}
 
 void ImportPanel::set_start_stop_buttons(bool value)
 {
@@ -51,11 +58,12 @@ void ImportPanel::import_browse_file()
 
     // Open the file explorer to let the user pick his file
     // and store the chosen file in filename
-    filename = QFileDialog::getOpenFileName(this,
-                                            tr("import file"),
-                                            QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
-                                            tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
-                                               "(*.cine)"));
+    filename =
+        QFileDialog::getOpenFileName(this,
+                                     tr("import file"),
+                                     QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
+                                     tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
+                                        "(*.cine)"));
     LOG_INFO << filename.toStdString();
 
     // Start importing the chosen
@@ -66,8 +74,8 @@ void ImportPanel::import_file(const QString& filename)
 {
     // Get the widget (output bar) from the ui linked to the file explorer
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
-   
-       // Insert the newly getted path in it
+
+    // Insert the newly getted path in it
     import_line_edit->clear();
     import_line_edit->insert(filename);
 
@@ -109,7 +117,6 @@ void ImportPanel::import_file(const QString& filename)
     }
     else
         set_start_stop_buttons(false);
-
 }
 
 void ImportPanel::import_stop()

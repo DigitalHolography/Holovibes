@@ -26,8 +26,8 @@ class ImageRenderingPanel : public Panel
     void init() override;
     void on_notify() override;
 
-    void load_ini(const boost::property_tree::ptree& ptree) override;
-    void save_ini(boost::property_tree::ptree& ptree) override;
+    void load_gui(const boost::property_tree::ptree& ptree) override;
+    void save_gui(boost::property_tree::ptree& ptree) override;
 
     /*! \brief Removes 2d filter on output display */
     void cancel_filter2d();
@@ -36,12 +36,6 @@ class ImageRenderingPanel : public Panel
 
     /*! \brief Set computation mode from ui value (Raw or Holographic) */
     void set_computation_mode();
-
-    /*! \brief Modifies the z step on scroll
-     *
-     * \param value The new incrementation/decrementation step
-     */
-    void set_z_step(double value);
 
     std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 

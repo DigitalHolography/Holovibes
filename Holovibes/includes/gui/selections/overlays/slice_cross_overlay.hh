@@ -39,7 +39,7 @@ class SliceCrossOverlay : public RectOverlay
     /*! \brief Locking line overlay */
     bool locked_;
 
-    /*! \brief pindex of the mouse position */
+    /*! \brief p_index of the mouse position */
     units::PointFd pIndex_;
 };
 } // namespace gui

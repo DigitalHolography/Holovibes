@@ -1,5 +1,5 @@
 #include "pipe.hh"
-#include "config.hh"
+
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
@@ -105,8 +105,6 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 bool Pipe::make_requests()
 {
-    LOG_TRACE << "Entering Pipe::make_requests()";
-
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
 
@@ -190,7 +188,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(cd_.time_transformation_size))
         {
             success_allocation = false;
-            cd_.pindex = 0;
+            cd_.p.index = 0;
             cd_.time_transformation_size = 1;
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
@@ -228,7 +226,7 @@ bool Pipe::make_requests()
     if (raw_view_requested_)
     {
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, global::global_config.output_queue_max_size));
+        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.raw_view_enabled = true;
         raw_view_requested_ = false;
     }
@@ -236,7 +234,7 @@ bool Pipe::make_requests()
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, global::global_config.output_queue_max_size));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.filter2d_view_enabled = true;
         filter2d_view_requested_ = false;
     }
@@ -262,7 +260,7 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, global::global_config.frame_record_queue_max_size, QueueType::RECORD_QUEUE));
+            new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = false;
         hologram_record_requested_ = std::nullopt;
@@ -270,9 +268,9 @@ bool Pipe::make_requests()
 
     if (raw_record_requested_.load() != std::nullopt)
     {
-        frame_record_env_.gpu_frame_record_queue_.reset(new Queue(gpu_input_queue_.get_fd(),
-                                                                  global::global_config.frame_record_queue_max_size,
-                                                                  QueueType::RECORD_QUEUE));
+        frame_record_env_.gpu_frame_record_queue_.reset(
+            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = true;
         raw_record_requested_ = std::nullopt;
@@ -283,8 +281,6 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
-    LOG_TRACE << "Entering Pipe::refresh()";
-
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();
@@ -552,7 +548,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
+    if (cd_.get_contrast_enabled() && cd_.get_contrast_auto_refresh())
         request_autocontrast(cd_.current_window);
 }
 

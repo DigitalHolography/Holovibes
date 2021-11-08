@@ -1,6 +1,4 @@
 #include "API.hh"
-
-#include <optional>
 namespace holovibes::api
 {
 
@@ -27,8 +25,8 @@ bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     // Set the image rendering ui params
-    get_cd().time_transformation_stride = std::ceil(static_cast<float>(fps) / 20.0f);
-    get_cd().batch_size = 1;
+    get_cd().set_time_transformation_stride(std::ceil(static_cast<float>(fps) / 20.0f));
+    get_cd().set_batch_size(1);
 
     // Because we are in import mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
@@ -36,7 +34,8 @@ bool init_holovibes_import_mode(
     try
     {
 
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_);
+        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
+                                               get_cd().get_input_buffer_size());
         Holovibes::instance().start_file_frame_read(file_path,
                                                     true,
                                                     fps,
@@ -110,7 +109,7 @@ const std::string get_credits()
            "Michael Atlan\n";
 }
 
-bool is_raw_mode() { return get_cd().compute_mode == Computation::Raw; }
+bool is_raw_mode() { return get_cd().get_compute_mode() == Computation::Raw; }
 
 bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
 
@@ -123,114 +122,75 @@ void close_windows()
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    get_cd().gpu_lens_display_enabled = false;
+    get_cd().set_lens_view_enabled(false);
 
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    get_cd().filter2d_view_enabled = false;
+    get_cd().set_filter2d_view_enabled(false);
 
     /* Raw view & recording */
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-    get_cd().raw_view_enabled = false;
+    get_cd().set_raw_view_enabled(false);
 
     // Disable overlays
-    get_cd().reticle_enabled = false;
+    get_cd().set_reticle_view_enabled(false);
 }
 
 #pragma endregion
 
 #pragma region Ini
 
-void configure_holovibes() { open_file(::holovibes::ini::default_config_filepath); }
-
-void load_ini(const std::string& path, boost::property_tree::ptree& ptree)
+void save_user_preferences(boost::property_tree::ptree& ptree)
 {
-    boost::property_tree::ini_parser::read_ini(path, ptree);
-
-    if (!ptree.empty())
-    {
-        // Load general compute data
-        ini::load_ini(ptree, get_cd());
-
-        // Load window specific data
-        UserInterfaceDescriptor::instance().default_output_filename_ =
-            ptree.get<std::string>("files.default_output_filename",
-                                   UserInterfaceDescriptor::instance().default_output_filename_);
-        UserInterfaceDescriptor::instance().record_output_directory_ =
-            ptree.get<std::string>("files.record_output_directory",
-                                   UserInterfaceDescriptor::instance().record_output_directory_);
-        UserInterfaceDescriptor::instance().file_input_directory_ =
-            ptree.get<std::string>("files.file_input_directory",
-                                   UserInterfaceDescriptor::instance().file_input_directory_);
-        UserInterfaceDescriptor::instance().batch_input_directory_ =
-            ptree.get<std::string>("files.batch_input_directory",
-                                   UserInterfaceDescriptor::instance().batch_input_directory_);
-        /*
-                const float z_step = ptree.get<float>("image_rendering.z_step",
-           UserInterfaceDescriptor::instance().z_step_); if (z_step > 0.0f) mainwindow.set_z_step(z_step);
-        */
-        UserInterfaceDescriptor::instance().last_img_type_ = get_cd().img_type == ImgType::Composite
-                                                                 ? "Composite image"
-                                                                 : UserInterfaceDescriptor::instance().last_img_type_;
-
-        UserInterfaceDescriptor::instance().displayAngle =
-            ptree.get("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
-        UserInterfaceDescriptor::instance().xzAngle =
-            ptree.get<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle);
-        UserInterfaceDescriptor::instance().yzAngle =
-            ptree.get<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle);
-        UserInterfaceDescriptor::instance().displayFlip =
-            ptree.get("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
-        UserInterfaceDescriptor::instance().xzFlip =
-            ptree.get("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip);
-        UserInterfaceDescriptor::instance().yzFlip =
-            ptree.get("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip);
-
-        UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
-            ptree.get<size_t>("chart.auto_scale_point_threshold",
-                              UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-        UserInterfaceDescriptor::instance().window_max_size = ptree.get<uint>("display.main_window_max_size", 768);
-        UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size =
-            ptree.get<uint>("display.time_transformation_cuts_window_max_size", 512);
-        UserInterfaceDescriptor::instance().auxiliary_window_max_size =
-            ptree.get<uint>("display.auxiliary_window_max_size", 512);
-    }
-}
-
-void save_ini(const std::string& path, boost::property_tree::ptree& ptree)
-{
-    // Save general compute data
-    ini::save_ini(ptree, get_cd());
-
-    // Save window specific data
+    // Step
+    ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
+    // Camera
+    ptree.put<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera));
+    // Chart
+    ptree.put<size_t>("chart.auto_scale_point_threshold",
+                      UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
+    // Files
     ptree.put<std::string>("files.default_output_filename",
                            UserInterfaceDescriptor::instance().default_output_filename_);
     ptree.put<std::string>("files.record_output_directory",
                            UserInterfaceDescriptor::instance().record_output_directory_);
     ptree.put<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
     ptree.put<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
+}
+void load_user_preferences(const boost::property_tree::ptree& ptree)
+{
+    // Step
+    UserInterfaceDescriptor::instance().record_frame_step_ =
+        ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
+    // Chart
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
+        ptree.get<size_t>("chart.auto_scale_point_threshold",
+                          UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
+    // Camera
+    UserInterfaceDescriptor::instance().kCamera = static_cast<CameraKind>(
+        ptree.get<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera)));
+    // Files
+    UserInterfaceDescriptor::instance().default_output_filename_ =
+        ptree.get<std::string>("files.default_output_filename",
+                               UserInterfaceDescriptor::instance().default_output_filename_);
+    UserInterfaceDescriptor::instance().record_output_directory_ =
+        ptree.get<std::string>("files.record_output_directory",
+                               UserInterfaceDescriptor::instance().record_output_directory_);
+    UserInterfaceDescriptor::instance().file_input_directory_ =
+        ptree.get<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
+    UserInterfaceDescriptor::instance().batch_input_directory_ =
+        ptree.get<std::string>("files.batch_input_directory",
+                               UserInterfaceDescriptor::instance().batch_input_directory_);
+}
 
-    ptree.put<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera));
-
-    // ptree.put<double>("image_rendering.z_step", UserInterfaceDescriptor::instance().z_step_);
-
-    ptree.put<float>("view.mainWindow_rotate", UserInterfaceDescriptor::instance().displayAngle);
-    ptree.put<float>("view.xCut_rotate", UserInterfaceDescriptor::instance().xzAngle);
-    ptree.put<float>("view.yCut_rotate", UserInterfaceDescriptor::instance().yzAngle);
-    ptree.put<int>("view.mainWindow_flip", UserInterfaceDescriptor::instance().displayFlip);
-    ptree.put<int>("view.xCut_flip", UserInterfaceDescriptor::instance().xzFlip);
-    ptree.put<int>("view.yCut_flip", UserInterfaceDescriptor::instance().yzFlip);
-
-    ptree.put<size_t>("chart.auto_scale_point_threshold",
-                      UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-
-    ptree.put<uint>("record.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-
-    ptree.put<uint>("display.main_window_max_size", UserInterfaceDescriptor::instance().window_max_size);
-    ptree.put<uint>("display.time_transformation_cuts_window_max_size",
-                    UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size);
-    ptree.put<uint>("display.auxiliary_window_max_size", UserInterfaceDescriptor::instance().auxiliary_window_max_size);
-
-    boost::property_tree::write_ini(path, ptree);
+void load_compute_settings(const std::string& path)
+{
+    // Load general compute data
+    ini::load_compute_settings(get_cd(), path);
+}
+void save_compute_settings(const std::string& path)
+{
+    // Save general compute data
+    ini::save_compute_settings(get_cd(), path);
 }
 
 #pragma endregion
@@ -246,7 +206,7 @@ void camera_none()
     Holovibes::instance().stop_frame_read();
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-    get_cd().is_computation_stopped = true;
+    get_cd().set_computation_stopped(true);
 }
 
 #pragma endregion
@@ -264,8 +224,6 @@ bool change_camera(CameraKind c, const Computation computation)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
-        set_camera_timeout();
-
         set_computation_mode(computation);
 
         Holovibes::instance().start_camera_frame_read(c);
@@ -273,7 +231,7 @@ bool change_camera(CameraKind c, const Computation computation)
         UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
         UserInterfaceDescriptor::instance().kCamera = c;
 
-        get_cd().is_computation_stopped = false;
+        get_cd().set_computation_stopped(false);
 
         res = true;
     }
@@ -294,8 +252,6 @@ void configure_camera()
     open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
 }
 
-void set_camera_timeout() { camera::FRAME_TIMEOUT = global::global_config.frame_timeout; }
-
 #pragma endregion
 
 #pragma region Image Mode
@@ -310,31 +266,7 @@ void init_image_mode(QPoint& position, QSize& size)
     }
 }
 
-// TODO: change parameter type to Observer
-void set_raw_mode(gui::MainWindow& observer)
-{
-    QPoint pos(0, 0);
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
-    QSize size(width, height);
-    init_image_mode(pos, size);
-    get_cd().compute_mode = Computation::Raw;
-    create_pipe(observer);
-    UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
-    UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
-    std::string fd_info =
-        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-    unset_convolution_mode();
-    set_divide_convolution_mode(false);
-}
-
-// TODO: change parameter type to Observer
-void create_pipe(gui::MainWindow& observer)
+void create_pipe(Observer& observer)
 {
     try
     {
@@ -347,34 +279,53 @@ void create_pipe(gui::MainWindow& observer)
     }
 }
 
-// TODO: change parameter type to Observer
-void create_holo_window(gui::MainWindow& observer)
+void set_raw_mode(Observer& observer, uint window_max_size)
 {
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
-    get_good_size(width, height, UserInterfaceDescriptor::instance().window_max_size);
+    get_good_size(width, height, window_max_size);
+    QSize size(width, height);
+    init_image_mode(pos, size);
+    get_cd().set_compute_mode(Computation::Raw);
+    create_pipe(observer);
+    UserInterfaceDescriptor::instance().mainDisplay.reset(
+        new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
+    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
+    UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
+    UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
+    std::string fd_info =
+        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+    unset_convolution_mode();
+    set_divide_convolution_mode(false);
+}
+
+void create_holo_window(ushort window_size)
+{
+    QPoint pos(0, 0);
+    const camera::FrameDescriptor& fd = get_fd();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    get_good_size(width, height, window_size);
     QSize size(width, height);
     init_image_mode(pos, size);
     /* ---------- */
     try
     {
-        // TODO: ctor should take Observer as last param instead of MainWindow
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue().get(),
                                 get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ,
-                                &observer));
+                                UserInterfaceDescriptor::instance().sliceYZ));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(UserInterfaceDescriptor::instance().displayAngle);
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(UserInterfaceDescriptor::instance().displayFlip);
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_cd().get_rotation());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_cd().get_flip_enabled());
         UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
                                                                   static_cast<float>(height));
     }
@@ -384,22 +335,21 @@ void create_holo_window(gui::MainWindow& observer)
     }
 }
 
-// TODO: change parameter type to Observer
-bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd)
+bool set_holographic_mode(Observer& observer, ushort window_size, camera::FrameDescriptor& fd)
 {
     /* ---------- */
     try
     {
-        get_cd().compute_mode = Computation::Hologram;
+        get_cd().set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
         create_pipe(observer);
-        create_holo_window(observer);
+        create_holo_window(window_size);
         /* Info Manager */
         fd = get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
-        get_cd().contrast_enabled = true;
+        get_cd().set_contrast_enabled(true);
 
         return true;
     }
@@ -411,8 +361,9 @@ bool set_holographic_mode(gui::MainWindow& observer, camera::FrameDescriptor& fd
     return false;
 }
 
-// TODO: change parameter type to Observer
-void refresh_view_mode(gui::MainWindow& observer, uint index)
+// TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
+// dictionary
+void refresh_view_mode(Observer& observer, ushort window_size, uint index)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
@@ -425,12 +376,12 @@ void refresh_view_mode(gui::MainWindow& observer, uint index)
     close_windows();
     close_critical_compute();
 
-    get_cd().img_type = static_cast<ImgType>(index);
+    get_cd().set_img_type(static_cast<ImgType>(index));
 
     try
     {
         create_pipe(observer);
-        create_holo_window(observer);
+        create_holo_window(window_size);
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
@@ -479,8 +430,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
-// TODO: change parameter type to Observer
-bool toggle_time_transformation_cuts(gui::MainWindow& observer)
+bool toggle_time_transformation_cuts(uint time_transformation_size)
 {
     // if checked
     try
@@ -492,11 +442,6 @@ bool toggle_time_transformation_cuts(gui::MainWindow& observer)
                        QPoint(0, UserInterfaceDescriptor::instance().mainDisplay->height() + 42);
         QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
-        const ushort nImg = get_cd().time_transformation_size;
-        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-        if (time_transformation_size > UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size)
-            time_transformation_size = UserInterfaceDescriptor::instance().time_transformation_cuts_window_max_size;
 
         while (get_compute_pipe()->get_update_time_transformation_size_request())
             continue;
@@ -507,26 +452,24 @@ bool toggle_time_transformation_cuts(gui::MainWindow& observer)
             xzPos,
             QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
             get_compute_pipe()->get_stft_slice_queue(0).get(),
-            gui::KindOfView::SliceXZ,
-            &observer));
+            gui::KindOfView::SliceXZ));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(UserInterfaceDescriptor::instance().xzAngle);
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(UserInterfaceDescriptor::instance().xzFlip);
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_cd().get_xz_rot());
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_cd().get_xz_flip_enabled());
         UserInterfaceDescriptor::instance().sliceXZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
             QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
             get_compute_pipe()->get_stft_slice_queue(1).get(),
-            gui::KindOfView::SliceYZ,
-            &observer));
+            gui::KindOfView::SliceYZ));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(UserInterfaceDescriptor::instance().yzAngle);
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(UserInterfaceDescriptor::instance().yzFlip);
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_cd().get_yz_rot());
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_cd().get_yz_flip_enabled());
         UserInterfaceDescriptor::instance().sliceYZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().time_transformation_cuts_enabled = true;
+        get_cd().set_time_transformation_cuts_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -542,13 +485,6 @@ bool toggle_time_transformation_cuts(gui::MainWindow& observer)
 
 void cancel_time_transformation_cuts(std::function<void()> callback)
 {
-    get_cd().contrast_max_slice_xz = false;
-    get_cd().contrast_max_slice_yz = false;
-    get_cd().log_scale_slice_xz_enabled = false;
-    get_cd().log_scale_slice_yz_enabled = false;
-    get_cd().img_acc_slice_xz_enabled = false;
-    get_cd().img_acc_slice_yz_enabled = false;
-
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -572,30 +508,18 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         LOG_ERROR << e.what();
     }
 
-    get_cd().time_transformation_cuts_enabled = false;
+    get_cd().set_time_transformation_cuts_enabled(false);
 }
 
 #pragma endregion
 
 #pragma region Computation
 
-void change_window(const int index)
-{
-    if (index == 0)
-        get_cd().current_window = WindowKind::XYview;
-    else if (index == 1)
-        get_cd().current_window = WindowKind::XZview;
-    else if (index == 2)
-        get_cd().current_window = WindowKind::YZview;
-    else if (index == 3)
-        get_cd().current_window = WindowKind::Filter2D;
-
-    pipe_refresh();
-}
+void change_window(const int index) { get_cd().change_window(index); }
 
 void toggle_renormalize(bool value)
 {
-    get_cd().renorm_enabled = value;
+    get_cd().set_renorm_enabled(value);
     get_compute_pipe()->request_clear_img_acc();
 
     pipe_refresh();
@@ -603,15 +527,24 @@ void toggle_renormalize(bool value)
 
 void set_filter2d()
 {
-    get_cd().filter2d_enabled = true;
+    get_cd().set_filter2d_enabled(true);
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
         pipe->autocontrast_end_pipe(WindowKind::XYview);
+        if (get_cd().time_transformation_cuts_enabled)
+        {
+            pipe->autocontrast_end_pipe(WindowKind::XZview);
+            pipe->autocontrast_end_pipe(WindowKind::YZview);
+        }
+        if (get_cd().filter2d_view_enabled)
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+    }
 
     pipe_refresh();
 }
 
-void set_filter2d_view(gui::MainWindow& observer)
+void set_filter2d_view(uint auxiliary_window_max_size)
 {
     auto pipe = get_compute_pipe();
     if (pipe)
@@ -625,9 +558,7 @@ void set_filter2d_view(gui::MainWindow& observer)
         const camera::FrameDescriptor& fd = get_fd();
         ushort filter2d_window_width = fd.width;
         ushort filter2d_window_height = fd.height;
-        get_good_size(filter2d_window_width,
-                      filter2d_window_height,
-                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+        get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
 
         // set positions of new windows according to the position of the
         // main GL window
@@ -636,13 +567,12 @@ void set_filter2d_view(gui::MainWindow& observer)
         UserInterfaceDescriptor::instance().filter2d_window.reset(
             new gui::Filter2DWindow(pos,
                                     QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get(),
-                                    &observer));
+                                    pipe->get_filter2d_view_queue().get()));
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
         UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
-        get_cd().set_log_scale_slice_enabled(WindowKind::Filter2D, true);
+        get_cd().set_log_scale_filter2d_enabled(true);
         pipe->autocontrast_end_pipe(WindowKind::Filter2D);
     }
 
@@ -664,11 +594,12 @@ void disable_filter2d_view()
     }
 }
 
-void cancel_filter2d() { get_cd().filter2d_enabled = false; }
+void cancel_filter2d() { get_cd().set_filter2d_enabled(false); }
 
 void set_fft_shift(const bool value)
 {
-    get_cd().fft_shift_enabled = value;
+    get_cd().set_fft_shift_enabled(value);
+
     pipe_refresh();
 }
 
@@ -679,7 +610,7 @@ void set_time_transformation_size(std::function<void()> callback)
         pipe->insert_fn_end_vect(callback);
 }
 
-bool set_lens_view()
+bool set_lens_view(uint auxiliary_window_max_size)
 {
     bool res = false;
 
@@ -694,9 +625,7 @@ bool set_lens_view()
         const ::camera::FrameDescriptor& fd = get_fd();
         ushort lens_window_width = fd.width;
         ushort lens_window_height = fd.height;
-        get_good_size(lens_window_width,
-                      lens_window_height,
-                      UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+        get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
         UserInterfaceDescriptor::instance().lens_window.reset(
             new gui::RawWindow(pos,
@@ -719,13 +648,13 @@ bool set_lens_view()
 
 void disable_lens_view()
 {
-    get_cd().gpu_lens_display_enabled = false;
+    get_cd().set_lens_view_enabled(false);
     get_compute_pipe()->request_disable_lens_view();
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     pipe_refresh();
 }
 
-void set_raw_view()
+void set_raw_view(uint auxiliary_window_max_size)
 {
     auto pipe = get_compute_pipe();
     pipe->request_raw_view();
@@ -737,7 +666,7 @@ void set_raw_view()
     const ::camera::FrameDescriptor& fd = get_fd();
     ushort raw_window_width = fd.width;
     ushort raw_window_height = fd.height;
-    get_good_size(raw_window_width, raw_window_height, UserInterfaceDescriptor::instance().auxiliary_window_max_size);
+    get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
 
     // set positions of new windows according to the position of the main GL
     // window and Lens window
@@ -769,121 +698,123 @@ void disable_raw_view()
 void set_p_accu(bool is_p_accu, uint p_value)
 {
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-    get_cd().p_accu_enabled = is_p_accu;
-    get_cd().p_acc_level = p_value;
+    get_cd().set_p_accu(is_p_accu, p_value);
     pipe_refresh();
 }
 
 void set_x_accu(bool is_x_accu, uint x_value)
 {
-    get_cd().x_accu_enabled = is_x_accu;
-    get_cd().x_acc_level = x_value;
+    get_cd().set_x_accu(is_x_accu, x_value);
     pipe_refresh();
 }
 
 void set_y_accu(bool is_y_accu, uint y_value)
 {
-    get_cd().y_accu_enabled = is_y_accu;
-    get_cd().y_acc_level = y_value;
+    get_cd().set_y_accu(is_y_accu, y_value);
     pipe_refresh();
 }
 
 void set_x_y(uint x, uint y)
 {
-    const camera::FrameDescriptor& frame_descriptor = get_fd();
+    /* TODO: app logic as to be in ManWindow
+            // frame_descriptor can be unvalid
+            const camera::FrameDescriptor& frame_descriptor = get_fd();
 
-    if (x < frame_descriptor.width)
-        get_cd().x_cuts = x;
+            if (x < frame_descriptor.width)
+                get_cd().set_x_cuts(x);
 
-    if (y < frame_descriptor.height)
-        get_cd().y_cuts = y;
+            if (y < frame_descriptor.height)
+                get_cd().set_y_cuts(y);
+    */
+
+    get_cd().set_x_cuts(x);
+    get_cd().set_y_cuts(y);
 }
 
-void set_q(int value) { get_cd().q_index = value; }
+void set_q(int value) { get_cd().set_q_index(value); }
 
 void set_q_accu(bool is_q_accu, uint q_value)
 {
-    get_cd().q_acc_enabled = is_q_accu;
-    get_cd().q_acc_level = q_value;
+    get_cd().set_q_accu(is_q_accu, q_value);
     pipe_refresh();
 }
 
 void set_p(int value)
 {
-    get_cd().pindex = value;
+    get_cd().set_p_index(value);
+
     pipe_refresh();
 }
 
 void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 {
-    get_cd().composite_p_red = composite_p_red;
-    get_cd().composite_p_blue = composite_p_blue;
+    get_cd().set_rgb_p_min(composite_p_red);
+    get_cd().set_rgb_p_max(composite_p_blue);
+
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
-    get_cd().composite_p_min_h = composite_p_min_h;
+    get_cd().set_composite_p_min_h(composite_p_min_h);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
-    get_cd().composite_p_max_h = composite_p_max_h;
+    get_cd().set_composite_p_max_h(composite_p_max_h);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 {
-    get_cd().composite_p_min_s = composite_p_min_s;
+    get_cd().set_composite_p_min_s(composite_p_min_s);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 {
-    get_cd().composite_p_max_s = composite_p_max_s;
+    get_cd().set_composite_p_max_s(composite_p_max_s);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 {
-    get_cd().composite_p_min_v = composite_p_min_v;
+    get_cd().set_composite_p_min_v(composite_p_min_v);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 {
-    get_cd().composite_p_max_v = composite_p_max_v;
+    get_cd().set_composite_p_max_v(composite_p_max_v);
     pipe_refresh();
 }
 
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 {
-    get_cd().weight_r = weight_r;
-    get_cd().weight_g = weight_g;
-    get_cd().weight_b = weight_b;
+    get_cd().set_weight_rgb(weight_r, weight_g, weight_b);
     pipe_refresh();
 }
 
-void set_composite_auto_weights(bool value) { get_cd().composite_auto_weights_ = value; }
+void set_composite_auto_weights(bool value) { get_cd().set_composite_auto_weights(value); }
 
-void select_composite_rgb() { get_cd().composite_kind = CompositeKind::RGB; }
+void select_composite_rgb() { get_cd().set_composite_kind(CompositeKind::RGB); }
 
-void select_composite_hsv() { get_cd().composite_kind = CompositeKind::HSV; }
+void select_composite_hsv() { get_cd().set_composite_kind(CompositeKind::HSV); }
 
 void actualize_frequency_channel_s(bool composite_p_activated_s)
 {
-    get_cd().composite_p_activated_s = composite_p_activated_s;
+    get_cd().set_composite_p_activated_s(composite_p_activated_s);
 }
 
 void actualize_frequency_channel_v(bool composite_p_activated_v)
 {
-    get_cd().composite_p_activated_v = composite_p_activated_v;
+    get_cd().set_composite_p_activated_v(composite_p_activated_v);
 }
 
-void actualize_selection_h_gaussian_blur(bool h_blur_activated) { get_cd().h_blur_activated = h_blur_activated; }
+void actualize_selection_h_gaussian_blur(bool h_blur_activated) { get_cd().set_h_blur_activated(h_blur_activated); }
 
-void actualize_kernel_size_blur(uint h_blur_kernel_size) { get_cd().h_blur_kernel_size = h_blur_kernel_size; }
+void actualize_kernel_size_blur(uint h_blur_kernel_size) { get_cd().set_h_blur_kernel_size(h_blur_kernel_size); }
 
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
@@ -902,20 +833,16 @@ bool slide_update_threshold(
     return false;
 }
 
-void increment_p() { get_cd().pindex++; }
-
-void decrement_p() { get_cd().pindex--; }
-
 void set_wavelength(const double value)
 {
-    get_cd().lambda = static_cast<float>(value) * 1.0e-9f;
+    get_cd().set_lambda(static_cast<float>(value) * 1.0e-9f);
 
     pipe_refresh();
 }
 
 void set_z(const double value)
 {
-    get_cd().zdistance = static_cast<float>(value);
+    get_cd().set_zdistance(static_cast<float>(value));
 
     pipe_refresh();
 }
@@ -923,15 +850,15 @@ void set_z(const double value)
 void set_space_transformation(const std::string& value)
 {
     if (value == "None")
-        get_cd().space_transformation = SpaceTransformation::None;
+        get_cd().set_space_transformation(SpaceTransformation::None);
     else if (value == "1FFT")
-        get_cd().space_transformation = SpaceTransformation::FFT1;
+        get_cd().set_space_transformation(SpaceTransformation::FFT1);
     else if (value == "2FFT")
-        get_cd().space_transformation = SpaceTransformation::FFT2;
+        get_cd().set_space_transformation(SpaceTransformation::FFT2);
     else
     {
         // Shouldn't happen
-        get_cd().space_transformation = SpaceTransformation::None;
+        get_cd().set_space_transformation(SpaceTransformation::None);
         LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
 }
@@ -939,22 +866,23 @@ void set_space_transformation(const std::string& value)
 void set_time_transformation(const std::string& value)
 {
     if (value == "STFT")
-        get_cd().time_transformation = TimeTransformation::STFT;
+        get_cd().set_time_transformation(TimeTransformation::STFT);
     else if (value == "PCA")
-        get_cd().time_transformation = TimeTransformation::PCA;
+        get_cd().set_time_transformation(TimeTransformation::PCA);
     else if (value == "None")
-        get_cd().time_transformation = TimeTransformation::NONE;
+        get_cd().set_time_transformation(TimeTransformation::NONE);
     else if (value == "SSA_STFT")
-        get_cd().time_transformation = TimeTransformation::SSA_STFT;
+        get_cd().set_time_transformation(TimeTransformation::SSA_STFT);
 }
 
 void adapt_time_transformation_stride_to_batch_size()
 {
     if (get_cd().time_transformation_stride < get_cd().batch_size)
-        get_cd().time_transformation_stride = get_cd().batch_size.load();
+        get_cd().set_time_transformation_stride(get_cd().batch_size.load());
     // Go to lower multiple
     if (get_cd().time_transformation_stride % get_cd().batch_size != 0)
-        get_cd().time_transformation_stride -= get_cd().time_transformation_stride % get_cd().batch_size;
+        get_cd().set_time_transformation_stride(get_cd().time_transformation_stride -
+                                                get_cd().time_transformation_stride % get_cd().batch_size);
 }
 
 void set_unwrapping_2d(const bool value)
@@ -983,7 +911,7 @@ void set_composite_area()
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
 
-void set_computation_mode(const Computation computation) { get_cd().compute_mode = computation; }
+void set_computation_mode(const Computation computation) { get_cd().set_compute_mode(computation); }
 
 void close_critical_compute()
 {
@@ -998,9 +926,9 @@ void close_critical_compute()
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
 
-bool get_img_acc_slice_enabled() { return get_cd().get_img_acc_slice_enabled(api::get_current_window()); }
+bool get_img_accu_slice_enabled() { return get_cd().get_img_accu_slice_enabled(); }
 
-unsigned get_img_acc_slice_level() { return get_cd().get_img_acc_slice_level(api::get_current_window()); }
+unsigned get_img_accu_slice_level() { return get_cd().get_img_accu_slice_level(); }
 
 int get_gpu_input_queue_fd_width() { return get_fd().width; }
 
@@ -1014,51 +942,26 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 void rotateTexture()
 {
-    const WindowKind curWin = get_cd().current_window;
+    get_cd().change_angle();
 
-    if (curWin == WindowKind::XYview)
-    {
-        UserInterfaceDescriptor::instance().displayAngle =
-            (UserInterfaceDescriptor::instance().displayAngle == 270.f)
-                ? 0.f
-                : UserInterfaceDescriptor::instance().displayAngle + 90.f;
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(UserInterfaceDescriptor::instance().displayAngle);
-    }
-    else if (UserInterfaceDescriptor::instance().sliceXZ && curWin == WindowKind::XZview)
-    {
-        UserInterfaceDescriptor::instance().xzAngle = (UserInterfaceDescriptor::instance().xzAngle == 270.f)
-                                                          ? 0.f
-                                                          : UserInterfaceDescriptor::instance().xzAngle + 90.f;
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(UserInterfaceDescriptor::instance().xzAngle);
-    }
-    else if (UserInterfaceDescriptor::instance().sliceYZ && curWin == WindowKind::YZview)
-    {
-        UserInterfaceDescriptor::instance().yzAngle = (UserInterfaceDescriptor::instance().yzAngle == 270.f)
-                                                          ? 0.f
-                                                          : UserInterfaceDescriptor::instance().yzAngle + 90.f;
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(UserInterfaceDescriptor::instance().yzAngle);
-    }
+    if (get_cd().current_window == WindowKind::XYview)
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_cd().get_xy_rot());
+    else if (UserInterfaceDescriptor::instance().sliceXZ && get_cd().get_current_window() == WindowKind::XZview)
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_cd().get_xz_rot());
+    else if (UserInterfaceDescriptor::instance().sliceYZ && get_cd().get_current_window() == WindowKind::YZview)
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_cd().get_yz_rot());
 }
 
 void flipTexture()
 {
-    const WindowKind curWin = get_cd().current_window;
+    get_cd().change_flip();
 
-    if (curWin == WindowKind::XYview)
-    {
-        UserInterfaceDescriptor::instance().displayFlip = !UserInterfaceDescriptor::instance().displayFlip;
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(UserInterfaceDescriptor::instance().displayFlip);
-    }
-    else if (UserInterfaceDescriptor::instance().sliceXZ && curWin == WindowKind::XZview)
-    {
-        UserInterfaceDescriptor::instance().xzFlip = !UserInterfaceDescriptor::instance().xzFlip;
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(UserInterfaceDescriptor::instance().xzFlip);
-    }
-    else if (UserInterfaceDescriptor::instance().sliceYZ && curWin == WindowKind::YZview)
-    {
-        UserInterfaceDescriptor::instance().yzFlip = !UserInterfaceDescriptor::instance().yzFlip;
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(UserInterfaceDescriptor::instance().yzFlip);
-    }
+    if (get_cd().get_current_window() == WindowKind::XYview)
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_cd().get_xy_flip_enabled());
+    else if (UserInterfaceDescriptor::instance().sliceXZ && get_cd().get_current_window() == WindowKind::XZview)
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_cd().get_xz_flip_enabled());
+    else if (UserInterfaceDescriptor::instance().sliceYZ && get_cd().get_current_window() == WindowKind::YZview)
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_cd().get_yz_flip_enabled());
 }
 
 #pragma endregion
@@ -1067,8 +970,7 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
-    get_cd().contrast_enabled = value;
-    get_cd().contrast_auto_refresh = true;
+    get_cd().set_contrast_enabled(value);
     pipe_refresh();
 }
 
@@ -1144,20 +1046,20 @@ void set_contrast_max(const double value)
 
 void invert_contrast(bool value)
 {
-    get_cd().contrast_invert = value;
+    get_cd().set_contrast_invert(value);
     pipe_refresh();
 }
 
 void set_auto_refresh_contrast(bool value)
 {
-    get_cd().contrast_auto_refresh = value;
+    get_cd().set_contrast_auto_refresh(value);
     pipe_refresh();
 }
 
 void set_log_scale(const bool value)
 {
-    get_cd().set_log_scale_slice_enabled(get_cd().current_window, value);
-    if (value && get_cd().contrast_enabled)
+    get_cd().set_log_scale_slice_enabled(value);
+    if (value && get_cd().get_contrast_enabled())
         set_auto_contrast();
 
     pipe_refresh();
@@ -1167,7 +1069,11 @@ float get_contrast_min() { return get_cd().get_contrast_min(); }
 
 float get_contrast_max() { return get_cd().get_contrast_max(); }
 
-bool get_img_log_scale_slice_enabled() { return get_cd().get_img_log_scale_slice_enabled(api::get_current_window()); }
+bool get_contrast_invert_enabled() { return get_cd().get_contrast_invert(); }
+
+bool get_img_log_scale_slice_enabled() { return get_cd().get_img_log_scale_slice_enabled(); }
+
+void check_batch_size_limit() { get_cd().check_batch_size_limit(); }
 
 #pragma endregion
 
@@ -1187,7 +1093,7 @@ void update_convo_kernel(const std::string& value)
     }
     catch (const std::exception& e)
     {
-        get_cd().convolution_enabled = false;
+        get_cd().set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }
@@ -1207,7 +1113,7 @@ void set_convolution_mode(std::string& str)
     }
     catch (const std::exception& e)
     {
-        get_cd().convolution_enabled = false;
+        get_cd().set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }
@@ -1227,14 +1133,14 @@ void unset_convolution_mode()
     }
     catch (const std::exception& e)
     {
-        get_cd().convolution_enabled = false;
+        get_cd().set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }
 
 void set_divide_convolution_mode(const bool value)
 {
-    get_cd().divide_convolution_enabled = value;
+    get_cd().set_divide_convolution_enabled(value);
 
     pipe_refresh();
 }
@@ -1245,7 +1151,7 @@ void set_divide_convolution_mode(const bool value)
 
 void display_reticle(bool value)
 {
-    get_cd().reticle_enabled = value;
+    get_cd().set_reticle_view_enabled(value);
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
@@ -1259,9 +1165,9 @@ void display_reticle(bool value)
     pipe_refresh();
 }
 
-void reticle_scale(double value)
+void reticle_scale(float value)
 {
-    get_cd().reticle_scale = value;
+    get_cd().set_reticle_scale(value);
     pipe_refresh();
 }
 
@@ -1424,13 +1330,13 @@ void import_stop()
 
     close_critical_compute();
 
-    get_cd().is_computation_stopped = true;
+    get_cd().set_computation_stopped(true);
 }
 
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    get_cd().is_computation_stopped = false;
+    get_cd().set_computation_stopped(false);
     // Gather all the usefull data from the ui import panel
     return init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
 }
@@ -1447,6 +1353,16 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
     }
 
     return std::nullopt;
+}
+
+#pragma endregion
+
+#pragma region Advanced Settings
+void open_advanced_settings()
+{
+    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
+    UserInterfaceDescriptor::instance().advanced_settings_window_ =
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>();
 }
 
 #pragma endregion

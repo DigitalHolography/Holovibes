@@ -31,7 +31,8 @@ class FrameRecordWorker : public Worker
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
                       bool raw_record,
-                      unsigned int nb_frames_skip);
+                      unsigned int nb_frames_skip,
+                      unsigned int output_buffer_size);
 
     void run() override;
 
@@ -64,6 +65,8 @@ class FrameRecordWorker : public Worker
     unsigned int nb_frames_skip_;
     /*! \brief Whether the raw images are recorded */
     bool raw_record_;
+    /*! \brief Output buffer size */
+    unsigned int output_buffer_size_;
 
     const cudaStream_t stream_;
 };

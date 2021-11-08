@@ -12,20 +12,18 @@ using json = ::nlohmann::json;
 // namespace camera
 #include "camera_exception.hh"
 
+#include "enum_camera_kind.hh"
+
 // namespace holovibes
-#include "holovibes.hh"
 #include "custom_exception.hh"
 
-// namespace gui
-#include "HoloWindow.hh"
-
+// panel struct
 #include "import_panel.hh"
 #include "export_panel.hh"
 
-#include "user_interface_descriptor.hh"
-
 // Suppress all warnings in this auto-generated file
 #pragma warning(push, 0)
+
 #include "ui_mainwindow.h"
 #pragma warning(pop)
 
@@ -64,8 +62,10 @@ class MainWindow : public QMainWindow, public Observer
     void notify() override;
     void notify_error(const std::exception& e) override;
 
-    /*! \brief Creates the windows for processed image output */
-    void create_holo_window();
+    // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
+    friend class AdvancedSettingsWindow;
+/* ---------- */
+#pragma region Public Slots
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
@@ -89,13 +89,14 @@ class MainWindow : public QMainWindow, public Observer
      */
     void synchronize_thread(std::function<void()> f);
 
-    void configure_holovibes();
     void browse_import_ini();
     void browse_export_ini();
     void reload_ini(QString filename);
     void reload_ini();
     void write_ini(QString filename);
     void write_ini();
+    void open_advanced_settings();
+    void close_advanced_settings();
 
     void configure_camera();
     void camera_none();
@@ -114,6 +115,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the theme of the ui */
     void set_classic();
     void set_night();
+    void set_theme(const int index);
 
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
@@ -141,8 +143,10 @@ class MainWindow : public QMainWindow, public Observer
     void set_view_image_type(const QString& value);
 
     /*! \brief Changes the focused windows */
-    void change_window();
+    void change_window(int index);
 
+#pragma endregion
+    /* ---------- */
   signals:
     /*! \brief TODO: comment
      *
@@ -161,24 +165,19 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
+    /*! \brief Setups gui from .ini file */
+    void load_gui();
+    void save_gui();
+
+    void load_ini();
+    void save_ini();
+
   public:
     /*! \brief Changes camera
      *
      * \param c The new camera
      */
     void change_camera(CameraKind c);
-
-    /*! \brief Setups program from .ini file
-     *
-     * \param path The path where the .ini file is
-     */
-    void load_ini(const std::string& path);
-
-    /*! \brief Saves the current state of holovibes
-     *
-     * \param path The location of the .ini file saved
-     */
-    void save_ini(const std::string& path);
 
 #pragma endregion
 /* ---------- */
@@ -187,9 +186,6 @@ class MainWindow : public QMainWindow, public Observer
     Ui::MainWindow* ui_;
     // ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
-
-    QSpinBox* start_spinbox;
-    QSpinBox* end_spinbox;
 
     // Additional attributs
     ushort theme_index_ = 0;
