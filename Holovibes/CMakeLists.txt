@@ -65,6 +65,7 @@ set(HOLO_INCLUDES
     includes/tools/exception/
     GPIB/
 
+    "${CMAKE_SOURCE_DIR}/libs/"
     "${CMAKE_SOURCE_DIR}/libs/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
@@ -174,6 +175,7 @@ set(SRC_TESTS
     unit_tests/test_batch_input_queue.cc
     unit_tests/test_subsample_frame.cc
     unit_tests/test_fast_updates_holder.cc
+    unit_tests/test_micro_cache.cc
     # Add your test files here
 )
 

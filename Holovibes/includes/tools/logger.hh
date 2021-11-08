@@ -10,7 +10,7 @@
 
 #define LOGURU_WITH_STREAMS 1
 
-#include "loguru.hpp"
+#include <loguru.hpp>
 
 #define LOG_TRACE LOG_S(2)
 #define LOG_DEBUG LOG_S(1)

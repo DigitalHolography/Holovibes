@@ -1,7 +1,7 @@
 #pragma once
 // without namespace
 #include "tools.hh"
-#include "json.hh"
+#include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
 #include "enum_record_mode.hh"
