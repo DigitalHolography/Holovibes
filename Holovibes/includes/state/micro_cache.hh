@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \brief
+/*
  * ------- HOW TO CREATE MICRO CACHES ---------
  *
  * Micro caches needs two things from you: You declarating them and putting them
@@ -57,7 +57,6 @@
  * 3) The macro can generate a lot of code.
  * 4) Some macro hacks were needed to pull this off,
  *    for now the macro works fine on any last gen compiler.
- *
  */
 
 namespace holovibes

@@ -7,10 +7,12 @@
 namespace holovibes
 {
 
-/*!
- * \brief The GSH (global state holder), is where all the global state of the program is stored. Its goal is to register
- * changes commanded by the API (which comes from user events), dispatch the changes to each worker, and provide
- * informations queried by the API. It relies on several structures and mecanisms :
+/*! \class GSH
+ *
+ * \brief The GSH (global state holder), is where all the global state of the program is stored.
+ *
+ * Its goal is to register changes commanded by the API (which comes from user events), dispatch the changes
+ * to each worker, and provide informations queried by the API. It relies on several structures and mecanisms :
  *
  * Queries and Commands : every data needed by the API shall be obtained in the form of structured Queries, provided by
  * the GSH. This guarantees that only needed data is accessed to, and grants better code readability.
@@ -24,9 +26,7 @@ namespace holovibes
  * and micro-cache.hxx.
  *
  * FastUpdateHolder : the fastUpdateHolder is a templated map which is used by the informationWorker to access and
- * display informations (like fps and queue occupancy) at a high rate, since those datas need to be updated
- * continuously.
- *
+ * display information (like fps and queue occupancy) at a high rate, since this needs to be updated continuously.
  */
 class GSH
 {
@@ -40,10 +40,6 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-    // std::map<std::string, void*> elem_to_ptr_;
-    // std::vector<std::string> to_update_;
-
-    // void query(TestCacheQuery test_cache_query) { test_cache_.set_a(test_cache_query.a); }
 
   private:
     GSH() {}

@@ -4,12 +4,12 @@
 #include "map_macro.hh"
 #include "checker.hh"
 
-/*!
- * \brief This macro is the core of the micro-cache's functionning.
+/*
+ * This macro is the core of the micro-cache's functioning.
  * As explained in micro_cache.hh, the microcache needs to regularly synchronize with the GSH. In order to know which
  * variable(s) have changed during synchronization, we store the variables in a struct whose name is the variable's
  * name, and we generate a setter at compile time.
- * This setter is used in the commands received by the GSH ; while updating it's own parameters, it will also store the
+ * This setter is used in the commands received by the GSH ; while updating its own parameters, it will also store the
  * new values in every to_update field of the corresponding micro-caches variables.
  *
  * For example, consider this simple struct ExampleCache:
@@ -84,7 +84,6 @@
  *  };
  *
  *  Note: for complex type parameters with commas in template parameters please use a 'using' directive
- *
  */
 
 #define __MONITORED_MEMBER(type, var)                                                                                  \
