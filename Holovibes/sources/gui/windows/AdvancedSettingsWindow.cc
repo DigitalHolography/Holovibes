@@ -1,97 +1,146 @@
-#include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
-
+#include "QIntSpinBoxLayout.hh"
+#include "QDoubleSpinBoxLayout.hh"
+#include "QPathSelectorLayout.hh"
 #include "API.hh"
 namespace holovibes::gui
 {
 
+QGroupBox* AdvancedSettingsWindow::create_group_box(const std::string& name)
+{
+    QGroupBox* group_box = new QGroupBox(this);
+    group_box->setTitle(QString::fromUtf8(name.c_str()));
+    return group_box;
+}
+
+QGroupBox* AdvancedSettingsWindow::create_advanced_group_box(const std::string& name)
+{
+    QGroupBox* advanced_group_box = create_group_box(name);
+
+    QVBoxLayout* advanced_layout = new QVBoxLayout(this);
+
+    // File spin box
+    QDoubleSpinBoxLayout* display_rate = new QDoubleSpinBoxLayout(this, main_widget, "DisplayRate");
+    display_rate->setValue(0);
+    advanced_layout->addItem(display_rate);
+
+    // Input spin box
+    QDoubleSpinBoxLayout* filter2d_smooth_low = new QDoubleSpinBoxLayout(this, main_widget, "Filter2D_smooth_low");
+    filter2d_smooth_low->setValue(0);
+    advanced_layout->addItem(filter2d_smooth_low);
+
+    // Input spin box
+    QDoubleSpinBoxLayout* filter2d_smooth_high = new QDoubleSpinBoxLayout(this, main_widget, "Filter2D_smooth_high");
+    filter2d_smooth_high->setValue(0.5f);
+    advanced_layout->addItem(filter2d_smooth_high);
+
+    // Record spin box
+    QDoubleSpinBoxLayout* contrast_upper_threshold =
+        new QDoubleSpinBoxLayout(this, main_widget, "Contrast_upper_threshold");
+    contrast_upper_threshold->setValue(99.5f);
+    advanced_layout->addItem(contrast_upper_threshold);
+
+    // Output spin box
+    QIntSpinBoxLayout* renorm_constant = new QIntSpinBoxLayout(this, main_widget, "Renorm_constant");
+    renorm_constant->setValue(5);
+    advanced_layout->addItem(renorm_constant);
+
+    // 3D cuts spin box
+    QIntSpinBoxLayout* cuts_contrast_p_offset = new QIntSpinBoxLayout(this, main_widget, "Cuts_contrast_p_offset");
+    cuts_contrast_p_offset->setValue(0);
+    advanced_layout->addItem(cuts_contrast_p_offset);
+
+    advanced_group_box->setLayout(advanced_layout);
+
+    return advanced_group_box;
+}
+
+QGroupBox* AdvancedSettingsWindow::create_buffer_size_group_box(const std::string& name)
+{
+    QGroupBox* buffer_size_group_box = create_group_box(name);
+
+    QVBoxLayout* buffer_size_layout = new QVBoxLayout(this);
+
+    // File spin box
+    QIntSpinBoxLayout* file = new QIntSpinBoxLayout(this, main_widget, "file");
+    file->setValue(32);
+    buffer_size_layout->addItem(file);
+
+    // Input spin box
+    QIntSpinBoxLayout* input = new QIntSpinBoxLayout(this, main_widget, "input");
+    input->setValue(256);
+    buffer_size_layout->addItem(input);
+
+    // Record spin box
+    QIntSpinBoxLayout* record = new QIntSpinBoxLayout(this, main_widget, "record");
+    record->setValue(64);
+    buffer_size_layout->addItem(record);
+
+    // Output spin box
+    QIntSpinBoxLayout* output = new QIntSpinBoxLayout(this, main_widget, "output");
+    output->setValue(64);
+    buffer_size_layout->addItem(output);
+
+    // 3D cuts spin box
+    QIntSpinBoxLayout* cuts = new QIntSpinBoxLayout(this, main_widget, "3D cuts");
+    cuts->setValue(64);
+    buffer_size_layout->addItem(cuts);
+
+    buffer_size_group_box->setLayout(buffer_size_layout);
+
+    return buffer_size_group_box;
+}
+
+QGroupBox* AdvancedSettingsWindow::create_file_group_box(const std::string& name)
+{
+    QGroupBox* file_group_box = create_group_box(name);
+
+    QVBoxLayout* file_layout = new QVBoxLayout(this);
+
+    // Default input folder path selector
+    QPathSelectorLayout* default_input_folder = new QPathSelectorLayout(this, main_widget);
+    default_input_folder->setName("Default Input folder")->setText("file1");
+    file_layout->addItem(default_input_folder);
+
+    // Default output folder path selector
+    QPathSelectorLayout* default_output_folder = new QPathSelectorLayout(this, main_widget);
+    default_output_folder->setName("Default Output folder")->setText("file2");
+    file_layout->addItem(default_output_folder);
+
+    // Batch input folder path selector
+    QPathSelectorLayout* batch_input_folder = new QPathSelectorLayout(this, main_widget);
+    batch_input_folder->setName("Batch Input folder")->setText("file3");
+    file_layout->addItem(batch_input_folder);
+
+    file_group_box->setLayout(file_layout);
+
+    return file_group_box;
+}
+
 AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     : QMainWindow(parent)
 {
-    ui.setupUi(this);
-    setWindowIcon(QIcon("Holovibes.ico"));
+    this->setWindowTitle("AdvancedSettings");
+    main_widget = new QWidget(this);
+    main_layout = new QHBoxLayout(this);
+    main_widget->setLayout(main_layout);
+
+    // ################################################################################################
+    QGroupBox* buffer_size_group_box = create_buffer_size_group_box("Buffer size");
+    main_layout->addWidget(buffer_size_group_box);
+
+    QGroupBox* advanced_group_box = create_advanced_group_box("Advanced");
+    main_layout->addWidget(advanced_group_box);
+
+    QGroupBox* file_group_box = create_file_group_box("File");
+    main_layout->addWidget(file_group_box);
+    // ################################################################################################
+
+    setCentralWidget(main_widget);
     this->show();
-
-    // FIXME belong to MainWindow so it shouldn't be accessible from advanced settings whose represent something global
-    ui.ZStepLabel->hide();
-    ui.ZStepSpinBox->hide();
-
-    set_current_values();
 }
 
 AdvancedSettingsWindow::~AdvancedSettingsWindow() {}
 
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
-
-void AdvancedSettingsWindow::set_current_values()
-{
-    ui.FileBSSpinBox->setValue(api::get_cd().get_file_buffer_size());
-    ui.InputBSSpinBox->setValue(api::get_cd().get_input_buffer_size());
-    ui.RecordBSSpinBox->setValue(api::get_cd().get_record_buffer_size());
-    ui.OutputBSSpinBox->setValue(api::get_cd().get_output_buffer_size());
-    ui.Cuts3DBSSpinBox->setValue(api::get_cd().get_time_transformation_cuts_output_buffer_size());
-
-    ui.DisplayRateSpinBox->setValue(api::get_cd().get_display_rate());
-    ui.Filter2DLowSpinBox->setValue(api::get_cd().get_filter2d_smooth_low());
-    ui.Filter2DHighSpinBox->setValue(api::get_cd().get_filter2d_smooth_high());
-    ui.ContrastLowerSpinBox->setValue(api::get_cd().get_contrast_lower_threshold());
-    ui.ContrastUpperSpinBox->setValue(api::get_cd().get_contrast_upper_threshold());
-    ui.RenormConstantSpinBox->setValue(api::get_cd().get_renorm_constant());
-    ui.CutsContrastSpinBox->setValue(api::get_cd().get_cuts_contrast_p_offset());
-
-    ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
-    ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
-    ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
-    ui.BatchFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().batch_input_directory_.c_str());
-
-    ui.autoScalePointThresholdSpinBox->setValue(
-        static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
-
-    ui.ReloadLabel->setVisible(false);
-}
-
-void AdvancedSettingsWindow::set_ui_values()
-{
-    api::get_cd().set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
-    api::get_cd().set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
-    api::get_cd().set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
-    api::get_cd().set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
-    api::get_cd().set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
-
-    api::get_cd().set_display_rate(ui.DisplayRateSpinBox->value());
-    api::get_cd().set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
-    api::get_cd().set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
-    api::get_cd().set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
-    api::get_cd().set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
-    api::get_cd().set_renorm_constant(ui.RenormConstantSpinBox->value());
-    api::get_cd().set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
-
-    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
-
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
-
-    ui.ReloadLabel->setVisible(true);
-    UserInterfaceDescriptor::instance().need_close = true;
-}
-
-void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
-{
-    QString foldername =
-        QFileDialog::getExistingDirectory(this,
-                                          tr("Open Directory"),
-                                          lineEdit->text(),
-                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-    if (foldername.isEmpty())
-        return;
-
-    lineEdit->setText(foldername);
-}
-
-void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
-void AdvancedSettingsWindow::change_output_folder_path() { change_folder(ui.OutputFolderPathLineEdit); }
-void AdvancedSettingsWindow::change_batch_input_folder_path() { change_folder(ui.BatchFolderPathLineEdit); }
 } // namespace holovibes::gui

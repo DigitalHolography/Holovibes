@@ -58,6 +58,11 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/view_panel.cc
     gui/windows/panels/composite_panel.cc
     gui/windows/panels/image_rendering_panel.cc
+    gui/windows/AdvancedSettingsWindowTools/QSpinBoxLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/QIntSpinBoxLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/QDoubleSpinBoxLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.cc
+
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc
