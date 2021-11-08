@@ -25,7 +25,7 @@
  *      struct a_t
  *      {
  *          int obj;
- *          int* volatile to_update = nullptr;
+ *          volatile bool to_update = nullptr;
  *      };
  *      a_t a;
  *

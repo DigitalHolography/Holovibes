@@ -1,3 +1,10 @@
+/*! \file
+ *
+ *  \brief This file is inspired by https://github.com/swansontec/map-macro which is
+ *  a repository explaining how to do recursive macro.
+ *  This one has been adapted to MSVC due to the post https://stackoverflow.com/questions/29457312/map-macro-in-msvc-2010
+ *  Then it has been adapted to Holovibes in order to work with tuples.
+ */
 
 #pragma once
 
@@ -46,6 +53,9 @@
 #define MAP_B(...) \
     PLUS_TEXT(MAP_NEXT_, MAP_SWITCH(0, __VA_ARGS__)) (MAP_A, __VA_ARGS__)
 
+// for single items
+// #define MAP_CALL(fn, Value) EXPAND(fn(Value))
+// for tuples
 #define MAP_CALL(fn, Value) EXPAND(fn Value)
 
 #define MAP_OUT /* empty! nasty hack for recursion */
