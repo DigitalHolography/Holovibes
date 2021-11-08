@@ -14,4 +14,5 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/view_panel.hh
     gui/windows/panels/composite_panel.hh
     gui/windows/panels/image_rendering_panel.hh
+    gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.hh
 )

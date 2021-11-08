@@ -1,10 +1,31 @@
+#pragma once
+
 /*! \file
  *
  * \brief Qt Advanced settings window class.
  */
 #pragma once
 
-#include "ui_advancedsettingswindow.h"
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QSpinBox>
+#include <QGroupBox>
+
+/**
+ * TODO: list
+ * - emit a signal that can be catched by AdvancedWettingsWindow when
+ *    an layout object such as QDoubleSpinBox or QPathSelectorLayout is modified by
+ *    the user
+ * - comment all .hh files according to Doxygen standard
+ * - create a panel class which will organised GroupBoxs
+ * - each group box item should be init in a single method, in the associated panel
+ * - init every groupbox from holovibes values
+ * - override buttons and all Qt object to be more customized
+ * - remove
+ *   'QLayout: Attempting to add QLayout "" to holovibes::gui::AdvancedSettingsWindow "", which already has a layout'
+ *   error
+ */
 
 namespace holovibes::gui
 {
@@ -30,28 +51,21 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
+    QWidget* main_widget;
+    QHBoxLayout* main_layout;
+    QVBoxLayout* buffer_size_layout;
+
+  private:
+    QGroupBox* create_group_box(const std::string& name);
+
+    QGroupBox* create_buffer_size_group_box(const std::string& name);
+
+    QGroupBox* create_advanced_group_box(const std::string& name);
+
+    QGroupBox* create_file_group_box(const std::string& name);
+
   public slots:
     /*! \brief emit signal closed on window is closed */
     void closeEvent(QCloseEvent* event);
-
-    /*! \brief set cd_ and mainwindow values according to ui */
-    void set_ui_values();
-
-    void change_input_folder_path();
-    void change_output_folder_path();
-    void change_batch_input_folder_path();
-
-  private:
-    Ui::AdvancedSettingsWindow ui;
-
-    /*!
-     * \brief Change the correspondant folder lineEdit
-     *
-     * \param lineEdit The line that is currently changed
-     */
-    void change_folder(Drag_drop_lineedit* lineEdit);
-
-    /*! \brief set ui values according to cd */
-    void set_current_values();
 };
 } // namespace holovibes::gui
