@@ -1,8 +1,3 @@
-// #include <filesystem>
-// #include <algorithm>
-// #include <list>
-// #include <optional>
-
 #include <QAction>
 #include <QDesktopServices>
 #include <QFileDialog>
