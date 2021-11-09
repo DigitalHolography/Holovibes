@@ -3,6 +3,8 @@
 #include "QDoubleSpinBoxLayout.hh"
 #include "QPathSelectorLayout.hh"
 #include "API.hh"
+#include "asw_panel_buffer_size.hh"
+
 namespace holovibes::gui
 {
 
@@ -55,42 +57,6 @@ QGroupBox* AdvancedSettingsWindow::create_advanced_group_box(const std::string& 
     return advanced_group_box;
 }
 
-QGroupBox* AdvancedSettingsWindow::create_buffer_size_group_box(const std::string& name)
-{
-    QGroupBox* buffer_size_group_box = create_group_box(name);
-
-    QVBoxLayout* buffer_size_layout = new QVBoxLayout(this);
-
-    // File spin box
-    QIntSpinBoxLayout* file = new QIntSpinBoxLayout(this, main_widget, "file");
-    file->setValue(32);
-    buffer_size_layout->addItem(file);
-
-    // Input spin box
-    QIntSpinBoxLayout* input = new QIntSpinBoxLayout(this, main_widget, "input");
-    input->setValue(256);
-    buffer_size_layout->addItem(input);
-
-    // Record spin box
-    QIntSpinBoxLayout* record = new QIntSpinBoxLayout(this, main_widget, "record");
-    record->setValue(64);
-    buffer_size_layout->addItem(record);
-
-    // Output spin box
-    QIntSpinBoxLayout* output = new QIntSpinBoxLayout(this, main_widget, "output");
-    output->setValue(64);
-    buffer_size_layout->addItem(output);
-
-    // 3D cuts spin box
-    QIntSpinBoxLayout* cuts = new QIntSpinBoxLayout(this, main_widget, "3D cuts");
-    cuts->setValue(64);
-    buffer_size_layout->addItem(cuts);
-
-    buffer_size_group_box->setLayout(buffer_size_layout);
-
-    return buffer_size_group_box;
-}
-
 QGroupBox* AdvancedSettingsWindow::create_file_group_box(const std::string& name)
 {
     QGroupBox* file_group_box = create_group_box(name);
@@ -117,6 +83,22 @@ QGroupBox* AdvancedSettingsWindow::create_file_group_box(const std::string& name
     return file_group_box;
 }
 
+QGroupBox* AdvancedSettingsWindow::create_chart_group_box(const std::string& name)
+{
+    QGroupBox* chart_group_box = create_group_box(name);
+
+    QVBoxLayout* chart_layout = new QVBoxLayout(this);
+
+    // File spin box
+    QIntSpinBoxLayout* auto_scale_point_threshold = new QIntSpinBoxLayout(this, main_widget, "DisplayRate");
+    auto_scale_point_threshold->setValue(100);
+    chart_layout->addItem(auto_scale_point_threshold);
+
+    chart_group_box->setLayout(chart_layout);
+
+    return chart_group_box;
+}
+
 AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     : QMainWindow(parent)
 {
@@ -126,14 +108,17 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     main_widget->setLayout(main_layout);
 
     // ################################################################################################
-    QGroupBox* buffer_size_group_box = create_buffer_size_group_box("Buffer size");
-    main_layout->addWidget(buffer_size_group_box);
+    ASWPanelBufferSize* buffer_size_panel = new ASWPanelBufferSize(this, main_widget);
+    main_layout->addWidget(buffer_size_panel);
 
     QGroupBox* advanced_group_box = create_advanced_group_box("Advanced");
     main_layout->addWidget(advanced_group_box);
 
     QGroupBox* file_group_box = create_file_group_box("File");
     main_layout->addWidget(file_group_box);
+
+    QGroupBox* chart_group_box = create_chart_group_box("Chart");
+    main_layout->addWidget(chart_group_box);
     // ################################################################################################
 
     setCentralWidget(main_widget);
