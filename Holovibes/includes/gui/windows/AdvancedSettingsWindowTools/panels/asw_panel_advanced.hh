@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief Specialization of AdvancedSettingsWindowPanel class
+ */
 #pragma once
 
 #include "advanced_settings_window_panel.hh"
@@ -7,6 +11,10 @@
 
 namespace holovibes::gui
 {
+/*! \class AdvancedSettingsWindowPanel
+ *
+ * \brief Frame of AdvancedSettingsWindow in charge of Advanced settings from holovibes
+ */
 class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
 {
   public:
