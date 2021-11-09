@@ -17,9 +17,15 @@ namespace holovibes::gui
  */
 class ASWPanelChart : public AdvancedSettingsWindowPanel
 {
+    Q_OBJECT
+
   public:
     ASWPanelChart(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelChart();
+
+  private slots:
+    /*! \brief Processing when auto scale point threshold value has changed */
+    void on_change_auto_scale_point_threshold_value();
 
   private:
     QVBoxLayout* chart_layout_;
