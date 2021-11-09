@@ -30,6 +30,7 @@ QPathSelectorLayout* QPathSelectorLayout::setName(const std::string& name)
     return this;
 }
 
+#pragma region SLOTS
 void QPathSelectorLayout::change_folder()
 {
     QString foldername =
@@ -44,5 +45,5 @@ void QPathSelectorLayout::change_folder()
     line_edit_->setText(foldername);
     folder_changed();
 }
-
+#pragma endregion
 } // namespace holovibes::gui
