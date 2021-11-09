@@ -17,9 +17,14 @@ namespace holovibes::gui
  */
 class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
 {
+    Q_OBJECT
+
   public:
     ASWPanelBufferSize(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelBufferSize();
+
+  private slots:
+    void on_change_file_value();
 
   private:
     QVBoxLayout* buffer_size_layout_;

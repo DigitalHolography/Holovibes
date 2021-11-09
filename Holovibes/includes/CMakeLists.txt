@@ -14,6 +14,9 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/view_panel.hh
     gui/windows/panels/composite_panel.hh
     gui/windows/panels/image_rendering_panel.hh
+
+    gui/windows/AdvancedSettingsWindowTools/QIntSpinBoxLayout.hh
+    gui/windows/AdvancedSettingsWindowTools/QDoubleSpinBoxLayout.hh
     gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.hh
 
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_advanced.hh
