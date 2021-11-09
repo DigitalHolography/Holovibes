@@ -64,6 +64,8 @@ class AdvancedSettingsWindow : public QMainWindow
 
     QGroupBox* create_file_group_box(const std::string& name);
 
+    QGroupBox* create_chart_group_box(const std::string& name);
+
   public slots:
     /*! \brief emit signal closed on window is closed */
     void closeEvent(QCloseEvent* event);
