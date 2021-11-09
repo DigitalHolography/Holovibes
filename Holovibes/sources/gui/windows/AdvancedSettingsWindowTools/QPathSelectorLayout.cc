@@ -3,7 +3,7 @@
 namespace holovibes::gui
 {
 QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_widget)
-    : QHBoxLayout(parent)
+    : QHBoxLayout()
 {
     label_ = new QLabel(parent_widget);
     this->addWidget(label_);

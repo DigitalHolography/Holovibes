@@ -21,10 +21,10 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     main_widget = new QWidget(this);
 
     // The customized layout
-    main_layout = new QHBoxLayout(this);
+    main_layout = new QHBoxLayout(main_widget);
 
     // Give to the invisible layout our customized layout
-    main_widget->setLayout(main_layout);
+    // main_widget->setLayout(main_layout);
 
     // Creation of customized pannels
     // ################################################################################################
