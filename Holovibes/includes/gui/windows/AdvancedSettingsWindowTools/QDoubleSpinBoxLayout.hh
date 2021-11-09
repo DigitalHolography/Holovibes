@@ -15,9 +15,10 @@ namespace holovibes::gui
  */
 class QDoubleSpinBoxLayout : public QSpinBoxLayout
 {
+    Q_OBJECT
+
   public:
     QDoubleSpinBoxLayout(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr, const std::string& name = "");
-
     ~QDoubleSpinBoxLayout();
 
     /*! \brief Sets the Value object
@@ -26,6 +27,10 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
      */
     QDoubleSpinBoxLayout* setValue(double value);
+
+  signals:
+    /*! \brief Calls when spin box is spinned*/
+    void value_changed();
 
   private:
     QDoubleSpinBox* spin_box_;
