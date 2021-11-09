@@ -24,10 +24,15 @@ class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
     ~ASWPanelBufferSize();
 
   private slots:
+    /*! \brief Processing when file value has changed */
     void on_change_file_value();
+    /*! \brief Processing when input value has changed */
     void on_change_input_value();
+    /*! \brief Processing when record value has changed */
     void on_change_record_value();
+    /*! \brief Processing when output value has changed */
     void on_change_output_value();
+    /*! \brief Processing when cuts value has changed */
     void on_change_cuts_value();
 
   private:

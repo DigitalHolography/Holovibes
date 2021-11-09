@@ -44,11 +44,15 @@ ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widg
 ASWPanelBufferSize::~ASWPanelBufferSize() {}
 
 #pragma region SLOTS
-
+// TODO: region to implement with API
 void ASWPanelBufferSize::on_change_file_value() { LOG_INFO; }
+
 void ASWPanelBufferSize::on_change_input_value() { LOG_INFO; };
+
 void ASWPanelBufferSize::on_change_record_value() { LOG_INFO; };
+
 void ASWPanelBufferSize::on_change_output_value() { LOG_INFO; };
+
 void ASWPanelBufferSize::on_change_cuts_value() { LOG_INFO; };
 
 #pragma endregion

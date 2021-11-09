@@ -29,6 +29,7 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
     QIntSpinBoxLayout* setValue(int default_value);
 
   signals:
+    /*! \brief Calls when spin box is spinned*/
     void value_changed();
 
   private:
