@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief Qt widget embeded into layout.
+ */
 #pragma once
 
 #include <QHBoxLayout>
@@ -7,14 +11,28 @@
 
 namespace holovibes::gui
 {
-
+/*! \class QSpinBoxLayout
+ *
+ * \brief Enhancement of Qt QSpinBox display.
+ */
 class QSpinBoxLayout : public QHBoxLayout
 {
   public:
+    /*! \brief QSpinBoxLayout object constructor
+     *
+     * \param parent the object that will embed the layouts
+     * \param parent_widget the object that will embed the object
+     * \param name the name to display for the created QGroupBox
+     */
     QSpinBoxLayout(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr, const std::string& name = "");
 
+    /*! \brief QSpinBoxLayout object desctructor */
     ~QSpinBoxLayout();
 
+    /*! \brief Sets the Label object
+     *
+     * \param name the new name
+     */
     void setLabel(const std::string& name);
 
   private:
