@@ -11,9 +11,9 @@ QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QMainWindow* parent, QWidget* parent_
 
 QDoubleSpinBoxLayout::~QDoubleSpinBoxLayout(){};
 
-QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::setValue(double default_value)
+QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::setValue(double value)
 {
-    spin_box_->setValue(default_value);
+    spin_box_->setValue(value);
     return this;
 }
 } // namespace holovibes::gui
