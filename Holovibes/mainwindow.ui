@@ -3763,7 +3763,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionInfo</sender>
    <signal>changed()</signal>
-   <receiver>InfoGroupBox</receiver>
+   <receiver>InfoPanel</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4050,7 +4050,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ViewModeComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
+   <signal>currentTextChanged(QString)</signal>
    <receiver>ViewPanel</receiver>
    <slot>set_view_mode(QString)</slot>
    <hints>

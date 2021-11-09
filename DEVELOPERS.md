@@ -58,6 +58,8 @@ Note: After changing an element of the front or to change between release/debug 
 
 2021-10-04: If you encounter the issue "clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory". You have to find the file and put it in your PATH or copy it into the build directory for it to work
 
+2021-11-09: If Qt6 has a problem with its qHashMulti function, go to the QtCore/qhashfunctions.h file, go to the qHashMulti function and remove the "#ifdef Q_QDOC size_t #else QtPrivate::QHashMultiReturnType<T...> #endif" to simply "size_t".
+
 ### Test suite
 
 #### Integration tests
@@ -78,7 +80,7 @@ You shall put 1 to 3 files in the folder:
 
 ##### Usage
 
-Just build the project either in Release or Debug mode, 
+Just build the project either in Release or Debug mode,
 The tool used to run these tests is `pytest`. Just run this from the root of the project
 ```sh
 $ python -m pytest -v

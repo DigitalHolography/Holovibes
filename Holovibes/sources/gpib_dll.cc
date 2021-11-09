@@ -9,7 +9,7 @@ std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const std::string& dll_filepa
 {
     HINSTANCE dll_handle = nullptr;
 
-    dll_handle = LoadLibrary(dll_filepath.c_str());
+    dll_handle = LoadLibrary(reinterpret_cast<LPCWSTR>(dll_filepath.c_str()));
     if (!dll_handle)
         throw std::runtime_error("Unable to load DLL gpib");
 

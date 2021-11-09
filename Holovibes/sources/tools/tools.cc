@@ -37,7 +37,7 @@ std::string get_exe_path()
     HMODULE hmodule = GetModuleHandle(NULL);
     if (hmodule != NULL)
     {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
+        GetModuleFileName(hmodule, reinterpret_cast<LPWSTR>(path), (sizeof(path)));
         return path;
     }
     else
@@ -52,7 +52,7 @@ std::string get_exe_dir()
     HMODULE hmodule = GetModuleHandle(NULL);
     if (hmodule != NULL)
     {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
+        GetModuleFileName(hmodule, reinterpret_cast<LPWSTR>(path), (sizeof(path)));
         std::filesystem::path p(path);
         return p.parent_path().string();
     }

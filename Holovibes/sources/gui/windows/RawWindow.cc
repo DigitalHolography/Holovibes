@@ -358,10 +358,11 @@ void RawWindow::set_is_resize(bool b) { is_resize = b; }
 
 void RawWindow::wheelEvent(QWheelEvent* e)
 {
-    if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
+    QPointF pos = e->position();
+    if (!is_between(static_cast<int>(pos.x()), 0, width()) || !is_between(static_cast<int>(pos.y()), 0, height()))
         return;
-    const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-    const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
+    const float xGL = (static_cast<float>(pos.x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+    const float yGL = -((static_cast<float>(pos.y() - height() / 2)) / static_cast<float>(height())) * 2.f;
     if (e->angleDelta().y() > 0)
     {
         scale_ += 0.1f * scale_;
