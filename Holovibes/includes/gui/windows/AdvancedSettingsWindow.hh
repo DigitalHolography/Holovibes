@@ -58,8 +58,6 @@ class AdvancedSettingsWindow : public QMainWindow
   private:
     QGroupBox* create_group_box(const std::string& name);
 
-    QGroupBox* create_file_group_box(const std::string& name);
-
     QGroupBox* create_chart_group_box(const std::string& name);
 
   public slots:
