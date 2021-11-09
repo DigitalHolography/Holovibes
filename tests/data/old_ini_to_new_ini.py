@@ -19,9 +19,9 @@ def old_to_new(inputfilename: str, outputfilename: str):
     fout['advanced']['contrast_upper_threshold'] = fin['view']['contrast_upper_threshold']
     fout['advanced']['renorm_constant'] = fin['view']['renorm_constant']
     fout['advanced']['cuts_contrast_p_offset'] = fin['view']['cuts_contrast_p_offset']
-    
+
     fout['image_rendering'] = fin['image_rendering']
-    
+
     fout['view'] = fin['view']
     fout['view']['q_index'] = fin['image_rendering']['q_index']
     fout['view']['p_index'] = fin['image_rendering']['p_index']
@@ -31,13 +31,13 @@ def old_to_new(inputfilename: str, outputfilename: str):
     fout['view']['yz_contrast_max'] = fin['view']['contrast_max']
     fout['view']['yz_img_accu_enabled'] = fin['view']['accumulation_enabled']
     fout['view']['yz_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
-    
+
     fout['view']['xz_contrast_enabled'] = fin['view']['contrast_enabled']
     fout['view']['xz_contrast_min'] = fin['view']['contrast_min']
     fout['view']['xz_contrast_max'] = fin['view']['contrast_max']
     fout['view']['xz_img_accu_enabled'] = fin['view']['accumulation_enabled']
     fout['view']['xz_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
-    
+
     fout['view']['filter2d_contrast_enabled'] = fin['view']['contrast_enabled']
     fout['view']['filter2d_contrast_min'] = fin['view']['contrast_min']
     fout['view']['filter2d_contrast_max'] = fin['view']['contrast_max']
@@ -51,7 +51,7 @@ def old_to_new(inputfilename: str, outputfilename: str):
         for option in to_add.options(section):
             fout[section][option] = to_add[section][option]
 
-    
+
     to_remove = configparser.ConfigParser()
     to_remove.read("to_remove.ini")
     for section in to_remove.sections():
@@ -64,7 +64,7 @@ def old_to_new(inputfilename: str, outputfilename: str):
         for option in to_change.options(section):
             fout[section][to_change[section][option]] = fin[section][option]
 
-    
+
     with open(outputfilename, 'w') as output:
         fout.write(output)
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     else :
         if argc == 2:
             fin, fout = argv[1], argv[1]
-        elif argc == 3:    
+        elif argc == 3:
             fin, fout = argv[1], argv[2]
-        
+
         old_to_new(fin, fout)
