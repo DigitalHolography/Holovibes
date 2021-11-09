@@ -48,6 +48,7 @@ class QPathSelectorLayout : public QHBoxLayout
     void change_folder();
 
   signals:
+    /*! \brief Triggered when the folder has actually changed */
     void folder_changed();
 
   private:

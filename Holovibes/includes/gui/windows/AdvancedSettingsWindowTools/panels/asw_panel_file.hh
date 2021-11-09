@@ -25,8 +25,11 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     ~ASWPanelFile();
 
   private slots:
+    /*! \brief Processing when input folder has changed changes */
     void on_change_input_folder();
+    /*! \brief Processing when output folder has changed */
     void on_change_output_folder();
+    /*! \brief Processing when batch input folder has changed */
     void on_change_batch_input_folder();
 
   private:
