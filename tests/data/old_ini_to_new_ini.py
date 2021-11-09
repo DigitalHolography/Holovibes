@@ -31,17 +31,19 @@ def old_to_new(inputfilename: str, outputfilename: str):
     fout['view']['yz_contrast_max'] = fin['view']['contrast_max']
     fout['view']['yz_img_accu_enabled'] = fin['view']['accumulation_enabled']
     fout['view']['yz_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
-
     fout['view']['xz_contrast_enabled'] = fin['view']['contrast_enabled']
     fout['view']['xz_contrast_min'] = fin['view']['contrast_min']
     fout['view']['xz_contrast_max'] = fin['view']['contrast_max']
     fout['view']['xz_img_accu_enabled'] = fin['view']['accumulation_enabled']
     fout['view']['xz_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
-
     fout['view']['filter2d_contrast_enabled'] = fin['view']['contrast_enabled']
     fout['view']['filter2d_contrast_min'] = fin['view']['contrast_min']
     fout['view']['filter2d_contrast_max'] = fin['view']['contrast_max']
     fout['view']['filter2d_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
+
+    fout['view']['xy_img_accu_level'] = fin['config']['accumulation_buffer_size']
+    fout['view']['xz_img_accu_level'] = fin['config']['accumulation_buffer_size']
+    fout['view']['yz_img_accu_level'] = fin['config']['accumulation_buffer_size']
 
     fout['composite'] = {}
 
