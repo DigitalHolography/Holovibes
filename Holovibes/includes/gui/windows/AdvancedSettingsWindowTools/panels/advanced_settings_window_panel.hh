@@ -6,7 +6,7 @@ namespace holovibes::gui
 {
 class AdvancedSettingsWindowPanel : public QGroupBox
 {
-  public:
+  protected:
     AdvancedSettingsWindowPanel(QMainWindow* parent = nullptr,
                                 QWidget* parent_widget = nullptr,
                                 const std::string& name = "");
