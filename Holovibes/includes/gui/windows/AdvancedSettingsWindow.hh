@@ -19,9 +19,6 @@
  *    the user
  * - init every groupbox from holovibes values
  * - override buttons and all Qt object to be more customized
- * - remove
- *   'QLayout: Attempting to add QLayout "" to holovibes::gui::AdvancedSettingsWindow "", which already has a layout'
- *   error
  */
 
 namespace holovibes::gui

@@ -18,9 +18,16 @@ namespace holovibes::gui
  */
 class ASWPanelFile : public AdvancedSettingsWindowPanel
 {
+    Q_OBJECT
+
   public:
     ASWPanelFile(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelFile();
+
+  private slots:
+    void on_change_input_folder();
+    void on_change_output_folder();
+    void on_change_batch_input_folder();
 
   private:
     QVBoxLayout* file_layout_;

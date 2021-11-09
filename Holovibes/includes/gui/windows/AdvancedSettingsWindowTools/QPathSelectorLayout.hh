@@ -47,6 +47,9 @@ class QPathSelectorLayout : public QHBoxLayout
     /*! \brief Calls on new path selection*/
     void change_folder();
 
+  signals:
+    void folder_changed();
+
   private:
     QLabel* label_;
     QLineEdit* line_edit_;
