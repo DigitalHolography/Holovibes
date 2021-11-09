@@ -6,6 +6,7 @@ QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QMainWindow* parent, QWidget* parent_
     : QSpinBoxLayout(parent, parent_widget, name)
 {
     spin_box_ = new QDoubleSpinBox(parent_widget);
+    connect(spin_box_, SIGNAL(valueChanged(double)), this, SIGNAL(value_changed()));
     addWidget(spin_box_);
 }
 
