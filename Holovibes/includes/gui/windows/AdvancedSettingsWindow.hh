@@ -14,11 +14,12 @@
 
 /**
  * TODO: list
- * - emit a signal that can be catched by AdvancedWettingsWindow when
- *    an layout object such as QDoubleSpinBox or QPathSelectorLayout is modified by
- *    the user
+ * - add value of changes in the emitted signals
+ * - link signals to API
+ * - create each 'button' in a single method for each panel
  * - init every groupbox from holovibes values
  * - override buttons and all Qt object to be more customized
+ * - remove useless param in ctor (parent)
  */
 
 namespace holovibes::gui
