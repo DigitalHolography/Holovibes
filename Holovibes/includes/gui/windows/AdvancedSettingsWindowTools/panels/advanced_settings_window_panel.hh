@@ -5,7 +5,7 @@
 #pragma once
 
 #include <QGroupBox>
-
+#include "logger.hh"
 namespace holovibes::gui
 {
 /*! \class AdvancedSettingsWindowPanel

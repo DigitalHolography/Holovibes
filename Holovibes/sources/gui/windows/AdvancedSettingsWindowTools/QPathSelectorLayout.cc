@@ -42,6 +42,7 @@ void QPathSelectorLayout::change_folder()
         return;
 
     line_edit_->setText(foldername);
+    folder_changed();
 }
 
 } // namespace holovibes::gui
