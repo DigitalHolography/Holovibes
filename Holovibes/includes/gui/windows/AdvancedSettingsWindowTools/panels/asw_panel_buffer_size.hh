@@ -25,6 +25,10 @@ class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
 
   private slots:
     void on_change_file_value();
+    void on_change_input_value();
+    void on_change_record_value();
+    void on_change_output_value();
+    void on_change_cuts_value();
 
   private:
     QVBoxLayout* buffer_size_layout_;
