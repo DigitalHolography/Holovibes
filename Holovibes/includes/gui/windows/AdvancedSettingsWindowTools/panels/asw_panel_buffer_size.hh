@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * \brief Specialization of AdvancedSettingsWindowPanel class
+ */
 #pragma once
 
 #include "advanced_settings_window_panel.hh"
@@ -7,6 +11,10 @@
 
 namespace holovibes::gui
 {
+/*! \class ASWPanelBufferSize
+ *
+ * \brief Frame of ASWPanelBufferSize in charge of Buffers settings from holovibes
+ */
 class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
 {
   public:

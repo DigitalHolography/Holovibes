@@ -18,8 +18,6 @@
  *    an layout object such as QDoubleSpinBox or QPathSelectorLayout is modified by
  *    the user
  * - comment all .hh files according to Doxygen standard
- * - create a panel class which will organised GroupBoxs
- * - each group box item should be init in a single method, in the associated panel
  * - init every groupbox from holovibes values
  * - override buttons and all Qt object to be more customized
  * - remove
