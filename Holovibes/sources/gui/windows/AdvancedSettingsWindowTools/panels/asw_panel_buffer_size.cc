@@ -6,7 +6,7 @@ namespace holovibes::gui
 ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Buffer size")
 {
-    buffer_size_layout_ = new QVBoxLayout(parent);
+    buffer_size_layout_ = new QVBoxLayout();
 
     // File spin box
     file_ = new QIntSpinBoxLayout(parent, parent_widget, "file");

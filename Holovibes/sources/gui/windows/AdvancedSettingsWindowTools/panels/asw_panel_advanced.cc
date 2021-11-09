@@ -6,7 +6,7 @@ namespace holovibes::gui
 ASWPanelAdvanced::ASWPanelAdvanced(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Advanced")
 {
-    advanced_layout_ = new QVBoxLayout(parent);
+    advanced_layout_ = new QVBoxLayout();
 
     // File spin box
     display_rate_ = new QDoubleSpinBoxLayout(parent, parent_widget, "DisplayRate");

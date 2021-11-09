@@ -6,7 +6,7 @@ namespace holovibes::gui
 ASWPanelFile::ASWPanelFile(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "File")
 {
-    file_layout_ = new QVBoxLayout(parent);
+    file_layout_ = new QVBoxLayout();
 
     // Default input folder path selector
     default_input_folder_ = new QPathSelectorLayout(parent, parent_widget);
