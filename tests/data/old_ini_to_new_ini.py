@@ -42,8 +42,6 @@ def old_to_new(inputfilename: str, outputfilename: str):
     fout['view']['filter2d_contrast_auto_enabled'] = fin['view']['contrast_auto_refresh']
 
     fout['view']['xy_img_accu_level'] = fin['config']['accumulation_buffer_size']
-    fout['view']['xz_img_accu_level'] = fin['config']['accumulation_buffer_size']
-    fout['view']['yz_img_accu_level'] = fin['config']['accumulation_buffer_size']
 
     fout['composite'] = {}
 
@@ -53,12 +51,11 @@ def old_to_new(inputfilename: str, outputfilename: str):
         for option in to_add.options(section):
             fout[section][option] = to_add[section][option]
 
-
     to_remove = configparser.ConfigParser()
     to_remove.read("to_remove.ini")
     for section in to_remove.sections():
         for option in to_remove.options(section):
-            fout.remove_option(section,option)
+            fout.remove_option(section, option)
 
     to_change = configparser.ConfigParser()
     to_change.read("to_change.ini")
@@ -66,19 +63,21 @@ def old_to_new(inputfilename: str, outputfilename: str):
         for option in to_change.options(section):
             fout[section][to_change[section][option]] = fin[section][option]
 
-
     with open(outputfilename, 'w') as output:
         fout.write(output)
 
+
 def all_translation():
-    folders = [name for name in os.listdir(".") if os.path.isdir(name) and name != "inputs"]
+    folders = [name for name in os.listdir(
+        ".") if os.path.isdir(name) and name != "inputs"]
 
     for f in folders:
         try:
-            filename = os.path.join(f,"holovibes.ini")
+            filename = os.path.join(f, "holovibes.ini")
             old_to_new(filename, filename)
-        except :
+        except:
             print(f"Could not translate folder: {f}.")
+
 
 if __name__ == '__main__':
 
@@ -90,7 +89,7 @@ if __name__ == '__main__':
 
     if argc == 1:
         all_translation()
-    else :
+    else:
         if argc == 2:
             fin, fout = argv[1], argv[1]
         elif argc == 3:
