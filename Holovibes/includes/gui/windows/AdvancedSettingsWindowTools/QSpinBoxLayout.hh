@@ -17,7 +17,7 @@ namespace holovibes::gui
  */
 class QSpinBoxLayout : public QHBoxLayout
 {
-  public:
+  protected:
     /*! \brief QSpinBoxLayout object constructor
      *
      * \param parent the object that will embed the layouts
@@ -29,6 +29,7 @@ class QSpinBoxLayout : public QHBoxLayout
     /*! \brief QSpinBoxLayout object desctructor */
     ~QSpinBoxLayout();
 
+  public:
     /*! \brief Sets the Label object
      *
      * \param name the new name

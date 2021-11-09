@@ -17,7 +17,6 @@
  * - emit a signal that can be catched by AdvancedWettingsWindow when
  *    an layout object such as QDoubleSpinBox or QPathSelectorLayout is modified by
  *    the user
- * - comment all .hh files according to Doxygen standard
  * - init every groupbox from holovibes values
  * - override buttons and all Qt object to be more customized
  * - remove
