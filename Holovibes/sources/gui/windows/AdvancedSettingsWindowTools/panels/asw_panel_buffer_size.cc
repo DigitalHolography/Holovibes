@@ -12,6 +12,7 @@ ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widg
     file_ = new QIntSpinBoxLayout(parent, parent_widget, "file");
     file_->setValue(32);
     buffer_size_layout_->addItem(file_);
+    connect(file_, SIGNAL(value_changed()), this, SLOT(on_change_file_value()));
 
     // Input spin box
     input_ = new QIntSpinBoxLayout(parent, parent_widget, "input");
@@ -37,5 +38,11 @@ ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widg
 }
 
 ASWPanelBufferSize::~ASWPanelBufferSize() {}
+
+#pragma region SLOTS
+
+void ASWPanelBufferSize::on_change_file_value() { LOG_INFO; }
+
+#pragma endregion
 
 } // namespace holovibes::gui

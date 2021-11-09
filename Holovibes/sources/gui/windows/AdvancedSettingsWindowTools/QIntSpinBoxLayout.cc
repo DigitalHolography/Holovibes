@@ -6,6 +6,7 @@ QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget
     : QSpinBoxLayout(parent, parent_widget, name)
 {
     spin_box_ = new QSpinBox(parent_widget);
+    connect(spin_box_, SIGNAL(valueChanged(int)), this, SIGNAL(value_changed()));
     addWidget(spin_box_);
 }
 

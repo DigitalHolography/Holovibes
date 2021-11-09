@@ -15,6 +15,8 @@ namespace holovibes::gui
  */
 class QIntSpinBoxLayout : public QSpinBoxLayout
 {
+    Q_OBJECT
+
   public:
     QIntSpinBoxLayout(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr, const std::string& name = "");
     ~QIntSpinBoxLayout();
@@ -25,6 +27,9 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
      * \return QIntSpinBoxLayout* this, for linked initilizer purposes
      */
     QIntSpinBoxLayout* setValue(int default_value);
+
+  signals:
+    void value_changed();
 
   private:
     QSpinBox* spin_box_;

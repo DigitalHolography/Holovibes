@@ -2,6 +2,7 @@
 
 namespace holovibes::gui
 {
+
 QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_widget)
     : QHBoxLayout()
 {
