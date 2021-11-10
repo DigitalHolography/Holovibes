@@ -5,7 +5,7 @@
 #define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "10.2"
+#define MyAppVersion "10.3"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
