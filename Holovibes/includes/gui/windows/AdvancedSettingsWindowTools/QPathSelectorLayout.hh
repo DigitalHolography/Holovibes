@@ -43,6 +43,12 @@ class QPathSelectorLayout : public QHBoxLayout
      */
     QPathSelectorLayout* setName(const std::string& name);
 
+    /*! \brief Get the line edit's text
+     *
+     * \return const std::string the new text
+     */
+    const std::string get_text();
+
   private slots:
     /*! \brief Calls on new path selection*/
     void change_folder();
