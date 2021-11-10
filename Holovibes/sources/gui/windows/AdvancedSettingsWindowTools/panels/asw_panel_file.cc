@@ -3,9 +3,9 @@
 namespace holovibes::gui
 {
 
-#define DEFAULT_DEFAULT_INPUT_FOLDER "file1"
-#define DEFAULT_DEFAULT_OUTPUT_FOLDER "file2"
-#define DEFAULT_BATCH_INPUT_FOLDER "file3"
+#define DEFAULT_DEFAULT_INPUT_FOLDER UserInterfaceDescriptor::instance().record_output_directory_.c_str()
+#define DEFAULT_DEFAULT_OUTPUT_FOLDER UserInterfaceDescriptor::instance().file_input_directory_.c_str()
+#define DEFAULT_BATCH_INPUT_FOLDER UserInterfaceDescriptor::instance().batch_input_directory_.c_str()
 
 ASWPanelFile::ASWPanelFile(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "File")

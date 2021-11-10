@@ -4,11 +4,11 @@ namespace holovibes::gui
 {
 
 // TODO: change by API getter call
-#define DEFAULT_FILE_VALUE 32
-#define DEFAULT_INPUT_VALUE 256
-#define DEFAULT_RECORD_VALUE 64
-#define DEFAULT_OUTPUT_VALUE 64
-#define DEFAULT_CUTS_VALUE 64
+#define DEFAULT_FILE_VALUE api::get_file_buffer_size()
+#define DEFAULT_INPUT_VALUE api::get_input_buffer_size()
+#define DEFAULT_RECORD_VALUE api::get_record_buffer_size()
+#define DEFAULT_OUTPUT_VALUE api::get_output_buffer_size()
+#define DEFAULT_CUTS_VALUE api::get_time_transformation_cuts_output_buffer_size()
 
 ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Buffer size")

@@ -213,8 +213,18 @@ inline uint get_start_frame() { return get_cd().get_start_frame(); }
 
 inline uint get_end_frame() { return get_cd().get_end_frame(); }
 
+inline uint get_file_buffer_size() { return get_cd().get_file_buffer_size(); }
+
 inline uint get_input_buffer_size() { return get_cd().get_input_buffer_size(); }
+
 inline uint get_output_buffer_size() { return get_cd().get_output_buffer_size(); }
+
+inline uint get_record_buffer_size() { return get_cd().get_record_buffer_size(); }
+
+inline uint get_time_transformation_cuts_output_buffer_size()
+{
+    return get_cd().get_time_transformation_cuts_output_buffer_size();
+}
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 
