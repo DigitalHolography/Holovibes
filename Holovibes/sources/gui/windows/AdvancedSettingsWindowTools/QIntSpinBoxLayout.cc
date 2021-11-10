@@ -15,7 +15,7 @@ QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget
     set_minimum_value(DEFAULT_MINIMUM_VALUE)->set_maximum_value(DEFAULT_MAXIMUM_VALUE);
 
     connect(spin_box_, SIGNAL(valueChanged(int)), this, SIGNAL(value_changed()));
-    addWidget(spin_box_);
+    addWidget(spin_box_, Qt::AlignRight);
 }
 
 QIntSpinBoxLayout::~QIntSpinBoxLayout(){};

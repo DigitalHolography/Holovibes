@@ -23,6 +23,14 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     ASWPanelAdvanced(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelAdvanced();
 
+  private:
+    void display_rate_widget();
+    void filter2d_smooth_low_widget();
+    void filter2d_smooth_high_widget();
+    void contrast_upper_threshold_widget();
+    void renorm_constant_widget();
+    void cuts_contrast_p_offset_widget();
+
   private slots:
     /*! \brief Processing when display rate value has changed */
     void on_change_display_rate_value();
