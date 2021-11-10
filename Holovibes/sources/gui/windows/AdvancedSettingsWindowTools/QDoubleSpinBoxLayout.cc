@@ -12,9 +12,19 @@ QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QMainWindow* parent, QWidget* parent_
 
 QDoubleSpinBoxLayout::~QDoubleSpinBoxLayout(){};
 
+#pragma region SETTERS
+
 QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::setValue(double value)
 {
     spin_box_->setValue(value);
     return this;
 }
+
+#pragma endregion
+
+#pragma region GETTERS
+
+double QDoubleSpinBoxLayout::get_value() { return spin_box_->value(); }
+
+#pragma endregion
 } // namespace holovibes::gui

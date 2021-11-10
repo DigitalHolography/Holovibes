@@ -28,6 +28,13 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
      */
     QIntSpinBoxLayout* setValue(int default_value);
 
+    /*!
+     * \brief Gets the value of spin box
+     *
+     * \return int: the new value
+     */
+    int get_value();
+
   signals:
     /*! \brief Calls when spin box is spinned*/
     void value_changed();

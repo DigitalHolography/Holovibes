@@ -12,9 +12,19 @@ QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget
 
 QIntSpinBoxLayout::~QIntSpinBoxLayout(){};
 
+#pragma region SETTERS
+
 QIntSpinBoxLayout* QIntSpinBoxLayout::setValue(int default_value)
 {
     spin_box_->setValue(default_value);
     return this;
 }
+
+#pragma endregion
+
+#pragma region GETTERS
+
+int QIntSpinBoxLayout::get_value() { return spin_box_->value(); }
+
+#pragma endregion
 } // namespace holovibes::gui
