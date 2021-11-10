@@ -29,7 +29,7 @@ class AdvancedSettingsWindowPanel : public QGroupBox
     /*! \brief Advanced Settings Window Panel object desctructor */
     ~AdvancedSettingsWindowPanel();
 
-  private:
+  protected:
     QMainWindow* parent_;
     QWidget* parent_widget_;
     const std::string& name_;

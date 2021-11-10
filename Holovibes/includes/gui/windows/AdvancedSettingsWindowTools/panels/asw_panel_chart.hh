@@ -23,6 +23,9 @@ class ASWPanelChart : public AdvancedSettingsWindowPanel
     ASWPanelChart(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelChart();
 
+  private:
+    void create_auto_scale_point_threshold_widget();
+
   private slots:
     /*! \brief Processing when auto scale point threshold value has changed */
     void on_change_auto_scale_point_threshold_value();

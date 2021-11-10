@@ -14,10 +14,10 @@ QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_wi
     // Single blank widget only between label and line edit
     QLabel* blank = new QLabel(parent_widget);
     blank->setMargin(DEFAULT_SPACING);
-    addWidget(blank, 0, Qt::AlignTop);
+    addWidget(blank, 0, Qt::AlignRight);
 
     line_edit_ = new QLineEdit(parent_widget);
-    this->addWidget(line_edit_);
+    this->addWidget(line_edit_, Qt::AlignRight);
 
     browse_button_ = new QToolButton(parent_widget);
     browse_button_->setText("...");

@@ -24,6 +24,11 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     ASWPanelFile(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelFile();
 
+  private:
+    void create_default_input_folder_widget();
+    void create_default_output_folder_widget();
+    void create_batch_input_folder_widget();
+
   private slots:
     /*! \brief Processing when input folder has changed */
     void on_change_input_folder();

@@ -14,7 +14,6 @@
 
 /**
  * TODO: list
- * - add value of changes in the emitted signals
  * - link signals to API
  * - create each 'button' in a single method for each panel
  * - init every groupbox from holovibes values

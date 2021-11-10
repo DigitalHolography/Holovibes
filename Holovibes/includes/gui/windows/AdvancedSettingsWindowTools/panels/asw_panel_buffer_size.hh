@@ -23,6 +23,13 @@ class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
     ASWPanelBufferSize(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
     ~ASWPanelBufferSize();
 
+  private:
+    void create_file_widget();
+    void create_input_widget();
+    void create_record_widget();
+    void create_output_widget();
+    void create_cuts_widget();
+
   private slots:
     /*! \brief Processing when file value has changed */
     void on_change_file_value();
