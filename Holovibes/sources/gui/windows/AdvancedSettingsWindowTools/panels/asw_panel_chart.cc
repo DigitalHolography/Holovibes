@@ -39,6 +39,7 @@ void ASWPanelChart::create_auto_scale_point_threshold_widget()
 void ASWPanelChart::on_change_auto_scale_point_threshold_value()
 {
     LOG_INFO << auto_scale_point_threshold_->get_value();
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = auto_scale_point_threshold_->get_value();
 }
 
 #pragma endregion

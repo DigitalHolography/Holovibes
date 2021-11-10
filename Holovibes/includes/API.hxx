@@ -32,14 +32,18 @@ inline float get_lambda() { return get_cd().get_lambda(); }
 inline float get_zdistance() { return get_cd().get_zdistance(); }
 
 inline float get_contrast_lower_threshold() { return get_cd().get_contrast_lower_threshold(); }
+inline void set_contrast_lower_threshold(float value) { get_cd().set_contrast_lower_threshold(value); }
 
 inline float get_contrast_upper_threshold() { return get_cd().get_contrast_upper_threshold(); }
+inline void set_contrast_upper_threshold(float value) { get_cd().set_contrast_upper_threshold(value); }
 
 inline uint get_cuts_contrast_p_offset() { return get_cd().get_cuts_contrast_p_offset(); }
+inline void set_cuts_contrast_p_offset(uint value) { get_cd().set_cuts_contrast_p_offset(value); }
 
 inline float get_pixel_size() { return get_cd().get_pixel_size(); }
 
 inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
+inline void set_renorm_constant(unsigned int value) { get_cd().set_renorm_constant(value); }
 
 inline int get_filter2d_n1() { return get_cd().get_filter2d_n1(); }
 inline void set_filter2d_n1(int value) { get_cd().set_filter2d_n1(value); }
@@ -48,10 +52,13 @@ inline int get_filter2d_n2() { return get_cd().get_filter2d_n2(); }
 inline void set_filter2d_n2(int value) { get_cd().set_filter2d_n2(value); }
 
 inline int get_filter2d_smooth_low() { return get_cd().get_filter2d_smooth_low(); }
+inline void set_filter2d_smooth_low(int value) { get_cd().set_filter2d_smooth_low(value); }
 
 inline int get_filter2d_smooth_high() { return get_cd().get_filter2d_smooth_high(); }
+inline void set_filter2d_smooth_high(int value) { get_cd().set_filter2d_smooth_high(value); }
 
 inline float get_display_rate() { return get_cd().get_display_rate(); }
+inline void set_display_rate(float value) { get_cd().set_display_rate(value); }
 
 inline uint get_img_accu_xy_level() { return get_cd().get_img_accu_xy_level(); }
 
@@ -200,16 +207,24 @@ inline uint get_start_frame() { return get_cd().get_start_frame(); }
 inline uint get_end_frame() { return get_cd().get_end_frame(); }
 
 inline uint get_file_buffer_size() { return get_cd().get_file_buffer_size(); }
+inline void set_file_buffer_size(uint value) { get_cd().set_file_buffer_size(value); }
 
 inline uint get_input_buffer_size() { return get_cd().get_input_buffer_size(); }
+inline void set_input_buffer_size(uint value) { get_cd().set_input_buffer_size(value); }
 
 inline uint get_output_buffer_size() { return get_cd().get_output_buffer_size(); }
+inline void set_output_buffer_size(uint value) { get_cd().set_output_buffer_size(value); }
 
 inline uint get_record_buffer_size() { return get_cd().get_record_buffer_size(); }
+inline void set_record_buffer_size(uint value) { get_cd().set_record_buffer_size(value); }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
     return get_cd().get_time_transformation_cuts_output_buffer_size();
+}
+inline void set_time_transformation_cuts_output_buffer_size(uint value)
+{
+    get_cd().set_time_transformation_cuts_output_buffer_size(value);
 }
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };

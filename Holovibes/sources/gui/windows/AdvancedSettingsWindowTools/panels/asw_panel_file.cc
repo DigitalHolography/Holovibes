@@ -55,10 +55,22 @@ void ASWPanelFile::create_batch_input_folder_widget()
 
 #pragma region SLOTS
 // TODO: region to implement with API
-void ASWPanelFile::on_change_input_folder() { LOG_INFO << default_input_folder_->get_text(); }
+void ASWPanelFile::on_change_input_folder()
+{
+    LOG_INFO << default_input_folder_->get_text();
+    UserInterfaceDescriptor::instance().record_output_directory_ = default_input_folder_->get_text();
+}
 
-void ASWPanelFile::on_change_output_folder() { LOG_INFO << default_output_folder_->get_text(); }
+void ASWPanelFile::on_change_output_folder()
+{
+    LOG_INFO << default_output_folder_->get_text();
+    UserInterfaceDescriptor::instance().file_input_directory_ = default_output_folder_->get_text();
+}
 
-void ASWPanelFile::on_change_batch_input_folder() { LOG_INFO << batch_input_folder_->get_text(); }
+void ASWPanelFile::on_change_batch_input_folder()
+{
+    LOG_INFO << batch_input_folder_->get_text();
+    UserInterfaceDescriptor::instance().batch_input_directory_ = batch_input_folder_->get_text();
+}
 #pragma endregion
 } // namespace holovibes::gui

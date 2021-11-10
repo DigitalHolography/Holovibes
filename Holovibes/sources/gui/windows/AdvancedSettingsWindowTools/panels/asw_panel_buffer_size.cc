@@ -78,15 +78,35 @@ void ASWPanelBufferSize::create_cuts_widget()
 
 #pragma region SLOTS
 // TODO: region to implement with API
-void ASWPanelBufferSize::on_change_file_value() { LOG_INFO << file_->get_value(); }
+void ASWPanelBufferSize::on_change_file_value()
+{
+    LOG_INFO << file_->get_value();
+    api::set_file_buffer_size(file_->get_value());
+}
 
-void ASWPanelBufferSize::on_change_input_value() { LOG_INFO << input_->get_value(); }
+void ASWPanelBufferSize::on_change_input_value()
+{
+    LOG_INFO << input_->get_value();
+    api::set_input_buffer_size(input_->get_value());
+}
 
-void ASWPanelBufferSize::on_change_record_value() { LOG_INFO << record_->get_value(); }
+void ASWPanelBufferSize::on_change_record_value()
+{
+    LOG_INFO << record_->get_value();
+    api::set_record_buffer_size(record_->get_value());
+}
 
-void ASWPanelBufferSize::on_change_output_value() { LOG_INFO << output_->get_value(); }
+void ASWPanelBufferSize::on_change_output_value()
+{
+    LOG_INFO << output_->get_value();
+    api::set_output_buffer_size(output_->get_value());
+}
 
-void ASWPanelBufferSize::on_change_cuts_value() { LOG_INFO << cuts_->get_value(); }
+void ASWPanelBufferSize::on_change_cuts_value()
+{
+    LOG_INFO << cuts_->get_value();
+    api::set_time_transformation_cuts_output_buffer_size(cuts_->get_value());
+}
 
 #pragma endregion
 
