@@ -17,31 +17,31 @@ ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widg
 
     // File spin box
     file_ = new QIntSpinBoxLayout(parent, parent_widget, "file");
-    file_->set_minimum_value(0)->setValue(DEFAULT_FILE_VALUE);
+    file_->setValue(DEFAULT_FILE_VALUE);
     buffer_size_layout_->addItem(file_);
     connect(file_, SIGNAL(value_changed()), this, SLOT(on_change_file_value()));
 
     // Input spin box
     input_ = new QIntSpinBoxLayout(parent, parent_widget, "input");
-    input_->set_minimum_value(0)->setValue(DEFAULT_INPUT_VALUE);
+    input_->setValue(DEFAULT_INPUT_VALUE);
     buffer_size_layout_->addItem(input_);
     connect(input_, SIGNAL(value_changed()), this, SLOT(on_change_input_value()));
 
     // Record spin box
     record_ = new QIntSpinBoxLayout(parent, parent_widget, "record");
-    record_->set_minimum_value(0)->setValue(DEFAULT_RECORD_VALUE);
+    record_->setValue(DEFAULT_RECORD_VALUE);
     buffer_size_layout_->addItem(record_);
     connect(record_, SIGNAL(value_changed()), this, SLOT(on_change_record_value()));
 
     // Output spin box
     output_ = new QIntSpinBoxLayout(parent, parent_widget, "output");
-    output_->set_minimum_value(0)->setValue(DEFAULT_OUTPUT_VALUE);
+    output_->setValue(DEFAULT_OUTPUT_VALUE);
     buffer_size_layout_->addItem(output_);
     connect(output_, SIGNAL(value_changed()), this, SLOT(on_change_output_value()));
 
     // 3D cuts spin box
     cuts_ = new QIntSpinBoxLayout(parent, parent_widget, "3D cuts");
-    cuts_->set_minimum_value(0)->setValue(DEFAULT_CUTS_VALUE);
+    cuts_->setValue(DEFAULT_CUTS_VALUE);
     buffer_size_layout_->addItem(cuts_);
     connect(cuts_, SIGNAL(value_changed()), this, SLOT(on_change_cuts_value()));
 
