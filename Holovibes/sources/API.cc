@@ -920,7 +920,7 @@ void close_critical_compute()
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
 
-unsigned get_img_accu_slice_level() { return get_cd().get_img_accu_slice_level(); }
+unsigned get_img_accu_level() { return get_cd().get_img_accu_level(); }
 
 int get_gpu_input_queue_fd_width() { return get_fd().width; }
 

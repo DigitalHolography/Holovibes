@@ -116,9 +116,9 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.x.accu_level = get_value(meta_data_, "x_acc_level", cd.x.accu_level.load());
     cd.y.accu_level = get_value(meta_data_, "y_acc_level", cd.y.accu_level.load());
     cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level.load());
-    cd.xy.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_accu_slice_level.load());
-    cd.xz.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_accu_slice_level.load());
-    cd.yz.img_accu_slice_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_accu_slice_level.load());
+    cd.xy.img_accu_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_accu_level.load());
+    cd.xz.img_accu_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_accu_level.load());
+    cd.yz.img_accu_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_accu_level.load());
     cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
 }
 } // namespace holovibes::io_files

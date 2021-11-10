@@ -66,7 +66,7 @@ void ImageAccumulation::init()
         new_fd.depth = cd_.img_type == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
                                     image_acc_env_.gpu_float_average_xy_frame,
-                                    cd_.xy.img_accu_slice_level,
+                                    cd_.xy.img_accu_level,
                                     new_fd);
     }
 
@@ -78,7 +78,7 @@ void ImageAccumulation::init()
         new_fd.height = cd_.time_transformation_size;
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
-                                    cd_.xz.img_accu_slice_level,
+                                    cd_.xz.img_accu_level,
                                     new_fd);
     }
 
@@ -90,7 +90,7 @@ void ImageAccumulation::init()
         new_fd.width = cd_.time_transformation_size;
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
-                                    cd_.yz.img_accu_slice_level,
+                                    cd_.yz.img_accu_level,
                                     new_fd);
     }
 }
@@ -145,7 +145,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_xy_queue,
                             buffers_.gpu_postprocess_frame.get(),
                             image_acc_env_.gpu_float_average_xy_frame.get(),
-                            cd_.xy.img_accu_slice_level,
+                            cd_.xy.img_accu_level,
                             buffers_.gpu_postprocess_frame_size);
 
         // XZ view
@@ -153,7 +153,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_xz_queue,
                             buffers_.gpu_postprocess_frame_xz.get(),
                             image_acc_env_.gpu_float_average_xz_frame,
-                            cd_.xz.img_accu_slice_level,
+                            cd_.xz.img_accu_level,
                             image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_res());
 
         // YZ view
@@ -161,7 +161,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_yz_queue,
                             buffers_.gpu_postprocess_frame_yz.get(),
                             image_acc_env_.gpu_float_average_yz_frame,
-                            cd_.yz.img_accu_slice_level,
+                            cd_.yz.img_accu_level,
                             image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_res());
     };
 

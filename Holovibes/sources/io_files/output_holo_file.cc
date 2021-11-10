@@ -60,9 +60,9 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"contrast_min", cd.xy.contrast_min.load()},
                           {"contrast_max", cd.xy.contrast_max.load()},
 
-                          {"img_acc_slice_xy_level", cd.xy.img_accu_slice_level.load()},
-                          {"img_acc_slice_xz_level", cd.xz.img_accu_slice_level.load()},
-                          {"img_acc_slice_yz_level", cd.yz.img_accu_slice_level.load()},
+                          {"img_acc_slice_xy_level", cd.xy.img_accu_level.load()},
+                          {"img_acc_slice_xz_level", cd.xz.img_accu_level.load()},
+                          {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }

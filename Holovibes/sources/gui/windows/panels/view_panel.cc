@@ -86,7 +86,7 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_slice_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
 
         ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(api::get_rotation()))).c_str());
         ui_->FlipPushButton->setText(("Flip " + std::to_string(api::get_flip_enabled())).c_str());

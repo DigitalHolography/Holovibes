@@ -76,7 +76,7 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         view.flip_enabled = ptree.get<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>("view." + name + "_rot", view.rot);
 
-        view.img_accu_slice_level = ptree.get<ushort>("view." + name + "_img_accu_level", view.img_accu_slice_level);
+        view.img_accu_level = ptree.get<ushort>("view." + name + "_img_accu_level", view.img_accu_level);
 
         xyzf_load(name, view);
     };
@@ -235,7 +235,7 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     auto xyz_save = [&](const std::string& name, const View_XYZ& view) {
         ptree.put<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         ptree.put<int>("view." + name + "_rot", view.rot);
-        ptree.put<ushort>("view." + name + "_img_accu_level", view.img_accu_slice_level);
+        ptree.put<ushort>("view." + name + "_img_accu_level", view.img_accu_level);
 
         xyzf_save(name, view);
     };
