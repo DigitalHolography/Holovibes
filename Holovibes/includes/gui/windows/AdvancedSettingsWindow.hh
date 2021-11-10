@@ -14,9 +14,8 @@
 
 /**
  * TODO: list
- * - link signals to API
- * - init every groupbox from holovibes values
- * - override buttons and all Qt object to be more customized
+ * - (maybe) save into .ini file every managed params
+ * - put each panel in a global to improve organization
  */
 
 namespace holovibes::gui
