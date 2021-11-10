@@ -11,7 +11,7 @@ ASWPanelChart::ASWPanelChart(QMainWindow* parent, QWidget* parent_widget)
 {
     chart_layout_ = new QVBoxLayout();
 
-    // File spin box
+    // Auto scale pint threshold spin box
     auto_scale_point_threshold_ = new QIntSpinBoxLayout(parent, parent_widget, "auto_scale_point_threshold");
     auto_scale_point_threshold_->setValue(DEFAULT_AUTO_SCALE_POINT_THRESHOLD_VALUE);
     chart_layout_->addItem(auto_scale_point_threshold_);

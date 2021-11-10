@@ -16,37 +16,37 @@ ASWPanelAdvanced::ASWPanelAdvanced(QMainWindow* parent, QWidget* parent_widget)
 {
     advanced_layout_ = new QVBoxLayout();
 
-    // File spin box
+    // Display rate spin box
     display_rate_ = new QDoubleSpinBoxLayout(parent, parent_widget, "DisplayRate");
     display_rate_->setValue(DEFAULT_DISPLAY_RATE_VALUE);
     advanced_layout_->addItem(display_rate_);
     connect(display_rate_, SIGNAL(value_changed()), this, SLOT(on_change_display_rate_value()));
 
-    // Input spin box
+    // Filter2d smooth low spin box
     filter2d_smooth_low_ = new QDoubleSpinBoxLayout(parent, parent_widget, "Filter2D_smooth_low");
     filter2d_smooth_low_->setValue(DEFAULT_FILTER2D_SMOOTH_LOW_VALUE);
     advanced_layout_->addItem(filter2d_smooth_low_);
     connect(filter2d_smooth_low_, SIGNAL(value_changed()), this, SLOT(on_change_filter2d_smooth_low_value()));
 
-    // Input spin box
+    // Filter2d smooth high spin box
     filter2d_smooth_high_ = new QDoubleSpinBoxLayout(parent, parent_widget, "Filter2D_smooth_high");
     filter2d_smooth_high_->setValue(DEFAULT_FILTER2D_SMOOTH_HIGH_VALUE);
     advanced_layout_->addItem(filter2d_smooth_high_);
     connect(filter2d_smooth_high_, SIGNAL(value_changed()), this, SLOT(on_change_filter2d_smooth_high_value()));
 
-    // Record spin box
+    // Contrast upper threshold spin box
     contrast_upper_threshold_ = new QDoubleSpinBoxLayout(parent, parent_widget, "Contrast_upper_threshold");
     contrast_upper_threshold_->setValue(DEFAULT_CONTRAST_UPPER_THRESHOLD_VALUE);
     advanced_layout_->addItem(contrast_upper_threshold_);
     connect(contrast_upper_threshold_, SIGNAL(value_changed()), this, SLOT(on_change_contrast_upper_threshold_value()));
 
-    // Output spin box
+    // Renorm constant spin box
     renorm_constant_ = new QIntSpinBoxLayout(parent, parent_widget, "Renorm_constant");
     renorm_constant_->setValue(DEFAULT_RENORM_CONSTANT_VALUE);
     advanced_layout_->addItem(renorm_constant_);
     connect(renorm_constant_, SIGNAL(value_changed()), this, SLOT(on_change_renorm_constant_value()));
 
-    // 3D cuts spin box
+    // Cuts contrast p offset cuts spin box
     cuts_contrast_p_offset_ = new QIntSpinBoxLayout(parent, parent_widget, "Cuts_contrast_p_offset");
     cuts_contrast_p_offset_->setValue(DEFAULT_CUTS_CONTRAST_P_OFFSET_VALUE);
     advanced_layout_->addItem(cuts_contrast_p_offset_);
