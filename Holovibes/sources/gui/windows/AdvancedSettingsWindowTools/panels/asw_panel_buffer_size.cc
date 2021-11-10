@@ -45,15 +45,15 @@ ASWPanelBufferSize::~ASWPanelBufferSize() {}
 
 #pragma region SLOTS
 // TODO: region to implement with API
-void ASWPanelBufferSize::on_change_file_value() { LOG_INFO; }
+void ASWPanelBufferSize::on_change_file_value() { LOG_INFO << file_->get_value(); }
 
-void ASWPanelBufferSize::on_change_input_value() { LOG_INFO; };
+void ASWPanelBufferSize::on_change_input_value() { LOG_INFO << input_->get_value(); }
 
-void ASWPanelBufferSize::on_change_record_value() { LOG_INFO; };
+void ASWPanelBufferSize::on_change_record_value() { LOG_INFO << record_->get_value(); }
 
-void ASWPanelBufferSize::on_change_output_value() { LOG_INFO; };
+void ASWPanelBufferSize::on_change_output_value() { LOG_INFO << output_->get_value(); }
 
-void ASWPanelBufferSize::on_change_cuts_value() { LOG_INFO; };
+void ASWPanelBufferSize::on_change_cuts_value() { LOG_INFO << cuts_->get_value(); }
 
 #pragma endregion
 
