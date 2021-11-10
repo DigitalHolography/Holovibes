@@ -51,17 +51,20 @@ ASWPanelAdvanced::~ASWPanelAdvanced() {}
 
 #pragma region SLOTS
 // TODO: region to implement with API
-void ASWPanelAdvanced::on_change_display_rate_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_display_rate_value() { LOG_INFO << display_rate_->get_value(); };
 
-void ASWPanelAdvanced::on_change_filter2d_smooth_low_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_filter2d_smooth_low_value() { LOG_INFO << filter2d_smooth_low_->get_value(); };
 
-void ASWPanelAdvanced::on_change_filter2d_smooth_high_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_filter2d_smooth_high_value() { LOG_INFO << filter2d_smooth_high_->get_value(); };
 
-void ASWPanelAdvanced::on_change_contrast_upper_threshold_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_contrast_upper_threshold_value()
+{
+    LOG_INFO << contrast_upper_threshold_->get_value();
+};
 
-void ASWPanelAdvanced::on_change_renorm_constant_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_renorm_constant_value() { LOG_INFO << renorm_constant_->get_value(); };
 
-void ASWPanelAdvanced::on_change_cuts_contrast_p_offset_value() { LOG_INFO; };
+void ASWPanelAdvanced::on_change_cuts_contrast_p_offset_value() { LOG_INFO << cuts_contrast_p_offset_->get_value(); };
 #pragma endregion
 
 } // namespace holovibes::gui

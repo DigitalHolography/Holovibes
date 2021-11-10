@@ -28,6 +28,13 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      */
     QDoubleSpinBoxLayout* setValue(double value);
 
+    /*!
+     * \brief Gets the value of spin box
+     *
+     * \return double: the new value
+     */
+    double get_value();
+
   signals:
     /*! \brief Calls when spin box is spinned*/
     void value_changed();
