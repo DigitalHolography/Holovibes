@@ -6,6 +6,7 @@
 
 #include <QGroupBox>
 #include "logger.hh"
+#include "API.hh"
 namespace holovibes::gui
 {
 /*! \class AdvancedSettingsWindowPanel
