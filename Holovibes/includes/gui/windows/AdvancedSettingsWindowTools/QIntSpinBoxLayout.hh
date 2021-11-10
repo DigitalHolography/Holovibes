@@ -28,8 +28,21 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
      */
     QIntSpinBoxLayout* setValue(int default_value);
 
-    /*!
-     * \brief Gets the value of spin box
+    /*! \brief Sets lower bound value
+     *
+     * \param minimum_value the new lower bound
+     * \return QIntSpinBoxLayout* this, for linked initilizer purposes
+     */
+    QIntSpinBoxLayout* set_minimum_value(int minimum_value);
+
+    /*! \brief Sets upper bound value
+     *
+     * \param maximum_value the new upper bound
+     * \return QIntSpinBoxLayout* this, for linked initilizer purposes
+     */
+    QIntSpinBoxLayout* set_maximum_value(int maximum_value);
+
+    /*! \brief Gets the value of spin box
      *
      * \return int: the new value
      */

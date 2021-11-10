@@ -9,8 +9,8 @@ ASWPanelChart::ASWPanelChart(QMainWindow* parent, QWidget* parent_widget)
     chart_layout_ = new QVBoxLayout();
 
     // File spin box
-    auto_scale_point_threshold_ = new QIntSpinBoxLayout(parent, parent_widget, "DisplayRate");
-    auto_scale_point_threshold_->setValue(100);
+    auto_scale_point_threshold_ = new QIntSpinBoxLayout(parent, parent_widget, "auto_scale_point_threshold");
+    auto_scale_point_threshold_->set_minimum_value(0)->setValue(MININT);
     chart_layout_->addItem(auto_scale_point_threshold_);
     connect(auto_scale_point_threshold_,
             SIGNAL(value_changed()),
