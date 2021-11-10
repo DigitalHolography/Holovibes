@@ -147,8 +147,7 @@ void ComputeDescriptor::check_q_limits()
     if (q.accu_level > upper_bound)
         q.accu_level = upper_bound;
 
-    if (q.accu_enabled)
-        upper_bound -= q.accu_level;
+    upper_bound -= q.accu_level;
 
     if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
         q.index = upper_bound;
@@ -252,11 +251,7 @@ void ComputeDescriptor::set_p_accu(bool enabled, int level)
     p.accu_level = level;
 }
 
-void ComputeDescriptor::set_q_accu(bool enabled, int level)
-{
-    q.accu_enabled = enabled;
-    q.accu_level = level;
-}
+void ComputeDescriptor::set_q_accu(int level) { q.accu_level = level; }
 
 void ComputeDescriptor::change_angle()
 {

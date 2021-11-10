@@ -95,8 +95,6 @@ void ViewPanel::on_notify()
     }
 
     // p accu
-    ui_->PAccuCheckBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
-    ui_->PAccuCheckBox->setChecked(api::get_p_accu_enabled());
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
     api::get_cd().check_p_limits(); // FIXME: May be moved in setters
@@ -116,30 +114,19 @@ void ViewPanel::on_notify()
 
     // q accu
     bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
-    ui_->Q_AccuCheckBox->setEnabled(is_ssa_stft && !is_raw);
     ui_->Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
     ui_->Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
 
-    ui_->Q_AccuCheckBox->setChecked(api::get_q_acc_enabled());
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
     api::get_cd().check_q_limits(); // FIXME: May be moved in setters
     ui_->Q_AccSpinBox->setValue(api::get_q_acc_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
-    if (api::get_q_acc_enabled())
-    {
-        ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_acc_level() - 1);
-        ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
-    }
-    else
-    {
-        ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - 1);
-    }
+    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_acc_level() - 1);
+    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
 
     // XY accu
-    ui_->XAccuCheckBox->setChecked(api::get_x_accu_enabled());
     ui_->XAccSpinBox->setValue(api::get_x_acc_level());
-    ui_->YAccuCheckBox->setChecked(api::get_y_accu_enabled());
     ui_->YAccSpinBox->setValue(api::get_y_acc_level());
 
     int max_width = 0;
@@ -332,14 +319,14 @@ void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->
 
 void ViewPanel::set_x_accu()
 {
-    api::set_x_accu(ui_->XAccuCheckBox->isChecked(), ui_->XAccSpinBox->value());
+    api::set_x_accu(false, ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::set_y_accu(ui_->YAccuCheckBox->isChecked(), ui_->YAccSpinBox->value());
+    api::set_y_accu(false, ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
@@ -398,7 +385,7 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::set_p_accu(ui_->PAccuCheckBox->isChecked(), ui_->PAccSpinBox->value());
+    api::set_p_accu(false, ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
@@ -412,7 +399,7 @@ void ViewPanel::set_q(int value)
 
 void ViewPanel::set_q_acc()
 {
-    api::set_q_accu(ui_->Q_AccuCheckBox->isChecked(), ui_->Q_AccSpinBox->value());
+    api::set_q_accu(ui_->Q_AccSpinBox->value());
 
     parent_->notify();
 }

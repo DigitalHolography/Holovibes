@@ -733,9 +733,9 @@ void set_x_y(uint x, uint y)
 
 void set_q(int value) { get_cd().set_q_index(value); }
 
-void set_q_accu(bool is_q_accu, uint q_value)
+void set_q_accu(uint q_value)
 {
-    get_cd().set_q_accu(is_q_accu, q_value);
+    get_cd().set_q_accu(q_value);
     pipe_refresh();
 }
 

@@ -227,7 +227,7 @@ void set_y_accu(bool is_y_accu, uint y_value);
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(bool is_q_accu, uint q_value);
+void set_q_accu(uint q_value);
 
 /*! \brief Modifies x and y
  *

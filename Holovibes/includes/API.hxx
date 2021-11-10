@@ -193,8 +193,6 @@ inline bool get_x_accu_enabled() { return get_cd().get_x_accu_enabled(); }
 
 inline bool get_y_accu_enabled() { return get_cd().get_y_accu_enabled(); }
 
-inline bool get_q_acc_enabled() { return get_cd().get_q_acc_enabled(); }
-
 inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 
 inline bool get_synchronized_record() { return get_cd().get_synchronized_record(); }

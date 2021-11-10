@@ -513,9 +513,6 @@ class ComputeDescriptor : public Observable
     inline bool get_y_accu_enabled() const { return y.accu_enabled; }
     inline void set_y_accu_enabled(bool y_accu_enabled) { this->y.accu_enabled = y_accu_enabled; }
 
-    inline bool get_q_acc_enabled() const { return q.accu_enabled; }
-    inline void set_q_acc_enabled(bool q_accu_enabled) { this->q.accu_enabled = q_accu_enabled; }
-
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
 
@@ -634,7 +631,7 @@ class ComputeDescriptor : public Observable
     void set_p_accu(bool enabled, int level);
     void set_x_accu(bool enabled, int level);
     void set_y_accu(bool enabled, int level);
-    void set_q_accu(bool enabled, int level);
+    void set_q_accu(int level);
 
     /*! \brief Change the window according to the given index */
     void change_window(int index);

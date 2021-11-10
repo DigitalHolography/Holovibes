@@ -950,19 +950,6 @@
            <property name="verticalSpacing">
             <number>1</number>
            </property>
-           <item row="1" column="2">
-            <widget class="QCheckBox" name="YAccuCheckBox">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <widget class="QSpinBox" name="XSpinBox">
              <property name="maximumSize">
@@ -973,48 +960,6 @@
              </property>
              <property name="maximum">
               <number>999999999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QCheckBox" name="Q_AccuCheckBox">
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QCheckBox" name="XAccuCheckBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>42</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QCheckBox" name="PAccuCheckBox">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
              </property>
             </widget>
            </item>
@@ -1161,6 +1106,46 @@
              </property>
              <property name="maximum">
               <number>9999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="QaccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="PaccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="YAccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="XAccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -3428,11 +3413,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>InfoTextEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>TimeTransformationCutsCheckBox</tabstop>
-  <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
-  <tabstop>YAccuCheckBox</tabstop>
   <tabstop>YAccSpinBox</tabstop>
-  <tabstop>PAccuCheckBox</tabstop>
   <tabstop>PAccSpinBox</tabstop>
   <tabstop>ImgAccuCheckBox</tabstop>
   <tabstop>ImgAccuSpinBox</tabstop>
@@ -3761,22 +3743,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionInfo</sender>
-   <signal>changed()</signal>
-   <receiver>InfoGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1361</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>WaveLengthDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
@@ -3937,22 +3903,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>XAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_x_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
@@ -4109,22 +4059,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>223</x>
      <y>229</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>YAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>187</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
     </hint>
    </hints>
   </connection>
@@ -5105,22 +5039,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_p_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>208</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Q_SpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>ViewPanel</receiver>
@@ -5128,22 +5046,6 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>210</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Q_AccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_q_acc()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>370</x>
      <y>210</y>
     </hint>
     <hint type="destinationlabel">
