@@ -23,12 +23,12 @@ struct View_XYZ : public View_Window
 
     // FIXME: remove slice from name
     std::atomic<bool> img_accu_slice_enabled{false};
-    std::atomic<uint> img_accu_slice_level{1};
+    std::atomic<uint> img_accu_slice_level{0};
 };
 
 struct View_Accu
 {
-    std::atomic<int> accu_level{1};
+    std::atomic<int> accu_level{0};
 };
 
 struct View_PQ : public View_Accu
