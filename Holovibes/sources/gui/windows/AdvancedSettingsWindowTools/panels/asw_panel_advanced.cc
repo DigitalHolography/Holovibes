@@ -4,12 +4,15 @@ namespace holovibes::gui
 {
 
 // TODO: change by API getter call
-#define DEFAULT_DISPLAY_RATE_VALUE 0
-#define DEFAULT_FILTER2D_SMOOTH_LOW_VALUE 0
-#define DEFAULT_FILTER2D_SMOOTH_HIGH_VALUE 0.5f
-#define DEFAULT_CONTRAST_UPPER_THRESHOLD_VALUE 99.5f
-#define DEFAULT_RENORM_CONSTANT_VALUE 5
-#define DEFAULT_CUTS_CONTRAST_P_OFFSET_VALUE 0
+#define DEFAULT_DISPLAY_RATE_VALUE api::get_display_rate()
+#define DEFAULT_FILTER2D_SMOOTH_LOW_VALUE api::get_filter2d_smooth_low()
+#define DEFAULT_FILTER2D_SMOOTH_HIGH_VALUE api::get_filter2d_smooth_high()
+// TODO:
+#define DEFAULT_CONTRAST_LOWER_THRESHOLD_VALUE api::get_contrast_lower_threshold()
+
+#define DEFAULT_CONTRAST_UPPER_THRESHOLD_VALUE api::get_contrast_upper_threshold()
+#define DEFAULT_RENORM_CONSTANT_VALUE api::get_renorm_constant()
+#define DEFAULT_CUTS_CONTRAST_P_OFFSET_VALUE api::get_cuts_contrast_p_offset()
 
 ASWPanelAdvanced::ASWPanelAdvanced(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Advanced")
