@@ -3,7 +3,7 @@
 namespace holovibes::gui
 {
 
-#define DEFAULT_MINIMUM_VALUE INT_MIN
+#define DEFAULT_MINIMUM_VALUE 0
 #define DEFAULT_MAXIMUM_VALUE INT_MAX
 
 QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget, const std::string& name)
