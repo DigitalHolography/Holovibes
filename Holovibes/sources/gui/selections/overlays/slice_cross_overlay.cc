@@ -99,9 +99,7 @@ void SliceCrossOverlay::setBuffer()
     auto kView = parent_->getKindOfView();
 
     uint pmin = cd->p.index;
-    uint pmax = pmin;
-    if (cd->p.accu_enabled)
-        pmax += cd->p.accu_level;
+    uint pmax = pmin + cd->p.accu_level;
 
     units::ConversionData convert(parent_);
 

@@ -48,18 +48,11 @@ void close_critical_compute();
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
-/*! \brief Checks if img acc slice is enabled for a given window
- *
- * \return true Enabled
- * \return false Disabled
- */
-bool get_img_accu_slice_enabled();
-
 /*! \brief Gets the image accumulation slice level
  *
  * \return unsigned accumulation slice level
  */
-unsigned get_img_accu_slice_level();
+unsigned get_img_accu_level();
 
 /*! \brief Gets the gpu input queue frame desciptor width
  *
@@ -203,31 +196,28 @@ void pipe_refresh();
 
 /*! \brief Modifies p accumulation
  *
- * \param is_p_accu if p accumulation is allowed
  * \param p_value the new value of p accu
  */
-void set_p_accu(bool is_p_accu, uint p_value);
+void set_p_accu(uint p_value);
 
 /*! \brief Modifies x accumulation
  *
- * \param is_x_accu if x accumulation is allowed
  * \param x_value the new value of x accu
  */
-void set_x_accu(bool is_x_accu, uint x_value);
+void set_x_accu(uint x_value);
 
 /*! \brief Modifies y accumulation
  *
- * \param is_y_accu if y accumulation is allowed
  * \param y_value the new value of y accu
  */
-void set_y_accu(bool is_y_accu, uint y_value);
+void set_y_accu(uint y_value);
 
 /*! \brief Modifies q accumulation
  *
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(bool is_q_accu, uint q_value);
+void set_q_accu(uint q_value);
 
 /*! \brief Modifies x and y
  *
@@ -376,12 +366,6 @@ void set_time_transformation(const std::string& value);
  * \param value true: enable, false: disable
  */
 void set_unwrapping_2d(const bool value);
-
-/*! \brief Enables or Disables accumulation for the current window
- *
- * \param value true: enable, false: disable
- */
-void set_accumulation(bool value);
 
 /*! \brief Modifies the accumulation level on the current window
  *

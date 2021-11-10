@@ -217,21 +217,19 @@ void CrossOverlay::computeZone()
     int x_max = cd->x.cuts;
     int y_min = cd->y.cuts;
     int y_max = cd->y.cuts;
-    if (cd->x.accu_enabled)
-        (cd->x.accu_level < 0 ? x_min : x_max) += cd->x.accu_level;
-    if (cd->y.accu_enabled)
-        (cd->y.accu_level < 0 ? y_min : y_max) += cd->y.accu_level;
+    (cd->x.accu_level < 0 ? x_min : x_max) += cd->x.accu_level;
+    (cd->y.accu_level < 0 ? y_min : y_max) += cd->y.accu_level;
     units::ConversionData convert(parent_);
     units::PointFd min(convert, x_min, y_min);
     units::PointFd max(convert, x_max, y_max);
 
     // Setting the zone_
-    if (!cd->x.accu_enabled)
+    if (cd->x.accu_level == 0)
     {
         min.x().set(cd->x.cuts);
         max.x().set(cd->x.cuts);
     }
-    if (!cd->y.accu_enabled)
+    if (cd->y.accu_level == 0)
     {
         min.y().set(cd->y.cuts);
         max.y().set(cd->y.cuts);
