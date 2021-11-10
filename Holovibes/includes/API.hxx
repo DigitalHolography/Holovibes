@@ -53,11 +53,11 @@ inline int get_filter2d_smooth_high() { return get_cd().get_filter2d_smooth_high
 
 inline float get_display_rate() { return get_cd().get_display_rate(); }
 
-inline uint get_img_acc_slice_xy_level() { return get_cd().get_img_accu_slice_xy_level(); }
+inline uint get_img_accu_xy_level() { return get_cd().get_img_accu_xy_level(); }
 
-inline uint get_img_acc_slice_xz_level() { return get_cd().get_img_acc_slice_xz_level(); }
+inline uint get_img_accu_xz_level() { return get_cd().get_img_accu_xz_level(); }
 
-inline uint get_img_acc_slice_yz_level() { return get_cd().get_img_acc_slice_yz_level(); }
+inline uint get_img_accu_yz_level() { return get_cd().get_img_accu_yz_level(); }
 
 inline uint get_pindex() { return get_cd().get_p_index(); }
 

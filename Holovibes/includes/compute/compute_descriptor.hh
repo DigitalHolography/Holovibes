@@ -232,20 +232,20 @@ class ComputeDescriptor : public Observable
     inline float get_display_rate() const { return display_rate; }
     inline void set_display_rate(float display_rate) { this->display_rate = display_rate; }
 
-    inline uint get_img_accu_slice_xy_level() const { return xy.img_accu_level; }
-    inline void set_img_accu_slice_xy_level(uint img_accu_slice_xy_level)
+    inline uint get_img_accu_xy_level() const { return xy.img_accu_level; }
+    inline void set_img_accu_xy_level(uint img_accu_slice_xy_level)
     {
         this->xy.img_accu_level = img_accu_slice_xy_level;
     }
 
-    inline uint get_img_acc_slice_xz_level() const { return xz.img_accu_level; }
-    inline void set_img_acc_slice_xz_level(uint img_accu_slice_xz_level)
+    inline uint get_img_accu_xz_level() const { return xz.img_accu_level; }
+    inline void set_img_accu_xz_level(uint img_accu_slice_xz_level)
     {
         this->xz.img_accu_level = img_accu_slice_xz_level;
     }
 
-    inline uint get_img_acc_slice_yz_level() const { return yz.img_accu_level; }
-    inline void set_img_acc_slice_yz_level(uint img_accu_slice_yz_level)
+    inline uint get_img_accu_yz_level() const { return yz.img_accu_level; }
+    inline void set_img_accu_yz_level(uint img_accu_slice_yz_level)
     {
         this->yz.img_accu_level = img_accu_slice_yz_level;
     }
@@ -486,9 +486,9 @@ class ComputeDescriptor : public Observable
         this->chart_record_enabled = chart_record_enabled;
     }
 
-    inline bool get_img_accu_slice_xy_enabled() const { return xy.img_accu_level > 1; }
-    inline bool get_img_accu_slice_xz_enabled() const { return xz.img_accu_level > 1; }
-    inline bool get_img_accu_slice_yz_enabled() const { return yz.img_accu_level > 1; }
+    inline bool get_img_accu_xy_enabled() const { return xy.img_accu_level > 1; }
+    inline bool get_img_accu_xz_enabled() const { return xz.img_accu_level > 1; }
+    inline bool get_img_accu_yz_enabled() const { return yz.img_accu_level > 1; }
 
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
