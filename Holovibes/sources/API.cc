@@ -893,13 +893,6 @@ void set_unwrapping_2d(const bool value)
     pipe_refresh();
 }
 
-void set_accumulation(bool value)
-{
-    get_cd().set_accumulation(value);
-
-    pipe_refresh();
-}
-
 void set_accumulation_level(int value)
 {
     get_cd().set_accumulation_level(value);
@@ -926,8 +919,6 @@ void close_critical_compute()
 }
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
-
-bool get_img_accu_slice_enabled() { return get_cd().get_img_accu_slice_enabled(); }
 
 unsigned get_img_accu_slice_level() { return get_cd().get_img_accu_slice_level(); }
 

@@ -486,23 +486,9 @@ class ComputeDescriptor : public Observable
         this->chart_record_enabled = chart_record_enabled;
     }
 
-    inline bool get_img_acc_slice_xy_enabled() const { return xy.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_xy_enabled(bool img_acc_slice_xy_enabled)
-    {
-        this->xy.img_accu_slice_enabled = img_acc_slice_xy_enabled;
-    }
-
-    inline bool get_img_acc_slice_xz_enabled() const { return xz.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_xz_enabled(bool img_acc_slice_xz_enabled)
-    {
-        this->xz.img_accu_slice_enabled = img_acc_slice_xz_enabled;
-    }
-
-    inline bool get_img_acc_slice_yz_enabled() const { return yz.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_yz_enabled(bool img_acc_slice_yz_enabled)
-    {
-        this->yz.img_accu_slice_enabled = img_acc_slice_yz_enabled;
-    }
+    inline bool get_img_accu_slice_xy_enabled() const { return xy.img_accu_slice_level > 1; }
+    inline bool get_img_accu_slice_xz_enabled() const { return xz.img_accu_slice_level > 1; }
+    inline bool get_img_accu_slice_yz_enabled() const { return yz.img_accu_slice_level > 1; }
 
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
@@ -583,15 +569,13 @@ class ComputeDescriptor : public Observable
 
     bool get_img_log_scale_slice_enabled() const;
 
-    bool get_img_accu_slice_enabled() const;
     unsigned get_img_accu_slice_level() const;
 
     void set_contrast_min(float value);
     void set_contrast_max(float value);
     void set_log_scale_slice_enabled(bool value);
     void set_log_scale_slice_enabled_filter2d() { filter2d.log_scale_slice_enabled = true; }
-    void set_accumulation(bool value);
-    void set_accumulation_level(float value);
+    void set_accumulation_level(int value);
 
     /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
     void check_p_limits();

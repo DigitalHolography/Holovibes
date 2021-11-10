@@ -181,12 +181,6 @@ inline void set_lens_view_enabled(bool value) { return get_cd().set_lens_view_en
 inline bool get_chart_display_enabled() { return get_cd().get_chart_display_enabled(); }
 inline bool get_chart_record_enabled() { return get_cd().get_chart_record_enabled(); }
 
-inline bool get_img_acc_slice_xy_enabled() { return get_cd().get_img_acc_slice_xy_enabled(); }
-
-inline bool get_img_acc_slice_xz_enabled() { return get_cd().get_img_acc_slice_xz_enabled(); }
-
-inline bool get_img_acc_slice_yz_enabled() { return get_cd().get_img_acc_slice_yz_enabled(); }
-
 inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 
 inline bool get_synchronized_record() { return get_cd().get_synchronized_record(); }

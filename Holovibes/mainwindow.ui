@@ -5198,7 +5198,6 @@ p, li { white-space: pre-wrap; }
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
-  <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>

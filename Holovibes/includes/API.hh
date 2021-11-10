@@ -48,13 +48,6 @@ void close_critical_compute();
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
-/*! \brief Checks if img acc slice is enabled for a given window
- *
- * \return true Enabled
- * \return false Disabled
- */
-bool get_img_accu_slice_enabled();
-
 /*! \brief Gets the image accumulation slice level
  *
  * \return unsigned accumulation slice level
@@ -373,12 +366,6 @@ void set_time_transformation(const std::string& value);
  * \param value true: enable, false: disable
  */
 void set_unwrapping_2d(const bool value);
-
-/*! \brief Enables or Disables accumulation for the current window
- *
- * \param value true: enable, false: disable
- */
-void set_accumulation(bool value);
 
 /*! \brief Modifies the accumulation level on the current window
  *

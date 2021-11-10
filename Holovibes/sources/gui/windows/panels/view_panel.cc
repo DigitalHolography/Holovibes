@@ -420,16 +420,6 @@ void ViewPanel::set_log_scale(const bool value)
     parent_->notify();
 }
 
-void ViewPanel::set_accumulation(bool value)
-{
-    if (api::is_raw_mode())
-        return;
-
-    api::set_accumulation(value);
-
-    parent_->notify();
-}
-
 void ViewPanel::set_accumulation_level(int value)
 {
     if (api::is_raw_mode())
