@@ -6,7 +6,6 @@ AdvancedSettingsWindowPanel::AdvancedSettingsWindowPanel(QMainWindow* parent,
                                                          QWidget* parent_widget,
                                                          const std::string& name)
     : QGroupBox(parent)
-    , parent_(parent)
     , parent_widget_(parent_widget)
     , name_(name)
 

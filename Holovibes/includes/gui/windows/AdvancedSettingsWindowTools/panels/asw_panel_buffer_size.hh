@@ -24,10 +24,15 @@ class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
     ~ASWPanelBufferSize();
 
   private:
+    /*! \brief Creates attribute file */
     void create_file_widget();
+    /*! \brief Creates attribute input */
     void create_input_widget();
+    /*! \brief Creates attribute record */
     void create_record_widget();
+    /*! \brief Creates attribute output */
     void create_output_widget();
+    /*! \brief Creates attribute cuts */
     void create_cuts_widget();
 
   private slots:

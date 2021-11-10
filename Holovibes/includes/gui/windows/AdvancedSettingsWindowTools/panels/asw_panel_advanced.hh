@@ -24,12 +24,18 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     ~ASWPanelAdvanced();
 
   private:
-    void display_rate_widget();
-    void filter2d_smooth_low_widget();
-    void filter2d_smooth_high_widget();
-    void contrast_upper_threshold_widget();
-    void renorm_constant_widget();
-    void cuts_contrast_p_offset_widget();
+    /*! \brief Creates attribute display rate */
+    void create_display_rate_widget();
+    /*! \brief Creates attribute filter2d smooth low */
+    void create_filter2d_smooth_low_widget();
+    /*! \brief Creates attribute filter2d smooth high */
+    void create_filter2d_smooth_high_widget();
+    /*! \brief Creates attribute contrast upper threshold */
+    void create_contrast_upper_threshold_widget();
+    /*! \brief Creates attribute renorm constant */
+    void create_renorm_constant_widget();
+    /*! \brief Creates attribute cuts contrast p offset */
+    void create_cuts_contrast_p_offset_widget();
 
   private slots:
     /*! \brief Processing when display rate value has changed */

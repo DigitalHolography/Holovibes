@@ -15,10 +15,8 @@
 /**
  * TODO: list
  * - link signals to API
- * - create each 'button' in a single method for each panel
  * - init every groupbox from holovibes values
  * - override buttons and all Qt object to be more customized
- * - remove useless param in ctor (parent)
  */
 
 namespace holovibes::gui
