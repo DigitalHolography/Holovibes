@@ -24,7 +24,10 @@ ASWPanelChart::~ASWPanelChart() {}
 
 #pragma region SLOTS
 // TODO: region to implement with API
-void ASWPanelChart::on_change_auto_scale_point_threshold_value() { LOG_INFO; }
+void ASWPanelChart::on_change_auto_scale_point_threshold_value()
+{
+    LOG_INFO << auto_scale_point_threshold_->get_value();
+}
 
 #pragma endregion
 
