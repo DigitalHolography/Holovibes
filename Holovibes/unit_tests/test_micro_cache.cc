@@ -8,11 +8,12 @@
 
 #include "global_state_holder.hh"
 
+#include <chrono>
+
 namespace holovibes
 {
 
-NEW_MICRO_CACHE(TestCache1, (int, a), (float, b), (long long, c))
-
+NEW_MICRO_CACHE(TestCache1, (unsigned, a), (float, b), (long, c))
 // needed when typing contains commas (which are supposed to divide args of the macro)
 using b_wrapper = std::vector<std::pair<float, double>>;
 using c_wrapper = std::map<std::string, std::string>;
@@ -49,6 +50,8 @@ NEW_MICRO_CACHE(TestCache3,
                 (int, y),
                 (int, z))
 
+NEW_MICRO_CACHE(TestCache4, (uint8_t, a), (uint16_t, b), (uint32_t, c), (uint64_t, d), (float, e), (double, f))
+
 struct TestMicroCache1
 {
     TestCache1 x{true};
@@ -82,7 +85,6 @@ struct TestMicroCache2
         x.trigger_c();
     }
 };
-
 TEST(TestMicroCache, register_truth_works) { TestCache1 x{true}; }
 
 TEST(TestMicroCache, assert_not_truth_found)
@@ -187,6 +189,140 @@ TEST(TestMicroCache, stl_sync_constructor)
     ASSERT_EQ(y.get_b()[0].second, 2.0);
     ASSERT_EQ(y.get_c().size(), 1);
     ASSERT_EQ(y.get_c().at("key"), "value");
+}
+
+void write_thread(TestCache4& x, bool& stop)
+{
+    unsigned long long count = 0;
+    std::ofstream fout("write.txt");
+    while (!stop)
+    {
+        uint8_t a = x.get_a();
+        x.set_a((uint8_t)(a * 3) % 3 == 0 ? a * 3 : 3);
+        // std::cerr << "Write: " << (int)x.get_a() << std::endl;
+        uint16_t b = x.get_b();
+        x.set_b((uint16_t)(b * 3) % 3 == 0 ? b * 3 : 3);
+        // std::cerr << "Write: " << (int)x.get_b() << std::endl;
+        uint32_t c = x.get_c();
+        x.set_c((uint32_t)(c * 3) % 3 == 0 ? c * 3 : 3);
+        // std::cerr << "Write: " << (int)x.get_c() << std::endl;
+        uint64_t d = x.get_d();
+        x.set_d((uint64_t)(d * 3) % 3 == 0 ? d * 3 : 3);
+        // std::cerr << "Write: " << (int)x.get_d() << std::endl;
+        /*float e = x.get_e();
+        x.set_e((unsigned long long)(e * 3.f) % 3 == 0 ? e * 3.f : 3.f);
+        // std::cerr << "Write: " << (int)x.get_e() << std::endl;
+        double f = x.get_f();
+        x.set_f((unsigned long long)(f * 3.f) % 3 == 0 ? f * 3.f : 3.f);
+        // std::cerr << "Write: " << (int)x.get_f() << std::endl;*/
+        count++;
+    }
+
+    std::cerr << "Values written: " << count << std::endl;
+}
+
+void read_thread(TestCache4& y, bool& stop)
+{
+    unsigned long long count = 0;
+    while (!stop)
+    {
+        y.synchronize();
+        uint8_t a = y.get_a();
+        // std::cerr << "Read a: " << (int)a << std::endl;
+        ASSERT_EQ(a % 3, 0) << "Value a is " << (int)a;
+        uint16_t b = y.get_b();
+        // std::cerr << "Read b: " << (int)b << std::endl;
+        ASSERT_EQ(b % 3, 0) << "Value b is " << (int)b;
+        uint32_t c = y.get_c();
+        // std::cerr << "Read c: " << (int)c << std::endl;
+        ASSERT_EQ(c % 3, 0) << "Value c is " << (int)c;
+        uint64_t d = y.get_d();
+        // std::cerr << "Read d: " << (int)d << std::endl;
+        ASSERT_EQ(d % 3, 0) << "Value d is " << (int)d;
+        /*float e = y.get_e();
+        // std::cerr << "Read e: " << (int)e << std::endl;
+        ASSERT_EQ(e % 3, 0) << "Value e is " << (int)e;
+        double f = y.get_f();
+        // std::cerr << "Read f: " << (int)f << std::endl;
+        ASSERT_EQ(f % 3, 0) << "Value f is " << (int)f;*/
+        count++;
+    }
+
+    std::cerr << "Values read: " << count << std::endl;
+}
+
+TEST(TestMicroCacheConcurrency, concurrency_1)
+{
+    TestCache4 x{true};
+    TestCache4 y;
+
+    bool stop = false;
+
+    x.set_a(3);
+    x.set_b(3);
+    x.set_c(3);
+    x.set_d(3);
+    x.set_e(3);
+    x.set_f(3);
+
+    y.synchronize();
+
+    auto write_thr = std::thread::thread(write_thread, std::ref(x), std::ref(stop));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    for (unsigned i = 0; i < 1 << 18; i++)
+    {
+        y.synchronize();
+        uint8_t a = y.get_a();
+        // std::cerr << "Read a: " << (int)a << std::endl;
+        ASSERT_EQ(a % 3, 0) << "Value a is " << (int)a;
+        uint16_t b = y.get_b();
+        // std::cerr << "Read b: " << (int)b << std::endl;
+        ASSERT_EQ(b % 3, 0) << "Value b is " << (int)b;
+        uint32_t c = y.get_c();
+        // std::cerr << "Read c: " << (int)c << std::endl;
+        ASSERT_EQ(c % 3, 0) << "Value c is " << (int)c;
+        uint64_t d = y.get_d();
+        // std::cerr << "Read d: " << (int)d << std::endl;
+        ASSERT_EQ(d % 3, 0) << "Value d is " << (int)d;
+        /*float e = y.get_e();
+        // std::cerr << "Read e: " << (int)e << std::endl;
+        ASSERT_EQ(e % 3, 0) << "Value e is " << (int)e;
+        double f = y.get_f();
+        // std::cerr << "Read f: " << (int)f << std::endl;
+        ASSERT_EQ(f % 3, 0) << "Value f is " << (int)f;*/
+    }
+
+    stop = true;
+    write_thr.join();
+}
+
+TEST(TestMicroCacheConcurrency, concurrency_2)
+{
+    TestCache4 x{true};
+    TestCache4 y;
+
+    bool stop = false;
+
+    x.set_a(3);
+    x.set_b(3);
+    x.set_c(3);
+    x.set_d(3);
+    x.set_e(3);
+    x.set_f(3);
+
+    y.synchronize();
+
+    auto write_thr = std::thread::thread(write_thread, std::ref(x), std::ref(stop));
+    auto read_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(5s);
+
+    stop = true;
+    write_thr.join();
+    read_thr.join();
 }
 
 int main(int argc, char* argv[])

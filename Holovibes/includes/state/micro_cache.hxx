@@ -109,7 +109,7 @@
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
-    const type& get_##var() const noexcept { return var.obj; }
+    type get_##var() const noexcept { return var.obj; }
 
 #ifndef MICRO_CACHE_DEBUG
 
