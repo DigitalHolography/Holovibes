@@ -3,6 +3,10 @@
 namespace holovibes::gui
 {
 
+#define DEFAULT_DEFAULT_INPUT_FOLDER "file1"
+#define DEFAULT_DEFAULT_OUTPUT_FOLDER "file2"
+#define DEFAULT_BATCH_INPUT_FOLDER "file3"
+
 ASWPanelFile::ASWPanelFile(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "File")
 {
@@ -24,7 +28,7 @@ void ASWPanelFile::create_default_input_folder_widget()
 {
     // Default input folder path selector
     default_input_folder_ = new QPathSelectorLayout(parent_widget_);
-    default_input_folder_->setName("Default Input folder")->setText("file1");
+    default_input_folder_->setName("Default Input folder")->setText(DEFAULT_DEFAULT_INPUT_FOLDER);
     file_layout_->addItem(default_input_folder_);
     connect(default_input_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_input_folder()));
 }
@@ -33,7 +37,7 @@ void ASWPanelFile::create_default_output_folder_widget()
 {
     // Default output folder path selector
     default_output_folder_ = new QPathSelectorLayout(parent_widget_);
-    default_output_folder_->setName("Default Output folder")->setText("file2");
+    default_output_folder_->setName("Default Output folder")->setText(DEFAULT_DEFAULT_OUTPUT_FOLDER);
     file_layout_->addItem(default_output_folder_);
     connect(default_output_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_output_folder()));
 }
@@ -42,7 +46,7 @@ void ASWPanelFile::create_batch_input_folder_widget()
 {
     // Batch input folder path selector
     batch_input_folder_ = new QPathSelectorLayout(parent_widget_);
-    batch_input_folder_->setName("Batch Input folder")->setText("file3");
+    batch_input_folder_->setName("Batch Input folder")->setText(DEFAULT_BATCH_INPUT_FOLDER);
     file_layout_->addItem(batch_input_folder_);
     connect(batch_input_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_batch_input_folder()));
 }
