@@ -11,8 +11,10 @@ QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_wi
     label_ = new QLabel(parent_widget);
     this->addWidget(label_);
 
-    // Blank widget to avoid separation between line edit and '...' button
-    addWidget(new QLabel(parent_widget), DEFAULT_SPACING, Qt::AlignTop);
+    // Single blank widget only between label and line edit
+    QLabel* blank = new QLabel(parent_widget);
+    blank->setMargin(DEFAULT_SPACING);
+    addWidget(blank, 0, Qt::AlignTop);
 
     line_edit_ = new QLineEdit(parent_widget);
     this->addWidget(line_edit_);
