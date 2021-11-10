@@ -23,6 +23,7 @@ ASWPanelAdvanced::ASWPanelAdvanced(QMainWindow* parent, QWidget* parent_widget)
     create_display_rate_widget();
     create_filter2d_smooth_low_widget();
     create_filter2d_smooth_high_widget();
+    create_contrast_lower_threshold_widget();
     create_contrast_upper_threshold_widget();
     create_renorm_constant_widget();
     create_cuts_contrast_p_offset_widget();
@@ -61,6 +62,15 @@ void ASWPanelAdvanced::create_filter2d_smooth_high_widget()
     connect(filter2d_smooth_high_, SIGNAL(value_changed()), this, SLOT(on_change_filter2d_smooth_high_value()));
 }
 
+void ASWPanelAdvanced::create_contrast_lower_threshold_widget()
+{
+    // Contrast lower threshold spin box
+    contrast_lower_threshold_ = new QDoubleSpinBoxLayout(parent_widget_, "Contrast_lower_threshold");
+    contrast_lower_threshold_->setValue(DEFAULT_CONTRAST_UPPER_THRESHOLD_VALUE);
+    advanced_layout_->addItem(contrast_lower_threshold_);
+    connect(contrast_lower_threshold_, SIGNAL(value_changed()), this, SLOT(on_change_contrast_lower_threshold_value()));
+}
+
 void ASWPanelAdvanced::create_contrast_upper_threshold_widget()
 {
     // Contrast upper threshold spin box
@@ -96,6 +106,11 @@ void ASWPanelAdvanced::on_change_display_rate_value() { LOG_INFO << display_rate
 void ASWPanelAdvanced::on_change_filter2d_smooth_low_value() { LOG_INFO << filter2d_smooth_low_->get_value(); };
 
 void ASWPanelAdvanced::on_change_filter2d_smooth_high_value() { LOG_INFO << filter2d_smooth_high_->get_value(); };
+
+void ASWPanelAdvanced::on_change_contrast_lower_threshold_value()
+{
+    LOG_INFO << contrast_lower_threshold_->get_value();
+};
 
 void ASWPanelAdvanced::on_change_contrast_upper_threshold_value()
 {
