@@ -61,19 +61,19 @@ inline uint get_img_acc_slice_yz_level() { return get_cd().get_img_acc_slice_yz_
 
 inline uint get_pindex() { return get_cd().get_p_index(); }
 
-inline int get_p_acc_level() { return get_cd().get_p_acc_level(); }
+inline int get_p_accu_level() { return get_cd().get_p_accu_level(); }
 
 inline uint get_x_cuts() { return get_cd().get_x_cuts(); }
 
-inline int get_x_acc_level() { return get_cd().get_x_acc_level(); }
+inline int get_x_accu_level() { return get_cd().get_x_accu_level(); }
 
 inline uint get_y_cuts() { return get_cd().get_y_cuts(); }
 
-inline int get_y_acc_level() { return get_cd().get_y_acc_level(); }
+inline int get_y_accu_level() { return get_cd().get_y_accu_level(); }
 
 inline uint get_q_index() { return get_cd().get_q_index(); }
 
-inline uint get_q_acc_level() { return get_cd().get_q_acc_level(); }
+inline uint get_q_accu_level() { return get_cd().get_q_accu_level(); }
 
 inline float get_reticle_scale() { return get_cd().get_reticle_scale(); }
 
@@ -186,12 +186,6 @@ inline bool get_img_acc_slice_xy_enabled() { return get_cd().get_img_acc_slice_x
 inline bool get_img_acc_slice_xz_enabled() { return get_cd().get_img_acc_slice_xz_enabled(); }
 
 inline bool get_img_acc_slice_yz_enabled() { return get_cd().get_img_acc_slice_yz_enabled(); }
-
-inline bool get_p_accu_enabled() { return get_cd().get_p_accu_enabled(); }
-
-inline bool get_x_accu_enabled() { return get_cd().get_x_accu_enabled(); }
-
-inline bool get_y_accu_enabled() { return get_cd().get_y_accu_enabled(); }
 
 inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 

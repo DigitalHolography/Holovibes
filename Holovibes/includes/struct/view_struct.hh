@@ -28,7 +28,6 @@ struct View_XYZ : public View_Window
 
 struct View_Accu
 {
-    std::atomic<bool> accu_enabled{false};
     std::atomic<int> accu_level{1};
 };
 

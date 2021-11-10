@@ -133,8 +133,7 @@ void ComputeDescriptor::check_p_limits()
     if (p.accu_level > upper_bound)
         p.accu_level = upper_bound;
 
-    if (p.accu_enabled)
-        upper_bound -= p.accu_level;
+    upper_bound -= p.accu_level;
 
     if (upper_bound >= 0 && p.index > static_cast<uint>(upper_bound))
         p.index = upper_bound;
@@ -232,26 +231,6 @@ void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
     rgb.weight_g = g;
     rgb.weight_b = b;
 }
-
-void ComputeDescriptor::set_x_accu(bool enabled, int level)
-{
-    x.accu_enabled = enabled;
-    x.accu_level = level;
-}
-
-void ComputeDescriptor::set_y_accu(bool enabled, int level)
-{
-    y.accu_enabled = enabled;
-    y.accu_level = level;
-}
-
-void ComputeDescriptor::set_p_accu(bool enabled, int level)
-{
-    p.accu_enabled = enabled;
-    p.accu_level = level;
-}
-
-void ComputeDescriptor::set_q_accu(int level) { q.accu_level = level; }
 
 void ComputeDescriptor::change_angle()
 {

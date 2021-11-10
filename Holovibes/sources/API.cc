@@ -695,22 +695,23 @@ void disable_raw_view()
     pipe_refresh();
 }
 
-void set_p_accu(bool is_p_accu, uint p_value)
+void set_p_accu(uint p_value)
 {
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-    get_cd().set_p_accu(is_p_accu, p_value);
+
+    get_cd().set_p_accu_level(p_value);
     pipe_refresh();
 }
 
-void set_x_accu(bool is_x_accu, uint x_value)
+void set_x_accu(uint x_value)
 {
-    get_cd().set_x_accu(is_x_accu, x_value);
+    get_cd().set_x_accu_level(x_value);
     pipe_refresh();
 }
 
-void set_y_accu(bool is_y_accu, uint y_value)
+void set_y_accu(uint y_value)
 {
-    get_cd().set_y_accu(is_y_accu, y_value);
+    get_cd().set_y_accu_level(y_value);
     pipe_refresh();
 }
 
@@ -735,7 +736,7 @@ void set_q(int value) { get_cd().set_q_index(value); }
 
 void set_q_accu(uint q_value)
 {
-    get_cd().set_q_accu(q_value);
+    get_cd().set_q_accu_level(q_value);
     pipe_refresh();
 }
 

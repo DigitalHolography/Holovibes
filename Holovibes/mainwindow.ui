@@ -745,21 +745,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <widget class="QCheckBox" name="ImgAccuCheckBox">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Accumulate n images</string>
-                </property>
+               <widget class="QLabel" name="ImgAccuLabel">
                 <property name="text">
                  <string>Img. Acc.</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -3416,7 +3404,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccSpinBox</tabstop>
   <tabstop>PAccSpinBox</tabstop>
-  <tabstop>ImgAccuCheckBox</tabstop>
   <tabstop>ImgAccuSpinBox</tabstop>
   <tabstop>ContrastCheckBox</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
@@ -3755,22 +3742,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>0</x>
      <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImgAccuCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_accumulation(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>289</x>
-     <y>294</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>447</x>
-     <y>416</y>
     </hint>
    </hints>
   </connection>

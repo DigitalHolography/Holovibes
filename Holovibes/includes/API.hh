@@ -203,24 +203,21 @@ void pipe_refresh();
 
 /*! \brief Modifies p accumulation
  *
- * \param is_p_accu if p accumulation is allowed
  * \param p_value the new value of p accu
  */
-void set_p_accu(bool is_p_accu, uint p_value);
+void set_p_accu(uint p_value);
 
 /*! \brief Modifies x accumulation
  *
- * \param is_x_accu if x accumulation is allowed
  * \param x_value the new value of x accu
  */
-void set_x_accu(bool is_x_accu, uint x_value);
+void set_x_accu(uint x_value);
 
 /*! \brief Modifies y accumulation
  *
- * \param is_y_accu if y accumulation is allowed
  * \param y_value the new value of y accu
  */
-void set_y_accu(bool is_y_accu, uint y_value);
+void set_y_accu(uint y_value);
 
 /*! \brief Modifies q accumulation
  *

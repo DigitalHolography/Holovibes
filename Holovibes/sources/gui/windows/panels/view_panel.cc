@@ -74,7 +74,7 @@ void ViewPanel::on_notify()
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val) {
-        ui_->ImgAccuCheckBox->setVisible(val);
+        ui_->ImgAccuLabel->setVisible(val);
         ui_->ImgAccuSpinBox->setVisible(val);
         ui_->RotatePushButton->setVisible(val);
         ui_->FlipPushButton->setVisible(val);
@@ -86,8 +86,6 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuCheckBox->setEnabled(true);
-        ui_->ImgAccuCheckBox->setChecked(!is_raw && api::get_img_accu_slice_enabled());
         ui_->ImgAccuSpinBox->setValue(api::get_img_accu_slice_level());
 
         ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(api::get_rotation()))).c_str());
@@ -98,18 +96,12 @@ void ViewPanel::on_notify()
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
     api::get_cd().check_p_limits(); // FIXME: May be moved in setters
-    ui_->PAccSpinBox->setValue(api::get_p_acc_level());
+    ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_pindex());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
-    if (api::get_p_accu_enabled())
-    {
-        ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_acc_level() - 1);
-        ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_pindex() - 1);
-    }
-    else
-    {
-        ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - 1);
-    }
+
+    ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
+    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_pindex() - 1);
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
@@ -120,14 +112,14 @@ void ViewPanel::on_notify()
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
     api::get_cd().check_q_limits(); // FIXME: May be moved in setters
-    ui_->Q_AccSpinBox->setValue(api::get_q_acc_level());
+    ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
-    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_acc_level() - 1);
+    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
 
     // XY accu
-    ui_->XAccSpinBox->setValue(api::get_x_acc_level());
-    ui_->YAccSpinBox->setValue(api::get_y_acc_level());
+    ui_->XAccSpinBox->setValue(api::get_x_accu_level());
+    ui_->YAccSpinBox->setValue(api::get_y_accu_level());
 
     int max_width = 0;
     int max_height = 0;
@@ -319,14 +311,14 @@ void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->
 
 void ViewPanel::set_x_accu()
 {
-    api::set_x_accu(false, ui_->XAccSpinBox->value());
+    api::set_x_accu(ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::set_y_accu(false, ui_->YAccSpinBox->value());
+    api::set_y_accu(ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
@@ -385,7 +377,7 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::set_p_accu(false, ui_->PAccSpinBox->value());
+    api::set_p_accu(ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
