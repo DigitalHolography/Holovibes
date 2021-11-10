@@ -315,14 +315,47 @@ TEST(TestMicroCacheConcurrency, concurrency_2)
     y.synchronize();
 
     auto write_thr = std::thread::thread(write_thread, std::ref(x), std::ref(stop));
-    auto read_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+    auto read1_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
 
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(5s);
 
     stop = true;
     write_thr.join();
-    read_thr.join();
+    read1_thr.join();
+}
+
+TEST(TestMicroCacheConcurrency, concurrency_3)
+{
+    TestCache4 x{true};
+    TestCache4 y;
+
+    bool stop = false;
+
+    x.set_a(3);
+    x.set_b(3);
+    x.set_c(3);
+    x.set_d(3);
+    x.set_e(3);
+    x.set_f(3);
+
+    y.synchronize();
+
+    auto write_thr = std::thread::thread(write_thread, std::ref(x), std::ref(stop));
+    auto read1_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+    auto read2_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+    auto read3_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+    auto read4_thr = std::thread::thread(read_thread, std::ref(y), std::ref(stop));
+
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(5s);
+
+    stop = true;
+    write_thr.join();
+    read1_thr.join();
+    read2_thr.join();
+    read3_thr.join();
+    read4_thr.join();
 }
 
 int main(int argc, char* argv[])
