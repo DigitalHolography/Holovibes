@@ -20,6 +20,8 @@ QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_wi
 
 QPathSelectorLayout::~QPathSelectorLayout() {}
 
+#pragma region SETTERS
+
 QPathSelectorLayout* QPathSelectorLayout::setText(const std::string& text)
 {
     line_edit_->setText(QString::fromUtf8(text.c_str()));
@@ -30,6 +32,14 @@ QPathSelectorLayout* QPathSelectorLayout::setName(const std::string& name)
     label_->setText(QString::fromUtf8(name.c_str()));
     return this;
 }
+
+#pragma endregion
+
+#pragma region GETTERS
+
+const std::string QPathSelectorLayout::get_text() { return line_edit_->text().toStdString(); }
+
+#pragma endregion
 
 #pragma region SLOTS
 void QPathSelectorLayout::change_folder()
@@ -47,4 +57,5 @@ void QPathSelectorLayout::change_folder()
     folder_changed();
 }
 #pragma endregion
+
 } // namespace holovibes::gui
