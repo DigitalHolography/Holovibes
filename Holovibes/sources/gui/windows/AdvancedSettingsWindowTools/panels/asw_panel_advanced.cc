@@ -2,7 +2,6 @@
 
 namespace holovibes::gui
 {
-
 ASWPanelAdvanced::ASWPanelAdvanced(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Advanced")
 {
