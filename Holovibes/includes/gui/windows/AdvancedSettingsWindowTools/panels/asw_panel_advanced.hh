@@ -31,6 +31,8 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     /*! \brief Creates attribute filter2d smooth high */
     void create_filter2d_smooth_high_widget();
     /*! \brief Creates attribute contrast upper threshold */
+    void create_contrast_lower_threshold_widget();
+    /*! \brief Creates attribute contrast upper threshold */
     void create_contrast_upper_threshold_widget();
     /*! \brief Creates attribute renorm constant */
     void create_renorm_constant_widget();
@@ -44,6 +46,8 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     void on_change_filter2d_smooth_low_value();
     /*! \brief Processing when filter2d smooth high value has changed */
     void on_change_filter2d_smooth_high_value();
+    /*! \brief Processing when lower threshold value has changed */
+    void on_change_contrast_lower_threshold_value();
     /*! \brief Processing when upper threshold value has changed */
     void on_change_contrast_upper_threshold_value();
     /*! \brief Processing when renorm constant value has changed */
@@ -56,6 +60,7 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     QDoubleSpinBoxLayout* display_rate_;
     QDoubleSpinBoxLayout* filter2d_smooth_low_;
     QDoubleSpinBoxLayout* filter2d_smooth_high_;
+    QDoubleSpinBoxLayout* contrast_lower_threshold_;
     QDoubleSpinBoxLayout* contrast_upper_threshold_;
     QIntSpinBoxLayout* renorm_constant_;
     QIntSpinBoxLayout* cuts_contrast_p_offset_;
