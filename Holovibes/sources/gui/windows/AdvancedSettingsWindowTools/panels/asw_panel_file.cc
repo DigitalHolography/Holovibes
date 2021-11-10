@@ -23,7 +23,7 @@ ASWPanelFile::~ASWPanelFile() {}
 void ASWPanelFile::create_default_input_folder_widget()
 {
     // Default input folder path selector
-    default_input_folder_ = new QPathSelectorLayout(parent_, parent_widget_);
+    default_input_folder_ = new QPathSelectorLayout(parent_widget_);
     default_input_folder_->setName("Default Input folder")->setText("file1");
     file_layout_->addItem(default_input_folder_);
     connect(default_input_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_input_folder()));
@@ -32,7 +32,7 @@ void ASWPanelFile::create_default_input_folder_widget()
 void ASWPanelFile::create_default_output_folder_widget()
 {
     // Default output folder path selector
-    default_output_folder_ = new QPathSelectorLayout(parent_, parent_widget_);
+    default_output_folder_ = new QPathSelectorLayout(parent_widget_);
     default_output_folder_->setName("Default Output folder")->setText("file2");
     file_layout_->addItem(default_output_folder_);
     connect(default_output_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_output_folder()));
@@ -41,7 +41,7 @@ void ASWPanelFile::create_default_output_folder_widget()
 void ASWPanelFile::create_batch_input_folder_widget()
 {
     // Batch input folder path selector
-    batch_input_folder_ = new QPathSelectorLayout(parent_, parent_widget_);
+    batch_input_folder_ = new QPathSelectorLayout(parent_widget_);
     batch_input_folder_->setName("Batch Input folder")->setText("file3");
     file_layout_->addItem(batch_input_folder_);
     connect(batch_input_folder_, SIGNAL(folder_changed()), this, SLOT(on_change_batch_input_folder()));

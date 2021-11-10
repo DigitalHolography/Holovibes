@@ -24,6 +24,7 @@ class ASWPanelChart : public AdvancedSettingsWindowPanel
     ~ASWPanelChart();
 
   private:
+    /*! \brief Creates attribute auto scale point threshold */
     void create_auto_scale_point_threshold_widget();
 
   private slots:

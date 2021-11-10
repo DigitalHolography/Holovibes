@@ -25,8 +25,11 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     ~ASWPanelFile();
 
   private:
+    /*! \brief Creates attribute default input folder */
     void create_default_input_folder_widget();
+    /*! \brief Creates attribute default output folder */
     void create_default_output_folder_widget();
+    /*! \brief Creates attribute batch input folder */
     void create_batch_input_folder_widget();
 
   private slots:

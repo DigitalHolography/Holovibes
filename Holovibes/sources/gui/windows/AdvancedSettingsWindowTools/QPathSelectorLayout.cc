@@ -3,9 +3,9 @@
 namespace holovibes::gui
 {
 
-#define DEFAULT_SPACING 15
+#define DEFAULT_MARGIN 7
 
-QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_widget)
+QPathSelectorLayout::QPathSelectorLayout(QWidget* parent_widget)
     : QHBoxLayout()
 {
     label_ = new QLabel(parent_widget);
@@ -13,7 +13,7 @@ QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, QWidget* parent_wi
 
     // Single blank widget only between label and line edit
     QLabel* blank = new QLabel(parent_widget);
-    blank->setMargin(DEFAULT_SPACING);
+    blank->setMargin(DEFAULT_MARGIN);
     addWidget(blank, 0, Qt::AlignRight);
 
     line_edit_ = new QLineEdit(parent_widget);

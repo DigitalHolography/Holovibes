@@ -3,9 +3,9 @@
 namespace holovibes::gui
 {
 
-#define DEFAULT_SPACING 50
+#define DEFAULT_SPACING 30
 
-QSpinBoxLayout::QSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget, const std::string& name)
+QSpinBoxLayout::QSpinBoxLayout(QWidget* parent_widget, const std::string& name)
     : QHBoxLayout()
 {
     setSpacing(DEFAULT_SPACING);

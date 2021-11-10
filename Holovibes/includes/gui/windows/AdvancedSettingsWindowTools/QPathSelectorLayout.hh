@@ -21,10 +21,9 @@ class QPathSelectorLayout : public QHBoxLayout
   public:
     /*! \brief QPathSelectorLayout object constructor
      *
-     * \param parent the object that will embed the layouts
      * \param parent_widget the object that will embed the object
      */
-    QPathSelectorLayout(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
+    QPathSelectorLayout(QWidget* parent_widget = nullptr);
 
     /*! \brief QPathSelectorLayout object destructor */
     ~QPathSelectorLayout();

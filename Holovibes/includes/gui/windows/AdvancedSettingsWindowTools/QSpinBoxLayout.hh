@@ -20,11 +20,10 @@ class QSpinBoxLayout : public QHBoxLayout
   protected:
     /*! \brief QSpinBoxLayout object constructor
      *
-     * \param parent the object that will embed the layouts
      * \param parent_widget the object that will embed the object
      * \param name the name to display for the created QGroupBox
      */
-    QSpinBoxLayout(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr, const std::string& name = "");
+    QSpinBoxLayout(QWidget* parent_widget = nullptr, const std::string& name = "");
 
     /*! \brief QSpinBoxLayout object desctructor */
     ~QSpinBoxLayout();

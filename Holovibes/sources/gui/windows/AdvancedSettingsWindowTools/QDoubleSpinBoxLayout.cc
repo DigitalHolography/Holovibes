@@ -6,8 +6,8 @@ namespace holovibes::gui
 #define DEFAULT_MINIMUM_VALUE 0
 #define DEFAULT_MAXIMUM_VALUE DBL_MAX
 
-QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QMainWindow* parent, QWidget* parent_widget, const std::string& name)
-    : QSpinBoxLayout(parent, parent_widget, name)
+QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QWidget* parent_widget, const std::string& name)
+    : QSpinBoxLayout(parent_widget, name)
 {
     spin_box_ = new QDoubleSpinBox(parent_widget);
 
