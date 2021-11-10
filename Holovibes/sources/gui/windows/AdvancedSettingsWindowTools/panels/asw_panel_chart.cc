@@ -3,6 +3,9 @@
 namespace holovibes::gui
 {
 
+// TODO: change by API getter call
+#define DEFAULT_AUTO_SCALE_POINT_THRESHOLD_VALUE 32
+
 ASWPanelChart::ASWPanelChart(QMainWindow* parent, QWidget* parent_widget)
     : AdvancedSettingsWindowPanel(parent, parent_widget, "Chart")
 {
@@ -10,7 +13,7 @@ ASWPanelChart::ASWPanelChart(QMainWindow* parent, QWidget* parent_widget)
 
     // File spin box
     auto_scale_point_threshold_ = new QIntSpinBoxLayout(parent, parent_widget, "auto_scale_point_threshold");
-    auto_scale_point_threshold_->set_minimum_value(0)->setValue(MININT);
+    auto_scale_point_threshold_->set_minimum_value(0)->setValue(DEFAULT_AUTO_SCALE_POINT_THRESHOLD_VALUE);
     chart_layout_->addItem(auto_scale_point_threshold_);
     connect(auto_scale_point_threshold_,
             SIGNAL(value_changed()),

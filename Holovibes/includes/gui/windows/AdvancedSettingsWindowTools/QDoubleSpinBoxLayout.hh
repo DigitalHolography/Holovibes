@@ -28,6 +28,20 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      */
     QDoubleSpinBoxLayout* setValue(double value);
 
+    /*! \brief Sets lower bound value
+     *
+     * \param minimum_value the new lower bound
+     * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
+     */
+    QDoubleSpinBoxLayout* set_minimum_value(double minimum_value);
+
+    /*! \brief Sets upper bound value
+     *
+     * \param maximum_value the new upper bound
+     * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
+     */
+    QDoubleSpinBoxLayout* set_maximum_value(double maximum_value);
+
     /*!
      * \brief Gets the value of spin box
      *
