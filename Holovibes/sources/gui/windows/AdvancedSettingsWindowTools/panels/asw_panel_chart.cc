@@ -35,7 +35,7 @@ void ASWPanelChart::create_auto_scale_point_threshold_widget()
 #pragma endregion
 
 #pragma region SLOTS
-// TODO: region to implement with API
+
 void ASWPanelChart::on_change_auto_scale_point_threshold_value()
 {
     LOG_INFO << auto_scale_point_threshold_->get_value();

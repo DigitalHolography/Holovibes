@@ -54,7 +54,7 @@ void ASWPanelFile::create_batch_input_folder_widget()
 #pragma endregion
 
 #pragma region SLOTS
-// TODO: region to implement with API
+
 void ASWPanelFile::on_change_input_folder()
 {
     LOG_INFO << default_input_folder_->get_text();

@@ -18,7 +18,8 @@
 /**
  * TODO: list
  * - (maybe) save into .ini file every managed params
- * - put each panel in a global to improve organization
+ * - remove useless params ctors (params), because the link is already done when
+ *   ...->addWidget() or ...->addItem() is performed.
  */
 
 namespace holovibes::gui
@@ -35,23 +36,32 @@ class AdvancedSettingsWindow : public QMainWindow
     void closed();
 
   public:
-    // TODO: refresh comment
-    /*! \brief AdvancedSettingsWindow constructor
+    /*! \brief AdvancedSettingsWindow constructor */
+
+    /*! \brief Advanced Settings Window obconstructorject
      *
-     * Create a AdvancedSettingsWindow and shows it.
-     *
+     * \param parent the object that will embed the layouts
+     * \param specific_panel the external panel to plug
      */
+
     AdvancedSettingsWindow(QMainWindow* parent = nullptr, AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
   private:
-    // TODO: comments
+    /*! \brief Creates a buffer size panel */
     void create_buffer_size_panel();
+    /*! \brief Create a advanced panel */
     void create_advanced_panel();
+    /*! \brief Create a file panel */
     void create_file_panel();
+    /*! \brief Create a chart panel */
     void create_chart_panel();
+    /*! \brief Link/Plug the given panel to the AdvancedSettingWindow (this)
+     *
+     * \param specific_panel The given panel to plug
+     */
     void plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel);
 
   private:

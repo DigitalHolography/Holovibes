@@ -3,13 +3,10 @@
 namespace holovibes::gui
 {
 
-// TODO: change by API getter call
 #define DEFAULT_DISPLAY_RATE_VALUE api::get_display_rate()
 #define DEFAULT_FILTER2D_SMOOTH_LOW_VALUE api::get_filter2d_smooth_low()
 #define DEFAULT_FILTER2D_SMOOTH_HIGH_VALUE api::get_filter2d_smooth_high()
-// TODO:
 #define DEFAULT_CONTRAST_LOWER_THRESHOLD_VALUE api::get_contrast_lower_threshold()
-
 #define DEFAULT_CONTRAST_UPPER_THRESHOLD_VALUE api::get_contrast_upper_threshold()
 #define DEFAULT_RENORM_CONSTANT_VALUE api::get_renorm_constant()
 #define DEFAULT_CUTS_CONTRAST_P_OFFSET_VALUE api::get_cuts_contrast_p_offset()
@@ -100,7 +97,7 @@ void ASWPanelAdvanced::create_cuts_contrast_p_offset_widget()
 #pragma endregion
 
 #pragma region SLOTS
-// TODO: region to implement with API
+
 void ASWPanelAdvanced::on_change_display_rate_value()
 {
     LOG_INFO << display_rate_->get_value();
