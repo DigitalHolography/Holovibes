@@ -6,7 +6,6 @@
 
 #include <QGroupBox>
 #include "logger.hh"
-#include "API.hh"
 namespace holovibes::gui
 {
 /*! \class AdvancedSettingsWindowPanel
@@ -15,7 +14,7 @@ namespace holovibes::gui
  */
 class AdvancedSettingsWindowPanel : public QGroupBox
 {
-  protected:
+  public:
     /*!
      * \brief Advanced Settings Window Panel object constructor
      *
@@ -30,7 +29,7 @@ class AdvancedSettingsWindowPanel : public QGroupBox
     /*! \brief Advanced Settings Window Panel object desctructor */
     ~AdvancedSettingsWindowPanel();
 
-  protected:
+  public:
     QMainWindow* parent_;
     QWidget* parent_widget_;
     const std::string& name_;

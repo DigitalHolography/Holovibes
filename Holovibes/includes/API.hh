@@ -706,10 +706,10 @@ bool slide_update_threshold(
 void start_information_display(const std::function<void()>& callback = []() {});
 
 /*!
- * \brief
+ * \brief TODO
  *
  */
-void open_advanced_settings();
+void open_advanced_settings(::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
 ::holovibes::ComputeDescriptor& get_cd();
 
