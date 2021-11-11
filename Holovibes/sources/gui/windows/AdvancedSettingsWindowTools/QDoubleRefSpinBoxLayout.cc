@@ -11,7 +11,7 @@ QDoubleRefSpinBoxLayout::QDoubleRefSpinBoxLayout(QWidget* parent_widget, const s
     connect(this, SIGNAL(value_changed()), this, SLOT(refresh_value()));
 }
 
-QDoubleRefSpinBoxLayout::~QDoubleRefSpinBoxLayout() {}
+QDoubleRefSpinBoxLayout::~QDoubleRefSpinBoxLayout() { LOG_INFO; }
 
 #pragma region SETTERS
 

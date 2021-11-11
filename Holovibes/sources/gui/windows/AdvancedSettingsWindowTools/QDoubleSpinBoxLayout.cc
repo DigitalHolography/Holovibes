@@ -18,7 +18,7 @@ QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QWidget* parent_widget, const std::st
     addWidget(spin_box_, Qt::AlignRight);
 }
 
-QDoubleSpinBoxLayout::~QDoubleSpinBoxLayout(){};
+QDoubleSpinBoxLayout::~QDoubleSpinBoxLayout() { LOG_INFO; };
 
 #pragma region SETTERS
 

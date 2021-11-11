@@ -9,6 +9,8 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 
+#include "logger.hh"
+
 namespace holovibes::gui
 {
 /*! \class QSpinBoxLayout
