@@ -565,9 +565,8 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    ASWMainWindowPanel* panel =
-        new ASWMainWindowPanel(nullptr, nullptr, &(dynamic_cast<ImageRenderingPanel*>(panels_[0])->z_step_));
-    api::open_advanced_settings(panel);
+    ASWMainWindowPanel* panel = new ASWMainWindowPanel(&(dynamic_cast<ImageRenderingPanel*>(panels_[0])->z_step_));
+    api::open_advanced_settings(this, panel);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),

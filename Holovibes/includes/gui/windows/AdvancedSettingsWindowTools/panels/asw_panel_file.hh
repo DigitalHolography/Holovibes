@@ -21,7 +21,7 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     Q_OBJECT
 
   public:
-    ASWPanelFile(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
+    ASWPanelFile();
     ~ASWPanelFile();
 
   private:

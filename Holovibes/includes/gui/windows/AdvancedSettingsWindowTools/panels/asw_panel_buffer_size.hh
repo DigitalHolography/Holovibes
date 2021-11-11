@@ -20,7 +20,7 @@ class ASWPanelBufferSize : public AdvancedSettingsWindowPanel
     Q_OBJECT
 
   public:
-    ASWPanelBufferSize(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
+    ASWPanelBufferSize();
     ~ASWPanelBufferSize();
 
   private:

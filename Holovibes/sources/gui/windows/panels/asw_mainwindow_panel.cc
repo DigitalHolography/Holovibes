@@ -3,8 +3,8 @@
 namespace holovibes::gui
 {
 
-ASWMainWindowPanel::ASWMainWindowPanel(QMainWindow* parent, QWidget* parent_widget, double* z_step)
-    : AdvancedSettingsWindowPanel(parent, parent_widget, "MainWindow")
+ASWMainWindowPanel::ASWMainWindowPanel(double* z_step)
+    : AdvancedSettingsWindowPanel("MainWindow")
 {
     chart_layout_ = new QVBoxLayout();
 
@@ -21,7 +21,7 @@ ASWMainWindowPanel::~ASWMainWindowPanel() { LOG_INFO; }
 void ASWMainWindowPanel::create_z_step_widget(double* z_step)
 {
     // z step spin box
-    z_step_ = new QDoubleRefSpinBoxLayout(parent_widget_, "z_step", z_step);
+    z_step_ = new QDoubleRefSpinBoxLayout(nullptr, "z_step", z_step);
     chart_layout_->addItem(z_step_);
 }
 

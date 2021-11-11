@@ -17,9 +17,7 @@ class QDoubleRefSpinBoxLayout : public QDoubleSpinBoxLayout
     Q_OBJECT
 
   public:
-    QDoubleRefSpinBoxLayout(QWidget* parent_widget = nullptr,
-                            const std::string& name = "",
-                            double* value_ptr = nullptr);
+    QDoubleRefSpinBoxLayout(QMainWindow* parent = nullptr, const std::string& name = "", double* value_ptr = nullptr);
 
     ~QDoubleRefSpinBoxLayout();
 

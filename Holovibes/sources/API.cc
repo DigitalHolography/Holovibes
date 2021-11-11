@@ -1350,11 +1350,11 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings(::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
+void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(nullptr, specific_panel);
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
 }
 
 #pragma endregion

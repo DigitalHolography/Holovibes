@@ -1,31 +1,31 @@
 #include "QPathSelectorLayout.hh"
-
+#include "logger.hh"
 namespace holovibes::gui
 {
 
 #define DEFAULT_MARGIN 7
 
-QPathSelectorLayout::QPathSelectorLayout(QWidget* parent_widget)
-    : QHBoxLayout()
+QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent)
+    : QHBoxLayout(parent)
 {
-    label_ = new QLabel(parent_widget);
-    this->addWidget(label_);
+    label_ = new QLabel();
+    addWidget(label_);
 
     // Single blank widget only between label and line edit
-    QLabel* blank = new QLabel(parent_widget);
+    QLabel* blank = new QLabel();
     blank->setMargin(DEFAULT_MARGIN);
     addWidget(blank, 0, Qt::AlignRight);
 
-    line_edit_ = new QLineEdit(parent_widget);
-    this->addWidget(line_edit_, Qt::AlignRight);
+    line_edit_ = new QLineEdit();
+    addWidget(line_edit_, Qt::AlignRight);
 
-    browse_button_ = new QToolButton(parent_widget);
+    browse_button_ = new QToolButton();
     browse_button_->setText("...");
     connect(browse_button_, SIGNAL(clicked(bool)), this, SLOT(change_folder()));
-    this->addWidget(browse_button_);
+    addWidget(browse_button_);
 }
 
-QPathSelectorLayout::~QPathSelectorLayout() {}
+QPathSelectorLayout::~QPathSelectorLayout() { LOG_INFO; }
 
 #pragma region SETTERS
 

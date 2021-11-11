@@ -2,11 +2,8 @@
 
 namespace holovibes::gui
 {
-AdvancedSettingsWindowPanel::AdvancedSettingsWindowPanel(QMainWindow* parent,
-                                                         QWidget* parent_widget,
-                                                         const std::string& name)
-    : QGroupBox(parent)
-    , parent_widget_(parent_widget)
+AdvancedSettingsWindowPanel::AdvancedSettingsWindowPanel(const std::string& name)
+    : QGroupBox()
     , name_(name)
 
 {

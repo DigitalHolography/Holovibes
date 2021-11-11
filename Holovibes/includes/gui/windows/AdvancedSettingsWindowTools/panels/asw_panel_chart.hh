@@ -20,7 +20,7 @@ class ASWPanelChart : public AdvancedSettingsWindowPanel
     Q_OBJECT
 
   public:
-    ASWPanelChart(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
+    ASWPanelChart();
     ~ASWPanelChart();
 
   private:

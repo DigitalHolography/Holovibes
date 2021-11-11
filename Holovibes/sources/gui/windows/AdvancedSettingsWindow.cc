@@ -49,28 +49,28 @@ AdvancedSettingsWindow::~AdvancedSettingsWindow()
 
 void AdvancedSettingsWindow::create_buffer_size_panel()
 {
-    ASWPanelBufferSize* buffer_size_panel = new ASWPanelBufferSize(this, main_widget_);
+    ASWPanelBufferSize* buffer_size_panel = new ASWPanelBufferSize();
     // addWidget(*Widget, row, column, rowspan, colspan)
     main_layout_->addWidget(buffer_size_panel, 1, 0, 1, 1);
 }
 
 void AdvancedSettingsWindow::create_advanced_panel()
 {
-    ASWPanelAdvanced* advanced_panel = new ASWPanelAdvanced(this, main_widget_);
+    ASWPanelAdvanced* advanced_panel = new ASWPanelAdvanced();
     // addWidget(*Widget, row, column, rowspan, colspan)
     main_layout_->addWidget(advanced_panel, 1, 1, 1, 1);
 }
 
 void AdvancedSettingsWindow::create_file_panel()
 {
-    ASWPanelFile* file_panel = new ASWPanelFile(this, main_widget_);
+    ASWPanelFile* file_panel = new ASWPanelFile();
     // addWidget(*Widget, row, column, rowspan, colspan)
     main_layout_->addWidget(file_panel, 0, 0, 1, 2);
 }
 
 void AdvancedSettingsWindow::create_chart_panel()
 {
-    ASWPanelChart* chart_panel = new ASWPanelChart(this, main_widget_);
+    ASWPanelChart* chart_panel = new ASWPanelChart();
     // addWidget(*Widget, row, column, rowspan, colspan)
     main_layout_->addWidget(chart_panel, 2, 0, 1, 1);
 }
