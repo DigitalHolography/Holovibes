@@ -18,8 +18,6 @@
 /**
  * TODO: list
  * - (maybe) save into .ini file every managed params
- * - remove useless params ctors (params), because the link is already done when
- *   ...->addWidget() or ...->addItem() is performed.
  */
 
 namespace holovibes::gui
