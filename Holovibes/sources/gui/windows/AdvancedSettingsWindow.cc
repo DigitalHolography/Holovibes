@@ -14,8 +14,6 @@ namespace holovibes::gui
 AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
     : QMainWindow(parent)
 {
-    LOG_ERROR;
-
     this->setWindowTitle("AdvancedSettings");
     this->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -41,7 +39,6 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSett
 
 AdvancedSettingsWindow::~AdvancedSettingsWindow()
 {
-    LOG_INFO;
     UserInterfaceDescriptor::instance().advanced_settings_window_.release();
 }
 

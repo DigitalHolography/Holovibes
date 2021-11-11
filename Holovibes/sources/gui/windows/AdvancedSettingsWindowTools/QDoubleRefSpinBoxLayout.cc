@@ -1,5 +1,4 @@
 #include "QDoubleRefSpinBoxLayout.hh"
-#include "logger.hh"
 
 namespace holovibes::gui
 {
@@ -11,7 +10,7 @@ QDoubleRefSpinBoxLayout::QDoubleRefSpinBoxLayout(QMainWindow* parent, const std:
     connect(this, SIGNAL(value_changed()), this, SLOT(refresh_value()));
 }
 
-QDoubleRefSpinBoxLayout::~QDoubleRefSpinBoxLayout() { LOG_INFO; }
+QDoubleRefSpinBoxLayout::~QDoubleRefSpinBoxLayout() {}
 
 #pragma region SETTERS
 

@@ -8,7 +8,6 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
-
 #include "logger.hh"
 
 namespace holovibes::gui
