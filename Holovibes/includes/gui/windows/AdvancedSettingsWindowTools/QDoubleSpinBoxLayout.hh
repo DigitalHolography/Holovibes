@@ -26,7 +26,7 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      * \param value the new value
      * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
      */
-    QDoubleSpinBoxLayout* set_value(double value);
+    virtual QDoubleSpinBoxLayout* set_value(double value);
 
     /*! \brief Sets lower bound value
      *
@@ -53,7 +53,7 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
     /*! \brief Calls when spin box is spinned*/
     void value_changed();
 
-  private:
+  protected:
     QDoubleSpinBox* spin_box_;
 };
 } // namespace holovibes::gui

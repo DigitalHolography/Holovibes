@@ -61,13 +61,14 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/AdvancedSettingsWindowTools/QSpinBoxLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QIntSpinBoxLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QDoubleSpinBoxLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/QDoubleRefSpinBoxLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.cc
     gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_buffer_size.cc
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_advanced.cc
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_chart.cc
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_file.cc
-
+    gui/windows/panels/asw_mainwindow_panel.cc
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc

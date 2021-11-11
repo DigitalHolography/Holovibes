@@ -130,6 +130,7 @@ class ImageRenderingPanel : public Panel
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 
+  public:
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui
