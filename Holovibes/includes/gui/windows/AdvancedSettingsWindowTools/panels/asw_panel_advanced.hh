@@ -20,7 +20,7 @@ class ASWPanelAdvanced : public AdvancedSettingsWindowPanel
     Q_OBJECT
 
   public:
-    ASWPanelAdvanced(QMainWindow* parent = nullptr, QWidget* parent_widget = nullptr);
+    ASWPanelAdvanced();
     ~ASWPanelAdvanced();
 
   private:

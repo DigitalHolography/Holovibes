@@ -705,11 +705,13 @@ bool slide_update_threshold(
  */
 void start_information_display(const std::function<void()>& callback = []() {});
 
-/*!
- * \brief TODO
+/*! \brief Opens additional settings window
  *
+ * \param parent then window that will embed the specific panel
+ * \param specific_panel the specific panel to link
  */
-void open_advanced_settings(::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
+void open_advanced_settings(QMainWindow* parent = nullptr,
+                            ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
 ::holovibes::ComputeDescriptor& get_cd();
 

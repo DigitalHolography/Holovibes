@@ -18,7 +18,7 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
     Q_OBJECT
 
   public:
-    QIntSpinBoxLayout(QWidget* parent_widget = nullptr, const std::string& name = "");
+    QIntSpinBoxLayout(QMainWindow* parent = nullptr, const std::string& name = "");
     ~QIntSpinBoxLayout();
 
     /*! \brief Sets the Value object

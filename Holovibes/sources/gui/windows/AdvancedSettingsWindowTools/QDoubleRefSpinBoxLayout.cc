@@ -3,8 +3,8 @@
 
 namespace holovibes::gui
 {
-QDoubleRefSpinBoxLayout::QDoubleRefSpinBoxLayout(QWidget* parent_widget, const std::string& name, double* value_ptr)
-    : QDoubleSpinBoxLayout(parent_widget, name)
+QDoubleRefSpinBoxLayout::QDoubleRefSpinBoxLayout(QMainWindow* parent, const std::string& name, double* value_ptr)
+    : QDoubleSpinBoxLayout(parent, name)
     , value_ptr_(value_ptr)
 {
     set_value(*value_ptr_);

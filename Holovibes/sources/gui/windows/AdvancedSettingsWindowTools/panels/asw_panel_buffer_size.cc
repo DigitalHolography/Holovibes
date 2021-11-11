@@ -10,8 +10,8 @@ namespace holovibes::gui
 #define DEFAULT_OUTPUT_VALUE api::get_output_buffer_size()
 #define DEFAULT_CUTS_VALUE api::get_time_transformation_cuts_output_buffer_size()
 
-ASWPanelBufferSize::ASWPanelBufferSize(QMainWindow* parent, QWidget* parent_widget)
-    : AdvancedSettingsWindowPanel(parent, parent_widget, "Buffer size")
+ASWPanelBufferSize::ASWPanelBufferSize()
+    : AdvancedSettingsWindowPanel("Buffer size")
 {
     buffer_size_layout_ = new QVBoxLayout();
 
@@ -32,7 +32,7 @@ ASWPanelBufferSize::~ASWPanelBufferSize() {}
 void ASWPanelBufferSize::create_file_widget()
 {
     // File spin box
-    file_ = new QIntSpinBoxLayout(parent_widget_, "file");
+    file_ = new QIntSpinBoxLayout(nullptr, "file");
     file_->set_value(DEFAULT_FILE_VALUE);
     buffer_size_layout_->addItem(file_);
     connect(file_, SIGNAL(value_changed()), this, SLOT(on_change_file_value()));
@@ -41,7 +41,7 @@ void ASWPanelBufferSize::create_file_widget()
 void ASWPanelBufferSize::create_input_widget()
 {
     // Input spin box
-    input_ = new QIntSpinBoxLayout(parent_widget_, "input");
+    input_ = new QIntSpinBoxLayout(nullptr, "input");
     input_->set_value(DEFAULT_INPUT_VALUE);
     buffer_size_layout_->addItem(input_);
     connect(input_, SIGNAL(value_changed()), this, SLOT(on_change_input_value()));
@@ -50,7 +50,7 @@ void ASWPanelBufferSize::create_input_widget()
 void ASWPanelBufferSize::create_record_widget()
 {
     // Record spin box
-    record_ = new QIntSpinBoxLayout(parent_widget_, "record");
+    record_ = new QIntSpinBoxLayout(nullptr, "record");
     record_->set_value(DEFAULT_RECORD_VALUE);
     buffer_size_layout_->addItem(record_);
     connect(record_, SIGNAL(value_changed()), this, SLOT(on_change_record_value()));
@@ -59,7 +59,7 @@ void ASWPanelBufferSize::create_record_widget()
 void ASWPanelBufferSize::create_output_widget()
 {
     // Output spin box
-    output_ = new QIntSpinBoxLayout(parent_widget_, "output");
+    output_ = new QIntSpinBoxLayout(nullptr, "output");
     output_->set_value(DEFAULT_OUTPUT_VALUE);
     buffer_size_layout_->addItem(output_);
     connect(output_, SIGNAL(value_changed()), this, SLOT(on_change_output_value()));
@@ -68,7 +68,7 @@ void ASWPanelBufferSize::create_output_widget()
 void ASWPanelBufferSize::create_cuts_widget()
 {
     // 3D cuts spin box
-    cuts_ = new QIntSpinBoxLayout(parent_widget_, "3D cuts");
+    cuts_ = new QIntSpinBoxLayout(nullptr, "3D cuts");
     cuts_->set_value(DEFAULT_CUTS_VALUE);
     buffer_size_layout_->addItem(cuts_);
     connect(cuts_, SIGNAL(value_changed()), this, SLOT(on_change_cuts_value()));

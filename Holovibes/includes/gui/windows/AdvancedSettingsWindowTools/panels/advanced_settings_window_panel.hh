@@ -18,20 +18,14 @@ class AdvancedSettingsWindowPanel : public QGroupBox
     /*!
      * \brief Advanced Settings Window Panel object constructor
      *
-     * \param parent the object that will embed the layouts
-     * \param parent_widget the object that will embed the object
      * \param name the name to display for the created QGroupBox
      */
-    AdvancedSettingsWindowPanel(QMainWindow* parent = nullptr,
-                                QWidget* parent_widget = nullptr,
-                                const std::string& name = "");
+    AdvancedSettingsWindowPanel(const std::string& name = "");
 
     /*! \brief Advanced Settings Window Panel object desctructor */
     ~AdvancedSettingsWindowPanel();
 
   public:
-    QMainWindow* parent_;
-    QWidget* parent_widget_;
     const std::string& name_;
 };
 } // namespace holovibes::gui

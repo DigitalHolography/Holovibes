@@ -5,12 +5,12 @@ namespace holovibes::gui
 
 #define DEFAULT_SPACING 30
 
-QSpinBoxLayout::QSpinBoxLayout(QWidget* parent_widget, const std::string& name)
-    : QHBoxLayout()
+QSpinBoxLayout::QSpinBoxLayout(QMainWindow* parent, const std::string& name)
+    : QHBoxLayout(parent)
 {
     setSpacing(DEFAULT_SPACING);
 
-    label_ = new QLabel(parent_widget);
+    label_ = new QLabel();
     setLabel(name);
     this->addWidget(label_);
 }

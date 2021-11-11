@@ -6,10 +6,10 @@ namespace holovibes::gui
 #define DEFAULT_MINIMUM_VALUE 0
 #define DEFAULT_MAXIMUM_VALUE INT_MAX
 
-QIntSpinBoxLayout::QIntSpinBoxLayout(QWidget* parent_widget, const std::string& name)
-    : QSpinBoxLayout(parent_widget, name)
+QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, const std::string& name)
+    : QSpinBoxLayout(parent, name)
 {
-    spin_box_ = new QSpinBox(parent_widget);
+    spin_box_ = new QSpinBox();
 
     // spin box's default settings
     set_minimum_value(DEFAULT_MINIMUM_VALUE)->set_maximum_value(DEFAULT_MAXIMUM_VALUE);
