@@ -22,7 +22,7 @@ class QSpinBoxLayout : public QHBoxLayout
     /*! \brief QSpinBoxLayout object constructor
      *
      * \param parent the window that will embed the object
-     * \param name the name to display for the created QGroupBox
+     * \param name the name to display beside the spin box
      */
     QSpinBoxLayout(QMainWindow* parent = nullptr, const std::string& name = "");
 
@@ -34,7 +34,7 @@ class QSpinBoxLayout : public QHBoxLayout
      *
      * \param name the new name
      */
-    void setLabel(const std::string& name);
+    void set_label(const std::string& name);
 
   private:
     QLabel* label_;

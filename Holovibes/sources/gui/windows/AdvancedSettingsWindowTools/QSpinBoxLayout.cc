@@ -11,12 +11,12 @@ QSpinBoxLayout::QSpinBoxLayout(QMainWindow* parent, const std::string& name)
     setSpacing(DEFAULT_SPACING);
 
     label_ = new QLabel();
-    setLabel(name);
+    set_label(name);
     this->addWidget(label_);
 }
 
 QSpinBoxLayout::~QSpinBoxLayout(){};
 
-void QSpinBoxLayout::setLabel(const std::string& name) { label_->setText(QString::fromUtf8(name.c_str())); }
+void QSpinBoxLayout::set_label(const std::string& name) { label_->setText(QString::fromUtf8(name.c_str())); }
 
 } // namespace holovibes::gui

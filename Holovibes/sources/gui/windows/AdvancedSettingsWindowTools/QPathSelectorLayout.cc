@@ -5,10 +5,11 @@ namespace holovibes::gui
 
 #define DEFAULT_MARGIN 7
 
-QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent)
+QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent, const std::string& name)
     : QHBoxLayout(parent)
 {
     label_ = new QLabel();
+    set_name(name);
     addWidget(label_);
 
     // Single blank widget only between label and line edit

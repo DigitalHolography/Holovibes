@@ -22,8 +22,9 @@ class QPathSelectorLayout : public QHBoxLayout
     /*! \brief QPathSelectorLayout object constructor
      *
      * \param parent the window that will embed the object
+     * \param name the name to display beside the line edit
      */
-    QPathSelectorLayout(QMainWindow* parent = nullptr);
+    QPathSelectorLayout(QMainWindow* parent = nullptr, const std::string& name = "");
 
     /*! \brief QPathSelectorLayout object destructor */
     ~QPathSelectorLayout();
