@@ -22,7 +22,7 @@ QDoubleSpinBoxLayout::~QDoubleSpinBoxLayout(){};
 
 #pragma region SETTERS
 
-QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::setValue(double value)
+QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::set_value(double value)
 {
     spin_box_->setValue(value);
     return this;

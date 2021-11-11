@@ -29,12 +29,12 @@ QPathSelectorLayout::~QPathSelectorLayout() {}
 
 #pragma region SETTERS
 
-QPathSelectorLayout* QPathSelectorLayout::setText(const std::string& text)
+QPathSelectorLayout* QPathSelectorLayout::set_text(const std::string& text)
 {
     line_edit_->setText(QString::fromUtf8(text.c_str()));
     return this;
 }
-QPathSelectorLayout* QPathSelectorLayout::setName(const std::string& name)
+QPathSelectorLayout* QPathSelectorLayout::set_name(const std::string& name)
 {
     label_->setText(QString::fromUtf8(name.c_str()));
     return this;

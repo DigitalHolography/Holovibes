@@ -26,7 +26,7 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      * \param value the new value
      * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
      */
-    QDoubleSpinBoxLayout* setValue(double value);
+    QDoubleSpinBoxLayout* set_value(double value);
 
     /*! \brief Sets lower bound value
      *

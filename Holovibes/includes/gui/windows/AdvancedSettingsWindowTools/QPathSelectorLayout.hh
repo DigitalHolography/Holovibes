@@ -33,14 +33,14 @@ class QPathSelectorLayout : public QHBoxLayout
      * \param text the new text
      * \return QPathSelectorLayout* this, for linked initilizer purposes
      */
-    QPathSelectorLayout* setText(const std::string& text);
+    QPathSelectorLayout* set_text(const std::string& text);
 
     /*! \brief Sets the name/label of the layout
      *
      * \param name the new name
      * \return QPathSelectorLayout* this, for linked initilizer purposes
      */
-    QPathSelectorLayout* setName(const std::string& name);
+    QPathSelectorLayout* set_name(const std::string& name);
 
     /*! \brief Get the line edit's text
      *
