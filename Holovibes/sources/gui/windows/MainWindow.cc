@@ -18,6 +18,8 @@
 
 #include "view_struct.hh"
 
+#include "asw_mainwindow_panel.hh"
+
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
@@ -563,7 +565,9 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    api::open_advanced_settings();
+    ASWMainWindowPanel* panel =
+        new ASWMainWindowPanel(nullptr, nullptr, &(dynamic_cast<ImageRenderingPanel*>(panels_[0])->z_step_));
+    api::open_advanced_settings(panel);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),
