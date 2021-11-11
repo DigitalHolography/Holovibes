@@ -4,7 +4,6 @@
 namespace holovibes::gui
 {
 
-// TODO: change by API getter call
 #define DEFAULT_FILE_VALUE api::get_file_buffer_size()
 #define DEFAULT_INPUT_VALUE api::get_input_buffer_size()
 #define DEFAULT_RECORD_VALUE api::get_record_buffer_size()
@@ -78,7 +77,7 @@ void ASWPanelBufferSize::create_cuts_widget()
 #pragma endregion
 
 #pragma region SLOTS
-// TODO: region to implement with API
+
 void ASWPanelBufferSize::on_change_file_value()
 {
     LOG_INFO << file_->get_value();

@@ -85,5 +85,10 @@ void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* sp
 
 #pragma endregion
 
+#pragma region SLOTS
+
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
+
+#pragma endregion
+
 } // namespace holovibes::gui

@@ -42,8 +42,7 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
      */
     QDoubleSpinBoxLayout* set_maximum_value(double maximum_value);
 
-    /*!
-     * \brief Gets the value of spin box
+    /*! \brief Gets the value of spin box
      *
      * \return double: the new value
      */
