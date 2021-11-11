@@ -13,6 +13,8 @@
 #include <QSpinBox>
 #include <QGroupBox>
 
+#include "advanced_settings_window_panel.hh"
+
 /**
  * TODO: list
  * - (maybe) save into .ini file every managed params
@@ -33,21 +35,24 @@ class AdvancedSettingsWindow : public QMainWindow
     void closed();
 
   public:
+    // TODO: refresh comment
     /*! \brief AdvancedSettingsWindow constructor
      *
      * Create a AdvancedSettingsWindow and shows it.
      *
      */
-    AdvancedSettingsWindow(QMainWindow* parent = nullptr);
+    AdvancedSettingsWindow(QMainWindow* parent = nullptr, AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
   private:
+    // TODO: comments
     void create_buffer_size_panel();
     void create_advanced_panel();
     void create_file_panel();
     void create_chart_panel();
+    void plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel);
 
   private:
     QWidget* main_widget_;

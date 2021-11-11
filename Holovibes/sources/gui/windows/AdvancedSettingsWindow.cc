@@ -11,7 +11,7 @@
 namespace holovibes::gui
 {
 
-AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
+AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
     : QMainWindow(parent)
 {
     this->setWindowTitle("AdvancedSettings");
@@ -28,6 +28,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     create_advanced_panel();
     create_file_panel();
     create_chart_panel();
+    plug_specific_panel(specific_panel);
 
     // Give to the QMainWindow the invisible widget carrying the customized layout
     setCentralWidget(main_widget_);
@@ -62,6 +63,14 @@ void AdvancedSettingsWindow::create_chart_panel()
     ASWPanelChart* chart_panel = new ASWPanelChart(this, main_widget_);
     // addWidget(*Widget, row, column, rowspan, colspan)
     main_layout_->addWidget(chart_panel, 2, 0, 1, 1);
+}
+
+void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel)
+{
+    if (specific_panel == nullptr)
+        return;
+
+    main_layout_->addWidget(specific_panel, 2, 1, 1, 1);
 }
 
 #pragma endregion

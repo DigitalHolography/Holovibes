@@ -1,4 +1,5 @@
 #include "asw_panel_buffer_size.hh"
+#include "API.hh"
 
 namespace holovibes::gui
 {

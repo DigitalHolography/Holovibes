@@ -1,5 +1,5 @@
 #include "asw_panel_chart.hh"
-
+#include "API.hh"
 namespace holovibes::gui
 {
 

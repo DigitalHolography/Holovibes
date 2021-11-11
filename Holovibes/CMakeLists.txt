@@ -116,7 +116,6 @@ add_library("${PROJECT_NAME}_lib" STATIC
      # Add the relevent .hh in Holovibes/includes/CMakeList.txt
 
      mainwindow.ui
-     advancedsettingswindow.ui
      plotwindow.ui
 )
 
@@ -227,7 +226,6 @@ endif()
 
 add_executable("${PROJECT_NAME}"
     mainwindow.ui
-    advancedsettingswindow.ui
     plotwindow.ui
 
     Holovibes.rc
