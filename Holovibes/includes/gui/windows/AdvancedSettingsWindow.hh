@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QSpinBox>
 #include <QGroupBox>
 
@@ -42,8 +43,15 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
+  private:
+    void create_buffer_size_panel();
+    void create_advanced_panel();
+    void create_file_panel();
+    void create_chart_panel();
+
+  private:
     QWidget* main_widget;
-    QHBoxLayout* main_layout;
+    QGridLayout* main_layout;
     QVBoxLayout* buffer_size_layout;
 
   public slots:
