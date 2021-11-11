@@ -20,7 +20,7 @@ ASWPanelFile::ASWPanelFile()
     setLayout(file_layout_);
 }
 
-ASWPanelFile::~ASWPanelFile() { LOG_INFO; }
+ASWPanelFile::~ASWPanelFile() {}
 
 #pragma region WIDGETS
 

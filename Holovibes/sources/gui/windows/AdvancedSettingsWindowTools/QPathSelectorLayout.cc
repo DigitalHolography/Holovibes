@@ -25,7 +25,7 @@ QPathSelectorLayout::QPathSelectorLayout(QMainWindow* parent)
     addWidget(browse_button_);
 }
 
-QPathSelectorLayout::~QPathSelectorLayout() { LOG_INFO; }
+QPathSelectorLayout::~QPathSelectorLayout() {}
 
 #pragma region SETTERS
 

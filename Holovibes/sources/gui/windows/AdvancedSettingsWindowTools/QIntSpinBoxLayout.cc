@@ -18,7 +18,7 @@ QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, const std::string& nam
     addWidget(spin_box_, Qt::AlignRight);
 }
 
-QIntSpinBoxLayout::~QIntSpinBoxLayout() { LOG_INFO; };
+QIntSpinBoxLayout::~QIntSpinBoxLayout(){};
 
 #pragma region SETTERS
 

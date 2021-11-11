@@ -14,7 +14,7 @@ ASWMainWindowPanel::ASWMainWindowPanel(double* z_step)
     setLayout(chart_layout_);
 }
 
-ASWMainWindowPanel::~ASWMainWindowPanel() { LOG_INFO; }
+ASWMainWindowPanel::~ASWMainWindowPanel() {}
 
 #pragma region WIDGETS
 
