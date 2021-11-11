@@ -2,8 +2,8 @@
 
 ### 10.3
 
-* Remove Accu CheckBoxes (equvalent to accu_level == 0)
-* Split Holovibes.ini in compute_settings.ini + global_settings.ini in AppData
+* Remove Accu CheckBoxes (equivalent to accu_level == 0)
+* Split Holovibes.ini in compute_settings.ini + global_settings.ini in %AppData% folder
 * Remove Reset functionality
 * Add new window AdvancedSettings to be able to change all parameters from UI
 * Browse location of compute_settings.ini import/export
