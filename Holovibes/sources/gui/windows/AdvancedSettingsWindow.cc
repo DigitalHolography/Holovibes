@@ -14,7 +14,11 @@ namespace holovibes::gui
 AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
     : QMainWindow(parent)
 {
+    LOG_ERROR;
+
     this->setWindowTitle("AdvancedSettings");
+    this->setAttribute(Qt::WA_DeleteOnClose);
+
     // We cannot give a customized layout to a QMainWindow so we have
     // to instantiate an invisible widget that will carry the customized
     // layout
@@ -33,6 +37,12 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSett
     // Give to the QMainWindow the invisible widget carrying the customized layout
     setCentralWidget(main_widget_);
     this->show();
+}
+
+AdvancedSettingsWindow::~AdvancedSettingsWindow()
+{
+    LOG_INFO;
+    UserInterfaceDescriptor::instance().advanced_settings_window_.release();
 }
 
 #pragma region PANELS
@@ -74,8 +84,6 @@ void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* sp
 }
 
 #pragma endregion
-
-AdvancedSettingsWindow::~AdvancedSettingsWindow() {}
 
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 } // namespace holovibes::gui

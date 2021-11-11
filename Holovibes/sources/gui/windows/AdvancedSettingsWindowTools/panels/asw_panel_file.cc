@@ -20,7 +20,7 @@ ASWPanelFile::ASWPanelFile(QMainWindow* parent, QWidget* parent_widget)
     setLayout(file_layout_);
 }
 
-ASWPanelFile::~ASWPanelFile() {}
+ASWPanelFile::~ASWPanelFile() { LOG_INFO; }
 
 #pragma region WIDGETS
 

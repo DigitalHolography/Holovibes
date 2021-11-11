@@ -14,7 +14,7 @@ ASWMainWindowPanel::ASWMainWindowPanel(QMainWindow* parent, QWidget* parent_widg
     setLayout(chart_layout_);
 }
 
-ASWMainWindowPanel::~ASWMainWindowPanel() {}
+ASWMainWindowPanel::~ASWMainWindowPanel() { LOG_INFO; }
 
 #pragma region WIDGETS
 void ASWMainWindowPanel::create_z_step_widget(double* z_step)
