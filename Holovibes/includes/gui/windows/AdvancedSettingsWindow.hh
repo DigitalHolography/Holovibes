@@ -50,9 +50,8 @@ class AdvancedSettingsWindow : public QMainWindow
     void create_chart_panel();
 
   private:
-    QWidget* main_widget;
-    QGridLayout* main_layout;
-    QVBoxLayout* buffer_size_layout;
+    QWidget* main_widget_;
+    QGridLayout* main_layout_;
 
   public slots:
     /*! \brief emit signal closed on window is closed */

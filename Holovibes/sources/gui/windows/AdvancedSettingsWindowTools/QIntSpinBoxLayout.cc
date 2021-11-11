@@ -22,7 +22,7 @@ QIntSpinBoxLayout::~QIntSpinBoxLayout(){};
 
 #pragma region SETTERS
 
-QIntSpinBoxLayout* QIntSpinBoxLayout::setValue(int default_value)
+QIntSpinBoxLayout* QIntSpinBoxLayout::set_value(int default_value)
 {
     spin_box_->setValue(default_value);
     return this;
