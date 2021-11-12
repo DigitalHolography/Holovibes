@@ -8,6 +8,7 @@
 #include "QIntSpinBoxLayout.hh"
 #include "QDoubleSpinBoxLayout.hh"
 #include "QPathSelectorLayout.hh"
+#include "QLineEditLayout.hh"
 #include <QVBoxLayout>
 
 namespace holovibes::gui
@@ -25,6 +26,8 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     ~ASWPanelFile();
 
   private:
+    /*! \brief Creates attribute default output filename */
+    void create_default_output_filename_widget();
     /*! \brief Creates attribute default input folder */
     void create_default_input_folder_widget();
     /*! \brief Creates attribute default output folder */
@@ -33,6 +36,8 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
     void create_batch_input_folder_widget();
 
   private slots:
+    /*! \brief Processing when output filename has changed */
+    void on_change_output_filename();
     /*! \brief Processing when input folder has changed */
     void on_change_input_folder();
     /*! \brief Processing when output folder has changed */
@@ -42,6 +47,7 @@ class ASWPanelFile : public AdvancedSettingsWindowPanel
 
   private:
     QVBoxLayout* file_layout_;
+    QLineEditLayout* default_output_filename_;
     QPathSelectorLayout* default_input_folder_;
     QPathSelectorLayout* default_output_folder_;
     QPathSelectorLayout* batch_input_folder_;
