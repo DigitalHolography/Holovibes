@@ -8,7 +8,6 @@
 #include "QIntSpinBoxLayout.hh"
 #include "QDoubleSpinBoxLayout.hh"
 #include "QPathSelectorLayout.hh"
-#include "QLineEditLayout.hh"
 #include <QVBoxLayout>
 
 namespace holovibes::gui
