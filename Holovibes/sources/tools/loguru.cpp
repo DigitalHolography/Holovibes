@@ -19,8 +19,7 @@
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #elif defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(                                                               \
-    disable : 4365) // conversion from 'X' to 'Y', signed/unsigned mismatch
+#pragma warning(disable : 4365) // conversion from 'X' to 'Y', signed/unsigned mismatch
 #endif
 
 #include "loguru.hpp"
@@ -28,8 +27,7 @@
 #ifndef LOGURU_HAS_BEEN_IMPLEMENTED
 #define LOGURU_HAS_BEEN_IMPLEMENTED
 
-#define LOGURU_PREAMBLE_WIDTH                                                  \
-    (53 + LOGURU_THREADNAME_WIDTH + LOGURU_FILENAME_WIDTH)
+#define LOGURU_PREAMBLE_WIDTH (53 + LOGURU_THREADNAME_WIDTH + LOGURU_FILENAME_WIDTH)
 
 #undef min
 #undef max
@@ -56,7 +54,7 @@
 #ifdef _WIN32
 #include <direct.h>
 
-#define localtime_r(a, b)                                                      \
+#define localtime_r(a, b)                                                                                              \
     localtime_s(b, a) // No localtime_r with MSVC, but arguments are swapped for
                       // localtime_s
 #else
@@ -235,14 +233,10 @@ static const bool s_terminal_has_color = []() {
     if (const char* term = getenv("TERM"))
     {
         return 0 == strcmp(term, "cygwin") || 0 == strcmp(term, "linux") ||
-               0 == strcmp(term, "rxvt-unicode-256color") ||
-               0 == strcmp(term, "screen") ||
-               0 == strcmp(term, "screen-256color") ||
-               0 == strcmp(term, "screen.xterm-256color") ||
-               0 == strcmp(term, "tmux-256color") ||
-               0 == strcmp(term, "xterm") ||
-               0 == strcmp(term, "xterm-256color") ||
-               0 == strcmp(term, "xterm-termite") ||
+               0 == strcmp(term, "rxvt-unicode-256color") || 0 == strcmp(term, "screen") ||
+               0 == strcmp(term, "screen-256color") || 0 == strcmp(term, "screen.xterm-256color") ||
+               0 == strcmp(term, "tmux-256color") || 0 == strcmp(term, "xterm") ||
+               0 == strcmp(term, "xterm-256color") || 0 == strcmp(term, "xterm-termite") ||
                0 == strcmp(term, "xterm-color");
     }
     else
@@ -274,23 +268,14 @@ const char* terminal_yellow() { return s_terminal_has_color ? VTSEQ(33) : ""; }
 const char* terminal_blue() { return s_terminal_has_color ? VTSEQ(34) : ""; }
 const char* terminal_purple() { return s_terminal_has_color ? VTSEQ(35) : ""; }
 const char* terminal_cyan() { return s_terminal_has_color ? VTSEQ(36) : ""; }
-const char* terminal_light_gray()
-{
-    return s_terminal_has_color ? VTSEQ(37) : "";
-}
+const char* terminal_light_gray() { return s_terminal_has_color ? VTSEQ(37) : ""; }
 const char* terminal_white() { return s_terminal_has_color ? VTSEQ(37) : ""; }
-const char* terminal_light_red()
-{
-    return s_terminal_has_color ? VTSEQ(91) : "";
-}
+const char* terminal_light_red() { return s_terminal_has_color ? VTSEQ(91) : ""; }
 const char* terminal_dim() { return s_terminal_has_color ? VTSEQ(2) : ""; }
 
 // Formating
 const char* terminal_bold() { return s_terminal_has_color ? VTSEQ(1) : ""; }
-const char* terminal_underline()
-{
-    return s_terminal_has_color ? VTSEQ(4) : "";
-}
+const char* terminal_underline() { return s_terminal_has_color ? VTSEQ(4) : ""; }
 
 // You should end each line with this!
 const char* terminal_reset() { return s_terminal_has_color ? VTSEQ(0) : ""; }
@@ -298,15 +283,9 @@ const char* terminal_reset() { return s_terminal_has_color ? VTSEQ(0) : ""; }
 // ------------------------------------------------------------------------------
 #if LOGURU_WITH_FILEABS
 void file_reopen(void* user_data);
-inline FILE* to_file(void* user_data)
-{
-    return reinterpret_cast<FileAbs*>(user_data)->fp;
-}
+inline FILE* to_file(void* user_data) { return reinterpret_cast<FileAbs*>(user_data)->fp; }
 #else
-inline FILE* to_file(void* user_data)
-{
-    return reinterpret_cast<FILE*>(user_data);
-}
+inline FILE* to_file(void* user_data) { return reinterpret_cast<FILE*>(user_data); }
 #endif
 
 void file_log(void* user_data, const Message& message)
@@ -321,8 +300,7 @@ void file_log(void* user_data, const Message& message)
     // instead of doing this every time we log.
     // Here check_interval is set to zero to enable checking every time;
     const auto check_interval = seconds(0);
-    if (duration_cast<seconds>(steady_clock::now() -
-                               file_abs->last_check_time) > check_interval)
+    if (duration_cast<seconds>(steady_clock::now() - file_abs->last_check_time) > check_interval)
     {
         file_abs->last_check_time = steady_clock::now();
         file_reopen(user_data);
@@ -335,12 +313,7 @@ void file_log(void* user_data, const Message& message)
 #else
     FILE* file = to_file(user_data);
 #endif
-    fprintf(file,
-            "%s%s%s%s\n",
-            message.preamble,
-            message.indentation,
-            message.prefix,
-            message.message);
+    fprintf(file, "%s%s%s%s\n", message.preamble, message.indentation, message.prefix, message.message);
     if (g_flush_interval_ms == 0)
     {
         fflush(file);
@@ -371,8 +344,7 @@ void file_reopen(void* user_data)
     FileAbs* file_abs = reinterpret_cast<FileAbs*>(user_data);
     struct stat st;
     int ret;
-    if (!file_abs->fp || (ret = stat(file_abs->path, &st)) == -1 ||
-        (st.st_ino != file_abs->st.st_ino))
+    if (!file_abs->fp || (ret = stat(file_abs->path, &st)) == -1 || (st.st_ino != file_abs->st.st_ino))
     {
         file_abs->is_reopening = true;
         if (file_abs->fp)
@@ -381,31 +353,24 @@ void file_reopen(void* user_data)
         }
         if (!file_abs->fp)
         {
-            VLOG_F(g_internal_verbosity,
-                   "Reopening file '" LOGURU_FMT(s) "' due to previous error",
-                   file_abs->path);
+            VLOG_F(g_internal_verbosity, "Reopening file '" LOGURU_FMT(s) "' due to previous error", file_abs->path);
         }
         else if (ret < 0)
         {
             const auto why = errno_as_text();
-            VLOG_F(
-                g_internal_verbosity,
-                "Reopening file '" LOGURU_FMT(s) "' due to '" LOGURU_FMT(s) "'",
-                file_abs->path,
-                why.c_str());
+            VLOG_F(g_internal_verbosity,
+                   "Reopening file '" LOGURU_FMT(s) "' due to '" LOGURU_FMT(s) "'",
+                   file_abs->path,
+                   why.c_str());
         }
         else
         {
-            VLOG_F(g_internal_verbosity,
-                   "Reopening file '" LOGURU_FMT(s) "' due to file changed",
-                   file_abs->path);
+            VLOG_F(g_internal_verbosity, "Reopening file '" LOGURU_FMT(s) "' due to file changed", file_abs->path);
         }
         // try reopen current file.
         if (!create_directories(file_abs->path))
         {
-            LOG_F(ERROR,
-                  "Failed to create directories to '" LOGURU_FMT(s) "'",
-                  file_abs->path);
+            LOG_F(ERROR, "Failed to create directories to '" LOGURU_FMT(s) "'", file_abs->path);
         }
         file_abs->fp = fopen(file_abs->path, file_abs->mode_str);
         if (!file_abs->fp)
@@ -463,11 +428,7 @@ void syslog_log(void* /*user_data*/, const Message& message)
     // Note: We don't add the time info.
     // This is done automatically by the syslog deamon.
     // Otherwise log all information that the file log does.
-    syslog(level,
-           "%s%s%s",
-           message.indentation,
-           message.prefix,
-           message.message);
+    syslog(level, "%s%s%s", message.indentation, message.prefix, message.message);
 }
 
 void syslog_close(void* /*user_data*/) { closelog(); }
@@ -480,10 +441,7 @@ void syslog_flush(void* /*user_data*/) {}
 Text::~Text() { free(_str); }
 
 #if LOGURU_USE_FMTLIB
-Text vtextprintf(const char* format, fmt::format_args args)
-{
-    return Text(STRDUP(fmt::vformat(format, args).c_str()));
-}
+Text vtextprintf(const char* format, fmt::format_args args) { return Text(STRDUP(fmt::vformat(format, args).c_str())); }
 #else
 LOGURU_PRINTF_LIKE(1, 0)
 static Text vtextprintf(const char* format, va_list vlist)
@@ -528,8 +486,7 @@ static const char* indentation(unsigned depth)
                                ".   .   .   .   .   .   .   .   .   .   "
                                ".   .   .   .   .   .   .   .   .   .   ";
     static const size_t INDENTATION_WIDTH = 4;
-    static const size_t NUM_INDENTATIONS =
-        (sizeof(buff) - 1) / INDENTATION_WIDTH;
+    static const size_t NUM_INDENTATIONS = (sizeof(buff) - 1) / INDENTATION_WIDTH;
     depth = std::min<unsigned>(depth, NUM_INDENTATIONS);
     return buff + INDENTATION_WIDTH * (NUM_INDENTATIONS - depth);
 }
@@ -543,8 +500,7 @@ static void parse_args(int& argc, char* argv[], const char* verbosity_flag)
     {
         auto cmd = argv[arg_it];
         auto arg_len = strlen(verbosity_flag);
-        if (strncmp(cmd, verbosity_flag, arg_len) == 0 &&
-            !std::isalpha(cmd[arg_len], std::locale("")))
+        if (strncmp(cmd, verbosity_flag, arg_len) == 0 && !std::isalpha(cmd[arg_len], std::locale("")))
         {
             out_argc -= 1;
             auto value_str = cmd + arg_len;
@@ -552,10 +508,7 @@ static void parse_args(int& argc, char* argv[], const char* verbosity_flag)
             {
                 // Value in separate argument
                 arg_it += 1;
-                CHECK_LT_F(arg_it,
-                           argc,
-                           "Missing verbosiy level after " LOGURU_FMT(s) "",
-                           verbosity_flag);
+                CHECK_LT_F(arg_it, argc, "Missing verbosiy level after " LOGURU_FMT(s) "", verbosity_flag);
                 value_str = argv[arg_it];
                 out_argc -= 1;
             }
@@ -572,8 +525,7 @@ static void parse_args(int& argc, char* argv[], const char* verbosity_flag)
             else
             {
                 char* end = 0;
-                g_stderr_verbosity =
-                    static_cast<int>(strtol(value_str, &end, 10));
+                g_stderr_verbosity = static_cast<int>(strtol(value_str, &end, 10));
                 CHECK_F(end && *end == '\0',
                         "Invalid verbosity. Expected integer, INFO, WARNING, "
                         "ERROR or OFF, got '" LOGURU_FMT(s) "'",
@@ -592,9 +544,7 @@ static void parse_args(int& argc, char* argv[], const char* verbosity_flag)
 
 static long long now_ns()
 {
-    return duration_cast<nanoseconds>(
-               high_resolution_clock::now().time_since_epoch())
-        .count();
+    return duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
 // Returns the part of the path after the last / or \ (if any).
@@ -688,7 +638,7 @@ static void escape(std::string& out, const std::string& str)
             out += "\\ ";
         }
         else if (0 <= c && c < 0x20)
-        {   // ASCI control character:
+        { // ASCI control character:
             // else if (c < 0x20 || c != (c & 127)) { // ASCII control character
             // or UTF-8:
             out += "\\x";
@@ -734,9 +684,7 @@ void init(int& argc, char* argv[], const Options& options)
     if (!getcwd(s_current_dir, sizeof(s_current_dir)))
     {
         const auto error_text = errno_as_text();
-        LOG_F(WARNING,
-              "Failed to get current working directory: " LOGURU_FMT(s) "",
-              error_text.c_str());
+        LOG_F(WARNING, "Failed to get current working directory: " LOGURU_FMT(s) "", error_text.c_str());
     }
 
     s_arguments = "";
@@ -762,9 +710,7 @@ void init(int& argc, char* argv[], const Options& options)
         char old_thread_name[16] = {0};
         auto this_thread = pthread_self();
 #if defined(__APPLE__) || defined(__linux__) || defined(__sun)
-        pthread_getname_np(this_thread,
-                           old_thread_name,
-                           sizeof(old_thread_name));
+        pthread_getname_np(this_thread, old_thread_name, sizeof(old_thread_name));
 #endif
         if (old_thread_name[0] == 0)
         {
@@ -787,11 +733,7 @@ void init(int& argc, char* argv[], const Options& options)
             print_preamble_header(preamble_explain, sizeof(preamble_explain));
             if (g_colorlogtostderr && s_terminal_has_color)
             {
-                fprintf(stderr,
-                        "%s%s%s\n",
-                        terminal_reset(),
-                        terminal_dim(),
-                        preamble_explain);
+                fprintf(stderr, "%s%s%s\n", terminal_reset(), terminal_dim(), preamble_explain);
             }
             else
             {
@@ -800,18 +742,12 @@ void init(int& argc, char* argv[], const Options& options)
         }
         fflush(stderr);
     }
-    VLOG_F(g_internal_verbosity,
-           "arguments: " LOGURU_FMT(s) "",
-           s_arguments.c_str());
+    VLOG_F(g_internal_verbosity, "arguments: " LOGURU_FMT(s) "", s_arguments.c_str());
     if (strlen(s_current_dir) != 0)
     {
-        VLOG_F(g_internal_verbosity,
-               "Current dir: " LOGURU_FMT(s) "",
-               s_current_dir);
+        VLOG_F(g_internal_verbosity, "Current dir: " LOGURU_FMT(s) "", s_current_dir);
     }
-    VLOG_F(g_internal_verbosity,
-           "stderr verbosity: " LOGURU_FMT(d) "",
-           g_stderr_verbosity);
+    VLOG_F(g_internal_verbosity, "stderr verbosity: " LOGURU_FMT(d) "", g_stderr_verbosity);
     VLOG_F(g_internal_verbosity, "-----------------------------------");
 
     install_signal_handlers(options.signal_options);
@@ -831,8 +767,7 @@ void shutdown()
 void write_date_time(char* buff, size_t buff_size)
 {
     auto now = system_clock::now();
-    long long ms_since_epoch =
-        duration_cast<milliseconds>(now.time_since_epoch()).count();
+    long long ms_since_epoch = duration_cast<milliseconds>(now.time_since_epoch()).count();
     time_t sec_since_epoch = time_t(ms_since_epoch / 1000);
     tm time_info;
     localtime_r(&sec_since_epoch, &time_info);
@@ -897,19 +832,10 @@ void suggest_log_path(const char* prefix, char* buff, unsigned buff_size)
     }
 
 #ifdef _WIN32
-    strncat_s(buff,
-              buff_size - strlen(buff) - 1,
-              s_argv0_filename.c_str(),
-              buff_size - strlen(buff) - 1);
-    strncat_s(buff,
-              buff_size - strlen(buff) - 1,
-              "/",
-              buff_size - strlen(buff) - 1);
+    strncat_s(buff, buff_size - strlen(buff) - 1, s_argv0_filename.c_str(), buff_size - strlen(buff) - 1);
+    strncat_s(buff, buff_size - strlen(buff) - 1, "/", buff_size - strlen(buff) - 1);
     write_date_time(buff + strlen(buff), buff_size - strlen(buff));
-    strncat_s(buff,
-              buff_size - strlen(buff) - 1,
-              ".log",
-              buff_size - strlen(buff) - 1);
+    strncat_s(buff, buff_size - strlen(buff) - 1, ".log", buff_size - strlen(buff) - 1);
 #else
     strncat(buff, s_argv0_filename.c_str(), buff_size - strlen(buff) - 1);
     strncat(buff, "/", buff_size - strlen(buff) - 1);
@@ -935,9 +861,7 @@ bool create_directories(const char* file_path_const)
 #endif
             if (errno != EEXIST)
             {
-                LOG_F(ERROR,
-                      "Failed to create directory '" LOGURU_FMT(s) "'",
-                      file_path);
+                LOG_F(ERROR, "Failed to create directory '" LOGURU_FMT(s) "'", file_path);
                 LOG_IF_F(ERROR, errno == EACCES, "EACCES");
                 LOG_IF_F(ERROR, errno == ENAMETOOLONG, "ENAMETOOLONG");
                 LOG_IF_F(ERROR, errno == ENOENT, "ENOENT");
@@ -968,9 +892,7 @@ bool add_file(const char* path_in, FileMode mode, Verbosity verbosity)
 
     if (!create_directories(path))
     {
-        LOG_F(ERROR,
-              "Failed to create directories to '" LOGURU_FMT(s) "'",
-              path);
+        LOG_F(ERROR, "Failed to create directories to '" LOGURU_FMT(s) "'", path);
     }
 
     const char* mode_str = (mode == FileMode::Truncate ? "w" : "a");
@@ -990,19 +912,11 @@ bool add_file(const char* path_in, FileMode mode, Verbosity verbosity)
 #if LOGURU_WITH_FILEABS
     FileAbs* file_abs = new FileAbs(); // this is deleted in file_close;
     snprintf(file_abs->path, sizeof(file_abs->path) - 1, "%s", path);
-    snprintf(file_abs->mode_str,
-             sizeof(file_abs->mode_str) - 1,
-             "%s",
-             mode_str);
+    snprintf(file_abs->mode_str, sizeof(file_abs->mode_str) - 1, "%s", mode_str);
     stat(file_abs->path, &file_abs->st);
     file_abs->fp = file;
     file_abs->verbosity = verbosity;
-    add_callback(path_in,
-                 file_log,
-                 file_abs,
-                 verbosity,
-                 file_close,
-                 file_flush);
+    add_callback(path_in, file_log, file_abs, verbosity, file_close, file_flush);
 #else
     add_callback(path_in, file_log, file, verbosity, file_close, file_flush);
 #endif
@@ -1029,8 +943,7 @@ bool add_file(const char* path_in, FileMode mode, Verbosity verbosity)
     fflush(file);
 
     VLOG_F(g_internal_verbosity,
-           "Logging to '" LOGURU_FMT(s) "', mode: '" LOGURU_FMT(
-               s) "', verbosity: " LOGURU_FMT(d) "",
+           "Logging to '" LOGURU_FMT(s) "', mode: '" LOGURU_FMT(s) "', verbosity: " LOGURU_FMT(d) "",
            path,
            mode_str,
            verbosity);
@@ -1052,10 +965,7 @@ bool add_file(const char* path_in, FileMode mode, Verbosity verbosity)
 
         Search for LOGURU_SYSLOG to find and fix.
 */
-bool add_syslog(const char* app_name, Verbosity verbosity)
-{
-    return add_syslog(app_name, verbosity, LOG_USER);
-}
+bool add_syslog(const char* app_name, Verbosity verbosity) { return add_syslog(app_name, verbosity, LOG_USER); }
 bool add_syslog(const char* app_name, Verbosity verbosity, int facility)
 {
 #if LOGURU_SYSLOG
@@ -1064,16 +974,9 @@ bool add_syslog(const char* app_name, Verbosity verbosity, int facility)
         app_name = argv0_filename();
     }
     openlog(app_name, 0, facility);
-    add_callback("'syslog'",
-                 syslog_log,
-                 nullptr,
-                 verbosity,
-                 syslog_close,
-                 syslog_flush);
+    add_callback("'syslog'", syslog_log, nullptr, verbosity, syslog_close, syslog_flush);
 
-    VLOG_F(g_internal_verbosity,
-           "Logging to 'syslog' , verbosity: " LOGURU_FMT(d) "",
-           verbosity);
+    VLOG_F(g_internal_verbosity, "Logging to 'syslog' , verbosity: " LOGURU_FMT(d) "", verbosity);
     return true;
 #else
     (void)app_name;
@@ -1090,15 +993,9 @@ void set_fatal_handler(fatal_handler_t handler) { s_fatal_handler = handler; }
 
 fatal_handler_t get_fatal_handler() { return s_fatal_handler; }
 
-void set_verbosity_to_name_callback(verbosity_to_name_t callback)
-{
-    s_verbosity_to_name_callback = callback;
-}
+void set_verbosity_to_name_callback(verbosity_to_name_t callback) { s_verbosity_to_name_callback = callback; }
 
-void set_name_to_verbosity_callback(name_to_verbosity_t callback)
-{
-    s_name_to_verbosity_callback = callback;
-}
+void set_name_to_verbosity_callback(name_to_verbosity_t callback) { s_name_to_verbosity_callback = callback; }
 
 void add_stack_cleanup(const char* find_this, const char* replace_with_this)
 {
@@ -1130,8 +1027,7 @@ void add_callback(const char* id,
                   flush_handler_t on_flush)
 {
     std::lock_guard<std::recursive_mutex> lock(s_mutex);
-    s_callbacks.push_back(
-        Callback{id, callback, user_data, verbosity, on_close, on_flush, 0});
+    s_callbacks.push_back(Callback{id, callback, user_data, verbosity, on_close, on_flush, 0});
     on_callback_change();
 }
 
@@ -1139,9 +1035,7 @@ void add_callback(const char* id,
 // See also set_verbosity_to_name_callback.
 const char* get_verbosity_name(Verbosity verbosity)
 {
-    auto name = s_verbosity_to_name_callback
-                    ? (*s_verbosity_to_name_callback)(verbosity)
-                    : nullptr;
+    auto name = s_verbosity_to_name_callback ? (*s_verbosity_to_name_callback)(verbosity) : nullptr;
 
     // Use standard replacements if callback fails:
     if (!name)
@@ -1171,9 +1065,7 @@ const char* get_verbosity_name(Verbosity verbosity)
 // See also set_name_to_verbosity_callback.
 Verbosity get_verbosity_from_name(const char* name)
 {
-    auto verbosity = s_name_to_verbosity_callback
-                         ? (*s_name_to_verbosity_callback)(name)
-                         : Verbosity_INVALID;
+    auto verbosity = s_name_to_verbosity_callback ? (*s_name_to_verbosity_callback)(name) : Verbosity_INVALID;
 
     // Use standard replacements if callback fails:
     if (verbosity == Verbosity_INVALID)
@@ -1206,9 +1098,7 @@ Verbosity get_verbosity_from_name(const char* name)
 bool remove_callback(const char* id)
 {
     std::lock_guard<std::recursive_mutex> lock(s_mutex);
-    auto it = std::find_if(begin(s_callbacks),
-                           end(s_callbacks),
-                           [&](const Callback& c) { return c.id == id; });
+    auto it = std::find_if(begin(s_callbacks), end(s_callbacks), [&](const Callback& c) { return c.id == id; });
     if (it != s_callbacks.end())
     {
         if (it->close)
@@ -1221,9 +1111,7 @@ bool remove_callback(const char* id)
     }
     else
     {
-        LOG_F(ERROR,
-              "Failed to locate callback with id '" LOGURU_FMT(s) "'",
-              id);
+        LOG_F(ERROR, "Failed to locate callback with id '" LOGURU_FMT(s) "'", id);
         return false;
     }
 }
@@ -1245,8 +1133,7 @@ void remove_all_callbacks()
 // Returns the maximum of g_stderr_verbosity and all file/custom outputs.
 Verbosity current_verbosity_cutoff()
 {
-    return g_stderr_verbosity > s_max_out_verbosity ? g_stderr_verbosity
-                                                    : s_max_out_verbosity;
+    return g_stderr_verbosity > s_max_out_verbosity ? g_stderr_verbosity : s_max_out_verbosity;
 }
 
 // ------------------------------------------------------------------------
@@ -1256,18 +1143,14 @@ Verbosity current_verbosity_cutoff()
 static pthread_once_t s_pthread_key_once = PTHREAD_ONCE_INIT;
 static pthread_key_t s_pthread_key_name;
 
-void make_pthread_key_name()
-{
-    (void)pthread_key_create(&s_pthread_key_name, free);
-}
+void make_pthread_key_name() { (void)pthread_key_create(&s_pthread_key_name, free); }
 #endif
 
 #if LOGURU_WINTHREADS
 // Where we store the custom thread name set by `set_thread_name`
 char* thread_name_buffer()
 {
-    __declspec(thread) static char thread_name[LOGURU_THREADNAME_WIDTH + 1] = {
-        0};
+    __declspec(thread) static char thread_name[LOGURU_THREADNAME_WIDTH + 1] = {0};
     return &thread_name[0];
 }
 #endif // LOGURU_WINTHREADS
@@ -1289,10 +1172,7 @@ void set_thread_name(const char* name)
 #endif
 #elif LOGURU_WINTHREADS
     // Store thread name in a thread-local storage:
-    strncpy_s(thread_name_buffer(),
-              LOGURU_THREADNAME_WIDTH + 1,
-              name,
-              _TRUNCATE);
+    strncpy_s(thread_name_buffer(), LOGURU_THREADNAME_WIDTH + 1, name, _TRUNCATE);
 #else  // LOGURU_PTHREADS
        // TODO: on these weird platforms we should also store the thread name
        // in a generic thread-local storage.
@@ -1300,17 +1180,14 @@ void set_thread_name(const char* name)
 #endif // LOGURU_PTHREADS
 }
 
-void get_thread_name(char* buffer,
-                     unsigned long long length,
-                     bool right_align_hex_id)
+void get_thread_name(char* buffer, unsigned long long length, bool right_align_hex_id)
 {
     CHECK_NE_F(length, 0u, "Zero length buffer in get_thread_name");
     CHECK_NOTNULL_F(buffer, "nullptr in get_thread_name");
 
 #if LOGURU_PTLS_NAMES
     (void)pthread_once(&s_pthread_key_once, make_pthread_key_name);
-    if (const char* name =
-            static_cast<const char*>(pthread_getspecific(s_pthread_key_name)))
+    if (const char* name = static_cast<const char*>(pthread_getspecific(s_pthread_key_name)))
     {
         snprintf(buffer, static_cast<size_t>(length), "%s", name);
     }
@@ -1348,8 +1225,7 @@ void get_thread_name(char* buffer,
 #else
         // This ID does not correllate to anything we can get from the OS,
         // so this is the worst way to get the ID.
-        const auto thread_id =
-            std::hash<std::thread::id>{}(std::this_thread::get_id());
+        const auto thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id());
 #endif
 
         if (right_align_hex_id)
@@ -1362,10 +1238,7 @@ void get_thread_name(char* buffer,
         }
         else
         {
-            snprintf(buffer,
-                     static_cast<size_t>(length),
-                     "%X",
-                     static_cast<unsigned>(thread_id));
+            snprintf(buffer, static_cast<size_t>(length), "%X", static_cast<unsigned>(thread_id));
         }
     }
 }
@@ -1434,8 +1307,7 @@ std::string prettify_stacktrace(const std::string& input)
         output = std::regex_replace(output, std_allocator_re, std::string(""));
 
         std::regex template_spaces_re(R"(<\s*([^<> ]+)\s*>)");
-        output =
-            std::regex_replace(output, template_spaces_re, std::string("<$1>"));
+        output = std::regex_replace(output, template_spaces_re, std::string("<$1>"));
     }
     catch (std::regex_error&)
     {
@@ -1478,19 +1350,12 @@ std::string stacktrace_as_stdstring(int skip)
                      status == 0           ? demangled
                      : info.dli_sname == 0 ? symbols[i]
                                            : info.dli_sname,
-                     static_cast<char*>(callstack[i]) -
-                         static_cast<char*>(info.dli_saddr));
+                     static_cast<char*>(callstack[i]) - static_cast<char*>(info.dli_saddr));
             free(demangled);
         }
         else
         {
-            snprintf(buf,
-                     sizeof(buf),
-                     "%-3d %*p %s\n",
-                     i - skip,
-                     int(2 + sizeof(void*) * 2),
-                     callstack[i],
-                     symbols[i]);
+            snprintf(buf, sizeof(buf), "%-3d %*p %s\n", i - skip, int(2 + sizeof(void*) * 2), callstack[i], symbols[i]);
         }
         result += buf;
     }
@@ -1538,8 +1403,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     size_t pos = 0;
     if (g_preamble_date && pos < out_buff_size)
     {
-        int bytes =
-            snprintf(out_buff + pos, out_buff_size - pos, "date       ");
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "date       ");
         if (bytes > 0)
         {
             pos += bytes;
@@ -1547,8 +1411,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     }
     if (g_preamble_time && pos < out_buff_size)
     {
-        int bytes =
-            snprintf(out_buff + pos, out_buff_size - pos, "time         ");
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "time         ");
         if (bytes > 0)
         {
             pos += bytes;
@@ -1556,8 +1419,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     }
     if (g_preamble_uptime && pos < out_buff_size)
     {
-        int bytes =
-            snprintf(out_buff + pos, out_buff_size - pos, "( uptime  ) ");
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "( uptime  ) ");
         if (bytes > 0)
         {
             pos += bytes;
@@ -1565,11 +1427,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     }
     if (g_preamble_thread && pos < out_buff_size)
     {
-        int bytes = snprintf(out_buff + pos,
-                             out_buff_size - pos,
-                             "[%-*s]",
-                             LOGURU_THREADNAME_WIDTH,
-                             " thread name/id");
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "[%-*s]", LOGURU_THREADNAME_WIDTH, " thread name/id");
         if (bytes > 0)
         {
             pos += bytes;
@@ -1577,11 +1435,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     }
     if (g_preamble_file && pos < out_buff_size)
     {
-        int bytes = snprintf(out_buff + pos,
-                             out_buff_size - pos,
-                             "%*s:line  ",
-                             LOGURU_FILENAME_WIDTH,
-                             "file");
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "%*s:line  ", LOGURU_FILENAME_WIDTH, "file");
         if (bytes > 0)
         {
             pos += bytes;
@@ -1605,11 +1459,7 @@ static void print_preamble_header(char* out_buff, size_t out_buff_size)
     }
 }
 
-static void print_preamble(char* out_buff,
-                           size_t out_buff_size,
-                           Verbosity verbosity,
-                           const char* file,
-                           unsigned line)
+static void print_preamble(char* out_buff, size_t out_buff_size, Verbosity verbosity, const char* file, unsigned line)
 {
     if (out_buff_size == 0)
     {
@@ -1620,15 +1470,12 @@ static void print_preamble(char* out_buff,
     {
         return;
     }
-    long long ms_since_epoch =
-        duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-            .count();
+    long long ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     time_t sec_since_epoch = time_t(ms_since_epoch / 1000);
     tm time_info;
     localtime_r(&sec_since_epoch, &time_info);
 
-    auto uptime_ms =
-        duration_cast<milliseconds>(steady_clock::now() - s_start_time).count();
+    auto uptime_ms = duration_cast<milliseconds>(steady_clock::now() - s_start_time).count();
     auto uptime_sec = static_cast<double>(uptime_ms) / 1000.0;
 
     char thread_name[LOGURU_THREADNAME_WIDTH + 1] = {0};
@@ -1681,10 +1528,7 @@ static void print_preamble(char* out_buff,
     }
     if (g_preamble_uptime && pos < out_buff_size)
     {
-        int bytes = snprintf(out_buff + pos,
-                             out_buff_size - pos,
-                             "(%8.3fs) ",
-                             uptime_sec);
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "(%8.3fs) ", uptime_sec);
         if (bytes > 0)
         {
             pos += bytes;
@@ -1692,11 +1536,7 @@ static void print_preamble(char* out_buff,
     }
     if (g_preamble_thread && pos < out_buff_size)
     {
-        int bytes = snprintf(out_buff + pos,
-                             out_buff_size - pos,
-                             "[%-*s]",
-                             LOGURU_THREADNAME_WIDTH,
-                             thread_name);
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "[%-*s]", LOGURU_THREADNAME_WIDTH, thread_name);
         if (bytes > 0)
         {
             pos += bytes;
@@ -1706,12 +1546,8 @@ static void print_preamble(char* out_buff,
     {
         char shortened_filename[LOGURU_FILENAME_WIDTH + 1];
         snprintf(shortened_filename, LOGURU_FILENAME_WIDTH + 1, "%s", file);
-        int bytes = snprintf(out_buff + pos,
-                             out_buff_size - pos,
-                             "%*s:%-5u ",
-                             LOGURU_FILENAME_WIDTH,
-                             shortened_filename,
-                             line);
+        int bytes =
+            snprintf(out_buff + pos, out_buff_size - pos, "%*s:%-5u ", LOGURU_FILENAME_WIDTH, shortened_filename, line);
         if (bytes > 0)
         {
             pos += bytes;
@@ -1719,8 +1555,7 @@ static void print_preamble(char* out_buff,
     }
     if (g_preamble_verbose && pos < out_buff_size)
     {
-        int bytes =
-            snprintf(out_buff + pos, out_buff_size - pos, "%4s", level_buff);
+        int bytes = snprintf(out_buff + pos, out_buff_size - pos, "%4s", level_buff);
         if (bytes > 0)
         {
             pos += bytes;
@@ -1737,10 +1572,7 @@ static void print_preamble(char* out_buff,
 }
 
 // stack_trace_skip is just if verbosity == FATAL.
-static void log_message(int stack_trace_skip,
-                        Message& message,
-                        bool with_indentation,
-                        bool abort_if_fatal)
+static void log_message(int stack_trace_skip, Message& message, bool with_indentation, bool abort_if_fatal)
 {
     const auto verbosity = message.verbosity;
     std::lock_guard<std::recursive_mutex> lock(s_mutex);
@@ -1777,8 +1609,7 @@ static void log_message(int stack_trace_skip,
                         terminal_dim(),
                         message.preamble,
                         message.indentation,
-                        verbosity == Verbosity_INFO ? terminal_reset()
-                                                    : "", // un-dim for info
+                        verbosity == Verbosity_INFO ? terminal_reset() : "", // un-dim for info
                         message.prefix,
                         message.message,
                         terminal_reset());
@@ -1788,8 +1619,7 @@ static void log_message(int stack_trace_skip,
                 fprintf(stderr,
                         "%s%s%s%s%s%s%s\n",
                         terminal_reset(),
-                        verbosity == Verbosity_WARNING ? terminal_yellow()
-                                                       : terminal_red(),
+                        verbosity == Verbosity_WARNING ? terminal_yellow() : terminal_red(),
                         message.preamble,
                         message.indentation,
                         message.prefix,
@@ -1799,12 +1629,7 @@ static void log_message(int stack_trace_skip,
         }
         else
         {
-            fprintf(stderr,
-                    "%s%s%s%s\n",
-                    message.preamble,
-                    message.indentation,
-                    message.prefix,
-                    message.message);
+            fprintf(stderr, "%s%s%s%s\n", message.preamble, message.indentation, message.prefix, message.message);
         }
 
         if (g_flush_interval_ms == 0)
@@ -1849,8 +1674,7 @@ static void log_message(int stack_trace_skip,
                 {
                     flush();
                 }
-                std::this_thread::sleep_for(
-                    std::chrono::milliseconds(g_flush_interval_ms));
+                std::this_thread::sleep_for(std::chrono::milliseconds(g_flush_interval_ms));
             }
         });
     }
@@ -1880,48 +1704,30 @@ static void log_message(int stack_trace_skip,
 }
 
 // stack_trace_skip is just if verbosity == FATAL.
-void log_to_everywhere(int stack_trace_skip,
-                       Verbosity verbosity,
-                       const char* file,
-                       unsigned line,
-                       const char* prefix,
-                       const char* buff)
+void log_to_everywhere(
+    int stack_trace_skip, Verbosity verbosity, const char* file, unsigned line, const char* prefix, const char* buff)
 {
     char preamble_buff[LOGURU_PREAMBLE_WIDTH];
     print_preamble(preamble_buff, sizeof(preamble_buff), verbosity, file, line);
-    auto message =
-        Message{verbosity, file, line, preamble_buff, "", prefix, buff};
+    auto message = Message{verbosity, file, line, preamble_buff, "", prefix, buff};
     log_message(stack_trace_skip + 1, message, true, true);
 }
 
 #if LOGURU_USE_FMTLIB
-void vlog(Verbosity verbosity,
-          const char* file,
-          unsigned line,
-          const char* format,
-          fmt::format_args args)
+void vlog(Verbosity verbosity, const char* file, unsigned line, const char* format, fmt::format_args args)
 {
     auto formatted = fmt::vformat(format, args);
     log_to_everywhere(1, verbosity, file, line, "", formatted.c_str());
 }
 
-void raw_vlog(Verbosity verbosity,
-              const char* file,
-              unsigned line,
-              const char* format,
-              fmt::format_args args)
+void raw_vlog(Verbosity verbosity, const char* file, unsigned line, const char* format, fmt::format_args args)
 {
     auto formatted = fmt::vformat(format, args);
-    auto message =
-        Message{verbosity, file, line, "", "", "", formatted.c_str()};
+    auto message = Message{verbosity, file, line, "", "", "", formatted.c_str()};
     log_message(1, message, false, true);
 }
 #else
-void log(Verbosity verbosity,
-         const char* file,
-         unsigned line,
-         const char* format,
-         ...)
+void log(Verbosity verbosity, const char* file, unsigned line, const char* format, ...)
 {
     va_list vlist;
     va_start(vlist, format);
@@ -1930,11 +1736,7 @@ void log(Verbosity verbosity,
     va_end(vlist);
 }
 
-void raw_log(Verbosity verbosity,
-             const char* file,
-             unsigned line,
-             const char* format,
-             ...)
+void raw_log(Verbosity verbosity, const char* file, unsigned line, const char* format, ...)
 {
     va_list vlist;
     va_start(vlist, format);
@@ -1959,11 +1761,7 @@ void flush()
     s_needs_flushing = false;
 }
 
-LogScopeRAII::LogScopeRAII(Verbosity verbosity,
-                           const char* file,
-                           unsigned line,
-                           const char* format,
-                           ...)
+LogScopeRAII::LogScopeRAII(Verbosity verbosity, const char* file, unsigned line, const char* format, ...)
     : _verbosity(verbosity)
     , _file(file)
     , _line(line)
@@ -2020,18 +1818,11 @@ LogScopeRAII::~LogScopeRAII()
             }
         }
 #if LOGURU_VERBOSE_SCOPE_ENDINGS
-        auto duration_sec =
-            static_cast<double>(now_ns() - _start_time_ns) / 1e9;
+        auto duration_sec = static_cast<double>(now_ns() - _start_time_ns) / 1e9;
 #if LOGURU_USE_FMTLIB
-        auto buff = textprintf("{:.{}f} s: {:s}",
-                               duration_sec,
-                               LOGURU_SCOPE_TIME_PRECISION,
-                               _name);
+        auto buff = textprintf("{:.{}f} s: {:s}", duration_sec, LOGURU_SCOPE_TIME_PRECISION, _name);
 #else
-        auto buff = textprintf("%.*f s: %s",
-                               LOGURU_SCOPE_TIME_PRECISION,
-                               duration_sec,
-                               _name);
+        auto buff = textprintf("%.*f s: %s", LOGURU_SCOPE_TIME_PRECISION, duration_sec, _name);
 #endif
         log_to_everywhere(1, _verbosity, _file, _line, "} ", buff.c_str());
 #else
@@ -2041,50 +1832,28 @@ LogScopeRAII::~LogScopeRAII()
 }
 
 #if LOGURU_USE_FMTLIB
-void vlog_and_abort(int stack_trace_skip,
-                    const char* expr,
-                    const char* file,
-                    unsigned line,
-                    const char* format,
-                    fmt::format_args args)
+void vlog_and_abort(
+    int stack_trace_skip, const char* expr, const char* file, unsigned line, const char* format, fmt::format_args args)
 {
     auto formatted = fmt::vformat(format, args);
-    log_to_everywhere(stack_trace_skip + 1,
-                      Verbosity_FATAL,
-                      file,
-                      line,
-                      expr,
-                      formatted.c_str());
+    log_to_everywhere(stack_trace_skip + 1, Verbosity_FATAL, file, line, expr, formatted.c_str());
     abort(); // log_to_everywhere already does this, but this makes the analyzer
              // happy.
 }
 #else
-void log_and_abort(int stack_trace_skip,
-                   const char* expr,
-                   const char* file,
-                   unsigned line,
-                   const char* format,
-                   ...)
+void log_and_abort(int stack_trace_skip, const char* expr, const char* file, unsigned line, const char* format, ...)
 {
     va_list vlist;
     va_start(vlist, format);
     auto buff = vtextprintf(format, vlist);
-    log_to_everywhere(stack_trace_skip + 1,
-                      Verbosity_FATAL,
-                      file,
-                      line,
-                      expr,
-                      buff.c_str());
+    log_to_everywhere(stack_trace_skip + 1, Verbosity_FATAL, file, line, expr, buff.c_str());
     va_end(vlist);
     abort(); // log_to_everywhere already does this, but this makes the analyzer
              // happy.
 }
 #endif
 
-void log_and_abort(int stack_trace_skip,
-                   const char* expr,
-                   const char* file,
-                   unsigned line)
+void log_and_abort(int stack_trace_skip, const char* expr, const char* file, unsigned line)
 {
     log_and_abort(stack_trace_skip + 1, expr, file, line, " ");
 }
@@ -2132,16 +1901,16 @@ StreamLogger::~StreamLogger() noexcept(false)
     log(_verbosity, _file, _line, LOGURU_FMT(s), message.c_str());
 }
 
+#pragma warning(push)
+#pragma warning(disable : 4722)
+
 AbortLogger::~AbortLogger() noexcept(false)
 {
     auto message = _ss.str();
-    loguru::log_and_abort(1,
-                          _expr,
-                          _file,
-                          _line,
-                          LOGURU_FMT(s),
-                          message.c_str());
+    loguru::log_and_abort(1, _expr, _file, _line, LOGURU_FMT(s), message.c_str());
 }
+
+#pragma warning(pop)
 
 #endif // LOGURU_WITH_STREAMS
 
@@ -2159,10 +1928,7 @@ struct StringStream
 };
 
 // Use this in your EcPrinter implementations.
-void stream_print(StringStream& out_string_stream, const char* text)
-{
-    out_string_stream.str += text;
-}
+void stream_print(StringStream& out_string_stream, const char* text) { out_string_stream.str += text; }
 
 // ----------------------------------------------------------------------------
 
@@ -2181,15 +1947,9 @@ ECPtr& get_thread_ec_head_ref() { return thread_ec_ptr; }
 static pthread_once_t s_ec_pthread_once = PTHREAD_ONCE_INIT;
 static pthread_key_t s_ec_pthread_key;
 
-void free_ec_head_ref(void* io_error_context)
-{
-    delete reinterpret_cast<ECPtr*>(io_error_context);
-}
+void free_ec_head_ref(void* io_error_context) { delete reinterpret_cast<ECPtr*>(io_error_context); }
 
-void ec_make_pthread_key()
-{
-    (void)pthread_key_create(&s_ec_pthread_key, free_ec_head_ref);
-}
+void ec_make_pthread_key() { (void)pthread_key_create(&s_ec_pthread_key, free_ec_head_ref); }
 
 ECPtr& get_thread_ec_head_ref()
 {
@@ -2208,10 +1968,7 @@ ECPtr& get_thread_ec_head_ref()
 
 EcHandle get_thread_ec_handle() { return get_thread_ec_head_ref(); }
 
-Text get_error_context()
-{
-    return get_error_context_for(get_thread_ec_head_ref());
-}
+Text get_error_context() { return get_error_context_for(get_thread_ec_head_ref()); }
 
 Text get_error_context_for(const EcEntryBase* ec_head)
 {
@@ -2350,11 +2107,11 @@ Text ec_to_text(char c)
     return Text{STRDUP(str.c_str())};
 }
 
-#define DEFINE_EC(Type)                                                        \
-    Text ec_to_text(Type value)                                                \
-    {                                                                          \
-        auto str = std::to_string(value);                                      \
-        return Text{STRDUP(str.c_str())};                                      \
+#define DEFINE_EC(Type)                                                                                                \
+    Text ec_to_text(Type value)                                                                                        \
+    {                                                                                                                  \
+        auto str = std::to_string(value);                                                                              \
+        return Text{STRDUP(str.c_str())};                                                                              \
     }
 
 DEFINE_EC(int)
@@ -2376,10 +2133,7 @@ Text ec_to_text(EcHandle ec_handle)
     char* with_newline = reinterpret_cast<char*>(malloc(buffer_size));
     with_newline[0] = '\n';
 #ifdef _WIN32
-    strncpy_s(with_newline + 1,
-              buffer_size,
-              parent_ec.c_str(),
-              buffer_size - 2);
+    strncpy_s(with_newline + 1, buffer_size, parent_ec.c_str(), buffer_size - 2);
 #else
     strcpy(with_newline + 1, parent_ec.c_str());
 #endif
@@ -2496,18 +2250,8 @@ void signal_handler(int signal_number, siginfo_t*, void*)
 
         flush();
         char preamble_buff[LOGURU_PREAMBLE_WIDTH];
-        print_preamble(preamble_buff,
-                       sizeof(preamble_buff),
-                       Verbosity_FATAL,
-                       "",
-                       0);
-        auto message = Message{Verbosity_FATAL,
-                               "",
-                               0,
-                               preamble_buff,
-                               "",
-                               "Signal: ",
-                               signal_name};
+        print_preamble(preamble_buff, sizeof(preamble_buff), Verbosity_FATAL, "", 0);
+        auto message = Message{Verbosity_FATAL, "", 0, preamble_buff, "", "Signal: ", signal_name};
         try
         {
             log_message(1, message, false, false);
@@ -2515,8 +2259,7 @@ void signal_handler(int signal_number, siginfo_t*, void*)
         catch (...)
         {
             // This can happed due to s_fatal_handler.
-            write_to_stderr(
-                "Exception caught and ignored by Loguru signal handler.\n");
+            write_to_stderr("Exception caught and ignored by Loguru signal handler.\n");
         }
         flush();
 
@@ -2538,38 +2281,31 @@ void install_signal_handlers(const SignalOptions& signal_options)
 
     if (signal_options.sigabrt)
     {
-        CHECK_F(sigaction(SIGABRT, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGABRT");
+        CHECK_F(sigaction(SIGABRT, &sig_action, NULL) != -1, "Failed to install handler for SIGABRT");
     }
     if (signal_options.sigbus)
     {
-        CHECK_F(sigaction(SIGBUS, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGBUS");
+        CHECK_F(sigaction(SIGBUS, &sig_action, NULL) != -1, "Failed to install handler for SIGBUS");
     }
     if (signal_options.sigfpe)
     {
-        CHECK_F(sigaction(SIGFPE, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGFPE");
+        CHECK_F(sigaction(SIGFPE, &sig_action, NULL) != -1, "Failed to install handler for SIGFPE");
     }
     if (signal_options.sigill)
     {
-        CHECK_F(sigaction(SIGILL, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGILL");
+        CHECK_F(sigaction(SIGILL, &sig_action, NULL) != -1, "Failed to install handler for SIGILL");
     }
     if (signal_options.sigint)
     {
-        CHECK_F(sigaction(SIGINT, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGINT");
+        CHECK_F(sigaction(SIGINT, &sig_action, NULL) != -1, "Failed to install handler for SIGINT");
     }
     if (signal_options.sigsegv)
     {
-        CHECK_F(sigaction(SIGSEGV, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGSEGV");
+        CHECK_F(sigaction(SIGSEGV, &sig_action, NULL) != -1, "Failed to install handler for SIGSEGV");
     }
     if (signal_options.sigterm)
     {
-        CHECK_F(sigaction(SIGTERM, &sig_action, NULL) != -1,
-                "Failed to install handler for SIGTERM");
+        CHECK_F(sigaction(SIGTERM, &sig_action, NULL) != -1, "Failed to install handler for SIGTERM");
     }
 }
 } // namespace loguru
