@@ -26,7 +26,7 @@ class QIntSpinBoxLayout : public QSpinBoxLayout
      * \param value the new value
      * \return QIntSpinBoxLayout* this, for linked initilizer purposes
      */
-    QIntSpinBoxLayout* set_value(int default_value);
+    QIntSpinBoxLayout* set_value(int value);
 
     /*! \brief Sets lower bound value
      *
