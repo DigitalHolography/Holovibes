@@ -14,7 +14,7 @@ QDoubleRefSpinBoxLayout::~QDoubleRefSpinBoxLayout() {}
 
 #pragma region SETTERS
 
-QDoubleSpinBoxLayout* QDoubleRefSpinBoxLayout::set_value(double value)
+QDoubleRefSpinBoxLayout* QDoubleRefSpinBoxLayout::set_value(double value)
 {
     if (value_ptr_ == nullptr)
         return this;
