@@ -28,7 +28,7 @@ class ASWMainWindowPanel : public AdvancedSettingsWindowPanel
     void create_z_step_widget(double* z_step = nullptr);
 
   private:
-    QVBoxLayout* chart_layout_;
+    QVBoxLayout* mainwindow_layout_;
     QDoubleRefSpinBoxLayout* z_step_;
 };
 } // namespace holovibes::gui
