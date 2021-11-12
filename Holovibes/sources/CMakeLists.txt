@@ -62,6 +62,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/AdvancedSettingsWindowTools/QIntSpinBoxLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QDoubleSpinBoxLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QDoubleRefSpinBoxLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/QLineEditLayout.cc
     gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.cc
     gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
     gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_buffer_size.cc
