@@ -121,13 +121,13 @@ void RainbowOverlay::setBuffer()
     int blue;
     if (cd->composite_kind == CompositeKind::RGB)
     {
-        red = cd->composite_p_red;
-        blue = cd->composite_p_blue;
+        red = cd->rgb.p_min;
+        blue = cd->rgb.p_max;
     }
     else
     {
-        red = cd->composite_p_min_h;
-        blue = cd->composite_p_max_h;
+        red = cd->hsv.h.p_min;
+        blue = cd->hsv.h.p_max;
     }
     int green = (red + blue) / 2;
     units::PointFd red1;
@@ -193,26 +193,26 @@ void RainbowOverlay::move(QMouseEvent* e)
         {
             if (parent_->getCd()->composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
-                parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
+                parent_->getCd()->rgb.p_min = check_interval(zone_.src().x());
+                parent_->getCd()->rgb.p_max = check_interval(zone_.dst().x());
             }
             else
             {
-                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().x());
-                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().x());
+                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().x());
+                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().x());
             }
         }
         else
         {
             if (parent_->getCd()->composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->composite_p_red = check_interval(zone_.src().y());
-                parent_->getCd()->composite_p_blue = check_interval(zone_.dst().y());
+                parent_->getCd()->rgb.p_min = check_interval(zone_.src().y());
+                parent_->getCd()->rgb.p_max = check_interval(zone_.dst().y());
             }
             else
             {
-                parent_->getCd()->composite_p_min_h = check_interval(zone_.src().y());
-                parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().y());
+                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().y());
+                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().y());
             }
         }
         parent_->getCd()->notify_observers();

@@ -36,7 +36,7 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
 
 void Postprocessing::init()
 {
-    const size_t frame_res = fd_.frame_res();
+    const size_t frame_res = fd_.get_frame_res();
 
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
@@ -75,7 +75,7 @@ void Postprocessing::dispose()
 
 void Postprocessing::convolution_composite()
 {
-    const uint frame_res = fd_.frame_res();
+    const uint frame_res = fd_.get_frame_res();
 
     from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
                                                        hsv_arr_.get(),
@@ -125,19 +125,17 @@ void Postprocessing::insert_convolution()
 
     if (cd_.img_type != ImgType::Composite)
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                convolution_kernel(buffers_.gpu_postprocess_frame.get(),
-                                   buffers_.gpu_convolution_buffer.get(),
-                                   cuComplex_buffer_.get(),
-                                   &convolution_plan_,
-                                   fd_.frame_res(),
-                                   gpu_kernel_buffer_.get(),
-                                   cd_.divide_convolution_enabled,
-                                   true,
-                                   stream_);
-            });
+        fn_compute_vect_.conditional_push_back([=]() {
+            convolution_kernel(buffers_.gpu_postprocess_frame.get(),
+                               buffers_.gpu_convolution_buffer.get(),
+                               cuComplex_buffer_.get(),
+                               &convolution_plan_,
+                               fd_.get_frame_res(),
+                               gpu_kernel_buffer_.get(),
+                               cd_.divide_convolution_enabled,
+                               true,
+                               stream_);
+        });
     }
     else
     {
@@ -150,18 +148,16 @@ void Postprocessing::insert_renormalize()
     if (!cd_.renorm_enabled)
         return;
 
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            uint frame_res = fd_.frame_res();
-            if (cd_.img_type == ImgType::Composite)
-                frame_res *= 3;
-            gpu_normalize(buffers_.gpu_postprocess_frame.get(),
-                          reduce_result_.get(),
-                          frame_res,
-                          cd_.renorm_constant,
-                          stream_);
-        });
+    fn_compute_vect_.conditional_push_back([=]() {
+        uint frame_res = fd_.get_frame_res();
+        if (cd_.img_type == ImgType::Composite)
+            frame_res *= 3;
+        gpu_normalize(buffers_.gpu_postprocess_frame.get(),
+                      reduce_result_.get(),
+                      frame_res,
+                      cd_.renorm_constant,
+                      stream_);
+    });
 }
 } // namespace compute
 } // namespace holovibes

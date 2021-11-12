@@ -23,7 +23,7 @@ class InputCineFile : public InputFrameFile, public CineFile
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const override;
+    size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
     /*! \brief Update ComputeDescriptor with the settings present in the file
      *
@@ -64,5 +64,3 @@ class InputCineFile : public InputFrameFile, public CineFile
     InputCineFile(const std::string& file_path);
 };
 } // namespace holovibes::io_files
-
-#include "input_cine_file.hxx"

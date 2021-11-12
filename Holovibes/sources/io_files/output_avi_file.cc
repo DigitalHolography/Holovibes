@@ -11,7 +11,7 @@ OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDe
     img_nb_ = img_nb;
 }
 
-void OutputAviFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw) {}
+void OutputAviFile::export_compute_settings(bool record_raw) {}
 
 void OutputAviFile::write_header()
 {
@@ -23,7 +23,7 @@ void OutputAviFile::write_header()
 
         bool is_color = fd_.depth == 3;
 
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, 20, size, is_color);
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_output_fps(), size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();

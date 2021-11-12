@@ -26,7 +26,7 @@
 
 #include <sstream>
 
-#include "json.hh"
+#include <nlohmann/json.hpp>
 
 using json = ::nlohmann::json;
 
@@ -41,7 +41,7 @@ class HoloFile
 {
   public:
     /*! \brief Getter on the total number of frames in the file */
-    size_t get_total_nb_frames() const;
+    size_t get_total_nb_frames() const { return holo_file_header_.img_nb; }
 
   protected:
     /*! \brief Struct containing data related directly to the holo file
@@ -75,7 +75,7 @@ class HoloFile
     HoloFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~HoloFile() = 0;
+    virtual ~HoloFile(){};
 
     /*! \brief Default copy constructor */
     HoloFile(const HoloFile&) = default;
@@ -91,5 +91,3 @@ class HoloFile
     static constexpr uint16_t current_version_ = 2;
 };
 } // namespace holovibes::io_files
-
-#include "holo_file.hxx"

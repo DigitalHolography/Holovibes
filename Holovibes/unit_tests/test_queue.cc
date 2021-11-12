@@ -17,7 +17,7 @@ char* get_element_from_queue(holovibes::Queue& q, size_t pos)
     if (pos >= q.get_max_size())
         return nullptr;
 
-    size_t frame_size = q.get_frame_size();
+    size_t frame_size = q.get_fd().get_frame_size();
 
     char* d_buffer = static_cast<char*>(q.get_data()); // device buffer
     char* h_buffer = new char[frame_size];             // host buffer
@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
 TEST(QueueTest, SimpleInstantiatingTest)
 {
     camera::FrameDescriptor fd = {64, 64, 1, camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 5, holovibes::Queue::QueueType::UNDEFINED, 64, 64, 1);
+    holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED, 64, 64, 1);
     // WARNING: Set false because the queue is used in a CLI mode
     ASSERT_EQ(0.0, 0.0);
 }
@@ -50,14 +50,14 @@ TEST(QueueTest, SimpleInstantiatingTest)
 TEST(ZeroQueueInstantiation, ZeroQueue)
 {
     camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
-    ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth),
+    ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth),
                  std::logic_error);
 }
 
 TEST(QueueEmpty, QueueIsFullTest)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 5, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     ASSERT_FALSE(q.is_full());
 }
@@ -65,8 +65,8 @@ TEST(QueueEmpty, QueueIsFullTest)
 TEST(QueueNotFull, QueueIsFullTest)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    char* new_elt = new char[fd.frame_res()];
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    char* new_elt = new char[fd.get_frame_res()];
 
     // Enqueue
     // Warning: enqueue HostToDevice
@@ -79,9 +79,9 @@ TEST(QueueNotFull, QueueIsFullTest)
 TEST(QueueFull, QueueIsFull)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* new_elt = new char[fd.frame_res()];
+    char* new_elt = new char[fd.get_frame_res()];
 
     // Enqueue
     q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
@@ -94,7 +94,7 @@ TEST(QueueFull, QueueIsFull)
 TEST(SimpleQueueResize, QueueResize)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), 2);
 
@@ -107,7 +107,7 @@ TEST(SimpleQueueResize, QueueResize)
 TEST(EnqueueCheckValues, QueueEnqueue)
 {
     camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elt1 = 'a';
     char elt2 = 'b';
@@ -133,10 +133,10 @@ TEST(EnqueueCheckValues, QueueEnqueue)
 TEST(SimpleEnqueues, QueueEnqueue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
 
-    char* new_elt = new char[fd.frame_res()];
+    char* new_elt = new char[fd.get_frame_res()];
 
     bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 1);
@@ -169,10 +169,10 @@ TEST(SimpleEnqueues, QueueEnqueue)
 TEST(EnqueueNotSquare, QueueEnqueue)
 {
     camera::FrameDescriptor fd = {56, 17, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
 
-    char* new_elt = new char[fd.frame_res()];
+    char* new_elt = new char[fd.get_frame_res()];
 
     bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
@@ -184,7 +184,7 @@ TEST(EnqueueNotSquare, QueueEnqueue)
 TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elts[] = {'a', 'b', 'c'};
     unsigned int nb_elts = 3;
@@ -220,7 +220,7 @@ TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
     constexpr uint queue_size = 3;
-    holovibes::Queue q(fd, queue_size, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, queue_size, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elts[] = {'a', 'b', 'c', 'd'};
     unsigned int nb_elts = 4;
@@ -240,10 +240,10 @@ TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
 TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
-    char* new_elt = new char[fd.frame_res() * nb_elts];
+    char* new_elt = new char[fd.get_frame_res() * nb_elts];
 
     bool res = q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
@@ -256,10 +256,10 @@ TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
 TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
-    char* new_elt = new char[fd.frame_res() * nb_elts];
+    char* new_elt = new char[fd.get_frame_res() * nb_elts];
 
     bool res = q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
@@ -288,10 +288,10 @@ TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
 TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 3;
-    char* new_elt = new char[fd.frame_res() * nb_elts];
+    char* new_elt = new char[fd.get_frame_res() * nb_elts];
 
     // Enqueue 3 elements at once but the maximum size of the queue is 2
     bool res = q.enqueue_multiple(new_elt, nb_elts, stream, cudaMemcpyHostToDevice);
@@ -303,10 +303,10 @@ TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
 TEST(FullMultipleEnqueue, QueueMultipleEnqueue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
-    char* new_elt = new char[fd.frame_res() * nb_elts];
+    char* new_elt = new char[fd.get_frame_res() * nb_elts];
 
     bool res = q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(res);
@@ -323,7 +323,7 @@ TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // 2 frames of a resolution of 3
     char new_elt[] = "ab\0cd\0";
@@ -332,13 +332,13 @@ TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q, 0)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q, 1)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q, 1)), std::string(new_elt + fd.get_frame_size()));
 }
 
 TEST(EmptyDequeue, QueueDequeue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // empty queue
     ASSERT_DEATH(q.dequeue(), "");
@@ -347,9 +347,9 @@ TEST(EmptyDequeue, QueueDequeue)
 TEST(DequeueOneFrame, QueueDequeue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* new_elt = new char[fd.frame_res()];
+    char* new_elt = new char[fd.get_frame_res()];
 
     q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 1);
@@ -380,9 +380,9 @@ TEST(DequeueOneFrame, QueueDequeue)
 TEST(DequeueMultipleFrames, QueueDequeue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* new_elt = new char[fd.frame_res() * 2];
+    char* new_elt = new char[fd.get_frame_res() * 2];
 
     q.enqueue_multiple(new_elt, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
@@ -404,9 +404,9 @@ TEST(DequeueMultipleFrames, QueueDequeue)
 TEST(DequeueTooManyFrames, QueueDequeue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* new_elt = new char[fd.frame_res() * 2];
+    char* new_elt = new char[fd.get_frame_res() * 2];
 
     q.enqueue_multiple(new_elt, q.get_max_size() - 1, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
@@ -419,9 +419,9 @@ TEST(DequeueTooManyFrames, QueueDequeue)
 TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 {
     camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* buff = new char[fd.frame_res()];
+    char* buff = new char[fd.get_frame_res()];
 
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
@@ -434,11 +434,11 @@ TEST(SimpleDequeueValue, QueueDequeueValue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* res = new char[fd.frame_res()];
+    char* res = new char[fd.get_frame_res()];
 
-    char* buff[] = {"ab\0", "cd\0", "ef\0"};
+    char* buff[] = {strdup("ab\0"), strdup("cd\0"), strdup("ef\0")};
     q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
 
     // Make one enqueue and dequeue
@@ -452,11 +452,11 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
-    char* res = new char[fd.frame_res()];
+    char* res = new char[fd.get_frame_res()];
 
-    char* buff[] = {"ab\0", "cd\0", "ef\0"};
+    char* buff[] = {strdup("ab\0"), strdup("cd\0"), strdup("ef\0")};
 
     // Change indexes
     q.enqueue(buff[0], stream, cudaMemcpyHostToDevice);
@@ -482,8 +482,8 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
 TEST(EmptyCopyMultiple, QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 4, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     q_src.copy_multiple(q_dst, 1, stream);
 }
@@ -492,8 +492,8 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 4, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // 2 frames of a resolution of 3
     char new_elt[] = "ab\0cd\0";
@@ -502,56 +502,56 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(q_src.get_start_index(), 0);
     ASSERT_EQ(q_src.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q_src, 0)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q_src, 1)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_src, 1)), std::string(new_elt + fd.get_frame_size()));
 
     q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.get_frame_size()));
 
     q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 4);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 3)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 3)), std::string(new_elt + fd.get_frame_size()));
 }
 
 TEST(MoreElementCopyMultiple, QueueCopyMultiple)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 2, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
 
     // Fill the source queue
     q_src.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
-    q_src.enqueue(new_elt + fd.frame_size(), stream, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + fd.get_frame_size(), stream, cudaMemcpyHostToDevice);
 
     // Fill the destination queue
-    q_dst.enqueue_multiple(new_elt + 2 * fd.frame_size(), 3, stream, cudaMemcpyHostToDevice);
+    q_dst.enqueue_multiple(new_elt + 2 * fd.get_frame_size(), 3, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 3);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.get_frame_size()));
 
     // Copy more elements than the source queue size
     q_src.copy_multiple(q_dst, 3, stream);
     // Only two elments are supposed to be copied
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + fd.get_frame_size()));
     // So the last element remains unchanged
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 4 * fd.get_frame_size()));
 }
 
 TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 4, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
@@ -565,26 +565,26 @@ TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 
     ASSERT_EQ(q_dst.get_size(), 3); // destination queue max size
     ASSERT_EQ(q_dst.get_start_index(), 0);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 1 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 2 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 1 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 2 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 3 * fd.get_frame_size()));
 }
 
 TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
     // Create setup for the source queue
     q_src.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     q_src.dequeue();
-    q_src.enqueue(new_elt + fd.frame_size(), stream, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + fd.get_frame_size(), stream, cudaMemcpyHostToDevice);
     q_src.dequeue();
-    q_src.enqueue(new_elt + 2 * fd.frame_size(), stream, cudaMemcpyHostToDevice);
-    q_src.enqueue(new_elt + 3 * fd.frame_size(), stream, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + 2 * fd.get_frame_size(), stream, cudaMemcpyHostToDevice);
+    q_src.enqueue(new_elt + 3 * fd.get_frame_size(), stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q_src.get_size(), 2);
     ASSERT_EQ(q_src.get_start_index(), 2);
     ASSERT_EQ(q_src.get_end_index(), 1);
@@ -593,23 +593,23 @@ TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
     q_src.copy_multiple(q_dst, 2, stream);
     ASSERT_EQ(q_dst.get_start_index(), 0);
     ASSERT_EQ(q_dst.get_size(), 2);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.get_frame_size()));
 
     // copy more elements than the current size
     q_src.copy_multiple(q_dst, 3, stream);
     ASSERT_EQ(q_dst.get_start_index(), 1);
     ASSERT_EQ(q_dst.get_size(), 3);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 3 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 3 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 3 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 2 * fd.get_frame_size()));
 }
 
 TEST(CircularDstCopyMultiple, QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char new_elt[] = "ab\0cd\0ef\0gh\0";
 
@@ -627,7 +627,7 @@ TEST(CircularDstCopyMultiple, QueueCopyMultiple)
     ASSERT_EQ(q_dst.get_size(), 2);
     ASSERT_EQ(q_dst.get_start_index(), 2);
     ASSERT_EQ(q_dst.get_end_index(), 1);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + fd.get_frame_size()));
     // at position 1, there is not any element
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt));
 }
@@ -635,8 +635,8 @@ TEST(CircularDstCopyMultiple, QueueCopyMultiple)
 TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 4, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char new_elt[] = "ab\0cd\0ef\0gh\0ij\0";
 
@@ -647,35 +647,35 @@ TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
     q_src.enqueue_multiple(new_elt, 3, stream, cudaMemcpyHostToDevice);
 
     // Change index of the destination queue
-    q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(), 2, stream, cudaMemcpyHostToDevice);
+    q_dst.enqueue_multiple(new_elt + 3 * fd.get_frame_size(), 2, stream, cudaMemcpyHostToDevice);
     q_dst.dequeue();
     q_dst.dequeue();
-    q_dst.enqueue_multiple(new_elt + 3 * fd.frame_size(), 2, stream, cudaMemcpyHostToDevice);
+    q_dst.enqueue_multiple(new_elt + 3 * fd.get_frame_size(), 2, stream, cudaMemcpyHostToDevice);
 
     // Copy all elements
     q_src.copy_multiple(q_dst, q_src.get_size(), stream);
     ASSERT_EQ(q_dst.get_start_index(), 1);
     ASSERT_EQ(q_dst.get_size(), 3);
     ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 2 * fd.get_frame_size()));
 }
 
 TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
 {
     camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::BigEndian};
-    holovibes::Queue q_src(fd, 11, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
-    holovibes::Queue q_dst(fd, 3, holovibes::Queue::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_src(fd, 11, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
+    holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // 11 + 3 = 14 characters
     unsigned int nb_frames = 14;
-    char* new_elt = "a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0";
+    char* new_elt = strdup("a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0");
 
     // Make the queue full
     q_src.enqueue_multiple(new_elt, 11, stream, cudaMemcpyHostToDevice);
 
     // Change indices
-    q_dst.enqueue_multiple(new_elt + 11 * fd.frame_size(), 2, stream, cudaMemcpyHostToDevice);
+    q_dst.enqueue_multiple(new_elt + 11 * fd.get_frame_size(), 2, stream, cudaMemcpyHostToDevice);
     q_dst.dequeue();
     q_dst.dequeue();
     ASSERT_EQ(q_dst.get_start_index(), 2);
@@ -689,9 +689,9 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
     // Expected. Not handle but should be fixed
     ASSERT_EQ(q_dst.get_start_index(), 2);
     ASSERT_EQ(q_dst.get_size(), 3);
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 8 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 9 * fd.frame_size()));
-    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 7 * fd.frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 0)), std::string(new_elt + 8 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 1)), std::string(new_elt + 9 * fd.get_frame_size()));
+    ASSERT_EQ(std::string(get_element_from_queue(q_dst, 2)), std::string(new_elt + 7 * fd.get_frame_size()));
 
     // Source should be equal to:
     // | a (start index) | b | c | d | e | f | g | h | i | j | k |

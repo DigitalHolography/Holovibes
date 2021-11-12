@@ -6,25 +6,25 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 ThreadWorkerController<T>::~ThreadWorkerController()
 {
     stop();
 }
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 inline void ThreadWorkerController<T>::set_callback(std::function<void()> callback)
 {
     callback_ = callback;
 }
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 inline void ThreadWorkerController<T>::set_priority(int priority)
 {
     SetThreadPriority(thread_.native_handle(), priority);
 }
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 template <typename... Args>
 void ThreadWorkerController<T>::start(Args&&... args)
 {
@@ -32,11 +32,15 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     MutexGuard m_guard(mutex_);
 
+    LOG_TRACE << "Starting Worker of type " << typeid(T).name();
+
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
+
+    LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
 }
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 void ThreadWorkerController<T>::stop()
 {
     {
@@ -50,7 +54,7 @@ void ThreadWorkerController<T>::stop()
         thread_.join();
 }
 
-template <Derived<Worker> T>
+template <WorkerDerived T>
 void ThreadWorkerController<T>::run()
 {
     worker_->run();

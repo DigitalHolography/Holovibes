@@ -2,7 +2,7 @@
 #include <boost/program_options/parsers.hpp>
 
 #include "options_parser.hh"
-#include "config.hh"
+
 #include "logger.hh"
 
 namespace holovibes
@@ -78,6 +78,16 @@ OptionsParser::OptionsParser()
         "gpu",
         po::bool_switch()->default_value(false),
         "Load file in GPU (default = false)"
+    )
+    (
+        "start_frame,s",
+        po::value<unsigned int>(),
+        "Start frame (default = 1). Everything strictly before start frame is not read."
+    )
+    (
+        "end_frame,e",
+        po::value<unsigned int>(),
+        "End frame (default = eof). Everything striclty after end frame is not read."
     );
     // clang-format on
 
@@ -108,6 +118,10 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
             options_.n_rec = boost::any_cast<unsigned int>(vm_["n_rec"].value());
+        if (vm_.count("start_frame"))
+            options_.start_frame = boost::any_cast<unsigned int>(vm_["start_frame"].value());
+        if (vm_.count("end_frame"))
+            options_.end_frame = boost::any_cast<unsigned int>(vm_["end_frame"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.divide_convo = vm_["divide"].as<bool>();
@@ -116,7 +130,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        LOG_INFO << e.what() << std::endl;
+        LOG_INFO << e.what();
         std::exit(1);
     }
 

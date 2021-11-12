@@ -14,7 +14,7 @@ namespace holovibes
 {
 /*! \class UpdateException
  *
- * \brief #TODO Add a description for this class
+ * \brief User interactions update failure
  */
 class UpdateException : public CustomException
 {

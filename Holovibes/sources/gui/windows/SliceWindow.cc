@@ -8,16 +8,15 @@
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
-
+#include "API.hh"
 namespace holovibes
 {
 namespace gui
 {
-SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k, MainWindow* main_window)
+SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
-    , main_window_(main_window)
 {
     setMinimumSize(s);
 }
@@ -59,7 +58,7 @@ void SliceWindow::initializeGL()
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
 
-    uint size = fd_.frame_size();
+    uint size = fd_.get_frame_size();
     ushort* mTexture = new ushort[size];
     std::memset(mTexture, 0, size * sizeof(ushort));
 
@@ -185,8 +184,8 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
     {
         resetTransform();
-        if (auto main_display = main_window_->get_main_display())
-            main_display->resetTransform();
+        if (holovibes::api::get_main_display())
+            holovibes::api::get_main_display()->resetTransform();
     }
 }
 
@@ -195,7 +194,7 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
+        cd_->change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
         cd_->notify_observers();
     }
 }

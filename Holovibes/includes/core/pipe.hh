@@ -63,6 +63,8 @@ class Pipe : public ICompute
      */
     Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
 
+    ~Pipe();
+
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
 
@@ -71,7 +73,6 @@ class Pipe : public ICompute
     /*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view */
     void autocontrast_end_pipe(WindowKind kind);
 
-  protected:
     /*! \brief Execute one processing iteration.
      *
      * Checks the number of frames in input queue, that must at least be 1.
@@ -90,6 +91,7 @@ class Pipe : public ICompute
      */
     virtual void exec();
 
+  protected:
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     virtual void refresh();
 
@@ -137,9 +139,7 @@ class Pipe : public ICompute
      * \param frame Frame to enqueue
      * \param error Error message when an error occurs
      */
-    void safe_enqueue_output(Queue& output_queue,
-                             unsigned short* frame,
-                             const std::string& error);
+    void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
@@ -160,7 +160,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
 
-    std::atomic<unsigned int> processed_output_fps_;
+    std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
 
     /*! \brief Iterates and executes function of the pipe.
      *

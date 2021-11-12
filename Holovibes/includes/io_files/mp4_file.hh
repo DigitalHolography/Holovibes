@@ -17,7 +17,7 @@ class Mp4File
     Mp4File() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~Mp4File() = 0;
+    virtual ~Mp4File(){};
 
     /*! \brief Default copy constructor */
     Mp4File(const Mp4File&) = default;
@@ -26,5 +26,3 @@ class Mp4File
     Mp4File& operator=(const Mp4File&) = default;
 };
 } // namespace holovibes::io_files
-
-#include "mp4_file.hxx"

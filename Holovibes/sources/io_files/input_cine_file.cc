@@ -32,7 +32,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
     fd_.depth = bitmap_info_header_.bi_bit_count / 8;
     fd_.byteEndian = camera::Endianness::LittleEndian;
 
-    frame_size_ = fd_.frame_size();
+    frame_size_ = fd_.get_frame_size();
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 

@@ -17,7 +17,7 @@ class AviFile
     AviFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~AviFile() = 0;
+    virtual ~AviFile(){};
 
     /*! \brief Default copy constructor */
     AviFile(const AviFile&) = default;
@@ -26,5 +26,3 @@ class AviFile
     AviFile& operator=(const AviFile&) = default;
 };
 } // namespace holovibes::io_files
-
-#include "avi_file.hxx"

@@ -7,7 +7,6 @@
 #include <atomic>
 #include <memory>
 
-#include "config.hh"
 #include "rect.hh"
 #include "observable.hh"
 #include "frame_desc.hh"
@@ -83,7 +82,7 @@ struct BatchEnv
      * Batch size frames are enqueued in the gpu_time_transformation_queue
      * This is done for perfomances reasons
      *
-     * The variable is incremented unil it reachs batch_size in
+     * The variable is incremented until it reachs batch_size in
      *enqueue_multiple, then it is set back to 0
      */
     uint batch_index = 0;
@@ -191,6 +190,8 @@ class ICompute : public Observable
 
   public:
     ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
+    void soft_request_refresh();
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -234,7 +235,6 @@ class ICompute : public Observable
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
     bool get_cuts_request();
     bool get_cuts_delete_request();
-    bool get_request_refresh();
 
     bool get_unwrap_1d_request() const { return unwrap_1d_requested_; }
     bool get_unwrap_2d_request() const { return unwrap_2d_requested_; }
@@ -279,7 +279,7 @@ class ICompute : public Observable
 
   protected:
     virtual void refresh() = 0;
-    virtual void pipe_error(const int& err_count, std::exception& e);
+    virtual void pipe_error(const int& err_count, const std::exception& e);
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
@@ -337,7 +337,7 @@ class ICompute : public Observable
 
     /*! \brief Chrono counting time between two iteration
      *
-     * Taking into account steps, since it is executing at the end of pipe. 
+     * Taking into account steps, since it is executing at the end of pipe.
      */
     std::chrono::time_point<std::chrono::steady_clock> past_time_;
 
@@ -371,7 +371,7 @@ class ICompute : public Observable
     std::atomic<std::optional<std::optional<unsigned int>>> hologram_record_requested_{std::nullopt};
     std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{std::nullopt};
     std::atomic<bool> disable_frame_record_requested_{false};
-    std::atomic<bool> request_clear_img_acc_{false};
+    std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
 };

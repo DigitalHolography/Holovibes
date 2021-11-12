@@ -1,6 +1,7 @@
 #include "output_holo_file.hh"
 #include "file_exception.hh"
 #include "logger.hh"
+#include "holovibes.hh"
 
 namespace holovibes::io_files
 {
@@ -22,13 +23,14 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.img_nb = img_nb;
     holo_file_header_.endianness = camera::Endianness::LittleEndian;
 
-    holo_file_header_.total_data_size = fd_.frame_size() * img_nb;
+    holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool record_raw)
+void OutputHoloFile::export_compute_settings(bool record_raw)
 {
+    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     // export as a json
     try
     {
@@ -43,30 +45,24 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
                           {"time_filter", cd.time_transformation.load()},
 
                           {"#img", cd.time_transformation_size.load()},
-                          {"p", cd.pindex.load()},
+                          {"p", cd.p.index.load()},
                           {"lambda", cd.lambda.load()},
                           {"pixel_size", cd.pixel_size.load()},
                           {"z", cd.zdistance.load()},
 
                           {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 
-                          {"x_acc_enabled", cd.x_accu_enabled.load()},
-                          {"x_acc_level", cd.x_acc_level.load()},
-                          {"y_acc_enabled", cd.y_accu_enabled.load()},
-                          {"y_acc_level", cd.y_acc_level.load()},
-                          {"p_acc_enabled", cd.p_accu_enabled.load()},
-                          {"p_acc_level", cd.p_acc_level.load()},
+                          {"x_acc_level", cd.x.accu_level.load()},
+                          {"y_acc_level", cd.y.accu_level.load()},
+                          {"p_acc_level", cd.p.accu_level.load()},
 
-                          {"log_scale", cd.log_scale_slice_xy_enabled.load()},
-                          {"contrast_min", cd.contrast_min_slice_xy.load()},
-                          {"contrast_max", cd.contrast_max_slice_xy.load()},
+                          {"log_scale", cd.xy.log_scale_slice_enabled.load()},
+                          {"contrast_min", cd.xy.contrast_min.load()},
+                          {"contrast_max", cd.xy.contrast_max.load()},
 
-                          {"img_acc_slice_xy_enabled", cd.img_acc_slice_xy_enabled.load()},
-                          {"img_acc_slice_xz_enabled", cd.img_acc_slice_xz_enabled.load()},
-                          {"img_acc_slice_yz_enabled", cd.img_acc_slice_yz_enabled.load()},
-                          {"img_acc_slice_xy_level", cd.img_acc_slice_xy_level.load()},
-                          {"img_acc_slice_xz_level", cd.img_acc_slice_xz_level.load()},
-                          {"img_acc_slice_yz_level", cd.img_acc_slice_yz_level.load()},
+                          {"img_acc_slice_xy_level", cd.xy.img_accu_level.load()},
+                          {"img_acc_slice_xz_level", cd.xz.img_accu_level.load()},
+                          {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }
@@ -74,18 +70,19 @@ void OutputHoloFile::export_compute_settings(const ComputeDescriptor& cd, bool r
     {
         meta_data_ = json();
         LOG_WARN << "An error was encountered while trying to export compute settings";
+        LOG_WARN << "Exception: " << e.what();
     }
 }
 
 void OutputHoloFile::write_header()
 {
-    if (std::fwrite(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
+    if (std::fwrite(&holo_file_header_, 1, sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
         throw FileException("Unable to write output holo file header");
 }
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
-    size_t written_bytes = std::fwrite(frame, sizeof(char), frame_size, file_);
+    size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
@@ -98,7 +95,7 @@ void OutputHoloFile::write_footer()
     const std::string& meta_data_str = meta_data_.dump();
     const size_t meta_data_size = meta_data_str.size();
 
-    if (std::fwrite(meta_data_str.data(), sizeof(char), meta_data_size, file_) != meta_data_size)
+    if (std::fwrite(meta_data_str.data(), 1, meta_data_size, file_) != meta_data_size)
         throw FileException("Unable to write output holo file footer");
 }
 
@@ -109,8 +106,8 @@ void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
     if (std::fgetpos(file_, &previous_pos))
         throw FileException("Unable to correct number of written frames");
 
-    holo_file_header_.img_nb = nb_frames_written;
-    holo_file_header_.total_data_size = fd_.frame_size() * nb_frames_written;
+    holo_file_header_.img_nb = static_cast<uint32_t>(nb_frames_written);
+    holo_file_header_.total_data_size = fd_.get_frame_size() * nb_frames_written;
 
     fpos_t file_begin_pos = 0;
 

@@ -65,7 +65,7 @@ void CameraPhantomBitflow::open_boards()
 
 void CameraPhantomBitflow::create_buffers()
 {
-    bitmap_size = fd_.frame_size();
+    bitmap_size = fd_.get_frame_size();
     total_mem_size = nb_buffers * bitmap_size + PAGE_SIZE;
 
     /* Allocate memory for the array of buffer pointers */

@@ -1,5 +1,5 @@
 #include "pipe.hh"
-#include "config.hh"
+
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
@@ -21,6 +21,7 @@
 #include "pipeline_utils.hh"
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -28,6 +29,7 @@ using camera::FrameDescriptor;
 
 Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream)
     : ICompute(input, output, desc, stream)
+    , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_transformation_stride; };
 
@@ -69,8 +71,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     stream_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
 
+    *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
-    processed_output_fps_.store(0);
 
     try
     {
@@ -83,6 +85,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         // (ex: lowering the GPU memory usage)
         LOG_WARN << "Pipe refresh failed, trying one more time with updated "
                     "compute descriptor";
+        LOG_WARN << "Exception: " << e.what();
         try
         {
             refresh();
@@ -91,12 +94,14 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            LOG_ERROR << "Pipe could not be initialized";
-            LOG_ERROR << "You might want to restart holovibes";
+            LOG_ERROR << "Pipe could not be initialized, You might want to restart holovibes";
+            LOG_ERROR << "Exception: " << e.what();
             throw e;
         }
     }
 }
+
+Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
 bool Pipe::make_requests()
 {
@@ -183,7 +188,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(cd_.time_transformation_size))
         {
             success_allocation = false;
-            cd_.pindex = 0;
+            cd_.p.index = 0;
             cd_.time_transformation_size = 1;
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
@@ -212,16 +217,16 @@ bool Pipe::make_requests()
 
     image_accumulation_->init(); // done only if requested
 
-    if (request_clear_img_acc_)
+    if (request_clear_img_accu)
     {
         image_accumulation_->clear();
-        request_clear_img_acc_ = false;
+        request_clear_img_accu = false;
     }
 
     if (raw_view_requested_)
     {
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, global::global_config.output_queue_max_size));
+        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.raw_view_enabled = true;
         raw_view_requested_ = false;
     }
@@ -229,7 +234,7 @@ bool Pipe::make_requests()
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, global::global_config.output_queue_max_size));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
         cd_.filter2d_view_enabled = true;
         filter2d_view_requested_ = false;
     }
@@ -251,10 +256,11 @@ bool Pipe::make_requests()
 
     if (hologram_record_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG << "Hologram Record Request Processing";
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, global::global_config.frame_record_queue_max_size, Queue::QueueType::RECORD_QUEUE));
+            new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = false;
         hologram_record_requested_ = std::nullopt;
@@ -262,9 +268,9 @@ bool Pipe::make_requests()
 
     if (raw_record_requested_.load() != std::nullopt)
     {
-        frame_record_env_.gpu_frame_record_queue_.reset(new Queue(gpu_input_queue_.get_fd(),
-                                                                  global::global_config.frame_record_queue_max_size,
-                                                                  Queue::QueueType::RECORD_QUEUE));
+        frame_record_env_.gpu_frame_record_queue_.reset(
+            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+
         cd_.frame_record_enabled = true;
         frame_record_env_.raw_record_enabled = true;
         raw_record_requested_ = std::nullopt;
@@ -332,10 +338,7 @@ void Pipe::refresh()
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
     // time_transformation_stride)
-    if (!cd_.fast_pipe)
-    {
-        insert_transfer_for_time_transformation();
-    }
+    insert_transfer_for_time_transformation();
 
     update_batch_index();
 
@@ -430,7 +433,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        processed_output_fps_ += cd_.batch_size;
+        *processed_output_fps_ += cd_.batch_size;
 
         // FIXME: It seems this enqueue is useless because the RawWindow use
         // the gpu input queue for display
@@ -448,7 +451,7 @@ void Pipe::insert_dequeue_input()
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     fn_compute_vect_.conditional_push_back([&]() {
-        ++processed_output_fps_;
+        (*processed_output_fps_)++;
 
         safe_enqueue_output(gpu_output_queue_,
                             buffers_.gpu_output_frame.get(),
@@ -535,7 +538,7 @@ void Pipe::insert_hologram_record()
     if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.conditional_push_back([&]() {
-            if (gpu_output_queue_.get_fd().depth == 6)
+            if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                 frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(), stream_);
             else
                 frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
@@ -545,14 +548,14 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (cd_.contrast_enabled && cd_.contrast_auto_refresh)
+    if (cd_.get_contrast_enabled() && cd_.get_contrast_auto_refresh())
         request_autocontrast(cd_.current_window);
 }
 
 void Pipe::exec()
 {
-    Holovibes::instance().get_info_container().add_processed_fps(InformationContainer::FpsType::OUTPUT_FPS,
-                                                                 processed_output_fps_);
+    if (refresh_requested_)
+        refresh();
 
     while (!termination_requested_)
     {
@@ -569,8 +572,6 @@ void Pipe::exec()
             pipe_error(1, e);
         }
     }
-
-    Holovibes::instance().get_info_container().remove_processed_fps(InformationContainer::FpsType::OUTPUT_FPS);
 }
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }

@@ -24,7 +24,7 @@ def parse_cli() -> (str, str, int):
 def holo_to_video(input_path: str, output_path: str, fourcc: int, fps: int):
     print(f"Export {input_path} to {output_path} at {fps} FPS")
 
-    holo_file = holo.HoloFileReader(input_path)
+    holo_file = holo.HoloLazyReader(input_path)
     video_file = cv2.VideoWriter(output_path, fourcc, fps, (holo_file.width, holo_file.height), False)
 
     for i in range(holo_file.nb_images):
@@ -43,7 +43,7 @@ def holo_to_video(input_path: str, output_path: str, fourcc: int, fps: int):
 def holo_to_raw(input_path: str, output_path: str):
     print(f"Export {input_path} to {output_path}")
 
-    holo_file = holo.HoloFileReader(input_path)
+    holo_file = holo.HoloLazyReader(input_path)
     raw_file = open(output_path, "wb")
 
     data = holo_file.get_all_frames()
@@ -67,7 +67,7 @@ def raw_to_holo(input_path: str, output_path: str):
     raw_data = raw_file.read(size)
 
     header = (width, height, bytes_per_pixel, nb_images)
-    holo_file = holo.HoloFileWriter(output_path, header, raw_data)
+    holo_file = holo.HoloLazyWriter(output_path, header, raw_data)
     holo_file.write()
     holo_file.close()
 

@@ -5,16 +5,13 @@ import subprocess
 import time
 import difflib
 import pytest
+import json
 from typing import List, Tuple
 
-import holo
+from .constant_name import *
+from . import holo
 
-INPUT_FILENAME = "input.holo"
-OUTPUT_FILENAME = "last_generated_output.holo"
-REF_FILENAME = "ref.holo"
-CONFIG_FILENAME = "holovibes.ini"
-
-TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
+DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
     os.getcwd(), "build", "Ninja", "Release", "Holovibes.exe")
@@ -26,18 +23,31 @@ assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"
 
 
-def read_holo(path: str) -> Tuple[bytes, bytes, bytes]:
-    holo_file = holo.HoloFileReader(path)
-    data = holo_file.get_all()
+def read_holo(path: str) -> holo.HoloFile:
+    return holo.HoloFile.from_file(path)
+
+
+def read_holo_lazy(path: str) -> Tuple[bytes, bytes, bytes]:
+    holo_file = holo.HoloLazyReader(path)
+    data = holo_file.get_all_bytes()
     holo_file.close()
     return data
 
 
-def generate_holo_from(input: str, output: str, config: str = None) -> time.time:
+def get_cli_arguments(cli_argument_path: str) -> List[str]:
+    if not os.path.isfile(cli_argument_path):
+        return []
+
+    with open(cli_argument_path, "rb") as f:
+        return json.load(f)
+
+
+def generate_holo_from(input: str, output: str, cli_argument: str, config: str = None) -> time.time:
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output]
+    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
+        get_cli_arguments(cli_argument)
     if config:
         cmd += ['--ini', config]
 
@@ -57,6 +67,11 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
         difflib.unified_diff, [a_header], [b_header]))
     assert len(diffs) == 0, diffs
 
+    # Data
+    diffs = list(difflib.diff_bytes(
+        difflib.unified_diff, [a_data], [b_data]))
+    assert len(diffs) == 0, diffs
+
     # Footer
     assert a_footer == b_footer, list(
         difflib.ndiff(
@@ -68,9 +83,6 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
     return a != b
 
 
-def find_tests() -> List[str]:
-    return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name))]
-
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 
@@ -78,24 +90,38 @@ def test_holo(folder: str):
     input = os.path.join(path, INPUT_FILENAME)
     output = os.path.join(path, OUTPUT_FILENAME)
     ref = os.path.join(path, REF_FILENAME)
+    cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
     config = os.path.join(path, CONFIG_FILENAME)
 
-    if not os.path.isfile(input):
+    def not_found(filename: str) -> None:
         pytest.skip(
-            "Did not find the input.holo file in folder {}".format(path))
+            f"Did not find the {filename} file in folder {path}")
+
+    if not os.path.isfile(input):
+        input = get_input_file(path)
+        if input is None:
+            not_found(INPUT_FILENAME)
 
     if not os.path.isfile(ref):
-        pytest.skip(
-            "Did not find the ref.holo file in folder {}".format(path))
+        not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
-        config = None
+        not_found(CONFIG_FILENAME)
 
     if os.path.isfile(output):
         os.remove(output)
 
-    generate_holo_from(input, output, config)
-    out = read_holo(output)
-    ref = read_holo(ref)
+    generate_holo_from(input, output, cli_argument, config)
 
-    diff_holo(out, ref)
+    if DEEP_COMPARE:
+
+        out = read_holo(output)
+        ref = read_holo(ref)
+
+        ref.assertHolo(out, path)
+
+    else:
+        out = read_holo_lazy(output)
+        ref = read_holo_lazy(ref)
+
+        diff_holo(ref, out)

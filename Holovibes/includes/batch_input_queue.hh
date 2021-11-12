@@ -16,6 +16,7 @@
 #include "queue.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
+#include "global_state_holder.hh"
 
 using uint = unsigned int;
 
@@ -51,8 +52,7 @@ class BatchInputQueue : public DisplayQueue
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
      */
-    void enqueue(const void* const input_frame,
-                 const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
+    void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
@@ -76,12 +76,8 @@ class BatchInputQueue : public DisplayQueue
      *
      * src, dst, batch_size, frame_res, depth, stream -> void
      */
-    using dequeue_func_t = std::function<void(const void* const,
-                                              void* const,
-                                              const uint,
-                                              const uint,
-                                              const uint,
-                                              const cudaStream_t)>;
+    using dequeue_func_t =
+        std::function<void(const void* const, void* const, const uint, const uint, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
@@ -115,31 +111,32 @@ class BatchInputQueue : public DisplayQueue
      * However, the producer will stop its enqueues (in Holovibes the reader is stopped)
      * and will not be able to exit the critical section in case the current batch is still not full.
      * The queue needs this critical section to be exited for its destruction later.
-    */
+     */
     void stop_producer();
 
     void sync_current_batch() const;
 
     bool is_current_batch_full();
 
-    inline void* get_last_image() const override;
+    inline void* get_last_image() const override
+    {
+        sync_current_batch();
+        // Return the previous enqueued frame
+        return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
+    }
 
-    inline bool is_empty() const;
+    bool is_empty() const { return size_ == 0; }
 
-    inline uint get_size() const;
+    uint get_size() const { return size_; }
 
-    inline bool has_overridden() const;
+    bool has_overridden() const { return has_overridden_; }
 
     // HOLO: Can it be removed?
-    inline const void* get_data() const;
+    const void* get_data() const { return data_; }
 
-    inline uint get_total_nb_frames() const;
+    uint get_total_nb_frames() const { return total_nb_frames_; }
 
-    inline const camera::FrameDescriptor& get_fd() const;
-
-    inline uint get_frame_size() const;
-
-    inline uint get_frame_res() const;
+    const camera::FrameDescriptor& get_fd() const { return fd_; }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -171,34 +168,42 @@ class BatchInputQueue : public DisplayQueue
      * \param index reference to the index of the batch to lock
      * \return The index where it is currently locked
      */
-    inline uint wait_and_lock(const std::atomic<uint>& index);
+    uint wait_and_lock(const std::atomic<uint>& index)
+    {
+        uint tmp_index;
+        while (true)
+        {
+            tmp_index = index.load();
+            if (batch_mutexes_[tmp_index].try_lock())
+                break;
+        }
+        return tmp_index;
+    }
 
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_;
 
-    /*! \brief Resolution of a frame (number of pixels) */
-    const uint frame_res_;
-    /*! \brief Size of a frame (number of pixels * depth) in bytes. Never modified. */
-    const uint frame_size_;
+    /*! \brief FastUpdatesHolder entry */
+    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
 
     /*! \brief The current number of frames in the queue
      *
      * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
-    std::atomic<uint> curr_nb_frames_{0};
+    std::atomic<uint>& curr_nb_frames_;
     /*! \brief The total number of frames that can be contained in the queue according to batch size
      *
      * With respect to batch size (batch_size_ * max_size_)
      */
-    std::atomic<uint> total_nb_frames_{0};
+    std::atomic<uint>& total_nb_frames_;
     /*! \brief The total number of frames that can be contained in the queue */
     std::atomic<uint> frame_capacity_{0};
 
     /*! \brief Current number of full batches
      *
      * Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize)
-    */
+     */
     std::atomic<uint> size_{0};
     /*! \brief Number of frames in a batch
      *
@@ -231,5 +236,3 @@ class BatchInputQueue : public DisplayQueue
     /*! \} */
 };
 } // namespace holovibes
-
-#include "batch_input_queue.hxx"

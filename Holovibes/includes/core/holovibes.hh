@@ -6,6 +6,7 @@
 
 #include "compute_descriptor.hh"
 #include "icamera.hh"
+#include "pipe.hh"
 
 // Worker & Controller
 #include "thread_worker_controller.hh"
@@ -22,8 +23,6 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
-
-#include "information_container.hh"
 
 // Threads priority
 constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
@@ -114,7 +113,7 @@ class Holovibes
     /*! \name Getters/Setters
      * \{
      */
-    std::shared_ptr<ICompute> get_compute_pipe();
+    std::shared_ptr<Pipe> get_compute_pipe();
 
     /*! \return Common ComputeDescriptor */
     ComputeDescriptor& get_cd();
@@ -143,27 +142,14 @@ class Holovibes
      */
     const float get_boundary();
 
-    /*! \brief Get the info container object
-     *
-     * \return InformationContainer&
-     */
-    InformationContainer& get_info_container();
     /*! \} */
-
-    /*! \brief Update the compute descriptor for CLI purpose
-     *
-     * Must be called before the initialization of the thread compute and
-     * recorder
-     *
-     * \param input_fps
-     */
-    void update_cd_for_cli(const unsigned int input_fps);
 
     /*! \brief Initializes the input queue
      *
      * \param fd frame descriptor of the camera
+     * \param input_queue_size size of the input queue
      */
-    void init_input_queue(const camera::FrameDescriptor& fd);
+    void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
@@ -195,7 +181,7 @@ class Holovibes
 
     /*! \brief Handle frame reading interruption
      *
-     * Stops both read_worker, clears the info_container, resets the active camera and store the gpu_input_queue
+     * Stops both read_worker, resets the active camera and store the gpu_input_queue
      */
     void stop_frame_read();
 
@@ -231,8 +217,7 @@ class Holovibes
 
     void stop_batch_gpib();
 
-    void start_information_display(
-        bool is_cli, const std::function<void()>& callback = []() {});
+    void start_information_display(const std::function<void()>& callback = []() {});
 
     void stop_information_display();
 
@@ -242,14 +227,19 @@ class Holovibes
 
     void stop_all_worker_controller();
 
+    void start_cli_record_and_compute(const std::string& path,
+                                      std::optional<unsigned int> nb_frames_to_record,
+                                      bool raw_record,
+                                      unsigned int nb_frames_skip);
+
+    void init_pipe();
+
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
 
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
-
-    InformationContainer info_container_;
 
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
@@ -263,7 +253,7 @@ class Holovibes
     worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
 
     worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
-    std::atomic<std::shared_ptr<ICompute>> compute_pipe_{nullptr};
+    std::atomic<std::shared_ptr<Pipe>> compute_pipe_{nullptr};
 
     /*! \name Frames queue (GPU)
      * \{

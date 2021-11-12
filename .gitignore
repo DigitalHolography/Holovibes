@@ -3,10 +3,15 @@
 # =========================
 
 # Ignore Visual Studio config files
-.vscode
+.vscode/
+.vs/
+*.code-workspace
 
 # python cache from scripts
 __pycache__/
+
+# logs files
+*.log
 
 # =========================
 # Windows
@@ -50,3 +55,5 @@ html
 
 # Testing files
 last_generated_output.holo
+ref.png
+out.png

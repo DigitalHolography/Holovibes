@@ -77,7 +77,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="ImageRenderingGroupBox">
+       <widget class="holovibes::gui::ImageRenderingPanel" name="ImageRenderingPanel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -564,13 +564,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="FastPipeCheckBox">
-           <property name="text">
-            <string>Fast Pipe</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -587,7 +580,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="ViewGroupBox">
+       <widget class="holovibes::gui::ViewPanel" name="ViewPanel">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -752,21 +745,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <widget class="QCheckBox" name="ImgAccuCheckBox">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Accumulate n images</string>
-                </property>
+               <widget class="QLabel" name="ImgAccuLabel">
                 <property name="text">
                  <string>Img. Acc.</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -957,19 +938,6 @@
            <property name="verticalSpacing">
             <number>1</number>
            </property>
-           <item row="1" column="2">
-            <widget class="QCheckBox" name="YAccuCheckBox">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <widget class="QSpinBox" name="XSpinBox">
              <property name="maximumSize">
@@ -980,48 +948,6 @@
              </property>
              <property name="maximum">
               <number>999999999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QCheckBox" name="Q_AccuCheckBox">
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QCheckBox" name="XAccuCheckBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>42</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QCheckBox" name="PAccuCheckBox">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Acc.</string>
              </property>
             </widget>
            </item>
@@ -1168,6 +1094,46 @@
              </property>
              <property name="maximum">
               <number>9999999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="QaccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="PaccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="YAccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="XAccLabel">
+             <property name="text">
+              <string>Acc.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -1409,7 +1375,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="CompositeGroupBox">
+       <widget class="holovibes::gui::CompositePanel" name="CompositePanel">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -2336,7 +2302,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="holovibes::gui::GroupBox" name="ImportGroupBox">
+          <widget class="holovibes::gui::ImportPanel" name="ImportPanel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -2432,49 +2398,17 @@
              </layout>
             </item>
             <item>
-             <layout class="QGridLayout" name="gridLayout_6">
+             <layout class="QGridLayout" name="gridLayout_12">
               <property name="horizontalSpacing">
                <number>9</number>
               </property>
               <property name="verticalSpacing">
                <number>4</number>
               </property>
-              <item row="2" column="0">
-               <widget class="QLabel" name="ImportEndIndexLabel">
+              <item row="1" column="0">
+               <widget class="QLabel" name="ImportStartIndexLabel">
                 <property name="text">
-                 <string>End Index</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>2100000000</number>
-                </property>
-                <property name="value">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="ImportFpsLabel">
-                <property name="text">
-                 <string>Input FPS</string>
+                 <string>Start Index</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2503,13 +2437,25 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="ImportStartIndexLabel">
-                <property name="text">
-                 <string>Start Index</string>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="ImportEndIndexSpinBox">
+                <property name="enabled">
+                 <bool>true</bool>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>2100000000</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
                 </property>
                </widget>
               </item>
@@ -2538,27 +2484,43 @@
                 </property>
                </widget>
               </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout">
-              <item>
-               <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
-                <property name="toolTip">
-                 <string>Allows much higher FPS. Requires high GPU DRAM.</string>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="locale">
-                 <locale language="French" country="France"/>
-                </property>
+              <item row="2" column="0">
+               <widget class="QLabel" name="ImportEndIndexLabel">
                 <property name="text">
-                 <string>Load File In GPU</string>
+                 <string>End Index</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="ImportFpsLabel">
+                <property name="text">
+                 <string>Input FPS</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="LoadFileInGpuCheckBox">
+              <property name="toolTip">
+               <string>Allows much higher FPS. Requires high GPU DRAM.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="locale">
+               <locale language="French" country="France"/>
+              </property>
+              <property name="text">
+               <string>Load File In GPU</string>
+              </property>
+             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_27">
@@ -2588,7 +2550,7 @@
           </widget>
          </item>
          <item>
-          <widget class="holovibes::gui::GroupBox" name="ExportGroupBox">
+          <widget class="holovibes::gui::ExportPanel" name="ExportPanel">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -2971,7 +2933,7 @@
        </widget>
       </item>
       <item>
-       <widget class="holovibes::gui::GroupBox" name="InfoGroupBox">
+       <widget class="holovibes::gui::InfoPanel" name="InfoPanel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -3101,17 +3063,32 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="actionConfigure"/>
-    <addaction name="actionReload_ini"/>
-    <addaction name="actionSave_ini"/>
-    <addaction name="actionReset"/>
+    <widget class="QMenu" name="menuImport_from_ini">
+     <property name="title">
+      <string>Import compute settings</string>
+     </property>
+     <addaction name="actionReload_ini"/>
+     <addaction name="actionBrowse"/>
+    </widget>
+    <widget class="QMenu" name="menuExport_to_ini">
+     <property name="title">
+      <string>Export compute settings</string>
+     </property>
+     <addaction name="actionExport"/>
+     <addaction name="actionExport_as"/>
+    </widget>
+    <addaction name="menuImport_from_ini"/>
+    <addaction name="menuExport_to_ini"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdvanced"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3225,11 +3202,6 @@ p, li { white-space: pre-wrap; }
     <string>Credits</string>
    </property>
   </action>
-  <action name="actionConfigure">
-   <property name="text">
-    <string>Configure</string>
-   </property>
-  </action>
   <action name="actionImage_rendering">
    <property name="checkable">
     <bool>true</bool>
@@ -3312,11 +3284,6 @@ p, li { white-space: pre-wrap; }
     <string>Alt+N</string>
    </property>
   </action>
-  <action name="actionReset">
-   <property name="text">
-    <string>Reset</string>
-   </property>
-  </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
@@ -3337,16 +3304,6 @@ p, li { white-space: pre-wrap; }
     <string>Night</string>
    </property>
   </action>
-  <action name="actionReload_ini">
-   <property name="text">
-    <string>Import from .ini</string>
-   </property>
-  </action>
-  <action name="actionSave_ini">
-   <property name="text">
-    <string>Export to .ini</string>
-   </property>
-  </action>
   <action name="actionHamamatsu">
    <property name="text">
     <string>Hamamatsu C11440</string>
@@ -3362,18 +3319,33 @@ p, li { white-space: pre-wrap; }
     <string>Bitflow Cyton frame grabber</string>
    </property>
   </action>
+  <action name="actionReload_ini">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionBrowse">
+   <property name="text">
+    <string>Browse</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionExport_as">
+   <property name="text">
+    <string>Export as...</string>
+   </property>
+  </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>holovibes::gui::GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>gui_group_box.hh</header>
-   <container>1</container>
-   <slots>
-    <slot>ShowOrHide()</slot>
-    <slot>reset()</slot>
-   </slots>
-  </customwidget>
   <customwidget>
    <class>holovibes::gui::Frame</class>
    <extends>QFrame</extends>
@@ -3381,7 +3353,6 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
    <slots>
     <slot>ShowOrHide()</slot>
-    <slot>reset()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -3389,18 +3360,50 @@ p, li { white-space: pre-wrap; }
    <extends>QLineEdit</extends>
    <header>gui_drag_drop_lineedit.hh</header>
   </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ImportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>import_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ExportPanel</class>
+   <extends>QGroupBox</extends>
+   <header>export_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::InfoPanel</class>
+   <extends>QGroupBox</extends>
+   <header>info_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ViewPanel</class>
+   <extends>QGroupBox</extends>
+   <header>view_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::CompositePanel</class>
+   <extends>QGroupBox</extends>
+   <header>composite_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::ImageRenderingPanel</class>
+   <extends>QGroupBox</extends>
+   <header>image_rendering_panel.hh</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>InfoTextEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>TimeTransformationCutsCheckBox</tabstop>
-  <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
-  <tabstop>YAccuCheckBox</tabstop>
   <tabstop>YAccSpinBox</tabstop>
-  <tabstop>PAccuCheckBox</tabstop>
   <tabstop>PAccSpinBox</tabstop>
-  <tabstop>ImgAccuCheckBox</tabstop>
   <tabstop>ImgAccuSpinBox</tabstop>
   <tabstop>ContrastCheckBox</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
@@ -3535,22 +3538,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionConfigure</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>configure_holovibes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionAdimec</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -3631,22 +3618,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionReset</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionNight</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -3675,38 +3646,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionReload_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reload_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSave_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>write_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -3745,7 +3684,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>BatchSizeSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>update_batch_size()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3761,7 +3700,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_auto_refresh_contrast(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3777,7 +3716,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3791,25 +3730,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionInfo</sender>
-   <signal>changed()</signal>
-   <receiver>InfoGroupBox</receiver>
-   <slot>ShowOrHide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1361</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>WaveLengthDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3823,25 +3746,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImgAccuCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_accumulation(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>289</x>
-     <y>294</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>447</x>
-     <y>416</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImgAccuSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3857,7 +3764,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>LogScaleCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3873,7 +3780,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ZDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3889,7 +3796,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionImage_rendering</sender>
    <signal>changed()</signal>
-   <receiver>ImageRenderingGroupBox</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3905,7 +3812,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>rotateTexture()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3921,7 +3828,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpaceTransformationComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_space_transformation(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3937,7 +3844,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>FlipPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>flipTexture()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3953,7 +3860,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionView</sender>
    <signal>changed()</signal>
-   <receiver>ViewGroupBox</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3967,25 +3874,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>XAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_x_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4001,7 +3892,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PBlueSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4017,7 +3908,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>TimeTransformationCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>toggle_time_transformation_cuts(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4033,7 +3924,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_fft_shift(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4049,7 +3940,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4065,7 +3956,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RenormalizationCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4081,7 +3972,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ViewModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4097,7 +3988,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_R</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4113,7 +4004,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_G</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4129,7 +4020,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>timeTransformationSizeSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_time_transformation_size()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4143,25 +4034,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>YAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>187</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBox_value_freq</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_frequency_channel_v()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4177,7 +4052,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>CompositeAreaButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4193,7 +4068,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RawDisplayingCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>update_raw_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4209,7 +4084,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4225,7 +4100,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>WeightSpinBox_B</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4241,7 +4116,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_hue_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4257,7 +4132,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>LensViewCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>update_lens_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4273,7 +4148,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>radioButton_rgb</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>click_composite_rgb_or_hsv()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4289,7 +4164,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>radioButton_hsv</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>click_composite_rgb_or_hsv()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4305,7 +4180,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4321,7 +4196,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_value_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4337,7 +4212,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_value_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4353,7 +4228,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_value_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4369,7 +4244,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4385,7 +4260,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_value_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4401,7 +4276,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBox_h_gaussian_blur</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_checkbox_h_gaussian_blur()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4417,7 +4292,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_saturation_freq_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4433,7 +4308,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_saturation_threshold_max</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4449,7 +4324,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>DisplayReticleCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>display_reticle(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4465,7 +4340,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBox_saturation_freq</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_frequency_channel_s()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4481,7 +4356,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>DivideConvoCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_divide_convolution_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4497,7 +4372,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ConvoCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_convolution_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4513,7 +4388,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>reticle_scale(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4529,7 +4404,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>horizontalSlider_saturation_threshold_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>slide_update_threshold_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4545,7 +4420,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>TimeTransformationStrideSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>update_time_transformation_stride()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4561,7 +4436,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_hue_blur_kernel_size</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>actualize_kernel_size_blur()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4577,7 +4452,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SpinBox_saturation_freq_min</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>CompositePanel</receiver>
    <slot>set_composite_intervals_hsv_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4593,7 +4468,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>TimeTransformationComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_time_transformation(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4609,7 +4484,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_image_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4625,7 +4500,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>KernelQuickSelectComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>update_convo_kernel(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4641,7 +4516,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastMinDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4657,7 +4532,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>AutoContrastPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4673,7 +4548,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4689,7 +4564,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>invert_contrast(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4705,7 +4580,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RenormalizeCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>toggle_renormalize(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4721,7 +4596,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>RecordImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>set_record_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4737,7 +4612,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartNoisePushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>activeNoiseZone()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4753,7 +4628,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartSignalPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>activeSignalZone()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4769,7 +4644,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ChartPlotPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>start_chart_display()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4785,7 +4660,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>OutputFileBrowseToolButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>browse_record_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4801,7 +4676,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>BatchInputBrowseToolButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4817,7 +4692,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>start_record()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4833,7 +4708,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ExportStopPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>stop_record()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4849,7 +4724,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>InputBrowseToolButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4865,7 +4740,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImportStartIndexSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4881,7 +4756,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImportEndIndexSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4897,23 +4772,23 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>ImportStopPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>208</y>
+     <x>910</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
+     <x>859</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>ImportStartPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImportPanel</receiver>
    <slot>import_start()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4945,7 +4820,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>NumberOfFramesCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ExportPanel</receiver>
    <slot>set_nb_frames_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4977,7 +4852,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Filter2DN1SpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_filter2d_n1(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4993,7 +4868,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Filter2DN2SpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_filter2d_n2(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5009,7 +4884,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Filter2D</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>set_filter2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5025,7 +4900,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Filter2DView</sender>
    <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ImageRenderingPanel</receiver>
    <slot>update_filter2d_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5041,7 +4916,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5057,7 +4932,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>XAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5073,7 +4948,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>YAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5089,7 +4964,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>PSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5105,7 +4980,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>XSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_y()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5121,7 +4996,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>YSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_x_y()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5135,25 +5010,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PAccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>208</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Q_SpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_q(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5167,46 +5026,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>Q_AccuCheckBox</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_q_acc()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>370</x>
-     <y>210</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Q_AccSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ViewPanel</receiver>
    <slot>set_q_acc()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>430</x>
      <y>210</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>FastPipeCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_fast_pipe(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>121</x>
-     <y>389</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>
@@ -5223,6 +5050,102 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBrowse</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_import_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReload_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reload_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport_as</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_export_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdvanced</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_advanced_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WindowSelectionComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_window(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>
@@ -5254,11 +5177,11 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
+  <slot>change_window(int)</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
   <slot>start_chart_display()</slot>
-  <slot>configure_holovibes()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>start_record()</slot>
@@ -5269,19 +5192,18 @@ p, li { white-space: pre-wrap; }
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>layout_toggled()</slot>
-  <slot>reset()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
-  <slot>set_fast_pipe(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
-  <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>
+  <slot>browse_import_ini()</slot>
   <slot>write_ini()</slot>
+  <slot>browse_export_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>
   <slot>rotateTexture()</slot>
@@ -5327,5 +5249,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d_n1(int)</slot>
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
+  <slot>open_advanced_settings()</slot>
+  <slot>close_advanced_settings()</slot>
  </slots>
 </ui>

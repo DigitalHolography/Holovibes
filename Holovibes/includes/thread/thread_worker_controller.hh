@@ -9,8 +9,8 @@ namespace holovibes::worker
 // Fast forward declaration
 class Worker;
 
-template <class T, class U>
-concept Derived = std::is_base_of<U, T>::value;
+template <class T>
+concept WorkerDerived = std::is_base_of<Worker, T>::value;
 
 /*! \class ThreadWorkerController
  *
@@ -18,7 +18,7 @@ concept Derived = std::is_base_of<U, T>::value;
  *
  * \details T must derived from the Worker class
  */
-template <Derived<Worker> T>
+template <WorkerDerived T>
 class ThreadWorkerController
 {
   public:
@@ -35,8 +35,7 @@ class ThreadWorkerController
     ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
 
     /*! \brief Deleted copy operator */
-    ThreadWorkerController&
-    operator=(const ThreadWorkerController<T>&) = delete;
+    ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
 
     /*! \brief Set the function executed at the end of the thread
      *
@@ -70,7 +69,8 @@ class ThreadWorkerController
   private:
     /*! \brief Method run in the thread
      *
-     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the worker
+     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the
+     * worker
      */
     void run();
 

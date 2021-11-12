@@ -3,20 +3,37 @@
 #include "tools.hh"
 #include <cuda_runtime.h>
 #include <chrono>
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-InformationWorker::InformationWorker(bool is_cli, InformationContainer& info)
+const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
+    {IndicationType::IMG_SOURCE, "Image Source"},
+    {IndicationType::INPUT_FORMAT, "Input Format"},
+    {IndicationType::OUTPUT_FORMAT, "Output Format"}};
+
+const std::unordered_map<FpsType, std::string> InformationWorker::fps_type_to_string_ = {
+    {FpsType::INPUT_FPS, "Input FPS"},
+    {FpsType::OUTPUT_FPS, "Output FPS"},
+    {FpsType::SAVING_FPS, "Saving FPS"},
+};
+
+const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_to_string_ = {
+    {QueueType::INPUT_QUEUE, "Input Queue"},
+    {QueueType::OUTPUT_QUEUE, "Output Queue"},
+    {QueueType::RECORD_QUEUE, "Record Queue"},
+};
+
+InformationWorker::InformationWorker()
     : Worker()
-    , is_cli_(is_cli)
-    , info_(info)
 {
 }
 
 void InformationWorker::run()
 {
+    std::shared_ptr<ICompute> pipe;
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
     unsigned int output_frame_res = 0;
     unsigned int input_frame_size = 0;
@@ -39,20 +56,20 @@ void InformationWorker::run()
 
             if (gpu_output_queue && gpu_input_queue)
             {
-                output_frame_res = gpu_output_queue->get_fd().frame_res();
-                input_frame_size = gpu_input_queue->get_fd().frame_size();
+                output_frame_res = gpu_output_queue->get_fd().get_frame_res();
+                input_frame_size = gpu_input_queue->get_fd().get_frame_size();
             }
 
             try
             {
                 std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe();
                 std::unique_ptr<Queue>& gpu_frame_record_queue = pipe->get_frame_record_queue();
-
                 if (gpu_frame_record_queue)
-                    record_frame_size = gpu_frame_record_queue->get_fd().frame_size();
+                    record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
             catch (const std::exception&)
             {
+                record_frame_size = 0;
             }
 
             compute_throughput(cd, output_frame_res, input_frame_size, record_frame_size);
@@ -60,8 +77,7 @@ void InformationWorker::run()
             start = std::chrono::high_resolution_clock::now();
         }
 
-        if (!is_cli_)
-            display_gui_information();
+        display_gui_information();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -69,25 +85,24 @@ void InformationWorker::run()
 
 void InformationWorker::compute_fps(const long long waited_time)
 {
-    if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    FastUpdatesHolder<FpsType>::const_iterator it;
+    if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
     {
-        std::atomic<unsigned int>* input_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::INPUT_FPS);
-        input_fps_ = std::round(input_fps_ref->load() * (1000.f / waited_time));
-        input_fps_ref->store(0);
+        input_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        it->second->store(0); // TODO Remove
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
+    if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
     {
-        std::atomic<unsigned int>* output_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::OUTPUT_FPS);
-        output_fps_ = std::round(output_fps_ref->load() * (1000.f / waited_time));
-        output_fps_ref->store(0);
+        output_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        it->second->store(0); // TODO Remove
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
+    if ((it = fps_map.find(FpsType::SAVING_FPS)) != fps_map.end())
     {
-        std::atomic<unsigned int>* saving_fps_ref = info_.fps_map_.at(InformationContainer::FpsType::SAVING_FPS);
-        saving_fps_ = std::round(saving_fps_ref->load() * (1000.f / waited_time));
-        saving_fps_ref->store(0);
+        saving_fps_ = std::round(it->second->load() * (1000.f / waited_time));
+        it->second->store(0); // TODO Remove
     }
 }
 
@@ -107,62 +122,65 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     std::string unit_ = (throughput > 1e9 ? " G" : " M") + unit;
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << throughput_ << unit_;
+
     return ss.str();
 }
 
 void InformationWorker::display_gui_information()
 {
-    MutexGuard m_guard(info_.mutex_);
+    std::string str;
+    str.reserve(512);
+    std::stringstream to_display(str);
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
 
-    std::string to_display;
-    to_display.reserve(512);
+    for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
+        to_display << indication_type_to_string_.at(key) << ":\n  " << *value << "\n";
 
-    for (auto const& [key, value] : info_.indication_map_)
-        to_display += info_.indication_type_to_string_.at(key) + ":\n  " + value + "\n";
-
-    for (auto const& [key, value] : info_.queue_size_map_)
+    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
     {
-        to_display += info_.queue_type_to_string_.at(key) + ":\n  ";
-        to_display += std::to_string(value.first->load()) + "/" + std::to_string(value.second->load()) + "\n";
+        if (key == QueueType::UNDEFINED)
+            continue;
+
+        to_display << queue_type_to_string_.at(key) << ":\n  ";
+        to_display << value->first.load() << "/" << value->second.load() << "\n";
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::INPUT_FPS))
+    if (fps_map.contains(FpsType::INPUT_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::INPUT_FPS) + ":\n  " +
-                      std::to_string(input_fps_) + "\n";
+        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":\n  " << input_fps_ << "\n";
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
+    if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::OUTPUT_FPS) + ":\n  " +
-                      std::to_string(output_fps_) + "\n";
+        to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":\n  " << output_fps_ << "\n";
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
+    if (fps_map.contains(FpsType::SAVING_FPS))
     {
-        to_display += info_.fps_type_to_string_.at(InformationContainer::FpsType::SAVING_FPS) + ":\n  " +
-                      std::to_string(saving_fps_) + "\n";
+        to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":\n  " << saving_fps_ << "\n";
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::OUTPUT_FPS))
+    if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
-        to_display += "Input Throughput\n  " + format_throughput(input_throughput_, "B/s") + "\n";
-        to_display += "Output Throughput\n  " + format_throughput(output_throughput_, "Voxels/s") + "\n";
+        to_display << "Input Throughput\n  " << format_throughput(input_throughput_, "B/s") << "\n";
+        to_display << "Output Throughput\n  " << format_throughput(output_throughput_, "Voxels/s") << "\n";
     }
 
-    if (info_.fps_map_.contains(InformationContainer::FpsType::SAVING_FPS))
+    if (fps_map.contains(FpsType::SAVING_FPS))
     {
-        to_display += "Saving Throughput\n  " + format_throughput(saving_throughput_, "B/s") + "\n";
+        to_display << "Saving Throughput\n  " << format_throughput(saving_throughput_, "B/s") << "\n";
     }
 
     size_t free, total;
     cudaMemGetInfo(&free, &total);
-    to_display += "GPU memory:\n" + std::string("  ") + engineering_notation(free, 3) + "B free,\n" +
-                  std::string("  ") + engineering_notation(total, 3) + "B total";
 
-    info_.display_info_text_function_(to_display);
+    to_display << "GPU memory:\n"
+               << std::string("  ") << engineering_notation(free, 3) << "B free,\n"
+               << "  " << engineering_notation(total, 3) + "B total";
 
-    for (auto const& [key, value] : info_.progress_index_map_)
-        info_.update_progress_function_(key, value.first->load(), value.second->load());
+    display_info_text_function_(to_display.str());
+
+    for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
+        update_progress_function_(key, value->first.load(), value->second.load());
 }
 } // namespace holovibes::worker

@@ -13,9 +13,8 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* main_window)
+Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
-    , main_window_(main_window)
 {
     setMinimumSize(s);
 }
@@ -23,7 +22,10 @@ Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q, MainWindow* m
 Filter2DWindow::~Filter2DWindow()
 {
     if (cuResource)
-        cudaGraphicsUnregisterResource(cuResource);
+    {
+        cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
+        cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
+    }
 }
 
 void Filter2DWindow::initShaders()
@@ -54,7 +56,7 @@ void Filter2DWindow::initializeGL()
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
 
-    uint size = fd_.frame_size();
+    uint size = fd_.get_frame_size();
     ushort* mTexture = new ushort[size];
     std::memset(mTexture, 0, size * sizeof(ushort));
 
@@ -175,7 +177,7 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->current_window = WindowKind::Filter2D;
+        cd_->change_window(static_cast<int>(WindowKind::Filter2D));
         cd_->notify_observers();
     }
 }

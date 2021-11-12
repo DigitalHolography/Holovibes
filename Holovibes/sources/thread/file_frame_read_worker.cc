@@ -3,8 +3,9 @@
 #include "cuda_memory.cuh"
 #include "unpack.cuh"
 #include "input_frame_file_factory.hh"
-#include "config.hh"
+
 #include "holovibes.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::worker
 {
@@ -14,21 +15,26 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
                                          unsigned int first_frame_id,
                                          unsigned int total_nb_frames_to_read,
                                          bool load_file_in_gpu,
-                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
+                                         const unsigned int file_buffer_size)
     : FrameReadWorker(gpu_input_queue)
     , file_path_(file_path)
     , loop_(loop)
     , fps_handler_(FileFrameReadWorker::FpsHandler(fps))
     , first_frame_id_(first_frame_id)
-    , current_nb_frames_read_(0)
-    , total_nb_frames_to_read_(total_nb_frames_to_read)
+    , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
+    , current_nb_frames_read_(fast_updates_entry_->first)
+    , total_nb_frames_to_read_(fast_updates_entry_->second)
     , load_file_in_gpu_(load_file_in_gpu)
-    , input_file_(nullptr)
+    , file_buffer_size_(file_buffer_size)
     , frame_size_(0)
+    , input_file_(nullptr)
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
     , gpu_packed_buffer_(nullptr)
 {
+    current_nb_frames_read_ = 0;
+    total_nb_frames_to_read_ = total_nb_frames_to_read;
 }
 
 void FileFrameReadWorker::run()
@@ -44,7 +50,7 @@ void FileFrameReadWorker::run()
     }
 
     const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    frame_size_ = fd.frame_size();
+    frame_size_ = fd.get_frame_size();
 
     if (!init_frame_buffers())
         return;
@@ -52,13 +58,12 @@ void FileFrameReadWorker::run()
     std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
                                         std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
 
-    InformationContainer& info = Holovibes::instance().get_info_container();
-    info.add_indication(InformationContainer::IndicationType::IMG_SOURCE, "File");
-    info.add_indication(InformationContainer::IndicationType::INPUT_FORMAT, std::ref(input_descriptor_info));
-    info.add_processed_fps(InformationContainer::FpsType::INPUT_FPS, std::ref(processed_fps_));
-    info.add_progress_index(InformationContainer::ProgressType::FILE_READ,
-                            std::ref(current_nb_frames_read_),
-                            std::ref(total_nb_frames_to_read_));
+    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    *entry1 = "File";
+    *entry2 = input_descriptor_info;
+
+    processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
 
     try
     {
@@ -77,10 +82,10 @@ void FileFrameReadWorker::run()
     // No more enqueue, thus release the producer ressources
     gpu_input_queue_.load()->stop_producer();
 
-    info.remove_indication(InformationContainer::IndicationType::IMG_SOURCE);
-    info.remove_indication(InformationContainer::IndicationType::INPUT_FORMAT);
-    info.remove_processed_fps(InformationContainer::FpsType::INPUT_FPS);
-    info.remove_progress_index(InformationContainer::ProgressType::FILE_READ);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
@@ -94,7 +99,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     if (load_file_in_gpu_)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
-        buffer_nb_frames = global::global_config.file_buffer_size;
+        buffer_nb_frames = file_buffer_size_;
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
@@ -166,7 +171,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = global::global_config.file_buffer_size;
+    const unsigned int batch_size = file_buffer_size_;
 
     fps_handler_.begin();
 
@@ -262,7 +267,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
-        processed_fps_++;
+        (*processed_fps_)++;
         frames_enqueued++;
     }
 

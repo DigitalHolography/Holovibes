@@ -14,91 +14,22 @@ ComputeDescriptor::ComputeDescriptor()
 
 ComputeDescriptor::~ComputeDescriptor() {}
 
-ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
-{
-    is_computation_stopped = is_computation_stopped.load();
-    compute_mode = cd.compute_mode.load();
-    space_transformation = cd.space_transformation.load();
-    time_transformation = cd.time_transformation.load();
-    time_transformation_size = cd.time_transformation_size.load();
-    pindex = cd.pindex.load();
-    p_acc_level = cd.p_acc_level.load();
-    p_accu_enabled = cd.p_accu_enabled.load();
-    lambda = cd.lambda.load();
-    zdistance = cd.zdistance.load();
-    img_type = cd.img_type.load();
-    unwrap_history_size = cd.unwrap_history_size.load();
-    log_scale_slice_xy_enabled = cd.log_scale_slice_xy_enabled.load();
-    log_scale_slice_xz_enabled = cd.log_scale_slice_xz_enabled.load();
-    log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
-    log_scale_filter2d_enabled = cd.log_scale_filter2d_enabled.load();
-    fft_shift_enabled = cd.fft_shift_enabled.load();
-    contrast_enabled = cd.contrast_enabled.load();
-    convolution_enabled = cd.convolution_enabled.load();
-    chart_display_enabled = cd.chart_display_enabled.load();
-    chart_record_enabled = cd.chart_record_enabled.load();
-    contrast_min_slice_xy = cd.contrast_min_slice_xy.load();
-    contrast_max_slice_xy = cd.contrast_max_slice_xy.load();
-    contrast_min_slice_xz = cd.contrast_min_slice_xz.load();
-    contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
-    contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
-    contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
-    contrast_min_filter2d = cd.contrast_min_filter2d.load();
-    contrast_max_filter2d = cd.contrast_max_filter2d.load();
-    contrast_invert = cd.contrast_invert.load();
-    pixel_size = cd.pixel_size.load();
-    img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();
-    img_acc_slice_xz_enabled = cd.img_acc_slice_xz_enabled.load();
-    img_acc_slice_yz_enabled = cd.img_acc_slice_yz_enabled.load();
-    img_acc_slice_xy_level = cd.img_acc_slice_xy_level.load();
-    img_acc_slice_xz_level = cd.img_acc_slice_xz_level.load();
-    img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
-    time_transformation_stride = cd.time_transformation_stride.load();
-    time_transformation_cuts_enabled = cd.time_transformation_cuts_enabled.load();
-    current_window = cd.current_window.load();
-    cuts_contrast_p_offset = cd.cuts_contrast_p_offset.load();
-    display_rate = cd.display_rate.load();
-    reticle_enabled = cd.reticle_enabled.load();
-    reticle_scale = cd.reticle_scale.load();
-    signal_zone = cd.signal_zone;
-    noise_zone = cd.noise_zone;
-    filter2d_enabled = cd.filter2d_enabled.load();
-    filter2d_view_enabled = cd.filter2d_view_enabled.load();
-    filter2d_n1 = cd.filter2d_n1.load();
-    filter2d_n2 = cd.filter2d_n2.load();
-    filter2d_smooth_low = cd.filter2d_smooth_low.load();
-    filter2d_smooth_high = cd.filter2d_smooth_high.load();
-    contrast_auto_refresh = cd.contrast_auto_refresh.load();
-    raw_view_enabled = cd.raw_view_enabled.load();
-    frame_record_enabled = cd.frame_record_enabled.load();
-    fast_pipe = cd.fast_pipe.load();
-    return *this;
-}
-
 void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
 {
     LockGuard g(mutex_);
     if (m == AccessMode::Get)
-    {
         rect = signal_zone;
-    }
     else if (m == AccessMode::Set)
-    {
         signal_zone = rect;
-    }
 }
 
 void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
 {
     LockGuard g(mutex_);
     if (m == AccessMode::Get)
-    {
         rect = noise_zone;
-    }
     else if (m == AccessMode::Set)
-    {
         noise_zone = rect;
-    }
 }
 
 units::RectFd ComputeDescriptor::getCompositeZone() const
@@ -137,185 +68,223 @@ units::RectFd ComputeDescriptor::getReticleZone() const
     return reticle_zone;
 }
 
-float ComputeDescriptor::get_contrast_min(WindowKind kind) const
+float ComputeDescriptor::get_contrast_min() const
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        return log_scale_slice_xy_enabled ? contrast_min_slice_xy.load() : log10(contrast_min_slice_xy);
-    case WindowKind::XZview:
-        return log_scale_slice_xz_enabled ? contrast_min_slice_xz.load() : log10(contrast_min_slice_xz);
-    case WindowKind::YZview:
-        return log_scale_slice_yz_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_slice_yz);
-    case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled ? contrast_min_slice_yz.load() : log10(contrast_min_filter2d);
-    }
-    return 0;
+    return current->log_scale_slice_enabled ? current->contrast_min.load() : log10(current->contrast_min);
 }
 
-float ComputeDescriptor::get_contrast_max(WindowKind kind) const
+float ComputeDescriptor::get_contrast_max() const
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        return log_scale_slice_xy_enabled ? contrast_max_slice_xy.load() : log10(contrast_max_slice_xy);
-    case WindowKind::XZview:
-        return log_scale_slice_xz_enabled ? contrast_max_slice_xz.load() : log10(contrast_max_slice_xz);
-    case WindowKind::YZview:
-        return log_scale_slice_yz_enabled ? contrast_max_slice_yz.load() : log10(contrast_max_slice_yz);
-    case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled ? contrast_max_filter2d.load() : log10(contrast_max_filter2d);
-    }
-    return 0;
+    return current->log_scale_slice_enabled ? current->contrast_max.load() : log10(current->contrast_max);
 }
 
-float ComputeDescriptor::get_truncate_contrast_max(WindowKind kind,
-                                                   const int precision) const
+bool ComputeDescriptor::get_img_log_scale_slice_enabled() const { return current->log_scale_slice_enabled; }
+
+unsigned ComputeDescriptor::get_img_accu_level() const { return reinterpret_cast<View_XYZ*>(current)->img_accu_level; }
+
+float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
 {
-    float value = get_contrast_max(kind);
+    float value = get_contrast_max();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-float ComputeDescriptor::get_truncate_contrast_min(WindowKind kind,
-                                                   const int precision) const
+float ComputeDescriptor::get_truncate_contrast_min(const int precision) const
 {
-    float value = get_contrast_min(kind);
+    float value = get_contrast_min();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-bool ComputeDescriptor::get_img_log_scale_slice_enabled(WindowKind kind) const
+void ComputeDescriptor::set_contrast_min(float value)
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        return log_scale_slice_xy_enabled;
-    case WindowKind::XZview:
-        return log_scale_slice_xz_enabled;
-    case WindowKind::YZview:
-        return log_scale_slice_yz_enabled;
-    case WindowKind::Filter2D:
-        return log_scale_filter2d_enabled;
-    }
-    return false;
+    current->contrast_min = current->log_scale_slice_enabled ? value : pow(10, value);
 }
 
-bool ComputeDescriptor::get_img_acc_slice_enabled(WindowKind kind) const
+void ComputeDescriptor::set_contrast_max(float value)
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        return img_acc_slice_xy_enabled;
-    case WindowKind::XZview:
-        return img_acc_slice_xz_enabled;
-    case WindowKind::YZview:
-        return img_acc_slice_yz_enabled;
-    }
-    return false;
+    current->contrast_max = current->log_scale_slice_enabled ? value : pow(10, value);
 }
 
-unsigned ComputeDescriptor::get_img_acc_slice_level(WindowKind kind) const
+void ComputeDescriptor::set_log_scale_slice_enabled(bool value) { current->log_scale_slice_enabled = value; }
+
+void ComputeDescriptor::set_accumulation_level(int value)
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        return img_acc_slice_xy_level;
-    case WindowKind::XZview:
-        return img_acc_slice_xz_level;
-    case WindowKind::YZview:
-        return img_acc_slice_yz_level;
-    }
-    return 0;
+    reinterpret_cast<View_XYZ*>(current)->img_accu_level = value;
 }
 
-void ComputeDescriptor::set_contrast_min(WindowKind kind, float value)
+void ComputeDescriptor::check_p_limits()
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        contrast_min_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::XZview:
-        contrast_min_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::YZview:
-        contrast_min_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::Filter2D:
-        contrast_min_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
-        break;
-    }
+    int upper_bound = time_transformation_size - 1;
+
+    if (p.accu_level > upper_bound)
+        p.accu_level = upper_bound;
+
+    upper_bound -= p.accu_level;
+
+    if (upper_bound >= 0 && p.index > static_cast<uint>(upper_bound))
+        p.index = upper_bound;
 }
 
-void ComputeDescriptor::set_contrast_max(WindowKind kind, float value)
+void ComputeDescriptor::check_q_limits()
 {
-    switch (kind)
+    int upper_bound = time_transformation_size - 1;
+
+    if (q.accu_level > upper_bound)
+        q.accu_level = upper_bound;
+
+    upper_bound -= q.accu_level;
+
+    if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
+        q.index = upper_bound;
+}
+
+void ComputeDescriptor::check_batch_size_limit()
+{
+    if (batch_size > input_buffer_size)
+        batch_size = input_buffer_size.load();
+}
+
+void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
+{
+    if (value == "None")
+        space_transformation = SpaceTransformation::None;
+    else if (value == "1FFT")
+        space_transformation = SpaceTransformation::FFT1;
+    else if (value == "2FFT")
+        space_transformation = SpaceTransformation::FFT2;
+    else
     {
-    case WindowKind::XYview:
-        contrast_max_slice_xy = log_scale_slice_xy_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::XZview:
-        contrast_max_slice_xz = log_scale_slice_xz_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::YZview:
-        contrast_max_slice_yz = log_scale_slice_yz_enabled ? value : pow(10, value);
-        break;
-    case WindowKind::Filter2D:
-        contrast_max_filter2d = log_scale_filter2d_enabled ? value : pow(10, value);
-        break;
+        // Shouldn't happen
+        space_transformation = SpaceTransformation::None;
+        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
 }
 
-void ComputeDescriptor::set_log_scale_slice_enabled(WindowKind kind, bool value)
+void ComputeDescriptor::set_time_transformation_from_string(const std::string& value)
 {
-    switch (kind)
+    if (value == "STFT")
+        time_transformation = TimeTransformation::STFT;
+    else if (value == "PCA")
+        time_transformation = TimeTransformation::PCA;
+    else if (value == "None")
+        time_transformation = TimeTransformation::NONE;
+    else if (value == "SSA_STFT")
+        time_transformation = TimeTransformation::SSA_STFT;
+}
+
+void ComputeDescriptor::adapt_time_transformation_stride()
+{
+    if (time_transformation_stride < batch_size)
+        time_transformation_stride = batch_size.load();
+    else if (time_transformation_stride % batch_size != 0) // Go to lower multiple
+        time_transformation_stride -= time_transformation_stride % batch_size;
+}
+
+void ComputeDescriptor::handle_update_exception()
+{
+    p.index = 0;
+    time_transformation_size = 1;
+    convolution_enabled = false;
+}
+
+void ComputeDescriptor::handle_accumulation_exception() { xy.img_accu_level = 1; }
+
+void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
+
+void ComputeDescriptor::set_x_cuts(int value)
+{
+    auto& holo = Holovibes::instance();
+    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    if (value < fd.width)
+        x.cuts = value;
+}
+
+void ComputeDescriptor::set_y_cuts(int value)
+{
+    auto& holo = Holovibes::instance();
+    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    if (value < fd.height)
+        y.cuts = value;
+}
+
+void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
+{
+    rgb.weight_r = r;
+    rgb.weight_g = g;
+    rgb.weight_b = b;
+}
+
+void ComputeDescriptor::change_angle()
+{
+    auto w = reinterpret_cast<View_XYZ*>(current);
+    if (w == nullptr)
     {
-    case WindowKind::XYview:
-        log_scale_slice_xy_enabled = value;
-        break;
-    case WindowKind::XZview:
-        log_scale_slice_xz_enabled = value;
-        break;
-    case WindowKind::YZview:
-        log_scale_slice_yz_enabled = value;
-        break;
-    case WindowKind::Filter2D:
-        log_scale_filter2d_enabled = value;
-        break;
+        LOG_ERROR << "Current window cannot be rotated.";
+        return;
+    }
+
+    w->rot = (w->rot == 270.f) ? 0.f : w->rot + 90.f;
+}
+
+void ComputeDescriptor::change_flip()
+{
+    auto w = reinterpret_cast<View_XYZ*>(current);
+    if (w == nullptr)
+    {
+        LOG_ERROR << "Current window cannot be flipped.";
+        return;
+    }
+
+    w->flip_enabled = !w->flip_enabled;
+}
+
+void ComputeDescriptor::change_window(int index)
+{
+    if (index == 0)
+    {
+        current = &xy;
+        current_window = WindowKind::XYview;
+    }
+    else if (index == 1)
+    {
+        current = &xz;
+        current_window = WindowKind::XZview;
+    }
+    else if (index == 2)
+    {
+        current = &yz;
+        current_window = WindowKind::YZview;
+    }
+    else if (index == 3)
+    {
+        current = &filter2d;
+        current_window = WindowKind::Filter2D;
     }
 }
 
-void ComputeDescriptor::set_accumulation(WindowKind kind, bool value)
+void ComputeDescriptor::set_rendering_params(float value)
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        img_acc_slice_xy_enabled = value;
-        break;
-    case WindowKind::XZview:
-        img_acc_slice_xz_enabled = value;
-        break;
-    case WindowKind::YZview:
-        img_acc_slice_yz_enabled = value;
-        break;
-    }
+    time_transformation_stride = std::ceil(value / 20.0f);
+    batch_size = 1;
 }
 
-void ComputeDescriptor::set_accumulation_level(WindowKind kind, float value)
+void ComputeDescriptor::reset_windows_display()
 {
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        img_acc_slice_xy_level = value;
-        break;
-    case WindowKind::XZview:
-        img_acc_slice_xz_level = value;
-        break;
-    case WindowKind::YZview:
-        img_acc_slice_yz_level = value;
-        break;
-    }
+    lens_view_enabled = false;
+    filter2d_view_enabled = false;
+    raw_view_enabled = false;
+    reticle_view_enabled = false;
+}
+
+void ComputeDescriptor::reset_slice_view()
+{
+    xz.contrast_max = false;
+    yz.contrast_max = false;
+    xz.log_scale_slice_enabled = false;
+    yz.log_scale_slice_enabled = false;
+    xz.img_accu_level = 1;
+    yz.img_accu_level = 1;
 }
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
