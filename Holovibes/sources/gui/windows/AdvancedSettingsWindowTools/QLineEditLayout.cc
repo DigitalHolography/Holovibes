@@ -46,10 +46,4 @@ const std::string QLineEditLayout::get_text() { return line_edit_->text().toStdS
 
 #pragma endregion
 
-#pragma region SLOTS
-
-void QLineEditLayout::change_text() {}
-
-#pragma endregion
-
 } // namespace holovibes::gui
