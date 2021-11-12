@@ -24,9 +24,9 @@ class QDoubleRefSpinBoxLayout : public QDoubleSpinBoxLayout
     /*! \brief Sets the Value object with performing state checks
      *
      * \param value the new value
-     * \return QDoubleSpinBoxLayout* this, for linked initilizer purposes
+     * \return QDoubleRefSpinBoxLayout* this, for linked initilizer purposes
      */
-    QDoubleSpinBoxLayout* set_value(double value) override;
+    QDoubleRefSpinBoxLayout* set_value(double value) override;
 
   private slots:
     /*! \brief Sets the attribute value to the spin box value */
