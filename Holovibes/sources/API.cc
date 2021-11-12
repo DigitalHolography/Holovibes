@@ -24,10 +24,6 @@ void pipe_refresh()
 bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    // Set the image rendering ui params
-    get_cd().set_time_transformation_stride(std::ceil(static_cast<float>(fps) / 20.0f));
-    get_cd().set_batch_size(1);
-
     // Because we are in import mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
 
