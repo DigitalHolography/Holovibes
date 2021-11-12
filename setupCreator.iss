@@ -43,6 +43,7 @@ UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
 UninstallFilesDir={app}\{#MyAppVersion}
 SetupIconFile="{#BuildDir}\Holovibes.ico"
 ChangesAssociations=yes
+UsePreviousAppDir=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
