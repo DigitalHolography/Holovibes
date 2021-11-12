@@ -18,13 +18,13 @@ namespace holovibes
 using camera::FrameDescriptor;
 namespace gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
     , winPos(p)
     , output_(q)
-    , cd_(nullptr)
+    , cd_(cd)
     , fd_(q->get_fd())
     , kView(k)
     , translate_(0.f, 0.f, 0.f, 0.f)
@@ -49,8 +49,6 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     resize(s);
     setFramePosition(p);
     setIcon(QIcon("Holovibes.ico"));
-    show();
-
     this->installEventFilter(this);
 }
 
@@ -200,8 +198,6 @@ void BasicOpenGLWindow::setTransform()
 }
 
 void BasicOpenGLWindow::resetSelection() { overlay_manager_.reset(); }
-
-void BasicOpenGLWindow::setCd(ComputeDescriptor* cd) { cd_ = cd; }
 
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {

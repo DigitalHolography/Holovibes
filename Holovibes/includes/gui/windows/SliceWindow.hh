@@ -19,7 +19,7 @@ class MainWindow;
 class SliceWindow : public BasicOpenGLWindow
 {
   public:
-    SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
+    SliceWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k);
     virtual ~SliceWindow();
 
   protected:

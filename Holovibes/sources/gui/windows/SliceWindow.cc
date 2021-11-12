@@ -13,12 +13,13 @@ namespace holovibes
 {
 namespace gui
 {
-SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, k)
+SliceWindow::SliceWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(p, s, cd, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
 {
     setMinimumSize(s);
+    show();
 }
 
 SliceWindow::~SliceWindow()

@@ -42,14 +42,13 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
   public:
     // Constructor & Destructor
-    BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
+    BasicOpenGLWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k);
     virtual ~BasicOpenGLWindow();
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
     void resetSelection();
 
-    void setCd(ComputeDescriptor* cd);
     ComputeDescriptor* getCd();
     const ComputeDescriptor* getCd() const;
     const camera::FrameDescriptor& getFd() const;

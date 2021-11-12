@@ -21,11 +21,12 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, k)
+RawWindow::RawWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(p, s, cd, q, k)
     , texDepth(0)
     , texType(0)
 {
+    show();
 }
 
 RawWindow::~RawWindow()

@@ -1,4 +1,5 @@
 #include "API.hh"
+
 namespace holovibes::api
 {
 
@@ -291,9 +292,8 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     get_cd().set_compute_mode(Computation::Raw);
     create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
+        new holovibes::gui::RawWindow(pos, size, &get_cd(), get_gpu_input_queue().get()));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
     UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
@@ -310,19 +310,19 @@ void create_holo_window(ushort window_size)
     get_good_size(width, height, window_size);
     QSize size(width, height);
     init_image_mode(pos, size);
-    /* ---------- */
+
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new gui::HoloWindow(pos,
                                 size,
+                                &get_cd(),
                                 get_gpu_output_queue().get(),
                                 get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
                                 UserInterfaceDescriptor::instance().sliceYZ));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-        UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_cd().get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_cd().get_flip_enabled());
@@ -451,22 +451,22 @@ bool toggle_time_transformation_cuts(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
             xzPos,
             QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
+            &get_cd(),
             get_compute_pipe()->get_stft_slice_queue(0).get(),
             gui::KindOfView::SliceXZ));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
         UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_cd().get_xz_rot());
         UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_cd().get_xz_flip_enabled());
-        UserInterfaceDescriptor::instance().sliceXZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
             QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
+            &get_cd(),
             get_compute_pipe()->get_stft_slice_queue(1).get(),
             gui::KindOfView::SliceYZ));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_cd().get_yz_rot());
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_cd().get_yz_flip_enabled());
-        UserInterfaceDescriptor::instance().sliceYZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
         get_cd().set_time_transformation_cuts_enabled(true);
@@ -567,10 +567,10 @@ void set_filter2d_view(uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window.reset(
             new gui::Filter2DWindow(pos,
                                     QSize(filter2d_window_width, filter2d_window_height),
+                                    &get_cd(),
                                     pipe->get_filter2d_view_queue().get()));
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-        UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
         get_cd().set_log_scale_filter2d_enabled(true);
         pipe->autocontrast_end_pipe(WindowKind::Filter2D);
@@ -630,11 +630,11 @@ bool set_lens_view(uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().lens_window.reset(
             new gui::RawWindow(pos,
                                QSize(lens_window_width, lens_window_height),
+                               &get_cd(),
                                pipe->get_lens_queue().get(),
                                gui::KindOfView::Lens));
 
         UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-        UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
         res = true;
     }
     catch (const std::exception& e)
@@ -672,11 +672,12 @@ void set_raw_view(uint auxiliary_window_max_size)
     // window and Lens window
     QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                  QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-    UserInterfaceDescriptor::instance().raw_window.reset(
-        new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
+    UserInterfaceDescriptor::instance().raw_window.reset(new gui::RawWindow(pos,
+                                                                            QSize(raw_window_width, raw_window_height),
+                                                                            &get_cd(),
+                                                                            pipe->get_raw_view_queue().get()));
 
     UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-    UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
 
     pipe_refresh();
 }

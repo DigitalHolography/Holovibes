@@ -13,10 +13,11 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
-    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
+Filter2DWindow::Filter2DWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q)
+    : BasicOpenGLWindow(p, s, cd, q, KindOfView::Filter2D)
 {
     setMinimumSize(s);
+    show();
 }
 
 Filter2DWindow::~Filter2DWindow()

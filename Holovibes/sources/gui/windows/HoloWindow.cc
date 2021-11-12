@@ -11,11 +11,12 @@ namespace gui
 {
 HoloWindow::HoloWindow(QPoint p,
                        QSize s,
+                       ComputeDescriptor* cd,
                        DisplayQueue* q,
                        SharedPipe ic,
                        std::unique_ptr<SliceWindow>& xz,
                        std::unique_ptr<SliceWindow>& yz)
-    : RawWindow(p, s, q, KindOfView::Hologram)
+    : RawWindow(p, s, cd, q, KindOfView::Hologram)
     , Ic(ic)
     , xz_slice_(xz)
     , yz_slice_(yz)
