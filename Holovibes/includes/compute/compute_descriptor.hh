@@ -131,9 +131,6 @@ class ComputeDescriptor : public Observable
     inline WindowKind get_current_window() const { return current_window; }
     inline void set_current_window(WindowKind current_window) { this->current_window = current_window; }
 
-    inline uint get_batch_size() const { return batch_size; }
-    inline void set_batch_size(uint batch_size) { this->batch_size = batch_size; }
-
     inline uint get_time_transformation_stride() const { return time_transformation_stride; }
     inline void set_time_transformation_stride(uint time_transformation_stride)
     {
@@ -609,10 +606,6 @@ class ComputeDescriptor : public Observable
     void check_p_limits();
     /*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
     void check_q_limits();
-    /*! \brief Limit the value of batch_size according to input_queue_capacity */
-    void check_batch_size_limit();
-    /*! \brief Limit the value of time_transformation_stride according to batch_size or adapt into a multiple of it */
-    void adapt_time_transformation_stride();
 
     /*! \brief Reset some values after MainWindow receives an update exception */
     void handle_update_exception();
@@ -638,8 +631,6 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Change the window according to the given index */
     void change_window(int index);
-    /*! \brief Set the image rendering ui params */
-    void set_rendering_params(float value);
     /*! \brief Reset values used to check if GUY windows are displayed */
     void reset_windows_display();
     /*! \brief Reset values used in the slice view */
@@ -661,8 +652,6 @@ class ComputeDescriptor : public Observable
     // Image rendering
     /*! \brief Mode of computation of the image */
     std::atomic<Computation> compute_mode{Computation::Raw};
-    /*! \brief Number of images dequeued from input to gpu_input_queue */
-    std::atomic<uint> batch_size{1};
     /*! \brief Number of pipe iterations between two time transformations (STFT/PCA) */
     std::atomic<uint> time_transformation_stride{1};
     /*! \brief Enables filter 2D */

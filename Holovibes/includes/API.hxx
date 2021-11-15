@@ -19,8 +19,8 @@ inline void set_img_type(ImgType type) { return get_cd().set_img_type(type); }
 
 inline WindowKind get_current_window() { return get_cd().get_current_window(); }
 
-inline uint get_batch_size() { return get_cd().get_batch_size(); }
-inline void set_batch_size(uint value) { get_cd().set_batch_size(value); }
+inline uint get_batch_size() { return GSH::instance().batch_query().batch_size; }
+inline void set_batch_size(uint value) { GSH::instance().batch_command({value}); }
 
 inline uint get_time_transformation_stride() { return get_cd().get_time_transformation_stride(); }
 inline void set_time_transformation_stride(uint value) { get_cd().set_time_transformation_stride(value); }

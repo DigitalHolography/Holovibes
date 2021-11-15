@@ -3,6 +3,8 @@
 #include <mutex>
 
 #include "fast_updates_holder.hh"
+#include "caches.hh"
+#include "entities.hh"
 
 namespace holovibes
 {
@@ -40,9 +42,18 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
+    entities::BatchQuery batch_query() const { return {batch_cache.get_batch_size()}; }
+
+    void batch_command(entities::BatchCommand cmd);
+
+    void load_ptree(const boost::property_tree::ptree& ptree);
+
+    void dump_ptree(boost::property_tree::ptree& ptree) const;
 
   private:
     GSH() {}
+
+    caches::BatchCache::Ref batch_cache;
 
     mutable std::mutex mutex_;
 };

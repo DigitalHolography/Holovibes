@@ -113,6 +113,12 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
+    if (GSH::instance().batch_query().batch_size > cd_.record_buffer_size)
+    {
+        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
+        return;
+    }
+
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
@@ -167,9 +173,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              bool raw_record,
                                              unsigned int nb_frames_skip)
 {
-    frame_record_worker_controller_.set_callback([]() {});
-    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip, cd_.output_buffer_size);
+    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
 
     while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
         continue;

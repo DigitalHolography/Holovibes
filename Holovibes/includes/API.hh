@@ -10,6 +10,7 @@
 #include "AdvancedSettingsWindow.hh"
 #include "ini_config.hh"
 #include "user_interface_descriptor.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::api
 {
@@ -670,8 +671,6 @@ void load_compute_settings(const std::string& path);
 
 void save_user_preferences(boost::property_tree::ptree& ptree);
 void load_user_preferences(const boost::property_tree::ptree& ptree);
-
-void check_batch_size_limit();
 
 /*! \brief Gets the documentation url
  *

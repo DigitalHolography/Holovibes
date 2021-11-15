@@ -26,7 +26,8 @@ bool init_holovibes_import_mode(
 {
     // Set the image rendering ui params
     get_cd().set_time_transformation_stride(std::ceil(static_cast<float>(fps) / 20.0f));
-    get_cd().set_batch_size(1);
+
+    GSH::instance().batch_command({1});
 
     // Because we are in import mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
@@ -877,12 +878,12 @@ void set_time_transformation(const std::string& value)
 
 void adapt_time_transformation_stride_to_batch_size()
 {
-    if (get_cd().time_transformation_stride < get_cd().batch_size)
-        get_cd().set_time_transformation_stride(get_cd().batch_size.load());
+    if (get_cd().time_transformation_stride < get_batch_size())
+        get_cd().set_time_transformation_stride(get_batch_size());
     // Go to lower multiple
-    if (get_cd().time_transformation_stride % get_cd().batch_size != 0)
+    if (get_cd().time_transformation_stride % get_batch_size() != 0)
         get_cd().set_time_transformation_stride(get_cd().time_transformation_stride -
-                                                get_cd().time_transformation_stride % get_cd().batch_size);
+                                                get_cd().time_transformation_stride % get_batch_size());
 }
 
 void set_unwrapping_2d(const bool value)
@@ -1072,8 +1073,6 @@ float get_contrast_max() { return get_cd().get_contrast_max(); }
 bool get_contrast_invert_enabled() { return get_cd().get_contrast_invert(); }
 
 bool get_img_log_scale_slice_enabled() { return get_cd().get_img_log_scale_slice_enabled(); }
-
-void check_batch_size_limit() { get_cd().check_batch_size_limit(); }
 
 #pragma endregion
 

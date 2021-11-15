@@ -1,10 +1,7 @@
+#undef _DEBUG
 #include "gtest/gtest.h"
 
-#define MICRO_CACHE_DEBUG
-
 #include "micro_cache.hh"
-
-#undef MICRO_CACHE_DEBUG
 
 #include "global_state_holder.hh"
 
@@ -54,15 +51,11 @@ NEW_MICRO_CACHE(TestCache4, (uint8_t, a), (uint16_t, b), (uint32_t, c), (uint64_
 
 struct TestMicroCache1
 {
-    TestCache1 x{true};
-    TestCache1 y;
+    TestCache1::Ref x;
+    TestCache1::Cache y;
 
     TestMicroCache1()
     {
-        y.a.obj = 0;
-        y.b.obj = 0.0;
-        y.c.obj = 0;
-
         x.set_a(1);
         x.set_b(2.0);
         x.set_c(3);
@@ -71,8 +64,8 @@ struct TestMicroCache1
 
 struct TestMicroCache2
 {
-    TestCache2 x{true};
-    TestCache2 y;
+    TestCache2::Ref x;
+    TestCache2::Cache y;
 
     TestMicroCache2()
     {
@@ -85,11 +78,11 @@ struct TestMicroCache2
         x.trigger_c();
     }
 };
-TEST(TestMicroCache, register_truth_works) { TestCache1 x{true}; }
+TEST(TestMicroCache, register_truth_works) { TestCache1::Ref x; }
 
 TEST(TestMicroCache, assert_not_truth_found)
 {
-    ASSERT_DEATH({ TestCache1 x; }, "You must register a truth cache for class: TestCache1");
+    ASSERT_DEATH({ TestCache1::Cache x; }, "You must register a truth cache for class: TestCache1");
 }
 
 TEST(TestMicroCache, basic_types_simple)
@@ -105,9 +98,9 @@ TEST(TestMicroCache, basic_types_before_synchronize)
 {
     TestMicroCache1 test;
 
-    ASSERT_EQ(test.y.get_a(), 0);
-    ASSERT_EQ(test.y.get_b(), 0.0);
-    ASSERT_EQ(test.y.get_c(), 0);
+    ASSERT_NE(test.y.get_a(), 1);
+    ASSERT_NE(test.y.get_b(), 2.0);
+    ASSERT_NE(test.y.get_c(), 3);
 }
 
 TEST(TestMicroCache, basic_types_after_synchronize)
@@ -156,13 +149,13 @@ TEST(TestMicroCache, stl_types_after_synchronize)
 
 TEST(TestMicroCache, basic_types_sync_constructor)
 {
-    TestCache1 x{true};
+    TestCache1::Ref x;
 
     x.set_a(1);
     x.set_b(2.0);
     x.set_c(3);
 
-    TestCache1 y;
+    TestCache1::Cache y;
 
     ASSERT_EQ(y.get_a(), 1);
     ASSERT_EQ(y.get_b(), 2.0);
@@ -171,7 +164,7 @@ TEST(TestMicroCache, basic_types_sync_constructor)
 
 TEST(TestMicroCache, stl_sync_constructor)
 {
-    TestCache2 x{true};
+    TestCache2::Ref x;
 
     x.get_a_ref().append("a");
     x.get_b_ref().emplace_back(1.0, 2.0);
@@ -181,7 +174,7 @@ TEST(TestMicroCache, stl_sync_constructor)
     x.trigger_b();
     x.trigger_c();
 
-    TestCache2 y;
+    TestCache2::Cache y;
 
     ASSERT_EQ(y.get_a(), "a");
     ASSERT_EQ(y.get_b().size(), 1);
@@ -191,7 +184,7 @@ TEST(TestMicroCache, stl_sync_constructor)
     ASSERT_EQ(y.get_c().at("key"), "value");
 }
 
-void write_thread(TestCache4& x, bool& stop)
+void write_thread(TestCache4::Ref& x, bool& stop)
 {
     unsigned long long count = 0;
     std::ofstream fout("write.txt");
@@ -221,7 +214,7 @@ void write_thread(TestCache4& x, bool& stop)
     std::cerr << "Values written: " << count << std::endl;
 }
 
-void read_thread(TestCache4& y, bool& stop)
+void read_thread(TestCache4::Cache& y, bool& stop)
 {
     unsigned long long count = 0;
     while (!stop)
@@ -253,8 +246,8 @@ void read_thread(TestCache4& y, bool& stop)
 
 TEST(TestMicroCacheConcurrency, concurrency_1)
 {
-    TestCache4 x{true};
-    TestCache4 y;
+    TestCache4::Ref x;
+    TestCache4::Cache y;
 
     bool stop = false;
 
@@ -300,8 +293,8 @@ TEST(TestMicroCacheConcurrency, concurrency_1)
 
 TEST(TestMicroCacheConcurrency, concurrency_2)
 {
-    TestCache4 x{true};
-    TestCache4 y;
+    TestCache4::Ref x;
+    TestCache4::Cache y;
 
     bool stop = false;
 
@@ -327,8 +320,8 @@ TEST(TestMicroCacheConcurrency, concurrency_2)
 
 TEST(TestMicroCacheConcurrency, concurrency_3)
 {
-    TestCache4 x{true};
-    TestCache4 y;
+    TestCache4::Ref x;
+    TestCache4::Cache y;
 
     bool stop = false;
 

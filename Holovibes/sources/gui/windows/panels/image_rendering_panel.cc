@@ -43,7 +43,6 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
-    api::check_batch_size_limit();
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -180,12 +179,9 @@ void ImageRenderingPanel::update_batch_size()
     if (batch_size == api::get_batch_size())
         return;
 
-    auto callback = [=]() {
-        api::set_batch_size(batch_size);
-        api::adapt_time_transformation_stride_to_batch_size();
-        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
-        parent_->notify();
-    };
+    api::set_batch_size(batch_size);
+    Holovibes::instance().get_compute_pipe()->request_update_batch_size();
+    auto callback = [=]() { parent_->notify(); };
 
     api::update_batch_size(callback, batch_size);
 }

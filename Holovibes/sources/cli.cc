@@ -187,6 +187,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    LOG_DEBUG << "opts.ini_path : " << opts.ini_path.value() << std::endl;
     auto& cd = holovibes.get_cd();
 
     if (opts.ini_path)

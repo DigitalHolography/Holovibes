@@ -47,10 +47,10 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
                                             CUDA_C_32F,         // Input type
                                             n,
                                             1,
-                                            fd.get_frame_res(), // Ouput layout same as input
-                                            CUDA_C_32F,         // Output type
-                                            cd_.batch_size,     // Batch size
-                                            CUDA_C_32F);        // Computation type
+                                            fd.get_frame_res(),           // Ouput layout same as input
+                                            CUDA_C_32F,                   // Output type
+                                            batch_cache.get_batch_size(), // Batch size
+                                            CUDA_C_32F);                  // Computation type
 
     int inembed[1];
     int zone_size = gpu_input_queue_.get_fd().get_frame_res();
@@ -65,7 +65,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
     time_transformation_env_.gpu_time_transformation_queue.reset(new Queue(new_fd, cd_.time_transformation_size));
 
     // Static cast size_t to avoid overflow
-    if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(cd_.batch_size) *
+    if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(batch_cache.get_batch_size()) *
                                                            gpu_input_queue_.get_fd().get_frame_res()))
         err++;
 
@@ -182,7 +182,8 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(cd_.batch_size * gpu_input_queue_fd.get_frame_res());
+    buffers_.gpu_spatial_transformation_buffer.resize(batch_cache.get_batch_size() *
+                                                      gpu_input_queue_fd.get_frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
 
@@ -198,7 +199,7 @@ void ICompute::update_spatial_transformation_parameters()
         1,
         gpu_input_queue_fd.get_frame_res(), // Ouput layout same as input
         CUDA_C_32F,                         // Output type
-        cd_.batch_size,                     // Batch size
+        batch_cache.get_batch_size(),       // Batch size
         CUDA_C_32F);                        // Computation type
 }
 

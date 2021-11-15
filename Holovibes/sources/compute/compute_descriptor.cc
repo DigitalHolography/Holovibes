@@ -154,12 +154,6 @@ void ComputeDescriptor::check_q_limits()
         q.index = upper_bound;
 }
 
-void ComputeDescriptor::check_batch_size_limit()
-{
-    if (batch_size > input_buffer_size)
-        batch_size = input_buffer_size.load();
-}
-
 void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
 {
     if (value == "None")
@@ -186,14 +180,6 @@ void ComputeDescriptor::set_time_transformation_from_string(const std::string& v
         time_transformation = TimeTransformation::NONE;
     else if (value == "SSA_STFT")
         time_transformation = TimeTransformation::SSA_STFT;
-}
-
-void ComputeDescriptor::adapt_time_transformation_stride()
-{
-    if (time_transformation_stride < batch_size)
-        time_transformation_stride = batch_size.load();
-    else if (time_transformation_stride % batch_size != 0) // Go to lower multiple
-        time_transformation_stride -= time_transformation_stride % batch_size;
 }
 
 void ComputeDescriptor::handle_update_exception()
@@ -304,12 +290,6 @@ void ComputeDescriptor::change_window(int index)
         current = &filter2d;
         current_window = WindowKind::Filter2D;
     }
-}
-
-void ComputeDescriptor::set_rendering_params(float value)
-{
-    time_transformation_stride = std::ceil(value / 20.0f);
-    batch_size = 1;
 }
 
 void ComputeDescriptor::reset_windows_display()

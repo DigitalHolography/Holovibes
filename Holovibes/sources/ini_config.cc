@@ -1,4 +1,5 @@
 #include "ini_config.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::ini
 {
@@ -6,7 +7,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 {
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
-    cd.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
     cd.time_transformation_stride =
         ptree.get<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
     cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
@@ -171,13 +171,14 @@ void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
     load_composite(ptree, cd);
     load_advanced(ptree, cd);
 
+    GSH::instance().load_ptree(ptree);
+
     after_load_checks(cd);
 }
 
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
-    ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
     ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
@@ -311,6 +312,8 @@ void save_compute_settings(const ComputeDescriptor& cd, const std::string& ini_p
     save_view(ptree, cd);
     save_composite(ptree, cd);
     save_advanced(ptree, cd);
+
+    GSH::instance().dump_ptree(ptree);
 
     boost::property_tree::write_ini(ini_path, ptree);
 

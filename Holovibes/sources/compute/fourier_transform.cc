@@ -81,7 +81,7 @@ void FourierTransform::insert_filter2d()
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
                  buffers_.gpu_filter2d_mask,
-                 cd_.batch_size,
+                 GSH::instance().batch_query().batch_size,
                  spatial_transformation_plan_,
                  fd_.width * fd_.height,
                  stream_);
@@ -99,7 +99,7 @@ void FourierTransform::insert_fft1()
     fn_compute_vect_.push_back([=]() {
         fft_1(static_cast<cuComplex*>(input_output),
               static_cast<cuComplex*>(input_output),
-              cd_.batch_size,
+              GSH::instance().batch_query().batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_.get_frame_res(),
@@ -123,7 +123,7 @@ void FourierTransform::insert_fft2()
     fn_compute_vect_.push_back([=]() {
         fft_2(static_cast<cuComplex*>(input_output),
               static_cast<cuComplex*>(input_output),
-              cd_.batch_size,
+              GSH::instance().batch_query().batch_size,
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_,
