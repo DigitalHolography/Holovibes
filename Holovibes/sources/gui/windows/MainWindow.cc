@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         load_gui();
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         LOG_INFO << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         load_ini();
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         LOG_INFO << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
@@ -408,6 +408,7 @@ void MainWindow::change_camera(CameraKind c)
     if (res)
     {
         ui_->ImageRenderingPanel->set_image_mode(nullptr);
+        shift_screen();
 
         // Make camera's settings menu accessible
         QAction* settings = ui_->actionSettings;
@@ -554,6 +555,20 @@ void MainWindow::open_advanced_settings()
             this,
             SLOT(close_advanced_settings()),
             Qt::UniqueConnection);
+}
+
+#pragma endregion
+
+/* ------------ */
+#pragma region UI
+
+void MainWindow::shift_screen()
+{
+    // shift main window when camera view appears
+    QRect rec = QGuiApplication::primaryScreen()->geometry();
+    int screen_height = rec.height();
+    int screen_width = rec.width();
+    move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
 }
 
 #pragma endregion

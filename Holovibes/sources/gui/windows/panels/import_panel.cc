@@ -139,11 +139,7 @@ void ImportPanel::import_start()
     if (!api::get_is_computation_stopped())
         import_stop();
 
-    // shift main window when camera view appears
-    QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int screen_height = rec.height();
-    int screen_width = rec.width();
-    parent_->move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
+    parent_->shift_screen();
 
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;

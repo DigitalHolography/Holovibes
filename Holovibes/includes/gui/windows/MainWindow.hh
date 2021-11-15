@@ -145,6 +145,8 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the focused windows */
     void change_window(int index);
 
+    void shift_screen();
+
 #pragma endregion
     /* ---------- */
   signals:
