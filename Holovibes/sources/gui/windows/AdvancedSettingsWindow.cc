@@ -1,12 +1,6 @@
+#include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
-#include "QIntSpinBoxLayout.hh"
-#include "QDoubleSpinBoxLayout.hh"
-#include "QPathSelectorLayout.hh"
 #include "API.hh"
-#include "asw_panel_buffer_size.hh"
-#include "asw_panel_advanced.hh"
-#include "asw_panel_file.hh"
-#include "asw_panel_chart.hh"
 
 namespace holovibes::gui
 {
@@ -14,27 +8,15 @@ namespace holovibes::gui
 AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
     : QMainWindow(parent)
 {
-    this->setWindowTitle("AdvancedSettings");
+
+    ui.setupUi(this);
+    setWindowIcon(QIcon("Holovibes.ico"));
     this->setAttribute(Qt::WA_DeleteOnClose);
+    this->show();
 
-    // We cannot give a customized layout to a QMainWindow so we have
-    // to instantiate an invisible widget that will carry the customized
-    // layout
-    main_widget_ = new QWidget(this);
-
-    // The customized layout
-    main_layout_ = new QGridLayout(main_widget_);
-
-    // Creation of customized pannels
-    create_buffer_size_panel();
-    create_advanced_panel();
-    create_file_panel();
-    create_chart_panel();
     plug_specific_panel(specific_panel);
 
-    // Give to the QMainWindow the invisible widget carrying the customized layout
-    setCentralWidget(main_widget_);
-    this->show();
+    set_current_values();
 }
 
 AdvancedSettingsWindow::~AdvancedSettingsWindow()
@@ -44,40 +26,14 @@ AdvancedSettingsWindow::~AdvancedSettingsWindow()
 
 #pragma region PANELS
 
-void AdvancedSettingsWindow::create_buffer_size_panel()
-{
-    ASWPanelBufferSize* buffer_size_panel = new ASWPanelBufferSize();
-    // addWidget(*Widget, row, column, rowspan, colspan)
-    main_layout_->addWidget(buffer_size_panel, 1, 0, 1, 1);
-}
-
-void AdvancedSettingsWindow::create_advanced_panel()
-{
-    ASWPanelAdvanced* advanced_panel = new ASWPanelAdvanced();
-    // addWidget(*Widget, row, column, rowspan, colspan)
-    main_layout_->addWidget(advanced_panel, 1, 1, 1, 1);
-}
-
-void AdvancedSettingsWindow::create_file_panel()
-{
-    ASWPanelFile* file_panel = new ASWPanelFile();
-    // addWidget(*Widget, row, column, rowspan, colspan)
-    main_layout_->addWidget(file_panel, 0, 0, 1, 2);
-}
-
-void AdvancedSettingsWindow::create_chart_panel()
-{
-    ASWPanelChart* chart_panel = new ASWPanelChart();
-    // addWidget(*Widget, row, column, rowspan, colspan)
-    main_layout_->addWidget(chart_panel, 2, 0, 1, 1);
-}
-
 void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel)
 {
+    specific_panel_ = specific_panel;
+
     if (specific_panel == nullptr)
         return;
 
-    main_layout_->addWidget(specific_panel, 2, 1, 1, 1);
+    ui.gridLayout->addWidget(specific_panel, 0, 2, 2, 1);
 }
 
 #pragma endregion
@@ -86,6 +42,82 @@ void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* sp
 
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
+void AdvancedSettingsWindow::set_ui_values()
+{
+    api::get_cd().set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
+    api::get_cd().set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
+    api::get_cd().set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
+    api::get_cd().set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
+    api::get_cd().set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
+
+    api::get_cd().set_display_rate(ui.DisplayRateSpinBox->value());
+    api::get_cd().set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
+    api::get_cd().set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
+    api::get_cd().set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
+    api::get_cd().set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
+    api::get_cd().set_renorm_constant(ui.RenormConstantSpinBox->value());
+    api::get_cd().set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
+
+    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
+
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
+
+    specific_panel_->set_ui_values();
+
+    ui.ReloadLabel->setVisible(true);
+    UserInterfaceDescriptor::instance().need_close = true;
+}
+
+void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
+void AdvancedSettingsWindow::change_output_folder_path() { change_folder(ui.OutputFolderPathLineEdit); }
+void AdvancedSettingsWindow::change_batch_input_folder_path() { change_folder(ui.BatchFolderPathLineEdit); }
+
 #pragma endregion
+
+void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
+{
+    QString foldername =
+        QFileDialog::getExistingDirectory(this,
+                                          tr("Open Directory"),
+                                          lineEdit->text(),
+                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (foldername.isEmpty())
+        return;
+
+    lineEdit->setText(foldername);
+}
+
+void AdvancedSettingsWindow::set_current_values()
+{
+    ui.FileBSSpinBox->setValue(api::get_cd().get_file_buffer_size());
+    ui.InputBSSpinBox->setValue(api::get_cd().get_input_buffer_size());
+    ui.RecordBSSpinBox->setValue(api::get_cd().get_record_buffer_size());
+    ui.OutputBSSpinBox->setValue(api::get_cd().get_output_buffer_size());
+    ui.Cuts3DBSSpinBox->setValue(api::get_cd().get_time_transformation_cuts_output_buffer_size());
+
+    ui.DisplayRateSpinBox->setValue(api::get_cd().get_display_rate());
+    ui.Filter2DLowSpinBox->setValue(api::get_cd().get_filter2d_smooth_low());
+    ui.Filter2DHighSpinBox->setValue(api::get_cd().get_filter2d_smooth_high());
+    ui.ContrastLowerSpinBox->setValue(api::get_cd().get_contrast_lower_threshold());
+    ui.ContrastUpperSpinBox->setValue(api::get_cd().get_contrast_upper_threshold());
+    ui.RenormConstantSpinBox->setValue(api::get_cd().get_renorm_constant());
+    ui.CutsContrastSpinBox->setValue(api::get_cd().get_cuts_contrast_p_offset());
+
+    ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
+    ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
+    ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
+    ui.BatchFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().batch_input_directory_.c_str());
+
+    ui.autoScalePointThresholdSpinBox->setValue(
+        static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
+
+    specific_panel_->set_current_values();
+
+    ui.ReloadLabel->setVisible(false);
+}
 
 } // namespace holovibes::gui

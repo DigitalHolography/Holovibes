@@ -25,6 +25,10 @@ class AdvancedSettingsWindowPanel : public QGroupBox
     /*! \brief Advanced Settings Window Panel object desctructor */
     ~AdvancedSettingsWindowPanel();
 
+    virtual void set_ui_values() = 0;
+
+    virtual void set_current_values() = 0;
+
   public:
     const std::string& name_;
 };

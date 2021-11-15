@@ -6,7 +6,8 @@
 
 #include "advanced_settings_window_panel.hh"
 #include "QIntSpinBoxLayout.hh"
-#include "QDoubleRefSpinBoxLayout.hh"
+#include "QDoubleSpinBoxLayout.hh"
+#include "image_rendering_panel.hh"
 #include <QVBoxLayout>
 
 namespace holovibes::gui
@@ -20,15 +21,19 @@ class ASWMainWindowPanel : public AdvancedSettingsWindowPanel
     Q_OBJECT
 
   public:
-    ASWMainWindowPanel(double* z_step = nullptr);
+    ASWMainWindowPanel(ImageRenderingPanel* parent);
     ~ASWMainWindowPanel();
+    void set_ui_values() override;
+    void set_current_values() override;
 
   private:
     /*! \brief Creates attribute z_step widget */
-    void create_z_step_widget(double* z_step = nullptr);
+    void create_z_step_widget();
 
   private:
+    // parent_ is only use to access getters and setters
+    ImageRenderingPanel* parent_;
     QVBoxLayout* mainwindow_layout_;
-    QDoubleRefSpinBoxLayout* z_step_;
+    QDoubleSpinBoxLayout* z_step_;
 };
 } // namespace holovibes::gui
