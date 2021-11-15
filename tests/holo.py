@@ -140,8 +140,11 @@ class HoloFile:
         def __assert(lhs, rhs, name: str):
             assert lhs == rhs, f"{name} differ: {lhs} != {rhs}"
 
-        for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images', 'footer'):
+        for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
+
+        assert ref.footer == chal.footer, "Footers differ: {}".format(
+            set(ref.footer.items()) ^ set(chal.footer.items()))
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(
@@ -150,7 +153,7 @@ class HoloFile:
                 l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
                 r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]}, )"
+            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]})"
 
 
 class HoloLazyReader(HoloLazyIO):
