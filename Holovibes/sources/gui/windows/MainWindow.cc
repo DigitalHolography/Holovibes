@@ -99,8 +99,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
+        LOG_INFO << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
     }
 
@@ -110,8 +109,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
-        LOG_WARN << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
     }
 

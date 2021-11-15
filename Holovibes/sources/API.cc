@@ -211,7 +211,6 @@ void camera_none()
 
 bool change_camera(CameraKind c, const Computation computation)
 {
-    LOG_INFO << "compute_mode " << static_cast<int>(computation);
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
