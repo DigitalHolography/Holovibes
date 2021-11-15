@@ -108,13 +108,9 @@ void ImageRenderingPanel::set_image_mode(QString mode)
             set_holographic_mode();
     }
     else if (api::get_compute_mode() == Computation::Raw)
-    {
         set_raw_mode();
-    }
     else if (api::get_compute_mode() == Computation::Hologram)
-    {
         set_holographic_mode();
-    }
 }
 
 void ImageRenderingPanel::set_raw_mode()

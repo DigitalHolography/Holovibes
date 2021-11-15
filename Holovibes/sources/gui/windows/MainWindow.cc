@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     try
     {
-        load_ini();
+        api::load_compute_settings(holovibes::ini::default_compute_config_filepath);
     }
     catch (const std::exception&)
     {
@@ -274,14 +274,28 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 /* ------------ */
 #pragma region Ini
 
-void MainWindow::write_ini() { api::save_compute_settings(::holovibes::ini::default_compute_config_filepath); }
-
-void MainWindow::write_ini(QString filename) { api::save_compute_settings(filename.toStdString()); }
+void MainWindow::write_ini() { api::save_compute_settings(); }
 
 void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
-    write_ini(filename);
+
+    if (!filename.isEmpty())
+        api::save_compute_settings(filename.toStdString());
+}
+
+void MainWindow::reload_ini(const std::string& filename)
+{
+    ui_->ImportPanel->import_stop();
+
+    api::load_compute_settings(filename);
+
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        ui_->ImportPanel->import_start();
+    else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+        change_camera(UserInterfaceDescriptor::instance().kCamera);
+
+    notify();
 }
 
 void MainWindow::browse_import_ini()
@@ -291,34 +305,11 @@ void MainWindow::browse_import_ini()
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
 
-    reload_ini(filename);
-
-    notify();
+    if (!filename.isEmpty())
+        reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(""); }
-
-void MainWindow::reload_ini(QString filename)
-{
-    ui_->ImportPanel->import_stop();
-
-    try
-    {
-        auto path = filename.isEmpty() ? ::holovibes::ini::default_compute_config_filepath : filename.toStdString();
-        api::load_compute_settings(path);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
-
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
-        ui_->ImportPanel->import_start();
-    else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
-        change_camera(UserInterfaceDescriptor::instance().kCamera);
-
-    notify();
-}
+void MainWindow::reload_ini() { reload_ini(::holovibes::ini::default_compute_config_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -367,17 +358,6 @@ void MainWindow::save_gui()
     LOG_INFO << " GUI settings overwritten at " << path;
 }
 
-void MainWindow::load_ini() { api::load_compute_settings(ini::global_config_filepath); }
-
-void MainWindow::save_ini()
-{
-    auto path = holovibes::ini::default_compute_config_filepath;
-
-    api::save_compute_settings(path);
-
-    LOG_INFO << "Compute settings overwritten at " << path;
-}
-
 #pragma endregion
 /* ------------ */
 #pragma region Close Compute
@@ -387,7 +367,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     camera_none();
 
     save_gui();
-    api::save_compute_settings(::holovibes::ini::default_compute_config_filepath);
+    api::save_compute_settings();
 }
 
 #pragma endregion

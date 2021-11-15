@@ -91,9 +91,8 @@ class MainWindow : public QMainWindow, public Observer
 
     void browse_import_ini();
     void browse_export_ini();
-    void reload_ini(QString filename);
     void reload_ini();
-    void write_ini(QString filename);
+    void reload_ini(const std::string& filename);
     void write_ini();
     void open_advanced_settings();
     void close_advanced_settings();
@@ -170,9 +169,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Setups gui from .ini file */
     void load_gui();
     void save_gui();
-
-    void load_ini();
-    void save_ini();
 
   public:
     /*! \brief Changes camera

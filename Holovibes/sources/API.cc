@@ -178,16 +178,8 @@ void load_user_preferences(const boost::property_tree::ptree& ptree)
                                UserInterfaceDescriptor::instance().batch_input_directory_);
 }
 
-void load_compute_settings(const std::string& path)
-{
-    // Load general compute data
-    ini::load_compute_settings(get_cd(), path);
-}
-void save_compute_settings(const std::string& path)
-{
-    // Save general compute data
-    ini::save_compute_settings(get_cd(), path);
-}
+void load_compute_settings(const std::string& path) { ini::load_compute_settings(get_cd(), path); }
+void save_compute_settings(const std::string& path) { ini::save_compute_settings(get_cd(), path); }
 
 #pragma endregion
 
