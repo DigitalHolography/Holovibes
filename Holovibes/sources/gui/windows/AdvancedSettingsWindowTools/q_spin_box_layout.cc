@@ -1,4 +1,4 @@
-#include "QSpinBoxLayout.hh"
+#include "q_spin_box_layout.hh"
 
 namespace holovibes::gui
 {
