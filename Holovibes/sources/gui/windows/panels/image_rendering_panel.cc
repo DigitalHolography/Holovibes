@@ -108,9 +108,13 @@ void ImageRenderingPanel::set_image_mode(QString mode)
             set_holographic_mode();
     }
     else if (api::get_compute_mode() == Computation::Raw)
+    {
         set_raw_mode();
+    }
     else if (api::get_compute_mode() == Computation::Hologram)
+    {
         set_holographic_mode();
+    }
 }
 
 void ImageRenderingPanel::set_raw_mode()
@@ -161,13 +165,9 @@ void ImageRenderingPanel::set_holographic_mode()
 void ImageRenderingPanel::set_computation_mode()
 {
     if (ui_->ImageModeComboBox->currentIndex() == 0)
-    {
-        api::set_computation_mode(Computation::Raw);
-    }
+        api::set_compute_mode(Computation::Raw);
     else if (ui_->ImageModeComboBox->currentIndex() == 1)
-    {
-        api::set_computation_mode(Computation::Hologram);
-    }
+        api::set_compute_mode(Computation::Hologram);
 }
 
 void ImageRenderingPanel::update_batch_size()

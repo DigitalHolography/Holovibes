@@ -211,8 +211,7 @@ void camera_none()
 
 bool change_camera(CameraKind c, const Computation computation)
 {
-    bool res = false;
-
+    LOG_INFO << "compute_mode " << static_cast<int>(computation);
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
@@ -220,7 +219,7 @@ bool change_camera(CameraKind c, const Computation computation)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
-        set_computation_mode(computation);
+        set_compute_mode(computation);
 
         Holovibes::instance().start_camera_frame_read(c);
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
@@ -229,7 +228,7 @@ bool change_camera(CameraKind c, const Computation computation)
 
         get_cd().set_computation_stopped(false);
 
-        res = true;
+        return true;
     }
     catch (const camera::CameraException& e)
     {
@@ -240,7 +239,7 @@ bool change_camera(CameraKind c, const Computation computation)
         LOG_ERROR << e.what();
     }
 
-    return res;
+    return false;
 }
 
 void configure_camera()
@@ -900,8 +899,6 @@ void set_composite_area()
 {
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
-
-void set_computation_mode(const Computation computation) { get_cd().set_compute_mode(computation); }
 
 void close_critical_compute()
 {

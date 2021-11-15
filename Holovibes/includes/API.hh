@@ -175,12 +175,6 @@ void set_record_mode(const std::string& text);
  */
 void close_windows();
 
-/*! \brief Sets the computation mode
- *
- * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
- */
-void set_computation_mode(const Computation computation);
-
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 

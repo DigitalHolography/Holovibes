@@ -324,7 +324,6 @@ void MainWindow::reload_ini(QString filename)
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
-    LOG_INFO << to_hide;
     action->setChecked(!to_hide);
     groupbox->setHidden(to_hide);
 }
