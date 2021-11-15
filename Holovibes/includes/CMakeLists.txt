@@ -20,11 +20,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/AdvancedSettingsWindowTools/QDoubleRefSpinBoxLayout.hh
     gui/windows/AdvancedSettingsWindowTools/QLineEditLayout.hh
     gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.hh
-    
-    gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_advanced.hh
-    gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_buffer_size.hh
-    gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_chart.hh
-    gui/windows/AdvancedSettingsWindowTools/panels/asw_panel_file.hh
 
     gui/windows/panels/asw_mainwindow_panel.hh
 )
