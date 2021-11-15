@@ -25,7 +25,7 @@
 namespace holovibes
 {
 
-#define __HOLOVIBES_VERSION__ "10.2"
+#define __HOLOVIBES_VERSION__ "10.3"
 #define __APPNAME__ "Holovibes"
 
 /*! \class ComputeDescriptor
@@ -229,47 +229,47 @@ class ComputeDescriptor : public Observable
     inline float get_display_rate() const { return display_rate; }
     inline void set_display_rate(float display_rate) { this->display_rate = display_rate; }
 
-    inline uint get_img_accu_slice_xy_level() const { return xy.img_accu_slice_level; }
-    inline void set_img_accu_slice_xy_level(uint img_accu_slice_xy_level)
+    inline uint get_img_accu_xy_level() const { return xy.img_accu_level; }
+    inline void set_img_accu_xy_level(uint img_accu_slice_xy_level)
     {
-        this->xy.img_accu_slice_level = img_accu_slice_xy_level;
+        this->xy.img_accu_level = img_accu_slice_xy_level;
     }
 
-    inline uint get_img_acc_slice_xz_level() const { return xz.img_accu_slice_level; }
-    inline void set_img_acc_slice_xz_level(uint img_accu_slice_xz_level)
+    inline uint get_img_accu_xz_level() const { return xz.img_accu_level; }
+    inline void set_img_accu_xz_level(uint img_accu_slice_xz_level)
     {
-        this->xz.img_accu_slice_level = img_accu_slice_xz_level;
+        this->xz.img_accu_level = img_accu_slice_xz_level;
     }
 
-    inline uint get_img_acc_slice_yz_level() const { return yz.img_accu_slice_level; }
-    inline void set_img_acc_slice_yz_level(uint img_accu_slice_yz_level)
+    inline uint get_img_accu_yz_level() const { return yz.img_accu_level; }
+    inline void set_img_accu_yz_level(uint img_accu_slice_yz_level)
     {
-        this->yz.img_accu_slice_level = img_accu_slice_yz_level;
+        this->yz.img_accu_level = img_accu_slice_yz_level;
     }
 
     inline uint get_p_index() const { return p.index; }
     inline void set_p_index(uint value) { p.index = value; }
 
-    inline int get_p_acc_level() const { return p.accu_level; }
-    inline void set_p_acc_level(int p_acc_level) { this->p.accu_level = p_acc_level; }
+    inline int get_p_accu_level() const { return p.accu_level; }
+    inline void set_p_accu_level(int p_accu_level) { this->p.accu_level = p_accu_level; }
 
     inline uint get_x_cuts() const { return x.cuts; }
     inline void set_x_cuts(uint value) { x.cuts = value; }
 
-    inline int get_x_acc_level() const { return x.accu_level; }
-    inline void set_x_acc_level(int x_acc_level) { this->x.accu_level = x_acc_level; }
+    inline int get_x_accu_level() const { return x.accu_level; }
+    inline void set_x_accu_level(int x_accu_level) { this->x.accu_level = x_accu_level; }
 
     inline uint get_y_cuts() const { return y.cuts; }
     inline void set_y_cuts(uint value) { y.cuts = value; }
 
-    inline int get_y_acc_level() const { return y.accu_level; }
-    inline void set_y_acc_level(int y_acc_level) { this->y.accu_level = y_acc_level; }
+    inline int get_y_accu_level() const { return y.accu_level; }
+    inline void set_y_accu_level(int y_accu_level) { this->y.accu_level = y_accu_level; }
 
     inline uint get_q_index() const { return q.index; }
     inline void set_q_index(uint value) { q.index = value; }
 
-    inline uint get_q_acc_level() const { return q.accu_level; }
-    inline void set_q_acc_level(uint q_acc_level) { this->q.accu_level = q_acc_level; }
+    inline uint get_q_accu_level() const { return q.accu_level; }
+    inline void set_q_accu_level(uint q_accu_level) { this->q.accu_level = q_accu_level; }
 
     inline float get_reticle_scale() const { return reticle_scale; }
     inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
@@ -483,35 +483,9 @@ class ComputeDescriptor : public Observable
         this->chart_record_enabled = chart_record_enabled;
     }
 
-    inline bool get_img_acc_slice_xy_enabled() const { return xy.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_xy_enabled(bool img_acc_slice_xy_enabled)
-    {
-        this->xy.img_accu_slice_enabled = img_acc_slice_xy_enabled;
-    }
-
-    inline bool get_img_acc_slice_xz_enabled() const { return xz.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_xz_enabled(bool img_acc_slice_xz_enabled)
-    {
-        this->xz.img_accu_slice_enabled = img_acc_slice_xz_enabled;
-    }
-
-    inline bool get_img_acc_slice_yz_enabled() const { return yz.img_accu_slice_enabled; }
-    inline void set_img_acc_slice_yz_enabled(bool img_acc_slice_yz_enabled)
-    {
-        this->yz.img_accu_slice_enabled = img_acc_slice_yz_enabled;
-    }
-
-    inline bool get_p_accu_enabled() const { return p.accu_enabled; }
-    inline void set_p_accu_enabled(bool p_accu_enabled) { this->p.accu_enabled = p_accu_enabled; }
-
-    inline bool get_x_accu_enabled() const { return x.accu_enabled; }
-    inline void set_x_accu_enabled(bool x_accu_enabled) { this->x.accu_enabled = x_accu_enabled; }
-
-    inline bool get_y_accu_enabled() const { return y.accu_enabled; }
-    inline void set_y_accu_enabled(bool y_accu_enabled) { this->y.accu_enabled = y_accu_enabled; }
-
-    inline bool get_q_acc_enabled() const { return q.accu_enabled; }
-    inline void set_q_acc_enabled(bool q_accu_enabled) { this->q.accu_enabled = q_accu_enabled; }
+    inline bool get_img_accu_xy_enabled() const { return xy.img_accu_level > 1; }
+    inline bool get_img_accu_xz_enabled() const { return xz.img_accu_level > 1; }
+    inline bool get_img_accu_yz_enabled() const { return yz.img_accu_level > 1; }
 
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
@@ -592,15 +566,13 @@ class ComputeDescriptor : public Observable
 
     bool get_img_log_scale_slice_enabled() const;
 
-    bool get_img_accu_slice_enabled() const;
-    unsigned get_img_accu_slice_level() const;
+    unsigned get_img_accu_level() const;
 
     void set_contrast_min(float value);
     void set_contrast_max(float value);
     void set_log_scale_slice_enabled(bool value);
     void set_log_scale_slice_enabled_filter2d() { filter2d.log_scale_slice_enabled = true; }
-    void set_accumulation(bool value);
-    void set_accumulation_level(float value);
+    void set_accumulation_level(int value);
 
     /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
     void check_p_limits();
@@ -623,11 +595,6 @@ class ComputeDescriptor : public Observable
     void set_y_cuts(int value);
 
     void set_weight_rgb(int r, int g, int b);
-
-    void set_p_accu(bool enabled, int level);
-    void set_x_accu(bool enabled, int level);
-    void set_y_accu(bool enabled, int level);
-    void set_q_accu(bool enabled, int level);
 
     /*! \brief Change the window according to the given index */
     void change_window(int index);

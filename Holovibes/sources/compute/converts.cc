@@ -83,7 +83,7 @@ void Converts::insert_compute_p_accu()
 {
     fn_compute_vect_.conditional_push_back([=]() {
         pmin_ = cd_.p.index;
-        if (cd_.p.accu_enabled)
+        if (cd_.p.accu_level != 0)
             pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
         else
             pmax_ = cd_.p.index;

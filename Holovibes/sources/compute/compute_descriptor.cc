@@ -80,15 +80,7 @@ float ComputeDescriptor::get_contrast_max() const
 
 bool ComputeDescriptor::get_img_log_scale_slice_enabled() const { return current->log_scale_slice_enabled; }
 
-bool ComputeDescriptor::get_img_accu_slice_enabled() const
-{
-    return reinterpret_cast<View_XYZ*>(current)->img_accu_slice_enabled;
-}
-
-unsigned ComputeDescriptor::get_img_accu_slice_level() const
-{
-    return reinterpret_cast<View_XYZ*>(current)->img_accu_slice_level;
-}
+unsigned ComputeDescriptor::get_img_accu_level() const { return reinterpret_cast<View_XYZ*>(current)->img_accu_level; }
 
 float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
 {
@@ -116,14 +108,9 @@ void ComputeDescriptor::set_contrast_max(float value)
 
 void ComputeDescriptor::set_log_scale_slice_enabled(bool value) { current->log_scale_slice_enabled = value; }
 
-void ComputeDescriptor::set_accumulation(bool value)
+void ComputeDescriptor::set_accumulation_level(int value)
 {
-    reinterpret_cast<View_XYZ*>(current)->img_accu_slice_enabled = value;
-}
-
-void ComputeDescriptor::set_accumulation_level(float value)
-{
-    reinterpret_cast<View_XYZ*>(current)->img_accu_slice_level = value;
+    reinterpret_cast<View_XYZ*>(current)->img_accu_level = value;
 }
 
 void ComputeDescriptor::check_p_limits()
@@ -133,8 +120,7 @@ void ComputeDescriptor::check_p_limits()
     if (p.accu_level > upper_bound)
         p.accu_level = upper_bound;
 
-    if (p.accu_enabled)
-        upper_bound -= p.accu_level;
+    upper_bound -= p.accu_level;
 
     if (upper_bound >= 0 && p.index > static_cast<uint>(upper_bound))
         p.index = upper_bound;
@@ -147,8 +133,7 @@ void ComputeDescriptor::check_q_limits()
     if (q.accu_level > upper_bound)
         q.accu_level = upper_bound;
 
-    if (q.accu_enabled)
-        upper_bound -= q.accu_level;
+    upper_bound -= q.accu_level;
 
     if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
         q.index = upper_bound;
@@ -189,11 +174,7 @@ void ComputeDescriptor::handle_update_exception()
     convolution_enabled = false;
 }
 
-void ComputeDescriptor::handle_accumulation_exception()
-{
-    xy.img_accu_slice_enabled = false;
-    xy.img_accu_slice_level = 1;
-}
+void ComputeDescriptor::handle_accumulation_exception() { xy.img_accu_level = 1; }
 
 void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
 
@@ -218,30 +199,6 @@ void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
     rgb.weight_r = r;
     rgb.weight_g = g;
     rgb.weight_b = b;
-}
-
-void ComputeDescriptor::set_x_accu(bool enabled, int level)
-{
-    x.accu_enabled = enabled;
-    x.accu_level = level;
-}
-
-void ComputeDescriptor::set_y_accu(bool enabled, int level)
-{
-    y.accu_enabled = enabled;
-    y.accu_level = level;
-}
-
-void ComputeDescriptor::set_p_accu(bool enabled, int level)
-{
-    p.accu_enabled = enabled;
-    p.accu_level = level;
-}
-
-void ComputeDescriptor::set_q_accu(bool enabled, int level)
-{
-    q.accu_enabled = enabled;
-    q.accu_level = level;
 }
 
 void ComputeDescriptor::change_angle()
@@ -306,8 +263,8 @@ void ComputeDescriptor::reset_slice_view()
     yz.contrast_max = false;
     xz.log_scale_slice_enabled = false;
     yz.log_scale_slice_enabled = false;
-    xz.img_accu_slice_enabled = false;
-    yz.img_accu_slice_enabled = false;
+    xz.img_accu_level = 1;
+    yz.img_accu_level = 1;
 }
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)

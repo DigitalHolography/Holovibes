@@ -39,7 +39,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
     auto xypq_load = [&](const std::string name, View_Accu& view) {
-        view.accu_enabled = ptree.get<bool>("view." + name + "_accu_enabled", view.accu_enabled);
         view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
     };
     auto xy_load = [&](const std::string name, View_XY& view) {
@@ -77,8 +76,7 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         view.flip_enabled = ptree.get<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>("view." + name + "_rot", view.rot);
 
-        view.img_accu_slice_enabled = ptree.get<bool>("view." + name + "_img_acc_enabled", view.img_accu_slice_enabled);
-        view.img_accu_slice_level = ptree.get<ushort>("view." + name + "_img_acc_value", view.img_accu_slice_level);
+        view.img_accu_level = ptree.get<ushort>("view." + name + "_img_accu_level", view.img_accu_level);
 
         xyzf_load(name, view);
     };
@@ -108,7 +106,7 @@ void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor&
     auto hsv_load = [&](const std::string& name, Composite_hsv& s) {
         p_load(name, s);
         s.slider_threshold_min = ptree.get<float>("composite." + name + "_min_value", s.slider_threshold_min);
-        s.slider_threshold_max = ptree.get<float>("composite." + name + "_min_value", s.slider_threshold_max);
+        s.slider_threshold_max = ptree.get<float>("composite." + name + "_max_value", s.slider_threshold_max);
         s.low_threshold = ptree.get<float>("composite." + name + "_low_threshold", s.low_threshold);
         s.high_threshold = ptree.get<float>("composite." + name + "_high_threshold", s.high_threshold);
     };
@@ -203,7 +201,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
     auto xypq_save = [&](const std::string& name, const View_Accu& view) {
-        ptree.put<bool>("view." + name + "_accu_enabled", view.accu_enabled);
         ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
 
@@ -239,8 +236,7 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     auto xyz_save = [&](const std::string& name, const View_XYZ& view) {
         ptree.put<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         ptree.put<int>("view." + name + "_rot", view.rot);
-        ptree.put<bool>("view." + name + "_img_acc_enabled", view.img_accu_slice_enabled);
-        ptree.put<ushort>("view." + name + "_img_acc_value", view.img_accu_slice_level);
+        ptree.put<ushort>("view." + name + "_img_accu_level", view.img_accu_level);
 
         xyzf_save(name, view);
     };
@@ -269,7 +265,7 @@ void save_composite(boost::property_tree::ptree& ptree, const ComputeDescriptor&
     auto hsv_save = [&](const std::string& name, const Composite_hsv& s) {
         p_save(name, s);
         ptree.put<float>("composite." + name + "_min_value", s.slider_threshold_min);
-        ptree.put<float>("composite." + name + "_min_value", s.slider_threshold_max);
+        ptree.put<float>("composite." + name + "_max_value", s.slider_threshold_max);
         ptree.put<float>("composite." + name + "_low_threshold", s.low_threshold);
         ptree.put<float>("composite." + name + "_high_threshold", s.high_threshold);
     };

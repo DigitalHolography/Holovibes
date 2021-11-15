@@ -409,7 +409,7 @@ void ICompute::request_disable_lens_view()
 
 void ICompute::request_clear_img_acc()
 {
-    request_clear_img_acc_ = true;
+    request_clear_img_accu = true;
     request_refresh();
 }
 

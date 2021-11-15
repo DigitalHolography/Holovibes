@@ -372,7 +372,7 @@ class ICompute : public Observable
     std::atomic<std::optional<std::optional<unsigned int>>> hologram_record_requested_{std::nullopt};
     std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{std::nullopt};
     std::atomic<bool> disable_frame_record_requested_{false};
-    std::atomic<bool> request_clear_img_acc_{false};
+    std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
 
