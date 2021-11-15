@@ -158,8 +158,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-
-    camera_none();
+    api::camera_none();
 
     delete ui_;
 }
@@ -387,7 +386,7 @@ void MainWindow::save_ini()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    camera_none();
+    api::camera_none();
 
     save_gui();
     api::save_compute_settings(::holovibes::ini::default_compute_config_filepath);
