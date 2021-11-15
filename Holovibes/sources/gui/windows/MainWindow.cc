@@ -370,7 +370,7 @@ void MainWindow::save_gui()
     LOG_INFO << " GUI settings overwritten at " << path;
 }
 
-void MainWindow::load_ini() { api::load_compute_settings(ini::global_config_filepath); }
+void MainWindow::load_ini() { api::load_compute_settings(ini::default_compute_config_filepath); }
 
 void MainWindow::save_ini()
 {
