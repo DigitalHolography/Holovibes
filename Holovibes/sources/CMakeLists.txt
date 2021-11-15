@@ -58,12 +58,8 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/view_panel.cc
     gui/windows/panels/composite_panel.cc
     gui/windows/panels/image_rendering_panel.cc
-    gui/windows/AdvancedSettingsWindowTools/QSpinBoxLayout.cc
-    gui/windows/AdvancedSettingsWindowTools/QIntSpinBoxLayout.cc
-    gui/windows/AdvancedSettingsWindowTools/QDoubleSpinBoxLayout.cc
-    gui/windows/AdvancedSettingsWindowTools/QDoubleRefSpinBoxLayout.cc
-    gui/windows/AdvancedSettingsWindowTools/QLineEditLayout.cc
-    gui/windows/AdvancedSettingsWindowTools/QPathSelectorLayout.cc
+    gui/windows/AdvancedSettingsWindowTools/q_spin_box_layout.cc
+    gui/windows/AdvancedSettingsWindowTools/q_double_spin_box_layout.cc
     gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
     gui/windows/panels/asw_mainwindow_panel.cc
 

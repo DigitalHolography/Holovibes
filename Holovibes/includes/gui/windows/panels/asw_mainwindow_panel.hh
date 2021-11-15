@@ -5,10 +5,8 @@
 #pragma once
 
 #include "advanced_settings_window_panel.hh"
-#include "QIntSpinBoxLayout.hh"
-#include "QDoubleSpinBoxLayout.hh"
+#include "q_double_spin_box_layout.hh"
 #include "image_rendering_panel.hh"
-#include <QVBoxLayout>
 
 namespace holovibes::gui
 {

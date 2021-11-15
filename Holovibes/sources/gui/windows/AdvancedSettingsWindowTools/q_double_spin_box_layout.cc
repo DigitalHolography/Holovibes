@@ -1,4 +1,4 @@
-#include "QDoubleSpinBoxLayout.hh"
+#include "q_double_spin_box_layout.hh"
 
 namespace holovibes::gui
 {

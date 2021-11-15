@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "QSpinBoxLayout.hh"
+#include "q_spin_box_layout.hh"
 #include <QDoubleSpinBox>
 
 namespace holovibes::gui
