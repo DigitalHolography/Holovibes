@@ -9,7 +9,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-    setWindowIcon(QIcon("Holovibes.ico"));
+    setWindowIcon(QIcon(":/Holovibes.ico"));
     this->show();
 
     // FIXME belong to MainWindow so it shouldn't be accessible from advanced settings whose represent something global

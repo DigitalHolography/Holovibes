@@ -229,6 +229,7 @@ add_executable("${PROJECT_NAME}"
     plotwindow.ui
 
     Holovibes.rc
+    Holovibes.qrc
 
     sources/main.cc
 )

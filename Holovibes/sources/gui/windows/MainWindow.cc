@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget* parent)
             this,
             SLOT(synchronize_thread(std::function<void()>)));
 
-    setWindowIcon(QIcon("Holovibes.ico"));
+    setWindowIcon(QIcon(":/Holovibes.ico"));
 
     ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text) {
         synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); });
