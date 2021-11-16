@@ -151,6 +151,8 @@ MainWindow::MainWindow(QWidget* parent)
         (*it)->init();
 
     api::start_information_display();
+
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 }
 
 MainWindow::~MainWindow()
@@ -588,16 +590,14 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::Light, Qt::black);
 
     qApp->setPalette(darkPalette);
-    theme_index_ = 1;
+    theme_index_ = 0;
 }
 
 void MainWindow::set_classic()
 {
     qApp->setPalette(this->style()->standardPalette());
-    // Light mode style
-    qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
-    theme_index_ = 0;
+    theme_index_ = 1;
 }
 
 void MainWindow::set_theme(const int index)
@@ -608,10 +608,10 @@ void MainWindow::set_theme(const int index)
     switch (index)
     {
     case 0:
-        set_classic();
+        set_night();
         break;
     case 1:
-        set_night();
+        set_classic();
         break;
     default:
         return;

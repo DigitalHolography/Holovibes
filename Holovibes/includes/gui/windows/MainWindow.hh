@@ -187,8 +187,8 @@ class MainWindow : public QMainWindow, public Observer
     // ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
 
-    // Additional attributs
-    ushort theme_index_ = 0;
+    // Additional attributes
+    short theme_index_ = -1;
 
 #pragma endregion
 };
