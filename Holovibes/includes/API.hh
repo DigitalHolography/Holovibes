@@ -341,7 +341,7 @@ void set_wavelength(const double value);
  *
  * \param value the new value
  */
-void set_z(const double value);
+void set_z_distance(const double value);
 
 /*! \brief Modifies space transform calculation
  *

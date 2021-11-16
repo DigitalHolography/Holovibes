@@ -244,6 +244,7 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
+    // To move in api function
     if (api::is_raw_mode() || checked == api::get_filter2d_view_enabled())
         return;
 
@@ -318,23 +319,17 @@ void ImageRenderingPanel::set_z(const double value)
     if (api::is_raw_mode())
         return;
 
-    api::set_z(value);
+    api::set_z_distance(value);
 }
 
 void ImageRenderingPanel::increment_z()
 {
-    if (api::is_raw_mode())
-        return;
-
     set_z(api::get_zdistance() + z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }
 
 void ImageRenderingPanel::decrement_z()
 {
-    if (api::is_raw_mode())
-        return;
-
     set_z(api::get_zdistance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
 }

@@ -825,7 +825,7 @@ void set_wavelength(const double value)
     pipe_refresh();
 }
 
-void set_z(const double value)
+void set_z_distance(const double value)
 {
     get_cd().set_zdistance(static_cast<float>(value));
 
