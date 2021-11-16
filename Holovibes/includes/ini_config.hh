@@ -14,8 +14,8 @@
 namespace holovibes::ini
 {
 
-#define __COMPUTE_CONFIG_FILENAME__ "holovibes.ini"
-#define __GUI_CONFIG_FILENAME__ "global_settings.ini"
+#define __COMPUTE_CONFIG_FILENAME__ "compute_settings.ini"
+#define __GUI_CONFIG_FILENAME__ "user_settings.ini"
 
 #define __CONFIG_FOLDER__ (std::filesystem::path(getenv("AppData")) / __APPNAME__ / __HOLOVIBES_VERSION__)
 

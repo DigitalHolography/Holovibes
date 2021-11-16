@@ -21,14 +21,11 @@ struct View_XYZ : public View_Window
     std::atomic<bool> flip_enabled{false};
     std::atomic<float> rot{0};
 
-    // FIXME: remove slice from name
-    std::atomic<bool> img_accu_slice_enabled{false};
-    std::atomic<uint> img_accu_slice_level{1};
+    std::atomic<uint> img_accu_level{1};
 };
 
 struct View_Accu
 {
-    std::atomic<bool> accu_enabled{false};
     std::atomic<int> accu_level{1};
 };
 
