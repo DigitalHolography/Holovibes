@@ -347,13 +347,13 @@ void set_z_distance(const double value);
  *
  * \param value the string to match to determine the kind of space transformation
  */
-void set_space_transformation(const std::string& value);
+void set_space_transformation(const SpaceTransformation& value);
 
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
  */
-void set_time_transformation(const std::string& value);
+void set_time_transformation(const TimeTransformation& value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -472,7 +472,7 @@ void update_convo_kernel(const std::string& value);
  *
  * \param value true: enable, false: disable
  */
-void set_divide_convolution_mode(const bool value);
+void set_divide_convolution(const bool value);
 
 /*! \brief Creates or Removes the reticle overlay
  *

@@ -14,20 +14,24 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_filter2d(ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled));
     set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1));
     set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2));
-    // set_space_transformation(static_cast<SpaceTransformation>(ptree.get<int>("image_rendering.space_transformation",
-    // static_cast<int>(cd.space_transformation.load()))));
-    // set_time_transformation(static_cast<TimeTransformation>(ptree.get<int>("image_rendering.time_transformation",
-    // static_cast<int>(cd.time_transformation.load()))));
 
-    // set_time_transformation_size(ptree.get<ushort>("image_rendering.time_transformation_size",
-    // cd.time_transformation_size));
-    //set_lambda(ptree.get<float>("image_rendering.lambda", cd.lambda));
+    set_space_transformation(static_cast<SpaceTransformation>(
+        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()))));
+    set_time_transformation(static_cast<TimeTransformation>(
+        ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()))));
+
+    set_time_transformation_size(
+        ptree.get<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size));
+
+    set_wavelength(ptree.get<float>("image_rendering.lambda", cd.lambda));
     set_z_distance(ptree.get<float>("image_rendering.z_distance", cd.zdistance));
-    // set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
+
+    // TODO: Remove checkboxe ??
     // TODO: Think about how to store the type. Some new convolutions type might be added in AppData
+    // set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
     // cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
-    // set_divide_convolution_enabled(ptree.get<bool>("image_rendering.divide_convolution_enabled",
-    // cd.divide_convolution_enabled));
+    set_divide_convolution(
+        ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)

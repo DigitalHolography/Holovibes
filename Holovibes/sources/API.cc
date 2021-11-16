@@ -282,7 +282,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
     unset_convolution_mode();
-    set_divide_convolution_mode(false);
+    set_divide_convolution(false);
 }
 
 void create_holo_window(ushort window_size)
@@ -832,33 +832,9 @@ void set_z_distance(const double value)
     pipe_refresh();
 }
 
-void set_space_transformation(const std::string& value)
-{
-    if (value == "None")
-        get_cd().set_space_transformation(SpaceTransformation::None);
-    else if (value == "1FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT1);
-    else if (value == "2FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT2);
-    else
-    {
-        // Shouldn't happen
-        get_cd().set_space_transformation(SpaceTransformation::None);
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
+void set_space_transformation(const SpaceTransformation& value) { get_cd().set_space_transformation(value); }
 
-void set_time_transformation(const std::string& value)
-{
-    if (value == "STFT")
-        get_cd().set_time_transformation(TimeTransformation::STFT);
-    else if (value == "PCA")
-        get_cd().set_time_transformation(TimeTransformation::PCA);
-    else if (value == "None")
-        get_cd().set_time_transformation(TimeTransformation::NONE);
-    else if (value == "SSA_STFT")
-        get_cd().set_time_transformation(TimeTransformation::SSA_STFT);
-}
+void set_time_transformation(const TimeTransformation& value) { get_cd().set_time_transformation(value); }
 
 void adapt_time_transformation_stride_to_batch_size()
 {
@@ -1112,9 +1088,12 @@ void unset_convolution_mode()
     }
 }
 
-void set_divide_convolution_mode(const bool value)
+void set_divide_convolution(const bool value)
 {
-    get_cd().set_divide_convolution_enabled(value);
+    if (value == get_cd().get_divide_convolution_enabled())
+        return
+
+            get_cd().set_divide_convolution_enabled(value);
 
     pipe_refresh();
 }

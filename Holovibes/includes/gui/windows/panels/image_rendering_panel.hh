@@ -113,7 +113,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true: enable, false: disable
      */
-    void set_divide_convolution_mode(const bool value);
+    void set_divide_convolution(const bool value);
 
   private:
     /*! \brief Changes display mode to Raw */

@@ -4357,7 +4357,7 @@ p, li { white-space: pre-wrap; }
    <sender>DivideConvoCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_divide_convolution_mode(bool)</slot>
+   <slot>set_divide_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>791</x>
@@ -5194,7 +5194,7 @@ p, li { white-space: pre-wrap; }
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
-  <slot>set_divide_convolution_mode(bool)</slot>
+  <slot>set_divide_convolution(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>

@@ -7,6 +7,8 @@
 #include "frame_desc.hh"
 #include "API.hh"
 
+#include <map>
+
 namespace api = ::holovibes::api;
 
 namespace holovibes::gui
@@ -133,7 +135,6 @@ void ImageRenderingPanel::set_raw_mode()
 
 void ImageRenderingPanel::set_holographic_mode()
 {
-
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
@@ -267,7 +268,14 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     if (api::is_raw_mode())
         return;
 
-    api::set_space_transformation(value.toStdString());
+    // String are set according to value in the appropriate ComboBox
+    static std::map<std::string, SpaceTransformation> space_transformation_dictionary = {
+        {"None", SpaceTransformation::None},
+        {"1FFT", SpaceTransformation::FFT1},
+        {"2FFT", SpaceTransformation::None},
+    };
+
+    api::set_space_transformation(space_transformation_dictionary.at(value.toStdString()));
 
     set_holographic_mode();
 }
@@ -277,7 +285,15 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     if (api::is_raw_mode())
         return;
 
-    api::set_time_transformation(value.toStdString());
+    // String are set according to value in the appropriate ComboBox
+    static std::map<std::string, TimeTransformation> time_transformation_dictionary = {
+        {"None", TimeTransformation::NONE},
+        {"PCA", TimeTransformation::PCA},
+        {"SSA_STFT", TimeTransformation::SSA_STFT},
+        {"STFT", TimeTransformation::STFT},
+    };
+
+    api::set_time_transformation(time_transformation_dictionary.at(value.toStdString()));
 
     set_holographic_mode();
 }
@@ -339,13 +355,10 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (value)
     {
         std::string str = ui_->KernelQuickSelectComboBox->currentText().toStdString();
-
         api::set_convolution_mode(str);
     }
     else
-    {
         api::unset_convolution_mode();
-    }
 
     parent_->notify();
 }
@@ -360,9 +373,9 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_divide_convolution_mode(const bool value)
+void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api::set_divide_convolution_mode(value);
+    api::set_divide_convolution(value);
 
     parent_->notify();
 }
