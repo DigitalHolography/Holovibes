@@ -9,7 +9,7 @@ void open_file(const std::string& path) { QDesktopServices::openUrl(QUrl::fromLo
 
 void pipe_refresh()
 {
-    if (is_raw_mode())
+    if (is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     try
@@ -129,7 +129,7 @@ void close_windows()
     get_cd().set_raw_view_enabled(false);
 
     // Disable overlays
-    get_cd().set_reticle_view_enabled(false);
+    get_cd().set_reticle_display_enabled(false);
 }
 
 #pragma endregion
@@ -504,7 +504,9 @@ void change_window(const int index) { get_cd().change_window(index); }
 void toggle_renormalize(bool value)
 {
     get_cd().set_renorm_enabled(value);
-    get_compute_pipe()->request_clear_img_acc();
+
+    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+        get_compute_pipe()->request_clear_img_acc();
 
     pipe_refresh();
 }
@@ -512,23 +514,7 @@ void toggle_renormalize(bool value)
 void set_filter2d(bool checked)
 {
     get_cd().set_filter2d_enabled(checked);
-
-    if (checked)
-    {
-        if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-        {
-            pipe->autocontrast_end_pipe(WindowKind::XYview);
-            if (get_cd().time_transformation_cuts_enabled)
-            {
-                pipe->autocontrast_end_pipe(WindowKind::XZview);
-                pipe->autocontrast_end_pipe(WindowKind::YZview);
-            }
-            if (get_cd().filter2d_view_enabled)
-                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-        }
-
-        pipe_refresh();
-    }
+    set_auto_contrast_all();
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
@@ -783,6 +769,7 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 
 void set_composite_auto_weights(bool value) { get_cd().set_composite_auto_weights(value); }
 
+void set_composite_kind(const CompositeKind& value) { get_cd().set_composite_kind(value); }
 void select_composite_rgb() { get_cd().set_composite_kind(CompositeKind::RGB); }
 
 void select_composite_hsv() { get_cd().set_composite_kind(CompositeKind::HSV); }
@@ -820,7 +807,7 @@ bool slide_update_threshold(
 
 void set_wavelength(const double value)
 {
-    get_cd().set_lambda(static_cast<float>(value) * 1.0e-9f);
+    get_cd().set_lambda(static_cast<float>(value));
 
     pipe_refresh();
 }
@@ -953,6 +940,9 @@ bool set_auto_contrast()
 
 void set_auto_contrast_all()
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -1104,16 +1094,17 @@ void set_divide_convolution(const bool value)
 
 void display_reticle(bool value)
 {
-    get_cd().set_reticle_view_enabled(value);
+    if (value == get_cd().get_reticle_display_enabled())
+        return;
+
+    get_cd().set_reticle_display_enabled(value);
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
     }
     else
-    {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
-    }
 
     pipe_refresh();
 }
@@ -1290,8 +1281,14 @@ bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     get_cd().set_computation_stopped(false);
+
     // Gather all the usefull data from the ui import panel
-    return init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
+    bool res = init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
+
+    if (res)
+        UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+
+    return res;
 }
 
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)

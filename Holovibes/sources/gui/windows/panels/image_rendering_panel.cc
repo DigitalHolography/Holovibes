@@ -101,6 +101,9 @@ void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
 
 void ImageRenderingPanel::set_image_mode(QString mode)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     if (mode != nullptr)
     {
         // Call comes from ui
@@ -109,10 +112,13 @@ void ImageRenderingPanel::set_image_mode(QString mode)
         else
             set_holographic_mode();
     }
-    else if (api::get_compute_mode() == Computation::Raw)
-        set_raw_mode();
-    else if (api::get_compute_mode() == Computation::Hologram)
-        set_holographic_mode();
+    else
+    {
+        if (api::get_compute_mode() == Computation::Raw)
+            set_raw_mode();
+        else if (api::get_compute_mode() == Computation::Hologram)
+            set_holographic_mode();
+    }
 }
 
 void ImageRenderingPanel::set_raw_mode()
@@ -135,6 +141,9 @@ void ImageRenderingPanel::set_raw_mode()
 
 void ImageRenderingPanel::set_holographic_mode()
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     // That function is used to reallocate the buffers since the Square
     // input mode could have changed
     /* Close windows & destory thread compute */
@@ -169,7 +178,7 @@ void ImageRenderingPanel::set_computation_mode()
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::is_raw_mode())
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -189,7 +198,7 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::is_raw_mode())
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
@@ -222,8 +231,6 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        set_filter2d_n2(ui_->Filter2DN2SpinBox->value());
-        set_filter2d_n1(ui_->Filter2DN1SpinBox->value());
     }
     else
         update_filter2d_view(false);
@@ -231,22 +238,14 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n)
-{
-    api::set_filter2d_n1(n);
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n1(int n) { api::set_filter2d_n1(n); }
 
-void ImageRenderingPanel::set_filter2d_n2(int n)
-{
-    api::set_filter2d_n2(n);
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
     // To move in api function
-    if (api::is_raw_mode() || checked == api::get_filter2d_view_enabled())
+    if (api::is_raw_mode())
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
@@ -300,7 +299,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::is_raw_mode())
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
@@ -327,7 +326,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (api::is_raw_mode())
         return;
 
-    api::set_wavelength(value);
+    api::set_wavelength(value * 1.0e-9f);
 }
 
 void ImageRenderingPanel::set_z(const double value)

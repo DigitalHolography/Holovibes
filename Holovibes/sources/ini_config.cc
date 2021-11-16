@@ -4,8 +4,11 @@ namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    set_compute_mode(static_cast<Computation>(
-        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
+    // set_compute_mode(static_cast<Computation>(
+    //     ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
+
+    cd.compute_mode = static_cast<Computation>(
+        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
 
     set_batch_size(ptree.get<ushort>("image_rendering.batch_size", cd.batch_size));
     set_time_transformation_stride(
@@ -26,24 +29,27 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_wavelength(ptree.get<float>("image_rendering.lambda", cd.lambda));
     set_z_distance(ptree.get<float>("image_rendering.z_distance", cd.zdistance));
 
-    // TODO: Remove checkboxe ??
-    // TODO: Think about how to store the type. Some new convolutions type might be added in AppData
-    // set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
-    // cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
+    ////// TODO: Remove checkboxe ??
+    ////// TODO: Think about how to store the type. Some new convolutions type might be added in AppData
+    ////// set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
+    ////// cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
     set_divide_convolution(
         ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
-    cd.img_type = static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load())));
+    set_img_type(static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load()))));
     // Add unwrap_2d
-    cd.time_transformation_cuts_enabled =
-        ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
-    cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    cd.lens_view_enabled = ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled);
-    cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
+    set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
+
+    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+    {
+        set_time_transformation_cuts_enabled(
+            ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled));
+        set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled));
+        set_raw_view(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
+    }
 
     auto xypq_load = [&](const std::string name, View_Accu& view) {
         view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
@@ -61,11 +67,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     xy_load("y", cd.y);
     pq_load("p", cd.p);
     pq_load("q", cd.q);
-
-    cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
-
-    cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
-    cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
     auto xyzf_load = [&](const std::string name, View_Window& view) {
         view.log_scale_slice_enabled =
@@ -92,13 +93,18 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     xyz_load("xz", cd.xz);
     xyz_load("yz", cd.yz);
     xyzf_load("filter2d", cd.filter2d);
+
+    toggle_renormalize(ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled));
+
+    display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
+    reticle_scale(ptree.get<float>("view.reticle_scale", cd.reticle_scale));
 }
 
 void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // cd.composite_kind =
-    //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
-    cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
+    set_composite_kind(
+        static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load()))));
+    set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights));
 
     auto p_load = [&](const std::string& name, Composite_P& p) {
         p.p_min = ptree.get<ushort>("composite." + name + "_p_min", cd.rgb.p_min);
@@ -140,6 +146,7 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
     cd.time_transformation_cuts_output_buffer_size =
         ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
                           cd.time_transformation_cuts_output_buffer_size);
+
     cd.display_rate = ptree.get<float>("advanced.display_rate", cd.display_rate);
     cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
     cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
@@ -180,6 +187,8 @@ void load_compute_settings(const std::string& ini_path)
     load_advanced(ptree, get_cd());
 
     after_load_checks(get_cd());
+
+    pipe_refresh();
 }
 
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
@@ -230,7 +239,7 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     pq_save("q", cd.q);
 
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
-    ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
+    ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
     auto xyzf_save = [&](const std::string& name, const View_Window& view) {

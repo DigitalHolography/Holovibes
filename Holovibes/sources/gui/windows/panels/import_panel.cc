@@ -64,7 +64,6 @@ void ImportPanel::import_browse_file()
                                      QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
                                      tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
                                         "(*.cine)"));
-    LOG_INFO << filename.toStdString();
 
     // Start importing the chosen
     import_file(filename);
@@ -121,6 +120,9 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     api::close_windows();
     // cancel_time_transformation_cuts();
 
@@ -165,8 +167,6 @@ void ImportPanel::import_start()
         // Make camera's settings menu unaccessible
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
-
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
 
         parent_->notify();
     }

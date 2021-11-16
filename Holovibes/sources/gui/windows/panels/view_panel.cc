@@ -139,9 +139,9 @@ void ViewPanel::on_notify()
     QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_y_cuts());
 
     ui_->RenormalizeCheckBox->setChecked(api::get_renorm_enabled());
-    ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_view_enabled());
+    ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
-    ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_view_enabled());
+    ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
 }
 
 void ViewPanel::load_gui(const boost::property_tree::ptree& ptree)
@@ -174,7 +174,6 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::toggle_time_transformation_cuts(bool checked)
 {
-
     QComboBox* winSelection = ui_->WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());

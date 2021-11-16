@@ -41,10 +41,18 @@ inline float get_pixel_size() { return get_cd().get_pixel_size(); }
 inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
 
 inline int get_filter2d_n1() { return get_cd().get_filter2d_n1(); }
-inline void set_filter2d_n1(int value) { get_cd().set_filter2d_n1(value); }
+inline void set_filter2d_n1(int value)
+{
+    get_cd().set_filter2d_n1(value);
+    set_auto_contrast_all();
+}
 
 inline int get_filter2d_n2() { return get_cd().get_filter2d_n2(); }
-inline void set_filter2d_n2(int value) { get_cd().set_filter2d_n2(value); }
+inline void set_filter2d_n2(int value)
+{
+    get_cd().set_filter2d_n2(value);
+    set_auto_contrast_all();
+}
 
 inline int get_filter2d_smooth_low() { return get_cd().get_filter2d_smooth_low(); }
 
@@ -184,7 +192,7 @@ inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 
 inline bool get_synchronized_record() { return get_cd().get_synchronized_record(); }
 
-inline bool get_reticle_view_enabled() { return get_cd().get_reticle_view_enabled(); }
+inline bool get_reticle_display_enabled() { return get_cd().get_reticle_display_enabled(); }
 
 inline bool get_h_blur_activated() { return get_cd().get_h_blur_activated(); }
 

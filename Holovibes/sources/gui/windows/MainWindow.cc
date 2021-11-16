@@ -286,10 +286,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    // LOG_INFO << static_cast<int>(UserInterfaceDescriptor::instance().import_type_);
-
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        ui_->ImportPanel->import_stop();
+    ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
 

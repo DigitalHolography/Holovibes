@@ -496,8 +496,8 @@ class ComputeDescriptor : public Observable
     inline bool get_synchronized_record() const { return synchronized_record; }
     inline void set_synchronized_record(bool synchronized_record) { this->synchronized_record = synchronized_record; }
 
-    inline bool get_reticle_view_enabled() const { return reticle_view_enabled; }
-    inline void set_reticle_view_enabled(bool reticle_enabled) { this->reticle_view_enabled = reticle_enabled; }
+    inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
+    inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
     inline bool get_h_blur_activated() const { return hsv.h.blur_enabled; }
     inline void set_h_blur_activated(bool h_blur_activated) { this->hsv.h.blur_enabled = h_blur_activated; }
@@ -678,7 +678,7 @@ class ComputeDescriptor : public Observable
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};
     /*! \brief Is the reticle overlay enabled */
-    std::atomic<bool> reticle_view_enabled{false};
+    std::atomic<bool> reticle_display_enabled{false};
     /*! \brief Reticle border scale */
     std::atomic<float> reticle_scale{0.5f};
 
