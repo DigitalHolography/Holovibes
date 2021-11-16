@@ -37,7 +37,7 @@ class AdvancedSettingsWindow : public QMainWindow
   public:
     /*! \brief AdvancedSettingsWindow constructor */
 
-    /*! \brief Advanced Settings Window obconstructorject
+    /*! \brief Advanced Settings Window
      *
      * \param parent the object that will embed the layouts
      * \param specific_panel the external panel to plug
