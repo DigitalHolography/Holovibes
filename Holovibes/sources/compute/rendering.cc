@@ -147,7 +147,7 @@ void Rendering::insert_slice_log()
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_xz.get(),
                       buffers_.gpu_postprocess_frame_xz.get(),
-                      fd_.width * cd_.time_transformation_size,
+                      fd_.width * compute_cache.get_time_transformation_size(),
                       stream_);
         });
     }
@@ -156,7 +156,7 @@ void Rendering::insert_slice_log()
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                       buffers_.gpu_postprocess_frame_yz.get(),
-                      fd_.height * cd_.time_transformation_size,
+                      fd_.height * compute_cache.get_time_transformation_size(),
                       stream_);
         });
     }
@@ -195,12 +195,12 @@ void Rendering::insert_apply_contrast(WindowKind view)
             break;
         case WindowKind::YZview:
             input = buffers_.gpu_postprocess_frame_yz.get();
-            size = fd_.height * cd_.time_transformation_size;
+            size = fd_.height * compute_cache.get_time_transformation_size();
             wind = &cd_.yz;
             break;
         case WindowKind::XZview:
             input = buffers_.gpu_postprocess_frame_xz.get();
-            size = fd_.width * cd_.time_transformation_size;
+            size = fd_.width * compute_cache.get_time_transformation_size();
             wind = &cd_.xz;
             break;
         case WindowKind::Filter2D:
@@ -250,7 +250,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
-                                cd_.time_transformation_size,
+                                compute_cache.get_time_transformation_size(),
                                 cd_.cuts_contrast_p_offset,
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
@@ -259,7 +259,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
-                                cd_.time_transformation_size,
+                                compute_cache.get_time_transformation_size(),
                                 fd_.height,
                                 cd_.cuts_contrast_p_offset,
                                 WindowKind::YZview);

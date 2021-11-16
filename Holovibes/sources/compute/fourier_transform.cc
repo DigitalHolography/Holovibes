@@ -32,7 +32,8 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
                                    const holovibes::BatchEnv& batch_env,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
-                                   const cudaStream_t& stream)
+                                   const cudaStream_t& stream,
+                                   ComputeCache compute_cache_)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -44,6 +45,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
+    , compute_cache__(compute_cache_)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -81,7 +83,7 @@ void FourierTransform::insert_filter2d()
     fn_compute_vect_.push_back([=]() {
         filter2D(buffers_.gpu_spatial_transformation_buffer,
                  buffers_.gpu_filter2d_mask,
-                 GSH::instance().batch_query().batch_size,
+                 compute_cache_.get_batch_size(),
                  spatial_transformation_plan_,
                  fd_.width * fd_.height,
                  stream_);
@@ -99,7 +101,7 @@ void FourierTransform::insert_fft1()
     fn_compute_vect_.push_back([=]() {
         fft_1(static_cast<cuComplex*>(input_output),
               static_cast<cuComplex*>(input_output),
-              GSH::instance().batch_query().batch_size,
+              compute_cache_.get_batch_size(),
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_.get_frame_res(),
@@ -123,7 +125,7 @@ void FourierTransform::insert_fft2()
     fn_compute_vect_.push_back([=]() {
         fft_2(static_cast<cuComplex*>(input_output),
               static_cast<cuComplex*>(input_output),
-              GSH::instance().batch_query().batch_size,
+              compute_cache_.get_batch_size(),
               gpu_lens_.get(),
               spatial_transformation_plan_,
               fd_,
@@ -179,7 +181,7 @@ void FourierTransform::insert_time_transform()
         fn_compute_vect_.conditional_push_back([=]() {
             cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
             auto& q = time_transformation_env_.gpu_time_transformation_queue;
-            size_t size = cd_.time_transformation_size * fd_.get_frame_res() * sizeof(cuComplex);
+            size_t size = compute_cache_.get_time_transformation_size() * fd_.get_frame_res() * sizeof(cuComplex);
 
             cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
         });
@@ -197,7 +199,8 @@ void FourierTransform::insert_stft()
 
 void FourierTransform::insert_pca()
 {
-    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(cd_.time_transformation_size);
+    uint time_transformation_size = compute_cache_.get_time_transformation_size();
+    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
     fn_compute_vect_.conditional_push_back([=]() {
@@ -206,13 +209,13 @@ void FourierTransform::insert_pca()
         cuComplex* V = nullptr;
 
         // cov = H' * H
-        cov_matrix(H, fd_.get_frame_res(), cd_.time_transformation_size, cov);
+        cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
 
         // Find eigen values and eigen vectors of cov
         // pca_eigen_values will contain sorted eigen values
         // cov and V will contain eigen vectors
         eigen_values_vectors(cov,
-                             cd_.time_transformation_size,
+                             time_transformation_size,
                              time_transformation_env_.pca_eigen_values,
                              &V,
                              cusolver_work_buffer_,
@@ -223,19 +226,21 @@ void FourierTransform::insert_pca()
         matrix_multiply(H,
                         V,
                         fd_.get_frame_res(),
-                        cd_.time_transformation_size,
-                        cd_.time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_size,
                         time_transformation_env_.gpu_p_acc_buffer);
     });
 }
 
 void FourierTransform::insert_ssa_stft()
 {
-    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(cd_.time_transformation_size);
+    uint time_transformation_size = compute_cache_.get_time_transformation_size();
+
+    cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
     static cuda_tools::UniquePtr<cuComplex> tmp_matrix = nullptr;
-    tmp_matrix.resize(cd_.time_transformation_size * cd_.time_transformation_size);
+    tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
     fn_compute_vect_.conditional_push_back([=]() {
         cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -243,12 +248,12 @@ void FourierTransform::insert_ssa_stft()
         cuComplex* V = nullptr;
 
         // cov = H' * H
-        cov_matrix(H, fd_.get_frame_res(), cd_.time_transformation_size, cov);
+        cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
 
         // pca_eigen_values = sorted eigen values of cov
         // cov and V = eigen vectors of cov
         eigen_values_vectors(cov,
-                             cd_.time_transformation_size,
+                             time_transformation_size,
                              time_transformation_env_.pca_eigen_values,
                              &V,
                              cusolver_work_buffer_,
@@ -257,20 +262,20 @@ void FourierTransform::insert_ssa_stft()
 
         // filter eigen vectors
         // only keep vectors between q and q + q_acc
-        int q = cd_.q.index.load();
-        int q_acc = q != 0 ? cd_.q.accu_level.load() : cd_.time_transformation_size.load();
-        int q_index = q * cd_.time_transformation_size;
-        int q_acc_index = q_acc * cd_.time_transformation_size;
+        int q = cd_.q.accu_enabled ? cd_.q.index.load() : 0;
+        int q_acc = cd_.q.accu_enabled ? cd_.q.accu_level.load() : time_transformation_size;
+        int q_index = q * time_transformation_size;
+        int q_acc_index = q_acc * time_transformation_size;
         cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
-        int copy_size = cd_.time_transformation_size * (cd_.time_transformation_size - (q + q_acc));
+        int copy_size = time_transformation_size * (time_transformation_size - (q + q_acc));
         cudaXMemsetAsync(V + q_index + q_acc_index, 0, copy_size * sizeof(cuComplex), stream_);
 
         // tmp = V * V'
         matrix_multiply(V,
                         V,
-                        cd_.time_transformation_size,
-                        cd_.time_transformation_size,
-                        cd_.time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_size,
                         tmp_matrix,
                         CUBLAS_OP_N,
                         CUBLAS_OP_C);
@@ -279,8 +284,8 @@ void FourierTransform::insert_ssa_stft()
         matrix_multiply(H,
                         tmp_matrix,
                         fd_.get_frame_res(),
-                        cd_.time_transformation_size,
-                        cd_.time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_size,
                         time_transformation_env_.gpu_p_acc_buffer);
 
         stft(time_transformation_env_.gpu_p_acc_buffer,
@@ -331,7 +336,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            mouse_posy + cd_.y.accu_level.load(),
                                            width,
                                            height,
-                                           cd_.time_transformation_size,
+                                           compute_cache_.get_time_transformation_size(),
                                            cd_.xz.img_accu_level.load(),
                                            cd_.yz.img_accu_level.load(),
                                            cd_.img_type.load(),

@@ -4,22 +4,32 @@ namespace holovibes::entities
 {
 struct BatchQuery
 {
-    const unsigned int batch_size;
+    unsigned int value;
 };
 
 struct BatchCommand
 {
-    const unsigned int batch_size;
+    unsigned int value;
 };
 
-struct TimeTranformationStrideQuery
+struct TimeTransformationStrideQuery
 {
-    const unsigned int time_transformation_stride;
+    unsigned int value;
 };
 
-struct TimeTranformationStrideCommand
+struct TimeTransformationStrideCommand
 {
-    const unsigned int time_transformation_stride;
+    unsigned int value;
+};
+
+struct TimeTransformationSizeQuery
+{
+    unsigned int value;
+};
+
+struct TimeTransformationSizeCommand
+{
+    unsigned int value;
 };
 
 struct Span
@@ -50,8 +60,8 @@ struct NotifyCompositePanel
     const RGB rgb;
 
     // HSV
-    const HSVSpan slider_hsv_span;  // previously slider_threshold_min and max
-    const HSVSpan hsv_span;         // previously threshold_min and max
+    const HSVSpan slider_hsv_span; // previously slider_threshold_min and max
+    const HSVSpan hsv_span;        // previously threshold_min and max
 
     // H
     const bool h_blur_enabled;

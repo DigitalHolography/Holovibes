@@ -41,7 +41,8 @@ class Converts
              ComputeDescriptor& cd,
              const camera::FrameDescriptor& input_fd,
              const camera::FrameDescriptor& output_fd,
-             const cudaStream_t& stream);
+             const cudaStream_t& stream,
+             ComputeCache& compute_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested);
@@ -108,6 +109,9 @@ class Converts
     ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
+
+    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
+    ComputeCache& compute_cache_;
 };
 } // namespace compute
 } // namespace holovibes

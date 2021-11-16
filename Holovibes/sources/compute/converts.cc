@@ -26,7 +26,8 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    ComputeDescriptor& cd,
                    const camera::FrameDescriptor& input_fd,
                    const camera::FrameDescriptor& output_fd,
-                   const cudaStream_t& stream)
+                   const cudaStream_t& stream,
+                   ComputeCache& compute_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -40,6 +41,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , output_fd_(output_fd)
     , stream_(stream)
+    , compute_cache_(compute_cache)
 {
 }
 
@@ -84,7 +86,9 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back([=]() {
         pmin_ = cd_.p.index;
         if (cd_.p.accu_level != 0)
-            pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
+            pmax_ = std::max(
+                0,
+                std::min(pmin_ + cd_.p.accu_level, static_cast<int>(compute_cache_.get_time_transformation_size())));
         else
             pmax_ = cd_.p.index;
     });
@@ -119,8 +123,8 @@ void Converts::insert_to_squaredmodulus()
 void Converts::insert_to_composite()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (!is_between<ushort>(cd_.rgb.p_min, 0, cd_.time_transformation_size) ||
-            !is_between<ushort>(cd_.rgb.p_max, 0, cd_.time_transformation_size))
+        if (!is_between<ushort>(cd_.rgb.p_min, 0, compute_cache_.get_time_transformation_size()) ||
+            !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache_.get_time_transformation_size()))
             return;
 
         if (cd_.composite_kind == CompositeKind::RGB)

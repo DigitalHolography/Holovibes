@@ -377,5 +377,6 @@ class ICompute : public Observable
     std::atomic<bool> disable_convolution_requested_{false};
 
     BatchCache::Cache batch_cache;
+    ComputeCache::Cache compute_cache;
 };
 } // namespace holovibes

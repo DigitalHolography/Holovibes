@@ -38,7 +38,8 @@ class FourierTransform
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      const BatchEnv& batch_env,
                      TimeTransformationEnv& time_transformation_env,
-                     const cudaStream_t& stream);
+                     const cudaStream_t& stream,
+                     holovibes::ComputeCache& compute_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft();
@@ -114,6 +115,8 @@ class FourierTransform
     TimeTransformationEnv& time_transformation_env_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
+
+    ComputeCache& compute_cache_;
 };
 } // namespace compute
 } // namespace holovibes

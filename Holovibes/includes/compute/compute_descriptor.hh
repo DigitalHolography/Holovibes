@@ -633,8 +633,10 @@ class ComputeDescriptor : public Observable
     std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
     /*! \brief Time transformation to apply in hologram mode */
     std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
-    /*! \brief Number of images used by the time transformation */
-    std::atomic<uint> time_transformation_size{1};
+
+    // /*! \brief Number of images used by the time transformation */
+    // std::atomic<uint> time_transformation_size{1};
+	
     /*! \brief Wave length of the laser */
     std::atomic<float> lambda{852e-9f};
     /*! \brief z value used by fresnel transform */

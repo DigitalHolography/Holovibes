@@ -16,8 +16,7 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
         ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load())));
     cd.time_transformation = static_cast<TimeTransformation>(
         ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load())));
-    cd.time_transformation_size =
-        ptree.get<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
+
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
     cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
     cd.convolution_enabled = ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
@@ -146,15 +145,16 @@ void after_load_checks(ComputeDescriptor& cd)
 {
     if (cd.filter2d_n1 >= cd.filter2d_n2)
         cd.filter2d_n1 = cd.filter2d_n2 - 1;
-    if (cd.time_transformation_size < 1)
-        cd.time_transformation_size = 1;
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (cd.p.index >= cd.time_transformation_size)
+
+	uint time_transformation_size = GSH::instance().time_transformation_size_query().value;
+
+    if (cd.p.index >= time_transformation_size)
         cd.p.index = 0;
-    if (cd.q.index >= cd.time_transformation_size)
+    if (cd.q.index >= time_transformation_size)
         cd.q.index = 0;
-    if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
-        cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
+    if (cd.cuts_contrast_p_offset > time_transformation_size - 1)
+        cd.cuts_contrast_p_offset = time_transformation_size - 1;
 }
 
 void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
@@ -183,7 +183,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
     ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());
     ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()));
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()));
-    ptree.put<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
     ptree.put<float>("image_rendering.lambda", cd.lambda);
     ptree.put<float>("image_rendering.z_distance", cd.zdistance);
     ptree.put<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
