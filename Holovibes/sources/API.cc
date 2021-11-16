@@ -519,6 +519,9 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
+    if (is_raw_mode())
+        return;
+
     if (checked)
     {
         auto pipe = get_compute_pipe();
@@ -582,6 +585,9 @@ void set_time_transformation_size(std::function<void()> callback)
 
 bool set_lens_view(uint auxiliary_window_max_size)
 {
+    if (is_raw_mode())
+        return false;
+
     bool res = false;
 
     try
@@ -626,6 +632,9 @@ void disable_lens_view()
 
 void set_raw_view(uint auxiliary_window_max_size)
 {
+    if (is_raw_mode())
+        return;
+
     auto pipe = get_compute_pipe();
     pipe->request_raw_view();
 

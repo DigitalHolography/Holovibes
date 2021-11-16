@@ -4,8 +4,8 @@ namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // set_compute_mode(static_cast<Computation>(
-    //     ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
+    set_compute_mode(static_cast<Computation>(
+        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
 
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
