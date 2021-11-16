@@ -283,6 +283,13 @@ void MainWindow::write_ini(QString filename) { api::save_compute_settings(filena
 void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
+
+    if (filename.isEmpty())
+    {
+        LOG_WARN << "empty filename cannot be exported";
+        return;
+    }
+
     write_ini(filename);
 }
 
@@ -292,6 +299,12 @@ void MainWindow::browse_import_ini()
                                                     tr("import .ini file"),
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.ini);; Ini files (*.ini)"));
+
+    if (filename.isEmpty())
+    {
+        LOG_WARN << "empty filename cannot be imported";
+        return;
+    }
 
     reload_ini(filename);
 
