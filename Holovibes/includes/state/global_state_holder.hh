@@ -53,7 +53,9 @@ class GSH
   private:
     GSH() {}
 
-    caches::BatchCache::Ref batch_cache;
+    BatchCache::Ref batch_cache;
+
+    ComputeCache::Ref compute_cache;
 
     mutable std::mutex mutex_;
 };
