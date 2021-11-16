@@ -1,4 +1,5 @@
 #include "API.hh"
+
 namespace holovibes::api
 {
 
@@ -177,9 +178,6 @@ void load_user_preferences(const boost::property_tree::ptree& ptree)
         ptree.get<std::string>("files.batch_input_directory",
                                UserInterfaceDescriptor::instance().batch_input_directory_);
 }
-
-void load_compute_settings(const std::string& path) { ini::load_compute_settings(get_cd(), path); }
-void save_compute_settings(const std::string& path) { ini::save_compute_settings(get_cd(), path); }
 
 #pragma endregion
 

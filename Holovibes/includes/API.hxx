@@ -4,7 +4,6 @@
 
 namespace holovibes::api
 {
-
 inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
 
 inline Computation get_compute_mode() { return get_cd().get_compute_mode(); }

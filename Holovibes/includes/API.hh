@@ -635,14 +635,12 @@ void init_image_mode(QPoint& position, QSize& size);
 /*! \brief Saves the current state of holovibes
  *
  * \param path The location of the .ini file saved
- * \param ptree the object containing the .ini parameters to serialize
  */
 void save_compute_settings(const std::string& path = ::holovibes::ini::default_compute_config_filepath);
 
 /*! \brief Setups program from .ini file
  *
  * \param path the path where the .ini file is
- * \param ptree the object containing the .ini parameters to serialize
  */
 void load_compute_settings(const std::string& path);
 

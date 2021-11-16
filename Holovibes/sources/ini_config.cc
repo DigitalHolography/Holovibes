@@ -1,9 +1,11 @@
-#include "ini_config.hh"
+#include "API.hh"
 
-namespace holovibes::ini
+namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
+    get_cd();
+
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
     cd.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
@@ -157,19 +159,22 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 }
 
-void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
+void load_compute_settings(const std::string& ini_path)
 {
+    if (ini_path.empty())
+        return;
+
     LOG_INFO << "Compute settings loaded from : " << ini_path;
 
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(ini_path, ptree);
 
-    load_image_rendering(ptree, cd);
-    load_view(ptree, cd);
-    load_composite(ptree, cd);
-    load_advanced(ptree, cd);
+    load_image_rendering(ptree, get_cd());
+    load_view(ptree, get_cd());
+    load_composite(ptree, get_cd());
+    load_advanced(ptree, get_cd());
 
-    after_load_checks(cd);
+    after_load_checks(get_cd());
 }
 
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
@@ -299,17 +304,20 @@ void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& 
     ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 }
 
-void save_compute_settings(const ComputeDescriptor& cd, const std::string& ini_path)
+void save_compute_settings(const std::string& ini_path)
 {
+    if (ini_path.empty())
+        return;
+
     boost::property_tree::ptree ptree;
 
-    save_image_rendering(ptree, cd);
-    save_view(ptree, cd);
-    save_composite(ptree, cd);
-    save_advanced(ptree, cd);
+    save_image_rendering(ptree, get_cd());
+    save_view(ptree, get_cd());
+    save_composite(ptree, get_cd());
+    save_advanced(ptree, get_cd());
 
     boost::property_tree::write_ini(ini_path, ptree);
 
     LOG_INFO << "Compute settings overwritten at : " << ini_path;
 }
-} // namespace holovibes::ini
+} // namespace holovibes::api

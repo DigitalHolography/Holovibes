@@ -101,6 +101,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         LOG_INFO << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
+        save_gui();
     }
 
     try
@@ -111,6 +112,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         LOG_INFO << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
+        api::save_compute_settings(holovibes::ini::default_compute_config_filepath);
     }
 
     // Display default values
@@ -279,14 +281,15 @@ void MainWindow::write_ini() { api::save_compute_settings(); }
 void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
-
-    if (!filename.isEmpty())
-        api::save_compute_settings(filename.toStdString());
+    api::save_compute_settings(filename.toStdString());
 }
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ui_->ImportPanel->import_stop();
+    // LOG_INFO << static_cast<int>(UserInterfaceDescriptor::instance().import_type_);
+
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
 
