@@ -29,11 +29,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const boost::property_tree::ptree& ptree) override;
     void save_gui(boost::property_tree::ptree& ptree) override;
 
-    /*! \brief Removes 2d filter on output display */
-    void cancel_filter2d();
-    /*! \brief Deactivates filter2d view */
-    void disable_filter2d_view();
-
     /*! \brief Set computation mode from ui value (Raw or Holographic) */
     void set_computation_mode();
 

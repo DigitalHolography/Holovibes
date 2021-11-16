@@ -532,23 +532,11 @@ void disable_raw_view();
  */
 void set_time_transformation_size(std::function<void()> callback);
 
-/*! \brief Removes 2d filter on output display */
-void cancel_filter2d();
-
 /*! \brief Enables or Disables fft shift mode on the main display window
  *
  * \param value true: enable, false: disable
  */
 void set_fft_shift(const bool value);
-
-/*! \brief Adds filter2d view
- *
- * \param auxiliary_window_max_size
- */
-void set_filter2d_view(uint auxiliary_window_max_size);
-
-/*! \brief Adds or removes filter 2d view */
-void disable_filter2d_view();
 
 /*! \brief Changes the focused windows
  *
@@ -556,8 +544,14 @@ void disable_filter2d_view();
  */
 void change_window(const int index);
 
-/*! \brief Deactivates filter2d view */
-void set_filter2d();
+/*! \brief Activates filter2d view */
+void set_filter2d(bool checked);
+
+/*! \brief Adds filter2d view
+ *
+ * \param auxiliary_window_max_size
+ */
+void set_filter2d_view(bool check, uint auxiliary_window_max_size);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *

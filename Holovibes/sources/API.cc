@@ -509,63 +509,65 @@ void toggle_renormalize(bool value)
     pipe_refresh();
 }
 
-void set_filter2d()
+void set_filter2d(bool checked)
 {
-    get_cd().set_filter2d_enabled(true);
+    get_cd().set_filter2d_enabled(checked);
 
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    if (checked)
     {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (get_cd().time_transformation_cuts_enabled)
+        if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
         {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
+            pipe->autocontrast_end_pipe(WindowKind::XYview);
+            if (get_cd().time_transformation_cuts_enabled)
+            {
+                pipe->autocontrast_end_pipe(WindowKind::XZview);
+                pipe->autocontrast_end_pipe(WindowKind::YZview);
+            }
+            if (get_cd().filter2d_view_enabled)
+                pipe->autocontrast_end_pipe(WindowKind::Filter2D);
         }
-        if (get_cd().filter2d_view_enabled)
-            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
 
-    pipe_refresh();
+        pipe_refresh();
+    }
 }
 
-void set_filter2d_view(uint auxiliary_window_max_size)
+void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
-    auto pipe = get_compute_pipe();
-    if (pipe)
+    if (checked)
     {
-        pipe->request_filter2d_view();
+        auto pipe = get_compute_pipe();
+        if (pipe)
+        {
+            pipe->request_filter2d_view();
 
-        // Wait for the filter2d view to be enabled for notify
-        while (pipe->get_filter2d_view_requested())
-            continue;
+            // Wait for the filter2d view to be enabled for notify
+            while (pipe->get_filter2d_view_requested())
+                continue;
 
-        const camera::FrameDescriptor& fd = get_fd();
-        ushort filter2d_window_width = fd.width;
-        ushort filter2d_window_height = fd.height;
-        get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
+            const camera::FrameDescriptor& fd = get_fd();
+            ushort filter2d_window_width = fd.width;
+            ushort filter2d_window_height = fd.height;
+            get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
 
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().filter2d_window.reset(
-            new gui::Filter2DWindow(pos,
-                                    QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get()));
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+            UserInterfaceDescriptor::instance().filter2d_window.reset(
+                new gui::Filter2DWindow(pos,
+                                        QSize(filter2d_window_width, filter2d_window_height),
+                                        pipe->get_filter2d_view_queue().get()));
 
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-        UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
+            UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+            UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
-        get_cd().set_log_scale_filter2d_enabled(true);
-        pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+            get_cd().set_log_scale_filter2d_enabled(true);
+            pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
+
+        pipe_refresh();
     }
-
-    pipe_refresh();
-}
-
-void disable_filter2d_view()
-{
-    if (UserInterfaceDescriptor::instance().filter2d_window)
+    else if (UserInterfaceDescriptor::instance().filter2d_window)
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
 
@@ -577,8 +579,6 @@ void disable_filter2d_view()
         pipe_refresh();
     }
 }
-
-void cancel_filter2d() { get_cd().set_filter2d_enabled(false); }
 
 void set_fft_shift(const bool value)
 {

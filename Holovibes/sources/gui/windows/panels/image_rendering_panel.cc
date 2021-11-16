@@ -214,10 +214,10 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::is_raw_mode())
         return;
 
+    api::set_filter2d(checked);
+
     if (checked)
     {
-        api::set_filter2d();
-
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
@@ -225,21 +225,6 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         set_filter2d_n1(ui_->Filter2DN1SpinBox->value());
     }
     else
-    {
-        cancel_filter2d();
-    }
-
-    parent_->notify();
-}
-
-void ImageRenderingPanel::cancel_filter2d()
-{
-    if (api::is_raw_mode())
-        return;
-
-    api::cancel_filter2d();
-
-    if (api::get_filter2d_view_enabled())
         update_filter2d_view(false);
 
     parent_->notify();
@@ -259,34 +244,19 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::is_raw_mode())
+    if (api::is_raw_mode() || checked == api::get_filter2d_view_enabled())
         return;
 
-    if (checked)
-    {
-        api::set_filter2d_view(parent_->auxiliary_window_max_size);
-    }
-    else
-    {
-        disable_filter2d_view();
-    }
+    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
 
-    parent_->notify();
-}
-
-void ImageRenderingPanel::disable_filter2d_view()
-{
-
-    if (UserInterfaceDescriptor::instance().filter2d_window)
+    if (!checked && UserInterfaceDescriptor::instance().filter2d_window)
     {
         // Remove the on triggered event
         disconnect(UserInterfaceDescriptor::instance().filter2d_window.get(),
                    SIGNAL(destroyed()),
                    this,
-                   SLOT(disable_filter2d_view()));
+                   SLOT(update_filter2d_view(false)));
     }
-
-    api::disable_filter2d_view();
 
     parent_->notify();
 }
