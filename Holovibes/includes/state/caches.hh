@@ -2,7 +2,8 @@
 
 #include "micro_cache.hh"
 
-namespace holovibes::caches
+namespace holovibes
 {
 NEW_MICRO_CACHE(BatchCache, (uint, batch_size));
-} // namespace holovibes::caches
+NEW_MICRO_CACHE(BatchCache, (uint, batch_size), (uint, time_transformation_size), (uint, time_transformation_stride));
+} // namespace holovibes

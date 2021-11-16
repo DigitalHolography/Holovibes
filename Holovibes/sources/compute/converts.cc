@@ -84,7 +84,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back([=]() {
         pmin_ = cd_.p.index;
         if (cd_.p.accu_enabled)
-            pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
+            pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(compute_cache.get_time_transformation_size())));
         else
             pmax_ = cd_.p.index;
     });
@@ -119,8 +119,8 @@ void Converts::insert_to_squaredmodulus()
 void Converts::insert_to_composite()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (!is_between<ushort>(cd_.rgb.p_min, 0, cd_.time_transformation_size) ||
-            !is_between<ushort>(cd_.rgb.p_max, 0, cd_.time_transformation_size))
+        if (!is_between<ushort>(cd_.rgb.p_min, 0, compute_cache.get_time_transformation_size()) ||
+            !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache.get_time_transformation_size()))
             return;
 
         if (cd_.composite_kind == CompositeKind::RGB)

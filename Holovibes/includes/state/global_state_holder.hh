@@ -42,7 +42,8 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-    entities::BatchQuery batch_query() const { return {batch_cache.get_batch_size()}; }
+    entities::BatchQuery batch_query() const { return {compute_cache.get_batch_size()}; }
+    entities::TimeTransformationSizeQuery time_transformation_size_query() const { return {compute_cache.get_time_transformation_size()}; }
 
     void batch_command(entities::BatchCommand cmd);
 
@@ -53,7 +54,8 @@ class GSH
   private:
     GSH() {}
 
-    caches::BatchCache::Ref batch_cache;
+    BatchCache::Ref batch_cache;
+	ComputeCache::Ref compute_cache;
 
     mutable std::mutex mutex_;
 };

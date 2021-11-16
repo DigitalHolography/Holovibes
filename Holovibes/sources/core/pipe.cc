@@ -205,7 +205,7 @@ bool Pipe::make_requests()
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(batch_cache.get_batch_size());
+        gpu_input_queue_.resize(compute_cache.get_batch_size());
         request_update_batch_size_ = false;
     }
 
@@ -411,7 +411,7 @@ void Pipe::insert_transfer_for_time_transformation()
     fn_compute_vect_.push_back([&]() {
         time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
             buffers_.gpu_spatial_transformation_buffer.get(),
-            batch_cache.get_batch_size(),
+            compute_cache.get_batch_size(),
             stream_);
     });
 }
@@ -419,7 +419,7 @@ void Pipe::insert_transfer_for_time_transformation()
 void Pipe::update_batch_index()
 {
     fn_compute_vect_.push_back([&]() {
-        batch_env_.batch_index += batch_cache.get_batch_size();
+        batch_env_.batch_index += compute_cache.get_batch_size();
         CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
     });
 }
@@ -433,7 +433,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        *processed_output_fps_ += batch_cache.get_batch_size();
+        *processed_output_fps_ += compute_cache.get_batch_size();
 
         // FIXME: It seems this enqueue is useless because the RawWindow use
         // the gpu input queue for display
@@ -528,7 +528,7 @@ void Pipe::insert_raw_record()
     if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.push_back([&]() {
-            gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, batch_cache.get_batch_size());
+            gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, compute_cache.get_batch_size());
         });
     }
 }
@@ -592,7 +592,7 @@ void Pipe::run_all()
     for (FnType& f : fn_compute_vect_)
         f();
 
-    batch_cache.synchronize();
+    compute_cache.synchronize();
 
     {
         std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);

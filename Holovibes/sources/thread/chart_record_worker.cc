@@ -21,7 +21,7 @@ void ChartRecordWorker::run()
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[#img : " << cd.time_transformation_size << ", p : " << cd.p.index << ", lambda : " << cd.lambda
+    of << "[#img : " << GSH::instance().time_transformation_size_query().value << ", p : " << cd.p.index << ", lambda : " << cd.lambda
        << ", z : " << cd.zdistance << "]" << std::endl;
 
     of << "["

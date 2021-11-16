@@ -104,7 +104,7 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
     cd.space_transformation = get_value(meta_data_, "algorithm", cd.space_transformation.load());
     cd.time_transformation = get_value(meta_data_, "time_filter", cd.time_transformation.load());
-    cd.time_transformation_size = get_value(meta_data_, "#img", cd.time_transformation_size.load());
+    GSH::instance().time_transformation_size_command({get_value(meta_data_, "#img", GSH::instance().time_transformation_size_query().value)});
     cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
     cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
