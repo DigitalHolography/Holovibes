@@ -244,6 +244,9 @@ void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     // To move in api function
     if (api::is_raw_mode())
         return;

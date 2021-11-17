@@ -550,9 +550,10 @@ void set_filter2d(bool checked);
 
 /*! \brief Adds filter2d view
  *
- * \param auxiliary_window_max_size
+ * \param auxiliary_window_max_size, default = 0; this default value is necessary when the value is loaded from
+ * ComputeSettings INI file.
  */
-void set_filter2d_view(bool check, uint auxiliary_window_max_size);
+void set_filter2d_view(bool check, uint auxiliary_window_max_size = 0);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *

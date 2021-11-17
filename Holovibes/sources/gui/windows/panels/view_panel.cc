@@ -174,6 +174,9 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::toggle_time_transformation_cuts(bool checked)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     QComboBox* winSelection = ui_->WindowSelectionComboBox;
     winSelection->setEnabled(checked);
     winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
@@ -240,6 +243,9 @@ void ViewPanel::set_fft_shift(const bool value)
 
 void ViewPanel::update_lens_view(bool value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     api::set_lens_view_enabled(value);
 
     if (value)
@@ -276,6 +282,8 @@ void ViewPanel::disable_lens_view()
 
 void ViewPanel::update_raw_view(bool value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
     if (value)
     {
