@@ -115,7 +115,7 @@ void ComputeDescriptor::set_accumulation_level(int value)
 
 void ComputeDescriptor::check_p_limits()
 {
-    int upper_bound = GSH::instance().time_transformation_size_query().value - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size().value - 1;
 
     if (p.accu_level > upper_bound)
         p.accu_level = upper_bound;
@@ -128,7 +128,7 @@ void ComputeDescriptor::check_p_limits()
 
 void ComputeDescriptor::check_q_limits()
 {
-    int upper_bound = GSH::instance().time_transformation_size_query().value - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size().value - 1;
 
     if (q.accu_level > upper_bound)
         q.accu_level = upper_bound;
@@ -170,7 +170,7 @@ void ComputeDescriptor::set_time_transformation_from_string(const std::string& v
 void ComputeDescriptor::handle_update_exception()
 {
     p.index = 0;
-    GSH::instance().time_transformation_size_command({1});
+    GSH::instance().set_time_transformation_size({1});
     convolution_enabled = false;
 }
 

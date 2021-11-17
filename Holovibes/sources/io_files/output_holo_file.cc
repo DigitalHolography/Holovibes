@@ -44,7 +44,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"algorithm", cd.space_transformation.load()},
                           {"time_filter", cd.time_transformation.load()},
 
-                          {"#img", GSH::instance().time_transformation_size_query().value},
+                          {"#img", GSH::instance().get_time_transformation_size().value},
                           {"p", cd.p.index.load()},
                           {"lambda", cd.lambda.load()},
                           {"pixel_size", cd.pixel_size.load()},

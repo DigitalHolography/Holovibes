@@ -11,51 +11,46 @@ GSH& GSH::instance()
     return instance_;
 }
 
-void GSH::batch_command(entities::BatchCommand cmd)
+void GSH::set_batch_size(uint value)
 {
-    if (cmd.value > Holovibes::instance().get_cd().input_buffer_size)
-        cmd.value = Holovibes::instance().get_cd().input_buffer_size.load();
+    if (value > Holovibes::instance().get_cd().input_buffer_size)
+        value = Holovibes::instance().get_cd().input_buffer_size.load();
 
-    if (compute_cache_.get_time_transformation_stride() < cmd.value)
-        compute_cache_.set_time_transformation_stride(cmd.value);
+    if (compute_cache_.get_time_transformation_stride() < value)
+        compute_cache_.set_time_transformation_stride(value);
     // Go to lower multiple
-    if (compute_cache_.get_time_transformation_stride() % cmd.value != 0)
+    if (compute_cache_.get_time_transformation_stride() % value != 0)
         compute_cache_.set_time_transformation_stride(compute_cache_.get_time_transformation_stride() -
-                                                      compute_cache_.get_time_transformation_stride() % cmd.value);
+                                                      compute_cache_.get_time_transformation_stride() % value);
 
-    compute_cache_.set_batch_size(cmd.value);
+    compute_cache_.set_batch_size(value);
 }
 
-void GSH::time_transformation_size_command(entities::TimeTransformationSizeCommand cmd)
+void GSH::set_time_transformation_size(uint value)
 {
     // FIXME: temporary fix due to ttsize change in pipe.make_request
     std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_transformation_size(cmd.value);
+    compute_cache_.set_time_transformation_size(value);
 }
 
-void GSH::time_transformation_stride_command(entities::TimeTransformationStrideCommand cmd)
+void GSH::set_time_tranformation_stride(uint value)
 {
     // cringe toi meme FIXME: temporary fix due to ttstride change in pipe.make_request
     // std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_transformation_stride(cmd.value);
+    compute_cache_.set_time_transformation_stride(value);
 
-    if (compute_cache_.get_batch_size() > cmd.value)
+    if (compute_cache_.get_batch_size() > value)
         compute_cache_.set_time_transformation_stride(compute_cache_.get_batch_size());
     // Go to lower multiple
-    if (cmd.value % compute_cache_.get_batch_size() != 0)
-        compute_cache_.set_time_transformation_stride(cmd.value - cmd.value % compute_cache_.get_batch_size());
+    if (value % compute_cache_.get_batch_size() != 0)
+        compute_cache_.set_time_transformation_stride(value - value % compute_cache_.get_batch_size());
 }
 
-entities::BatchQuery GSH::batch_query() const { return {compute_cache_.get_batch_size()}; }
-entities::TimeTransformationSizeQuery GSH::time_transformation_size_query() const
-{
-    return {compute_cache_.get_time_transformation_size()};
-}
+uint GSH::get_batch_size() const { return compute_cache_.get_batch_size(); }
 
-entities::TimeTransformationStrideQuery GSH::time_transformation_stride_query() const
-{
-    return {compute_cache_.get_time_transformation_stride()};
-}
+uint GSH::get_time_transformation_size() const { return compute_cache_.get_time_transformation_size(); }
+
+uint GSH::get_time_transformation_stride() const { return compute_cache_.get_time_transformation_stride(); }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
 {

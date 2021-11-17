@@ -195,7 +195,7 @@ bool Pipe::make_requests()
         {
             success_allocation = false;
             cd_.p.index = 0;
-            GSH::instance().time_transformation_size_command({1});
+            GSH::instance().set_time_transformation_size({1});
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
         }

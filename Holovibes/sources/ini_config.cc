@@ -143,7 +143,7 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.filter2d_n1 = cd.filter2d_n2 - 1;
     // TODO: Check convolution type if it  exists (when it will be added to cd)
 
-    uint time_transformation_size = GSH::instance().time_transformation_size_query().value;
+    uint time_transformation_size = GSH::instance().get_time_transformation_size().value;
 
     if (cd.p.index >= time_transformation_size)
         cd.p.index = 0;

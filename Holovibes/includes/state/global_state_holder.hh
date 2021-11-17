@@ -42,14 +42,14 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-    entities::BatchQuery batch_query() const;
-    entities::TimeTransformationSizeQuery time_transformation_size_query() const;
+    uint get_batch_size() const;
+    uint get_time_transformation_size() const;
 
-    entities::TimeTransformationStrideQuery time_transformation_stride_query() const;
+    uint get_time_transformation_stride() const;
 
-    void batch_command(entities::BatchCommand cmd);
-    void time_transformation_size_command(entities::TimeTransformationSizeCommand cmd);
-    void time_transformation_stride_command(entities::TimeTransformationStrideCommand cmd);
+    void set_batch_size(uint value);
+    void set_time_transformation_size(uint value);
+    void set_time_tranformation_stride(uint value);
 
     void load_ptree(const boost::property_tree::ptree& ptree);
 

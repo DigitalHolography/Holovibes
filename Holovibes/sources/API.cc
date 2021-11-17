@@ -25,8 +25,8 @@ bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     // Set the image rendering ui params
-    GSH::instance().time_transformation_stride_command({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
-    GSH::instance().batch_command({1});
+    GSH::instance().set_time_tranformation_stride({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
+    GSH::instance().set_batch_size({1});
 
     // Because we are in import mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
