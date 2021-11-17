@@ -847,34 +847,6 @@ void set_z(const double value)
     pipe_refresh();
 }
 
-void set_space_transformation(const std::string& value)
-{
-    if (value == "None")
-        get_cd().set_space_transformation(SpaceTransformation::None);
-    else if (value == "1FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT1);
-    else if (value == "2FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT2);
-    else
-    {
-        // Shouldn't happen
-        get_cd().set_space_transformation(SpaceTransformation::None);
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
-
-void set_time_transformation(const std::string& value)
-{
-    if (value == "STFT")
-        get_cd().set_time_transformation(TimeTransformation::STFT);
-    else if (value == "PCA")
-        get_cd().set_time_transformation(TimeTransformation::PCA);
-    else if (value == "None")
-        get_cd().set_time_transformation(TimeTransformation::NONE);
-    else if (value == "SSA_STFT")
-        get_cd().set_time_transformation(TimeTransformation::SSA_STFT);
-}
-
 void adapt_time_transformation_stride_to_batch_size()
 {
     if (get_cd().time_transformation_stride < get_cd().batch_size)
