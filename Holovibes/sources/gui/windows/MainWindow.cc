@@ -378,12 +378,6 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
-    // Weird call to setup none camera before changing
-    camera_none();
-
-    if (c == CameraKind::NONE)
-        return;
-
     const bool res = api::change_camera(c);
 
     if (res)
@@ -392,9 +386,10 @@ void MainWindow::change_camera(CameraKind c)
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
 
+        // TODO: Trigger callbacks of view (filter2d/raw/lens/3d_cuts)
+
         // Make camera's settings menu accessible
-        QAction* settings = ui_->actionSettings;
-        settings->setEnabled(true);
+        ui_->actionSettings->setEnabled(true);
 
         notify();
     }
@@ -402,7 +397,7 @@ void MainWindow::change_camera(CameraKind c)
 
 void MainWindow::camera_none()
 {
-    api::camera_none();
+    change_camera(CameraKind::NONE);
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);

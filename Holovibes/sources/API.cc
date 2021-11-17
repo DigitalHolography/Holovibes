@@ -162,6 +162,11 @@ void camera_none()
 
 bool change_camera(CameraKind c)
 {
+    camera_none();
+
+    if (c == CameraKind::NONE)
+        return false;
+
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
