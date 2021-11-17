@@ -22,36 +22,6 @@ void pipe_refresh()
     }
 }
 
-bool init_holovibes_import_mode(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
-{
-    // Because we are in import mode
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-
-    try
-    {
-
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               get_cd().get_input_buffer_size());
-        Holovibes::instance().start_file_frame_read(file_path,
-                                                    true,
-                                                    fps,
-                                                    static_cast<unsigned int>(first_frame - 1),
-                                                    static_cast<unsigned int>(last_frame - first_frame + 1),
-                                                    load_file_in_gpu);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-        Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
-        return false;
-    }
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    return true;
-}
-
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
 const std::string get_credits()
@@ -1283,6 +1253,8 @@ void import_stop()
 
     close_critical_compute();
 
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+
     get_cd().set_computation_stopped(true);
 }
 
@@ -1291,13 +1263,36 @@ bool import_start(
 {
     get_cd().set_computation_stopped(false);
 
-    // Gather all the usefull data from the ui import panel
-    bool res = init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
+    bool res = true;
 
-    if (res)
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+    // Because we are in file mode
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
 
-    return res;
+    try
+    {
+
+        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
+                                               get_cd().get_input_buffer_size());
+        Holovibes::instance().start_file_frame_read(file_path,
+                                                    true,
+                                                    fps,
+                                                    static_cast<unsigned int>(first_frame - 1),
+                                                    static_cast<unsigned int>(last_frame - first_frame + 1),
+                                                    load_file_in_gpu);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+        Holovibes::instance().stop_compute();
+        Holovibes::instance().stop_frame_read();
+        return false;
+    }
+
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+
+    return true;
 }
 
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)

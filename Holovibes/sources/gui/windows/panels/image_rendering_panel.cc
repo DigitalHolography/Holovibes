@@ -104,7 +104,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (mode == static_cast<int>(Computation::Raw)) // Raw
+    if (mode == static_cast<int>(Computation::Raw))
     {
         api::close_windows();
         parent_->notify();

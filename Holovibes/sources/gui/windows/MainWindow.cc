@@ -286,6 +286,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
+    // May be removed because it is the first call of import_start call just after.
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
