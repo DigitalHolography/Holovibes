@@ -37,6 +37,8 @@ void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api::is_raw_mode();
 
+    ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
+
     ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     ui_->TimeTransformationStrideSpinBox->setValue(api::get_time_transformation_stride());
@@ -107,11 +109,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (mode == static_cast<int>(Computation::Raw))
     {
         api::close_windows();
-        parent_->notify();
-        parent_->layout_toggled();
-
         api::close_critical_compute();
-        parent_->notify();
 
         if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
             return;
@@ -123,7 +121,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
     }
     else if (mode == static_cast<int>(Computation::Hologram))
     {
-
         // That function is used to reallocate the buffers since the Square
         // input mode could have changed
         /* Close windows & destory thread compute */
@@ -148,10 +145,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
         }
     }
 }
-
-void ImageRenderingPanel::set_raw_mode() {}
-
-void ImageRenderingPanel::set_holographic_mode() {}
 
 void ImageRenderingPanel::update_batch_size()
 {
@@ -224,22 +217,13 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    // To move in api function
     if (api::is_raw_mode())
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
 
-    if (!checked && UserInterfaceDescriptor::instance().filter2d_window)
-    {
-        // Remove the on triggered event
-        disconnect(UserInterfaceDescriptor::instance().filter2d_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(update_filter2d_view(false)));
-    }
-
-    parent_->notify();
+    if (checked)
+        connect(api::get_filter2d_window().get(), SIGNAL(destroyed()), this, SLOT(update_filter2d_view(false)));
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)

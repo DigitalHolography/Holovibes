@@ -7,9 +7,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_compute_mode(static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
 
-    cd.compute_mode = static_cast<Computation>(
-        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
-
     set_batch_size(ptree.get<ushort>("image_rendering.batch_size", cd.batch_size));
     set_time_transformation_stride(
         ptree.get<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride));
@@ -17,7 +14,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_filter2d(ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled));
     set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1));
     set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2));
-    set_filter2d_view(ptree.get<int>("image_rendering.filter2d_view_enabled", cd.filter2d_view_enabled));
 
     set_space_transformation(static_cast<SpaceTransformation>(
         ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()))));
@@ -43,14 +39,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     set_img_type(static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load()))));
     // Add unwrap_2d
     set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
-
-    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
-    {
-        set_time_transformation_cuts_enabled(
-            ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled));
-        set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled));
-        set_raw_view(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
-    }
 
     auto xypq_load = [&](const std::string name, View_Accu& view) {
         view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
@@ -157,6 +145,19 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 }
 
+void load_view_visibility(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
+{
+    // May just not be in compute_settings.ini because those are settings the user will be able to see
+    // if it checked the relevent checbox in the UI.
+    // Sets directly using cd because no need of the intern checks of the api function
+
+    get_cd().set_filter2d_view_enabled(
+        ptree.get<bool>("image_rendering.filter2d_view_enabled", cd.filter2d_view_enabled));
+    get_cd().set_3d_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled));
+    get_cd().set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled));
+    get_cd().set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
+}
+
 void after_load_checks(ComputeDescriptor& cd)
 {
     if (cd.filter2d_n1 >= cd.filter2d_n2)
@@ -186,6 +187,11 @@ void load_compute_settings(const std::string& ini_path)
     load_view(ptree, get_cd());
     load_composite(ptree, get_cd());
     load_advanced(ptree, get_cd());
+
+    // Currently not working.
+    // The app crash when one of the visibility is already set at when the app begins.
+    // Possible problem: Concurrency between maindisplay and the other displays
+    // load_view_visibility(ptree, get_cd());
 
     after_load_checks(get_cd());
 

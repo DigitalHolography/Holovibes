@@ -180,10 +180,8 @@ inline bool get_filter2d_enabled() { return get_cd().get_filter2d_enabled(); }
 inline bool get_filter2d_view_enabled() { return get_cd().get_filter2d_view_enabled(); }
 
 inline bool get_3d_cuts_view_enabled() { return get_cd().get_3d_cuts_view_enabled(); }
-inline void set_3d_cuts_view(bool value) { get_cd().set_3d_cuts_view(value); }
 
 inline bool get_lens_view_enabled() { return get_cd().get_lens_view_enabled(); }
-inline void set_lens_view(bool value) { return get_cd().set_lens_view(value); }
 
 inline bool get_chart_display_enabled() { return get_cd().get_chart_display_enabled(); }
 inline bool get_chart_record_enabled() { return get_cd().get_chart_record_enabled(); }

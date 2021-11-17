@@ -515,13 +515,10 @@ void stop_chart_display();
  *
  * \return std::optional<bool> false: on failure, true: on add
  */
-bool set_lens_view(uint auxiliary_window_max_size);
-
-/*! \brief Removes lens view */
-void disable_lens_view();
+bool set_lens_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Adds raw view */
-void set_raw_view(bool checked, uint auxiliary_window_max_size = 0);
+void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -546,10 +543,10 @@ void set_filter2d(bool checked);
 
 /*! \brief Adds filter2d view
  *
- * \param auxiliary_window_max_size, default = 0; this default value is necessary when the value is loaded from
+ * \param auxiliary_window_max_size
  * ComputeSettings INI file.
  */
-void set_filter2d_view(bool check, uint auxiliary_window_max_size = 0);
+void set_filter2d_view(bool check, uint auxiliary_window_max_size);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
@@ -562,7 +559,7 @@ void toggle_renormalize(bool value);
  * \return true on success
  * \return false on failure
  */
-bool toggle_time_transformation_cuts(uint time_transformation_size);
+bool set_3d_cuts_view(uint time_transformation_size);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -683,15 +680,12 @@ void open_advanced_settings();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
-
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();
-
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window();
-
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
+std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window();
 
 } // namespace holovibes::api
 

@@ -113,12 +113,6 @@ class ImageRenderingPanel : public Panel
     void set_divide_convolution(const bool value);
 
   private:
-    /*! \brief Changes display mode to Raw */
-    void set_raw_mode();
-
-    /*! \brief Changes display mode to Holographic */
-    void set_holographic_mode();
-
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 

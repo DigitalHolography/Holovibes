@@ -286,14 +286,15 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
+    ImportType it = UserInterfaceDescriptor::instance().import_type_;
     // May be removed because it is the first call of import_start call just after.
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
 
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+    if (it == ImportType::File)
         ui_->ImportPanel->import_start();
-    else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+    else if (it == ImportType::Camera)
         change_camera(UserInterfaceDescriptor::instance().kCamera);
 
     notify();

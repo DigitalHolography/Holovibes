@@ -3915,7 +3915,7 @@ p, li { white-space: pre-wrap; }
    <sender>TimeTransformationCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>toggle_time_transformation_cuts(bool)</slot>
+   <slot>update_3d_cuts_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>

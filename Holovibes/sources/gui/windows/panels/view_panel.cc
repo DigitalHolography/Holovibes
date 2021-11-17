@@ -172,38 +172,32 @@ void ViewPanel::set_unwrapping_2d(const bool value)
     parent_->notify();
 }
 
-void ViewPanel::toggle_time_transformation_cuts(bool checked)
+void ViewPanel::update_3d_cuts_view(bool checked)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    QComboBox* winSelection = ui_->WindowSelectionComboBox;
-    winSelection->setEnabled(checked);
-    winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-
-    if (!checked)
+    if (checked)
     {
-        cancel_time_transformation_cuts();
-        return;
+        const ushort nImg = api::get_time_transformation_size();
+        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
+
+        if (time_transformation_size > time_transformation_cuts_window_max_size)
+            time_transformation_size = time_transformation_cuts_window_max_size;
+
+        const bool res = api::set_3d_cuts_view(time_transformation_size);
+
+        if (res)
+        {
+            set_auto_contrast_cuts();
+            parent_->notify();
+        }
+        else
+            cancel_time_transformation_cuts();
     }
-
-    const ushort nImg = api::get_time_transformation_size();
-    uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-    if (time_transformation_size > time_transformation_cuts_window_max_size)
-        time_transformation_size = time_transformation_cuts_window_max_size;
-
-    const bool res = api::toggle_time_transformation_cuts(time_transformation_size);
-
-    if (res)
-    {
-        set_auto_contrast_cuts();
-        parent_->notify();
-    }
+    // FIXME: if slice are closed, cancel time should be call.
     else
-    {
         cancel_time_transformation_cuts();
-    }
 }
 
 void ViewPanel::cancel_time_transformation_cuts()
@@ -241,51 +235,23 @@ void ViewPanel::set_fft_shift(const bool value)
     api::pipe_refresh();
 }
 
-void ViewPanel::update_lens_view(bool value)
+void ViewPanel::update_lens_view(bool checked)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::set_lens_view(value);
+    const bool res = api::set_lens_view(checked, parent_->auxiliary_window_max_size);
 
-    if (value)
-    {
-        const bool res = api::set_lens_view(parent_->auxiliary_window_max_size);
-
-        if (res)
-        {
-            connect(UserInterfaceDescriptor::instance().lens_window.get(),
-                    SIGNAL(destroyed()),
-                    this,
-                    SLOT(disable_lens_view()));
-        }
-    }
-    else
-    {
-        disable_lens_view();
-    }
-
-    api::pipe_refresh();
+    if (checked && res)
+        connect(api::get_lens_window().get(), SIGNAL(destroyed()), parent_, SLOT(update_lens_view(false)));
 }
 
-void ViewPanel::disable_lens_view()
-{
-    if (UserInterfaceDescriptor::instance().lens_window)
-        disconnect(UserInterfaceDescriptor::instance().lens_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(disable_lens_view()));
-
-    api::disable_lens_view();
-    parent_->notify();
-}
-
-void ViewPanel::update_raw_view(bool value)
+void ViewPanel::update_raw_view(bool checked)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (value)
+    if (checked)
     {
         if (api::get_batch_size() > api::get_output_buffer_size())
         {
@@ -293,21 +259,14 @@ void ViewPanel::update_raw_view(bool value)
             return;
         }
 
-        api::set_raw_view(true, parent_->auxiliary_window_max_size);
-        connect(api::get_raw_window().get(), SIGNAL(destroyed()), this, SLOT(update_raw_view(false)));
-    }
-    else
-    {
-        if (UserInterfaceDescriptor::instance().raw_window)
-            disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
-                       SIGNAL(destroyed()),
-                       this,
-                       SLOT(update_raw_view(false)));
+        api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 
-        api::set_raw_view(false);
-
-        parent_->notify();
+        connect(api::get_raw_window().get(), SIGNAL(destroyed()), parent_, SLOT(update_raw_view(false)));
     }
+    else if (UserInterfaceDescriptor::instance().raw_window != nullptr)
+        api::set_raw_view(checked, 0);
+
+    parent_->notify();
 }
 
 void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }

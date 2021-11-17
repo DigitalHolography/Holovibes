@@ -164,11 +164,11 @@ void ImportPanel::import_start()
 
         parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
 
-        // Trigger view callbacks
+        // Trigger views callbacks
         // parent_->ui_->ImageRenderingPanel->update_filter2d_view(api::get_filter2d_view_enabled());
         // parent_->ui_->ViewPanel->update_lens_view(api::get_lens_view_enabled());
         // parent_->ui_->ViewPanel->update_raw_view(api::get_raw_view_enabled());
-        // parent_->ui_->ViewPanel->toggle_time_transformation_cuts(api::get_3d_cuts_view_enabled());
+        // parent_->ui_->ViewPanel->update_3d_cuts_view(api::get_3d_cuts_view_enabled());
 
         parent_->notify();
     }
