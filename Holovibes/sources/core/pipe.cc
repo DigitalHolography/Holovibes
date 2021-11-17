@@ -217,10 +217,10 @@ bool Pipe::make_requests()
 
     image_accumulation_->init(); // done only if requested
 
-    if (request_clear_img_acc_)
+    if (request_clear_img_accu)
     {
         image_accumulation_->clear();
-        request_clear_img_acc_ = false;
+        request_clear_img_accu = false;
     }
 
     if (raw_view_requested_)

@@ -107,11 +107,6 @@ class ViewPanel : public Panel
      */
     void set_log_scale(bool value);
 
-    /*! \brief Enables or Disables accumulation for the current window
-     *
-     * \param value true: enable, false: disable
-     */
-    void set_accumulation(bool value);
     /*! \brief Modifies the accumulation level on the current window
      *
      * \param value The new level value

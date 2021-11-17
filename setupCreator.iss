@@ -9,6 +9,7 @@
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
+#define MyLicense "LICENSE"
 
 #define QtPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\bin"
 #define QtPlatformPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\plugins\platforms"
@@ -32,6 +33,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
+LicenseFile={#MyLicense}
 OutputBaseFilename=holovibes_setup_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
@@ -41,6 +43,7 @@ UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
 UninstallFilesDir={app}\{#MyAppVersion}
 SetupIconFile="{#BuildDir}\Holovibes.ico"
 ChangesAssociations=yes
+UsePreviousAppDir=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

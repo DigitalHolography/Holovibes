@@ -257,8 +257,8 @@ void FourierTransform::insert_ssa_stft()
 
         // filter eigen vectors
         // only keep vectors between q and q + q_acc
-        int q = cd_.q.accu_enabled ? cd_.q.index.load() : 0;
-        int q_acc = cd_.q.accu_enabled ? cd_.q.accu_level.load() : cd_.time_transformation_size.load();
+        int q = cd_.q.index.load();
+        int q_acc = q != 0 ? cd_.q.accu_level.load() : cd_.time_transformation_size.load();
         int q_index = q * cd_.time_transformation_size;
         int q_acc_index = q_acc * cd_.time_transformation_size;
         cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
@@ -327,13 +327,13 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            buffers_.gpu_postprocess_frame_yz.get(),
                                            mouse_posx,
                                            mouse_posy,
-                                           mouse_posx + (cd_.x.accu_enabled ? cd_.x.accu_level.load() : 0),
-                                           mouse_posy + (cd_.y.accu_enabled ? cd_.y.accu_level.load() : 0),
+                                           mouse_posx + cd_.x.accu_level.load(),
+                                           mouse_posy + cd_.y.accu_level.load(),
                                            width,
                                            height,
                                            cd_.time_transformation_size,
-                                           cd_.xz.img_accu_slice_enabled ? cd_.xz.img_accu_slice_level.load() : 1,
-                                           cd_.yz.img_accu_slice_enabled ? cd_.yz.img_accu_slice_level.load() : 1,
+                                           cd_.xz.img_accu_level.load(),
+                                           cd_.yz.img_accu_level.load(),
                                            cd_.img_type.load(),
                                            stream_);
         }

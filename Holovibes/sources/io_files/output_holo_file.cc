@@ -52,23 +52,17 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
 
                           {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 
-                          {"x_acc_enabled", cd.x.accu_enabled.load()},
                           {"x_acc_level", cd.x.accu_level.load()},
-                          {"y_acc_enabled", cd.y.accu_enabled.load()},
                           {"y_acc_level", cd.y.accu_level.load()},
-                          {"p_acc_enabled", cd.p.accu_enabled.load()},
                           {"p_acc_level", cd.p.accu_level.load()},
 
                           {"log_scale", cd.xy.log_scale_slice_enabled.load()},
                           {"contrast_min", cd.xy.contrast_min.load()},
                           {"contrast_max", cd.xy.contrast_max.load()},
 
-                          {"img_acc_slice_xy_enabled", cd.xy.img_accu_slice_enabled.load()},
-                          {"img_acc_slice_xz_enabled", cd.xz.img_accu_slice_enabled.load()},
-                          {"img_acc_slice_yz_enabled", cd.yz.img_accu_slice_enabled.load()},
-                          {"img_acc_slice_xy_level", cd.xy.img_accu_slice_level.load()},
-                          {"img_acc_slice_xz_level", cd.xz.img_accu_slice_level.load()},
-                          {"img_acc_slice_yz_level", cd.yz.img_accu_slice_level.load()},
+                          {"img_acc_slice_xy_level", cd.xy.img_accu_level.load()},
+                          {"img_acc_slice_xz_level", cd.xz.img_accu_level.load()},
+                          {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }
