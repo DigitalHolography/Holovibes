@@ -4,6 +4,7 @@
 #endif
 #include <cuda_gl_interop.h>
 
+#include "API.hh"
 #include "texture_update.cuh"
 #include "Filter2DWindow.hh"
 #include "MainWindow.hh"
@@ -13,8 +14,8 @@ namespace holovibes
 {
 namespace gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q)
-    : BasicOpenGLWindow(p, s, cd, q, KindOfView::Filter2D)
+Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
+    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
 {
     setMinimumSize(s);
     show();
@@ -144,7 +145,7 @@ void Filter2DWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / cd_->display_rate);
+    startTimer(1000 / api::get_cd().display_rate);
 }
 
 void Filter2DWindow::paintGL()
@@ -176,11 +177,8 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    if (cd_)
-    {
-        cd_->change_window(static_cast<int>(WindowKind::Filter2D));
-        cd_->notify_observers();
-    }
+    api::get_cd().change_window(static_cast<int>(WindowKind::Filter2D));
+    api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes

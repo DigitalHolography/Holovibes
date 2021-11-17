@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "signal_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -14,7 +15,7 @@ SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
 void SignalOverlay::release(ushort frameSide)
 {
     if (parent_->getKindOfView() == KindOfView::Hologram)
-        parent_->getCd()->signalZone(zone_, AccessMode::Set);
+        api::get_cd().signalZone(zone_, AccessMode::Set);
 }
 } // namespace gui
 } // namespace holovibes

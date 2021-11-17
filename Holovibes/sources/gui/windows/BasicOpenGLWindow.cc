@@ -18,13 +18,12 @@ namespace holovibes
 using camera::FrameDescriptor;
 namespace gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
     , winPos(p)
     , output_(q)
-    , cd_(cd)
     , fd_(q->get_fd())
     , kView(k)
     , translate_(0.f, 0.f, 0.f, 0.f)
@@ -73,10 +72,6 @@ BasicOpenGLWindow::~BasicOpenGLWindow()
 const KindOfView BasicOpenGLWindow::getKindOfView() const { return kView; }
 
 const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const { return overlay_manager_.getKind(); }
-
-ComputeDescriptor* BasicOpenGLWindow::getCd() { return cd_; }
-
-const ComputeDescriptor* BasicOpenGLWindow::getCd() const { return cd_; }
 
 const FrameDescriptor& BasicOpenGLWindow::getFd() const { return fd_; }
 

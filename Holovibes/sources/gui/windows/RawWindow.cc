@@ -9,6 +9,7 @@
 #include <QScreen>
 #include <QWheelEvent>
 
+#include "API.hh"
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "cuda_memory.cuh"
@@ -21,8 +22,8 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, cd, q, k)
+RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {
@@ -155,7 +156,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / cd_->display_rate);
+    startTimer(1000 / api::get_cd().display_rate);
 }
 
 /* This part of code makes a resizing of the window displaying image to
@@ -171,8 +172,9 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((cd_->compute_mode == Computation::Hologram && cd_->space_transformation == SpaceTransformation::None) ||
-        cd_->compute_mode == Computation::Raw)
+    if ((api::get_cd().compute_mode == Computation::Hologram &&
+         api::get_cd().space_transformation == SpaceTransformation::None) ||
+        api::get_cd().compute_mode == Computation::Raw)
     {
         if (w != old_width)
         {
@@ -251,13 +253,13 @@ void RawWindow::paintGL()
     void* frame = output_->get_last_image();
 
     // Put the frame inside the cuda ressrouce
-    if (cd_->img_type == ImgType::Composite)
+    if (api::get_cd().img_type == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
     else
     {
-        ushort bitshift = kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
+        ushort bitshift = kView == KindOfView::Raw ? api::get_cd().raw_bitshift.load() : 0;
         convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, bitshift, cuStream);
     }
 

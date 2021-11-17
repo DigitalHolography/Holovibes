@@ -184,7 +184,6 @@ class MainWindow : public QMainWindow, public Observer
 #pragma region Fields
 
     Ui::MainWindow* ui_;
-    // ComputeDescriptor& cd_;
     std::vector<Panel*> panels_;
 
     // Additional attributes

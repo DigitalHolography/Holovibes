@@ -4,6 +4,7 @@
 #endif
 #include <cuda_gl_interop.h>
 
+#include "API.hh"
 #include "texture_update.cuh"
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
@@ -13,8 +14,8 @@ namespace holovibes
 {
 namespace gui
 {
-SliceWindow::SliceWindow(QPoint p, QSize s, ComputeDescriptor* cd, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, cd, q, k)
+SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
 {
@@ -34,7 +35,7 @@ void SliceWindow::initShaders()
     Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
     Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
-    if (cd_->img_type == ImgType::Composite)
+    if (api::get_cd().img_type == ImgType::Composite)
         overlay_manager_.create_overlay<Rainbow>();
     else
         overlay_manager_.create_default();
@@ -146,7 +147,7 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / cd_->display_rate);
+    startTimer(1000 / api::get_cd().display_rate);
 }
 
 void SliceWindow::paintGL()
@@ -193,11 +194,9 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    if (cd_)
-    {
-        cd_->change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
-        cd_->notify_observers();
-    }
+    api::get_cd().change_window(
+        static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+    api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes

@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "API.hh"
 #include "HoloWindow.hh"
 #include "MainWindow.hh"
 #include "SliceWindow.hh"
@@ -11,12 +12,11 @@ namespace gui
 {
 HoloWindow::HoloWindow(QPoint p,
                        QSize s,
-                       ComputeDescriptor* cd,
                        DisplayQueue* q,
                        SharedPipe ic,
                        std::unique_ptr<SliceWindow>& xz,
                        std::unique_ptr<SliceWindow>& yz)
-    : RawWindow(p, s, cd, q, KindOfView::Hologram)
+    : RawWindow(p, s, q, KindOfView::Hologram)
     , Ic(ic)
     , xz_slice_(xz)
     , yz_slice_(yz)
@@ -39,8 +39,8 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    cd_->change_window(static_cast<int>(WindowKind::XYview));
-    cd_->notify_observers();
+    api::get_cd().change_window(static_cast<int>(WindowKind::XYview));
+    api::get_cd().notify_observers();
 }
 
 void HoloWindow::update_slice_transforms()
