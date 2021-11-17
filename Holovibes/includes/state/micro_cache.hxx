@@ -18,69 +18,67 @@
  *
  * At compile time, it will expand to:
  *
- *  struct ExampleCache : public MicroCache
+ *  struct ExampleCache
  *  {
- *    friend class GSH;
- *    private:
- *      struct a_t
- *      {
- *          int obj;
- *          volatile bool to_update = nullptr;
- *      };
- *      a_t a;
+ *      using ref_t = Ref;
+ *      using cache_t = Cache;
  *
- *      void set_a(const int& _val)
+ *      struct Ref : MicroCache
  *      {
- *          a.obj = _val;
- *          trigger_a();
- *      }
+ *          Ref() { cache_truth<ref_t> = this; }
+ *          ~Ref() { cache_truth<ref_t> = nullptr; }
  *
- *      int &get_a_ref() noexcept { return a.obj; }
- *
- *      void trigger_a()
- *      {
- *          for (MicroCache * cache : micro_caches_)
+ *          void set_a(int _val)
  *          {
- *              for (ExampleCache cache : micro_caches<ExampleCache>)
- *                  cache->a.to_update = true;
+ *               a = _val;
+ *               trigger_a();
  *          }
- *      }
  *
- *    public:
- *      const int& get_a() const noexpect { return a.obj; }
+ *          int &get_a() noexcept { return a; }
+ *          int get_a() noexcept const { return a; }
  *
- *    ExampleCache(bool truth = false)
- *      : MicroCache(truth)
- *    {
- *        if (truth)
- *        {
- *            cache_truth<ExampleCache> = this;
- *            return;
- *        }
+ *          void trigger_a()
+ *          {
+ *              for (MicroCache * cache : micro_caches_)
+ *              {
+ *                  for (ExampleCache cache : micro_caches<cache_t>)
+ *                      cache->a.to_update = true;
+ *              }
+ *          }
+ *        private:
+ *          int a;
+ *      };
  *
- *        assert(cache_truth<ExampleCache> != nullptr);
- *        a.obj = cache_truth<ExampleCache>.a.obj;
- *        a.to_update = false;
- *        micro_caches<ExampleCache>.insert(this);
- *    }
+ *      struct Cache
+ *      {
+ *          Cache()
+ *          {
+ *              a.obj = cache_truth<ref_t>.a.obj;
+ *              a.to_update = false;
+ *              micro_caches<cache_t>.insert(this);
+ *          }
  *
- *    ~ExampleCache()
- *    {
- *        if (truth_)
- *            cache_truth<ExampleCache> = nullptr;
- *        else
- *            micro_caches.erase(this);
- *    }
+ *          ~Cache() { micro_caches<cache_t>.erase(this); }
  *
- *    void synchronize() override
- *    {
-          assert(cache_truth<ExampleCache> != this);
- *        if (a.to_update)
- *        {
- *            a.obj = cache_truth<ExampleCache>.a.obj;
- *            a.to_update = false;
- *        }
- *    }
+ *          int get_a() noexcept const { return a.obj; }
+ *
+ *          void synchronize() noexcept
+ *          {
+ *              if (a.to_update)
+ *              {
+ *                  a.obj = cache_truth<ref_t>.a.obj;
+ *                  a.to_update = false;
+ *              }
+ *          }
+ *
+ *        private:
+ *          struct a_t
+ *          {
+ *              int obj;
+ *              volatile bool to_update = nullptr;
+ *          };
+ *          a_t a;
+ *      };
  *  };
  *
  *  Note: for complex type parameters with commas in template parameters please use a 'using' directive

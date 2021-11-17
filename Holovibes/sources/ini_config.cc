@@ -7,11 +7,7 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 {
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
-    cd.time_transformation_stride =
-        ptree.get<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
     cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
-    cd.filter2d_n1 = ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1);
-    cd.filter2d_n2 = ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
     cd.space_transformation = static_cast<SpaceTransformation>(
         ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load())));
     cd.time_transformation = static_cast<TimeTransformation>(
@@ -147,7 +143,7 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.filter2d_n1 = cd.filter2d_n2 - 1;
     // TODO: Check convolution type if it  exists (when it will be added to cd)
 
-	uint time_transformation_size = GSH::instance().time_transformation_size_query().value;
+    uint time_transformation_size = GSH::instance().time_transformation_size_query().value;
 
     if (cd.p.index >= time_transformation_size)
         cd.p.index = 0;
@@ -177,7 +173,6 @@ void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
-    ptree.put<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
     ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
     ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());

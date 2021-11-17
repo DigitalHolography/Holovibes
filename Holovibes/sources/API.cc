@@ -8,7 +8,7 @@ void open_file(const std::string& path) { QDesktopServices::openUrl(QUrl::fromLo
 
 void pipe_refresh()
 {
-    if (is_raw_mode())
+    if (get_compute_mode() == Computation::Raw)
         return;
 
     try
@@ -25,8 +25,7 @@ bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     // Set the image rendering ui params
-    get_cd().set_time_transformation_stride(std::ceil(static_cast<float>(fps) / 20.0f));
-
+    GSH::instance().time_transformation_stride_command({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
     GSH::instance().batch_command({1});
 
     // Because we are in import mode
@@ -109,8 +108,6 @@ const std::string get_credits()
 
            "Michael Atlan\n";
 }
-
-bool is_raw_mode() { return get_cd().get_compute_mode() == Computation::Raw; }
 
 bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
 
@@ -202,7 +199,7 @@ void camera_none()
 {
     close_windows();
     close_critical_compute();
-    if (!is_raw_mode())
+    if (get_compute_mode() == Computation::Raw)
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
@@ -221,7 +218,7 @@ bool change_camera(CameraKind c, const Computation computation)
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        if (!is_raw_mode())
+        if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
@@ -875,16 +872,6 @@ void set_time_transformation(const std::string& value)
         get_cd().set_time_transformation(TimeTransformation::NONE);
     else if (value == "SSA_STFT")
         get_cd().set_time_transformation(TimeTransformation::SSA_STFT);
-}
-
-void adapt_time_transformation_stride_to_batch_size()
-{
-    if (get_cd().time_transformation_stride < get_batch_size())
-        get_cd().set_time_transformation_stride(get_batch_size());
-    // Go to lower multiple
-    if (get_cd().time_transformation_stride % get_batch_size() != 0)
-        get_cd().set_time_transformation_stride(get_cd().time_transformation_stride -
-                                                get_cd().time_transformation_stride % get_batch_size());
 }
 
 void set_unwrapping_2d(const bool value)

@@ -33,7 +33,7 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 
 void ImageRenderingPanel::on_notify()
 {
-    const bool is_raw = api::is_raw_mode();
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
@@ -171,7 +171,7 @@ void ImageRenderingPanel::set_computation_mode()
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -188,7 +188,7 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
@@ -198,7 +198,6 @@ void ImageRenderingPanel::update_time_transformation_stride()
 
     auto callback = [=]() {
         api::set_time_transformation_stride(time_transformation_stride);
-        api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
@@ -211,7 +210,7 @@ void ImageRenderingPanel::update_time_transformation_stride()
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (checked)
@@ -234,7 +233,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
 
 void ImageRenderingPanel::cancel_filter2d()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::cancel_filter2d();
@@ -259,7 +258,7 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (checked)
@@ -293,7 +292,7 @@ void ImageRenderingPanel::disable_filter2d_view()
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_space_transformation(value.toStdString());
@@ -303,7 +302,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_time_transformation(value.toStdString());
@@ -313,7 +312,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
@@ -337,7 +336,7 @@ void ImageRenderingPanel::set_time_transformation_size()
 
 void ImageRenderingPanel::set_wavelength(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_wavelength(value);
@@ -345,7 +344,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
 
 void ImageRenderingPanel::set_z(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_z(value);
@@ -353,7 +352,7 @@ void ImageRenderingPanel::set_z(const double value)
 
 void ImageRenderingPanel::increment_z()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     set_z(api::get_zdistance() + z_step_);
@@ -362,7 +361,7 @@ void ImageRenderingPanel::increment_z()
 
 void ImageRenderingPanel::decrement_z()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     set_z(api::get_zdistance() - z_step_);

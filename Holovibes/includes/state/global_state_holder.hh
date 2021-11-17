@@ -42,13 +42,14 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-    entities::BatchQuery batch_query() const { return {compute_cache.get_batch_size()}; }
-    entities::TimeTransformationSizeQuery time_transformation_size_query() const
-    {
-        return {compute_cache.get_time_transformation_size()};
-    }
+    entities::BatchQuery batch_query() const;
+    entities::TimeTransformationSizeQuery time_transformation_size_query() const;
+
+    entities::TimeTransformationStrideQuery time_transformation_stride_query() const;
 
     void batch_command(entities::BatchCommand cmd);
+    void time_transformation_size_command(entities::TimeTransformationSizeCommand cmd);
+    void time_transformation_stride_command(entities::TimeTransformationStrideCommand cmd);
 
     void load_ptree(const boost::property_tree::ptree& ptree);
 
@@ -57,8 +58,8 @@ class GSH
   private:
     GSH() {}
 
-    BatchCache::Ref batch_cache;
-    ComputeCache::Ref compute_cache;
+    ComputeCache::Ref compute_cache_;
+    Filter2DCache::Ref filter2d_cache_;
 
     mutable std::mutex mutex_;
 };

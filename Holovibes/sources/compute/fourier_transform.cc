@@ -33,7 +33,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const holovibes::BatchEnv& batch_env,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
-                                   ComputeCache compute_cache_)
+                                   ComputeCache::Cache& compute_cache_)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -45,7 +45,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
-    , compute_cache__(compute_cache_)
+    , compute_cache_(compute_cache_)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -262,8 +262,8 @@ void FourierTransform::insert_ssa_stft()
 
         // filter eigen vectors
         // only keep vectors between q and q + q_acc
-        int q = cd_.q.accu_enabled ? cd_.q.index.load() : 0;
-        int q_acc = cd_.q.accu_enabled ? cd_.q.accu_level.load() : time_transformation_size;
+        int q = cd_.q.accu_level != 0 ? cd_.q.index.load() : 0;
+        int q_acc = cd_.q.accu_level != 0 ? cd_.q.accu_level.load() : time_transformation_size;
         int q_index = q * time_transformation_size;
         int q_acc_index = q_acc * time_transformation_size;
         cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);

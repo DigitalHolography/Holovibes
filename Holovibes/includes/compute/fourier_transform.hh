@@ -12,6 +12,7 @@
 #include "cuda_tools\array.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -39,7 +40,7 @@ class FourierTransform
                      const BatchEnv& batch_env,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
-                     holovibes::ComputeCache& compute_cache);
+                     holovibes::ComputeCache::Cache& compute_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft();
@@ -116,7 +117,7 @@ class FourierTransform
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    ComputeCache& compute_cache_;
+    ComputeCache::Cache& compute_cache_;
 };
 } // namespace compute
 } // namespace holovibes

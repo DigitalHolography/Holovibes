@@ -131,18 +131,6 @@ class ComputeDescriptor : public Observable
     inline WindowKind get_current_window() const { return current_window; }
     inline void set_current_window(WindowKind current_window) { this->current_window = current_window; }
 
-    inline uint get_time_transformation_stride() const { return time_transformation_stride; }
-    inline void set_time_transformation_stride(uint time_transformation_stride)
-    {
-        this->time_transformation_stride = time_transformation_stride;
-    }
-
-    inline uint get_time_transformation_size() const { return time_transformation_size; }
-    inline void set_time_transformation_size(uint time_transformation_size)
-    {
-        this->time_transformation_size = time_transformation_size;
-    }
-
     inline float get_lambda() const { return lambda; }
     inline void set_lambda(float lambda) { this->lambda = lambda; }
 
@@ -619,8 +607,6 @@ class ComputeDescriptor : public Observable
     // Image rendering
     /*! \brief Mode of computation of the image */
     std::atomic<Computation> compute_mode{Computation::Raw};
-    /*! \brief Number of pipe iterations between two time transformations (STFT/PCA) */
-    std::atomic<uint> time_transformation_stride{1};
     /*! \brief Enables filter 2D */
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
@@ -634,9 +620,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Time transformation to apply in hologram mode */
     std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
 
-    // /*! \brief Number of images used by the time transformation */
-    // std::atomic<uint> time_transformation_size{1};
-	
     /*! \brief Wave length of the laser */
     std::atomic<float> lambda{852e-9f};
     /*! \brief z value used by fresnel transform */

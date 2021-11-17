@@ -73,12 +73,6 @@ int get_gpu_input_queue_fd_height();
  */
 float get_boundary();
 
-/*! \brief Checks if we are currently in raw mode
- *
- * \return true if we are in raw mode, false otherwise
- */
-bool is_raw_mode();
-
 /*! \brief Checks if we have an input queue
  *
  * \return true on success
@@ -592,9 +586,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
  * \param batch_size the new value
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
-
-/*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
-void adapt_time_transformation_stride_to_batch_size();
 
 /*! \brief Modifies view image type
  *

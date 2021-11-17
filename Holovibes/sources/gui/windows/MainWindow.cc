@@ -207,7 +207,8 @@ void MainWindow::on_notify()
         ui_->ExportPanel->setEnabled(true);
     }
 
-    ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
+                                   (api::get_cd().img_type != ImgType::Composite));
 }
 
 void MainWindow::notify_error(const std::exception& e)
@@ -486,8 +487,11 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
+    {
+        LOG_ERROR << "Cannot set view image type in raw mode";
         return;
+    }
 
     const std::string& str = value.toStdString();
 

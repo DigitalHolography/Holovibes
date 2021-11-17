@@ -22,13 +22,15 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      const CoreBuffersEnv& buffers,
                                      const camera::FrameDescriptor& fd,
                                      const holovibes::ComputeDescriptor& cd,
-                                     const cudaStream_t& stream)
+                                     const cudaStream_t& stream,
+                                     ComputeCache::Cache& compute_cache)
     : fn_compute_vect_(fn_compute_vect)
     , image_acc_env_(image_acc_env)
     , buffers_(buffers)
     , fd_(fd)
     , cd_(cd)
     , stream_(stream)
+    , compute_cache_(compute_cache)
 {
 }
 
@@ -75,7 +77,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.height = compute_cache.get_time_transformation_size();
+        new_fd.height = compute_cache_.get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
                                     cd_.xz.img_accu_level,
@@ -87,7 +89,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.width = compute_cache.get_time_transformation_size();
+        new_fd.width = compute_cache_.get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
                                     cd_.yz.img_accu_level,

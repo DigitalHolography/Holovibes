@@ -11,6 +11,7 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -42,7 +43,8 @@ class Rendering
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               ICompute* Ic,
-              const cudaStream_t& stream);
+              const cudaStream_t& stream,
+              ComputeCache::Cache& compute_cache);
 
     ~Rendering();
 
@@ -103,6 +105,8 @@ class Rendering
     ICompute* Ic_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
+
+    ComputeCache::Cache& compute_cache_;
 
     float* percent_min_max_;
 };

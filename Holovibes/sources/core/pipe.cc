@@ -31,7 +31,9 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
     : ICompute(input, output, desc, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
-    ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_transformation_stride; };
+    ConditionType batch_condition = [&]() -> bool {
+        return batch_env_.batch_index == compute_cache_.get_time_transformation_stride();
+    };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
     fn_end_vect_ = FunctionVector(batch_condition);
@@ -41,7 +43,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                        buffers_,
                                                                        input.get_fd(),
                                                                        desc,
-                                                                       stream_);
+                                                                       stream_,
+                                                                       compute_cache_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                       buffers_,
                                                                       input.get_fd(),
@@ -49,7 +52,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                       spatial_transformation_plan_,
                                                                       batch_env_,
                                                                       time_transformation_env_,
-                                                                      stream_);
+                                                                      stream_,
+                                                                      compute_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -59,7 +63,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       input.get_fd(),
                                                       output.get_fd(),
                                                       this,
-                                                      stream_);
+                                                      stream_,
+                                                      compute_cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     batch_env_,
@@ -68,7 +73,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     desc,
                                                     input.get_fd(),
                                                     output.get_fd(),
-                                                    stream_);
+                                                    stream_,
+                                                    compute_cache_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
 
     *processed_output_fps_ = 0;
@@ -185,11 +191,11 @@ bool Pipe::make_requests()
     // Updating number of images
     if (update_time_transformation_size_requested_)
     {
-        if (!update_time_transformation_size(cd_.time_transformation_size))
+        if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
         {
             success_allocation = false;
             cd_.p.index = 0;
-            cd_.time_transformation_size = 1;
+            GSH::instance().time_transformation_size_command({1});
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
         }
@@ -199,13 +205,14 @@ bool Pipe::make_requests()
     if (request_update_time_transformation_stride_)
     {
         batch_env_.batch_index = 0;
+        LOG_DEBUG << "reset batch_index";
         request_update_time_transformation_stride_ = false;
     }
 
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(compute_cache.get_batch_size());
+        gpu_input_queue_.resize(compute_cache_.get_batch_size());
         request_update_batch_size_ = false;
     }
 
@@ -403,7 +410,10 @@ void Pipe::insert_wait_frames()
 
 void Pipe::insert_reset_batch_index()
 {
-    fn_compute_vect_.conditional_push_back([&]() { batch_env_.batch_index = 0; });
+    fn_compute_vect_.conditional_push_back([&]() {
+        LOG_DEBUG << "reset batch_index";
+        batch_env_.batch_index = 0;
+    });
 }
 
 void Pipe::insert_transfer_for_time_transformation()
@@ -411,7 +421,7 @@ void Pipe::insert_transfer_for_time_transformation()
     fn_compute_vect_.push_back([&]() {
         time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
             buffers_.gpu_spatial_transformation_buffer.get(),
-            compute_cache.get_batch_size(),
+            compute_cache_.get_batch_size(),
             stream_);
     });
 }
@@ -419,8 +429,9 @@ void Pipe::insert_transfer_for_time_transformation()
 void Pipe::update_batch_index()
 {
     fn_compute_vect_.push_back([&]() {
-        batch_env_.batch_index += compute_cache.get_batch_size();
-        CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
+        batch_env_.batch_index += compute_cache_.get_batch_size();
+        CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride())
+            << "batch_index = " << batch_env_.batch_index;
     });
 }
 
@@ -433,7 +444,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back([&]() {
-        *processed_output_fps_ += compute_cache.get_batch_size();
+        *processed_output_fps_ += compute_cache_.get_batch_size();
 
         // FIXME: It seems this enqueue is useless because the RawWindow use
         // the gpu input queue for display
@@ -528,7 +539,7 @@ void Pipe::insert_raw_record()
     if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
     {
         fn_compute_vect_.push_back([&]() {
-            gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, compute_cache.get_batch_size());
+            gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, compute_cache_.get_batch_size());
         });
     }
 }
@@ -589,10 +600,12 @@ void Pipe::autocontrast_end_pipe(WindowKind kind)
 
 void Pipe::run_all()
 {
+    compute_cache_.synchronize();
+
     for (FnType& f : fn_compute_vect_)
         f();
 
-    compute_cache.synchronize();
+    compute_cache_.synchronize();
 
     {
         std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);

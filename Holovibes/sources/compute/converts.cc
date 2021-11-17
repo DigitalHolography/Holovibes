@@ -27,7 +27,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const camera::FrameDescriptor& input_fd,
                    const camera::FrameDescriptor& output_fd,
                    const cudaStream_t& stream,
-                   ComputeCache& compute_cache)
+                   ComputeCache::Cache& compute_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -86,9 +86,9 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back([=]() {
         pmin_ = cd_.p.index;
         if (cd_.p.accu_level != 0)
-            pmax_ = std::max(
-                0,
-                std::min(pmin_ + cd_.p.accu_level, static_cast<int>(compute_cache_.get_time_transformation_size())));
+            pmax_ = std::max(0,
+                             std::min<int>(pmin_ + cd_.p.accu_level.load(),
+                                           static_cast<int>(compute_cache_.get_time_transformation_size())));
         else
             pmax_ = cd_.p.index;
     });
@@ -144,7 +144,8 @@ void Converts::insert_to_composite()
                 fd_.width,
                 fd_.height,
                 cd_,
-                stream_);
+                stream_,
+                compute_cache_.get_time_transformation_size());
 
         if (cd_.composite_auto_weights)
             postcolor_normalize(buffers_.gpu_postprocess_frame,

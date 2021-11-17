@@ -179,7 +179,7 @@ void ImportPanel::import_start()
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
     }
 
-    ui_->ImageModeComboBox->setCurrentIndex(api::is_raw_mode() ? 0 : 1);
+    ui_->ImageModeComboBox->setCurrentIndex(api::get_compute_mode() == Computation::Raw ? 0 : 1);
 }
 
 void ImportPanel::import_start_spinbox_update()

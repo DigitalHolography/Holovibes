@@ -34,7 +34,7 @@ ViewPanel::~ViewPanel()
 
 void ViewPanel::on_notify()
 {
-    const bool is_raw = api::is_raw_mode();
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
 
@@ -164,7 +164,7 @@ void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_ty
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_unwrapping_2d(value);
@@ -231,7 +231,7 @@ void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_fft_shift(value);
@@ -325,7 +325,7 @@ void ViewPanel::set_y_accu()
 
 void ViewPanel::set_p(int value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (value >= static_cast<int>(api::get_time_transformation_size()))
@@ -341,7 +341,7 @@ void ViewPanel::set_p(int value)
 
 void ViewPanel::increment_p()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     // FIXME: Cannot append
@@ -359,7 +359,7 @@ void ViewPanel::increment_p()
 
 void ViewPanel::decrement_p()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     // FIXME: Cannot append
@@ -412,7 +412,7 @@ void ViewPanel::flipTexture()
 
 void ViewPanel::set_log_scale(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_log_scale(value);
@@ -422,7 +422,7 @@ void ViewPanel::set_log_scale(const bool value)
 
 void ViewPanel::set_accumulation_level(int value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_accumulation_level(value);
@@ -430,7 +430,7 @@ void ViewPanel::set_accumulation_level(int value)
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_contrast_mode(value);
@@ -440,7 +440,7 @@ void ViewPanel::set_contrast_mode(bool value)
 
 void ViewPanel::set_auto_contrast()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_auto_contrast();
@@ -455,7 +455,7 @@ void ViewPanel::set_auto_refresh_contrast(bool value)
 
 void ViewPanel::invert_contrast(bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())
@@ -466,7 +466,7 @@ void ViewPanel::invert_contrast(bool value)
 
 void ViewPanel::set_contrast_min(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())
@@ -477,7 +477,7 @@ void ViewPanel::set_contrast_min(const double value)
 
 void ViewPanel::set_contrast_max(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())

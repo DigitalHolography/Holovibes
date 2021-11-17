@@ -207,7 +207,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         return 1;
 
     size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
-    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
+    uint record_nb_frames =
+        opts.n_rec.value_or(input_nb_frames / holovibes::GSH::instance().time_transformation_stride_query().value);
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;

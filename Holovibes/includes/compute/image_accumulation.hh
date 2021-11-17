@@ -11,6 +11,7 @@
 #include "queue.hh"
 #include "rect.hh"
 
+#include "global_state_holder.hh"
 namespace holovibes
 {
 class Queue;
@@ -37,7 +38,8 @@ class ImageAccumulation
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
                       const holovibes::ComputeDescriptor& cd,
-                      const cudaStream_t& stream);
+                      const cudaStream_t& stream,
+                      ComputeCache::Cache& compute_cache);
 
     /*! \brief Enqueue the image accumulation.
      *
@@ -90,6 +92,8 @@ class ImageAccumulation
     const ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
+
+    ComputeCache::Cache& compute_cache_;
 };
 } // namespace compute
 } // namespace holovibes

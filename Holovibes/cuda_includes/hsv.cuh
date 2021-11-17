@@ -25,4 +25,5 @@ void hsv(const cuComplex* d_input,
          const uint width,
          const uint height,
          const holovibes::ComputeDescriptor& cd,
-         const cudaStream_t stream);
+         const cudaStream_t stream,
+         const int time_transformation_size);

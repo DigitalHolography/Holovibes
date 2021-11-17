@@ -106,12 +106,10 @@ void InformationWorker::compute_fps(const long long waited_time)
     }
 }
 
-void InformationWorker::compute_throughput(size_t output_frame_res,
-                                           size_t input_frame_size,
-                                           size_t record_frame_size)
+void InformationWorker::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
 {
     input_throughput_ = input_fps_ * input_frame_size;
-    output_throughput_ = output_fps_ * output_frame_res * GSH::time_transformation_size_query().value;
+    output_throughput_ = output_fps_ * output_frame_res * GSH::instance().time_transformation_size_query().value;
     saving_throughput_ = saving_fps_ * record_frame_size;
 }
 
