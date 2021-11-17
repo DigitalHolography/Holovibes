@@ -71,8 +71,6 @@ class ViewPanel : public Panel
      * \param value true: add, false: remove
      */
     void update_raw_view(bool value);
-    /*! \brief Removes raw view */
-    void disable_raw_view();
 
     /*! \brief Modifies x and y from ui values */
     void set_x_y();

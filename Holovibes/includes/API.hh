@@ -522,10 +522,7 @@ bool set_lens_view(uint auxiliary_window_max_size);
 void disable_lens_view();
 
 /*! \brief Adds raw view */
-void set_raw_view(uint auxiliary_window_max_size);
-
-/*! \brief Removes raw view */
-void disable_raw_view();
+void set_raw_view(bool checked, uint auxiliary_window_max_size = 0);
 
 /*! \brief Changes the time transformation size from ui value
  *

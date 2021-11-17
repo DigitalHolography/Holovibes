@@ -293,25 +293,21 @@ void ViewPanel::update_raw_view(bool value)
             return;
         }
 
-        api::set_raw_view(parent_->auxiliary_window_max_size);
-        connect(api::get_raw_window().get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+        api::set_raw_view(true, parent_->auxiliary_window_max_size);
+        connect(api::get_raw_window().get(), SIGNAL(destroyed()), this, SLOT(update_raw_view(false)));
     }
     else
     {
-        disable_raw_view();
+        if (UserInterfaceDescriptor::instance().raw_window)
+            disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
+                       SIGNAL(destroyed()),
+                       this,
+                       SLOT(update_raw_view(false)));
+
+        api::set_raw_view(false);
+
+        parent_->notify();
     }
-}
-void ViewPanel::disable_raw_view()
-{
-    if (UserInterfaceDescriptor::instance().raw_window)
-        disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(disable_raw_view()));
-
-    api::disable_raw_view();
-
-    parent_->notify();
 }
 
 void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }

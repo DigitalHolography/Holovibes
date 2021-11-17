@@ -630,48 +630,50 @@ void disable_lens_view()
     pipe_refresh();
 }
 
-void set_raw_view(uint auxiliary_window_max_size)
+void set_raw_view(bool checked, uint auxiliary_window_max_size)
 {
     if (is_raw_mode())
         return;
 
-    auto pipe = get_compute_pipe();
-    pipe->request_raw_view();
+    if (checked)
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_raw_view();
 
-    // Wait for the raw view to be enabled for notify
-    while (pipe->get_raw_view_requested())
-        continue;
+        // Wait for the raw view to be enabled for notify
+        while (pipe->get_raw_view_requested())
+            continue;
 
-    const ::camera::FrameDescriptor& fd = get_fd();
-    ushort raw_window_width = fd.width;
-    ushort raw_window_height = fd.height;
-    get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
+        const ::camera::FrameDescriptor& fd = get_fd();
+        ushort raw_window_width = fd.width;
+        ushort raw_window_height = fd.height;
+        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
 
-    // set positions of new windows according to the position of the main GL
-    // window and Lens window
-    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-    UserInterfaceDescriptor::instance().raw_window.reset(
-        new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
+        // set positions of new windows according to the position of the main GL
+        // window and Lens window
+        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+        UserInterfaceDescriptor::instance().raw_window.reset(
+            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
 
-    UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-    UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
+        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
+        UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
 
-    pipe_refresh();
-}
+        pipe_refresh();
+    }
+    else if (UserInterfaceDescriptor::instance().raw_window != nullptr)
+    {
+        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-void disable_raw_view()
-{
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_raw_view();
 
-    auto pipe = get_compute_pipe();
-    pipe->request_disable_raw_view();
+        // Wait for the raw view to be disabled for notify
+        while (pipe->get_disable_raw_view_requested())
+            continue;
 
-    // Wait for the raw view to be disabled for notify
-    while (pipe->get_disable_raw_view_requested())
-        continue;
-
-    pipe_refresh();
+        pipe_refresh();
+    }
 }
 
 void set_p_accu(uint p_value)
