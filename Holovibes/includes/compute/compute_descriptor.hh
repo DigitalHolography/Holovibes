@@ -641,9 +641,9 @@ class ComputeDescriptor : public Observable
     /*! \brief Filter2D high radius */
     std::atomic<int> filter2d_n2{1};
     /*! \brief Algorithm to apply in hologram mode */
-    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
+    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::NONE};
     /*! \brief Time transformation to apply in hologram mode */
-    std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
+    std::atomic<TimeTransformation> time_transformation{TimeTransformation::NONE};
     /*! \brief Number of images used by the time transformation */
     std::atomic<uint> time_transformation_size{1};
     /*! \brief Wave length of the laser */

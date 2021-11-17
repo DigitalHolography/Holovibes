@@ -148,7 +148,7 @@ void ComputeDescriptor::check_batch_size_limit()
 void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
 {
     if (value == "None")
-        space_transformation = SpaceTransformation::None;
+        space_transformation = SpaceTransformation::NONE;
     else if (value == "1FFT")
         space_transformation = SpaceTransformation::FFT1;
     else if (value == "2FFT")
@@ -156,7 +156,7 @@ void ComputeDescriptor::set_space_transformation_from_string(const std::string& 
     else
     {
         // Shouldn't happen
-        space_transformation = SpaceTransformation::None;
+        space_transformation = SpaceTransformation::NONE;
         LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
     }
 }

@@ -269,9 +269,9 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
     // String are set according to value in the appropriate ComboBox
     static std::map<std::string, SpaceTransformation> space_transformation_dictionary = {
-        {"None", SpaceTransformation::None},
+        {"None", SpaceTransformation::NONE},
         {"1FFT", SpaceTransformation::FFT1},
-        {"2FFT", SpaceTransformation::None},
+        {"2FFT", SpaceTransformation::FFT2},
     };
 
     api::set_space_transformation(space_transformation_dictionary.at(value.toStdString()));
