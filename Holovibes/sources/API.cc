@@ -119,7 +119,7 @@ void close_windows()
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    get_cd().set_lens_view_enabled(false);
+    get_cd().set_lens_view(false);
 
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
     get_cd().set_filter2d_view_enabled(false);
@@ -453,7 +453,7 @@ bool toggle_time_transformation_cuts(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().set_time_transformation_cuts_enabled(true);
+        get_cd().set_3d_cuts_view(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -492,7 +492,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         LOG_ERROR << e.what();
     }
 
-    get_cd().set_time_transformation_cuts_enabled(false);
+    get_cd().set_3d_cuts_view(false);
 }
 
 #pragma endregion
@@ -624,7 +624,7 @@ bool set_lens_view(uint auxiliary_window_max_size)
 
 void disable_lens_view()
 {
-    get_cd().set_lens_view_enabled(false);
+    get_cd().set_lens_view(false);
     get_compute_pipe()->request_disable_lens_view();
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     pipe_refresh();

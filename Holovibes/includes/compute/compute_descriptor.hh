@@ -468,8 +468,8 @@ class ComputeDescriptor : public Observable
         this->filter2d_view_enabled = filter2d_view_enabled;
     }
 
-    inline bool get_time_transformation_cuts_enabled() const { return time_transformation_cuts_enabled; }
-    inline void set_time_transformation_cuts_enabled(bool time_transformation_cuts_enabled)
+    inline bool get_3d_cuts_view_enabled() const { return time_transformation_cuts_enabled; }
+    inline void set_3d_cuts_view(bool time_transformation_cuts_enabled)
     {
         this->time_transformation_cuts_enabled = time_transformation_cuts_enabled;
     }
@@ -527,7 +527,7 @@ class ComputeDescriptor : public Observable
     inline void set_end_frame(uint end_frame) { this->end_frame = end_frame; }
 
     inline bool get_lens_view_enabled() const { return lens_view_enabled; }
-    inline void set_lens_view_enabled(bool value) { lens_view_enabled = value; }
+    inline void set_lens_view(bool value) { lens_view_enabled = value; }
 
     // #############################################
     //  END GETTER AND SETTER ZONE

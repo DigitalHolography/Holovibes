@@ -488,7 +488,7 @@ void MainWindow::set_view_image_type(const QString& value)
     api::set_view_mode(str, callback);
 
     // Force cuts views autocontrast if needed
-    if (api::get_time_transformation_cuts_enabled())
+    if (api::get_3d_cuts_view_enabled())
         api::set_auto_contrast_cuts();
 }
 

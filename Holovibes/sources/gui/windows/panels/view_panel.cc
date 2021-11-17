@@ -41,7 +41,7 @@ void ViewPanel::on_notify()
     ui_->PhaseUnwrap2DCheckBox->setEnabled(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
 
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_time_transformation_cuts_enabled());
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_3d_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
@@ -208,7 +208,7 @@ void ViewPanel::toggle_time_transformation_cuts(bool checked)
 
 void ViewPanel::cancel_time_transformation_cuts()
 {
-    if (!api::get_time_transformation_cuts_enabled())
+    if (!api::get_3d_cuts_view_enabled())
         return;
 
     std::function<void()> callback = []() { return; };
@@ -216,7 +216,7 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
         callback = ([=]() {
-            api::set_time_transformation_cuts_enabled(false);
+            api::set_3d_cuts_view(false);
             pipe->delete_stft_slice_queue();
 
             ui_->TimeTransformationCutsCheckBox->setChecked(false);
@@ -246,7 +246,7 @@ void ViewPanel::update_lens_view(bool value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::set_lens_view_enabled(value);
+    api::set_lens_view(value);
 
     if (value)
     {
