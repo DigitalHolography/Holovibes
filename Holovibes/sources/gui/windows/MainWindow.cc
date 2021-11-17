@@ -382,12 +382,12 @@ void MainWindow::change_camera(CameraKind c)
     if (c == CameraKind::NONE)
         return;
 
-    const Computation computation = static_cast<Computation>(ui_->ImageModeComboBox->currentIndex());
-    const bool res = api::change_camera(c, computation);
+    const bool res = api::change_camera(c);
 
     if (res)
     {
-        ui_->ImageRenderingPanel->set_image_mode(0);
+        // Shows Holo/Raw window
+        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
 
         // Make camera's settings menu accessible

@@ -181,9 +181,8 @@ void set_camera_timeout();
 /*! \brief Changes the current camera used
  *
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
- * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-bool change_camera(CameraKind c, const Computation computation);
+bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();

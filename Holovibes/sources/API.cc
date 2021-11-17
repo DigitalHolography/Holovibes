@@ -199,7 +199,7 @@ void camera_none()
 
 #pragma region Cameras
 
-bool change_camera(CameraKind c, const Computation computation)
+bool change_camera(CameraKind c)
 {
     try
     {
@@ -207,8 +207,6 @@ bool change_camera(CameraKind c, const Computation computation)
         if (!is_raw_mode())
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
-
-        set_compute_mode(computation);
 
         Holovibes::instance().start_camera_frame_read(c);
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
