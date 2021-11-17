@@ -848,15 +848,7 @@ void set_z(const double value)
     pipe_refresh();
 }
 
-void adapt_time_transformation_stride_to_batch_size()
-{
-    if (get_cd().time_transformation_stride < get_cd().batch_size)
-        get_cd().set_time_transformation_stride(get_cd().batch_size.load());
-    // Go to lower multiple
-    if (get_cd().time_transformation_stride % get_cd().batch_size != 0)
-        get_cd().set_time_transformation_stride(get_cd().time_transformation_stride -
-                                                get_cd().time_transformation_stride % get_cd().batch_size);
-}
+void adapt_time_transformation_stride_to_batch_size() { get_cd().adapt_time_transformation_stride(); }
 
 void set_unwrapping_2d(const bool value)
 {
