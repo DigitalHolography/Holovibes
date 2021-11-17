@@ -11,8 +11,10 @@ inline Computation get_compute_mode() { return get_cd().get_compute_mode(); }
 inline void set_compute_mode(Computation mode) { return get_cd().set_compute_mode(mode); }
 
 inline SpaceTransformation get_space_transformation() { return get_cd().get_space_transformation(); }
+inline void set_space_transformation(const std::string& value) { get_cd().set_space_transformation_from_string(value); }
 
 inline TimeTransformation get_time_transformation() { return get_cd().get_time_transformation(); }
+inline void set_time_transformation(const std::string& value) { get_cd().set_time_transformation_from_string(value); }
 
 inline ImgType get_img_type() { return get_cd().get_img_type(); }
 inline void set_img_type(ImgType type) { return get_cd().set_img_type(type); }
