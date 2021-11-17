@@ -99,82 +99,59 @@ void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
     ptree.put<bool>("window.image_rendering_hidden", isHidden());
 }
 
-void ImageRenderingPanel::set_image_mode(QString mode)
+void ImageRenderingPanel::set_image_mode(int mode)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (mode != nullptr)
+    if (mode == static_cast<int>(Computation::Raw)) // Raw
     {
-        // Call comes from ui
-        if (ui_->ImageModeComboBox->currentIndex() == 0)
-            set_raw_mode();
-        else
-            set_holographic_mode();
-    }
-    else
-    {
-        if (api::get_compute_mode() == Computation::Raw)
-            set_raw_mode();
-        else if (api::get_compute_mode() == Computation::Hologram)
-            set_holographic_mode();
-    }
-}
-
-void ImageRenderingPanel::set_raw_mode()
-{
-    api::close_windows();
-    parent_->notify();
-    parent_->layout_toggled();
-
-    api::close_critical_compute();
-    parent_->notify();
-
-    if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
-        return;
-
-    api::set_raw_mode(*parent_, parent_->window_max_size);
-
-    parent_->notify();
-    parent_->layout_toggled();
-}
-
-void ImageRenderingPanel::set_holographic_mode()
-{
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    // That function is used to reallocate the buffers since the Square
-    // input mode could have changed
-    /* Close windows & destory thread compute */
-    api::close_windows();
-    api::close_critical_compute();
-
-    camera::FrameDescriptor fd;
-    const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
-
-    if (res)
-    {
-        /* Filter2D */
-        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-
-        /* Record Frame Calculation */
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeTransformationStrideSpinBox->value()));
-
-        /* Notify */
+        api::close_windows();
         parent_->notify();
+        parent_->layout_toggled();
+
+        api::close_critical_compute();
+        parent_->notify();
+
+        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+            return;
+
+        api::set_raw_mode(*parent_, parent_->window_max_size);
+
+        parent_->notify();
+        parent_->layout_toggled();
+    }
+    else if (mode == static_cast<int>(Computation::Hologram))
+    {
+
+        // That function is used to reallocate the buffers since the Square
+        // input mode could have changed
+        /* Close windows & destory thread compute */
+        api::close_windows();
+        api::close_critical_compute();
+
+        camera::FrameDescriptor fd;
+        const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
+
+        if (res)
+        {
+            /* Filter2D */
+            ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+
+            /* Record Frame Calculation */
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+            /* Notify */
+            parent_->notify();
+        }
     }
 }
 
-void ImageRenderingPanel::set_computation_mode()
-{
-    if (ui_->ImageModeComboBox->currentIndex() == 0)
-        api::set_compute_mode(Computation::Raw);
-    else if (ui_->ImageModeComboBox->currentIndex() == 1)
-        api::set_compute_mode(Computation::Hologram);
-}
+void ImageRenderingPanel::set_raw_mode() {}
+
+void ImageRenderingPanel::set_holographic_mode() {}
 
 void ImageRenderingPanel::update_batch_size()
 {
@@ -277,9 +254,15 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
         {"2FFT", SpaceTransformation::FFT2},
     };
 
-    api::set_space_transformation(space_transformation_dictionary.at(value.toStdString()));
+    auto st = space_transformation_dictionary.at(value.toStdString());
+    // Prevent useless reload of Holo window
+    if (st == api::get_space_transformation())
+        return;
 
-    set_holographic_mode();
+    api::set_space_transformation(st);
+
+    // Permit to reset holo window, to apply time transformation change
+    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -295,9 +278,15 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
         {"STFT", TimeTransformation::STFT},
     };
 
+    TimeTransformation tt = time_transformation_dictionary.at(value.toStdString());
+    // Prevent useless reload of Holo window
+    if (api::get_time_transformation() == tt)
+        return;
+
     api::set_time_transformation(time_transformation_dictionary.at(value.toStdString()));
 
-    set_holographic_mode();
+    // Permit to reset holo window, to apply time transformation change
+    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation_size()

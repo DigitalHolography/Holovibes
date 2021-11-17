@@ -29,9 +29,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const boost::property_tree::ptree& ptree) override;
     void save_gui(boost::property_tree::ptree& ptree) override;
 
-    /*! \brief Set computation mode from ui value (Raw or Holographic) */
-    void set_computation_mode();
-
     std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
@@ -43,7 +40,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_mode(QString mode);
+    void set_image_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();

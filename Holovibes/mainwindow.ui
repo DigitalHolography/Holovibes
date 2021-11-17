@@ -4489,9 +4489,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImageModeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(QString)</slot>
+   <slot>set_image_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5161,7 +5161,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(QString)</slot>
+  <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>

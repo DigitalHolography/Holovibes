@@ -162,11 +162,19 @@ void ImportPanel::import_start()
     {
         ui_->FileReaderProgressBar->show();
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        ui_->ImageRenderingPanel->set_image_mode(nullptr);
 
         // Make camera's settings menu unaccessible
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
+
+        parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageModeComboBox->setCurrentIndex(api::is_raw_mode() ? 0 : 1);
+
+        // Trigger view callbacks
+        // parent_->ui_->ImageRenderingPanel->update_filter2d_view(api::get_filter2d_view_enabled());
+        // parent_->ui_->ViewPanel->update_lens_view(api::get_lens_view_enabled());
+        // parent_->ui_->ViewPanel->update_raw_view(api::get_raw_view_enabled());
+        // parent_->ui_->ViewPanel->toggle_time_transformation_cuts(api::get_3d_cuts_view_enabled());
 
         parent_->notify();
     }
@@ -174,8 +182,6 @@ void ImportPanel::import_start()
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
     }
-
-    ui_->ImageModeComboBox->setCurrentIndex(api::is_raw_mode() ? 0 : 1);
 }
 
 void ImportPanel::import_start_spinbox_update()

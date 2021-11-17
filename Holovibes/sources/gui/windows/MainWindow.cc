@@ -387,7 +387,7 @@ void MainWindow::change_camera(CameraKind c)
 
     if (res)
     {
-        ui_->ImageRenderingPanel->set_image_mode(nullptr);
+        ui_->ImageRenderingPanel->set_image_mode(0);
         shift_screen();
 
         // Make camera's settings menu accessible
