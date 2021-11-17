@@ -1,6 +1,6 @@
 #pragma once
 
-#include "state/validator.hh"
+#include "validators/validator.hh"
 
 namespace holovibes::validators
 {
