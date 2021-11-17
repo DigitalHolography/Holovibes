@@ -40,7 +40,7 @@ struct Validator
      * @return true passes the validation
      * @return false rejected, launches an exception (specified by the error() function)
      */
-    virtual bool validate(T value) = 0;
+    virtual bool validate(T value) const noexcept = 0;
 
     /*!
      * \brief Return the exception to be raised if the validation failed
