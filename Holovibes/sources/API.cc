@@ -588,8 +588,13 @@ bool set_lens_view(bool checked, uint auxiliary_window_max_size)
     }
     else
     {
-        get_compute_pipe()->request_disable_lens_view();
         UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
+
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_lens_view();
+        while (pipe->get_disable_lens_view_requested())
+            continue;
+
         pipe_refresh();
 
         return false;
