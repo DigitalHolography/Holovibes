@@ -2,9 +2,9 @@
  *
  * \brief Implementation of custom error class.
  */
+#pragma once
 #include <exception>
 #include <string>
-#pragma once
 #include "logger.hh"
 #include "custom_exception.hh"
 
