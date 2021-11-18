@@ -115,12 +115,6 @@ class ComputeDescriptor : public Observable
     inline WindowKind get_current_window() const { return current_window; }
     inline void set_current_window(WindowKind current_window) { this->current_window = current_window; }
 
-    inline float get_lambda() const { return lambda; }
-    inline void set_lambda(float lambda) { this->lambda = lambda; }
-
-    inline float get_zdistance() const { return zdistance; }
-    inline void set_zdistance(float zdistance) { this->zdistance = zdistance; }
-
     inline float get_xy_rot() { return xy.rot; }
     inline void set_xy_rot(float value) { xy.rot = value; }
 
@@ -586,10 +580,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
     std::atomic<bool> filter2d_view_enabled{false};
-    /*! \brief Wave length of the laser */
-    std::atomic<float> lambda{852e-9f};
-    /*! \brief z value used by fresnel transform */
-    std::atomic<float> zdistance{1.50f};
     /*! \brief Is convolution enabled */
     std::atomic<bool> convolution_enabled{false};
     /*! \brief Convolution type (file present in AppData) */

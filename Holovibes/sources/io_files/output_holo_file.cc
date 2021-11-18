@@ -46,9 +46,9 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
 
                           {"#img", GSH::instance().get_time_transformation_size()},
                           {"p", cd.p.index.load()},
-                          {"lambda", cd.lambda.load()},
+                          {"lambda", GSH::instance().get_lambda()},
                           {"pixel_size", cd.pixel_size.load()},
-                          {"z", cd.zdistance.load()},
+                          {"z", GSH::instance().get_z_distance()},
 
                           {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 

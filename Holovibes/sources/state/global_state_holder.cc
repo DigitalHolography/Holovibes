@@ -74,6 +74,9 @@ void GSH::set_time_transformation_from_string(const std::string& value)
         LOG_ERROR << "Unknown time transform: " << value << ", falling back to None";
     }
 }
+void GSH::set_lambda(float value) { compute_cache_.set_lambda(value); }
+
+void GSH::set_z_distance(float value) { compute_cache_.set_z_distance(value); }
 
 void GSH::set_filter2d_n1(int value) { filter2d_cache_.set_filter2d_n1(value); }
 void GSH::set_filter2d_n2(int value) { filter2d_cache_.set_filter2d_n2(value); }
@@ -89,7 +92,12 @@ uint GSH::get_time_transformation_size() const { return compute_cache_.get_time_
 uint GSH::get_time_transformation_stride() const { return compute_cache_.get_time_transformation_stride(); }
 
 SpaceTransformation GSH::get_space_transformation() const { return compute_cache_.get_space_transformation(); }
+
 TimeTransformation GSH::get_time_transformation() const { return compute_cache_.get_time_transformation(); };
+
+float GSH::get_lambda() const { return compute_cache_.get_lambda(); }
+
+float GSH::get_z_distance() const { return compute_cache_.get_z_distance(); };
 
 int GSH::get_filter2d_n1() const { return filter2d_cache_.get_filter2d_n1(); }
 
@@ -107,6 +115,8 @@ void GSH::load_ptree(const boost::property_tree::ptree& ptree)
         ptree.get<int>("image_rendering.space_transformation", static_cast<int>(SpaceTransformation::None))));
     compute_cache_.set_time_transformation(static_cast<TimeTransformation>(
         ptree.get<int>("image_rendering.time_transformation", static_cast<int>(TimeTransformation::STFT))));
+    compute_cache_.set_lambda(ptree.get<float>("image_rendering.lambda", 852e-9f));
+    compute_cache_.set_z_distance(ptree.get<float>("image_rendering.z_distance", 1.50f));
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
@@ -116,16 +126,25 @@ void GSH::load_ptree(const boost::property_tree::ptree& ptree)
 
 // }
 
-void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
+static void save_image_rendering(boost::property_tree::ptree& ptree,
+                                 const ComputeCache::Ref& compute_cache_,
+                                 const Filter2DCache::Ref& filter2d_cache_)
 {
     ptree.put<uint>("image_rendering.batch_size", compute_cache_.get_batch_size());
     ptree.put<uint>("image_rendering.time_transformation_size", compute_cache_.get_time_transformation_size());
     ptree.put<ushort>("image_rendering.time_transformation_stride", compute_cache_.get_time_transformation_stride());
     ptree.put<int>("image_rendering.space_transformation", static_cast<int>(compute_cache_.get_space_transformation()));
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(compute_cache_.get_time_transformation()));
+    ptree.put<float>("image_rendering.lambda", compute_cache_.get_lambda());
+    ptree.put<float>("image_rendering.z_distance", compute_cache_.get_z_distance());
 
     ptree.put<int>("image_rendering.filter2d_n1", filter2d_cache_.get_filter2d_n1());
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());
+}
+
+void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
+{
+    save_image_rendering(ptree, compute_cache_, filter2d_cache_);
 }
 
 } // namespace holovibes

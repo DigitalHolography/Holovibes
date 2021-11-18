@@ -60,7 +60,7 @@ void ImageRenderingPanel::on_notify()
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
     ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
@@ -347,7 +347,7 @@ void ImageRenderingPanel::set_z(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z(value);
+    api::set_z_distance(value);
 }
 
 void ImageRenderingPanel::increment_z()
@@ -355,8 +355,8 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_zdistance() + z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    set_z(api::get_z_distance() + z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -364,8 +364,8 @@ void ImageRenderingPanel::decrement_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_zdistance() - z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    set_z(api::get_z_distance() - z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)

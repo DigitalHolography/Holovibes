@@ -113,7 +113,7 @@
     var##_t var;
 
 #define _GETTER(type, var)                                                                                             \
-    type get_##var() const noexcept { return var.obj; }
+    inline type get_##var() const noexcept { return var.obj; }
 
 #define _GETTER_SETTER_TRIGGER(type, var)                                                                              \
     void set_##var(const type& _val)                                                                                   \

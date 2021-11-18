@@ -832,16 +832,16 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_wavelength(const double value)
+void set_wavelength(double value)
 {
-    get_cd().set_lambda(static_cast<float>(value) * 1.0e-9f);
+    set_lambda(static_cast<float>(value) * 1.0e-9f);
 
     pipe_refresh();
 }
 
-void set_z(const double value)
+void set_z_distance(const double value)
 {
-    get_cd().set_zdistance(static_cast<float>(value));
+    GSH::instance().set_z_distance(static_cast<float>(value));
 
     pipe_refresh();
 }

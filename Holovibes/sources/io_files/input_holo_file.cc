@@ -110,9 +110,9 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     GSH::instance().set_time_transformation_size(
         {get_value(meta_data_, "#img", GSH::instance().get_time_transformation_size())});
     cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
-    cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
+    GSH::instance().set_lambda(get_value(meta_data_, "lambda", GSH::instance().get_lambda()));
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
-    cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
+    GSH::instance().set_z_distance(get_value(meta_data_, "z", GSH::instance().get_z_distance()));
     cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
     cd.xy.contrast_min = get_value(meta_data_, "contrast_min", cd.xy.contrast_min.load());
     cd.xy.contrast_max = get_value(meta_data_, "contrast_max", cd.xy.contrast_max.load());

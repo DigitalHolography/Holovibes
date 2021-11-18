@@ -95,9 +95,16 @@ void FourierTransform::insert_filter2d()
 
 void FourierTransform::insert_fft1()
 {
-    const float z = cd_.zdistance;
+    const float z = compute_cache_.get_z_distance();
 
-    fft1_lens(gpu_lens_.get(), lens_side_size_, fd_.height, fd_.width, cd_.lambda, z, cd_.pixel_size, stream_);
+    fft1_lens(gpu_lens_.get(),
+              lens_side_size_,
+              fd_.height,
+              fd_.width,
+              compute_cache_.get_lambda(),
+              z,
+              cd_.pixel_size,
+              stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
@@ -114,9 +121,16 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-    const float z = cd_.zdistance;
+    const float z = compute_cache_.get_z_distance();
 
-    fft2_lens(gpu_lens_.get(), lens_side_size_, fd_.height, fd_.width, cd_.lambda, z, cd_.pixel_size, stream_);
+    fft2_lens(gpu_lens_.get(),
+              lens_side_size_,
+              fd_.height,
+              fd_.width,
+              compute_cache_.get_lambda(),
+              z,
+              cd_.pixel_size,
+              stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 

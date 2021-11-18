@@ -13,13 +13,17 @@ NEW_MICRO_CACHE(BatchCache, (uint, batch_size));
  * \param time_transformation_size Number of images used by the time transformation
  * \param space_transformation Space transformation algorithm to apply in hologram mode
  * \param time_transformation Time transformation to apply in hologram mode
+ * \param lambda Wave length of the laser
+ * \param z_distance z value used by fresnel transform
  */
 NEW_MICRO_CACHE(ComputeCache,
                 (uint, batch_size),
                 (uint, time_transformation_stride),
                 (uint, time_transformation_size),
                 (SpaceTransformation, space_transformation),
-                (TimeTransformation, time_transformation));
+                (TimeTransformation, time_transformation),
+                (float, lambda),
+                (float, z_distance));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

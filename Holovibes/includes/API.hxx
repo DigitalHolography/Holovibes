@@ -28,8 +28,10 @@ inline void set_time_transformation_stride(uint value) { GSH::instance().set_tim
 inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
 inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }
 
-inline float get_lambda() { return get_cd().get_lambda(); }
-inline float get_zdistance() { return get_cd().get_zdistance(); }
+inline float get_lambda() { return GSH::instance().get_lambda(); }
+inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
+
+inline float get_z_distance() { return GSH::instance().get_z_distance(); }
 
 inline float get_contrast_lower_threshold() { return get_cd().get_contrast_lower_threshold(); }
 
