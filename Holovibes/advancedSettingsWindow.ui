@@ -38,82 +38,14 @@
       <x>10</x>
       <y>10</y>
       <width>441</width>
-      <height>431</height>
+      <height>444</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
       <enum>QLayout::SetFixedSize</enum>
      </property>
-     <item row="1" column="1">
-      <widget class="holovibes::gui::GroupBox" name="ChartGroupBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>210</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>210</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>210</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string notr="true"/>
-       </property>
-       <property name="toolTipDuration">
-        <number>-1</number>
-       </property>
-       <property name="title">
-        <string>Chart</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_16">
-        <property name="bottomMargin">
-         <number>9</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="autoScaleLabel">
-            <property name="text">
-             <string>auto_scale_point_threshold</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="autoScalePointThresholdSpinBox">
-            <property name="maximum">
-             <number>999999999</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="3" column="1">
+     <item row="2" column="1">
       <layout class="QHBoxLayout" name="SettingsLayout">
        <property name="sizeConstraint">
         <enum>QLayout::SetFixedSize</enum>
@@ -339,8 +271,8 @@
        </layout>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="holovibes::gui::GroupBox" name="InterfaceGroupBox">
+     <item row="1" column="1">
+      <widget class="holovibes::gui::GroupBox" name="ChartGroupBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>1</horstretch>
@@ -377,40 +309,26 @@
         <number>-1</number>
        </property>
        <property name="title">
-        <string>Interface</string>
+        <string>Chart</string>
        </property>
        <property name="flat">
         <bool>false</bool>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_17">
+       <layout class="QVBoxLayout" name="verticalLayout_16">
         <property name="bottomMargin">
          <number>9</number>
         </property>
         <item>
-         <layout class="QGridLayout" name="InterfaceLayout">
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="ZStepSpinBox">
-            <property name="decimals">
-             <number>5</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="ZStepLabel">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="autoScaleLabel">
             <property name="text">
-             <string>z_step</string>
+             <string>auto_scale_point_threshold</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="RecordFrameStepLabel">
-            <property name="text">
-             <string>record_frame_step</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="RecordFrameStepSpinBox">
+          <item>
+           <widget class="QSpinBox" name="autoScalePointThresholdSpinBox">
             <property name="maximum">
              <number>999999999</number>
             </property>
@@ -421,20 +339,7 @@
        </layout>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="ReloadLabel">
-       <property name="styleSheet">
-        <string notr="true">QLabel { color : red; }</string>
-       </property>
-       <property name="text">
-        <string>Re-launch Holovibes to apply changes.</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" rowspan="5">
+     <item row="0" column="0" rowspan="4">
       <widget class="holovibes::gui::GroupBox" name="ComputeSettingsGroupBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -751,6 +656,19 @@
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="ReloadLabel">
+       <property name="styleSheet">
+        <string notr="true">QLabel { color : red; }</string>
+       </property>
+       <property name="text">
+        <string>Re-launch Holovibes to apply changes.</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
     </layout>

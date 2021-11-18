@@ -14,7 +14,9 @@
 
 #define LOG_TRACE LOG_S(2)
 #define LOG_DEBUG LOG_S(1)
-#define LOG_INFO LOG_S(INFO) << __func__
+#define LOG_INFO                                                                                                       \
+    LOG_S(INFO) << __func__ << "()"                                                                                    \
+                << " "
 #define LOG_WARN LOG_S(WARNING)
 #define LOG_ERROR LOG_S(ERROR) << __func__
 #define LOG_FUNC LOG_SCOPE_FUNCTION(1)

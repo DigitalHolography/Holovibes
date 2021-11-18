@@ -56,6 +56,8 @@ set(HOLO_INCLUDES
     includes/gui/selections/overlays/
     includes/gui/windows/
     includes/gui/windows/panels/
+    includes/gui/windows/AdvancedSettingsWindowTools
+    includes/gui/windows/AdvancedSettingsWindowTools/panels
     includes/io_files/
     includes/thread/
     includes/tools/

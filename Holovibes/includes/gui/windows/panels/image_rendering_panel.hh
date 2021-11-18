@@ -106,16 +106,31 @@ class ImageRenderingPanel : public Panel
      * \param value The new kernel to apply
      */
     void update_convo_kernel(const QString& value);
-    /*! \brief Enable the divide convolution mode
+    /*! \brief Enables the divide convolution mode
      *
      * \param value true: enable, false: disable
      */
     void set_divide_convolution(const bool value);
 
+    /*!
+     * \brief Sets the z step
+     *
+     * \param value the new value
+     */
+    void set_z_step(double value);
+
+    /*!
+     * \brief Gets the z step
+     *
+     * \return double the current z step
+     */
+    double get_z_step();
+
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 
+  public:
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

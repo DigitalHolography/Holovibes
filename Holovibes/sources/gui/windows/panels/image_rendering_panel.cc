@@ -351,4 +351,13 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 
     parent_->notify();
 }
+
+void ImageRenderingPanel::set_z_step(double value)
+{
+    z_step_ = value;
+    ui_->ZDoubleSpinBox->setSingleStep(value);
+}
+
+double ImageRenderingPanel::get_z_step() { return z_step_; }
+
 } // namespace holovibes::gui

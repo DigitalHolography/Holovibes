@@ -789,16 +789,8 @@ void set_z_distance(const double value)
 void set_space_transformation(const SpaceTransformation& value) { get_cd().set_space_transformation(value); }
 
 void set_time_transformation(const TimeTransformation& value) { get_cd().set_time_transformation(value); }
-
-void adapt_time_transformation_stride_to_batch_size()
-{
-    if (get_cd().time_transformation_stride < get_cd().batch_size)
-        get_cd().set_time_transformation_stride(get_cd().batch_size.load());
-    // Go to lower multiple
-    if (get_cd().time_transformation_stride % get_cd().batch_size != 0)
-        get_cd().set_time_transformation_stride(get_cd().time_transformation_stride -
-                                                get_cd().time_transformation_stride % get_cd().batch_size);
-}
+  
+void adapt_time_transformation_stride_to_batch_size() { get_cd().adapt_time_transformation_stride(); }
 
 void set_unwrapping_2d(const bool value)
 {
@@ -1300,11 +1292,11 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings()
+void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>();
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
 }
 
 #pragma endregion
