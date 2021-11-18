@@ -1,27 +1,95 @@
 #include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
-
 #include "API.hh"
+
 namespace holovibes::gui
 {
 
-AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
+AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
     : QMainWindow(parent)
 {
+
     ui.setupUi(this);
     setWindowIcon(QIcon(":/Holovibes.ico"));
+    this->setAttribute(Qt::WA_DeleteOnClose);
     this->show();
 
-    // FIXME belong to MainWindow so it shouldn't be accessible from advanced settings whose represent something global
-    ui.ZStepLabel->hide();
-    ui.ZStepSpinBox->hide();
+    plug_specific_panel(specific_panel);
 
     set_current_values();
 }
 
-AdvancedSettingsWindow::~AdvancedSettingsWindow() {}
+AdvancedSettingsWindow::~AdvancedSettingsWindow()
+{
+    UserInterfaceDescriptor::instance().advanced_settings_window_.release();
+}
+
+#pragma region PANELS
+
+void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel)
+{
+    specific_panel_ = specific_panel;
+
+    if (specific_panel == nullptr)
+        return;
+
+    ui.gridLayout->addWidget(specific_panel, 0, 2, 2, 1);
+}
+
+#pragma endregion
+
+#pragma region SLOTS
 
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
+
+void AdvancedSettingsWindow::set_ui_values()
+{
+    api::get_cd().set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
+    api::get_cd().set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
+    api::get_cd().set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
+    api::get_cd().set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
+    api::get_cd().set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
+
+    api::get_cd().set_display_rate(ui.DisplayRateSpinBox->value());
+    api::get_cd().set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
+    api::get_cd().set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
+    api::get_cd().set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
+    api::get_cd().set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
+    api::get_cd().set_renorm_constant(ui.RenormConstantSpinBox->value());
+    api::get_cd().set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
+
+    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
+
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
+
+    specific_panel_->set_ui_values();
+
+    ui.ReloadLabel->setVisible(true);
+    UserInterfaceDescriptor::instance().need_close = true;
+}
+
+void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
+void AdvancedSettingsWindow::change_output_folder_path() { change_folder(ui.OutputFolderPathLineEdit); }
+void AdvancedSettingsWindow::change_batch_input_folder_path() { change_folder(ui.BatchFolderPathLineEdit); }
+
+#pragma endregion
+
+void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
+{
+    QString foldername =
+        QFileDialog::getExistingDirectory(this,
+                                          tr("Open Directory"),
+                                          lineEdit->text(),
+                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (foldername.isEmpty())
+        return;
+
+    lineEdit->setText(foldername);
+}
 
 void AdvancedSettingsWindow::set_current_values()
 {
@@ -47,51 +115,9 @@ void AdvancedSettingsWindow::set_current_values()
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
 
+    specific_panel_->set_current_values();
+
     ui.ReloadLabel->setVisible(false);
 }
 
-void AdvancedSettingsWindow::set_ui_values()
-{
-    api::get_cd().set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
-    api::get_cd().set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
-    api::get_cd().set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
-    api::get_cd().set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
-    api::get_cd().set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
-
-    api::get_cd().set_display_rate(ui.DisplayRateSpinBox->value());
-    api::get_cd().set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
-    api::get_cd().set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
-    api::get_cd().set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
-    api::get_cd().set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
-    api::get_cd().set_renorm_constant(ui.RenormConstantSpinBox->value());
-    api::get_cd().set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
-
-    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
-
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
-
-    ui.ReloadLabel->setVisible(true);
-    UserInterfaceDescriptor::instance().need_close = true;
-}
-
-void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
-{
-    QString foldername =
-        QFileDialog::getExistingDirectory(this,
-                                          tr("Open Directory"),
-                                          lineEdit->text(),
-                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-    if (foldername.isEmpty())
-        return;
-
-    lineEdit->setText(foldername);
-}
-
-void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
-void AdvancedSettingsWindow::change_output_folder_path() { change_folder(ui.OutputFolderPathLineEdit); }
-void AdvancedSettingsWindow::change_batch_input_folder_path() { change_folder(ui.BatchFolderPathLineEdit); }
 } // namespace holovibes::gui

@@ -56,6 +56,8 @@ set(HOLO_INCLUDES
     includes/gui/selections/overlays/
     includes/gui/windows/
     includes/gui/windows/panels/
+    includes/gui/windows/AdvancedSettingsWindowTools
+    includes/gui/windows/AdvancedSettingsWindowTools/panels
     includes/io_files/
     includes/thread/
     includes/tools/
@@ -240,14 +242,6 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE "${PROJECT_NAME}_lib")
 set_target_properties("${PROJECT_NAME}" PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
 )
-
-target_link_options("${PROJECT_NAME}" PRIVATE
-    # Holovibes requires elevated privilege on Windows 10 to write
-    # to *.ini files inside Program Files/
-    # TODO: put *.ini files in %APPDATA%
-    "$<$<NOT:$<CONFIG:Debug>>:/MANIFESTUAC:level='requireAdministrator' uiAccess='false'>"
-)
-
 
 
 # ---

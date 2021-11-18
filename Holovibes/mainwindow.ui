@@ -282,6 +282,9 @@
              <property name="minimum">
               <number>0</number>
              </property>
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
              <property name="value">
               <number>0</number>
              </property>
@@ -303,6 +306,9 @@
              </property>
              <property name="minimum">
               <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
              </property>
              <property name="value">
               <number>1</number>
@@ -3925,7 +3931,7 @@ p, li { white-space: pre-wrap; }
    <sender>TimeTransformationCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>toggle_time_transformation_cuts(bool)</slot>
+   <slot>update_3d_cuts_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -4373,7 +4379,7 @@ p, li { white-space: pre-wrap; }
    <sender>DivideConvoCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_divide_convolution_mode(bool)</slot>
+   <slot>set_divide_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>791</x>
@@ -4499,9 +4505,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImageModeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(QString)</slot>
+   <slot>set_image_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5171,7 +5177,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(QString)</slot>
+  <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
@@ -5210,7 +5216,7 @@ p, li { white-space: pre-wrap; }
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
-  <slot>set_divide_convolution_mode(bool)</slot>
+  <slot>set_divide_convolution(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>

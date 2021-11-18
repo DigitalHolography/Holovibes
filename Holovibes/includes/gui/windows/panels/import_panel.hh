@@ -33,8 +33,6 @@ class ImportPanel : public Panel
     void load_gui(const boost::property_tree::ptree& ptree) override;
     void save_gui(boost::property_tree::ptree& ptree) override;
 
-    ImportType get_import_type();
-    void set_import_type(ImportType type);
     std::string& get_file_input_directory();
 
   public slots:

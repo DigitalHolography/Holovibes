@@ -175,21 +175,14 @@ void set_record_mode(const std::string& text);
  */
 void close_windows();
 
-/*! \brief Sets the computation mode
- *
- * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
- */
-void set_computation_mode(const Computation computation);
-
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
 /*! \brief Changes the current camera used
  *
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
- * \param computation the image mode corresponding to the selection FIXME: shouldn't be stored in the wild.
  */
-bool change_camera(CameraKind c, const Computation computation);
+bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
@@ -296,6 +289,7 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
  */
 void set_composite_auto_weights(bool value);
 
+void set_composite_kind(const CompositeKind& value);
 /*! \brief Switchs between to RGB mode
  *
  */
@@ -347,19 +341,19 @@ void set_wavelength(const double value);
  *
  * \param value the new value
  */
-void set_z(const double value);
+void set_z_distance(const double value);
 
 /*! \brief Modifies space transform calculation
  *
  * \param value the string to match to determine the kind of space transformation
  */
-void set_space_transformation(const std::string& value);
+void set_space_transformation(const SpaceTransformation& value);
 
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
  */
-void set_time_transformation(const std::string& value);
+void set_time_transformation(const TimeTransformation& value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -478,7 +472,7 @@ void update_convo_kernel(const std::string& value);
  *
  * \param value true: enable, false: disable
  */
-void set_divide_convolution_mode(const bool value);
+void set_divide_convolution(const bool value);
 
 /*! \brief Creates or Removes the reticle overlay
  *
@@ -517,20 +511,11 @@ void start_chart_display();
  */
 void stop_chart_display();
 
-/*! \brief Adds or removes lens view
- *
- * \return std::optional<bool> false: on failure, true: on add
- */
-bool set_lens_view(uint auxiliary_window_max_size);
+/*! \brief Adds or removes lens view */
+void set_lens_view(bool checked, uint auxiliary_window_max_size);
 
-/*! \brief Removes lens view */
-void disable_lens_view();
-
-/*! \brief Adds raw view */
-void set_raw_view(uint auxiliary_window_max_size);
-
-/*! \brief Removes raw view */
-void disable_raw_view();
+/*! \brief Adds or removes raw view */
+void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -538,23 +523,11 @@ void disable_raw_view();
  */
 void set_time_transformation_size(std::function<void()> callback);
 
-/*! \brief Removes 2d filter on output display */
-void cancel_filter2d();
-
 /*! \brief Enables or Disables fft shift mode on the main display window
  *
  * \param value true: enable, false: disable
  */
 void set_fft_shift(const bool value);
-
-/*! \brief Adds filter2d view
- *
- * \param auxiliary_window_max_size
- */
-void set_filter2d_view(uint auxiliary_window_max_size);
-
-/*! \brief Adds or removes filter 2d view */
-void disable_filter2d_view();
 
 /*! \brief Changes the focused windows
  *
@@ -562,8 +535,15 @@ void disable_filter2d_view();
  */
 void change_window(const int index);
 
-/*! \brief Deactivates filter2d view */
-void set_filter2d();
+/*! \brief Activates filter2d view */
+void set_filter2d(bool checked);
+
+/*! \brief Adds filter2d view
+ *
+ * \param auxiliary_window_max_size
+ * ComputeSettings INI file.
+ */
+void set_filter2d_view(bool check, uint auxiliary_window_max_size);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
@@ -576,7 +556,7 @@ void toggle_renormalize(bool value);
  * \return true on success
  * \return false on failure
  */
-bool toggle_time_transformation_cuts(uint time_transformation_size);
+bool set_3d_cuts_view(uint time_transformation_size);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -641,14 +621,12 @@ void init_image_mode(QPoint& position, QSize& size);
 /*! \brief Saves the current state of holovibes
  *
  * \param path The location of the .ini file saved
- * \param ptree the object containing the .ini parameters to serialize
  */
-void save_compute_settings(const std::string& path);
+void save_compute_settings(const std::string& path = ::holovibes::ini::default_compute_config_filepath);
 
 /*! \brief Setups program from .ini file
  *
  * \param path the path where the .ini file is
- * \param ptree the object containing the .ini parameters to serialize
  */
 void load_compute_settings(const std::string& path);
 
@@ -689,25 +667,24 @@ bool slide_update_threshold(
  */
 void start_information_display(const std::function<void()>& callback = []() {});
 
-/*!
- * \brief
+/*! \brief Opens additional settings window
  *
+ * \param parent then window that will embed the specific panel
+ * \param specific_panel the specific panel to link
  */
-void open_advanced_settings();
+void open_advanced_settings(QMainWindow* parent = nullptr,
+                            ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
 ::holovibes::ComputeDescriptor& get_cd();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
-
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();
-
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window();
-
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
+std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window();
 
 } // namespace holovibes::api
 

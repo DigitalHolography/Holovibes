@@ -41,7 +41,7 @@ void ViewPanel::on_notify()
     ui_->PhaseUnwrap2DCheckBox->setEnabled(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
 
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_time_transformation_cuts_enabled());
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_3d_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
@@ -139,9 +139,9 @@ void ViewPanel::on_notify()
     QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_y_cuts());
 
     ui_->RenormalizeCheckBox->setChecked(api::get_renorm_enabled());
-    ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_view_enabled());
+    ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
-    ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_view_enabled());
+    ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
 }
 
 void ViewPanel::load_gui(const boost::property_tree::ptree& ptree)
@@ -172,41 +172,37 @@ void ViewPanel::set_unwrapping_2d(const bool value)
     parent_->notify();
 }
 
-void ViewPanel::toggle_time_transformation_cuts(bool checked)
+void ViewPanel::update_3d_cuts_view(bool checked)
 {
-
-    QComboBox* winSelection = ui_->WindowSelectionComboBox;
-    winSelection->setEnabled(checked);
-    winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-
-    if (!checked)
-    {
-        cancel_time_transformation_cuts();
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    }
 
-    const ushort nImg = api::get_time_transformation_size();
-    uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-    if (time_transformation_size > time_transformation_cuts_window_max_size)
-        time_transformation_size = time_transformation_cuts_window_max_size;
-
-    const bool res = api::toggle_time_transformation_cuts(time_transformation_size);
-
-    if (res)
+    if (checked)
     {
-        set_auto_contrast_cuts();
-        parent_->notify();
+        const ushort nImg = api::get_time_transformation_size();
+        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
+
+        if (time_transformation_size > time_transformation_cuts_window_max_size)
+            time_transformation_size = time_transformation_cuts_window_max_size;
+
+        const bool res = api::set_3d_cuts_view(time_transformation_size);
+
+        if (res)
+        {
+            set_auto_contrast_cuts();
+            parent_->notify();
+        }
+        else
+            cancel_time_transformation_cuts();
     }
+    // FIXME: if slice are closed, cancel time should be call.
     else
-    {
         cancel_time_transformation_cuts();
-    }
 }
 
 void ViewPanel::cancel_time_transformation_cuts()
 {
-    if (!api::get_time_transformation_cuts_enabled())
+    if (!api::get_3d_cuts_view_enabled())
         return;
 
     std::function<void()> callback = []() { return; };
@@ -214,7 +210,7 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
         callback = ([=]() {
-            api::set_time_transformation_cuts_enabled(false);
+            api::set_3d_cuts_view(false);
             pipe->delete_stft_slice_queue();
 
             ui_->TimeTransformationCutsCheckBox->setChecked(false);
@@ -239,72 +235,26 @@ void ViewPanel::set_fft_shift(const bool value)
     api::pipe_refresh();
 }
 
-void ViewPanel::update_lens_view(bool value)
+void ViewPanel::update_lens_view(bool checked)
 {
-    api::set_lens_view_enabled(value);
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    if (value)
-    {
-        const bool res = api::set_lens_view(parent_->auxiliary_window_max_size);
-
-        if (res)
-        {
-            connect(UserInterfaceDescriptor::instance().lens_window.get(),
-                    SIGNAL(destroyed()),
-                    this,
-                    SLOT(disable_lens_view()));
-        }
-    }
-    else
-    {
-        disable_lens_view();
-    }
-
-    api::pipe_refresh();
+    api::set_lens_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::disable_lens_view()
+void ViewPanel::update_raw_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().lens_window)
-        disconnect(UserInterfaceDescriptor::instance().lens_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(disable_lens_view()));
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    api::disable_lens_view();
-    parent_->notify();
-}
-
-void ViewPanel::update_raw_view(bool value)
-{
-
-    if (value)
+    if (checked && api::get_batch_size() > api::get_output_buffer_size())
     {
-        if (api::get_batch_size() > api::get_output_buffer_size())
-        {
-            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-            return;
-        }
-
-        api::set_raw_view(parent_->auxiliary_window_max_size);
-        connect(api::get_raw_window().get(), SIGNAL(destroyed()), this, SLOT(disable_raw_view()));
+        LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
+        return;
     }
-    else
-    {
-        disable_raw_view();
-    }
-}
-void ViewPanel::disable_raw_view()
-{
-    if (UserInterfaceDescriptor::instance().raw_window)
-        disconnect(UserInterfaceDescriptor::instance().raw_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(disable_raw_view()));
 
-    api::disable_raw_view();
-
-    parent_->notify();
+    api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
 void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
