@@ -4,7 +4,6 @@
 
 namespace holovibes::api
 {
-
 inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
 
 inline Computation get_compute_mode() { return get_cd().get_compute_mode(); }
@@ -48,10 +47,18 @@ inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
 inline void set_renorm_constant(unsigned int value) { get_cd().set_renorm_constant(value); }
 
 inline int get_filter2d_n1() { return get_cd().get_filter2d_n1(); }
-inline void set_filter2d_n1(int value) { get_cd().set_filter2d_n1(value); }
+inline void set_filter2d_n1(int value)
+{
+    get_cd().set_filter2d_n1(value);
+    set_auto_contrast_all();
+}
 
 inline int get_filter2d_n2() { return get_cd().get_filter2d_n2(); }
-inline void set_filter2d_n2(int value) { get_cd().set_filter2d_n2(value); }
+inline void set_filter2d_n2(int value)
+{
+    get_cd().set_filter2d_n2(value);
+    set_auto_contrast_all();
+}
 
 inline int get_filter2d_smooth_low() { return get_cd().get_filter2d_smooth_low(); }
 inline void set_filter2d_smooth_low(int value) { get_cd().set_filter2d_smooth_low(value); }
@@ -181,11 +188,9 @@ inline bool get_filter2d_enabled() { return get_cd().get_filter2d_enabled(); }
 
 inline bool get_filter2d_view_enabled() { return get_cd().get_filter2d_view_enabled(); }
 
-inline bool get_time_transformation_cuts_enabled() { return get_cd().get_time_transformation_cuts_enabled(); }
-inline void set_time_transformation_cuts_enabled(bool value) { get_cd().set_time_transformation_cuts_enabled(value); }
+inline bool get_3d_cuts_view_enabled() { return get_cd().get_3d_cuts_view_enabled(); }
 
 inline bool get_lens_view_enabled() { return get_cd().get_lens_view_enabled(); }
-inline void set_lens_view_enabled(bool value) { return get_cd().set_lens_view_enabled(value); }
 
 inline bool get_chart_display_enabled() { return get_cd().get_chart_display_enabled(); }
 inline bool get_chart_record_enabled() { return get_cd().get_chart_record_enabled(); }
@@ -194,7 +199,7 @@ inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 
 inline bool get_synchronized_record() { return get_cd().get_synchronized_record(); }
 
-inline bool get_reticle_view_enabled() { return get_cd().get_reticle_view_enabled(); }
+inline bool get_reticle_display_enabled() { return get_cd().get_reticle_display_enabled(); }
 
 inline bool get_h_blur_activated() { return get_cd().get_h_blur_activated(); }
 

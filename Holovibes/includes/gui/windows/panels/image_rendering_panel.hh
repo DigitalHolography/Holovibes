@@ -29,14 +29,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const boost::property_tree::ptree& ptree) override;
     void save_gui(boost::property_tree::ptree& ptree) override;
 
-    /*! \brief Removes 2d filter on output display */
-    void cancel_filter2d();
-    /*! \brief Deactivates filter2d view */
-    void disable_filter2d_view();
-
-    /*! \brief Set computation mode from ui value (Raw or Holographic) */
-    void set_computation_mode();
-
     std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
@@ -48,7 +40,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_mode(QString mode);
+    void set_image_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
@@ -118,7 +110,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true: enable, false: disable
      */
-    void set_divide_convolution_mode(const bool value);
+    void set_divide_convolution(const bool value);
 
     /*!
      * \brief Sets the z step
@@ -135,12 +127,6 @@ class ImageRenderingPanel : public Panel
     double get_z_step();
 
   private:
-    /*! \brief Changes display mode to Raw */
-    void set_raw_mode();
-
-    /*! \brief Changes display mode to Holographic */
-    void set_holographic_mode();
-
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 

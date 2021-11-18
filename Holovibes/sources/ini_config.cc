@@ -1,42 +1,44 @@
-#include "ini_config.hh"
+#include "API.hh"
 
-namespace holovibes::ini
+namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    cd.compute_mode = static_cast<Computation>(
-        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
-    cd.batch_size = ptree.get<ushort>("image_rendering.batch_size", cd.batch_size);
-    cd.time_transformation_stride =
-        ptree.get<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
-    cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
-    cd.filter2d_n1 = ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1);
-    cd.filter2d_n2 = ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
-    cd.space_transformation = static_cast<SpaceTransformation>(
-        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load())));
-    cd.time_transformation = static_cast<TimeTransformation>(
-        ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load())));
-    cd.time_transformation_size =
-        ptree.get<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
-    cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
-    cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
-    cd.convolution_enabled = ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
-    // TODO: Think about how to store the type. Some new convolutions type might be added in AppData
-    // cd.convolution_type = ptree.get("image_rendering.convolution_type", cd.convolution_enabled);
-    cd.divide_convolution_enabled =
-        ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
+    set_compute_mode(static_cast<Computation>(
+        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
+
+    set_batch_size(ptree.get<ushort>("image_rendering.batch_size", cd.batch_size));
+    set_time_transformation_stride(
+        ptree.get<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride));
+
+    set_filter2d(ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled));
+    set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", cd.filter2d_n1));
+    set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", cd.filter2d_n2));
+
+    set_space_transformation(static_cast<SpaceTransformation>(
+        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()))));
+    set_time_transformation(static_cast<TimeTransformation>(
+        ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()))));
+
+    set_time_transformation_size(
+        ptree.get<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size));
+
+    set_wavelength(ptree.get<float>("image_rendering.lambda", cd.lambda));
+    set_z_distance(ptree.get<float>("image_rendering.z_distance", cd.zdistance));
+
+    ////// TODO: Remove checkboxe ??
+    ////// TODO: Think about how to store the type. Some new convolutions type might be added in AppData
+    ////// set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
+    ////// cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
+    set_divide_convolution(
+        ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
-    cd.img_type = static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load())));
+    set_img_type(static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load()))));
     // Add unwrap_2d
-    cd.time_transformation_cuts_enabled =
-        ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
-    cd.fft_shift_enabled = ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    cd.lens_view_enabled = ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled);
-    cd.raw_view_enabled = ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled);
+    set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
 
     auto xypq_load = [&](const std::string name, View_Accu& view) {
         view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
@@ -54,11 +56,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     xy_load("y", cd.y);
     pq_load("p", cd.p);
     pq_load("q", cd.q);
-
-    cd.renorm_enabled = ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled);
-
-    cd.reticle_view_enabled = ptree.get<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
-    cd.reticle_scale = ptree.get<float>("view.reticle_scale", cd.reticle_scale);
 
     auto xyzf_load = [&](const std::string name, View_Window& view) {
         view.log_scale_slice_enabled =
@@ -85,13 +82,18 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     xyz_load("xz", cd.xz);
     xyz_load("yz", cd.yz);
     xyzf_load("filter2d", cd.filter2d);
+
+    toggle_renormalize(ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled));
+
+    display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
+    reticle_scale(ptree.get<float>("view.reticle_scale", cd.reticle_scale));
 }
 
 void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // cd.composite_kind =
-    //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
-    cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
+    set_composite_kind(
+        static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load()))));
+    set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights));
 
     auto p_load = [&](const std::string& name, Composite_P& p) {
         p.p_min = ptree.get<ushort>("composite." + name + "_p_min", cd.rgb.p_min);
@@ -133,6 +135,7 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
     cd.time_transformation_cuts_output_buffer_size =
         ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
                           cd.time_transformation_cuts_output_buffer_size);
+
     cd.display_rate = ptree.get<float>("advanced.display_rate", cd.display_rate);
     cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
     cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
@@ -140,6 +143,19 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
     cd.contrast_upper_threshold = ptree.get<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
     cd.renorm_constant = ptree.get<uint>("advanced.renorm_constant", cd.renorm_constant);
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
+}
+
+void load_view_visibility(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
+{
+    // May just not be in compute_settings.ini because those are settings the user will be able to see
+    // if it checked the relevent checbox in the UI.
+    // Sets directly using cd because no need of the intern checks of the api function
+
+    get_cd().set_filter2d_view_enabled(
+        ptree.get<bool>("image_rendering.filter2d_view_enabled", cd.filter2d_view_enabled));
+    get_cd().set_3d_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled));
+    get_cd().set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled));
+    get_cd().set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
 }
 
 void after_load_checks(ComputeDescriptor& cd)
@@ -157,19 +173,29 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 }
 
-void load_compute_settings(ComputeDescriptor& cd, const std::string& ini_path)
+void load_compute_settings(const std::string& ini_path)
 {
+    if (ini_path.empty())
+        return;
+
     LOG_INFO << "Compute settings loaded from : " << ini_path;
 
     boost::property_tree::ptree ptree;
     boost::property_tree::ini_parser::read_ini(ini_path, ptree);
 
-    load_image_rendering(ptree, cd);
-    load_view(ptree, cd);
-    load_composite(ptree, cd);
-    load_advanced(ptree, cd);
+    load_image_rendering(ptree, get_cd());
+    load_view(ptree, get_cd());
+    load_composite(ptree, get_cd());
+    load_advanced(ptree, get_cd());
 
-    after_load_checks(cd);
+    // Currently not working.
+    // The app crash when one of the visibility is already set at when the app begins.
+    // Possible problem: Concurrency between maindisplay and the other displays
+    // load_view_visibility(ptree, get_cd());
+
+    after_load_checks(get_cd());
+
+    pipe_refresh();
 }
 
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
@@ -177,9 +203,10 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<ushort>("image_rendering.batch_size", cd.batch_size);
     ptree.put<ushort>("image_rendering.time_transformation_stride", cd.time_transformation_stride);
-    ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
-    ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
-    ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());
+    ptree.put<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
+    ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1);
+    ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2);
+    ptree.put<bool>("image_rendering.filter2d_enabled", cd.filter2d_view_enabled);
     ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()));
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()));
     ptree.put<ushort>("image_rendering.time_transformation_size", cd.time_transformation_size);
@@ -220,7 +247,7 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     pq_save("q", cd.q);
 
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
-    ptree.put<bool>("view.reticle_view_enabled", cd.reticle_view_enabled);
+    ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 
     auto xyzf_save = [&](const std::string& name, const View_Window& view) {
@@ -299,17 +326,20 @@ void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& 
     ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 }
 
-void save_compute_settings(const ComputeDescriptor& cd, const std::string& ini_path)
+void save_compute_settings(const std::string& ini_path)
 {
+    if (ini_path.empty())
+        return;
+
     boost::property_tree::ptree ptree;
 
-    save_image_rendering(ptree, cd);
-    save_view(ptree, cd);
-    save_composite(ptree, cd);
-    save_advanced(ptree, cd);
+    save_image_rendering(ptree, get_cd());
+    save_view(ptree, get_cd());
+    save_composite(ptree, get_cd());
+    save_advanced(ptree, get_cd());
 
     boost::property_tree::write_ini(ini_path, ptree);
 
     LOG_INFO << "Compute settings overwritten at : " << ini_path;
 }
-} // namespace holovibes::ini
+} // namespace holovibes::api

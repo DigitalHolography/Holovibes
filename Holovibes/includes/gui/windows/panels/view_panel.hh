@@ -53,7 +53,7 @@ class ViewPanel : public Panel
      *
      * \param checked true: enable, false: disable
      */
-    void toggle_time_transformation_cuts(bool checked);
+    void update_3d_cuts_view(bool checked);
     /*! \brief Enables or Disables fft shift mode on the main display window
      *
      * \param value true: enable, false: disable
@@ -64,15 +64,11 @@ class ViewPanel : public Panel
      * \param value true: add, false: remove
      */
     void update_lens_view(bool value);
-    /*! \brief Removes lens view */
-    void disable_lens_view();
     /*! \brief Adds or removes raw view
      *
      * \param value true: add, false: remove
      */
     void update_raw_view(bool value);
-    /*! \brief Removes raw view */
-    void disable_raw_view();
 
     /*! \brief Modifies x and y from ui values */
     void set_x_y();

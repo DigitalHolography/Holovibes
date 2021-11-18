@@ -8,11 +8,11 @@ namespace holovibes
 {
 /*! \enum Computation
  *
- * \brief Input processes, start at 1 to keep compatibility
+ * \brief Input processes
  */
 enum class Computation
 {
-    Raw = 1, /*!< Interferogram recorded */
+    Raw = 0, /*!< Interferogram recorded */
     Hologram /*!<  Reconstruction of the object */
 };
 } // namespace holovibes

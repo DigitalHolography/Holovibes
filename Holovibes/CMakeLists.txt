@@ -242,14 +242,6 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
 )
 
-target_link_options("${PROJECT_NAME}" PRIVATE
-    # Holovibes requires elevated privilege on Windows 10 to write
-    # to *.ini files inside Program Files/
-    # TODO: put *.ini files in %APPDATA%
-    "$<$<NOT:$<CONFIG:Debug>>:/MANIFESTUAC:level='requireAdministrator' uiAccess='false'>"
-)
-
-
 
 # ---
 # Post build: Copy necessary files to output dir
