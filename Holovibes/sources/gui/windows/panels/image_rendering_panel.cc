@@ -71,7 +71,7 @@ void ImageRenderingPanel::on_notify()
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2D->setChecked(api::get_filter2d_enabled());
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());

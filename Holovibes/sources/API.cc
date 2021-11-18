@@ -148,12 +148,15 @@ void camera_none()
 {
     close_windows();
     close_critical_compute();
+
     if (!is_raw_mode())
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
     get_cd().set_computation_stopped(true);
+
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 }
 
 #pragma endregion
