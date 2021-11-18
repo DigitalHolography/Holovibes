@@ -221,9 +221,6 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
-
-    if (checked)
-        connect(api::get_filter2d_window().get(), SIGNAL(destroyed()), this, SLOT(update_filter2d_view(false)));
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)

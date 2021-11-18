@@ -515,10 +515,8 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
             get_cd().set_log_scale_filter2d_enabled(true);
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
         }
-
-        pipe_refresh();
     }
-    else if (UserInterfaceDescriptor::instance().filter2d_window)
+    else
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
 
@@ -526,9 +524,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         pipe->request_disable_filter2d_view();
         while (pipe->get_disable_filter2d_view_requested())
             continue;
-
-        pipe_refresh();
     }
+
+    pipe_refresh();
 }
 
 void set_fft_shift(const bool value)
@@ -545,17 +543,15 @@ void set_time_transformation_size(std::function<void()> callback)
         pipe->insert_fn_end_vect(callback);
 }
 
-bool set_lens_view(bool checked, uint auxiliary_window_max_size)
+void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
     if (is_raw_mode())
-        return false;
+        return;
 
     get_cd().set_lens_view_enabled(checked);
 
     if (checked)
     {
-        bool res = false;
-
         try
         {
             // set positions of new windows according to the position of the
@@ -577,14 +573,11 @@ bool set_lens_view(bool checked, uint auxiliary_window_max_size)
 
             UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
             UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
-            res = true;
         }
         catch (const std::exception& e)
         {
             LOG_ERROR << e.what() << std::endl;
         }
-
-        return res;
     }
     else
     {
@@ -596,8 +589,6 @@ bool set_lens_view(bool checked, uint auxiliary_window_max_size)
             continue;
 
         pipe_refresh();
-
-        return false;
     }
 }
 
@@ -629,7 +620,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
         UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
     }
-    else if (UserInterfaceDescriptor::instance().raw_window != nullptr)
+    else
     {
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 

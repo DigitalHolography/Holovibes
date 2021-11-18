@@ -511,13 +511,10 @@ void start_chart_display();
  */
 void stop_chart_display();
 
-/*! \brief Adds or removes lens view
- *
- * \return std::optional<bool> false: on failure, true: on add
- */
-bool set_lens_view(bool checked, uint auxiliary_window_max_size);
+/*! \brief Adds or removes lens view */
+void set_lens_view(bool checked, uint auxiliary_window_max_size);
 
-/*! \brief Adds raw view */
+/*! \brief Adds or removes raw view */
 void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Changes the time transformation size from ui value

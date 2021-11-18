@@ -240,10 +240,7 @@ void ViewPanel::update_lens_view(bool checked)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    const bool res = api::set_lens_view(checked, parent_->auxiliary_window_max_size);
-
-    if (checked && res)
-        connect(api::get_lens_window().get(), SIGNAL(destroyed()), parent_, SLOT(update_lens_view(false)));
+    api::set_lens_view(checked, parent_->auxiliary_window_max_size);
 }
 
 void ViewPanel::update_raw_view(bool checked)
@@ -251,22 +248,13 @@ void ViewPanel::update_raw_view(bool checked)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (checked)
+    if (checked && api::get_batch_size() > api::get_output_buffer_size())
     {
-        if (api::get_batch_size() > api::get_output_buffer_size())
-        {
-            LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
-            return;
-        }
-
-        api::set_raw_view(checked, parent_->auxiliary_window_max_size);
-
-        connect(api::get_raw_window().get(), SIGNAL(destroyed()), parent_, SLOT(update_raw_view(false)));
+        LOG_ERROR << "[RAW VIEW] Batch size must be lower than output queue size";
+        return;
     }
-    else if (UserInterfaceDescriptor::instance().raw_window != nullptr)
-        api::set_raw_view(checked, 0);
 
-    parent_->notify();
+    api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
 void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
