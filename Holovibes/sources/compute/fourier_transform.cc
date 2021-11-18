@@ -33,7 +33,8 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const holovibes::BatchEnv& batch_env,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
-                                   ComputeCache::Cache& compute_cache_)
+                                   ComputeCache::Cache& compute_cache,
+                                   Filter2DCache::Cache& filter2d_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -45,7 +46,8 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
-    , compute_cache_(compute_cache_)
+    , compute_cache_(compute_cache)
+    , filter2d_cache_(filter2d_cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -57,23 +59,24 @@ void FourierTransform::insert_fft()
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
-                                     cd_.filter2d_n1,
-                                     cd_.filter2d_n2,
+                                     filter2d_cache_.get_filter2d_n1(),
+                                     filter2d_cache_.get_filter2d_n2(),
                                      cd_.filter2d_smooth_low,
                                      cd_.filter2d_smooth_high,
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation
-        if (cd_.space_transformation != SpaceTransformation::FFT2)
+        if (compute_cache_.get_space_transformation() != SpaceTransformation::FFT2)
             insert_filter2d();
     }
 
-    if (cd_.space_transformation == SpaceTransformation::FFT1)
+    if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT1)
         insert_fft1();
-    else if (cd_.space_transformation == SpaceTransformation::FFT2)
+    else if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
         insert_fft2();
-    if (cd_.space_transformation == SpaceTransformation::FFT1 || cd_.space_transformation == SpaceTransformation::FFT2)
+    if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT1 ||
+        compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
         fn_compute_vect_.push_back([=]() { enqueue_lens(); });
 }
 
@@ -154,7 +157,7 @@ void FourierTransform::enqueue_lens()
 
         // For optimisation purposes, when FFT2 is activated, lens is shifted
         // We have to shift it again to ensure a good display
-        if (cd_.space_transformation == SpaceTransformation::FFT2)
+        if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
             shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.get_frame_res(), stream_);
@@ -163,15 +166,15 @@ void FourierTransform::enqueue_lens()
 
 void FourierTransform::insert_time_transform()
 {
-    if (cd_.time_transformation == TimeTransformation::STFT)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
     {
         insert_stft();
     }
-    else if (cd_.time_transformation == TimeTransformation::PCA)
+    else if (compute_cache_.get_time_transformation() == TimeTransformation::PCA)
     {
         insert_pca();
     }
-    else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
+    else if (compute_cache_.get_time_transformation() == TimeTransformation::SSA_STFT)
     {
         insert_ssa_stft();
     }

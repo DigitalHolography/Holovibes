@@ -115,7 +115,7 @@ void ComputeDescriptor::set_accumulation_level(int value)
 
 void ComputeDescriptor::check_p_limits()
 {
-    int upper_bound = GSH::instance().get_time_transformation_size().value - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size() - 1;
 
     if (p.accu_level > upper_bound)
         p.accu_level = upper_bound;
@@ -128,7 +128,7 @@ void ComputeDescriptor::check_p_limits()
 
 void ComputeDescriptor::check_q_limits()
 {
-    int upper_bound = GSH::instance().get_time_transformation_size().value - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size() - 1;
 
     if (q.accu_level > upper_bound)
         q.accu_level = upper_bound;
@@ -137,34 +137,6 @@ void ComputeDescriptor::check_q_limits()
 
     if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
         q.index = upper_bound;
-}
-
-void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
-{
-    if (value == "None")
-        space_transformation = SpaceTransformation::None;
-    else if (value == "1FFT")
-        space_transformation = SpaceTransformation::FFT1;
-    else if (value == "2FFT")
-        space_transformation = SpaceTransformation::FFT2;
-    else
-    {
-        // Shouldn't happen
-        space_transformation = SpaceTransformation::None;
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
-
-void ComputeDescriptor::set_time_transformation_from_string(const std::string& value)
-{
-    if (value == "STFT")
-        time_transformation = TimeTransformation::STFT;
-    else if (value == "PCA")
-        time_transformation = TimeTransformation::PCA;
-    else if (value == "None")
-        time_transformation = TimeTransformation::NONE;
-    else if (value == "SSA_STFT")
-        time_transformation = TimeTransformation::SSA_STFT;
 }
 
 void ComputeDescriptor::handle_update_exception()

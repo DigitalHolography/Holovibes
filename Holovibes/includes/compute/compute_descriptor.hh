@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <mutex>
+#include "aliases.hh"
 #include "observable.hh"
 #include "rect.hh"
 
@@ -46,11 +47,6 @@ namespace holovibes
  */
 class ComputeDescriptor : public Observable
 {
-    typedef unsigned char uchar;
-    typedef unsigned short ushort;
-    typedef unsigned int uint;
-    typedef unsigned long ulong;
-
   private:
     /*! \brief The lock used in the zone accessors */
     mutable std::mutex mutex_;
@@ -113,18 +109,6 @@ class ComputeDescriptor : public Observable
     inline Computation get_compute_mode() const { return compute_mode; }
     inline void set_compute_mode(Computation compute_mode) { this->compute_mode = compute_mode; }
 
-    inline SpaceTransformation get_space_transformation() const { return space_transformation; }
-    inline void set_space_transformation(SpaceTransformation space_transformation)
-    {
-        this->space_transformation = space_transformation;
-    }
-
-    inline TimeTransformation get_time_transformation() const { return time_transformation; }
-    inline void set_time_transformation(TimeTransformation time_transformation)
-    {
-        this->time_transformation = time_transformation;
-    }
-
     inline ImgType get_img_type() const { return img_type; }
     inline void set_img_type(ImgType img_type) { this->img_type = img_type; }
 
@@ -177,12 +161,6 @@ class ComputeDescriptor : public Observable
 
     inline unsigned get_renorm_constant() const { return renorm_constant; }
     inline void set_renorm_constant(unsigned renorm_constant) { this->renorm_constant = renorm_constant; }
-
-    inline int get_filter2d_n1() const { return filter2d_n1; }
-    inline void set_filter2d_n1(int filter2d_n1) { this->filter2d_n1 = filter2d_n1; }
-
-    inline int get_filter2d_n2() const { return filter2d_n2; }
-    inline void set_filter2d_n2(int filter2d_n2) { this->filter2d_n2 = filter2d_n2; }
 
     inline int get_filter2d_smooth_low() const { return filter2d_smooth_low; }
     inline void set_filter2d_smooth_low(int filter2d_smooth_low) { this->filter2d_smooth_low = filter2d_smooth_low; }
@@ -572,9 +550,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Reset some values after MainWindow receives an accumulation exception */
     void handle_accumulation_exception();
 
-    void set_space_transformation_from_string(const std::string& value);
-    void set_time_transformation_from_string(const std::string& value);
-
     void change_angle();
     void change_flip();
 
@@ -611,15 +586,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
     std::atomic<bool> filter2d_view_enabled{false};
-    /*! \brief Filter2D low radius */
-    std::atomic<int> filter2d_n1{0};
-    /*! \brief Filter2D high radius */
-    std::atomic<int> filter2d_n2{1};
-    /*! \brief Algorithm to apply in hologram mode */
-    std::atomic<SpaceTransformation> space_transformation{SpaceTransformation::None};
-    /*! \brief Time transformation to apply in hologram mode */
-    std::atomic<TimeTransformation> time_transformation{TimeTransformation::STFT};
-
     /*! \brief Wave length of the laser */
     std::atomic<float> lambda{852e-9f};
     /*! \brief z value used by fresnel transform */

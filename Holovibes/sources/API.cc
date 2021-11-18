@@ -25,7 +25,7 @@ bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     // Set the image rendering ui params
-    GSH::instance().set_time_tranformation_stride({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
+    GSH::instance().set_time_transformation_stride({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
     GSH::instance().set_batch_size({1});
 
     // Because we are in import mode
@@ -846,33 +846,9 @@ void set_z(const double value)
     pipe_refresh();
 }
 
-void set_space_transformation(const std::string& value)
-{
-    if (value == "None")
-        get_cd().set_space_transformation(SpaceTransformation::None);
-    else if (value == "1FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT1);
-    else if (value == "2FFT")
-        get_cd().set_space_transformation(SpaceTransformation::FFT2);
-    else
-    {
-        // Shouldn't happen
-        get_cd().set_space_transformation(SpaceTransformation::None);
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
+void set_space_transformation(const std::string& value) { GSH::instance().set_space_transformation_from_string(value); }
 
-void set_time_transformation(const std::string& value)
-{
-    if (value == "STFT")
-        get_cd().set_time_transformation(TimeTransformation::STFT);
-    else if (value == "PCA")
-        get_cd().set_time_transformation(TimeTransformation::PCA);
-    else if (value == "None")
-        get_cd().set_time_transformation(TimeTransformation::NONE);
-    else if (value == "SSA_STFT")
-        get_cd().set_time_transformation(TimeTransformation::SSA_STFT);
-}
+void set_time_transformation(const std::string& value) { GSH::instance().set_time_transformation_from_string(value); }
 
 void set_unwrapping_2d(const bool value)
 {

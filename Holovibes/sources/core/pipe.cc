@@ -53,7 +53,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                       batch_env_,
                                                                       time_transformation_env_,
                                                                       stream_,
-                                                                      compute_cache_);
+                                                                      compute_cache_,
+                                                                      filter2d_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,

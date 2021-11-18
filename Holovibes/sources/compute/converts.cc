@@ -59,7 +59,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     else if (cd_.img_type == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (cd_.time_transformation == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             // Multiply frame by (2 ^ 16) - 1 in case of PCA

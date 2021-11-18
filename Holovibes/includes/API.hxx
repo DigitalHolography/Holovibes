@@ -10,23 +10,23 @@ inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
 inline Computation get_compute_mode() { return get_cd().get_compute_mode(); }
 inline void set_compute_mode(Computation mode) { return get_cd().set_compute_mode(mode); }
 
-inline SpaceTransformation get_space_transformation() { return get_cd().get_space_transformation(); }
+inline SpaceTransformation get_space_transformation() { return GSH::instance().get_space_transformation(); }
 
-inline TimeTransformation get_time_transformation() { return get_cd().get_time_transformation(); }
+inline TimeTransformation get_time_transformation() { return GSH::instance().get_time_transformation(); }
 
 inline ImgType get_img_type() { return get_cd().get_img_type(); }
 inline void set_img_type(ImgType type) { return get_cd().set_img_type(type); }
 
 inline WindowKind get_current_window() { return get_cd().get_current_window(); }
 
-inline uint get_batch_size() { return GSH::instance().get_batch_size().value; }
-inline void set_batch_size(uint value) { GSH::instance().set_batch_size({value}); }
+inline uint get_batch_size() { return GSH::instance().get_batch_size(); }
+inline void set_batch_size(uint value) { GSH::instance().set_batch_size(value); }
 
-inline uint get_time_transformation_stride() { return GSH::instance().get_time_transformation_stride().value; }
-inline void set_time_transformation_stride(uint value) { GSH::instance().set_time_tranformation_stride({value}); }
+inline uint get_time_transformation_stride() { return GSH::instance().get_time_transformation_stride(); }
+inline void set_time_transformation_stride(uint value) { GSH::instance().set_time_transformation_stride(value); }
 
-inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size().value; }
-inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size({value}); }
+inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
+inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }
 
 inline float get_lambda() { return get_cd().get_lambda(); }
 inline float get_zdistance() { return get_cd().get_zdistance(); }
@@ -41,11 +41,11 @@ inline float get_pixel_size() { return get_cd().get_pixel_size(); }
 
 inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
 
-inline int get_filter2d_n1() { return get_cd().get_filter2d_n1(); }
-inline void set_filter2d_n1(int value) { get_cd().set_filter2d_n1(value); }
+inline int get_filter2d_n1() { return GSH::instance().get_filter2d_n1(); }
+inline void set_filter2d_n1(int value) { GSH::instance().set_filter2d_n1(value); }
 
-inline int get_filter2d_n2() { return get_cd().get_filter2d_n2(); }
-inline void set_filter2d_n2(int value) { get_cd().set_filter2d_n2(value); }
+inline int get_filter2d_n2() { return GSH::instance().get_filter2d_n2(); }
+inline void set_filter2d_n2(int value) { GSH::instance().set_filter2d_n2(value); }
 
 inline int get_filter2d_smooth_low() { return get_cd().get_filter2d_smooth_low(); }
 

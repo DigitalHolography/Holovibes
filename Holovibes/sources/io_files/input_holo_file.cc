@@ -103,10 +103,12 @@ T get_value(const json& json, const std::string& key, const T& default_value)
 void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
 {
     cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
-    cd.space_transformation = get_value(meta_data_, "algorithm", cd.space_transformation.load());
-    cd.time_transformation = get_value(meta_data_, "time_filter", cd.time_transformation.load());
+    GSH::instance().set_space_transformation(
+        get_value(meta_data_, "algorithm", GSH::instance().get_space_transformation()));
+    GSH::instance().set_time_transformation(
+        get_value(meta_data_, "time_filter", GSH::instance().get_time_transformation()));
     GSH::instance().set_time_transformation_size(
-        {get_value(meta_data_, "#img", GSH::instance().get_time_transformation_size().value)});
+        {get_value(meta_data_, "#img", GSH::instance().get_time_transformation_size())});
     cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
     cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());

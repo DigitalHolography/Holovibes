@@ -44,12 +44,21 @@ class GSH
 
     uint get_batch_size() const;
     uint get_time_transformation_size() const;
-
     uint get_time_transformation_stride() const;
+    SpaceTransformation get_space_transformation() const;
+    TimeTransformation get_time_transformation() const;
+    int get_filter2d_n1() const;
+    int get_filter2d_n2() const;
 
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
-    void set_time_tranformation_stride(uint value);
+    void set_time_transformation_stride(uint value);
+    void set_space_transformation(const SpaceTransformation& value);
+    void set_space_transformation_from_string(const std::string& value);
+    void set_time_transformation(const TimeTransformation& value);
+    void set_time_transformation_from_string(const std::string& value);
+    void set_filter2d_n1(int value);
+    void set_filter2d_n2(int value);
 
     void load_ptree(const boost::property_tree::ptree& ptree);
 

@@ -14,6 +14,7 @@
 #include "cuda_memory.cuh"
 #include "common.cuh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -170,7 +171,7 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((cd_->compute_mode == Computation::Hologram && cd_->space_transformation == SpaceTransformation::None) ||
+    if ((cd_->compute_mode == Computation::Hologram && api::get_space_transformation() == SpaceTransformation::None) ||
         cd_->compute_mode == Computation::Raw)
     {
         if (w != old_width)

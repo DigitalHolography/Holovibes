@@ -109,7 +109,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
     time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
-    if (cd_.time_transformation == TimeTransformation::STFT)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
@@ -119,7 +119,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
     }
-    else if (cd_.time_transformation == TimeTransformation::PCA)
+    else if (compute_cache_.get_time_transformation() == TimeTransformation::PCA)
     {
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         // every frame Static cast to avoid ushort overflow
@@ -128,11 +128,11 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
-    else if (cd_.time_transformation == TimeTransformation::NONE)
+    else if (compute_cache_.get_time_transformation() == TimeTransformation::NONE)
     {
         // Nothing to do
     }
-    else if (cd_.time_transformation == TimeTransformation::SSA_STFT)
+    else if (compute_cache_.get_time_transformation() == TimeTransformation::SSA_STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};

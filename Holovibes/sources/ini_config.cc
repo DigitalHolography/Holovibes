@@ -8,11 +8,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
     cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
-    cd.space_transformation = static_cast<SpaceTransformation>(
-        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load())));
-    cd.time_transformation = static_cast<TimeTransformation>(
-        ptree.get<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load())));
-
     cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
     cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
     cd.convolution_enabled = ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
@@ -139,11 +134,11 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
 
 void after_load_checks(ComputeDescriptor& cd)
 {
-    if (cd.filter2d_n1 >= cd.filter2d_n2)
-        cd.filter2d_n1 = cd.filter2d_n2 - 1;
+    if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
+        GSH::instance().set_filter2d_n1(GSH::instance().get_filter2d_n2() - 1);
     // TODO: Check convolution type if it  exists (when it will be added to cd)
 
-    uint time_transformation_size = GSH::instance().get_time_transformation_size().value;
+    uint time_transformation_size = GSH::instance().get_time_transformation_size();
 
     if (cd.p.index >= time_transformation_size)
         cd.p.index = 0;
@@ -174,10 +169,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
 {
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
-    ptree.put<int>("image_rendering.filter2d_n1", cd.filter2d_n1.load());
-    ptree.put<int>("image_rendering.filter2d_n2", cd.filter2d_n2.load());
-    ptree.put<int>("image_rendering.space_transformation", static_cast<int>(cd.space_transformation.load()));
-    ptree.put<int>("image_rendering.time_transformation", static_cast<int>(cd.time_transformation.load()));
     ptree.put<float>("image_rendering.lambda", cd.lambda);
     ptree.put<float>("image_rendering.z_distance", cd.zdistance);
     ptree.put<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
