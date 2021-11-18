@@ -37,10 +37,6 @@ void ImportPanel::save_gui(boost::property_tree::ptree& ptree)
     ptree.put<bool>("import.from_gpu", ui_->LoadFileInGpuCheckBox->isChecked());
 }
 
-ImportType ImportPanel::get_import_type() { return UserInterfaceDescriptor::instance().import_type_; }
-
-void ImportPanel::set_import_type(ImportType type) { UserInterfaceDescriptor::instance().import_type_ = type; }
-
 std::string& ImportPanel::get_file_input_directory()
 {
     return UserInterfaceDescriptor::instance().file_input_directory_;
@@ -64,7 +60,6 @@ void ImportPanel::import_browse_file()
                                      QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
                                      tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
                                         "(*.cine)"));
-    LOG_INFO << filename.toStdString();
 
     // Start importing the chosen
     import_file(filename);
@@ -121,6 +116,9 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     api::close_windows();
     // cancel_time_transformation_cuts();
 
@@ -139,11 +137,7 @@ void ImportPanel::import_start()
     if (!api::get_is_computation_stopped())
         import_stop();
 
-    // shift main window when camera view appears
-    QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int screen_height = rec.height();
-    int screen_width = rec.width();
-    parent_->move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
+    parent_->shift_screen();
 
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
@@ -163,14 +157,12 @@ void ImportPanel::import_start()
     if (res_import_start)
     {
         ui_->FileReaderProgressBar->show();
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        ui_->ImageRenderingPanel->set_image_mode(nullptr);
 
         // Make camera's settings menu unaccessible
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
 
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+        parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
 
         parent_->notify();
     }
@@ -178,8 +170,6 @@ void ImportPanel::import_start()
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
     }
-
-    ui_->ImageModeComboBox->setCurrentIndex(api::is_raw_mode() ? 0 : 1);
 }
 
 void ImportPanel::import_start_spinbox_update()

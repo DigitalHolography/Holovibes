@@ -58,6 +58,10 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/panels/view_panel.cc
     gui/windows/panels/composite_panel.cc
     gui/windows/panels/image_rendering_panel.cc
+    gui/windows/AdvancedSettingsWindowTools/q_spin_box_layout.cc
+    gui/windows/AdvancedSettingsWindowTools/q_double_spin_box_layout.cc
+    gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
+    gui/windows/panels/asw_mainwindow_panel.cc
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc
