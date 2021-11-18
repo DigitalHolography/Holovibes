@@ -506,7 +506,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
                                         pipe->get_filter2d_view_queue().get()));
 
             UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-            UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
             get_cd().set_log_scale_filter2d_enabled(true);
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
@@ -545,7 +544,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         return;
 
     get_cd().set_lens_view_enabled(checked);
-  
+
     if (checked)
     {
         try
@@ -568,7 +567,6 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
                                    gui::KindOfView::Lens));
 
             UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-            UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
         }
         catch (const std::exception& e)
         {
@@ -614,7 +612,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
             new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
 
         UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-        UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
     }
     else
     {
@@ -785,7 +782,7 @@ void set_z_distance(const double value)
 void set_space_transformation(const SpaceTransformation& value) { get_cd().set_space_transformation(value); }
 
 void set_time_transformation(const TimeTransformation& value) { get_cd().set_time_transformation(value); }
-  
+
 void adapt_time_transformation_stride_to_batch_size() { get_cd().adapt_time_transformation_stride(); }
 
 void set_unwrapping_2d(const bool value)

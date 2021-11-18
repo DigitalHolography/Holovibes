@@ -10,7 +10,17 @@
 #include <string>
 #include <ctime>
 #include <cassert>
+
+#ifndef __NVCC__
 #include <qrect.h>
+#else
+class QString;
+using uchar = unsigned char;
+using uint = unsigned int;
+using ushort = unsigned short;
+using ulong = unsigned long;
+#endif
+
 #include <filesystem>
 #include <fstream>
 
