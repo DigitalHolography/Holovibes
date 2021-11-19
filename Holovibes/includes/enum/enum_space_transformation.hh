@@ -13,7 +13,7 @@ namespace holovibes
  */
 enum class SpaceTransformation
 {
-    None = 0, /*!< Nothing Applied */
+    NONE = 0, /*!< Nothing Applied */
     FFT1,     /*!< Fresnel Transform */
     FFT2      /*!< Angular spectrum propagation */
 };

@@ -56,6 +56,8 @@ set(HOLO_INCLUDES
     includes/gui/selections/overlays/
     includes/gui/windows/
     includes/gui/windows/panels/
+    includes/gui/windows/AdvancedSettingsWindowTools
+    includes/gui/windows/AdvancedSettingsWindowTools/panels
     includes/io_files/
     includes/thread/
     includes/tools/
@@ -240,14 +242,6 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
 )
 
-target_link_options("${PROJECT_NAME}" PRIVATE
-    # Holovibes requires elevated privilege on Windows 10 to write
-    # to *.ini files inside Program Files/
-    # TODO: put *.ini files in %APPDATA%
-    "$<$<NOT:$<CONFIG:Debug>>:/MANIFESTUAC:level='requireAdministrator' uiAccess='false'>"
-)
-
-
 
 # ---
 # Post build: Copy necessary files to output dir
@@ -267,9 +261,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "${BUILD_DIR}/uEye_api_64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
-
-    # Copy camera .ini configs
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/instruction_file_samples/"

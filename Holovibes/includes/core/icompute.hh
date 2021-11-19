@@ -251,6 +251,7 @@ class ICompute : public Observable
     std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
     bool get_raw_view_requested() const { return raw_view_requested_; }
     bool get_disable_raw_view_requested() const { return disable_raw_view_requested_; }
+    bool get_disable_lens_view_requested() const { return request_disable_lens_view_; }
     bool get_filter2d_view_requested() const { return filter2d_view_requested_; }
     bool get_disable_filter2d_view_requested() const { return disable_filter2d_view_requested_; }
     bool get_chart_display_requested() const { return chart_display_requested_; }

@@ -7,6 +7,8 @@
 #include "frame_desc.hh"
 #include "API.hh"
 
+#include <map>
+
 namespace api = ::holovibes::api;
 
 namespace holovibes::gui
@@ -35,6 +37,8 @@ void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
+    ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
+
     ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
 
     ui_->TimeTransformationStrideSpinBox->setValue(api::get_time_transformation_stride());
@@ -46,7 +50,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_time_transformation_cuts_enabled());
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
     ui_->TimeTransformationComboBox->setEnabled(!is_raw);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
@@ -54,7 +58,7 @@ void ImageRenderingPanel::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_time_transformation_cuts_enabled());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
@@ -66,7 +70,7 @@ void ImageRenderingPanel::on_notify()
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2D->setChecked(api::get_filter2d_enabled());
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
@@ -96,82 +100,54 @@ void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
     ptree.put<bool>("window.image_rendering_hidden", isHidden());
 }
 
-void ImageRenderingPanel::set_image_mode(QString mode)
+void ImageRenderingPanel::set_image_mode(int mode)
 {
-    if (mode != nullptr)
-    {
-        // Call comes from ui
-        if (ui_->ImageModeComboBox->currentIndex() == 0)
-            set_raw_mode();
-        else
-            set_holographic_mode();
-    }
-    else if (api::get_compute_mode() == Computation::Raw)
-        set_raw_mode();
-    else if (api::get_compute_mode() == Computation::Hologram)
-        set_holographic_mode();
-}
-
-void ImageRenderingPanel::set_raw_mode()
-{
-    api::close_windows();
-    parent_->notify();
-    parent_->layout_toggled();
-
-    api::close_critical_compute();
-    parent_->notify();
-
-    if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::set_raw_mode(*parent_, parent_->window_max_size);
-
-    parent_->notify();
-    parent_->layout_toggled();
-}
-
-void ImageRenderingPanel::set_holographic_mode()
-{
-
-    // That function is used to reallocate the buffers since the Square
-    // input mode could have changed
-    /* Close windows & destory thread compute */
-    api::close_windows();
-    api::close_critical_compute();
-
-    camera::FrameDescriptor fd;
-    const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
-
-    if (res)
+    if (mode == static_cast<int>(Computation::Raw))
     {
-        /* Filter2D */
-        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        api::close_windows();
+        api::close_critical_compute();
 
-        /* Record Frame Calculation */
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeTransformationStrideSpinBox->value()));
+        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+            return;
 
-        /* Notify */
+        api::set_raw_mode(*parent_, parent_->window_max_size);
+
         parent_->notify();
+        parent_->layout_toggled();
     }
-}
+    else if (mode == static_cast<int>(Computation::Hologram))
+    {
+        // That function is used to reallocate the buffers since the Square
+        // input mode could have changed
+        /* Close windows & destory thread compute */
+        api::close_windows();
+        api::close_critical_compute();
 
-void ImageRenderingPanel::set_computation_mode()
-{
-    if (ui_->ImageModeComboBox->currentIndex() == 0)
-    {
-        api::set_computation_mode(Computation::Raw);
-    }
-    else if (ui_->ImageModeComboBox->currentIndex() == 1)
-    {
-        api::set_computation_mode(Computation::Hologram);
+        camera::FrameDescriptor fd;
+        const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
+
+        if (res)
+        {
+            /* Filter2D */
+            ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+
+            /* Record Frame Calculation */
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+            /* Notify */
+            parent_->notify();
+        }
     }
 }
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)p
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -188,7 +164,7 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
@@ -213,81 +189,30 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    api::set_filter2d(checked);
+
     if (checked)
     {
-        api::set_filter2d();
-
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-        set_filter2d_n2(ui_->Filter2DN2SpinBox->value());
-        set_filter2d_n1(ui_->Filter2DN1SpinBox->value());
     }
     else
-    {
-        cancel_filter2d();
-    }
-
-    parent_->notify();
-}
-
-void ImageRenderingPanel::cancel_filter2d()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::cancel_filter2d();
-
-    if (api::get_filter2d_view_enabled())
         update_filter2d_view(false);
 
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n)
-{
-    api::set_filter2d_n1(n);
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n1(int n) { api::set_filter2d_n1(n); }
 
-void ImageRenderingPanel::set_filter2d_n2(int n)
-{
-    api::set_filter2d_n2(n);
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (checked)
-    {
-        api::set_filter2d_view(parent_->auxiliary_window_max_size);
-    }
-    else
-    {
-        disable_filter2d_view();
-    }
-
-    parent_->notify();
-}
-
-void ImageRenderingPanel::disable_filter2d_view()
-{
-
-    if (UserInterfaceDescriptor::instance().filter2d_window)
-    {
-        // Remove the on triggered event
-        disconnect(UserInterfaceDescriptor::instance().filter2d_window.get(),
-                   SIGNAL(destroyed()),
-                   this,
-                   SLOT(disable_filter2d_view()));
-    }
-
-    api::disable_filter2d_view();
-
-    parent_->notify();
+    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
@@ -295,9 +220,15 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_space_transformation(value.toStdString());
+    auto st = space_transformation_from_string(value.toStdString());
+    // Prevent useless reload of Holo window
+    if (st == api::get_space_transformation())
+        return;
 
-    set_holographic_mode();
+    api::set_space_transformation(st);
+
+    // Permit to reset holo window, to apply time transformation change
+    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -305,15 +236,21 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_time_transformation(value.toStdString());
+    TimeTransformation tt = time_transformation_from_string(value.toStdString());
+    // Prevent useless reload of Holo window
+    if (api::get_time_transformation() == tt)
+        return;
 
-    set_holographic_mode();
+    api::set_time_transformation(tt);
+
+    // Permit to reset holo window, to apply time transformation change
+    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+      return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
     time_transformation_size = std::max(1, time_transformation_size);
@@ -339,7 +276,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value);
+    api::set_wavelength(value * 1.0e-9f);
 }
 
 void ImageRenderingPanel::set_z(const double value)
@@ -352,7 +289,7 @@ void ImageRenderingPanel::set_z(const double value)
 
 void ImageRenderingPanel::increment_z()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+  if (api::get_compute_mode() == Computation::Raw)
         return;
 
     set_z(api::get_z_distance() + z_step_);
@@ -373,13 +310,10 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (value)
     {
         std::string str = ui_->KernelQuickSelectComboBox->currentText().toStdString();
-
         api::set_convolution_mode(str);
     }
     else
-    {
         api::unset_convolution_mode();
-    }
 
     parent_->notify();
 }
@@ -394,10 +328,19 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_divide_convolution_mode(const bool value)
+void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api::set_divide_convolution_mode(value);
+    api::set_divide_convolution(value);
 
     parent_->notify();
 }
+
+void ImageRenderingPanel::set_z_step(double value)
+{
+    z_step_ = value;
+    ui_->ZDoubleSpinBox->setSingleStep(value);
+}
+
+double ImageRenderingPanel::get_z_step() { return z_step_; }
+
 } // namespace holovibes::gui
