@@ -5,7 +5,7 @@
 #define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "10.3"
+#define MyAppVersion "10.3.2"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -80,10 +80,13 @@ Source: "{#CudaPath}\cudart64_110.dll"; DestDir: "{app}\{#MyAppVersion}";Compone
 Source: "{#OpenCVPath}\opencv_videoio_ffmpeg450_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#OpenCVPath}\opencv_world450.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 
+Source: "Camera\configs\*.ini"; DestDir: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"; Components: program; Flags: ignoreversion recursesubdirs
+
 Source: "resources\setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 
 [Dirs]
 Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
+Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
