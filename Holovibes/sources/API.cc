@@ -198,8 +198,8 @@ bool change_camera(CameraKind c)
 
 void configure_camera()
 {
-    auto path = ini::camera_config_folderpath + "/" + Holovibes::instance().get_camera_ini_name();
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
+    auto path = std::filesystem::path(ini::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(path.string())));
 }
 
 #pragma endregion
