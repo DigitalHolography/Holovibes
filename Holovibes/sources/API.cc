@@ -5,8 +5,6 @@ namespace holovibes::api
 
 #pragma region Local
 
-void open_file(const std::string& path) { QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str()))); }
-
 void pipe_refresh()
 {
     if (is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
@@ -200,7 +198,8 @@ bool change_camera(CameraKind c)
 
 void configure_camera()
 {
-    open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
+    auto path = ini::camera_config_folderpath + "/" + Holovibes::instance().get_camera_ini_name();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 }
 
 #pragma endregion
