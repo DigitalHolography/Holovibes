@@ -2,11 +2,10 @@
 
 #include "micro_cache.hh"
 #include "enum_space_transformation.hh"
+#include "enum_img_type.hh"
 
 namespace holovibes
 {
-NEW_MICRO_CACHE(BatchCache, (uint, batch_size));
-
 /*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches
  * \param time_transformation_stride Number of pipe iterations between two time transformations (STFT/PCA)
@@ -24,6 +23,11 @@ NEW_MICRO_CACHE(ComputeCache,
                 (TimeTransformation, time_transformation),
                 (float, lambda),
                 (float, z_distance));
+
+/*! \brief Construct a new new micro cache object
+ * \param img_type Type of the image displayed
+ */
+NEW_MICRO_CACHE(ViewCache, (ImgType, img_type));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

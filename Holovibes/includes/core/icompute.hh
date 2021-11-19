@@ -378,5 +378,6 @@ class ICompute : public Observable
 
     ComputeCache::Cache compute_cache_;
     Filter2DCache::Cache filter2d_cache_;
+    ViewCache::Cache view_cache_;
 };
 } // namespace holovibes

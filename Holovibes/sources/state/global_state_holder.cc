@@ -53,7 +53,7 @@ void GSH::set_space_transformation_from_string(const std::string& value)
 {
     try
     {
-        set_space_transformation(string_to_space_transform.at(value));
+        set_space_transformation(space_transformation_from_string(value));
     }
     catch (const std::out_of_range&)
     {
@@ -66,7 +66,7 @@ void GSH::set_time_transformation_from_string(const std::string& value)
 {
     try
     {
-        set_time_transformation(string_to_time_transform.at(value));
+        set_time_transformation(time_transformation_from_string(value));
     }
     catch (const std::out_of_range&)
     {
@@ -80,6 +80,12 @@ void GSH::set_z_distance(float value) { compute_cache_.set_z_distance(value); }
 
 void GSH::set_filter2d_n1(int value) { filter2d_cache_.set_filter2d_n1(value); }
 void GSH::set_filter2d_n2(int value) { filter2d_cache_.set_filter2d_n2(value); }
+
+void GSH::set_img_type(ImgType value)
+{
+    LOG_WARN << value;
+    view_cache_.set_img_type(value);
+}
 
 #pragma endregion
 
@@ -103,9 +109,13 @@ int GSH::get_filter2d_n1() const { return filter2d_cache_.get_filter2d_n1(); }
 
 int GSH::get_filter2d_n2() const { return filter2d_cache_.get_filter2d_n2(); }
 
+ImgType GSH::get_img_type() const { return view_cache_.get_img_type(); }
+
 #pragma endregion
 
-void GSH::load_ptree(const boost::property_tree::ptree& ptree)
+static void load_image_rendering(const boost::property_tree::ptree& ptree,
+                                 ComputeCache::Ref& compute_cache_,
+                                 Filter2DCache::Ref& filter2d_cache_)
 {
     compute_cache_.set_batch_size(ptree.get<uint>("image_rendering.batch_size", 1));
     compute_cache_.set_time_transformation_size(
@@ -120,6 +130,21 @@ void GSH::load_ptree(const boost::property_tree::ptree& ptree)
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
+}
+
+static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& view_cache_)
+{
+    view_cache_.set_img_type(
+        static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(ImgType::Modulus))));
+}
+
+// je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
+// un peu comme ils faisaient déjà
+
+void GSH::load_ptree(const boost::property_tree::ptree& ptree)
+{
+    load_image_rendering(ptree, compute_cache_, filter2d_cache_);
+    load_view(ptree, view_cache_);
 }
 
 // void GSH::load_advanced(const boost::property_tree::ptree& ptree) {
@@ -142,9 +167,14 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());
 }
 
+static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& view_cache_)
+{
+    ptree.put<int>("view.view_type", static_cast<int>(view_cache_.get_img_type()));
+}
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
 {
     save_image_rendering(ptree, compute_cache_, filter2d_cache_);
+    save_view(ptree, view_cache_);
 }
 
 } // namespace holovibes

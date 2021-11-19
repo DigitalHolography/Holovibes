@@ -14,7 +14,6 @@
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
 #include "enum_computation.hh"
-#include "enum_img_type.hh"
 #include "enum_access_mode.hh"
 #include "enum_window_kind.hh"
 #include "enum_composite_kind.hh"
@@ -108,9 +107,6 @@ class ComputeDescriptor : public Observable
 
     inline Computation get_compute_mode() const { return compute_mode; }
     inline void set_compute_mode(Computation compute_mode) { this->compute_mode = compute_mode; }
-
-    inline ImgType get_img_type() const { return img_type; }
-    inline void set_img_type(ImgType img_type) { this->img_type = img_type; }
 
     inline WindowKind get_current_window() const { return current_window; }
     inline void set_current_window(WindowKind current_window) { this->current_window = current_window; }
@@ -588,8 +584,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> divide_convolution_enabled{false};
 
     // View
-    /*! \brief type of the image displayed */
-    std::atomic<ImgType> img_type{ImgType::Modulus};
     // TODO: Add unwrap2d
     /*! \brief Are slices YZ and XZ enabled */
     std::atomic<bool> time_transformation_cuts_enabled{false};

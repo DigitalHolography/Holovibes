@@ -41,6 +41,7 @@ class FourierTransform
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
                      holovibes::ComputeCache::Cache& compute_cache,
+                     ViewCache::Cache& view_cache,
                      Filter2DCache::Cache& filter2d_cache_);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
@@ -119,6 +120,7 @@ class FourierTransform
     const cudaStream_t& stream_;
 
     ComputeCache::Cache& compute_cache_;
+    ViewCache::Cache& view_cache_;
     Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace compute

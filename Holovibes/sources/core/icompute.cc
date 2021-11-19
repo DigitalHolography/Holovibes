@@ -71,13 +71,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
-    if (cd_.img_type == ImgType::Composite)
+    if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_fd().get_frame_res();
 
-    if (cd_.img_type == ImgType::Composite)
+    if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))

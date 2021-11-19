@@ -374,7 +374,7 @@ void refresh_view_mode(Observer& observer, ushort window_size, uint index)
     close_windows();
     close_critical_compute();
 
-    get_cd().set_img_type(static_cast<ImgType>(index));
+    set_img_type(static_cast<ImgType>(index));
 
     try
     {

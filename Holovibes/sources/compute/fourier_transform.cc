@@ -34,6 +34,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
                                    ComputeCache::Cache& compute_cache,
+                                   ViewCache::Cache& view_cache,
                                    Filter2DCache::Cache& filter2d_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
@@ -47,6 +48,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
     , filter2d_cache_(filter2d_cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
@@ -356,7 +358,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            compute_cache_.get_time_transformation_size(),
                                            cd_.xz.img_accu_level.load(),
                                            cd_.yz.img_accu_level.load(),
-                                           cd_.img_type.load(),
+                                           view_cache_.get_img_type(),
                                            stream_);
         }
     });

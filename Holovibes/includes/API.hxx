@@ -14,8 +14,8 @@ inline SpaceTransformation get_space_transformation() { return GSH::instance().g
 
 inline TimeTransformation get_time_transformation() { return GSH::instance().get_time_transformation(); }
 
-inline ImgType get_img_type() { return get_cd().get_img_type(); }
-inline void set_img_type(ImgType type) { return get_cd().set_img_type(type); }
+inline ImgType get_img_type() { return GSH::instance().get_img_type(); }
+inline void set_img_type(ImgType type) { return GSH::instance().set_img_type(type); }
 
 inline WindowKind get_current_window() { return get_cd().get_current_window(); }
 

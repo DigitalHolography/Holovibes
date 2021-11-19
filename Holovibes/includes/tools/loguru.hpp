@@ -284,6 +284,7 @@ loguru::Verbosity_MAX);
 // --------------------------------------------------------------------
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
+#include "enum_img_type.hh"
 
 namespace loguru
 {
@@ -1362,21 +1363,6 @@ class LOGURU_EXPORT StreamLogger
     StreamLogger& operator<<(const T& t)
     {
         _ss << t;
-        return *this;
-    }
-
-    // In C++ '<<' operator over enums doesn't automatically cast into string. To log enum as int and other usual types
-    // we have to manually convert it to the desired type (string in this case) and overload '<<' operator for the given
-    // enum
-    StreamLogger& operator<<(const holovibes::SpaceTransformation& value)
-    {
-        _ss << holovibes::space_transform_to_string.at(value);
-        return *this;
-    }
-
-    StreamLogger& operator<<(const holovibes::TimeTransformation& value)
-    {
-        _ss << holovibes::time_transform_to_string.at(value);
         return *this;
     }
 

@@ -27,7 +27,8 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const camera::FrameDescriptor& input_fd,
                    const camera::FrameDescriptor& output_fd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache)
+                   ComputeCache::Cache& compute_cache,
+                   ViewCache::Cache& view_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -42,24 +43,26 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , output_fd_(output_fd)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
 {
 }
 
 void Converts::insert_to_float(bool unwrap_2d_requested)
 {
     insert_compute_p_accu();
-    if (cd_.img_type == ImgType::Composite)
+    if (view_cache_.get_img_type() == ImgType::Composite)
         insert_to_composite();
-    else if (cd_.img_type == ImgType::Modulus) // img type in ui : magnitude
+    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (cd_.img_type == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (cd_.img_type == ImgType::Argument)
+    else if (view_cache_.get_img_type() == ImgType::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (cd_.img_type == ImgType::PhaseIncrease)
+    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
+        view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             // Multiply frame by (2 ^ 16) - 1 in case of PCA

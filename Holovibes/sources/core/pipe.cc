@@ -44,7 +44,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                        input.get_fd(),
                                                                        desc,
                                                                        stream_,
-                                                                       compute_cache_);
+                                                                       compute_cache_,
+                                                                       view_cache_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                       buffers_,
                                                                       input.get_fd(),
@@ -54,6 +55,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                       time_transformation_env_,
                                                                       stream_,
                                                                       compute_cache_,
+                                                                      view_cache_,
                                                                       filter2d_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
@@ -65,7 +67,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       output.get_fd(),
                                                       this,
                                                       stream_,
-                                                      compute_cache_);
+                                                      compute_cache_,
+                                                      view_cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     batch_env_,
@@ -75,8 +78,14 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     input.get_fd(),
                                                     output.get_fd(),
                                                     stream_,
-                                                    compute_cache_);
-    postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
+                                                    compute_cache_,
+                                                    view_cache_);
+    postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
+                                                             buffers_,
+                                                             input.get_fd(),
+                                                             desc,
+                                                             stream_,
+                                                             view_cache_);
 
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
@@ -602,12 +611,11 @@ void Pipe::autocontrast_end_pipe(WindowKind kind)
 void Pipe::run_all()
 {
     compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
 
     for (FnType& f : fn_compute_vect_)
         f();
-
-    compute_cache_.synchronize();
-
     {
         std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
         for (FnType& f : fn_end_vect_)

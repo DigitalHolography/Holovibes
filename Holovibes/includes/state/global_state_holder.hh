@@ -51,6 +51,7 @@ class GSH
     float get_z_distance() const;
     int get_filter2d_n1() const;
     int get_filter2d_n2() const;
+    ImgType get_img_type() const;
 
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
@@ -63,6 +64,7 @@ class GSH
     void set_z_distance(float value);
     void set_filter2d_n1(int value);
     void set_filter2d_n2(int value);
+    void set_img_type(ImgType value);
 
     void load_ptree(const boost::property_tree::ptree& ptree);
 
@@ -73,6 +75,7 @@ class GSH
 
     ComputeCache::Ref compute_cache_;
     Filter2DCache::Ref filter2d_cache_;
+    ViewCache::Ref view_cache_;
 
     mutable std::mutex mutex_;
 };

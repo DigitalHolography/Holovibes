@@ -16,9 +16,8 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 }
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
+{ // yep
     // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
-    cd.img_type = static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(cd.img_type.load())));
     // Add unwrap_2d
     cd.time_transformation_cuts_enabled =
         ptree.get<bool>("view.time_transformation_cuts", cd.time_transformation_cuts_enabled);
@@ -76,7 +75,8 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 }
 
 void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
+{ // je savais, je te dis ça dans 2 min
+  // View -> show
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
@@ -174,7 +174,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
 
 void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
-    ptree.put<int>("view.view_type", static_cast<int>(cd.img_type.load()));
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);

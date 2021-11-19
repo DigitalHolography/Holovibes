@@ -39,7 +39,8 @@ class ImageAccumulation
                       const camera::FrameDescriptor& fd,
                       const holovibes::ComputeDescriptor& cd,
                       const cudaStream_t& stream,
-                      ComputeCache::Cache& compute_cache);
+                      ComputeCache::Cache& compute_cache,
+                      ViewCache::Cache& view_cache);
 
     /*! \brief Enqueue the image accumulation.
      *
@@ -94,6 +95,7 @@ class ImageAccumulation
     const cudaStream_t& stream_;
 
     ComputeCache::Cache& compute_cache_;
+    ViewCache::Cache& view_cache_;
 };
 } // namespace compute
 } // namespace holovibes

@@ -24,7 +24,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const camera::FrameDescriptor& output_fd,
                      ICompute* Ic,
                      const cudaStream_t& stream,
-                     ComputeCache::Cache& compute_cache)
+                     ComputeCache::Cache& compute_cache,
+                     ViewCache::Cache& view_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -36,6 +37,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , Ic_(Ic)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -47,7 +49,7 @@ void Rendering::insert_fft_shift()
 {
     if (cd_.fft_shift_enabled)
     {
-        if (cd_.img_type == ImgType::Composite)
+        if (view_cache_.get_img_type() == ImgType::Composite)
             fn_compute_vect_.conditional_push_back([=]() {
                 shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
                               1,
