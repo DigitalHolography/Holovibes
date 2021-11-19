@@ -1,5 +1,9 @@
 ## Changelog
 
+### 10.3.2
+
+* Refa Installer creates folder cameras_config in Appdata
+
 ### 10.3.1
 
 * Fix Camera view in raw mode (the camera raw view wasn't displayed)
