@@ -2,7 +2,7 @@
 
 ### 10.3.2
 
-* Refa Installer creates folder cameras_config in Appdata
+* Installer now creates folder cameras_config in Appdata and put all cameras.ini in it
 
 ### 10.3.1
 
