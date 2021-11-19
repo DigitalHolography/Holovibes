@@ -129,7 +129,7 @@ class Holovibes
     void set_cd(const ComputeDescriptor& cd);
 
     /*! \return Corresponding Camera INI file path */
-    const char* get_camera_ini_path() const;
+    const char* get_camera_ini_name() const;
 
     /*! \brief Get zb = N d^2 / lambda
      *
@@ -203,8 +203,9 @@ class Holovibes
     void stop_frame_record();
 
     void start_chart_record(
-        const std::string& path, const unsigned int nb_points_to_record, const std::function<void()>& callback = []() {
-        });
+        const std::string& path,
+        const unsigned int nb_points_to_record,
+        const std::function<void()>& callback = []() {});
 
     void stop_chart_record();
 
