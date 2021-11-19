@@ -196,6 +196,9 @@ void Holovibes::init_pipe()
 
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
 
+    if (compute_pipe_.load())
+        compute_pipe_ = nullptr;
+
     compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                *(gpu_output_queue_.load()),
                                                cd,
