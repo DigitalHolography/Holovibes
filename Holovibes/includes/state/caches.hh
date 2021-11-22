@@ -3,6 +3,7 @@
 #include "micro_cache.hh"
 #include "enum_space_transformation.hh"
 #include "enum_img_type.hh"
+#include "view_struct.hh"
 
 namespace holovibes
 {
@@ -29,7 +30,7 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
  */
-NEW_INITIALIZED_MICRO_CACHE(ViewCache, (ImgType, img_type, ImgType::Modulus));
+NEW_INITIALIZED_MICRO_CACHE(ViewCache, (ImgType, img_type, ImgType::Modulus), (View_XY, x, View_XY{}));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

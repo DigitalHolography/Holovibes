@@ -90,7 +90,7 @@ void Converts::insert_compute_p_accu()
         pmin_ = cd_.p.index;
         if (cd_.p.accu_level != 0)
             pmax_ = std::max(0,
-                             std::min<int>(pmin_ + cd_.p.accu_level.load(),
+                             std::min<int>(pmin_ + cd_.p.accu_level,
                                            static_cast<int>(compute_cache_.get_time_transformation_size())));
         else
             pmax_ = cd_.p.index;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+// #include <boost/pfr/core.hpp>
 
 typedef unsigned int uint;
 
@@ -26,7 +27,12 @@ struct View_XYZ : public View_Window
 
 struct View_Accu
 {
-    std::atomic<int> accu_level{1};
+    int accu_level = 1;
+    inline View_Accu& operator=(const View_Accu& accu)
+    {
+        accu_level = accu.accu_level;
+        return *this;
+    };
 };
 
 struct View_PQ : public View_Accu
@@ -36,5 +42,22 @@ struct View_PQ : public View_Accu
 
 struct View_XY : public View_Accu
 {
-    std::atomic<uint> cuts{0};
+    uint cuts = 0;
+    inline View_XY& operator=(const View_XY& x)
+    {
+        cuts = x.cuts;
+        return *this;
+    };
 };
+
+inline std::ostream& operator<<(std::ostream& os, View_Accu obj) { return os << obj.accu_level; }
+
+inline std::ostream& operator<<(std::ostream& os, View_XY obj) { return os << obj.cuts; }
+
+// inline std::ostream& operator<<(std::ostream& os, View_Accu obj)
+// {
+//     boost::pfr::for_each_field(obj, [](auto& field) {
+//         os << field;
+//     }
+//     return os;
+// }

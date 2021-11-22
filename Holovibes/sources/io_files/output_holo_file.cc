@@ -52,9 +52,9 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
 
                           {"fft_shift_enabled", cd.fft_shift_enabled.load()},
 
-                          {"x_acc_level", cd.x.accu_level.load()},
-                          {"y_acc_level", cd.y.accu_level.load()},
-                          {"p_acc_level", cd.p.accu_level.load()},
+                          {"x_acc_level", cd.x.accu_level},
+                          {"y_acc_level", cd.y.accu_level},
+                          {"p_acc_level", cd.p.accu_level},
 
                           {"log_scale", cd.xy.log_scale_slice_enabled.load()},
                           {"contrast_min", cd.xy.contrast_min.load()},
