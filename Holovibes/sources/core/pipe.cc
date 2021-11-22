@@ -279,10 +279,17 @@ bool Pipe::make_requests()
 
     if (cuts_record_requested_.load() != std::nullopt)
     {
-        LOG_INFO << __func__ << " cuts_3d_requested" << std::endl;
-        // TODO: take input from xy or zy in time_transfo_env_
+        camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+
+        fd_xz.depth = sizeof(ushort);
+
+        // auto fd_yz = fd_xz;
+        fd_xz.height = cd_.time_transformation_size;
+        // fd_yz.width = cd_.time_transformation_size;
+
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(fd_xz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+
         cd_.frame_record_enabled = true;
         frame_record_env_.record_mode_ = RecordMode::CUTS;
         cuts_record_requested_ = std::nullopt;
@@ -361,6 +368,7 @@ void Pipe::refresh()
     // time transform
     fourier_transforms_->insert_time_transform();
     fourier_transforms_->insert_time_transformation_cuts_view();
+    insert_cuts_record();
 
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
@@ -579,8 +587,10 @@ void Pipe::insert_cuts_record()
 {
     if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::CUTS)
     {
+        LOG_INFO;
+        // Handle xz or yz
         fn_compute_vect_.push_back(
-            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_); });
+            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
     }
 }
 

@@ -207,14 +207,16 @@ void ICompute::init_cuts()
     camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
     fd_xz.depth = sizeof(ushort);
-    uint buffer_depth = sizeof(float);
     auto fd_yz = fd_xz;
+
     fd_xz.height = cd_.time_transformation_size;
     fd_yz.width = cd_.time_transformation_size;
+
     time_transformation_env_.gpu_output_queue_xz.reset(
         new Queue(fd_xz, cd_.time_transformation_cuts_output_buffer_size));
     time_transformation_env_.gpu_output_queue_yz.reset(
         new Queue(fd_yz, cd_.time_transformation_cuts_output_buffer_size));
+
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());
 
