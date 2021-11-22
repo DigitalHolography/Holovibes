@@ -40,11 +40,11 @@ void ExportPanel::on_notify()
 
     if (ui_->TimeTransformationCutsCheckBox->isChecked())
     {
-        if (ui_->RecordImageModeComboBox->findText("3D cuts") == -1)
-            ui_->RecordImageModeComboBox->insertItem(1, "3D cuts");
+        if (ui_->RecordImageModeComboBox->findText("3D Cuts") == -1)
+            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts");
     }
     else
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D cuts"));
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts"));
 
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
@@ -183,6 +183,7 @@ void ExportPanel::set_record_mode(const QString& value)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
+            ui_->RecordExtComboBox->insertItem(1, ".avi");
         }
 
         ui_->ChartPlotWidget->hide();
@@ -231,9 +232,7 @@ void ExportPanel::start_record()
     std::optional<unsigned int> nb_frames_to_record = std::nullopt;
 
     if (nb_frame_checked)
-    {
         nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
-    }
 
     std::string output_path =
         ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
