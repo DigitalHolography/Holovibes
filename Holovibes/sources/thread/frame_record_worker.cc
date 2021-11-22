@@ -59,7 +59,7 @@ void FrameRecordWorker::run()
         output_frame_file =
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
-        output_frame_file->export_compute_settings(record_mode_ == RecordMode::HOLOGRAM);
+        output_frame_file->export_compute_settings(record_mode_ == RecordMode::RAW);
         output_frame_file->write_header();
 
         frame_buffer = new char[output_frame_size];
