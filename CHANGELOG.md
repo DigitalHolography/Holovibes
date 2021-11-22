@@ -3,6 +3,7 @@
 ### 10.3.2
 
 * Installer now creates folder cameras_config in Appdata and put all cameras.ini in it
+* Add record mode Cuts XY and Cuts YZ
 
 ### 10.3.1
 
