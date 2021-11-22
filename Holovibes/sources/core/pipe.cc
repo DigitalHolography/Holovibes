@@ -23,7 +23,7 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-// To remove when GSH will handle record_mode
+// TODO: Remove this include when GSH will handle record_mode
 #include "user_interface_descriptor.hh"
 
 namespace holovibes
