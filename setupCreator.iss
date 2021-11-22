@@ -11,8 +11,8 @@
 #define MyAppExeName "Holovibes.exe"
 #define MyLicense "LICENSE"
 
-#define QtPath "C:\Qt\Qt5.9.9\5.9.9\msvc2017_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.9\5.9.9\msvc2017_64\plugins\platforms"
+#define QtPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\bin"
+#define QtPlatformPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\plugins\platforms"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin"
 #define OpenCVPath "C:\opencv\build\x64\vc15\bin"
 
@@ -64,13 +64,13 @@ Name: "visual"; Description: "Run-time components for C++"; Types: full
 [Files]
 Source: "{#BuildDir}\*"; DestDir: "{app}\{#MyAppVersion}"; Components: program; Flags: ignoreversion recursesubdirs
 
-Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5OpenGL.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Charts.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6OpenGL.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6Charts.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cublas64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

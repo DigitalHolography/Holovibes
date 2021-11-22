@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "filter2d_reticle_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -43,8 +44,8 @@ void Filter2DReticleOverlay::setBuffer()
     float w = parent_->getFd().width;
     float h = parent_->getFd().height;
     float dimension_min = fmin(w, h);
-    float scale_n1 = (parent_->getCd()->filter2d_n1.load() * 2) / dimension_min;
-    float scale_n2 = (parent_->getCd()->filter2d_n2.load() * 2) / dimension_min;
+    float scale_n1 = (api::get_cd().filter2d_n1.load() * 2) / dimension_min;
+    float scale_n2 = (api::get_cd().filter2d_n2.load() * 2) / dimension_min;
     float dim_min_2 = dimension_min / 2;
     float w_border_n1 = (dim_min_2 * scale_n1) / dim_min_2;
     float h_border_n1 = (dim_min_2 * scale_n1) / dim_min_2;

@@ -56,7 +56,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
-#include <QDesktopWidget.h>
 #include <QDragEnterEvent>
 #include <QEvent.h>
 #include <QFileDialog>

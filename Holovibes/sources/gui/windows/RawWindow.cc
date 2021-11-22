@@ -9,6 +9,7 @@
 #include <QScreen>
 #include <QWheelEvent>
 
+#include "API.hh"
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 #include "cuda_memory.cuh"
@@ -26,6 +27,7 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     , texDepth(0)
     , texType(0)
 {
+    show();
 }
 
 RawWindow::~RawWindow()
@@ -154,7 +156,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / cd_->display_rate);
+    startTimer(1000 / api::get_cd().display_rate);
 }
 
 /* This part of code makes a resizing of the window displaying image to
@@ -170,8 +172,9 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((cd_->compute_mode == Computation::Hologram && cd_->space_transformation == SpaceTransformation::NONE) ||
-        cd_->compute_mode == Computation::Raw)
+    if ((api::get_cd().compute_mode == Computation::Hologram &&
+         api::get_cd().space_transformation == SpaceTransformation::NONE) ||
+        api::get_cd().compute_mode == Computation::Raw)
     {
         if (w != old_width)
         {
@@ -250,13 +253,13 @@ void RawWindow::paintGL()
     void* frame = output_->get_last_image();
 
     // Put the frame inside the cuda ressrouce
-    if (cd_->img_type == ImgType::Composite)
+    if (api::get_cd().img_type == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
     else
     {
-        ushort bitshift = kView == KindOfView::Raw ? cd_->raw_bitshift.load() : 0;
+        ushort bitshift = kView == KindOfView::Raw ? api::get_cd().raw_bitshift.load() : 0;
         convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, bitshift, cuStream);
     }
 
@@ -358,10 +361,11 @@ void RawWindow::set_is_resize(bool b) { is_resize = b; }
 
 void RawWindow::wheelEvent(QWheelEvent* e)
 {
-    if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
+    QPointF pos = e->position();
+    if (!is_between(static_cast<int>(pos.x()), 0, width()) || !is_between(static_cast<int>(pos.y()), 0, height()))
         return;
-    const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-    const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
+    const float xGL = (static_cast<float>(pos.x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+    const float yGL = -((static_cast<float>(pos.y() - height() / 2)) / static_cast<float>(height())) * 2.f;
     if (e->angleDelta().y() > 0)
     {
         scale_ += 0.1f * scale_;

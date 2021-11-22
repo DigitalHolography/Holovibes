@@ -10,7 +10,17 @@
 #include <string>
 #include <ctime>
 #include <cassert>
+
+#ifndef __NVCC__
 #include <qrect.h>
+#else
+class QString;
+using uchar = unsigned char;
+using uint = unsigned int;
+using ushort = unsigned short;
+using ulong = unsigned long;
+#endif
+
 #include <filesystem>
 #include <fstream>
 
@@ -111,8 +121,6 @@ namespace holovibes
 unsigned short upper_window_size(ushort width, ushort height);
 /*! \brief return width and height with the same ratio and the max of the two being window_size */
 void get_good_size(ushort& width, ushort& height, ushort window_size);
-/*! \brief Returns the path of the currently used executable file */
-std::string get_exe_path();
 /*! \brief Returns the directory of the currently used executable file */
 std::string get_exe_dir();
 /*! \brief Return the first not used filename available from the parameter filename as a base */

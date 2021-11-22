@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "composite_area_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include <iostream>
@@ -18,5 +19,5 @@ void CompositeAreaOverlay::release(ushort frameSide)
     if (zone_.topLeft() == zone_.bottomRight())
         return;
 
-    parent_->getCd()->setCompositeZone(zone_);
+    api::get_cd().setCompositeZone(zone_);
 }

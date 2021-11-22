@@ -101,7 +101,10 @@ T get_value(const json& json, const std::string& key, const T& default_value)
 
 void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
 {
-    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
+    // This is done for retrocompatibility
+    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load()) == Computation::Raw ? Computation::Raw
+                                                                                                : Computation::Hologram;
+
     cd.space_transformation = get_value(meta_data_, "algorithm", cd.space_transformation.load());
     cd.time_transformation = get_value(meta_data_, "time_filter", cd.time_transformation.load());
     cd.time_transformation_size = get_value(meta_data_, "#img", cd.time_transformation_size.load());

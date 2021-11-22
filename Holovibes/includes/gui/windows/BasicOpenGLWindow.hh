@@ -49,9 +49,6 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     const KindOfOverlay getKindOfOverlay() const;
     void resetSelection();
 
-    void setCd(ComputeDescriptor* cd);
-    ComputeDescriptor* getCd();
-    const ComputeDescriptor* getCd() const;
     const camera::FrameDescriptor& getFd() const;
     OverlayManager& getOverlayManager();
 
@@ -78,7 +75,6 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     /*! \brief Output queue filled in the computing pipeline */
     DisplayQueue* output_;
-    ComputeDescriptor* cd_;
     const camera::FrameDescriptor& fd_;
     const KindOfView kView;
 

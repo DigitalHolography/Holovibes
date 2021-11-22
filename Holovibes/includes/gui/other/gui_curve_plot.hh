@@ -20,8 +20,6 @@
 #include "concurrent_deque.hh"
 #include "chart_point.hh"
 
-using namespace QtCharts;
-
 namespace holovibes
 {
 namespace gui

@@ -5,7 +5,7 @@
 * [Visual Studio 2019](https://visualstudio.microsoft.com/fr/) (with `Desktop applications in C++`)
 * [CMake 3.19.0-rc1 win32](https://github.com/Kitware/CMake/releases/tag/v3.19.0-rc1)
 * [CUDA 11.2](https://developer.nvidia.com/cuda-downloads)
-* [Qt 5.9](https://download.qt.io/archive/qt/5.9/)
+* [Qt 6.2.1](https://download.qt.io/archive/qt/6.2/6.2.1/)
 * [Boost 1.71.0](https://boost.teeks99.com/bin/1.71.0/)
 * [BitFlow SDK 6.50](http://www.bitflow.com/downloads/bfsdk65.zip) (serial code 2944-8538-8655-8474)
 * [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
@@ -21,11 +21,12 @@ The minimum requirements in _Individual Components_ (installable from Visual Stu
 
 #### Environment variables
 
-Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path. *Note: it is recommended to put Qt above every other paths to avoid conflicts when loading Qt5 DLLs.*
+Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path.
 
 Other variables:
 * `OpenCV_DIR`: Fill with OpenCV location (Usually: `C:\opencv\build`)
 * `CUDA_PATH`: Fill with Cuda and NVCC location
+* If cmake cannot find the Qt6Config.cmake file, `Qt6_DIR`: Fill with Qt6Config.cmake file location (Usually: `~\msvc2019_64\lib\cmake\Qt6\`)
 
 Do not forget to restart Visual Studio Code or your terminal before compiling again.
 
@@ -33,7 +34,7 @@ Do not forget to restart Visual Studio Code or your terminal before compiling ag
 
 Use `./dev.py cmake build` to build using our dev tool (cf. Dev tool documentation)
 
-By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./build [generator]`.
+By default *Ninja* is used but you can rely on other build systems (*Visual Studio 14*, *Visual Studio 15*, *Visual Studio 16* or *NMake Makefiles*) with `./dev.py -g [generator]`.
 
 Alternatively, you can build from the command line (not recommended):
 * **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
@@ -44,19 +45,21 @@ Note: After changing an element of the front or to change between release/debug 
 ### Add an element to Front with __QtCreator__
 
 * On _QtCreator_, load the file `mainwindow.ui`
-* Add the wanted widget with a drag and drop and change its name in the right collumn.
+* Add the wanted widget with a drag and drop and change its name in the right column.
 * Add a slot at the end of the file `mainwindow.ui` opened in edit mode with the prototype of the function.
 * Add a new slot in _QtCreator_ cliking on the green '+' on the middle.
-* Fill the 4 collumns with the name of your function in the last collumn.
+* Fill the 4 columns with the name of your function in the last column.
 * Add the prototype in `MainWindow.hh`
 * Implement the function in `MainWindow.cc`
+
+If you want to use a custom widget, you can change its class in the `mainwindow.ui` directly if it doesn't work in _QtCreator_
 
 
 #### Known issues
 
-2021-05-18: The project may not compile with the latest version of MSVC. To downgrade to a previous version (14.29 and 14.27 works) select the appropriate components in the `Visual Studio installer -> modify -> individual components` menu. The latest version is still required to install msvc build tools. To make MSVC use the version of your choice by default, change the file `vcvars64.bat` located in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build` from ``@call "%~dp0vcvarsall.bat" x64 %*`` to ``@call "%~dp0vcvarsall.bat" x64 %* -vcvars_ver=14.27``
-
 2021-10-04: If you encounter the issue "clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory". You have to find the file and put it in your PATH or copy it into the build directory for it to work
+
+2021-11-09: If Qt6 has a problem with its qHashMulti function, go to the QtCore/qhashfunctions.h file, go to the qHashMulti function and remove the "#ifdef Q_QDOC size_t #else QtPrivate::QHashMultiReturnType<T...> #endif" to simply "size_t".
 
 ### Test suite
 
@@ -78,7 +81,7 @@ You shall put 1 to 3 files in the folder:
 
 ##### Usage
 
-Just build the project either in Release or Debug mode, 
+Just build the project either in Release or Debug mode,
 The tool used to run these tests is `pytest`. Just run this from the root of the project
 ```sh
 $ python -m pytest -v

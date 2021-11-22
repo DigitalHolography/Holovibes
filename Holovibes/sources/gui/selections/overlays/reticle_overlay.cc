@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "reticle_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -40,7 +41,7 @@ void ReticleOverlay::setBuffer()
 {
     Program_->bind();
     Vao_.bind();
-    float scale = parent_->getCd()->reticle_scale.load();
+    float scale = api::get_cd().reticle_scale.load();
     float w = parent_->size().width();
     float h = parent_->size().height();
     float w_2 = w / 2;
@@ -55,7 +56,7 @@ void ReticleOverlay::setBuffer()
     auto bottom_right = units::PointWindow(convert, w_2 + w_2 * scale, h_2 + h_2 * scale);
     units::RectWindow zone_window(top_left, bottom_right);
     zone_ = zone_window;
-    parent_->getCd()->setReticleZone(zone_);
+    api::get_cd().setReticleZone(zone_);
 
     /*
             0-------------1
