@@ -298,6 +298,10 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
+
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();

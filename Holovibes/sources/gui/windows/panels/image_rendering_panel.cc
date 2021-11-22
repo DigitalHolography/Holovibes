@@ -147,7 +147,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)p
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -164,7 +165,8 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
@@ -209,7 +211,8 @@ void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
@@ -249,8 +252,9 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-      return;
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
     time_transformation_size = std::max(1, time_transformation_size);
@@ -289,7 +293,7 @@ void ImageRenderingPanel::set_z(const double value)
 
 void ImageRenderingPanel::increment_z()
 {
-  if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     set_z(api::get_z_distance() + z_step_);

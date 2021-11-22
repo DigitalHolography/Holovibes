@@ -178,9 +178,9 @@ void camera_none()
 {
     close_windows();
     close_critical_compute();
-  
+
     if (get_compute_mode() == Computation::Hologram)
-      
+
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
@@ -577,7 +577,7 @@ void set_time_transformation_size(std::function<void()> callback)
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (is_raw_mode())
+    if (get_compute_mode() == Computation::Raw)
         return;
 
     get_cd().set_lens_view_enabled(checked);
@@ -626,7 +626,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
 
 void set_raw_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (is_raw_mode())
+    if (get_compute_mode() == Computation::Raw)
         return;
 
     auto pipe = get_compute_pipe();
@@ -818,9 +818,9 @@ void set_z_distance(const double value)
     pipe_refresh();
 }
 
-void set_space_transformation(const std::string& value) { GSH::instance().set_space_transformation_from_string(value); }
+void set_space_transformation(const SpaceTransformation value) { GSH::instance().set_space_transformation(value); }
 
-void set_time_transformation(const std::string& value) { GSH::instance().set_time_transformation_from_string(value); }
+void set_time_transformation(const TimeTransformation value) { GSH::instance().set_time_transformation(value); }
 
 void set_unwrapping_2d(const bool value)
 {
