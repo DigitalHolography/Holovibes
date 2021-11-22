@@ -330,6 +330,12 @@ void ICompute::request_raw_record(std::optional<unsigned int> nb_frames_to_recor
     request_refresh();
 }
 
+void ICompute::request_cuts_record(std::optional<unsigned int> nb_frames_to_record)
+{
+    cuts_record_requested_ = nb_frames_to_record;
+    request_refresh();
+}
+
 void ICompute::request_disable_frame_record()
 {
     disable_frame_record_requested_ = true;

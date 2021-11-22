@@ -277,6 +277,17 @@ bool Pipe::make_requests()
         raw_record_requested_ = std::nullopt;
     }
 
+    if (cuts_record_requested_.load() != std::nullopt)
+    {
+        LOG_INFO << __func__ << " cuts_3d_requested" << std::endl;
+        // TODO: take input from xy or zy in time_transfo_env_
+        frame_record_env_.gpu_frame_record_queue_.reset(
+            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+        cd_.frame_record_enabled = true;
+        frame_record_env_.record_mode_ = RecordMode::CUTS;
+        cuts_record_requested_ = std::nullopt;
+    }
+
     return success_allocation;
 }
 
