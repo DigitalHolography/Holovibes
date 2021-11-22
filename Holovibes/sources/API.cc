@@ -1134,14 +1134,17 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
 void set_record_mode(const std::string& text)
 {
+    // TODO: Dictionnary
     if (text == "Chart")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
     else if (text == "Processed Image")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
-    else if (text == "3D Cuts")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS;
+    else if (text == "3D Cuts XZ")
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
+    else if (text == "3D Cuts YZ")
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
     else
         throw std::exception("Record mode not handled");
 }
@@ -1211,7 +1214,8 @@ void stop_record()
         Holovibes::instance().stop_chart_record();
     else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
              UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 }
 

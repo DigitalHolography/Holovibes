@@ -140,15 +140,12 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
         while (pipe->get_hologram_record_requested() != std::nullopt && !stop_requested_)
             continue;
     }
-    else if (record_mode_ == RecordMode::CUTS)
+    else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
     {
         pipe->request_cuts_record(nb_frames_to_record_);
         while (pipe->get_cuts_record_requested() != std::nullopt && !stop_requested_)
             continue;
     }
-
-
-
 
     return *pipe->get_frame_record_queue();
 }
