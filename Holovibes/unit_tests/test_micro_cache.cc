@@ -10,7 +10,7 @@
 namespace holovibes
 {
 
-NEW_INITIALIZED_MICRO_CACHE(TestCache1, (unsigned, a, 0), (float, b, 0), (long, c, 0))
+NEW_INITIALIZED_MICRO_CACHE(TestCache1, (unsigned, a, 1), (float, b, 2.0), (long, c, 3))
 // needed when typing contains commas (which are supposed to divide args of the macro)
 using b_wrapper = std::vector<std::pair<float, double>>;
 using c_wrapper = std::map<std::string, std::string>;
@@ -99,9 +99,9 @@ TEST(TestMicroCache, basic_types_before_synchronize)
 {
     TestMicroCache1 test;
 
-    ASSERT_NE(test.y.get_a(), 1);
-    ASSERT_NE(test.y.get_b(), 2.0);
-    ASSERT_NE(test.y.get_c(), 3);
+    ASSERT_EQ(test.y.get_a(), 1);
+    ASSERT_EQ(test.y.get_b(), 2.0);
+    ASSERT_EQ(test.y.get_c(), 3);
 }
 
 TEST(TestMicroCache, basic_types_after_synchronize)
