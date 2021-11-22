@@ -14,7 +14,8 @@ enum class RecordMode
 {
     NONE,
     CHART,
-    CUTS,
+    CUTS_XZ,
+    CUTS_YZ,
     HOLOGRAM,
     RAW,
 };

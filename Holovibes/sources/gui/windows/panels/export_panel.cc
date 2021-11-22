@@ -40,11 +40,18 @@ void ExportPanel::on_notify()
 
     if (ui_->TimeTransformationCutsCheckBox->isChecked())
     {
-        if (ui_->RecordImageModeComboBox->findText("3D Cuts") == -1)
-            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts");
+        // Only one check is needed
+        if (ui_->RecordImageModeComboBox->findText("3D Cuts XZ") == -1)
+        {
+            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts XZ");
+            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts YZ");
+        }
     }
     else
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts"));
+    {
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"));
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"));
+    }
 
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
@@ -99,12 +106,13 @@ void ExportPanel::browse_record_output_file()
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
+    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
-                                                tr("Mp4 files (*.mp4)"));
+                                                tr("Mp4 files (*.mp4);; Avi Files (*.avi);;"));
     }
 
     if (filepath.isEmpty())
@@ -179,7 +187,8 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
+        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ ||
+                 UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".mp4");

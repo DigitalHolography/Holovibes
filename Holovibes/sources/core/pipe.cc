@@ -23,6 +23,9 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
+// To remove when GSH will handle record_mode
+#include "user_interface_descriptor.hh"
+
 namespace holovibes
 {
 using camera::FrameDescriptor;
@@ -279,19 +282,22 @@ bool Pipe::make_requests()
 
     if (cuts_record_requested_.load() != std::nullopt)
     {
-        camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
 
-        fd_xz.depth = sizeof(ushort);
+        RecordMode rm = UserInterfaceDescriptor::instance().record_mode_;
 
-        // auto fd_yz = fd_xz;
-        fd_xz.height = cd_.time_transformation_size;
-        // fd_yz.width = cd_.time_transformation_size;
+        fd_xyz.depth = sizeof(ushort);
+
+        if (rm == RecordMode::CUTS_XZ)
+            fd_xyz.height = cd_.time_transformation_size;
+        else if (rm == RecordMode::CUTS_YZ)
+            fd_xyz.width = cd_.time_transformation_size;
 
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(fd_xyz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
 
         cd_.frame_record_enabled = true;
-        frame_record_env_.record_mode_ = RecordMode::CUTS;
+        frame_record_env_.record_mode_ = rm;
         cuts_record_requested_ = std::nullopt;
     }
 
@@ -585,12 +591,20 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::CUTS)
+    if (cd_.frame_record_enabled)
     {
-        LOG_INFO;
-        // Handle xz or yz
-        fn_compute_vect_.push_back(
-            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
+        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        {
+            fn_compute_vect_.push_back(
+                [&]()
+                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
+        }
+        else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
+        {
+            fn_compute_vect_.push_back(
+                [&]()
+                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
+        }
     }
 }
 
