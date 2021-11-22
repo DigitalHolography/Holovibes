@@ -788,7 +788,7 @@ void set_z_distance(const double value)
 void set_space_transformation(const SpaceTransformation& value) { get_cd().set_space_transformation(value); }
 
 void set_time_transformation(const TimeTransformation& value) { get_cd().set_time_transformation(value); }
-  
+
 void adapt_time_transformation_stride_to_batch_size() { get_cd().adapt_time_transformation_stride(); }
 
 void set_unwrapping_2d(const bool value)
@@ -1197,13 +1197,13 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+        else
         {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
-        }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
-        {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+            Holovibes::instance().start_frame_record(output_path,
+                                                     nb_frames_to_record,
+                                                     UserInterfaceDescriptor::instance().record_mode_,
+                                                     0,
+                                                     callback);
         }
     }
 }

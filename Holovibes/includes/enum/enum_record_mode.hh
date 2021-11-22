@@ -15,5 +15,6 @@ enum class RecordMode
     RAW,
     HOLOGRAM,
     CHART,
+    CUTS,
 };
 } // namespace holovibes
