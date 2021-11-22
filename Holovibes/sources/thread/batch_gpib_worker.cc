@@ -72,11 +72,9 @@ void BatchGPIBWorker::run()
                 }
                 else // Frame Record
                 {
-                    bool raw_record = record_mode_ == RecordMode::RAW;
-
                     frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
                                                                                nb_frames_to_record_,
-                                                                               raw_record,
+                                                                               record_mode_,
                                                                                0,
                                                                                output_buffer_size_);
                     frame_record_worker_->run();

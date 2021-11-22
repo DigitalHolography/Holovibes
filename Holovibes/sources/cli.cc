@@ -6,6 +6,7 @@
 #include "icompute.hh"
 #include "ini_config.hh"
 #include "input_frame_file_factory.hh"
+#include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 #include "API.hh"
 
@@ -220,7 +221,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     cd.frame_record_enabled = true;
 
-    holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, opts.record_raw, nb_frames_skip);
+    holovibes::RecordMode rm = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);
 
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,

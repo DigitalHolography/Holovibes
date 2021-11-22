@@ -189,23 +189,22 @@ class Holovibes
      *
      * \param path
      * \param nb_frames_to_record
-     * \param raw_record
+     * \param record_mode
      * \param nb_frames_skip
      * \param callback
      */
     void start_frame_record(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
-        bool raw_record,
+        RecordMode record_mode,
         unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 
     void stop_frame_record();
 
     void start_chart_record(
-        const std::string& path,
-        const unsigned int nb_points_to_record,
-        const std::function<void()>& callback = []() {});
+        const std::string& path, const unsigned int nb_points_to_record, const std::function<void()>& callback = []() {
+        });
 
     void stop_chart_record();
 
@@ -230,7 +229,7 @@ class Holovibes
 
     void start_cli_record_and_compute(const std::string& path,
                                       std::optional<unsigned int> nb_frames_to_record,
-                                      bool raw_record,
+                                      RecordMode record_mode,
                                       unsigned int nb_frames_skip);
 
     void init_pipe();

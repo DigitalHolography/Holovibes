@@ -110,7 +110,7 @@ void Holovibes::stop_frame_read()
 
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
-                                   bool raw_record,
+                                   RecordMode record_mode,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
@@ -118,7 +118,7 @@ void Holovibes::start_frame_record(const std::string& path,
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          raw_record,
+                                          record_mode,
                                           nb_frames_skip,
                                           cd_.output_buffer_size);
 }
@@ -165,12 +165,16 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              std::optional<unsigned int> nb_frames_to_record,
-                                             bool raw_record,
+                                             RecordMode record_mode,
                                              unsigned int nb_frames_skip)
 {
     frame_record_worker_controller_.set_callback([]() {});
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip, cd_.output_buffer_size);
+    frame_record_worker_controller_.start(path,
+                                          nb_frames_to_record,
+                                          record_mode,
+                                          nb_frames_skip,
+                                          cd_.output_buffer_size);
 
     while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
         continue;

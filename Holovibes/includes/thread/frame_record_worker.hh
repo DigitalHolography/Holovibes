@@ -5,6 +5,7 @@
 #pragma once
 
 #include "worker.hh"
+#include "enum_record_mode.hh"
 
 namespace holovibes
 {
@@ -25,12 +26,12 @@ class FrameRecordWorker : public Worker
      *
      * \param file_path The path of the file to record
      * \param nb_frames_to_record The number of frames to record
-     * \param raw_record Whether raw images are recorded
+     * \param record_mode Type of record between raw, holo and cuts
      * \param nb_frames_skip Number of frames to skip before starting
      */
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
-                      bool raw_record,
+                      RecordMode record_mode,
                       unsigned int nb_frames_skip,
                       unsigned int output_buffer_size);
 
@@ -64,7 +65,7 @@ class FrameRecordWorker : public Worker
     /*! \brief The number of frames to skip before starting the recording */
     unsigned int nb_frames_skip_;
     /*! \brief Whether the raw images are recorded */
-    bool raw_record_;
+    RecordMode record_mode_;
     /*! \brief Output buffer size */
     unsigned int output_buffer_size_;
 

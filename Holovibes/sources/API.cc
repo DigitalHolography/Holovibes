@@ -1190,13 +1190,13 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+        else
         {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
-        }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
-        {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+            Holovibes::instance().start_frame_record(output_path,
+                                                     nb_frames_to_record,
+                                                     UserInterfaceDescriptor::instance().record_mode_,
+                                                     0,
+                                                     callback);
         }
     }
 }

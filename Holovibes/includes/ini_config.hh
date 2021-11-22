@@ -21,6 +21,6 @@ namespace holovibes::ini
 
 const static std::string default_compute_config_filepath = (__CONFIG_FOLDER__ / __COMPUTE_CONFIG_FILENAME__).string();
 const static std::string global_config_filepath = (__CONFIG_FOLDER__ / __GUI_CONFIG_FILENAME__).string();
-const static std::string camera_config_folderpath = (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__ ).string();
+const static std::string camera_config_folderpath = (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__).string();
 
 } // namespace holovibes::ini
