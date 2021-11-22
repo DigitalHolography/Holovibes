@@ -12,9 +12,10 @@ namespace holovibes
  */
 enum class RecordMode
 {
-    RAW,
-    HOLOGRAM,
+    NONE,
     CHART,
     CUTS,
+    HOLOGRAM,
+    RAW,
 };
 } // namespace holovibes

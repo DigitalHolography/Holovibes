@@ -15,6 +15,7 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
+#include "enum_record_mode.hh"
 
 namespace holovibes
 {
@@ -139,7 +140,7 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    bool raw_record_enabled = false;
+    RecordMode record_mode_ = RecordMode::NONE;
 };
 
 /*! \struct ChartEnv
