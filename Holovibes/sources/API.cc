@@ -1140,6 +1140,8 @@ void set_record_mode(const std::string& text)
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
+    else if (text == "3D Cuts")
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS;
     else
         throw std::exception("Record mode not handled");
 }
@@ -1208,7 +1210,8 @@ void stop_record()
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
     else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
         Holovibes::instance().stop_frame_record();
 }
 

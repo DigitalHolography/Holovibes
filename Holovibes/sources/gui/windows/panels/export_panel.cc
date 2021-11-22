@@ -43,6 +43,14 @@ void ExportPanel::on_notify()
             ui_->RecordImageModeComboBox->insertItem(2, "Chart");
     }
 
+    if (ui_->TimeTransformationCutsCheckBox->isChecked())
+    {
+        if (ui_->RecordImageModeComboBox->findText("3D cuts") == -1)
+            ui_->RecordImageModeComboBox->insertItem(1, "3D cuts");
+    }
+    else
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D cuts"));
+
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
                               api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
@@ -95,6 +103,13 @@ void ExportPanel::browse_record_output_file()
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
+    }
+    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("Mp4 files (*.mp4)"));
     }
 
     if (filepath.isEmpty())
@@ -168,6 +183,11 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(0, ".holo");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
+        }
+        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".mp4");
         }
 
         ui_->ChartPlotWidget->hide();
@@ -244,9 +264,8 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]() {
-        parent_->synchronize_thread([=]() { record_finished(record_mode); });
-    };
+    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]()
+    { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
     api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);
 }
