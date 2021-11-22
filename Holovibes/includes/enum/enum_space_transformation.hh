@@ -13,7 +13,7 @@ namespace holovibes
  */
 enum class SpaceTransformation
 {
-    None = 0, /*!< Nothing Applied */
+    NONE = 0, /*!< Nothing Applied */
     FFT1,     /*!< Fresnel Transform */
     FFT2      /*!< Angular spectrum propagation */
 };
@@ -22,10 +22,10 @@ namespace _internal
 {
 
 const std::map<std::string, SpaceTransformation> string_to_space_transform{
-    {"None", SpaceTransformation::None}, {"1FFT", SpaceTransformation::FFT1}, {"2FFT", SpaceTransformation::FFT2}};
+    {"None", SpaceTransformation::NONE}, {"1FFT", SpaceTransformation::FFT1}, {"2FFT", SpaceTransformation::FFT2}};
 
 const std::map<SpaceTransformation, std::string> space_transform_to_string{
-    {SpaceTransformation::None, "None"}, {SpaceTransformation::FFT1, "1FFT"}, {SpaceTransformation::FFT2, "2FFT"}};
+    {SpaceTransformation::NONE, "None"}, {SpaceTransformation::FFT1, "1FFT"}, {SpaceTransformation::FFT2, "2FFT"}};
 
 } // namespace _internal
 

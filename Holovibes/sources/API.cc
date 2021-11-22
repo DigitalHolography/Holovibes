@@ -1,14 +1,13 @@
 #include "API.hh"
+
 namespace holovibes::api
 {
 
 #pragma region Local
 
-void open_file(const std::string& path) { QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str()))); }
-
 void pipe_refresh()
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     try
@@ -113,24 +112,15 @@ bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
 
 void close_windows()
 {
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
+    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
+    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    get_cd().set_lens_view_enabled(false);
-
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    get_cd().set_filter2d_view_enabled(false);
-
-    /* Raw view & recording */
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-    get_cd().set_raw_view_enabled(false);
 
-    // Disable overlays
-    get_cd().set_reticle_view_enabled(false);
+    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 #pragma endregion
@@ -180,17 +170,6 @@ void load_user_preferences(const boost::property_tree::ptree& ptree)
                                UserInterfaceDescriptor::instance().batch_input_directory_);
 }
 
-void load_compute_settings(const std::string& path)
-{
-    // Load general compute data
-    ini::load_compute_settings(get_cd(), path);
-}
-void save_compute_settings(const std::string& path)
-{
-    // Save general compute data
-    ini::save_compute_settings(get_cd(), path);
-}
-
 #pragma endregion
 
 #pragma region Close Compute
@@ -199,21 +178,28 @@ void camera_none()
 {
     close_windows();
     close_critical_compute();
-    if (get_compute_mode() == Computation::Raw)
+
+    if (get_compute_mode() == Computation::Hologram)
+
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
     get_cd().set_computation_stopped(true);
+
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 }
 
 #pragma endregion
 
 #pragma region Cameras
 
-bool change_camera(CameraKind c, const Computation computation)
+bool change_camera(CameraKind c)
 {
-    bool res = false;
+    camera_none();
+
+    if (c == CameraKind::NONE)
+        return false;
 
     try
     {
@@ -222,8 +208,6 @@ bool change_camera(CameraKind c, const Computation computation)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
-        set_computation_mode(computation);
-
         Holovibes::instance().start_camera_frame_read(c);
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
         UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
@@ -231,7 +215,7 @@ bool change_camera(CameraKind c, const Computation computation)
 
         get_cd().set_computation_stopped(false);
 
-        res = true;
+        return true;
     }
     catch (const camera::CameraException& e)
     {
@@ -242,12 +226,13 @@ bool change_camera(CameraKind c, const Computation computation)
         LOG_ERROR << e.what();
     }
 
-    return res;
+    return false;
 }
 
 void configure_camera()
 {
-    open_file(std::filesystem::current_path().generic_string() + "/" + Holovibes::instance().get_camera_ini_path());
+    auto path = std::filesystem::path(ini::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(path.string())));
 }
 
 #pragma endregion
@@ -296,7 +281,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
     unset_convolution_mode();
-    set_divide_convolution_mode(false);
+    set_divide_convolution(false);
 }
 
 void create_holo_window(ushort window_size)
@@ -407,7 +392,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 #pragma endregion
 
 #pragma region Batch
-
+// FIXME: Same fucntion as under
 void update_batch_size(std::function<void()> callback, const uint batch_size)
 {
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
@@ -420,6 +405,7 @@ void update_batch_size(std::function<void()> callback, const uint batch_size)
 
 #pragma region STFT
 
+// FIXME: Same fucntion as above
 void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
@@ -428,7 +414,7 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
-bool toggle_time_transformation_cuts(uint time_transformation_size)
+bool set_3d_cuts_view(uint time_transformation_size)
 {
     // if checked
     try
@@ -467,7 +453,7 @@ bool toggle_time_transformation_cuts(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().set_time_transformation_cuts_enabled(true);
+        get_cd().set_3d_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -506,7 +492,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         LOG_ERROR << e.what();
     }
 
-    get_cd().set_time_transformation_cuts_enabled(false);
+    get_cd().set_3d_cuts_view_enabled(false);
 }
 
 #pragma endregion
@@ -518,68 +504,51 @@ void change_window(const int index) { get_cd().change_window(index); }
 void toggle_renormalize(bool value)
 {
     get_cd().set_renorm_enabled(value);
-    get_compute_pipe()->request_clear_img_acc();
+
+    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+        get_compute_pipe()->request_clear_img_acc();
 
     pipe_refresh();
 }
 
-void set_filter2d()
+void set_filter2d(bool checked)
 {
-    get_cd().set_filter2d_enabled(true);
+    get_cd().set_filter2d_enabled(checked);
+    set_auto_contrast_all();
+}
 
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
+{
+    if (checked)
     {
-        pipe->autocontrast_end_pipe(WindowKind::XYview);
-        if (get_cd().time_transformation_cuts_enabled)
+        if (auto pipe = get_compute_pipe())
         {
-            pipe->autocontrast_end_pipe(WindowKind::XZview);
-            pipe->autocontrast_end_pipe(WindowKind::YZview);
-        }
-        if (get_cd().filter2d_view_enabled)
+            pipe->request_filter2d_view();
+            while (pipe->get_filter2d_view_requested())
+                continue;
+
+            const camera::FrameDescriptor& fd = get_fd();
+            ushort filter2d_window_width = fd.width;
+            ushort filter2d_window_height = fd.height;
+            get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
+
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+            UserInterfaceDescriptor::instance().filter2d_window.reset(
+                new gui::Filter2DWindow(pos,
+                                        QSize(filter2d_window_width, filter2d_window_height),
+                                        pipe->get_filter2d_view_queue().get()));
+
+            UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+            UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
+
+            get_cd().set_log_scale_filter2d_enabled(true);
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
+        }
     }
-
-    pipe_refresh();
-}
-
-void set_filter2d_view(uint auxiliary_window_max_size)
-{
-    auto pipe = get_compute_pipe();
-    if (pipe)
-    {
-        pipe->request_filter2d_view();
-
-        // Wait for the filter2d view to be enabled for notify
-        while (pipe->get_filter2d_view_requested())
-            continue;
-
-        const camera::FrameDescriptor& fd = get_fd();
-        ushort filter2d_window_width = fd.width;
-        ushort filter2d_window_height = fd.height;
-        get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().filter2d_window.reset(
-            new gui::Filter2DWindow(pos,
-                                    QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-        UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
-
-        get_cd().set_log_scale_filter2d_enabled(true);
-        pipe->autocontrast_end_pipe(WindowKind::Filter2D);
-    }
-
-    pipe_refresh();
-}
-
-void disable_filter2d_view()
-{
-    if (UserInterfaceDescriptor::instance().filter2d_window)
+    else
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
 
@@ -587,12 +556,10 @@ void disable_filter2d_view()
         pipe->request_disable_filter2d_view();
         while (pipe->get_disable_filter2d_view_requested())
             continue;
-
-        pipe_refresh();
     }
-}
 
-void cancel_filter2d() { get_cd().set_filter2d_enabled(false); }
+    pipe_refresh();
+}
 
 void set_fft_shift(const bool value)
 {
@@ -608,87 +575,91 @@ void set_time_transformation_size(std::function<void()> callback)
         pipe->insert_fn_end_vect(callback);
 }
 
-bool set_lens_view(uint auxiliary_window_max_size)
+void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
-    bool res = false;
+    if (get_compute_mode() == Computation::Raw)
+        return;
 
-    try
+    get_cd().set_lens_view_enabled(checked);
+
+    if (checked)
     {
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        ICompute* pipe = get_compute_pipe().get();
+        try
+        {
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+            ICompute* pipe = get_compute_pipe().get();
+
+            const ::camera::FrameDescriptor& fd = get_fd();
+            ushort lens_window_width = fd.width;
+            ushort lens_window_height = fd.height;
+            get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
+
+            UserInterfaceDescriptor::instance().lens_window.reset(
+                new gui::RawWindow(pos,
+                                   QSize(lens_window_width, lens_window_height),
+                                   pipe->get_lens_queue().get(),
+                                   gui::KindOfView::Lens));
+
+            UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
+            UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR << e.what() << std::endl;
+        }
+    }
+    else
+    {
+        UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
+
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_lens_view();
+        while (pipe->get_disable_lens_view_requested())
+            continue;
+
+        pipe_refresh();
+    }
+}
+
+void set_raw_view(bool checked, uint auxiliary_window_max_size)
+{
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    auto pipe = get_compute_pipe();
+
+    if (checked)
+    {
+        pipe->request_raw_view();
+        while (pipe->get_raw_view_requested())
+            continue;
 
         const ::camera::FrameDescriptor& fd = get_fd();
-        ushort lens_window_width = fd.width;
-        ushort lens_window_height = fd.height;
-        get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
+        ushort raw_window_width = fd.width;
+        ushort raw_window_height = fd.height;
+        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
 
-        UserInterfaceDescriptor::instance().lens_window.reset(
-            new gui::RawWindow(pos,
-                               QSize(lens_window_width, lens_window_height),
-                               pipe->get_lens_queue().get(),
-                               gui::KindOfView::Lens));
+        // set positions of new windows according to the position of the main GL
+        // window and Lens window
+        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+        UserInterfaceDescriptor::instance().raw_window.reset(
+            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
 
-        UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-        UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
-        res = true;
+        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
+        UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
     }
-    catch (const std::exception& e)
+    else
     {
-        LOG_ERROR << e.what() << std::endl;
+        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+
+        pipe->request_disable_raw_view();
+        while (pipe->get_disable_raw_view_requested())
+            continue;
     }
-
-    pipe_refresh();
-    return res;
-}
-
-void disable_lens_view()
-{
-    get_cd().set_lens_view_enabled(false);
-    get_compute_pipe()->request_disable_lens_view();
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    pipe_refresh();
-}
-
-void set_raw_view(uint auxiliary_window_max_size)
-{
-    auto pipe = get_compute_pipe();
-    pipe->request_raw_view();
-
-    // Wait for the raw view to be enabled for notify
-    while (pipe->get_raw_view_requested())
-        continue;
-
-    const ::camera::FrameDescriptor& fd = get_fd();
-    ushort raw_window_width = fd.width;
-    ushort raw_window_height = fd.height;
-    get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
-
-    // set positions of new windows according to the position of the main GL
-    // window and Lens window
-    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-    UserInterfaceDescriptor::instance().raw_window.reset(
-        new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-    UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-    UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
-
-    pipe_refresh();
-}
-
-void disable_raw_view()
-{
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-    auto pipe = get_compute_pipe();
-    pipe->request_disable_raw_view();
-
-    // Wait for the raw view to be disabled for notify
-    while (pipe->get_disable_raw_view_requested())
-        continue;
 
     pipe_refresh();
 }
@@ -797,6 +768,7 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 
 void set_composite_auto_weights(bool value) { get_cd().set_composite_auto_weights(value); }
 
+void set_composite_kind(const CompositeKind& value) { get_cd().set_composite_kind(value); }
 void select_composite_rgb() { get_cd().set_composite_kind(CompositeKind::RGB); }
 
 void select_composite_hsv() { get_cd().set_composite_kind(CompositeKind::HSV); }
@@ -846,9 +818,9 @@ void set_z_distance(const double value)
     pipe_refresh();
 }
 
-void set_space_transformation(const std::string& value) { GSH::instance().set_space_transformation_from_string(value); }
+void set_space_transformation(const SpaceTransformation value) { GSH::instance().set_space_transformation(value); }
 
-void set_time_transformation(const std::string& value) { GSH::instance().set_time_transformation_from_string(value); }
+void set_time_transformation(const TimeTransformation value) { GSH::instance().set_time_transformation(value); }
 
 void set_unwrapping_2d(const bool value)
 {
@@ -869,15 +841,13 @@ void set_composite_area()
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
 
-void set_computation_mode(const Computation computation) { get_cd().set_compute_mode(computation); }
-
 void close_critical_compute()
 {
     if (get_convolution_enabled())
         unset_convolution_mode();
 
     if (get_cd().time_transformation_cuts_enabled)
-        cancel_time_transformation_cuts([]() { return; });
+        cancel_time_transformation_cuts([]() {});
 
     Holovibes::instance().stop_compute();
 }
@@ -959,6 +929,9 @@ bool set_auto_contrast()
 
 void set_auto_contrast_all()
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
         pipe->autocontrast_end_pipe(WindowKind::XYview);
@@ -967,7 +940,7 @@ void set_auto_contrast_all()
             pipe->autocontrast_end_pipe(WindowKind::XZview);
             pipe->autocontrast_end_pipe(WindowKind::YZview);
         }
-        if (get_cd().filter2d_view_enabled)
+        if (get_filter2d_view_enabled())
             pipe->autocontrast_end_pipe(WindowKind::Filter2D);
 
         pipe_refresh();
@@ -1092,9 +1065,12 @@ void unset_convolution_mode()
     }
 }
 
-void set_divide_convolution_mode(const bool value)
+void set_divide_convolution(const bool value)
 {
-    get_cd().set_divide_convolution_enabled(value);
+    if (value == get_cd().get_divide_convolution_enabled())
+        return
+
+            get_cd().set_divide_convolution_enabled(value);
 
     pipe_refresh();
 }
@@ -1105,16 +1081,17 @@ void set_divide_convolution_mode(const bool value)
 
 void display_reticle(bool value)
 {
-    get_cd().set_reticle_view_enabled(value);
+    if (value == get_cd().get_reticle_display_enabled())
+        return;
+
+    get_cd().set_reticle_display_enabled(value);
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
     }
     else
-    {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
-    }
 
     pipe_refresh();
 }
@@ -1284,6 +1261,8 @@ void import_stop()
 
     close_critical_compute();
 
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+
     get_cd().set_computation_stopped(true);
 }
 
@@ -1291,8 +1270,37 @@ bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     get_cd().set_computation_stopped(false);
-    // Gather all the usefull data from the ui import panel
-    return init_holovibes_import_mode(file_path, fps, first_frame, load_file_in_gpu, last_frame);
+
+    bool res = true;
+
+    // Because we are in file mode
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+
+    try
+    {
+
+        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
+                                               get_cd().get_input_buffer_size());
+        Holovibes::instance().start_file_frame_read(file_path,
+                                                    true,
+                                                    fps,
+                                                    static_cast<unsigned int>(first_frame - 1),
+                                                    static_cast<unsigned int>(last_frame - first_frame + 1),
+                                                    load_file_in_gpu);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+        Holovibes::instance().stop_compute();
+        Holovibes::instance().stop_frame_read();
+        return false;
+    }
+
+    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+
+    return true;
 }
 
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
@@ -1312,11 +1320,11 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings()
+void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>();
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
 }
 
 #pragma endregion
@@ -1347,6 +1355,11 @@ std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window()
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
 {
     return UserInterfaceDescriptor::instance().raw_window;
+}
+
+std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window()
+{
+    return UserInterfaceDescriptor::instance().filter2d_window;
 }
 
 } // namespace holovibes::api

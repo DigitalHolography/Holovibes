@@ -58,10 +58,8 @@ class GSH
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_transformation_stride(uint value);
-    void set_space_transformation(const SpaceTransformation& value);
-    void set_space_transformation_from_string(const std::string& value);
-    void set_time_transformation(const TimeTransformation& value);
-    void set_time_transformation_from_string(const std::string& value);
+    void set_space_transformation(const SpaceTransformation value);
+    void set_time_transformation(const TimeTransformation value);
     void set_lambda(float value);
     void set_z_distance(float value);
     void set_convolution_enabled(bool value);

@@ -48,32 +48,10 @@ void GSH::set_time_transformation_stride(uint value)
         compute_cache_.set_time_transformation_stride(value - value % compute_cache_.get_batch_size());
 }
 
-void GSH::set_space_transformation(const SpaceTransformation& value) { compute_cache_.set_space_transformation(value); }
-void GSH::set_space_transformation_from_string(const std::string& value)
-{
-    try
-    {
-        set_space_transformation(space_transformation_from_string(value));
-    }
-    catch (const std::out_of_range&)
-    {
-        set_space_transformation(SpaceTransformation::None);
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
-void GSH::set_time_transformation(const TimeTransformation& value) { compute_cache_.set_time_transformation(value); }
-void GSH::set_time_transformation_from_string(const std::string& value)
-{
-    try
-    {
-        set_time_transformation(time_transformation_from_string(value));
-    }
-    catch (const std::out_of_range&)
-    {
-        set_time_transformation(TimeTransformation::NONE);
-        LOG_ERROR << "Unknown time transform: " << value << ", falling back to None";
-    }
-}
+void GSH::set_space_transformation(const SpaceTransformation value) { compute_cache_.set_space_transformation(value); }
+
+void GSH::set_time_transformation(const TimeTransformation value) { compute_cache_.set_time_transformation(value); }
+
 void GSH::set_lambda(float value) { compute_cache_.set_lambda(value); }
 
 void GSH::set_z_distance(float value) { compute_cache_.set_z_distance(value); }
@@ -127,7 +105,7 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
         std::max<ushort>(ptree.get<ushort>("image_rendering.time_transformation_size", 1), 1));
     compute_cache_.set_time_transformation_stride(ptree.get<ushort>("image_rendering.time_transformation_stride", 1));
     compute_cache_.set_space_transformation(static_cast<SpaceTransformation>(
-        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(SpaceTransformation::None))));
+        ptree.get<int>("image_rendering.space_transformation", static_cast<int>(SpaceTransformation::NONE))));
     compute_cache_.set_time_transformation(static_cast<TimeTransformation>(
         ptree.get<int>("image_rendering.time_transformation", static_cast<int>(TimeTransformation::STFT))));
     compute_cache_.set_lambda(ptree.get<float>("image_rendering.lambda", 852e-9f));

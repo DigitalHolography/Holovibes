@@ -1,5 +1,16 @@
 ## Changelog
 
+### 10.3.2
+
+* Installer now creates folder cameras_config in Appdata and put all cameras.ini in it
+
+### 10.3.1
+
+* Fix Camera view in raw mode (the camera raw view wasn't displayed)
+* Fix Compute settings loaded from compute_settings.ini
+* Device security : Batch size and time stride not reset to low value
+* Fix Load compute settings when no file/camera is running
+
 ### 10.3
 
 * Remove Accu CheckBoxes (equivalent to accu_level == 0)
@@ -42,7 +53,7 @@
 
 ### 9.3.9
 
-* CLI: load input file before .ini (avoid overriding parameters)[1;5D[1;5D[1;5D[1;5D[1;5D[1;3D[D[D[D[D[D[D config[3~[3~[3~[3~[3~ parameters)
+* CLI: load input file before .ini (avoid overriding parameters)
 
 ### 9.3.8
 

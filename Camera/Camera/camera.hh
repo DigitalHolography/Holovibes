@@ -36,7 +36,7 @@ class Camera : public ICamera
 
     const char* get_name() const override { return name_.c_str(); }
 
-    const char* get_ini_path() const override { return ini_path_.c_str(); }
+    const char* get_ini_name() const override { return ini_name_.c_str(); }
 
   protected:
     /*! \brief Construct a blank camera object.
@@ -44,13 +44,13 @@ class Camera : public ICamera
      * Try to open the corresponding configuration file, if any, and parse it
      * with Boost to extract some useful data for further configuration.
      */
-    Camera(const std::string& ini_filepath)
+    Camera(const std::string& ini_filename)
         : fd_()
         , name_("Unknown")
         , exposure_time_(0.0f)
         , pixel_size_(0.0f)
-        , ini_path_(ini_filepath)
-        , ini_file_(ini_filepath, std::ifstream::in)
+        , ini_name_(ini_filename)
+        , ini_file_(ini_filename, std::ifstream::in)
         , ini_pt_()
     {
         if (ini_file_is_open())
@@ -116,10 +116,9 @@ class Camera : public ICamera
 
   private:
     /*! \brief INI configuration file's absolute path */
-    std::string ini_path_;
+    std::string ini_name_;
 
     /*! \brief INI property tree, containing extracted data. */
     boost::property_tree::ptree ini_pt_;
-
 };
 } // namespace camera

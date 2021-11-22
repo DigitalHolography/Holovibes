@@ -172,3 +172,88 @@
             friend struct Ref;                                                                                         \
         };                                                                                                             \
     };
+
+/*---------------------------------------------------------------------*/
+
+#define _SYNC_VAR_INIT(type, var, val)                                                                                 \
+    var.obj = cache_truth<ref_t>->var;                                                                                 \
+    var.to_update = false;
+
+#define _IF_NEED_SYNC_VAR_INIT(type, var, val)                                                                         \
+    if (var.to_update)                                                                                                 \
+    {                                                                                                                  \
+        LOG_UPDATE(var)                                                                                                \
+        var.obj = cache_truth<ref_t>->var;                                                                             \
+        var.to_update = false;                                                                                         \
+    }
+
+#define _DEFINE_VAR_INIT(type, var, val) type var = val;
+
+#define _DEFINE_CACHE_VAR_INIT(type, var, val)                                                                         \
+    struct var##_t                                                                                                     \
+    {                                                                                                                  \
+        type obj = val;                                                                                                \
+        volatile bool to_update;                                                                                       \
+    };                                                                                                                 \
+    var##_t var;
+
+#define _GETTER_INIT(type, var, val)                                                                                   \
+    inline type get_##var() const noexcept { return var.obj; }
+
+#define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
+    void set_##var(const type& _val)                                                                                   \
+    {                                                                                                                  \
+        var = _val;                                                                                                    \
+        trigger_##var();                                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    type get_##var() const noexcept { return var; }                                                                    \
+                                                                                                                       \
+    type& get_##var##_ref() noexcept { return var; }                                                                   \
+                                                                                                                       \
+    void trigger_##var()                                                                                               \
+    {                                                                                                                  \
+        for (cache_t * cache : micro_caches<cache_t>)                                                                  \
+            cache->var.to_update = true;                                                                               \
+    }
+
+#define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \
+    struct name                                                                                                        \
+    {                                                                                                                  \
+        struct Ref;                                                                                                    \
+        struct Cache;                                                                                                  \
+        using ref_t = Ref;                                                                                             \
+        using cache_t = Cache;                                                                                         \
+        struct Ref : MicroCache                                                                                        \
+        {                                                                                                              \
+          private:                                                                                                     \
+            MAP(_DEFINE_VAR_INIT, __VA_ARGS__);                                                                        \
+                                                                                                                       \
+          public:                                                                                                      \
+            Ref() { cache_truth<ref_t> = this; }                                                                       \
+            ~Ref() { cache_truth<ref_t> = nullptr; }                                                                   \
+                                                                                                                       \
+            MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
+            friend struct Cache;                                                                                       \
+        };                                                                                                             \
+                                                                                                                       \
+        struct Cache : MicroCache                                                                                      \
+        {                                                                                                              \
+          private:                                                                                                     \
+            MAP(_DEFINE_CACHE_VAR_INIT, __VA_ARGS__);                                                                  \
+                                                                                                                       \
+          public:                                                                                                      \
+            Cache()                                                                                                    \
+            {                                                                                                          \
+                CHECK(cache_truth<ref_t> != nullptr) << "You must register a truth cache for class: " << #name;        \
+                MAP(_SYNC_VAR_INIT, __VA_ARGS__);                                                                      \
+                micro_caches<cache_t>.insert(this);                                                                    \
+            }                                                                                                          \
+            ~Cache() { micro_caches<cache_t>.erase(this); }                                                            \
+                                                                                                                       \
+            void synchronize() { MAP(_IF_NEED_SYNC_VAR_INIT, __VA_ARGS__); }                                           \
+                                                                                                                       \
+            MAP(_GETTER_INIT, __VA_ARGS__);                                                                            \
+            friend struct Ref;                                                                                         \
+        };                                                                                                             \
+    };

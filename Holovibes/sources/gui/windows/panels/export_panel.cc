@@ -233,7 +233,7 @@ void ExportPanel::start_record()
 
     // Start record
     api::get_raw_window().reset(nullptr);
-    ui_->ViewPanel->disable_raw_view();
+    ui_->ViewPanel->update_raw_view(false);
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);

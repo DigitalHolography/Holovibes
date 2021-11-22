@@ -10,7 +10,7 @@
 namespace holovibes
 {
 
-NEW_MICRO_CACHE(TestCache1, (unsigned, a), (float, b), (long, c))
+NEW_INITIALIZED_MICRO_CACHE(TestCache1, (unsigned, a, 0), (float, b, 0), (long, c, 0))
 // needed when typing contains commas (which are supposed to divide args of the macro)
 using b_wrapper = std::vector<std::pair<float, double>>;
 using c_wrapper = std::map<std::string, std::string>;
@@ -18,36 +18,37 @@ using c_wrapper = std::map<std::string, std::string>;
 NEW_MICRO_CACHE(TestCache2, (std::string, a), (b_wrapper, b), (c_wrapper, c))
 
 // Trying lots of macro recursion
-NEW_MICRO_CACHE(TestCache3,
-                (int, a2),
-                (int, b2),
-                (int, c2),
-                (int, d),
-                (int, e),
-                (int, f),
-                (int, g),
-                (int, h),
-                (int, i),
-                (int, j),
-                (int, k),
-                (int, l),
-                (int, m),
-                (int, a),
-                (int, n),
-                (int, o),
-                (int, p),
-                (int, q),
-                (int, r),
-                (int, s),
-                (int, t),
-                (int, u),
-                (int, v),
-                (int, w),
-                (int, x),
-                (int, y),
-                (int, z))
+NEW_INITIALIZED_MICRO_CACHE(TestCache3,
+                            (int, a2, 0),
+                            (int, b2, 0),
+                            (int, c2, 0),
+                            (int, d, 0),
+                            (int, e, 0),
+                            (int, f, 0),
+                            (int, g, 0),
+                            (int, h, 0),
+                            (int, i, 0),
+                            (int, j, 0),
+                            (int, k, 0),
+                            (int, l, 0),
+                            (int, m, 0),
+                            (int, a, 0),
+                            (int, n, 0),
+                            (int, o, 0),
+                            (int, p, 0),
+                            (int, q, 0),
+                            (int, r, 0),
+                            (int, s, 0),
+                            (int, t, 0),
+                            (int, u, 0),
+                            (int, v, 0),
+                            (int, w, 0),
+                            (int, x, 0),
+                            (int, y, 0),
+                            (int, z, 1))
 
-NEW_MICRO_CACHE(TestCache4, (uint8_t, a), (uint16_t, b), (uint32_t, c), (uint64_t, d), (float, e), (double, f))
+NEW_INITIALIZED_MICRO_CACHE(
+    TestCache4, (uint8_t, a, 0), (uint16_t, b, 0), (uint32_t, c, 0), (uint64_t, d, 0), (float, e, 0), (double, f, 1))
 
 struct TestMicroCache1
 {
