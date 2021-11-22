@@ -14,6 +14,7 @@ namespace holovibes
  * \param time_transformation Time transformation to apply in hologram mode
  * \param lambda Wave length of the laser
  * \param z_distance z value used by fresnel transform
+ * \param convolution_enabled Is convolution enabled
  */
 NEW_MICRO_CACHE(ComputeCache,
                 (uint, batch_size),
@@ -22,7 +23,8 @@ NEW_MICRO_CACHE(ComputeCache,
                 (SpaceTransformation, space_transformation),
                 (TimeTransformation, time_transformation),
                 (float, lambda),
-                (float, z_distance));
+                (float, z_distance),
+                (bool, convolution_enabled));
 
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed

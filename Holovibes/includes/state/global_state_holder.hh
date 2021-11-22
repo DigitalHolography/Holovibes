@@ -49,6 +49,8 @@ class GSH
     TimeTransformation get_time_transformation() const;
     float get_lambda() const;
     float get_z_distance() const;
+    bool get_convolution_enabled() const;
+
     int get_filter2d_n1() const;
     int get_filter2d_n2() const;
     ImgType get_img_type() const;
@@ -62,6 +64,8 @@ class GSH
     void set_time_transformation_from_string(const std::string& value);
     void set_lambda(float value);
     void set_z_distance(float value);
+    void set_convolution_enabled(bool value);
+
     void set_filter2d_n1(int value);
     void set_filter2d_n2(int value);
     void set_img_type(ImgType value);

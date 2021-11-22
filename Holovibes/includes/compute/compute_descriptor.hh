@@ -355,9 +355,6 @@ class ComputeDescriptor : public Observable
         this->is_computation_stopped = is_computation_stopped;
     }
 
-    inline bool get_convolution_enabled() const { return convolution_enabled; }
-    inline void set_convolution_enabled(bool convolution_enabled) { this->convolution_enabled = convolution_enabled; }
-
     inline bool get_divide_convolution_enabled() const { return divide_convolution_enabled; }
     inline void set_divide_convolution_enabled(bool divide_convolution_enabled)
     {
@@ -576,8 +573,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
     std::atomic<bool> filter2d_view_enabled{false};
-    /*! \brief Is convolution enabled */
-    std::atomic<bool> convolution_enabled{false};
     /*! \brief Convolution type (file present in AppData) */
     // std::atomic<std::string> convolution_type{""};
     /*! \brief Is divide by convolution enabled */

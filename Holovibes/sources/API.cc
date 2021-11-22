@@ -873,7 +873,7 @@ void set_computation_mode(const Computation computation) { get_cd().set_compute_
 
 void close_critical_compute()
 {
-    if (get_cd().convolution_enabled)
+    if (get_convolution_enabled())
         unset_convolution_mode();
 
     if (get_cd().time_transformation_cuts_enabled)
@@ -1047,7 +1047,7 @@ void update_convo_kernel(const std::string& value)
     }
     catch (const std::exception& e)
     {
-        get_cd().set_convolution_enabled(false);
+        set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }
@@ -1067,7 +1067,7 @@ void set_convolution_mode(std::string& str)
     }
     catch (const std::exception& e)
     {
-        get_cd().set_convolution_enabled(false);
+        set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }
@@ -1087,7 +1087,7 @@ void unset_convolution_mode()
     }
     catch (const std::exception& e)
     {
-        get_cd().set_convolution_enabled(false);
+        set_convolution_enabled(false);
         LOG_ERROR << e.what();
     }
 }

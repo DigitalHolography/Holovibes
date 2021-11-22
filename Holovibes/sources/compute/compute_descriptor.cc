@@ -143,7 +143,7 @@ void ComputeDescriptor::handle_update_exception()
 {
     p.index = 0;
     GSH::instance().set_time_transformation_size({1});
-    convolution_enabled = false;
+    GSH::instance().set_convolution_enabled(false);
 }
 
 void ComputeDescriptor::handle_accumulation_exception() { xy.img_accu_level = 1; }
@@ -244,16 +244,19 @@ void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
     if (enable)
     {
         load_convolution_matrix(file);
-        convolution_enabled = true;
+        GSH::instance().set_convolution_enabled(true);
     }
     else
     {
-        convolution_enabled = false;
+        GSH::instance().set_convolution_enabled(false);
         divide_convolution_enabled = false;
     }
 }
 
-void ComputeDescriptor::set_divide_by_convo(bool enable) { divide_convolution_enabled = enable && convolution_enabled; }
+void ComputeDescriptor::set_divide_by_convo(bool enable)
+{
+    divide_convolution_enabled = enable && GSH::instance().get_convolution_enabled();
+}
 
 void ComputeDescriptor::load_convolution_matrix(const std::string& file)
 {

@@ -78,14 +78,17 @@ void GSH::set_lambda(float value) { compute_cache_.set_lambda(value); }
 
 void GSH::set_z_distance(float value) { compute_cache_.set_z_distance(value); }
 
+void GSH::set_convolution_enabled(bool value)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    compute_cache_.set_convolution_enabled(value);
+    LOG_WARN << "convolution = " << std::boolalpha << value;
+}
+
 void GSH::set_filter2d_n1(int value) { filter2d_cache_.set_filter2d_n1(value); }
 void GSH::set_filter2d_n2(int value) { filter2d_cache_.set_filter2d_n2(value); }
 
-void GSH::set_img_type(ImgType value)
-{
-    LOG_WARN << value;
-    view_cache_.set_img_type(value);
-}
+void GSH::set_img_type(ImgType value) { view_cache_.set_img_type(value); }
 
 #pragma endregion
 
@@ -104,6 +107,8 @@ TimeTransformation GSH::get_time_transformation() const { return compute_cache_.
 float GSH::get_lambda() const { return compute_cache_.get_lambda(); }
 
 float GSH::get_z_distance() const { return compute_cache_.get_z_distance(); };
+
+bool GSH::get_convolution_enabled() const { return compute_cache_.get_convolution_enabled(); }
 
 int GSH::get_filter2d_n1() const { return filter2d_cache_.get_filter2d_n1(); }
 
@@ -127,6 +132,7 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
         ptree.get<int>("image_rendering.time_transformation", static_cast<int>(TimeTransformation::STFT))));
     compute_cache_.set_lambda(ptree.get<float>("image_rendering.lambda", 852e-9f));
     compute_cache_.set_z_distance(ptree.get<float>("image_rendering.z_distance", 1.50f));
+    compute_cache_.set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", false));
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
@@ -162,6 +168,7 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
     ptree.put<int>("image_rendering.time_transformation", static_cast<int>(compute_cache_.get_time_transformation()));
     ptree.put<float>("image_rendering.lambda", compute_cache_.get_lambda());
     ptree.put<float>("image_rendering.z_distance", compute_cache_.get_z_distance());
+    ptree.put<bool>("image_rendering.convolution_enabled", compute_cache_.get_convolution_enabled());
 
     ptree.put<int>("image_rendering.filter2d_n1", filter2d_cache_.get_filter2d_n1());
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());

@@ -85,6 +85,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                              input.get_fd(),
                                                              desc,
                                                              stream_,
+                                                             compute_cache_,
                                                              view_cache_);
 
     *processed_output_fps_ = 0;
@@ -130,7 +131,7 @@ bool Pipe::make_requests()
     if (disable_convolution_requested_)
     {
         postprocess_->dispose();
-        cd_.convolution_enabled = false;
+        GSH::instance().set_convolution_enabled(false);
         disable_convolution_requested_ = false;
     }
 
@@ -188,7 +189,7 @@ bool Pipe::make_requests()
     if (convolution_requested_)
     {
         postprocess_->init();
-        cd_.convolution_enabled = true;
+        GSH::instance().set_convolution_enabled(true);
         convolution_requested_ = false;
     }
 
@@ -205,7 +206,7 @@ bool Pipe::make_requests()
         {
             success_allocation = false;
             cd_.p.index = 0;
-            GSH::instance().set_time_transformation_size({1});
+            GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
         }
@@ -298,6 +299,10 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
+
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();
@@ -578,6 +583,10 @@ void Pipe::exec()
     if (refresh_requested_)
         refresh();
 
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
+
     while (!termination_requested_)
     {
         try
@@ -610,9 +619,9 @@ void Pipe::autocontrast_end_pipe(WindowKind kind)
 
 void Pipe::run_all()
 {
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
+    // compute_cache_.synchronize();
+    // filter2d_cache_.synchronize();
+    // view_cache_.synchronize();
 
     for (FnType& f : fn_compute_vect_)
         f();

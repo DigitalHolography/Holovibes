@@ -8,7 +8,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     cd.compute_mode = static_cast<Computation>(
         ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load())));
     cd.filter2d_enabled = ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled);
-    cd.convolution_enabled = ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
     // TODO: Think about how to store the type. Some new convolutions type might be added in AppData
     // cd.convolution_type = ptree.get("image_rendering.convolution_type", cd.convolution_enabled);
     cd.divide_convolution_enabled =
@@ -16,7 +15,7 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 }
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{ // yep
+{
     // FIXME: Add a call to set_view_mode(), this fuunction is currently in mainwindow
     // Add unwrap_2d
     cd.time_transformation_cuts_enabled =
@@ -75,8 +74,7 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 }
 
 void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{ // je savais, je te dis ça dans 2 min
-  // View -> show
+{
     // cd.composite_kind =
     //     static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load())));
     cd.composite_auto_weights = ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
@@ -167,7 +165,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
 {
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
-    ptree.put<bool>("image_rendering.convolution_enabled", cd.convolution_enabled);
     // ptree.put<string>("image_rendering.convolution_type", cd.convolution_type);
     ptree.put<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 }
