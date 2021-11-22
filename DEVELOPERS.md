@@ -26,7 +26,7 @@ Make sure `CUDA`, `Qt`, `BitFlow` and `OpenCV` have been added to your path.
 Other variables:
 * `OpenCV_DIR`: Fill with OpenCV location (Usually: `C:\opencv\build`)
 * `CUDA_PATH`: Fill with Cuda and NVCC location
-* `Qt6_DIR`: Fill with Qt6Config.cmake file location (Usually: `~\Qt6\lib\cmake\`)
+* If cmake cannot find the Qt6Config.cmake file, `Qt6_DIR`: Fill with Qt6Config.cmake file location (Usually: `~\msvc2019_64\lib\cmake\Qt6\`)
 
 Do not forget to restart Visual Studio Code or your terminal before compiling again.
 
