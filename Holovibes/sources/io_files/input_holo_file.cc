@@ -99,7 +99,10 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
-void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data) {}
+void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
+{
+    // TODO: Do the import when it is validated by MA
+}
 
 void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
 {
