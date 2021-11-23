@@ -9,6 +9,6 @@ namespace holovibes
 {
 struct json_struct
 {
-    virtual json to_string_json() const = 0;
+    virtual json to_json() const = 0;
 };
 } // namespace holovibes

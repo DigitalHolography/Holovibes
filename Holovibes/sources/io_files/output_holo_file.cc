@@ -90,17 +90,15 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
              {
                  {"type", "Magnitude"},
                  {"fft shift", cd.fft_shift_enabled.load()},
-                 // x{,},
-                 // y{,},
-                 // p{,},
-                 // q{,},
-                 {"windows",
-                  {
-                      // xy{,},
-                      // yz{,},
-                      // xz{,},
-                      // filter2d{,},}
-                  }},
+                 {"x", cd.x.to_json()},
+                 {"y", cd.y.to_json()},
+                 {"p", cd.p.to_json()},
+                 {"q", cd.q.to_json()},
+                 {"window",
+                  {{"xy", cd.xy.to_json()},
+                   {"yz", cd.yz.to_json()},
+                   {"xz", cd.xz.to_json()},
+                   {"filter2d", cd.filter2d.to_json()}}},
                  {"renorm", cd.renorm_enabled.load()},
                  {"reticle",
                   {{"display enabled", cd.reticle_display_enabled.load()}, {"scale", cd.reticle_scale.load()}}},
@@ -109,8 +107,8 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
              {
                  {"mode", composite_kind_to_string[cd.composite_kind.load()]},
                  {"auto weight", cd.composite_auto_weights.load()},
-                 {"rgb", cd.rgb.to_string_json()},
-                 {"hsv", cd.hsv.to_string_json()},
+                 {"rgb", cd.rgb.to_json()},
+                 {"hsv", cd.hsv.to_json()},
              }},
             {
                 "advanced",
