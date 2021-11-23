@@ -33,10 +33,12 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView
 
 RawWindow::~RawWindow()
 {
-    // The following line causes a crash in debug mode but prevent
-    // memory leaks in release.
+    // For unknown reasons, this causes a crash in debug and prevents memory leaks in release.
+    // It is therefore removed when using the debug mode
+#ifdef NDEBUG
     if (cuResource)
         cudaGraphicsUnregisterResource(cuResource);
+#endif
 }
 
 void RawWindow::initShaders()

@@ -84,9 +84,12 @@ void close_windows()
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+
+    if (UserInterfaceDescriptor::instance().lens_window)
+        set_lens_view(false, 0);
+    if (UserInterfaceDescriptor::instance().raw_window)
+        set_raw_view(false, 0);
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
