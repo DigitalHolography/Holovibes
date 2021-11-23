@@ -65,7 +65,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     QApplication app(argc, argv);
 
     check_cuda_graphic_card(true);
-    QSplashScreen splash(QPixmap("holovibes_logo.png"));
+    QSplashScreen splash(QPixmap(":/holovibes_logo.png"));
     splash.show();
 
     // Hide the possibility to close the console while using Holovibes

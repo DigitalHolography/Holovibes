@@ -9,14 +9,14 @@ namespace holovibes::worker
 {
 FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
                                      std::optional<unsigned int> nb_frames_to_record,
-                                     bool raw_record,
+                                     RecordMode record_mode,
                                      unsigned int nb_frames_skip,
                                      const unsigned int output_buffer_size)
     : Worker()
     , file_path_(get_record_filename(file_path))
     , nb_frames_to_record_(nb_frames_to_record)
     , nb_frames_skip_(nb_frames_skip)
-    , raw_record_(raw_record)
+    , record_mode_(record_mode)
     , output_buffer_size_(output_buffer_size)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
@@ -59,7 +59,7 @@ void FrameRecordWorker::run()
         output_frame_file =
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
-        output_frame_file->export_compute_settings(raw_record_);
+        output_frame_file->export_compute_settings(record_mode_ == RecordMode::RAW);
         output_frame_file->write_header();
 
         frame_buffer = new char[output_frame_size];
@@ -128,17 +128,22 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
     if (output_queue)
         output_queue->resize(4, stream_);
 
-    if (raw_record_)
+    if (record_mode_ == RecordMode::RAW)
     {
         pipe->request_raw_record(nb_frames_to_record_);
         while (pipe->get_raw_record_requested() != std::nullopt && !stop_requested_)
             continue;
     }
-    else
+    else if (record_mode_ == RecordMode::HOLOGRAM)
     {
         pipe->request_hologram_record(nb_frames_to_record_);
-
         while (pipe->get_hologram_record_requested() != std::nullopt && !stop_requested_)
+            continue;
+    }
+    else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
+    {
+        pipe->request_cuts_record(nb_frames_to_record_);
+        while (pipe->get_cuts_record_requested() != std::nullopt && !stop_requested_)
             continue;
     }
 

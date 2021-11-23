@@ -4,7 +4,7 @@ project(Holovibes CXX CUDA)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Packages
-find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -98,7 +98,7 @@ add_library("${PROJECT_NAME}_cuda_lib" STATIC)
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
 
-target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE Qt5::Core)
+target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE Qt6::Core)
 
 target_include_directories("${PROJECT_NAME}_cuda_lib" PUBLIC ${HOLO_INCLUDES})
 
@@ -133,10 +133,10 @@ endif()
 
 target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Boost::boost
-    Qt5::Charts
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
+    Qt6::Charts
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
     OpenGL::GL
 
     cufft
@@ -231,6 +231,7 @@ add_executable("${PROJECT_NAME}"
     plotwindow.ui
 
     Holovibes.rc
+    Holovibes.qrc
 
     sources/main.cc
 )
@@ -261,9 +262,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "${BUILD_DIR}/uEye_api_64.dll"
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
-
-    # Copy camera .ini configs
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/" "${BUILD_DIR}/"
 
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/instruction_file_samples/"

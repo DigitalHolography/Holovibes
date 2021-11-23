@@ -112,7 +112,7 @@ class ICamera
     virtual const char* get_name() const = 0;
 
     /*! \brief Get the default path of the INI configuration file. */
-    virtual const char* get_ini_path() const = 0;
+    virtual const char* get_ini_name() const = 0;
 
     /*! \brief Open the camera and initialize it.
      *

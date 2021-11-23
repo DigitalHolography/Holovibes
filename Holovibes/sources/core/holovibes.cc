@@ -64,13 +64,14 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     {
         try
         {
-            static std::map<CameraKind, std::string> camera_dictionary = {
-                {CameraKind::Adimec, "CameraAdimec.dll"},
-                {CameraKind::IDS, "CameraIds.dll"},
-                {CameraKind::Phantom, "CameraPhantom.dll"},
-                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
-                {CameraKind::xiQ, "CameraXiq.dll"},
-                {CameraKind::xiB, "CameraXib.dll"},
+            static std::map<CameraKind, LPCWSTR> camera_dictionary = {
+                {CameraKind::Adimec, L"CameraAdimec.dll"},
+                {CameraKind::BitflowCyton, L"BitflowCyton.dll"},
+                {CameraKind::IDS, L"CameraIds.dll"},
+                {CameraKind::Phantom, L"CameraPhantom.dll"},
+                {CameraKind::Hamamatsu, L"CameraHamamatsu.dll"},
+                {CameraKind::xiQ, L"CameraXiq.dll"},
+                {CameraKind::xiB, L"CameraXib.dll"},
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
@@ -109,7 +110,7 @@ void Holovibes::stop_frame_read()
 
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
-                                   bool raw_record,
+                                   RecordMode record_mode,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
@@ -117,7 +118,7 @@ void Holovibes::start_frame_record(const std::string& path,
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          raw_record,
+                                          record_mode,
                                           nb_frames_skip,
                                           cd_.output_buffer_size);
 }
@@ -164,12 +165,16 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              std::optional<unsigned int> nb_frames_to_record,
-                                             bool raw_record,
+                                             RecordMode record_mode,
                                              unsigned int nb_frames_skip)
 {
     frame_record_worker_controller_.set_callback([]() {});
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path, nb_frames_to_record, false, nb_frames_skip, cd_.output_buffer_size);
+    frame_record_worker_controller_.start(path,
+                                          nb_frames_to_record,
+                                          record_mode,
+                                          nb_frames_skip,
+                                          cd_.output_buffer_size);
 
     while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
         continue;
@@ -195,6 +200,9 @@ void Holovibes::init_pipe()
     }
 
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
+
+    if (compute_pipe_.load())
+        compute_pipe_ = nullptr;
 
     compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                *(gpu_output_queue_.load()),

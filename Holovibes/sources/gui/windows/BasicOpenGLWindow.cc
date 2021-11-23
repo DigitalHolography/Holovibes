@@ -24,7 +24,6 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , winState(Qt::WindowNoState)
     , winPos(p)
     , output_(q)
-    , cd_(nullptr)
     , fd_(q->get_fd())
     , kView(k)
     , translate_(0.f, 0.f, 0.f, 0.f)
@@ -48,9 +47,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
-    setIcon(QIcon("Holovibes.ico"));
-    show();
-
+    setIcon(QIcon(":/Holovibes.ico"));
     this->installEventFilter(this);
 }
 
@@ -75,10 +72,6 @@ BasicOpenGLWindow::~BasicOpenGLWindow()
 const KindOfView BasicOpenGLWindow::getKindOfView() const { return kView; }
 
 const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const { return overlay_manager_.getKind(); }
-
-ComputeDescriptor* BasicOpenGLWindow::getCd() { return cd_; }
-
-const ComputeDescriptor* BasicOpenGLWindow::getCd() const { return cd_; }
 
 const FrameDescriptor& BasicOpenGLWindow::getFd() const { return fd_; }
 
@@ -200,8 +193,6 @@ void BasicOpenGLWindow::setTransform()
 }
 
 void BasicOpenGLWindow::resetSelection() { overlay_manager_.reset(); }
-
-void BasicOpenGLWindow::setCd(ComputeDescriptor* cd) { cd_ = cd; }
 
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {

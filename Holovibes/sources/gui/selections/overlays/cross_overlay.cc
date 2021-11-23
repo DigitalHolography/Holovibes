@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "API.hh"
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -175,8 +176,7 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    auto cd = parent_->getCd();
-    mouse_position_ = units::PointFd(units::ConversionData(parent_), cd->x.cuts, cd->y.cuts);
+    mouse_position_ = units::PointFd(units::ConversionData(parent_), api::get_cd().x.cuts, api::get_cd().y.cuts);
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -197,10 +197,9 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        auto cd = parent_->getCd();
-        cd->x.cuts = mouse_position_.x();
-        cd->y.cuts = mouse_position_.y();
-        cd->notify_observers();
+        api::get_cd().x.cuts = mouse_position_.x();
+        api::get_cd().y.cuts = mouse_position_.y();
+        api::get_cd().notify_observers();
     }
 }
 
@@ -208,31 +207,31 @@ void CrossOverlay::release(ushort frameside) {}
 
 void CrossOverlay::computeZone()
 {
-    auto cd = parent_->getCd();
+    ComputeDescriptor& cd = api::get_cd();
     units::PointFd topLeft;
     units::PointFd bottomRight;
 
     // Computing min/max coordinates in function of the frame_descriptor
-    int x_min = cd->x.cuts;
-    int x_max = cd->x.cuts;
-    int y_min = cd->y.cuts;
-    int y_max = cd->y.cuts;
-    (cd->x.accu_level < 0 ? x_min : x_max) += cd->x.accu_level;
-    (cd->y.accu_level < 0 ? y_min : y_max) += cd->y.accu_level;
+    int x_min = cd.x.cuts;
+    int x_max = cd.x.cuts;
+    int y_min = cd.y.cuts;
+    int y_max = cd.y.cuts;
+    (cd.x.accu_level < 0 ? x_min : x_max) += cd.x.accu_level;
+    (cd.y.accu_level < 0 ? y_min : y_max) += cd.y.accu_level;
     units::ConversionData convert(parent_);
     units::PointFd min(convert, x_min, y_min);
     units::PointFd max(convert, x_max, y_max);
 
     // Setting the zone_
-    if (cd->x.accu_level == 0)
+    if (cd.x.accu_level == 0)
     {
-        min.x().set(cd->x.cuts);
-        max.x().set(cd->x.cuts);
+        min.x().set(cd.x.cuts);
+        max.x().set(cd.x.cuts);
     }
-    if (cd->y.accu_level == 0)
+    if (cd.y.accu_level == 0)
     {
-        min.y().set(cd->y.cuts);
-        max.y().set(cd->y.cuts);
+        min.y().set(cd.y.cuts);
+        max.y().set(cd.y.cuts);
     }
     max.x() += 1;
     max.y() += 1;

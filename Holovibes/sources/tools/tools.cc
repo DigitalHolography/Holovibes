@@ -31,24 +31,9 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
     }
 }
 
-std::string get_exe_path()
-{
-    char path[MAX_PATH];
-    HMODULE hmodule = GetModuleHandle(NULL);
-    if (hmodule != NULL)
-    {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
-        return path;
-    }
-    else
-    {
-        return "";
-    }
-}
-
 std::string get_exe_dir()
 {
-    char path[MAX_PATH];
+    wchar_t path[MAX_PATH];
     HMODULE hmodule = GetModuleHandle(NULL);
     if (hmodule != NULL)
     {

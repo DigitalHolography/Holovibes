@@ -129,7 +129,7 @@ class Holovibes
     void set_cd(const ComputeDescriptor& cd);
 
     /*! \return Corresponding Camera INI file path */
-    const char* get_camera_ini_path() const;
+    const char* get_camera_ini_name() const;
 
     /*! \brief Get zb = N d^2 / lambda
      *
@@ -189,14 +189,14 @@ class Holovibes
      *
      * \param path
      * \param nb_frames_to_record
-     * \param raw_record
+     * \param record_mode
      * \param nb_frames_skip
      * \param callback
      */
     void start_frame_record(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
-        bool raw_record,
+        RecordMode record_mode,
         unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 
@@ -229,7 +229,7 @@ class Holovibes
 
     void start_cli_record_and_compute(const std::string& path,
                                       std::optional<unsigned int> nb_frames_to_record,
-                                      bool raw_record,
+                                      RecordMode record_mode,
                                       unsigned int nb_frames_skip);
 
     void init_pipe();
