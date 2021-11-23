@@ -99,29 +99,41 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
-void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
+void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data) {}
+
+void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
 {
     // This is done for retrocompatibility
-    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load()) == Computation::Raw ? Computation::Raw
-                                                                                                : Computation::Hologram;
+    cd.compute_mode = get_value(meta_data, "mode", cd.compute_mode.load()) == Computation::Raw ? Computation::Raw
+                                                                                               : Computation::Hologram;
 
-    cd.space_transformation = get_value(meta_data_, "algorithm", cd.space_transformation.load());
-    cd.time_transformation = get_value(meta_data_, "time_filter", cd.time_transformation.load());
-    cd.time_transformation_size = get_value(meta_data_, "#img", cd.time_transformation_size.load());
-    cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
-    cd.lambda = get_value(meta_data_, "lambda", cd.lambda.load());
-    cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
-    cd.zdistance = get_value(meta_data_, "z", cd.zdistance.load());
-    cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
-    cd.xy.contrast_min = get_value(meta_data_, "contrast_min", cd.xy.contrast_min.load());
-    cd.xy.contrast_max = get_value(meta_data_, "contrast_max", cd.xy.contrast_max.load());
-    cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
-    cd.x.accu_level = get_value(meta_data_, "x_acc_level", cd.x.accu_level.load());
-    cd.y.accu_level = get_value(meta_data_, "y_acc_level", cd.y.accu_level.load());
-    cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level.load());
-    cd.xy.img_accu_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_accu_level.load());
-    cd.xz.img_accu_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_accu_level.load());
-    cd.yz.img_accu_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_accu_level.load());
-    cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
+    cd.space_transformation = get_value(meta_data, "algorithm", cd.space_transformation.load());
+    cd.time_transformation = get_value(meta_data, "time_filter", cd.time_transformation.load());
+    cd.time_transformation_size = get_value(meta_data, "#img", cd.time_transformation_size.load());
+    cd.p.index = get_value(meta_data, "p", cd.p.index.load());
+    cd.lambda = get_value(meta_data, "lambda", cd.lambda.load());
+    cd.pixel_size = get_value(meta_data, "pixel_size", cd.pixel_size.load());
+    cd.zdistance = get_value(meta_data, "z", cd.zdistance.load());
+    cd.xy.log_scale_slice_enabled = get_value(meta_data, "log_scale", cd.xy.log_scale_slice_enabled.load());
+    cd.xy.contrast_min = get_value(meta_data, "contrast_min", cd.xy.contrast_min.load());
+    cd.xy.contrast_max = get_value(meta_data, "contrast_max", cd.xy.contrast_max.load());
+    cd.fft_shift_enabled = get_value(meta_data, "fft_shift_enabled", cd.fft_shift_enabled.load());
+    cd.x.accu_level = get_value(meta_data, "x_acc_level", cd.x.accu_level.load());
+    cd.y.accu_level = get_value(meta_data, "y_acc_level", cd.y.accu_level.load());
+    cd.p.accu_level = get_value(meta_data, "p_acc_level", cd.p.accu_level.load());
+    cd.xy.img_accu_level = get_value(meta_data, "img_acc_slice_xy_level", cd.xy.img_accu_level.load());
+    cd.xz.img_accu_level = get_value(meta_data, "img_acc_slice_xz_level", cd.xz.img_accu_level.load());
+    cd.yz.img_accu_level = get_value(meta_data, "img_acc_slice_yz_level", cd.yz.img_accu_level.load());
+    cd.renorm_enabled = get_value(meta_data, "renorm_enabled", cd.renorm_enabled.load());
+}
+
+void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
+{
+    if (holo_file_header_.version == 4)
+        import_holo_v4(cd, meta_data_);
+    else if (holo_file_header_.version < 4)
+        import_holo_v2_v3(cd, meta_data_);
+    else
+        LOG_ERROR << "HOLO file version not supported!";
 }
 } // namespace holovibes::io_files
