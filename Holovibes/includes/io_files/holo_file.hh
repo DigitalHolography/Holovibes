@@ -88,6 +88,6 @@ class HoloFile
     /*! \brief The json meta data present in the footer */
     json meta_data_;
     /*! \brief Current version of the holo file, update it when changing version */
-    static constexpr uint16_t current_version_ = 2;
+    static constexpr uint16_t current_version_ = 4;
 };
 } // namespace holovibes::io_files
