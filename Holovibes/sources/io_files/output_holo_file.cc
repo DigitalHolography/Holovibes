@@ -65,6 +65,79 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
+
+        auto j_cs = json{
+            {"image rendering",
+             {
+                 {"image mode", computation_to_string[cd.compute_mode.load()]},
+                 {"batch size", cd.batch_size.load()},
+                 {"time transformaton stride", cd.time_transformation_stride.load()},
+                 {"filter2d",
+                  {{"enabled", cd.filter2d_enabled.load()},
+                   {"n1", cd.filter2d_n1.load()},
+                   {"n2", cd.filter2d_n2.load()}}},
+                 {"space tranformation", space_transformation_to_string[cd.space_transformation.load()]},
+                 {"time transformation", time_transformation_to_string[cd.time_transformation.load()]},
+                 {"time transformation size", cd.time_transformation_size.load()},
+                 {"lambda", cd.lambda.load()},
+                 {"z distance", cd.zdistance.load()},
+                 {"convolution",
+                  {{"enabled", cd.convolution_enabled.load()},
+                   {"type", "45"},
+                   {"divide", cd.divide_convolution_enabled.load()}}},
+             }},
+            {"view",
+             {
+                 {"type", "Magnitude"},
+                 {"fft shift", cd.fft_shift_enabled.load()},
+                 // x{,},
+                 // y{,},
+                 // p{,},
+                 // q{,},
+                 {"windows",
+                  {
+                      // xy{,},
+                      // yz{,},
+                      // xz{,},
+                      // filter2d{,},}
+                  }},
+                 {"renorm", cd.renorm_enabled.load()},
+                 {"reticle",
+                  {{"display enabled", cd.reticle_display_enabled.load()}, {"scale", cd.reticle_scale.load()}}},
+             }},
+            {"composite",
+             {
+                 {"mode", composite_kind_to_string[cd.composite_kind.load()]},
+                 {"auto weight", cd.composite_auto_weights.load()},
+                 {"rgb", cd.rgb.to_string_json()},
+                 {"hsv", cd.hsv.to_string_json()},
+             }},
+            {
+                "advanced",
+                {{"buffer size",
+                  {{"input", cd.input_buffer_size.load()},
+                   {"file", cd.file_buffer_size.load()},
+                   {"record", cd.record_buffer_size.load()},
+                   {"output", cd.output_buffer_size.load()},
+                   {"time transformation cuts", cd.time_transformation_cuts_output_buffer_size.load()}}},
+                 {
+                     "filer2d smooth",
+                     {{"low", cd.filter2d_smooth_low.load()}, {"high", cd.filter2d_smooth_high.load()}},
+                 },
+                 {"contrast",
+                  {{"lower", cd.contrast_lower_threshold.load()},
+                   {"upper", cd.contrast_upper_threshold.load()},
+                   {"cuts p offset", cd.cuts_contrast_p_offset.load()}}},
+                 {"renorm constant", cd.renorm_constant.load()}},
+            },
+        };
+
+        auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
+                         {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}}};
+
+        auto jf = json{{"compute_settings", j_cs}, {"file_info", j_fi}};
+
+        LOG_INFO << (jf.dump(1));
     }
     catch (const json::exception& e)
     {

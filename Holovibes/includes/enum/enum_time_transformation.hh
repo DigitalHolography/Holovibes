@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <map>
+
 namespace holovibes
 {
 /*! \enum TimeTransformation
@@ -17,4 +19,12 @@ enum class TimeTransformation
     NONE,     /*!< No transformation */
     SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
 };
+
+static std::map<TimeTransformation, std::string> time_transformation_to_string = {
+    {TimeTransformation::STFT, "STFT"},
+    {TimeTransformation::PCA, "PCA"},
+    {TimeTransformation::NONE, "NONE"},
+    {TimeTransformation::SSA_STFT, "SSA_STFT"},
+};
+
 } // namespace holovibes
