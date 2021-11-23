@@ -340,10 +340,13 @@ void FourierTransform::insert_time_transformation_cuts_view()
             // window
             const ushort width = fd_.width;
             const ushort height = fd_.height;
-            if (cd_.x.cuts < width && cd_.y.cuts < height)
+
+            View_XY x = view_cache_.get_x();
+            View_XY y = view_cache_.get_y();
+            if (x.cuts < width && y.cuts < height)
             {
-                mouse_posx = cd_.x.cuts;
-                mouse_posy = cd_.y.cuts;
+                mouse_posx = x.cuts;
+                mouse_posy = y.cuts;
             }
             // -----------------------------------------------------
             time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
@@ -351,8 +354,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            buffers_.gpu_postprocess_frame_yz.get(),
                                            mouse_posx,
                                            mouse_posy,
-                                           mouse_posx + cd_.x.accu_level,
-                                           mouse_posy + cd_.y.accu_level,
+                                           mouse_posx + x.accu_level,
+                                           mouse_posy + y.accu_level,
                                            width,
                                            height,
                                            compute_cache_.get_time_transformation_size(),

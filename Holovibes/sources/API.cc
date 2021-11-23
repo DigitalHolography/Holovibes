@@ -674,13 +674,25 @@ void set_p_accu(uint p_value)
 
 void set_x_accu(uint x_value)
 {
-    get_cd().set_x_accu_level(x_value);
+    GSH::instance().set_x_accu_level(x_value);
+    pipe_refresh();
+}
+
+void set_x_cuts(uint x_value)
+{
+    GSH::instance().set_x_cuts(x_value);
     pipe_refresh();
 }
 
 void set_y_accu(uint y_value)
 {
-    get_cd().set_y_accu_level(y_value);
+    GSH::instance().set_y_accu_level(y_value);
+    pipe_refresh();
+}
+
+void set_y_cuts(uint y_value)
+{
+    GSH::instance().set_y_cuts(y_value);
     pipe_refresh();
 }
 
@@ -697,9 +709,13 @@ void set_x_y(uint x, uint y)
                 get_cd().set_y_cuts(y);
     */
 
-    get_cd().set_x_cuts(x);
-    get_cd().set_y_cuts(y);
+    GSH::instance().set_x_cuts(x);
+    GSH::instance().set_y_cuts(y);
+    pipe_refresh();
 }
+
+View_XY get_x(void) { return GSH::instance().get_x(); }
+View_XY get_y(void) { return GSH::instance().get_y(); }
 
 void set_q(int value) { get_cd().set_q_index(value); }
 

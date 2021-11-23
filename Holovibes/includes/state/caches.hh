@@ -30,7 +30,10 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
  */
-NEW_INITIALIZED_MICRO_CACHE(ViewCache, (ImgType, img_type, ImgType::Modulus), (View_XY, x, View_XY{}));
+NEW_INITIALIZED_MICRO_CACHE(ViewCache,
+                            (ImgType, img_type, ImgType::Modulus),
+                            (View_XY, x, View_XY{}),
+                            (View_XY, y, View_XY{}));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

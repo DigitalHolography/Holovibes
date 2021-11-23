@@ -194,11 +194,23 @@ void set_p_accu(uint p_value);
  */
 void set_x_accu(uint x_value);
 
+/*! \brief Modifies x cuts
+ *
+ * \param x_value the new value of x cuts
+ */
+void set_x_cuts(uint x_value);
+
 /*! \brief Modifies y accumulation
  *
  * \param y_value the new value of y accu
  */
 void set_y_accu(uint y_value);
+
+/*! \brief Modifies y cuts
+ *
+ * \param y_value the new value of y cuts
+ */
+void set_y_cuts(uint y_value);
 
 /*! \brief Modifies q accumulation
  *
@@ -456,6 +468,18 @@ bool get_contrast_invert_enabled();
  * \return false Disabled
  */
 bool get_img_log_scale_slice_enabled();
+
+/*! \brief get x
+ *
+ * \return x
+ */
+View_XY get_x(void);
+
+/*! \brief get y
+ *
+ * \return y
+ */
+View_XY get_y(void);
 
 /*! \brief Modifies convolution kernel
  *

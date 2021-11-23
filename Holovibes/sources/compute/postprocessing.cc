@@ -124,8 +124,6 @@ void Postprocessing::convolution_composite()
 
 void Postprocessing::insert_convolution()
 {
-    LOG_ERROR << "convolution = " << std::boolalpha << compute_cache_.get_convolution_enabled();
-
     if (!compute_cache_.get_convolution_enabled())
     {
         return;

@@ -60,13 +60,20 @@ void GSH::set_convolution_enabled(bool value)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     compute_cache_.set_convolution_enabled(value);
-    LOG_WARN << "convolution = " << std::boolalpha << value;
 }
 
 void GSH::set_filter2d_n1(int value) { filter2d_cache_.set_filter2d_n1(value); }
 void GSH::set_filter2d_n2(int value) { filter2d_cache_.set_filter2d_n2(value); }
 
 void GSH::set_img_type(ImgType value) { view_cache_.set_img_type(value); }
+
+void GSH::set_x(View_XY value) { view_cache_.get_x() = value; }
+void GSH::set_x_accu_level(int value) { view_cache_.get_x_ref().accu_level = value; }
+void GSH::set_x_cuts(int value) { view_cache_.get_x_ref().cuts = value; }
+
+void GSH::set_y(View_XY value) { view_cache_.set_y(value); }
+void GSH::set_y_accu_level(int value) { view_cache_.get_y_ref().accu_level = value; }
+void GSH::set_y_cuts(int value) { view_cache_.get_y_ref().cuts = value; }
 
 #pragma endregion
 
@@ -94,6 +101,14 @@ int GSH::get_filter2d_n2() const { return filter2d_cache_.get_filter2d_n2(); }
 
 ImgType GSH::get_img_type() const { return view_cache_.get_img_type(); }
 
+View_XY GSH::get_x() const { return view_cache_.get_x(); }
+int GSH::get_x_accu_level() const { return view_cache_.get_x().accu_level; }
+int GSH::get_x_cuts() const { return view_cache_.get_x().cuts; }
+
+View_XY GSH::get_y() const { return view_cache_.get_y(); }
+int GSH::get_y_accu_level() const { return view_cache_.get_y().accu_level; }
+int GSH::get_y_cuts() const { return view_cache_.get_y().cuts; }
+
 #pragma endregion
 
 static void load_image_rendering(const boost::property_tree::ptree& ptree,
@@ -120,6 +135,8 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
 {
     view_cache_.set_img_type(
         static_cast<ImgType>(ptree.get<int>("view.view_type", static_cast<int>(ImgType::Modulus))));
+    view_cache_.set_x(View_XY{View_Accu{ptree.get<short>("view.x_accu", 0)}, ptree.get<ushort>("view.x_cuts", 0)});
+    view_cache_.set_y(View_XY{View_Accu{ptree.get<short>("view.y_accu", 0)}, ptree.get<ushort>("view.y_cuts", 0)});
 }
 
 // je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
@@ -155,6 +172,12 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
 static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& view_cache_)
 {
     ptree.put<int>("view.view_type", static_cast<int>(view_cache_.get_img_type()));
+    View_XY x = view_cache_.get_x();
+    View_XY y = view_cache_.get_y();
+    ptree.put<short>("view.x_accu_level", x.accu_level);
+    ptree.put<short>("view.y_accu_level", y.accu_level);
+    ptree.put<ushort>("view.x_cuts", x.cuts);
+    ptree.put<ushort>("view.y_cuts", y.cuts);
 }
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
 {

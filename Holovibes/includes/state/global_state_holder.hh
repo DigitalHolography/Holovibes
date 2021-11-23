@@ -55,6 +55,14 @@ class GSH
     int get_filter2d_n2() const;
     ImgType get_img_type() const;
 
+    View_XY get_x() const;
+    int get_x_accu_level() const;
+    int get_x_cuts() const;
+
+    View_XY get_y() const;
+    int get_y_accu_level() const; // vazy ramene toi vocal
+    int get_y_cuts() const;
+
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_transformation_stride(uint value);
@@ -67,6 +75,13 @@ class GSH
     void set_filter2d_n1(int value);
     void set_filter2d_n2(int value);
     void set_img_type(ImgType value);
+    void set_x(View_XY value);
+    void set_x_cuts(int value);
+    void set_x_accu_level(int value);
+
+    void set_y(View_XY value);
+    void set_y_accu_level(int value);
+    void set_y_cuts(int value);
 
     void load_ptree(const boost::property_tree::ptree& ptree);
 

@@ -16,28 +16,23 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_divide_convolution(
         ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
+namespace _internal_load
+{
+void pq_load(const boost::property_tree::ptree& ptree, const std::string name, View_PQ& view)
+{
+    view.index = ptree.get<ushort>("view." + name + "_index", view.index);
+    view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
+}
+
+} // namespace _internal_load
 
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
     // Add unwrap_2d
     set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
 
-    auto xypq_load = [&](const std::string name, View_Accu& view) {
-        view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
-    };
-    auto xy_load = [&](const std::string name, View_XY& view) {
-        view.cuts = ptree.get<ushort>("view." + name + "_cuts", view.cuts);
-        xypq_load(name, view);
-    };
-    auto pq_load = [&](const std::string name, View_PQ& view) {
-        view.index = ptree.get<ushort>("view." + name + "_index", view.index);
-        xypq_load(name, view);
-    };
-
-    xy_load("x", cd.x);
-    xy_load("y", cd.y);
-    pq_load("p", cd.p);
-    pq_load("q", cd.q);
+    _internal_load::pq_load(ptree, "p", cd.p);
+    _internal_load::pq_load(ptree, "q", cd.q);
 
     auto xyzf_load = [&](const std::string name, View_Window& view) {
         view.log_scale_slice_enabled =
@@ -199,21 +194,9 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
-    auto xypq_save = [&](const std::string& name, const View_Accu& view) {
-        ptree.put<short>("view." + name + "_accu_level", view.accu_level);
-    };
-
-    auto xy_save = [&](const std::string& name, const View_XY& view) {
-        ptree.put<ushort>("view." + name + "_cuts", view.cuts);
-        xypq_save(name, view);
-    };
-
-    xy_save("x", cd.x);
-    xy_save("y", cd.y);
-
     auto pq_save = [&](const std::string& name, const View_PQ& view) {
         ptree.put<ushort>("view." + name + "_index", view.index);
-        xypq_save(name, view);
+        ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
 
     pq_save("p", cd.p);

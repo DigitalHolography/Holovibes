@@ -27,7 +27,7 @@ struct View_XYZ : public View_Window
 
 struct View_Accu
 {
-    int accu_level = 1;
+    int accu_level = 0;
     inline View_Accu& operator=(const View_Accu& accu)
     {
         accu_level = accu.accu_level;

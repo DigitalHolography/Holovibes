@@ -79,13 +79,13 @@ inline uint get_pindex() { return get_cd().get_p_index(); }
 
 inline int get_p_accu_level() { return get_cd().get_p_accu_level(); }
 
-inline uint get_x_cuts() { return get_cd().get_x_cuts(); }
+inline uint get_x_cuts() { return GSH::instance().get_x_cuts(); }
 
-inline int get_x_accu_level() { return get_cd().get_x_accu_level(); }
+inline int get_x_accu_level() { return GSH::instance().get_x_accu_level(); }
 
-inline uint get_y_cuts() { return get_cd().get_y_cuts(); }
+inline uint get_y_cuts() { return GSH::instance().get_y_cuts(); }
 
-inline int get_y_accu_level() { return get_cd().get_y_accu_level(); }
+inline int get_y_accu_level() { return GSH::instance().get_y_accu_level(); }
 
 inline uint get_q_index() { return get_cd().get_q_index(); }
 
