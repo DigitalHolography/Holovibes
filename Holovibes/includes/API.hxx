@@ -189,6 +189,7 @@ inline bool get_filter2d_enabled() { return get_cd().get_filter2d_enabled(); }
 inline bool get_filter2d_view_enabled() { return get_cd().get_filter2d_view_enabled(); }
 
 inline bool get_3d_cuts_view_enabled() { return get_cd().get_3d_cuts_view_enabled(); }
+inline void set_3d_cuts_view_enabled(bool value) { get_cd().set_3d_cuts_view_enabled(value); }
 
 inline bool get_lens_view_enabled() { return get_cd().get_lens_view_enabled(); }
 
