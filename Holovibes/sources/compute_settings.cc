@@ -204,16 +204,16 @@ void load_view(const json& data)
 
     cd.img_type = string_to_img_type[data["type"]];
     cd.fft_shift_enabled = data["fft shift"];
-    // cd.x.from_json(data["x"]);
-    // cd.y.from_json(data["y"]);
-    // cd.p.from_json(data["p"]);
-    // cd.q.from_json(data["q"]);
+    cd.x.from_json(data["x"]);
+    cd.y.from_json(data["y"]);
+    cd.p.from_json(data["p"]);
+    cd.q.from_json(data["q"]);
 
     const json& window_data = data["window"];
-    // cd.xy.from_json(window_data["xy"]);
-    // cd.yz.from_json(window_data["yz"]);
-    // cd.xz.from_json(window_data["xz"]);
-    // cd.filter2d.from_json(window_data["filter2d"]);
+    cd.xy.from_json(window_data["xy"]);
+    cd.yz.from_json(window_data["yz"]);
+    cd.xz.from_json(window_data["xz"]);
+    cd.filter2d.from_json(window_data["filter2d"]);
 
     cd.renorm_enabled = data["renorm"];
 
