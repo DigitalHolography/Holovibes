@@ -1,8 +1,5 @@
 #include "API.hh"
 
-#include <nlohmann/json.hpp>
-using json = ::nlohmann::json;
-
 namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
