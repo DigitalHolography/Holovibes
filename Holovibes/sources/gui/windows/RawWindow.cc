@@ -22,11 +22,12 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {
+    this->ratio = ratio;
     show();
 }
 
@@ -352,8 +353,6 @@ void RawWindow::zoomInRect(units::RectOpengl zone)
 
     setTransform();
 }
-
-void RawWindow::setRatio(float ratio_) { ratio = ratio_; }
 
 bool RawWindow::is_resize_call() const { return is_resize; }
 

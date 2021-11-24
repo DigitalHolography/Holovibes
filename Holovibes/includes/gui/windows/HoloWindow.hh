@@ -26,7 +26,8 @@ class HoloWindow : public RawWindow
                DisplayQueue* q,
                SharedPipe ic,
                std::unique_ptr<SliceWindow>& xz,
-               std::unique_ptr<SliceWindow>& yz);
+               std::unique_ptr<SliceWindow>& yz,
+               float ratio);
     virtual ~HoloWindow();
 
     void update_slice_transforms();
