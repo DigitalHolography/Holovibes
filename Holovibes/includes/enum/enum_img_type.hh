@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include <map>
+
 namespace holovibes
 {
 /*! \enum ImgType
@@ -19,4 +21,21 @@ enum class ImgType
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
     Composite       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
 };
+
+static std::map<std::string, ImgType> string_to_img_type = {
+    {"MODULUS", ImgType::Modulus},
+    {"SQUAREMODULUS", ImgType::SquaredModulus},
+    {"ARGUMENT", ImgType::Argument},
+    {"PHASEINCREASE", ImgType::PhaseIncrease},
+    {"COMPOSITE", ImgType::Composite},
+};
+
+static std::map<ImgType, std::string> img_type_to_string = {
+    {ImgType::Modulus, "MODULUS"},
+    {ImgType::SquaredModulus, "SQUAREDMODULUS"},
+    {ImgType::Argument, "ARGUMENT"},
+    {ImgType::PhaseIncrease, "ARGUMENT"},
+    {ImgType::Composite, "COMPOSITE"},
+};
+
 } // namespace holovibes

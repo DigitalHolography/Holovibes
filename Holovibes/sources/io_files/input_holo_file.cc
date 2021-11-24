@@ -3,6 +3,7 @@
 #include "file_exception.hh"
 #include "compute_descriptor.hh"
 #include "logger.hh"
+#include "API.hh"
 
 namespace holovibes::io_files
 {
@@ -101,7 +102,11 @@ T get_value(const json& json, const std::string& key, const T& default_value)
 
 void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
 {
-    // TODO: Do the import when it is validated by MA
+    api::json_to_compute_settings(meta_data["compute settings"]);
+
+    const json& file_info_data = meta_data["file info"];
+    cd.pixel_size = file_info_data["pixel size"]["x"];
+    cd.raw_bitshift = file_info_data["raw bitshift"];
 }
 
 void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)

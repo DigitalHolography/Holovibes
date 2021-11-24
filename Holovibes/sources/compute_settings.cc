@@ -198,6 +198,31 @@ void load_image_rendering(const json& data)
     cd.divide_convolution_enabled = convolution_data["divide"];
 }
 
+void load_view(const json& data)
+{
+    ComputeDescriptor& cd = api::get_cd();
+
+    cd.img_type = string_to_img_type[data["type"]];
+    cd.fft_shift_enabled = data["fft shift"];
+    // cd.x.from_json(data["x"]);
+    // cd.y.from_json(data["y"]);
+    // cd.p.from_json(data["p"]);
+    // cd.q.from_json(data["q"]);
+
+    const json& window_data = data["window"];
+    // cd.xy.from_json(window_data["xy"]);
+    // cd.yz.from_json(window_data["yz"]);
+    // cd.xz.from_json(window_data["xz"]);
+    // cd.filter2d.from_json(window_data["filter2d"]);
+
+    cd.renorm_enabled = data["renorm"];
+
+    const json& reticle_data = data["window"];
+    cd.reticle_display_enabled = reticle_data["display enabled"];
+    cd.reticle_scale = reticle_data["scale"];
+}
+
+void load_composite(const json& data) { ComputeDescriptor& cd = api::get_cd(); }
 void load_advanced(const json& data)
 {
     ComputeDescriptor& cd = api::get_cd();
@@ -221,6 +246,14 @@ void load_advanced(const json& data)
     cd.renorm_constant = data["renorm constant"];
 }
 
+void json_to_compute_settings(const json& data)
+{
+    load_image_rendering(data["image rendering"]);
+    load_view(data["view"]);
+    load_composite(data["composite"]);
+    load_advanced(data["advanced"]);
+}
+
 void load_compute_settings(const std::string& json_path)
 {
     if (json_path.empty())
@@ -229,9 +262,7 @@ void load_compute_settings(const std::string& json_path)
     LOG_INFO << "Compute settings loaded from : " << json_path;
 
     auto j_cs = json::parse(json_path);
-
-    load_image_rendering(j_cs["image rendering"]);
-    load_advanced(j_cs["advanced"]);
+    json_to_compute_settings(j_cs);
 
     // boost::property_tree::ptree ptree;
     // boost::property_tree::ini_parser::read_ini(json_path, ptree);
@@ -274,7 +305,7 @@ json compute_settings_to_json()
          }},
         {"view",
          {
-             {"type", "Magnitude"},
+             {"type", img_type_to_string[cd.img_type.load()]},
              {"fft shift", cd.fft_shift_enabled.load()},
              {"x", cd.x.to_json()},
              {"y", cd.y.to_json()},
