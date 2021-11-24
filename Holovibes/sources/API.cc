@@ -381,7 +381,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
 
 bool set_3d_cuts_view(uint time_transformation_size)
 {
-    // if checked
     try
     {
         get_compute_pipe()->create_stft_slice_queue();
@@ -416,7 +415,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_cd().get_yz_flip_enabled());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().set_3d_cuts_view_enabled(true);
+        set_3d_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -454,8 +453,6 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
     {
         LOG_ERROR << e.what();
     }
-
-    get_cd().set_3d_cuts_view_enabled(false);
 }
 
 #pragma endregion
