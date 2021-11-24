@@ -394,20 +394,16 @@ json compute_settings_to_json()
     return j_cs;
 }
 
-void save_compute_settings(const std::string& ini_path)
+void save_compute_settings(const std::string& json_path)
 {
-    if (ini_path.empty())
+    if (json_path.empty())
         return;
 
-    boost::property_tree::ptree ptree;
+    auto j_cs = compute_settings_to_json();
 
-    save_image_rendering(ptree, get_cd());
-    save_view(ptree, get_cd());
-    save_composite(ptree, get_cd());
-    save_advanced(ptree, get_cd());
+    std::ofstream file(json_path);
+    file << j_cs.dump(1);
 
-    boost::property_tree::write_ini(ini_path, ptree);
-
-    LOG_INFO << "Compute settings overwritten at : " << ini_path;
+    LOG_INFO << "Compute settings overwritten at : " << json_path;
 }
 } // namespace holovibes::api
