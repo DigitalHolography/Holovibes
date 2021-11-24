@@ -37,7 +37,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
         auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
                          {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}}};
 
-        meta_data_ = json{{"compute_settings", holovibes::api::compute_settings_to_json()}, {"file_info", j_fi}};
+        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"file info", j_fi}};
     }
     catch (const json::exception& e)
     {

@@ -633,6 +633,7 @@ json compute_settings_to_json();
  * \param path the path where the .ini file is
  */
 void load_compute_settings(const std::string& path);
+void json_to_compute_settings(const json& data);
 
 void save_user_preferences(boost::property_tree::ptree& ptree);
 void load_user_preferences(const boost::property_tree::ptree& ptree);
