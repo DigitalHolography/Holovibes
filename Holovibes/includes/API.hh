@@ -11,6 +11,9 @@
 #include "ini_config.hh"
 #include "user_interface_descriptor.hh"
 
+#include <nlohmann/json.hpp>
+using json = ::nlohmann::json;
+
 namespace holovibes::api
 {
 /*! \brief Gets an Input file from a given filename
@@ -623,6 +626,7 @@ void init_image_mode(QPoint& position, QSize& size);
  * \param path The location of the .ini file saved
  */
 void save_compute_settings(const std::string& path = ::holovibes::ini::default_compute_config_filepath);
+json compute_settings_to_json();
 
 /*! \brief Setups program from .ini file
  *

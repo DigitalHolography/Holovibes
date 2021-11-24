@@ -27,7 +27,6 @@
 #include <sstream>
 
 #include <nlohmann/json.hpp>
-
 using json = ::nlohmann::json;
 
 /*! \brief #TODO Add a description for this namespace */

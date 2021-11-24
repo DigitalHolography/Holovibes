@@ -1,5 +1,8 @@
 #include "API.hh"
 
+#include <nlohmann/json.hpp>
+using json = ::nlohmann::json;
+
 namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
@@ -324,6 +327,74 @@ void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& 
     ptree.put<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
     ptree.put<uint>("advanced.renorm_constant", cd.renorm_constant);
     ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
+}
+
+json compute_settings_to_json()
+{
+    const ComputeDescriptor& cd = get_cd();
+
+    auto j_cs = json{
+        {"image rendering",
+         {
+             {"image mode", computation_to_string[cd.compute_mode.load()]},
+             {"batch size", cd.batch_size.load()},
+             {"time transformaton stride", cd.time_transformation_stride.load()},
+             {"filter2d",
+              {{"enabled", cd.filter2d_enabled.load()}, {"n1", cd.filter2d_n1.load()}, {"n2", cd.filter2d_n2.load()}}},
+             {"space tranformation", space_transformation_to_string[cd.space_transformation.load()]},
+             {"time transformation", time_transformation_to_string[cd.time_transformation.load()]},
+             {"time transformation size", cd.time_transformation_size.load()},
+             {"lambda", cd.lambda.load()},
+             {"z distance", cd.zdistance.load()},
+             {"convolution",
+              {{"enabled", cd.convolution_enabled.load()},
+               {"type", "45"},
+               {"divide", cd.divide_convolution_enabled.load()}}},
+         }},
+        {"view",
+         {
+             {"type", "Magnitude"},
+             {"fft shift", cd.fft_shift_enabled.load()},
+             {"x", cd.x.to_json()},
+             {"y", cd.y.to_json()},
+             {"p", cd.p.to_json()},
+             {"q", cd.q.to_json()},
+             {"window",
+              {{"xy", cd.xy.to_json()},
+               {"yz", cd.yz.to_json()},
+               {"xz", cd.xz.to_json()},
+               {"filter2d", cd.filter2d.to_json()}}},
+             {"renorm", cd.renorm_enabled.load()},
+             {"reticle", {{"display enabled", cd.reticle_display_enabled.load()}, {"scale", cd.reticle_scale.load()}}},
+         }},
+        {"composite",
+         {
+             {"mode", composite_kind_to_string[cd.composite_kind.load()]},
+             {"auto weight", cd.composite_auto_weights.load()},
+             {"rgb", cd.rgb.to_json()},
+             {"hsv", cd.hsv.to_json()},
+         }},
+        {
+            "advanced",
+            {{"buffer size",
+              {{"input", cd.input_buffer_size.load()},
+               {"file", cd.file_buffer_size.load()},
+               {"record", cd.record_buffer_size.load()},
+               {"output", cd.output_buffer_size.load()},
+               {"time transformation cuts", cd.time_transformation_cuts_output_buffer_size.load()}}},
+             {
+                 "filer2d smooth",
+                 {{"low", cd.filter2d_smooth_low.load()}, {"high", cd.filter2d_smooth_high.load()}},
+             },
+             {"contrast",
+              {{"lower", cd.contrast_lower_threshold.load()},
+               {"upper", cd.contrast_upper_threshold.load()},
+               {"cuts p offset", cd.cuts_contrast_p_offset.load()}}},
+             {"renorm constant", cd.renorm_constant.load()}},
+        },
+    };
+
+    return j_cs;
 }
 
 void save_compute_settings(const std::string& ini_path)
