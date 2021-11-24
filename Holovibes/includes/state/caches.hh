@@ -2,6 +2,7 @@
 
 #include "micro_cache.hh"
 #include "enum_space_transformation.hh"
+#include "enum_window_kind.hh"
 #include "enum_img_type.hh"
 #include "view_struct.hh"
 
@@ -33,7 +34,14 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
                             (View_XY, x, View_XY{}),
-                            (View_XY, y, View_XY{}));
+                            (View_XY, y, View_XY{}),
+                            (View_PQ, p, View_PQ{}),
+                            (View_PQ, q, View_PQ{}),
+                            (View_XYZ, xy, View_XYZ{}),
+                            (View_XYZ, xz, View_XYZ{}),
+                            (View_XYZ, yz, View_XYZ{}),
+                            (View_Window, filter2d, View_Window{}),
+                            (WindowKind, current_window, WindowKind::XYview));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

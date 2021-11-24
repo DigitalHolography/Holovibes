@@ -45,7 +45,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"time_filter", GSH::instance().get_time_transformation()},
 
                           {"#img", GSH::instance().get_time_transformation_size()},
-                          {"p", cd.p.index.load()},
+                          {"p", GSH::instance().get_p_index()},
                           {"lambda", GSH::instance().get_lambda()},
                           {"pixel_size", cd.pixel_size.load()},
                           {"z", GSH::instance().get_z_distance()},
@@ -54,15 +54,15 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
 
                           {"x_acc_level", GSH::instance().get_x_accu_level()},
                           {"y_acc_level", GSH::instance().get_y_accu_level()},
-                          {"p_acc_level", cd.p.accu_level},
+                          {"p_acc_level", GSH::instance().get_p_accu_level()},
 
-                          {"log_scale", cd.xy.log_scale_slice_enabled.load()},
-                          {"contrast_min", cd.xy.contrast_min.load()},
-                          {"contrast_max", cd.xy.contrast_max.load()},
+                          {"log_scale", GSH::instance().get_xy_log_scale_slice_enabled()},
+                          {"contrast_min", GSH::instance().get_xy_contrast_min()},
+                          {"contrast_max", GSH::instance().get_xy_contrast_max()},
 
-                          {"img_acc_slice_xy_level", cd.xy.img_accu_level.load()},
-                          {"img_acc_slice_xz_level", cd.xz.img_accu_level.load()},
-                          {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
+                          {"img_acc_slice_xy_level", GSH::instance().get_xy_img_accu_level()},
+                          {"img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()},
+                          {"img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()},
 
                           {"renorm_enabled", cd.renorm_enabled.load()}};
     }

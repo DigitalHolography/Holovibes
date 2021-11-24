@@ -16,49 +16,10 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     set_divide_convolution(
         ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
-namespace _internal_load
-{
-void pq_load(const boost::property_tree::ptree& ptree, const std::string name, View_PQ& view)
-{
-    view.index = ptree.get<ushort>("view." + name + "_index", view.index);
-    view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
-}
-
-} // namespace _internal_load
-
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
     // Add unwrap_2d
     set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
-
-    _internal_load::pq_load(ptree, "p", cd.p);
-    _internal_load::pq_load(ptree, "q", cd.q);
-
-    auto xyzf_load = [&](const std::string name, View_Window& view) {
-        view.log_scale_slice_enabled =
-            ptree.get<bool>("view." + name + "_log_scale_enabled", view.log_scale_slice_enabled);
-
-        view.contrast_enabled = ptree.get<bool>("view." + name + "_contrast_enabled", view.contrast_enabled);
-        view.contrast_auto_refresh =
-            ptree.get<bool>("view." + name + "_auto_contrast_enabled", view.contrast_auto_refresh);
-        view.contrast_invert = ptree.get<bool>("view." + name + "_invert_enabled", view.contrast_invert);
-        view.contrast_min = ptree.get<float>("view." + name + "_contrast_min", view.contrast_min);
-        view.contrast_max = ptree.get<float>("view." + name + "_contrast_max", view.contrast_max);
-    };
-
-    auto xyz_load = [&](const std::string name, View_XYZ& view) {
-        view.flip_enabled = ptree.get<bool>("view." + name + "_flip_enabled", view.flip_enabled);
-        view.rot = ptree.get<float>("view." + name + "_rot", view.rot);
-
-        view.img_accu_level = ptree.get<ushort>("view." + name + "_img_accu_level", view.img_accu_level.load());
-
-        xyzf_load(name, view);
-    };
-
-    xyz_load("xy", cd.xy);
-    xyz_load("xz", cd.xz);
-    xyz_load("yz", cd.yz);
-    xyzf_load("filter2d", cd.filter2d);
 
     toggle_renormalize(ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled));
 
@@ -143,10 +104,10 @@ void after_load_checks(ComputeDescriptor& cd)
 
     uint time_transformation_size = GSH::instance().get_time_transformation_size();
 
-    if (cd.p.index >= time_transformation_size)
-        cd.p.index = 0;
-    if (cd.q.index >= time_transformation_size)
-        cd.q.index = 0;
+    if (GSH::instance().get_p_index() >= time_transformation_size)
+        GSH::instance().set_p_index(0);
+    if (GSH::instance().get_q_index() >= time_transformation_size)
+        GSH::instance().set_q_index(0);
     if (cd.cuts_contrast_p_offset > time_transformation_size - 1)
         cd.cuts_contrast_p_offset = time_transformation_size - 1;
 }
@@ -199,34 +160,9 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
         ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
 
-    pq_save("p", cd.p);
-    pq_save("q", cd.q);
-
     ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
     ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
-
-    auto xyzf_save = [&](const std::string& name, const View_Window& view) {
-        ptree.put<bool>("view." + name + "_log_scale_enabled", view.log_scale_slice_enabled);
-        ptree.put<bool>("view." + name + "_contrast_enabled", view.contrast_enabled);
-        ptree.put<bool>("view." + name + "_contrast_auto_enabled", view.contrast_auto_refresh);
-        ptree.put<bool>("view." + name + "_contrast_invert_enabled", view.contrast_invert);
-        ptree.put<float>("view." + name + "_contrast_min", view.contrast_min);
-        ptree.put<float>("view." + name + "_contrast_max", view.contrast_max);
-    };
-
-    auto xyz_save = [&](const std::string& name, const View_XYZ& view) {
-        ptree.put<bool>("view." + name + "_flip_enabled", view.flip_enabled);
-        ptree.put<int>("view." + name + "_rot", view.rot);
-        ptree.put<ushort>("view." + name + "_img_accu_level", view.img_accu_level.load());
-
-        xyzf_save(name, view);
-    };
-
-    xyz_save("xy", cd.xy);
-    xyz_save("xz", cd.xz);
-    xyz_save("yz", cd.yz);
-    xyzf_save("filter2d", cd.filter2d);
 }
 
 void save_composite(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)

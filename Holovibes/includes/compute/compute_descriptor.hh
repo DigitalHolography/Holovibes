@@ -94,6 +94,7 @@ class ComputeDescriptor : public Observable
     //  GETTER AND SETTER ZONE
     // #############################################
 
+    /*
     inline double get_rotation() const
     {
         auto w = reinterpret_cast<View_XYZ*>(current);
@@ -104,28 +105,12 @@ class ComputeDescriptor : public Observable
         auto w = reinterpret_cast<View_XYZ*>(current);
         return w->flip_enabled;
     }
+    */
 
     inline Computation get_compute_mode() const { return compute_mode; }
     inline void set_compute_mode(Computation compute_mode) { this->compute_mode = compute_mode; }
 
-    inline WindowKind get_current_window() const { return current_window; }
-    inline void set_current_window(WindowKind current_window) { this->current_window = current_window; }
-
-    inline float get_xy_rot() { return xy.rot; }
-    inline void set_xy_rot(float value) { xy.rot = value; }
-
-    inline float get_xz_rot() { return xz.rot; }
-    inline void set_xz_rot(float value) { xz.rot = value; }
-
-    inline float get_yz_rot() { return yz.rot; }
-    inline void set_yz_rot(float value) { yz.rot = value; }
-
-    inline bool get_xy_flip_enabled() { return xy.flip_enabled; }
-    inline void set_xy_flip_enabled(bool value) { xy.flip_enabled = value; }
-    inline bool get_xz_flip_enabled() { return xz.flip_enabled; }
-    inline void set_xz_flip_enabled(bool value) { xz.flip_enabled = value; }
-    inline bool get_yz_flip_enabled() { return yz.flip_enabled; }
-    inline void set_yz_flip_enabled(bool value) { yz.flip_enabled = value; }
+    // inline WindowKind get_current_window() const { return current_window; }
 
     inline float get_contrast_lower_threshold() const { return contrast_lower_threshold; }
     inline void set_contrast_lower_threshold(float contrast_lower_threshold)
@@ -184,49 +169,25 @@ class ComputeDescriptor : public Observable
 
     inline float get_display_rate() const { return display_rate; }
     inline void set_display_rate(float display_rate) { this->display_rate = display_rate; }
+    /*
+        inline uint get_img_accu_xy_level() const { return xy.img_accu_level.load(); }
+        inline void set_img_accu_xy_level(uint img_accu_slice_xy_level)
+        {
+            this->xy.img_accu_level = img_accu_slice_xy_level;
+        }
 
-    inline uint get_img_accu_xy_level() const { return xy.img_accu_level.load(); }
-    inline void set_img_accu_xy_level(uint img_accu_slice_xy_level)
-    {
-        this->xy.img_accu_level = img_accu_slice_xy_level;
-    }
+        inline uint get_img_accu_xz_level() const { return xz.img_accu_level.load(); }
+        inline void set_img_accu_xz_level(uint img_accu_slice_xz_level)
+        {
+            this->xz.img_accu_level = img_accu_slice_xz_level;
+        }
 
-    inline uint get_img_accu_xz_level() const { return xz.img_accu_level.load(); }
-    inline void set_img_accu_xz_level(uint img_accu_slice_xz_level)
-    {
-        this->xz.img_accu_level = img_accu_slice_xz_level;
-    }
-
-    inline uint get_img_accu_yz_level() const { return yz.img_accu_level.load(); }
-    inline void set_img_accu_yz_level(uint img_accu_slice_yz_level)
-    {
-        this->yz.img_accu_level = img_accu_slice_yz_level;
-    }
-
-    inline uint get_p_index() const { return p.index; }
-    inline void set_p_index(uint value) { p.index = value; }
-
-    inline int get_p_accu_level() const { return p.accu_level; }
-    inline void set_p_accu_level(int p_accu_level) { this->p.accu_level = p_accu_level; }
-
-    inline uint get_x_cuts() const { return x.cuts; }
-    inline void set_x_cuts(uint value) { x.cuts = value; }
-
-    inline int get_x_accu_level() const { return x.accu_level; }
-    inline void set_x_accu_level(int x_accu_level) { this->x.accu_level = x_accu_level; }
-
-    inline uint get_y_cuts() const { return y.cuts; }
-    inline void set_y_cuts(uint value) { y.cuts = value; }
-
-    inline int get_y_accu_level() const { return y.accu_level; }
-    inline void set_y_accu_level(int y_accu_level) { this->y.accu_level = y_accu_level; }
-
-    inline uint get_q_index() const { return q.index; }
-    inline void set_q_index(uint value) { q.index = value; }
-
-    inline uint get_q_accu_level() const { return q.accu_level; }
-    inline void set_q_accu_level(uint q_accu_level) { this->q.accu_level = q_accu_level; }
-
+        inline uint get_img_accu_yz_level() const { return yz.img_accu_level.load(); }
+        inline void set_img_accu_yz_level(uint img_accu_slice_yz_level)
+        {
+            this->yz.img_accu_level = img_accu_slice_yz_level;
+        }
+    */
     inline float get_reticle_scale() const { return reticle_scale; }
     inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
 
@@ -367,36 +328,7 @@ class ComputeDescriptor : public Observable
     inline bool get_fft_shift_enabled() const { return fft_shift_enabled; }
     inline void set_fft_shift_enabled(bool fft_shift_enabled) { this->fft_shift_enabled = fft_shift_enabled; }
 
-    inline bool get_frame_record_enabled() const { return frame_record_enabled; }
-    inline void set_frame_record_enabled(bool frame_record_enabled)
-    {
-        this->frame_record_enabled = frame_record_enabled;
-    }
-
-    inline bool get_log_scale_slice_xy_enabled() const { return xy.log_scale_slice_enabled; }
-    inline void set_log_scale_slice_xy_enabled(bool log_scale_slice_xy_enabled)
-    {
-        this->xy.log_scale_slice_enabled = log_scale_slice_xy_enabled;
-    }
-
-    inline bool get_log_scale_slice_xz_enabled() const { return xz.log_scale_slice_enabled; }
-    inline void set_log_scale_slice_xz_enabled(bool log_scale_slice_xz_enabled)
-    {
-        this->xz.log_scale_slice_enabled = log_scale_slice_xz_enabled;
-    }
-
-    inline bool get_log_scale_slice_yz_enabled() const { return yz.log_scale_slice_enabled; }
-    inline void set_log_scale_slice_yz_enabled(bool log_scale_slice_yz_enabled)
-    {
-        this->yz.log_scale_slice_enabled = log_scale_slice_yz_enabled;
-    }
-
-    inline bool get_log_scale_filter2d_enabled() const { return filter2d.log_scale_slice_enabled; }
-    inline void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled)
-    {
-        this->filter2d.log_scale_slice_enabled = log_scale_filter2d_enabled;
-    }
-
+    /*
     inline bool get_contrast_enabled() const { return current->contrast_enabled; }
     inline void set_contrast_enabled(bool contrast_enabled) { current->contrast_enabled = contrast_enabled; }
 
@@ -408,6 +340,7 @@ class ComputeDescriptor : public Observable
 
     inline bool get_contrast_invert() const { return current->contrast_invert; }
     inline void set_contrast_invert(bool contrast_invert) { current->contrast_invert = contrast_invert; }
+    */
 
     inline bool get_filter2d_enabled() const { return filter2d_enabled; }
     inline void set_filter2d_enabled(bool filter2d_enabled) { this->filter2d_enabled = filter2d_enabled; }
@@ -435,11 +368,11 @@ class ComputeDescriptor : public Observable
     {
         this->chart_record_enabled = chart_record_enabled;
     }
-
-    inline bool get_img_accu_xy_enabled() const { return xy.img_accu_level.load() > 1; }
-    inline bool get_img_accu_xz_enabled() const { return xz.img_accu_level.load() > 1; }
-    inline bool get_img_accu_yz_enabled() const { return yz.img_accu_level.load() > 1; }
-
+    /*
+        inline bool get_img_accu_xy_enabled() const { return xy.img_accu_level.load() > 1; }
+        inline bool get_img_accu_xz_enabled() const { return xz.img_accu_level.load() > 1; }
+        inline bool get_img_accu_yz_enabled() const { return yz.img_accu_level.load() > 1; }
+    */
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
 
@@ -499,12 +432,6 @@ class ComputeDescriptor : public Observable
     void setReticleZone(const units::RectFd& rect);
     /*! \} */
 
-    /*! \name General getters / setters to avoid code duplication
-     * \{
-     */
-    float get_contrast_min() const;
-    float get_contrast_max() const;
-
     /*! \brief Get the rounded value of max contrast for the given WindowKind
      *
      * Qt rounds the value by default.
@@ -516,16 +443,6 @@ class ComputeDescriptor : public Observable
      * \see get_truncate_contrast_max()
      */
     float get_truncate_contrast_min(const int precision = 2) const;
-
-    bool get_img_log_scale_slice_enabled() const;
-
-    unsigned get_img_accu_level() const;
-
-    void set_contrast_min(float value);
-    void set_contrast_max(float value);
-    void set_log_scale_slice_enabled(bool value);
-    void set_log_scale_slice_enabled_filter2d() { filter2d.log_scale_slice_enabled = true; }
-    void set_accumulation_level(int value);
 
     /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
     void check_p_limits();
@@ -541,13 +458,9 @@ class ComputeDescriptor : public Observable
     void change_flip();
 
     void set_computation_stopped(bool value);
-    void set_x_cuts(int value);
-    void set_y_cuts(int value);
 
     void set_weight_rgb(int r, int g, int b);
 
-    /*! \brief Change the window according to the given index */
-    void change_window(int index);
     /*! \brief Reset values used to check if GUY windows are displayed */
     void reset_windows_display();
     /*! \brief Reset values used in the slice view */
@@ -589,11 +502,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Display the raw interferogram when we are in hologram mode. */
     std::atomic<bool> raw_view_enabled{false};
 
-    View_XY x{};
-    View_XY y{};
-    View_PQ p{};
-    View_PQ q{};
-
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};
     /*! \brief Is the reticle overlay enabled */
@@ -604,12 +512,7 @@ class ComputeDescriptor : public Observable
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
 
-    View_XYZ xy{};
-    View_XYZ xz{};
-    View_XYZ yz{};
-    View_Window filter2d{};
-
-    View_Window* current = &xy;
+    // View_Window* current = &xy;
 
     // Composite images
     std::atomic<CompositeKind> composite_kind;

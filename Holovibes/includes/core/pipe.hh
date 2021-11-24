@@ -70,8 +70,6 @@ class Pipe : public ICompute
 
     /*! \brief Runs a function after the current pipe iteration ends */
     void insert_fn_end_vect(std::function<void()> function);
-    /*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view */
-    void autocontrast_end_pipe(WindowKind kind);
 
     /*! \brief Execute one processing iteration.
      *

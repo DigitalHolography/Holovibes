@@ -80,11 +80,6 @@ class Rendering
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
-    /*! \brief Set the maximum and minimum contrast boundaries (according to the percentile) */
-    void set_contrast_min_max(const float* const percent_out,
-                              std::atomic<float>& contrast_min,
-                              std::atomic<float>& contrast_max);
-
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
     /*! \brief Main buffers */

@@ -87,13 +87,14 @@ void Converts::insert_to_ushort()
 void Converts::insert_compute_p_accu()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        pmin_ = cd_.p.index;
-        if (cd_.p.accu_level != 0)
-            pmax_ = std::max(0,
-                             std::min<int>(pmin_ + cd_.p.accu_level,
-                                           static_cast<int>(compute_cache_.get_time_transformation_size())));
+        View_PQ p = view_cache_.get_p();
+        pmin_ = p.index;
+        if (p.accu_level != 0)
+            pmax_ = std::max(
+                0,
+                std::min<int>(pmin_ + p.accu_level, static_cast<int>(compute_cache_.get_time_transformation_size())));
         else
-            pmax_ = cd_.p.index;
+            pmax_ = p.index;
     });
 }
 

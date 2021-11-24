@@ -31,12 +31,13 @@ class FastUpdatesHolder
      */
     Value create_entry(Key key, bool overwrite = false)
     {
+        std::cerr << 1 << std::endl;
         std::lock_guard<std::mutex> lock(mutex_);
+        std::cerr << 2 << std::endl;
         if (!overwrite && map_.contains(key))
             throw std::runtime_error("Key is already present in map");
 
         map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
-
         // LOG_DEBUG << "New FastUpdatesHolder<" << typeid(T).name() << "> entry: 0x" << map_[key];
 
         return map_[key];
@@ -85,7 +86,7 @@ class FastUpdatesHolder
     const_iterator find(Key key) { return map_.find(key); }
 
   protected:
-    mutable std::mutex mutex_;
+    std::mutex mutex_;
     std::unordered_map<Key, Value> map_;
 };
 } // namespace holovibes

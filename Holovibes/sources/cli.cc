@@ -117,14 +117,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const unsigned int fps = opts.fps.value_or(60);
 
-    if (opts.convo_path.has_value())
-    {
-        auto convo_path = std::filesystem::path(opts.convo_path.value()).filename().string();
-        cd.set_convolution(true, convo_path);
-        cd.set_divide_by_convo(opts.divide_convo);
-        holovibes.get_compute_pipe()->request_convolution();
-    }
-
     holovibes.init_input_queue(fd, cd.input_buffer_size);
 
     try
@@ -135,6 +127,14 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     {
         LOG_ERROR << e.what();
         return false;
+    }
+
+    if (opts.convo_path.has_value())
+    {
+        auto convo_path = std::filesystem::path(opts.convo_path.value()).filename().string();
+        cd.set_convolution(true, convo_path);
+        cd.set_divide_by_convo(opts.divide_convo);
+        holovibes.get_compute_pipe()->request_convolution();
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -155,7 +155,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !cd.xy.contrast_auto_refresh;
+    bool requested_autocontrast = !holovibes::GSH::instance().get_xy_contrast_auto_refresh();
     while (cd.frame_record_enabled)
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -171,9 +171,9 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= cd.xy.img_accu_level.load() && !requested_autocontrast)
+                if (progress->first >= holovibes::api::get_img_accu_xy_level() && !requested_autocontrast)
                 {
-                    holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
+                    holovibes.get_compute_pipe()->request_autocontrast(holovibes::api::get_current_window_type());
                     requested_autocontrast = true;
                 }
             }
@@ -207,8 +207,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         return 1;
 
     size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
-    uint record_nb_frames =
-        opts.n_rec.value_or(input_nb_frames / holovibes::GSH::instance().get_time_transformation_stride());
+    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
@@ -217,8 +216,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     uint nb_frames_skip = 0;
 
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && cd.get_img_accu_xy_enabled())
-        nb_frames_skip = cd.xy.img_accu_level.load();
+    if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
+        nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
 
     cd.frame_record_enabled = true;
 

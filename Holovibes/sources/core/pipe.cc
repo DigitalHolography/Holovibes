@@ -205,7 +205,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
         {
             success_allocation = false;
-            cd_.p.index = 0;
+            GSH::instance().set_p_index(0);
             GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
@@ -574,8 +574,8 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (cd_.get_contrast_enabled() && cd_.get_contrast_auto_refresh())
-        request_autocontrast(cd_.current_window);
+    if (GSH::instance().get_contrast_enabled() && GSH::instance().get_contrast_auto_refresh())
+        request_autocontrast(view_cache_.get_current_window());
 }
 
 void Pipe::exec()
@@ -610,11 +610,6 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
 {
     std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
     fn_end_vect_.push_back(function);
-}
-
-void Pipe::autocontrast_end_pipe(WindowKind kind)
-{
-    insert_fn_end_vect([this, kind]() { request_autocontrast(kind); });
 }
 
 void Pipe::run_all()

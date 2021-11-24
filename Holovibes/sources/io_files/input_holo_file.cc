@@ -102,27 +102,33 @@ T get_value(const json& json, const std::string& key, const T& default_value)
 
 void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
 {
-    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
     GSH::instance().set_space_transformation(
         get_value(meta_data_, "algorithm", GSH::instance().get_space_transformation()));
     GSH::instance().set_time_transformation(
         get_value(meta_data_, "time_filter", GSH::instance().get_time_transformation()));
     GSH::instance().set_time_transformation_size(
-        {get_value(meta_data_, "#img", GSH::instance().get_time_transformation_size())});
-    cd.p.index = get_value(meta_data_, "p", cd.p.index.load());
+        get_value(meta_data_, "#img", GSH::instance().get_time_transformation_size()));
+    GSH::instance().set_p_index(get_value(meta_data_, "p", GSH::instance().get_p_index()));
     GSH::instance().set_lambda(get_value(meta_data_, "lambda", GSH::instance().get_lambda()));
-    cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     GSH::instance().set_z_distance(get_value(meta_data_, "z", GSH::instance().get_z_distance()));
-    cd.xy.log_scale_slice_enabled = get_value(meta_data_, "log_scale", cd.xy.log_scale_slice_enabled.load());
-    cd.xy.contrast_min = get_value(meta_data_, "contrast_min", cd.xy.contrast_min.load());
-    cd.xy.contrast_max = get_value(meta_data_, "contrast_max", cd.xy.contrast_max.load());
-    cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
+    GSH::instance().set_xy_log_scale_slice_enabled(
+        get_value(meta_data_, "log_scale", GSH::instance().get_xy_log_scale_slice_enabled()));
+    GSH::instance().set_xy_contrast_min(get_value(meta_data_, "contrast_min", GSH::instance().get_xy_contrast_min()));
+    GSH::instance().set_xy_contrast_max(get_value(meta_data_, "contrast_max", GSH::instance().get_xy_contrast_max()));
     GSH::instance().set_x_accu_level(get_value(meta_data_, "x_acc_level", GSH::instance().get_x_accu_level()));
     GSH::instance().set_y_accu_level(get_value(meta_data_, "y_acc_level", GSH::instance().get_y_accu_level()));
-    cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level);
-    cd.xy.img_accu_level = get_value(meta_data_, "img_acc_slice_xy_level", cd.xy.img_accu_level.load());
-    cd.xz.img_accu_level = get_value(meta_data_, "img_acc_slice_xz_level", cd.xz.img_accu_level.load());
-    cd.yz.img_accu_level = get_value(meta_data_, "img_acc_slice_yz_level", cd.yz.img_accu_level.load());
+    // cd.p.accu_level = get_value(meta_data_, "p_acc_level", cd.p.accu_level);
+    GSH::instance().set_p_accu_level(get_value(meta_data_, "p_acc_level", GSH::instance().get_p_accu_level()));
+    GSH::instance().set_xy_img_accu_level(
+        get_value(meta_data_, "img_acc_slice_xy_level", GSH::instance().get_xy_img_accu_level()));
+    GSH::instance().set_xz_img_accu_level(
+        get_value(meta_data_, "img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()));
+    GSH::instance().set_yz_img_accu_level(
+        get_value(meta_data_, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()));
+
+    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
+    cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
+    cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());
     cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
 }
 } // namespace holovibes::io_files

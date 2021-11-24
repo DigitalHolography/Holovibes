@@ -186,13 +186,13 @@ void pipe_refresh();
  *
  * \param p_value the new value of p accu
  */
-void set_p_accu(uint p_value);
+void set_p_accu_level(uint p_value);
 
 /*! \brief Modifies x accumulation
  *
  * \param x_value the new value of x accu
  */
-void set_x_accu(uint x_value);
+void set_x_accu_level(uint x_value);
 
 /*! \brief Modifies x cuts
  *
@@ -204,7 +204,7 @@ void set_x_cuts(uint x_value);
  *
  * \param y_value the new value of y accu
  */
-void set_y_accu(uint y_value);
+void set_y_accu_level(uint y_value);
 
 /*! \brief Modifies y cuts
  *
@@ -217,7 +217,7 @@ void set_y_cuts(uint y_value);
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(uint q_value);
+void set_q_accu_level(uint q_value);
 
 /*! \brief Modifies x and y
  *
@@ -230,13 +230,13 @@ void set_x_y(uint x, uint y);
  *
  * \param value the new value of p
  */
-void set_p(int value);
+void set_p_index(uint value);
 
 /*! \brief Modifies q
  *
  * \param value the new value of q
  */
-void set_q(int value);
+void set_q_index(uint value);
 
 /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
  *
@@ -480,6 +480,18 @@ View_XY get_x(void);
  * \return y
  */
 View_XY get_y(void);
+
+/*! \brief get p
+ *
+ * \return p
+ */
+View_PQ get_p(void);
+
+/*! \brief get q
+ *
+ * \return q
+ */
+View_PQ get_q(void);
 
 /*! \brief Modifies convolution kernel
  *

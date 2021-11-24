@@ -8,6 +8,7 @@
 #include "Filter2DWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -177,7 +178,7 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->change_window(static_cast<int>(WindowKind::Filter2D));
+        api::change_window(static_cast<int>(WindowKind::Filter2D));
         cd_->notify_observers();
     }
 }

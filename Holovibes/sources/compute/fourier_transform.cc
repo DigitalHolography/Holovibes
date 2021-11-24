@@ -281,8 +281,9 @@ void FourierTransform::insert_ssa_stft()
 
         // filter eigen vectors
         // only keep vectors between q and q + q_acc
-        int q = cd_.q.accu_level != 0 ? cd_.q.index.load() : 0;
-        int q_acc = cd_.q.accu_level != 0 ? cd_.q.accu_level : time_transformation_size;
+        View_PQ q_struct = view_cache_.get_q();
+        int q = q_struct.accu_level != 0 ? q_struct.index : 0;
+        int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
         int q_index = q * time_transformation_size;
         int q_acc_index = q_acc * time_transformation_size;
         cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
@@ -321,7 +322,7 @@ void FourierTransform::insert_store_p_frame()
         /* Copies with DeviceToDevice (which is the case here) are asynchronous
          * with respect to the host but never overlap with kernel execution*/
         cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
-                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + cd_.p.index * frame_res,
+                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + view_cache_.get_p().index * frame_res,
                          sizeof(cuComplex) * frame_res,
                          cudaMemcpyDeviceToDevice,
                          stream_);
@@ -359,8 +360,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                            width,
                                            height,
                                            compute_cache_.get_time_transformation_size(),
-                                           cd_.xz.img_accu_level.load(),
-                                           cd_.yz.img_accu_level.load(),
+                                           GSH::instance().get_xz_img_accu_level(),
+                                           GSH::instance().get_yz_img_accu_level(),
                                            view_cache_.get_img_type(),
                                            stream_);
         }

@@ -16,7 +16,7 @@ inline TimeTransformation get_time_transformation() { return GSH::instance().get
 inline ImgType get_img_type() { return GSH::instance().get_img_type(); }
 inline void set_img_type(ImgType type) { return GSH::instance().set_img_type(type); }
 
-inline WindowKind get_current_window() { return get_cd().get_current_window(); }
+inline WindowKind get_current_window_type() { return GSH::instance().get_current_window_type(); }
 
 inline uint get_batch_size() { return GSH::instance().get_batch_size(); }
 inline void set_batch_size(uint value) { GSH::instance().set_batch_size(value); }
@@ -69,15 +69,21 @@ inline void set_filter2d_smooth_high(int value) { get_cd().set_filter2d_smooth_h
 inline float get_display_rate() { return get_cd().get_display_rate(); }
 inline void set_display_rate(float value) { get_cd().set_display_rate(value); }
 
-inline uint get_img_accu_xy_level() { return get_cd().get_img_accu_xy_level(); }
+inline View_XY get_x(void) { return GSH::instance().get_x(); }
+inline View_XY get_y(void) { return GSH::instance().get_y(); }
 
-inline uint get_img_accu_xz_level() { return get_cd().get_img_accu_xz_level(); }
+inline uint get_img_accu_xy_level() { return GSH::instance().get_xy_img_accu_level(); }
 
-inline uint get_img_accu_yz_level() { return get_cd().get_img_accu_yz_level(); }
+inline uint get_img_accu_xz_level() { return GSH::instance().get_xz_img_accu_level(); }
 
-inline uint get_pindex() { return get_cd().get_p_index(); }
+inline uint get_img_accu_yz_level() { return GSH::instance().get_yz_img_accu_level(); }
 
-inline int get_p_accu_level() { return get_cd().get_p_accu_level(); }
+inline uint get_p_index() { return GSH::instance().get_p_index(); }
+
+inline View_PQ get_p(void) { return GSH::instance().get_p(); }
+inline View_PQ get_q(void) { return GSH::instance().get_q(); }
+
+inline int get_p_accu_level() { return GSH::instance().get_p_accu_level(); }
 
 inline uint get_x_cuts() { return GSH::instance().get_x_cuts(); }
 
@@ -87,9 +93,9 @@ inline uint get_y_cuts() { return GSH::instance().get_y_cuts(); }
 
 inline int get_y_accu_level() { return GSH::instance().get_y_accu_level(); }
 
-inline uint get_q_index() { return get_cd().get_q_index(); }
+inline uint get_q_index() { return GSH::instance().get_q_index(); }
 
-inline uint get_q_accu_level() { return get_cd().get_q_accu_level(); }
+inline uint get_q_accu_level() { return GSH::instance().get_q_accu_level(); }
 
 inline float get_reticle_scale() { return get_cd().get_reticle_scale(); }
 
@@ -97,9 +103,9 @@ inline uint get_raw_bitshift() { return get_cd().get_raw_bitshift(); }
 
 inline CompositeKind get_composite_kind() { return get_cd().get_composite_kind(); }
 
-inline bool get_flip_enabled() { return get_cd().get_flip_enabled(); }
+inline bool get_flip_enabled() { return GSH::instance().get_flip_enabled(); }
 
-inline double get_rotation() { return get_cd().get_rotation(); }
+inline double get_rotation() { return GSH::instance().get_rotation(); }
 
 // RGB
 inline uint get_composite_p_red() { return get_cd().get_rgb_p_min(); }
@@ -169,21 +175,17 @@ inline bool get_renorm_enabled() { return get_cd().get_renorm_enabled(); }
 
 inline bool get_fft_shift_enabled() { return get_cd().get_fft_shift_enabled(); }
 
-inline bool get_frame_record_enabled() { return get_cd().get_frame_record_enabled(); }
+inline bool get_log_scale_slice_xy_enabled() { return GSH::instance().get_xy_log_scale_slice_enabled(); }
 
-inline bool get_log_scale_slice_xy_enabled() { return get_cd().get_log_scale_slice_xy_enabled(); }
+inline bool get_log_scale_slice_xz_enabled() { return GSH::instance().get_xz_log_scale_slice_enabled(); }
 
-inline bool get_log_scale_slice_xz_enabled() { return get_cd().get_log_scale_slice_xz_enabled(); }
+inline bool get_log_scale_slice_yz_enabled() { return GSH::instance().get_yz_log_scale_slice_enabled(); }
 
-inline bool get_log_scale_slice_yz_enabled() { return get_cd().get_log_scale_slice_yz_enabled(); }
+inline bool get_contrast_enabled() { return GSH::instance().get_contrast_enabled(); }
 
-inline bool get_log_scale_filter2d_enabled() { return get_cd().get_log_scale_filter2d_enabled(); }
+inline bool get_contrast_auto_refresh() { return GSH::instance().get_contrast_auto_refresh(); }
 
-inline bool get_contrast_enabled() { return get_cd().get_contrast_enabled(); }
-
-inline bool get_contrast_auto_refresh() { return get_cd().get_contrast_auto_refresh(); }
-
-inline bool get_contrast_invert() { return get_cd().get_contrast_invert(); }
+inline bool get_contrast_invert() { return GSH::instance().get_contrast_invert(); }
 
 inline bool get_filter2d_enabled() { return get_cd().get_filter2d_enabled(); }
 

@@ -17,4 +17,26 @@ enum class WindowKind
     YZview,     /*!< YZ view slice */
     Filter2D,   /*!< Filter2D view */
 };
+
+const std::map<WindowKind, std::string> window_kind_to_string{{
+                                                                             WindowKind::XYview,
+                                                                             "XYview",
+                                                                         },
+                                                                         {
+                                                                             WindowKind::XZview,
+                                                                             "XZview",
+                                                                         },
+                                                                         {
+                                                                             WindowKind::YZview,
+                                                                             "YZview",
+                                                                         },
+                                                                         {
+                                                                             WindowKind::Filter2D,
+                                                                             "Filter2D",
+                                                                         }};
+
+
+inline std::ostream& operator<<(std::ostream& os, WindowKind obj) {
+    return os << window_kind_to_string.at(obj);
+}
 } // namespace holovibes

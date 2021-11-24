@@ -194,7 +194,7 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     if (cd_)
     {
-        cd_->change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+        api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
         cd_->notify_observers();
     }
 }

@@ -66,7 +66,7 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
@@ -80,7 +80,7 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window() == WindowKind::Filter2D)
+    if (api::get_current_window_type() == WindowKind::Filter2D)
         set_xyzf_visibility(false);
     else
     {
@@ -97,11 +97,11 @@ void ViewPanel::on_notify()
 
     api::get_cd().check_p_limits(); // FIXME: May be moved in setters
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
-    ui_->PSpinBox->setValue(api::get_pindex());
+    ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
 
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
-    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_pindex() - 1);
+    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
@@ -205,18 +205,13 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (!api::get_3d_cuts_view_enabled())
         return;
 
-    std::function<void()> callback = []() { return; };
+    std::function<void()> callback = ([=]() {
+        api::set_3d_cuts_view(false);
+        Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
 
-    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
-        callback = ([=]() {
-            api::set_3d_cuts_view(false);
-            pipe->delete_stft_slice_queue();
-
-            ui_->TimeTransformationCutsCheckBox->setChecked(false);
-            parent_->notify();
-        });
-    }
+        ui_->TimeTransformationCutsCheckBox->setChecked(false);
+        parent_->notify();
+    });
 
     api::cancel_time_transformation_cuts(callback);
 
@@ -261,14 +256,14 @@ void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->
 
 void ViewPanel::set_x_accu()
 {
-    api::set_x_accu(ui_->XAccSpinBox->value());
+    api::set_x_accu_level(ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::set_y_accu(ui_->YAccSpinBox->value());
+    api::set_y_accu_level(ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
@@ -284,7 +279,7 @@ void ViewPanel::set_p(int value)
         return;
     }
 
-    api::set_p(value);
+    api::set_p_index(value);
 
     parent_->notify();
 }
@@ -295,13 +290,13 @@ void ViewPanel::increment_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_pindex() >= api::get_time_transformation_size())
+    if (api::get_p_index() >= api::get_time_transformation_size())
     {
         LOG_ERROR << "p param has to be between 1 and #img";
         return;
     }
 
-    set_p(api::get_pindex() + 1);
+    set_p(api::get_p_index() + 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -313,13 +308,13 @@ void ViewPanel::decrement_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_pindex() <= 0)
+    if (api::get_p_index() <= 0)
     {
         LOG_ERROR << "p param has to be between 1 and #img";
         return;
     }
 
-    set_p(api::get_pindex() - 1);
+    set_p(api::get_p_index() - 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -327,21 +322,21 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::set_p_accu(ui_->PAccSpinBox->value());
+    api::set_p_accu_level(ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    api::set_q(value);
+    api::set_q_index(value);
 
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    api::set_q_accu(ui_->Q_AccSpinBox->value());
+    api::set_q_accu_level(ui_->Q_AccSpinBox->value());
 
     parent_->notify();
 }
