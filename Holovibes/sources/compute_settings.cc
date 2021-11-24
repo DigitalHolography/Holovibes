@@ -173,20 +173,48 @@ void after_load_checks(ComputeDescriptor& cd)
         cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
 }
 
-void load_compute_settings(const std::string& ini_path)
+void load_image_rendering(const json& data)
 {
-    if (ini_path.empty())
+    ComputeDescriptor& cd = api::get_cd();
+
+    cd.compute_mode = string_to_computation[data["image mode"]];
+    cd.batch_size = data["batch size"];
+    cd.time_transformation_stride = data["time transformation stride"];
+
+    const json& filter_2d_data = data["filter2d"];
+    cd.filter2d_enabled = filter_2d_data["enabled"];
+    cd.filter2d_n1 = filter_2d_data["n1"];
+    cd.filter2d_n2 = filter_2d_data["n2"];
+
+    cd.space_transformation = string_to_space_transformation[data["space transformation"]];
+    cd.time_transformation = string_to_time_transformation[data["time transformation"]];
+    cd.time_transformation_size = data["time transformation size"];
+    cd.lambda = data["lambda"];
+    cd.zdistance = data["z distance"];
+
+    const json& convolution_data = data["convolution"];
+    cd.convolution_enabled = convolution_data["enabled"];
+    // FIXME: When GSH,            convolution_data["type"]
+    cd.divide_convolution_enabled = convolution_data["divide"];
+}
+
+void load_compute_settings(const std::string& json_path)
+{
+    if (json_path.empty())
         return;
 
-    LOG_INFO << "Compute settings loaded from : " << ini_path;
+    LOG_INFO << "Compute settings loaded from : " << json_path;
 
-    boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(ini_path, ptree);
+    auto j_cs = json::parse(json_path);
 
-    load_image_rendering(ptree, get_cd());
-    load_view(ptree, get_cd());
-    load_composite(ptree, get_cd());
-    load_advanced(ptree, get_cd());
+    load_image_rendering(j_cs["image rendering"]);
+
+    // boost::property_tree::ptree ptree;
+    // boost::property_tree::ini_parser::read_ini(json_path, ptree);
+    // load_image_rendering(ptree, get_cd());
+    // load_view(ptree, get_cd());
+    // load_composite(ptree, get_cd());
+    // load_advanced(ptree, get_cd());
 
     // Currently not working.
     // The app crash when one of the visibility is already set at when the app begins.
@@ -210,14 +238,14 @@ json compute_settings_to_json()
              {"time transformaton stride", cd.time_transformation_stride.load()},
              {"filter2d",
               {{"enabled", cd.filter2d_enabled.load()}, {"n1", cd.filter2d_n1.load()}, {"n2", cd.filter2d_n2.load()}}},
-             {"space tranformation", space_transformation_to_string[cd.space_transformation.load()]},
+             {"space transformation", space_transformation_to_string[cd.space_transformation.load()]},
              {"time transformation", time_transformation_to_string[cd.time_transformation.load()]},
              {"time transformation size", cd.time_transformation_size.load()},
              {"lambda", cd.lambda.load()},
              {"z distance", cd.zdistance.load()},
              {"convolution",
               {{"enabled", cd.convolution_enabled.load()},
-               {"type", "45"},
+               {"type", "45"}, // TODO: When GSH will be merged, need a parameter storing name of the file
                {"divide", cd.divide_convolution_enabled.load()}}},
          }},
         {"view",
