@@ -241,9 +241,8 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     get_cd().set_compute_mode(Computation::Raw);
     create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
+        new holovibes::gui::RawWindow(pos, size, static_cast<float>(width) / static_cast<float>(height), get_gpu_input_queue().get()));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
     unset_convolution_mode();
@@ -268,14 +267,13 @@ void create_holo_window(ushort window_size)
                                 get_gpu_output_queue().get(),
                                 get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ));
+                                UserInterfaceDescriptor::instance().sliceYZ,
+                                static_cast<float>(width) / static_cast<float>(height)));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_cd().get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_cd().get_flip_enabled());
-        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
-                                                                  static_cast<float>(height));
     }
     catch (const std::runtime_error& e)
     {
