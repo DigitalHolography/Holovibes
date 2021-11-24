@@ -27,4 +27,11 @@ static std::map<TimeTransformation, std::string> time_transformation_to_string =
     {TimeTransformation::SSA_STFT, "SSA_STFT"},
 };
 
+static std::map<std::string, TimeTransformation> string_to_time_transformation = {
+    {"STFT", TimeTransformation::STFT},
+    {"PCA", TimeTransformation::PCA},
+    {"NONE", TimeTransformation::NONE},
+    {"SSA_STFT", TimeTransformation::SSA_STFT},
+};
+
 } // namespace holovibes

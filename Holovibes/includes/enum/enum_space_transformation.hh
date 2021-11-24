@@ -25,4 +25,10 @@ static std::map<SpaceTransformation, std::string> space_transformation_to_string
     {SpaceTransformation::FFT2, "FFT2"},
 };
 
+static std::map<std::string, SpaceTransformation> string_to_space_transformation = {
+    {"NONE", SpaceTransformation::NONE},
+    {"FFT1", SpaceTransformation::FFT1},
+    {"FFT2", SpaceTransformation::FFT2},
+};
+
 } // namespace holovibes
