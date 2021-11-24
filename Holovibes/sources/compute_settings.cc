@@ -235,7 +235,7 @@ json compute_settings_to_json()
          {
              {"image mode", computation_to_string[cd.compute_mode.load()]},
              {"batch size", cd.batch_size.load()},
-             {"time transformaton stride", cd.time_transformation_stride.load()},
+             {"time transformation stride", cd.time_transformation_stride.load()},
              {"filter2d",
               {{"enabled", cd.filter2d_enabled.load()}, {"n1", cd.filter2d_n1.load()}, {"n2", cd.filter2d_n2.load()}}},
              {"space transformation", space_transformation_to_string[cd.space_transformation.load()]},
