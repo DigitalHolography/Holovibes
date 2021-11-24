@@ -210,7 +210,7 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
         callback = ([=]() {
-            api::set_3d_cuts_view(false);
+            api::get_cd().set_3d_cuts_view_enabled(false);
             pipe->delete_stft_slice_queue();
 
             ui_->TimeTransformationCutsCheckBox->setChecked(false);
