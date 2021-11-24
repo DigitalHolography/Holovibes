@@ -198,6 +198,29 @@ void load_image_rendering(const json& data)
     cd.divide_convolution_enabled = convolution_data["divide"];
 }
 
+void load_advanced(const json& data)
+{
+    ComputeDescriptor& cd = api::get_cd();
+
+    const json& buffer_size_data = data["buffer size"];
+    cd.file_buffer_size = buffer_size_data["file"];
+    cd.input_buffer_size = buffer_size_data["input"];
+    cd.output_buffer_size = buffer_size_data["output"];
+    cd.record_buffer_size = buffer_size_data["record"];
+    cd.time_transformation_cuts_output_buffer_size = buffer_size_data["time transformation cuts"];
+
+    const json& contrast_data = data["contrast"];
+    cd.contrast_lower_threshold = contrast_data["lower"];
+    cd.contrast_upper_threshold = contrast_data["upper"];
+    cd.cuts_contrast_p_offset = contrast_data["cuts p offset"];
+
+    const json& filter2d_smooth_data = data["filter2d smooth"];
+    cd.filter2d_smooth_high = filter2d_smooth_data["high"];
+    cd.filter2d_smooth_low = filter2d_smooth_data["low"];
+
+    cd.renorm_constant = data["renorm constant"];
+}
+
 void load_compute_settings(const std::string& json_path)
 {
     if (json_path.empty())
@@ -208,6 +231,7 @@ void load_compute_settings(const std::string& json_path)
     auto j_cs = json::parse(json_path);
 
     load_image_rendering(j_cs["image rendering"]);
+    load_advanced(j_cs["advanced"]);
 
     // boost::property_tree::ptree ptree;
     // boost::property_tree::ini_parser::read_ini(json_path, ptree);
