@@ -241,7 +241,10 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     get_cd().set_compute_mode(Computation::Raw);
     create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos, size, static_cast<float>(width) / static_cast<float>(height), get_gpu_input_queue().get()));
+        new holovibes::gui::RawWindow(pos,
+                                      size,
+                                      get_gpu_input_queue().get(),
+                                      static_cast<float>(width) / static_cast<float>(height)));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
@@ -561,6 +564,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
                 new gui::RawWindow(pos,
                                    QSize(lens_window_width, lens_window_height),
                                    pipe->get_lens_queue().get(),
+                                   0.f,
                                    gui::KindOfView::Lens));
 
             UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
