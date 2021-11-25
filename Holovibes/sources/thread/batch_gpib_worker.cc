@@ -72,11 +72,9 @@ void BatchGPIBWorker::run()
                 }
                 else // Frame Record
                 {
-                    bool raw_record = record_mode_ == RecordMode::RAW;
-
                     frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
                                                                                nb_frames_to_record_,
-                                                                               raw_record,
+                                                                               record_mode_,
                                                                                0,
                                                                                output_buffer_size_);
                     frame_record_worker_->run();
@@ -195,7 +193,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
 void BatchGPIBWorker::execute_instrument_command(gpib::BatchCommand instrument_command)
 {
     if (!gpib_interface_)
-        gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll");
+        gpib_interface_ = gpib::GpibDLL::load_gpib(L"gpib.dll");
 
     gpib_interface_->execute_instrument_command(instrument_command);
 }

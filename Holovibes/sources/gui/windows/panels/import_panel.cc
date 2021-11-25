@@ -17,6 +17,14 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
+void ImportPanel::init()
+{
+    // Fix for the placeholder color that was black by default because of QT6
+    auto p = ui_->ImportPathLineEdit->palette();
+    p.setColor(QPalette::PlaceholderText, Qt::darkGray);
+    ui_->ImportPathLineEdit->setPalette(p);
+}
+
 void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped()); }
 
 void ImportPanel::load_gui(const boost::property_tree::ptree& ptree)
@@ -162,9 +170,12 @@ void ImportPanel::import_start()
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
 
-        parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
-
         parent_->notify();
+
+        // Notify is horrible and might create a window, so this is done to prevent recreating a window while still
+        // displaying the correct one
+        if (api::get_main_display() == nullptr)
+            parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
     }
     else
     {

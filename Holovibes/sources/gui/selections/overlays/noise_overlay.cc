@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "noise_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -14,7 +15,7 @@ NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
 void NoiseOverlay::release(ushort frameSide)
 {
     if (parent_->getKindOfView() == KindOfView::Hologram)
-        parent_->getCd()->noiseZone(zone_, AccessMode::Set);
+        api::get_cd().noiseZone(zone_, AccessMode::Set);
 }
 } // namespace gui
 } // namespace holovibes

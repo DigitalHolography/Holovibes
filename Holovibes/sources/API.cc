@@ -276,7 +276,6 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
     UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
@@ -293,7 +292,7 @@ void create_holo_window(ushort window_size)
     get_good_size(width, height, window_size);
     QSize size(width, height);
     init_image_mode(pos, size);
-    /* ---------- */
+
     try
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(
@@ -305,7 +304,6 @@ void create_holo_window(ushort window_size)
                                 UserInterfaceDescriptor::instance().sliceYZ));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-        UserInterfaceDescriptor::instance().mainDisplay->setCd(&get_cd());
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_flip_enabled());
@@ -434,7 +432,6 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
         UserInterfaceDescriptor::instance().sliceXZ->setAngle(GSH::instance().get_xz_rot());
         UserInterfaceDescriptor::instance().sliceXZ->setFlip(GSH::instance().get_xz_flip_enabled());
-        UserInterfaceDescriptor::instance().sliceXZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
@@ -444,7 +441,6 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(GSH::instance().get_yz_flip_enabled());
-        UserInterfaceDescriptor::instance().sliceYZ->setCd(&get_cd());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
         get_cd().set_3d_cuts_view_enabled(true);
@@ -535,7 +531,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
                                     pipe->get_filter2d_view_queue().get()));
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-        UserInterfaceDescriptor::instance().filter2d_window->setCd(&get_cd());
 
         GSH::instance().set_log_scale_filter2d_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
@@ -590,7 +585,6 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
                                    gui::KindOfView::Lens));
 
             UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-            UserInterfaceDescriptor::instance().lens_window->setCd(&get_cd());
         }
         catch (const std::exception& e)
         {
@@ -635,7 +629,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
             new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
 
         UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-        UserInterfaceDescriptor::instance().raw_window->setCd(&get_cd());
     }
     else
     {
@@ -1168,12 +1161,17 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
 void set_record_mode(const std::string& text)
 {
+    // TODO: Dictionnary
     if (text == "Chart")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
     else if (text == "Processed Image")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
+    else if (text == "3D Cuts XZ")
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
+    else if (text == "3D Cuts YZ")
+        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
     else
         throw std::exception("Record mode not handled");
 }
@@ -1224,13 +1222,13 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+        else
         {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, false, 0, callback);
-        }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
-        {
-            Holovibes::instance().start_frame_record(output_path, nb_frames_to_record, true, 0, callback);
+            Holovibes::instance().start_frame_record(output_path,
+                                                     nb_frames_to_record,
+                                                     UserInterfaceDescriptor::instance().record_mode_,
+                                                     0,
+                                                     callback);
         }
     }
 }
@@ -1242,7 +1240,9 @@ void stop_record()
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
     else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 }
 

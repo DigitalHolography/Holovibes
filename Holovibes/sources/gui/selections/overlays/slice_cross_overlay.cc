@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "slice_cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "API.hh"
@@ -80,13 +81,13 @@ void SliceCrossOverlay::move(QMouseEvent* e)
     if (!locked_)
     {
         auto kView = parent_->getKindOfView();
-        auto cd_ = parent_->getCd();
 
         pIndex_ = getMousePos(e->pos());
 
         uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
+
         api::set_p_index(p);
-        cd_->notify_observers();
+        api::get_cd().notify_observers();
     }
 }
 
@@ -94,7 +95,6 @@ void SliceCrossOverlay::release(ushort frameside) {}
 
 void SliceCrossOverlay::setBuffer()
 {
-    auto cd = parent_->getCd();
     units::PointFd topLeft;
     units::PointFd bottomRight;
     auto kView = parent_->getKindOfView();

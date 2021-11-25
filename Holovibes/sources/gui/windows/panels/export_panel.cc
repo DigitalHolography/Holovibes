@@ -43,6 +43,21 @@ void ExportPanel::on_notify()
             ui_->RecordImageModeComboBox->insertItem(2, "Chart");
     }
 
+    if (ui_->TimeTransformationCutsCheckBox->isChecked())
+    {
+        // Only one check is needed
+        if (ui_->RecordImageModeComboBox->findText("3D Cuts XZ") == -1)
+        {
+            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts XZ");
+            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts YZ");
+        }
+    }
+    else
+    {
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"));
+        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"));
+    }
+
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
                               api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
@@ -95,6 +110,14 @@ void ExportPanel::browse_record_output_file()
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
+    }
+    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
+             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+    {
+        filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Record output file"),
+                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                tr("Mp4 files (*.mp4);; Avi Files (*.avi);;"));
     }
 
     if (filepath.isEmpty())
@@ -169,6 +192,13 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
+        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ ||
+                 UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".mp4");
+            ui_->RecordExtComboBox->insertItem(1, ".avi");
+        }
 
         ui_->ChartPlotWidget->hide();
 
@@ -216,9 +246,7 @@ void ExportPanel::start_record()
     std::optional<unsigned int> nb_frames_to_record = std::nullopt;
 
     if (nb_frame_checked)
-    {
         nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
-    }
 
     std::string output_path =
         ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();

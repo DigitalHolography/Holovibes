@@ -23,6 +23,9 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
+// TODO: Remove this include when GSH will handle record_mode
+#include "user_interface_descriptor.hh"
+
 namespace holovibes
 {
 using camera::FrameDescriptor;
@@ -179,6 +182,7 @@ bool Pipe::make_requests()
     if (disable_frame_record_requested_)
     {
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
+        frame_record_env_.record_mode_ = RecordMode::NONE;
         cd_.frame_record_enabled = false;
         disable_frame_record_requested_ = false;
     }
@@ -280,7 +284,7 @@ bool Pipe::make_requests()
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
         cd_.frame_record_enabled = true;
-        frame_record_env_.raw_record_enabled = false;
+        frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = std::nullopt;
     }
 
@@ -290,8 +294,29 @@ bool Pipe::make_requests()
             new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
 
         cd_.frame_record_enabled = true;
-        frame_record_env_.raw_record_enabled = true;
+        frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = std::nullopt;
+    }
+
+    if (cuts_record_requested_.load() != std::nullopt)
+    {
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
+
+        RecordMode rm = UserInterfaceDescriptor::instance().record_mode_;
+
+        fd_xyz.depth = sizeof(ushort);
+
+        if (rm == RecordMode::CUTS_XZ)
+            fd_xyz.height = cd_.time_transformation_size;
+        else if (rm == RecordMode::CUTS_YZ)
+            fd_xyz.width = cd_.time_transformation_size;
+
+        frame_record_env_.gpu_frame_record_queue_.reset(
+            new Queue(fd_xyz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+
+        cd_.frame_record_enabled = true;
+        frame_record_env_.record_mode_ = rm;
+        cuts_record_requested_ = std::nullopt;
     }
 
     return success_allocation;
@@ -371,6 +396,7 @@ void Pipe::refresh()
     // time transform
     fourier_transforms_->insert_time_transform();
     fourier_transforms_->insert_time_transformation_cuts_view();
+    insert_cuts_record();
 
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
@@ -551,7 +577,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.raw_record_enabled)
+    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         fn_compute_vect_.push_back([&]() {
             gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, compute_cache_.get_batch_size());
@@ -561,7 +587,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (cd_.frame_record_enabled && !frame_record_env_.raw_record_enabled)
+    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         fn_compute_vect_.conditional_push_back([&]() {
             if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
@@ -569,6 +595,25 @@ void Pipe::insert_hologram_record()
             else
                 frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
         });
+    }
+}
+
+void Pipe::insert_cuts_record()
+{
+    if (cd_.frame_record_enabled)
+    {
+        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        {
+            fn_compute_vect_.push_back([&]() {
+                frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_);
+            });
+        }
+        else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
+        {
+            fn_compute_vect_.push_back([&]() {
+                frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_);
+            });
+        }
     }
 }
 

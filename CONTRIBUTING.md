@@ -13,7 +13,7 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 #### Clang-Format details
 
 * No brackets in one line ifs
-* Comments must use the doxygen format like the following: /*! \brief This is an example */
+* Comments must use the doxygen format like the following: /*! \brief This is an example */. See `DOCUMENTING.md` for further instructions
 * Headers files must have the extention .hh
 * Sources files must have the extention .cc
 * Templated classes must have the extention *.hxx
@@ -31,7 +31,7 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 - Branch `master` is only used for stable releases.
 - Never push trash / generated files.
 - Always work on separate branches when developing a new feature or fixing a bug.
-- Use `git pull --rebase` to avoids useless merge commits.
+- Use `git pull --rebase` if possible to avoids useless merge commits.
 - Use a consistent commit messages convention (e.g. [Angular](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit))
 - Use the pull request feature so that other team members can review your work when you are done.
 

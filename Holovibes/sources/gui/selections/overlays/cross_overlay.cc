@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "API.hh"
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
@@ -176,7 +177,6 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    auto cd = parent_->getCd();
     mouse_position_ = units::PointFd(units::ConversionData(parent_), api::get_x_cuts(), api::get_y_cuts());
 }
 
@@ -198,10 +198,9 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        auto cd = parent_->getCd();
         api::set_x_cuts(mouse_position_.x());
         api::set_y_cuts(mouse_position_.y());
-        cd->notify_observers();
+        api::get_cd().notify_observers();
     }
 }
 
@@ -209,7 +208,7 @@ void CrossOverlay::release(ushort frameside) {}
 
 void CrossOverlay::computeZone()
 {
-    auto cd = parent_->getCd();
+    ComputeDescriptor& cd = api::get_cd();
     units::PointFd topLeft;
     units::PointFd bottomRight;
 

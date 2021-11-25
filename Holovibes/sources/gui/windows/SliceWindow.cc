@@ -4,6 +4,7 @@
 #endif
 #include <cuda_gl_interop.h>
 
+#include "API.hh"
 #include "texture_update.cuh"
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
@@ -19,6 +20,7 @@ SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     , cuSurface(0)
 {
     setMinimumSize(s);
+    show();
 }
 
 SliceWindow::~SliceWindow()
@@ -145,7 +147,7 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / cd_->display_rate);
+    startTimer(1000 / api::get_cd().display_rate);
 }
 
 void SliceWindow::paintGL()
@@ -192,11 +194,9 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    if (cd_)
-    {
-        api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
-        cd_->notify_observers();
-    }
+
+    api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+    api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes

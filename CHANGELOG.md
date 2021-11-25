@@ -1,8 +1,10 @@
 ## Changelog
 
-### 10.3.2
+### 10.4
 
+* Upgraded from Qt 5.9.9 to Qt 6.2.1
 * Installer now creates folder cameras_config in Appdata and put all cameras.ini in it
+* Add record mode Cuts XY and Cuts YZ
 
 ### 10.3.1
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API.hh"
 #include "overlay_manager.hh"
 #include "zoom_overlay.hh"
 #include "noise_overlay.hh"
@@ -25,8 +26,8 @@ OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
 OverlayManager::~OverlayManager()
 {
     units::RectFd empty_zone;
-    parent_->getCd()->signalZone(empty_zone, AccessMode::Set);
-    parent_->getCd()->noiseZone(empty_zone, AccessMode::Set);
+    api::get_cd().signalZone(empty_zone, AccessMode::Set);
+    api::get_cd().noiseZone(empty_zone, AccessMode::Set);
 }
 
 template <KindOfOverlay ko>
@@ -128,7 +129,7 @@ void OverlayManager::set_current(std::shared_ptr<Overlay> new_overlay)
 {
     current_overlay_ = new_overlay;
     current_overlay_->onSetCurrent();
-    parent_->getCd()->notify_observers();
+    api::get_cd().notify_observers();
 }
 
 void OverlayManager::press(QMouseEvent* e)

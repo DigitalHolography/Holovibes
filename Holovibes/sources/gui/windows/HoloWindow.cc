@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "API.hh"
 #include "HoloWindow.hh"
 #include "MainWindow.hh"
 #include "SliceWindow.hh"
@@ -40,7 +41,7 @@ void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
     api::change_window(static_cast<int>(WindowKind::XYview));
-    cd_->notify_observers();
+    api::get_cd().notify_observers();
 }
 
 void HoloWindow::update_slice_transforms()

@@ -1,3 +1,4 @@
+#include "API.hh"
 #include "rainbow_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "API.hh"
@@ -115,20 +116,20 @@ void RainbowOverlay::setBuffer()
     Program_->bind();
 
     units::ConversionData convert(parent_);
-    auto cd = parent_->getCd();
+    ComputeDescriptor& cd = api::get_cd();
     auto fd = parent_->getFd();
 
     int red;
     int blue;
-    if (cd->composite_kind == CompositeKind::RGB)
+    if (cd.composite_kind == CompositeKind::RGB)
     {
-        red = cd->rgb.p_min;
-        blue = cd->rgb.p_max;
+        red = cd.rgb.p_min;
+        blue = cd.rgb.p_max;
     }
     else
     {
-        red = cd->hsv.h.p_min;
-        blue = cd->hsv.h.p_max;
+        red = cd.hsv.h.p_min;
+        blue = cd.hsv.h.p_max;
     }
     int green = (red + blue) / 2;
     units::PointFd red1;
@@ -192,37 +193,38 @@ void RainbowOverlay::move(QMouseEvent* e)
         zone_.setDst(getMousePos(e->pos()));
         if (parent_->getKindOfView() == KindOfView::SliceYZ)
         {
-            if (parent_->getCd()->composite_kind == CompositeKind::RGB)
+            if (api::get_cd().composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->rgb.p_min = check_interval(zone_.src().x());
-                parent_->getCd()->rgb.p_max = check_interval(zone_.dst().x());
+                api::get_cd().rgb.p_min = check_interval(zone_.src().x());
+                api::get_cd().rgb.p_max = check_interval(zone_.dst().x());
             }
             else
             {
-                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().x());
-                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().x());
+                api::get_cd().hsv.h.p_min = check_interval(zone_.src().x());
+                api::get_cd().hsv.h.p_max = check_interval(zone_.dst().x());
             }
         }
         else
         {
-            if (parent_->getCd()->composite_kind == CompositeKind::RGB)
+            if (api::get_cd().composite_kind == CompositeKind::RGB)
             {
-                parent_->getCd()->rgb.p_min = check_interval(zone_.src().y());
-                parent_->getCd()->rgb.p_max = check_interval(zone_.dst().y());
+                api::get_cd().rgb.p_min = check_interval(zone_.src().y());
+                api::get_cd().rgb.p_max = check_interval(zone_.dst().y());
             }
             else
             {
-                parent_->getCd()->hsv.h.p_min = check_interval(zone_.src().y());
-                parent_->getCd()->hsv.h.p_max = check_interval(zone_.dst().y());
+                api::get_cd().hsv.h.p_min = check_interval(zone_.src().y());
+                api::get_cd().hsv.h.p_max = check_interval(zone_.dst().y());
             }
         }
-        parent_->getCd()->notify_observers();
+        api::get_cd().notify_observers();
     }
 }
 
 int RainbowOverlay::check_interval(int x)
 {
     const int max = api::get_time_transformation_size() - 1;
+
     return std::min(max, std::max(x, 0));
 }
 } // namespace gui
