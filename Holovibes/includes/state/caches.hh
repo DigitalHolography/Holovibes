@@ -42,7 +42,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (View_XYZ, xz, View_XYZ{}),
                             (View_XYZ, yz, View_XYZ{}),
                             (View_Window, filter2d, View_Window{}),
-                            (WindowKind, current_window, WindowKind::XYview));
+                            (WindowKind, current_window, WindowKind::XYview),
+                            (bool, lens_view_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

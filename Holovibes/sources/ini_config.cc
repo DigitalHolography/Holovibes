@@ -90,7 +90,6 @@ void load_view_visibility(const boost::property_tree::ptree& ptree, ComputeDescr
     get_cd().set_filter2d_view_enabled(
         ptree.get<bool>("image_rendering.filter2d_view_enabled", cd.filter2d_view_enabled));
     get_cd().set_3d_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled));
-    get_cd().set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", cd.lens_view_enabled));
     get_cd().set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
 }
 
@@ -148,7 +147,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
     ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
-    ptree.put<bool>("view.lens_view_enabled", cd.lens_view_enabled);
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
     auto pq_save = [&](const std::string& name, const View_PQ& view) {

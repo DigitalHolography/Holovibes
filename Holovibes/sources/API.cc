@@ -560,7 +560,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     if (get_compute_mode() == Computation::Raw)
         return;
 
-    get_cd().set_lens_view_enabled(checked);
+    set_lens_view_enabled(checked);
 
     auto pipe = get_compute_pipe();
 
@@ -576,6 +576,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
             const ::camera::FrameDescriptor& fd = get_fd();
             ushort lens_window_width = fd.width;
             ushort lens_window_height = fd.height;
+
             get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
             UserInterfaceDescriptor::instance().lens_window.reset(

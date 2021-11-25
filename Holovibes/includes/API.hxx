@@ -194,7 +194,8 @@ inline bool get_filter2d_view_enabled() { return get_cd().get_filter2d_view_enab
 
 inline bool get_3d_cuts_view_enabled() { return get_cd().get_3d_cuts_view_enabled(); }
 
-inline bool get_lens_view_enabled() { return get_cd().get_lens_view_enabled(); }
+inline bool get_lens_view_enabled() { return GSH::instance().get_lens_view_enabled(); }
+inline void set_lens_view_enabled(bool value) { GSH::instance().set_lens_view_enabled(value); }
 
 inline bool get_chart_display_enabled() { return get_cd().get_chart_display_enabled(); }
 inline bool get_chart_record_enabled() { return get_cd().get_chart_record_enabled(); }

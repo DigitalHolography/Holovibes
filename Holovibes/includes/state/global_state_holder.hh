@@ -146,6 +146,8 @@ class GSH
 
     bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
+    bool get_lens_view_enabled() { return view_cache_.get_lens_view_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -285,11 +287,9 @@ class GSH
     void set_rotation(double value);
     void set_flip_enabled(double value);
 
-    void set_divide_convolution_enabled(bool value)
-    {
-        LOG_WARN << value;
-        compute_cache_.set_divide_convolution_enabled(value);
-    };
+    void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
+
+    void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
 
 #pragma endregion
 

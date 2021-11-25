@@ -154,7 +154,7 @@ void FourierTransform::insert_fft2()
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
-    if (!gpu_lens_queue_ && cd_.lens_view_enabled)
+    if (!gpu_lens_queue_)
     {
         auto fd = fd_;
         fd.depth = 8;

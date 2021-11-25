@@ -638,9 +638,9 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
 
 void Pipe::run_all()
 {
-    // compute_cache_.synchronize();
-    // filter2d_cache_.synchronize();
-    // view_cache_.synchronize();
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
 
     for (FnType& f : fn_compute_vect_)
         f();

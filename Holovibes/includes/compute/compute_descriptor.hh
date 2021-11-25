@@ -367,9 +367,6 @@ class ComputeDescriptor : public Observable
     inline uint get_end_frame() const { return end_frame; }
     inline void set_end_frame(uint end_frame) { this->end_frame = end_frame; }
 
-    inline bool get_lens_view_enabled() const { return lens_view_enabled; }
-    inline void set_lens_view_enabled(bool value) { lens_view_enabled = value; }
-
     // #############################################
     //  END GETTER AND SETTER ZONE
     // #############################################
@@ -451,8 +448,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> time_transformation_cuts_enabled{false};
     /*! \brief Is shift fft enabled (switching representation diagram) */
     std::atomic<bool> fft_shift_enabled{false};
-    /*! \brief Is gpu lens display activated */
-    std::atomic<bool> lens_view_enabled{false};
     /*! \brief Display the raw interferogram when we are in hologram mode. */
     std::atomic<bool> raw_view_enabled{false};
 

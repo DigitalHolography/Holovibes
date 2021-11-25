@@ -139,7 +139,7 @@ void ComputeDescriptor::change_flip() { GSH::instance().set_flip_enabled(!GSH::i
 
 void ComputeDescriptor::reset_windows_display()
 {
-    lens_view_enabled = false;
+    GSH::instance().set_lens_view_enabled(false);
     filter2d_view_enabled = false;
     raw_view_enabled = false;
     reticle_display_enabled = false;
