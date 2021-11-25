@@ -1032,9 +1032,9 @@ void unset_convolution_mode()
 void set_divide_convolution(const bool value)
 {
     if (value == get_cd().get_divide_convolution_enabled())
-        return
+        return;
 
-            get_cd().set_divide_convolution_enabled(value);
+    get_cd().set_divide_convolution_enabled(value);
 
     pipe_refresh();
 }
