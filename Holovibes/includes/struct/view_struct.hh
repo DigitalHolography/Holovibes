@@ -31,7 +31,7 @@ struct View_Window : public json_struct
                       {"max", contrast_max.load()}}}};
     }
 
-    void from_json(const json& data)
+    void from_json(const json& data) override
     {
         log_scale_slice_enabled = data["log enabled"];
 
@@ -61,7 +61,7 @@ struct View_XYZ : public View_Window
         return j;
     }
 
-    void from_json(const json& data)
+    void from_json(const json& data) override
     {
         View_Window::from_json(data);
         flip_enabled = data["flip"];
@@ -76,7 +76,7 @@ struct View_Accu : public json_struct
 
     json to_json() const override { return json{"accu level", accu_level.load()}; }
 
-    void from_json(const json& data) { accu_level = data["accu level"]; }
+    void from_json(const json& data) override { accu_level = data["accu level"]; }
 };
 
 struct View_PQ : public View_Accu
@@ -85,7 +85,7 @@ struct View_PQ : public View_Accu
 
     json to_json() const override { return json{View_Accu::to_json(), {"index", index.load()}}; }
 
-    void from_json(const json& data)
+    void from_json(const json& data) override
     {
         View_Accu::from_json(data);
         index = data["index"];
@@ -98,7 +98,7 @@ struct View_XY : public View_Accu
 
     json to_json() const override { return json{View_Accu::to_json(), {"cuts", cuts.load()}}; }
 
-    void from_json(const json& data)
+    void from_json(const json& data) override
     {
         View_Accu::from_json(data);
         cuts = data["cuts"];

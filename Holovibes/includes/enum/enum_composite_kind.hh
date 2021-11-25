@@ -23,4 +23,9 @@ static std::map<CompositeKind, std::string> composite_kind_to_string = {
     {CompositeKind::HSV, "HSV"},
 };
 
+static std::map<std::string, CompositeKind> string_to_composite_kind = {
+    {"RGB", CompositeKind::RGB},
+    {"HSV", CompositeKind::HSV},
+};
+
 } // namespace holovibes
