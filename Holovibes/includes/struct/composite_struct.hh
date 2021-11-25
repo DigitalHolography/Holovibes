@@ -15,7 +15,12 @@ struct Composite_P : public json_struct
 
     json to_json() const override { return json{"p", {{"min", p_min.load()}, {"max", p_max.load()}}}; }
 
-    void from_json(const json& data) override {}
+    void from_json(const json& data) override
+    {
+        const json& p_data = data["p"];
+        p_min = p_data["min"];
+        p_max = p_data["max"];
+    }
 };
 
 struct Composite_RGB : public Composite_P
@@ -32,7 +37,14 @@ struct Composite_RGB : public Composite_P
         };
     }
 
-    void from_json(const json& data) override {}
+    void from_json(const json& data) override
+    {
+        Composite_P::from_json(data);
+        const json& weight_data = data["weight"];
+        weight_r = weight_data["r"];
+        weight_g = weight_data["g"];
+        weight_b = weight_data["b"];
+    }
 };
 
 struct Composite_hsv : public Composite_P
@@ -49,8 +61,17 @@ struct Composite_hsv : public Composite_P
                     {"threshold", {{"low", low_threshold.load()}, {"high", high_threshold.load()}}}};
     }
 
-    void from_json(const json& data) override {
-        Composite_P::from_json();
+    void from_json(const json& data) override
+    {
+        Composite_P::from_json(data);
+
+        const json& slider_data = data["slider threshold"];
+        slider_threshold_min = slider_data["min"];
+        slider_threshold_max = slider_data["max"];
+
+        const json& threshold_data = data["threshold"];
+        low_threshold = threshold_data["low"];
+        high_threshold = threshold_data["high"];
     }
 };
 
