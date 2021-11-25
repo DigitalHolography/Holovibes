@@ -298,27 +298,6 @@ bool Pipe::make_requests()
         raw_record_requested_ = std::nullopt;
     }
 
-    if (cuts_record_requested_.load() != std::nullopt)
-    {
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-
-        RecordMode rm = UserInterfaceDescriptor::instance().record_mode_;
-
-        fd_xyz.depth = sizeof(ushort);
-
-        if (rm == RecordMode::CUTS_XZ)
-            fd_xyz.height = cd_.time_transformation_size;
-        else if (rm == RecordMode::CUTS_YZ)
-            fd_xyz.width = cd_.time_transformation_size;
-
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
-
-        cd_.frame_record_enabled = true;
-        frame_record_env_.record_mode_ = rm;
-        cuts_record_requested_ = std::nullopt;
-    }
-
     return success_allocation;
 }
 

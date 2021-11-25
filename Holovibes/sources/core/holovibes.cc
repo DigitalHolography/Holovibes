@@ -107,7 +107,14 @@ void Holovibes::stop_frame_read()
     active_camera_.reset();
     gpu_input_queue_.store(nullptr);
 }
-
+/*
+void Holovibes::start_cli_record_and_compute(const std::string& path,
+                                             std::optional<unsigned int> nb_frames_to_record,
+                                             RecordMode record_mode,
+                                             unsigned int nb_frames_skip)
+{
+    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
+*/
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
                                    RecordMode record_mode,
@@ -174,7 +181,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              RecordMode record_mode,
                                              unsigned int nb_frames_skip)
 {
-    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
+    start_frame_record(path, nb_frames_to_record, record_mode, nb_frames_skip);
 
     while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
         continue;

@@ -285,7 +285,11 @@ class GSH
     void set_rotation(double value);
     void set_flip_enabled(double value);
 
-    void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
+    void set_divide_convolution_enabled(bool value)
+    {
+        LOG_WARN << value;
+        compute_cache_.set_divide_convolution_enabled(value);
+    };
 
 #pragma endregion
 
