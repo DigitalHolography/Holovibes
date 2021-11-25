@@ -38,9 +38,9 @@ class GSH
 
     static GSH& instance();
 
-    // prevents MSVC from brain-dying, dunno why
+    // inline prevents MSVC from brain-dying, dunno why
     template <class T>
-    static FastUpdatesHolder<T> fast_updates_map;
+    static inline FastUpdatesHolder<T> fast_updates_map;
 
 #pragma region(collapsed) GETTERS
 

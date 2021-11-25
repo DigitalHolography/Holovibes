@@ -42,9 +42,7 @@ std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
 TEST(QueueTest, SimpleInstantiatingTest)
 {
     camera::FrameDescriptor fd = {64, 64, 1, camera::Endianness::BigEndian};
-    std::cerr << "start" << std::endl;
     holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED, 64, 64, 1);
-    std::cerr << "end" << std::endl;
     // WARNING: Set false because the queue is used in a CLI mode
     ASSERT_EQ(0.0, 0.0);
 }

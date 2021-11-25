@@ -31,9 +31,7 @@ class FastUpdatesHolder
      */
     Value create_entry(Key key, bool overwrite = false)
     {
-        std::cerr << 1 << std::endl;
         std::lock_guard<std::mutex> lock(mutex_);
-        std::cerr << 2 << std::endl;
         if (!overwrite && map_.contains(key))
             throw std::runtime_error("Key is already present in map");
 
