@@ -92,7 +92,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -102,7 +102,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -112,7 +112,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -138,7 +138,7 @@ void Postprocessing::insert_convolution()
                                &convolution_plan_,
                                fd_.get_frame_res(),
                                gpu_kernel_buffer_.get(),
-                               cd_.divide_convolution_enabled,
+                               compute_cache_.get_divide_convolution_enabled(),
                                true,
                                stream_);
         });

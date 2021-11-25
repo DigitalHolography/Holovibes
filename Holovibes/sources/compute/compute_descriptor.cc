@@ -167,13 +167,13 @@ void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
     else
     {
         api::set_convolution_enabled(false);
-        divide_convolution_enabled = false;
+        GSH::instance().set_divide_convolution_enabled(false);
     }
 }
 
 void ComputeDescriptor::set_divide_by_convo(bool enable)
 {
-    divide_convolution_enabled = enable && GSH::instance().get_convolution_enabled();
+    GSH::instance().set_divide_convolution_enabled(enable && GSH::instance().get_convolution_enabled());
 }
 
 void ComputeDescriptor::load_convolution_matrix(const std::string& file)

@@ -136,14 +136,15 @@ class GSH
 
     const View_Window& get_current_window() const;
 
+    // Over current window
     float get_contrast_min() const;
     float get_contrast_max() const;
-
     double get_rotation() const;
     bool get_flip_enabled() const;
-
     bool get_img_log_scale_slice_enabled() const;
     unsigned get_img_accu_level() const;
+
+    bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
 #pragma endregion
 
@@ -273,6 +274,7 @@ class GSH
         view_cache_.get_filter2d_ref().log_scale_slice_enabled = log_scale_filter2d_enabled;
     }
 
+    // Over current window
     void set_contrast_enabled(bool contrast_enabled);
     void set_contrast_auto_refresh(bool contrast_auto_refresh);
     void set_contrast_invert(bool contrast_invert);
@@ -282,6 +284,8 @@ class GSH
     void set_accumulation_level(int value);
     void set_rotation(double value);
     void set_flip_enabled(double value);
+
+    void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
 #pragma endregion
 

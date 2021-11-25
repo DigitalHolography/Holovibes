@@ -13,8 +13,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     ////// TODO: Think about how to store the type. Some new convolutions type might be added in AppData
     ////// set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
     ////// cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
-    set_divide_convolution(
-        ptree.get<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled));
 }
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
@@ -143,8 +141,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
 {
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
-    // ptree.put<string>("image_rendering.convolution_type", cd.convolution_type);
-    ptree.put<bool>("image_rendering.divide_convolution_enabled", cd.divide_convolution_enabled);
 }
 
 void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)

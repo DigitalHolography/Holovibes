@@ -27,7 +27,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (TimeTransformation, time_transformation, TimeTransformation::STFT),
                             (float, lambda, 852e-9f),
                             (float, z_distance, 1.50f),
-                            (bool, convolution_enabled, false));
+                            (bool, convolution_enabled, false),
+                            (bool, divide_convolution_enabled, false));
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
  */

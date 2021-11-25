@@ -169,25 +169,7 @@ class ComputeDescriptor : public Observable
 
     inline float get_display_rate() const { return display_rate; }
     inline void set_display_rate(float display_rate) { this->display_rate = display_rate; }
-    /*
-        inline uint get_img_accu_xy_level() const { return xy.img_accu_level.load(); }
-        inline void set_img_accu_xy_level(uint img_accu_slice_xy_level)
-        {
-            this->xy.img_accu_level = img_accu_slice_xy_level;
-        }
 
-        inline uint get_img_accu_xz_level() const { return xz.img_accu_level.load(); }
-        inline void set_img_accu_xz_level(uint img_accu_slice_xz_level)
-        {
-            this->xz.img_accu_level = img_accu_slice_xz_level;
-        }
-
-        inline uint get_img_accu_yz_level() const { return yz.img_accu_level.load(); }
-        inline void set_img_accu_yz_level(uint img_accu_slice_yz_level)
-        {
-            this->yz.img_accu_level = img_accu_slice_yz_level;
-        }
-    */
     inline float get_reticle_scale() const { return reticle_scale; }
     inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
 
@@ -316,31 +298,11 @@ class ComputeDescriptor : public Observable
         this->is_computation_stopped = is_computation_stopped;
     }
 
-    inline bool get_divide_convolution_enabled() const { return divide_convolution_enabled; }
-    inline void set_divide_convolution_enabled(bool divide_convolution_enabled)
-    {
-        this->divide_convolution_enabled = divide_convolution_enabled;
-    }
-
     inline bool get_renorm_enabled() const { return renorm_enabled; }
     inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
 
     inline bool get_fft_shift_enabled() const { return fft_shift_enabled; }
     inline void set_fft_shift_enabled(bool fft_shift_enabled) { this->fft_shift_enabled = fft_shift_enabled; }
-
-    /*
-    inline bool get_contrast_enabled() const { return current->contrast_enabled; }
-    inline void set_contrast_enabled(bool contrast_enabled) { current->contrast_enabled = contrast_enabled; }
-
-    inline bool get_contrast_auto_refresh() const { return current->contrast_auto_refresh; }
-    inline void set_contrast_auto_refresh(bool contrast_auto_refresh)
-    {
-        current->contrast_auto_refresh = contrast_auto_refresh;
-    }
-
-    inline bool get_contrast_invert() const { return current->contrast_invert; }
-    inline void set_contrast_invert(bool contrast_invert) { current->contrast_invert = contrast_invert; }
-    */
 
     inline bool get_filter2d_enabled() const { return filter2d_enabled; }
     inline void set_filter2d_enabled(bool filter2d_enabled) { this->filter2d_enabled = filter2d_enabled; }
@@ -368,11 +330,7 @@ class ComputeDescriptor : public Observable
     {
         this->chart_record_enabled = chart_record_enabled;
     }
-    /*
-        inline bool get_img_accu_xy_enabled() const { return xy.img_accu_level.load() > 1; }
-        inline bool get_img_accu_xz_enabled() const { return xz.img_accu_level.load() > 1; }
-        inline bool get_img_accu_yz_enabled() const { return yz.img_accu_level.load() > 1; }
-    */
+
     inline bool get_raw_view_enabled() const { return raw_view_enabled; }
     inline void set_raw_view_enabled(bool raw_view_enabled) { this->raw_view_enabled = raw_view_enabled; }
 
@@ -486,10 +444,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */
     std::atomic<bool> filter2d_view_enabled{false};
-    /*! \brief Convolution type (file present in AppData) */
-    // std::atomic<std::string> convolution_type{""};
-    /*! \brief Is divide by convolution enabled */
-    std::atomic<bool> divide_convolution_enabled{false};
 
     // View
     // TODO: Add unwrap2d
