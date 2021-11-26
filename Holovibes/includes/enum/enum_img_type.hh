@@ -34,7 +34,7 @@ static std::map<ImgType, std::string> img_type_to_string = {
     {ImgType::Modulus, "MODULUS"},
     {ImgType::SquaredModulus, "SQUAREDMODULUS"},
     {ImgType::Argument, "ARGUMENT"},
-    {ImgType::PhaseIncrease, "ARGUMENT"},
+    {ImgType::PhaseIncrease, "PHASEINCREASE"},
     {ImgType::Composite, "COMPOSITE"},
 };
 
