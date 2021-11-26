@@ -154,6 +154,8 @@ class GSH
 
     bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
+    bool get_chart_record_enabled() const { export_cache_.get_chart_record_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -302,6 +304,8 @@ class GSH
     void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
 
     void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
+
+    void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
 
 #pragma endregion
 

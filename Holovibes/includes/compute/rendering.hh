@@ -45,6 +45,7 @@ class Rendering
               ICompute* Ic,
               const cudaStream_t& stream,
               ComputeCache::Cache& compute_cache,
+              ExportCache::Cache& expoer_cache,
               ViewCache::Cache& view_cache);
     ~Rendering();
 
@@ -103,6 +104,8 @@ class Rendering
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
+
+    ExportCache::Cache& export_cache_;
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
 

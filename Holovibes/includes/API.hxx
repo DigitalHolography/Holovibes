@@ -198,7 +198,7 @@ inline bool get_lens_view_enabled() { return GSH::instance().get_lens_view_enabl
 inline void set_lens_view_enabled(bool value) { GSH::instance().set_lens_view_enabled(value); }
 
 inline bool get_chart_display_enabled() { return GSH::instance().get_chart_display_enabled(); }
-inline bool get_chart_record_enabled() { return get_cd().get_chart_record_enabled(); }
+inline bool get_chart_record_enabled() { return GSH::instance().get_chart_record_enabled(); }
 
 inline bool get_raw_view_enabled() { return get_cd().get_raw_view_enabled(); }
 

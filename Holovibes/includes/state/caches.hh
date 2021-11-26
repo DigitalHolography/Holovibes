@@ -33,9 +33,10 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, input_fps, 60));
 
 /*! \brief Construct a new new micro cache object
- *  \param frame_record_enabled Is holovibes currently recording
+ * \param frame_record_enabled Is holovibes currently recording
+ * \param chart_record_enabled Enables the signal and noise chart record
  */
-NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false));
+NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
@@ -49,7 +50,7 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false));
  * \param filter2d
  * \param current_window
  * \param lens_view_enabled
- * \param chart_display_enabled the signal and noise chart display
+ * \param chart_display_enabled Enables the signal and noise chart display
  */
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),

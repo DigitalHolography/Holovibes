@@ -71,6 +71,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       this,
                                                       stream_,
                                                       compute_cache_,
+                                                      export_cache_,
                                                       view_cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
@@ -174,7 +175,7 @@ bool Pipe::make_requests()
     if (disable_chart_record_requested_)
     {
         chart_env_.chart_record_queue_.reset(nullptr);
-        cd_.chart_record_enabled = false;
+        GSH::instance().set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
         disable_chart_record_requested_ = false;
     }
@@ -271,7 +272,7 @@ bool Pipe::make_requests()
     if (chart_record_requested_.load() != std::nullopt)
     {
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        cd_.chart_record_enabled = true;
+        GSH::instance().set_chart_record_enabled(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
         chart_record_requested_ = std::nullopt;
     }

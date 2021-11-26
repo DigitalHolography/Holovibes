@@ -25,6 +25,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ICompute* Ic,
                      const cudaStream_t& stream,
                      ComputeCache::Cache& compute_cache,
+                     ExportCache::Cache& export_cache,
                      ViewCache::Cache& view_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
@@ -37,6 +38,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , Ic_(Ic)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , export_cache_(export_cache)
     , view_cache_(view_cache)
 {
     // Hold 2 float values (min and max)
@@ -65,7 +67,7 @@ void Rendering::insert_fft_shift()
 
 void Rendering::insert_chart()
 {
-    if (view_cache_.get_chart_display_enabled() || cd_.chart_record_enabled)
+    if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
     {
         fn_compute_vect_.conditional_push_back([=]() {
             units::RectFd signal_zone;
@@ -86,7 +88,7 @@ void Rendering::insert_chart()
 
             if (view_cache_.get_chart_display_enabled())
                 chart_env_.chart_display_queue_->push_back(point);
-            if (cd_.chart_record_enabled && chart_env_.nb_chart_points_to_record_ != 0)
+            if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
             {
                 chart_env_.chart_record_queue_->push_back(point);
                 --chart_env_.nb_chart_points_to_record_;
