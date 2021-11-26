@@ -8,11 +8,6 @@
 
 namespace holovibes
 {
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const camera::FrameDescriptor& fd)
-    : BatchInputQueue(total_nb_frames, 1, fd)
-{
-}
-
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))

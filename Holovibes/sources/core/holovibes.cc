@@ -1,6 +1,7 @@
 #include "holovibes.hh"
 #include "queue.hh"
 
+#include "API.hh"
 #include "camera_dll.hh"
 #include "tools.hh"
 #include "logger.hh"
@@ -33,7 +34,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 {
     camera::FrameDescriptor queue_fd = fd;
 
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, queue_fd);
+    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,
