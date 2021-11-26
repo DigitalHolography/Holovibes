@@ -67,7 +67,6 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    ui_->BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
