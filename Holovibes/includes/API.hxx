@@ -6,8 +6,8 @@ namespace holovibes::api
 {
 inline ComputeDescriptor& get_cd() { return Holovibes::instance().get_cd(); }
 
-inline Computation get_compute_mode() { return get_cd().get_compute_mode(); }
-inline void set_compute_mode(Computation mode) { return get_cd().set_compute_mode(mode); }
+inline Computation get_compute_mode() { return GSH::instance().get_compute_mode(); }
+inline void set_compute_mode(Computation mode) { return GSH::instance().set_compute_mode(mode); }
 
 inline SpaceTransformation get_space_transformation() { return GSH::instance().get_space_transformation(); }
 

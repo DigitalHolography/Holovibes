@@ -208,6 +208,8 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
     compute_cache_.set_z_distance(ptree.get<float>("image_rendering.z_distance", 1.50f));
     compute_cache_.set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", false));
     compute_cache_.set_divide_convolution_enabled(ptree.get<bool>("image_rendering.divide_convolution_enabled", false));
+    compute_cache_.set_compute_mode(
+        static_cast<Computation>(ptree.get<int>("image_rendering.image_mode", static_cast<int>(Computation::Raw))));
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
@@ -277,6 +279,7 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
     ptree.put<float>("image_rendering.z_distance", compute_cache_.get_z_distance());
     ptree.put<bool>("image_rendering.convolution_enabled", compute_cache_.get_convolution_enabled());
     ptree.put<bool>("image_rendering.divide_convolution_enabled", compute_cache_.get_divide_convolution_enabled());
+    ptree.put<int>("image_rendering.image_mode", static_cast<int>(compute_cache_.get_compute_mode()));
 
     ptree.put<int>("image_rendering.filter2d_n1", filter2d_cache_.get_filter2d_n1());
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());

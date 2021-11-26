@@ -36,7 +36,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
     {
         Computation mode = Computation::Raw;
 
-        if (record_raw && cd.compute_mode.load() == Computation::Hologram)
+        if (record_raw && GSH::instance().get_compute_mode() == Computation::Hologram)
             mode = Computation::Hologram;
 
         meta_data_ = json{{"mode", mode},

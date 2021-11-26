@@ -154,7 +154,9 @@ class GSH
 
     bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
-    bool get_chart_record_enabled() const { export_cache_.get_chart_record_enabled(); }
+    bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
+
+    Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
 
 #pragma endregion
 
@@ -306,6 +308,12 @@ class GSH
     void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
 
     void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
+
+    void set_compute_mode(Computation value)
+    {
+        LOG_WARN << value;
+        compute_cache_.set_compute_mode(value);
+    }
 
 #pragma endregion
 

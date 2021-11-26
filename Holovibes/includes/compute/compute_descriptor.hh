@@ -107,9 +107,6 @@ class ComputeDescriptor : public Observable
     }
     */
 
-    inline Computation get_compute_mode() const { return compute_mode; }
-    inline void set_compute_mode(Computation compute_mode) { this->compute_mode = compute_mode; }
-
     // inline WindowKind get_current_window() const { return current_window; }
 
     inline float get_contrast_lower_threshold() const { return contrast_lower_threshold; }
@@ -423,8 +420,6 @@ class ComputeDescriptor : public Observable
 #pragma region Atomics vars
     // Variables are regroup by module. Those are the same as in the compute_settings.ini
     // Image rendering
-    /*! \brief Mode of computation of the image */
-    std::atomic<Computation> compute_mode{Computation::Raw};
     /*! \brief Enables filter 2D */
     std::atomic<bool> filter2d_enabled{false};
     /*! \brief Enables filter 2D View */

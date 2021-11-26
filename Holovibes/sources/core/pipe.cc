@@ -354,7 +354,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (cd_.compute_mode == Computation::Raw)
+    if (compute_cache_.get_compute_mode() == Computation::Raw)
     {
         insert_dequeue_input();
         return;

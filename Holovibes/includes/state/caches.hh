@@ -4,6 +4,7 @@
 #include "enum_space_transformation.hh"
 #include "enum_window_kind.hh"
 #include "enum_img_type.hh"
+#include "enum_computation.hh"
 #include "view_struct.hh"
 
 namespace holovibes
@@ -19,6 +20,7 @@ namespace holovibes
  * \param convolution_enabled Is convolution enabled
  * \param divide_convolution_enabled
  * \param input_fps The input FPS
+ * \param compute_mode Mode of computation of the image
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -30,7 +32,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (float, z_distance, 1.50f),
                             (bool, convolution_enabled, false),
                             (bool, divide_convolution_enabled, false),
-                            (uint, input_fps, 60));
+                            (uint, input_fps, 60),
+                            (Computation, compute_mode, Computation::Raw));
 
 /*! \brief Construct a new new micro cache object
  * \param frame_record_enabled Is holovibes currently recording

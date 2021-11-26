@@ -126,7 +126,7 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     GSH::instance().set_yz_img_accu_level(
         get_value(meta_data_, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()));
 
-    cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
+    GSH::instance().set_compute_mode(get_value(meta_data_, "mode", GSH::instance().get_compute_mode()));
 
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
     cd.fft_shift_enabled = get_value(meta_data_, "fft_shift_enabled", cd.fft_shift_enabled.load());

@@ -211,7 +211,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
 
     // Force hologram mode
-    cd.compute_mode = holovibes::Computation::Hologram;
+    holovibes::GSH::instance().set_compute_mode(holovibes::Computation::Hologram);
 
     Chrono chrono;
     uint nb_frames_skip = 0;

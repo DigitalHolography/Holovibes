@@ -199,7 +199,7 @@ void Holovibes::init_pipe()
 {
     auto& cd = Holovibes::instance().get_cd();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (cd.compute_mode == Computation::Hologram)
+    if (GSH::instance().get_compute_mode() == Computation::Hologram)
     {
         output_fd.depth = 2;
         if (GSH::instance().get_img_type() == ImgType::Composite)

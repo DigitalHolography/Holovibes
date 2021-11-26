@@ -5,9 +5,6 @@ namespace holovibes::api
 {
 void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    set_compute_mode(static_cast<Computation>(
-        ptree.get<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()))));
-
     set_filter2d(ptree.get<bool>("image_rendering.filter2d_enabled", cd.filter2d_enabled));
     ////// TODO: Remove checkbox ??
     ////// TODO: Think about how to store the type. Some new convolutions type might be added in AppData
@@ -138,7 +135,6 @@ void load_compute_settings(const std::string& ini_path)
 
 void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
-    ptree.put<int>("image_rendering.image_mode", static_cast<int>(cd.compute_mode.load()));
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(cd.filter2d_enabled.load()));
 }
 
