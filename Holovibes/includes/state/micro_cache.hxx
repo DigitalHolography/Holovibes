@@ -184,7 +184,6 @@
 #define _IF_NEED_SYNC_VAR_INIT(type, var, val)                                                                         \
     if (var.to_update)                                                                                                 \
     {                                                                                                                  \
-        LOG_UPDATE(var)                                                                                                \
         var.obj = cache_truth<ref_t>->var;                                                                             \
         var.to_update = false;                                                                                         \
     }
@@ -224,7 +223,6 @@
                                                                                                                        \
     void trigger_##var()                                                                                               \
     {                                                                                                                  \
-        LOG_DEBUG << "Trigger " << #var << " = " << var;                                                               \
         for (cache_t * cache : micro_caches<cache_t>)                                                                  \
             cache->var.to_update = true;                                                                               \
     }

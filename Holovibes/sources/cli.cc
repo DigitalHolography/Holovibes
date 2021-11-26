@@ -246,9 +246,6 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     holovibes.stop_all_worker_controller();
 
-    LOG_TRACE << "api::get_xy_contrast_min() : " << holovibes::GSH::instance().get_xy_contrast_min();
-    LOG_TRACE << "api::get_xy_contrast_max() : " << holovibes::GSH::instance().get_xy_contrast_max();
-
     return 0;
 }
 } // namespace cli

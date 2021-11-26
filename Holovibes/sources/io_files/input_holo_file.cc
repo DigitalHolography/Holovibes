@@ -111,8 +111,6 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     GSH::instance().set_p_index(get_value(meta_data_, "p", GSH::instance().get_p_index()));
     GSH::instance().set_lambda(get_value(meta_data_, "lambda", GSH::instance().get_lambda()));
     GSH::instance().set_z_distance(get_value(meta_data_, "z", GSH::instance().get_z_distance()));
-    LOG_DEBUG << std::string("GSH::instance().get_xy_log_scale_slice_enabled() = ")
-              << GSH::instance().get_xy_log_scale_slice_enabled();
     GSH::instance().set_xy_log_scale_slice_enabled(
         get_value(meta_data_, "log_scale", GSH::instance().get_xy_log_scale_slice_enabled()));
     GSH::instance().set_xy_contrast_min(get_value(meta_data_, "contrast_min", GSH::instance().get_xy_contrast_min()));
@@ -127,8 +125,6 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
         get_value(meta_data_, "img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()));
     GSH::instance().set_yz_img_accu_level(
         get_value(meta_data_, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()));
-
-    LOG_TRACE << "value from input holofile : " << GSH::instance().get_xy_log_scale_slice_enabled();
 
     cd.compute_mode = get_value(meta_data_, "mode", cd.compute_mode.load());
     cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());

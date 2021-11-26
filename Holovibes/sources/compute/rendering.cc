@@ -304,7 +304,6 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_display_enabled,
                                    stream_);
-        LOG_TRACE << "mdr";
         GSH::instance().set_xy_contrast_min(percent_min_max_[0]);
         GSH::instance().set_xy_contrast_max(percent_min_max_[1]);
         break;
