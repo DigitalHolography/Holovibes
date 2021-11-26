@@ -146,7 +146,9 @@ class GSH
 
     bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
-    bool get_lens_view_enabled() { return view_cache_.get_lens_view_enabled(); }
+    bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
+
+    uint get_input_fps() const { return compute_cache_.get_input_fps(); };
 
 #pragma endregion
 
@@ -290,6 +292,12 @@ class GSH
     void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
     void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
+
+    void set_input_fps(uint value)
+    {
+        LOG_WARN << "input_fps = " << value;
+        compute_cache_.set_input_fps(value);
+    };
 
 #pragma endregion
 

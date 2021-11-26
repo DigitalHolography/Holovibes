@@ -239,6 +239,9 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
     get_cd().set_time_transformation_cuts_output_buffer_size(value);
 }
 
+inline uint get_input_fps() { return GSH::instance().get_input_fps(); }
+inline void set_input_fps(uint value) { GSH::instance().set_input_fps(value); }
+
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 
 inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };

@@ -149,7 +149,10 @@ void ImportPanel::import_start()
 
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
-    QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
+
+    // Now stored in GSH
+    // QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
+
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
@@ -157,7 +160,7 @@ void ImportPanel::import_start()
     std::string file_path = import_line_edit->text().toStdString();
 
     bool res_import_start = api::import_start(file_path,
-                                              fps_spinbox->value(),
+                                              api::get_input_fps(),
                                               start_spinbox->value(),
                                               load_file_gpu_box->isChecked(),
                                               end_spinbox->value());
@@ -200,4 +203,11 @@ void ImportPanel::import_end_spinbox_update()
     if (end_spinbox->value() < start_spinbox->value())
         start_spinbox->setValue(end_spinbox->value());
 }
+
+void ImportPanel::on_input_fps_change(int value)
+{
+    LOG_ERROR << value;
+    api::set_input_fps(value);
+}
+
 } // namespace holovibes::gui

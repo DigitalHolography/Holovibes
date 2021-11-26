@@ -515,8 +515,6 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> start_frame{0};
     /*! \brief Lasrt frame read */
     std::atomic<uint> end_frame{0};
-    /*! \brief The input FPS */
-    std::atomic<uint> input_fps{60};
 
     // Chart
     /*! \brief Enables the signal and noise chart display */
