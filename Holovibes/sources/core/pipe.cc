@@ -167,7 +167,7 @@ bool Pipe::make_requests()
     if (disable_chart_display_requested_)
     {
         chart_env_.chart_display_queue_.reset(nullptr);
-        cd_.chart_display_enabled = false;
+        GSH::instance().set_chart_display_enabled(false);
         disable_chart_display_requested_ = false;
     }
 
@@ -264,7 +264,7 @@ bool Pipe::make_requests()
     if (chart_display_requested_)
     {
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        cd_.chart_display_enabled = true;
+        GSH::instance().set_chart_display_enabled(true);
         chart_display_requested_ = false;
     }
 

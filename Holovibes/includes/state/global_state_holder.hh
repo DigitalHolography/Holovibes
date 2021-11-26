@@ -152,6 +152,8 @@ class GSH
 
     bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
+    bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -298,6 +300,8 @@ class GSH
     void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
 
     void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
+
+    void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
 
 #pragma endregion
 

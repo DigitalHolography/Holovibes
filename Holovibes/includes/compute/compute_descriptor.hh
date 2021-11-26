@@ -319,12 +319,6 @@ class ComputeDescriptor : public Observable
         this->time_transformation_cuts_enabled = time_transformation_cuts_enabled;
     }
 
-    inline bool get_chart_display_enabled() const { return chart_display_enabled; }
-    inline void set_chart_display_enabled(bool chart_display_enabled)
-    {
-        this->chart_display_enabled = chart_display_enabled;
-    }
-
     inline bool get_chart_record_enabled() const { return chart_record_enabled; }
     inline void set_chart_record_enabled(bool chart_record_enabled)
     {
@@ -515,8 +509,6 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> end_frame{0};
 
     // Chart
-    /*! \brief Enables the signal and noise chart display */
-    std::atomic<bool> chart_display_enabled{false};
     /*! \brief Enables the signal and noise chart record */
     std::atomic<bool> chart_record_enabled{false};
 

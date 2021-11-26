@@ -39,6 +39,17 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
+ * \param x
+ * \param y
+ * \param p
+ * \param q
+ * \param xy
+ * \param xz
+ * \param yz
+ * \param filter2d
+ * \param current_window
+ * \param lens_view_enabled
+ * \param chart_display_enabled the signal and noise chart display
  */
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
@@ -51,7 +62,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (View_XYZ, yz, View_XYZ{}),
                             (View_Window, filter2d, View_Window{}),
                             (WindowKind, current_window, WindowKind::XYview),
-                            (bool, lens_view_enabled, false));
+                            (bool, lens_view_enabled, false),
+                            (bool, chart_display_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

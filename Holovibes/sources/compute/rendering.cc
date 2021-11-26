@@ -65,7 +65,7 @@ void Rendering::insert_fft_shift()
 
 void Rendering::insert_chart()
 {
-    if (cd_.chart_display_enabled || cd_.chart_record_enabled)
+    if (view_cache_.get_chart_display_enabled() || cd_.chart_record_enabled)
     {
         fn_compute_vect_.conditional_push_back([=]() {
             units::RectFd signal_zone;
@@ -84,7 +84,7 @@ void Rendering::insert_chart()
                                                noise_zone,
                                                stream_);
 
-            if (cd_.chart_display_enabled)
+            if (view_cache_.get_chart_display_enabled())
                 chart_env_.chart_display_queue_->push_back(point);
             if (cd_.chart_record_enabled && chart_env_.nb_chart_points_to_record_ != 0)
             {
