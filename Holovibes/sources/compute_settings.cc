@@ -268,7 +268,8 @@ void load_compute_settings(const std::string& json_path)
 
     LOG_INFO << "Compute settings loaded from : " << json_path;
 
-    auto j_cs = json::parse(json_path);
+    std::ifstream ifs(json_path);
+    auto j_cs = json::parse(ifs);
     json_to_compute_settings(j_cs);
 
     // boost::property_tree::ptree ptree;
