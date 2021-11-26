@@ -179,7 +179,7 @@ void InformationWorker::display_gui_information()
                << "  " << engineering_notation(total, 3) + "B total\n";
 
     // #TODO change this being called every frame to only being called to update the value if needed
-    to_display << "\nBoundary: " << Holovibes::instance().get_boundary() << "\n";
+    to_display << "\nz boundary: " << Holovibes::instance().get_boundary() << "m\n";
 
     display_info_text_function_(to_display.str());
 
