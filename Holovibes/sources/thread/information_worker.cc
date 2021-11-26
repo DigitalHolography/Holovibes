@@ -176,7 +176,10 @@ void InformationWorker::display_gui_information()
 
     to_display << "GPU memory:\n"
                << std::string("  ") << engineering_notation(free, 3) << "B free,\n"
-               << "  " << engineering_notation(total, 3) + "B total";
+               << "  " << engineering_notation(total, 3) + "B total\n";
+
+    // #TODO change this being called every frame to only being called to update the value if needed
+    to_display << "\nBoundary: " << Holovibes::instance().get_boundary() << "\n";
 
     display_info_text_function_(to_display.str());
 
