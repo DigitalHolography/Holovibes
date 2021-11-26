@@ -309,11 +309,7 @@ class GSH
 
     void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
 
-    void set_compute_mode(Computation value)
-    {
-        LOG_WARN << value;
-        compute_cache_.set_compute_mode(value);
-    }
+    void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
 
 #pragma endregion
 
