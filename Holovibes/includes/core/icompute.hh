@@ -382,6 +382,7 @@ class ICompute : public Observable
     std::atomic<bool> disable_convolution_requested_{false};
 
     ComputeCache::Cache compute_cache_;
+    ExportCache::Cache export_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
 };

@@ -157,7 +157,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !holovibes::GSH::instance().get_xy_contrast_auto_refresh();
-    while (cd.frame_record_enabled)
+    while (holovibes::GSH::instance().get_frame_record_enabled())
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
@@ -220,7 +220,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
 
-    cd.frame_record_enabled = true;
+    holovibes::GSH::instance().set_frame_record_enabled(true);
 
     holovibes::RecordMode rm = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
     holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);

@@ -150,6 +150,8 @@ class GSH
 
     uint get_input_fps() const { return compute_cache_.get_input_fps(); };
 
+    bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -295,6 +297,8 @@ class GSH
 
     void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
 
+    void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
+
 #pragma endregion
 
     void change_window(uint index);
@@ -309,6 +313,7 @@ class GSH
     View_Window& get_current_window();
 
     ComputeCache::Ref compute_cache_;
+    ExportCache::Ref export_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
 

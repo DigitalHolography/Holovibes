@@ -495,8 +495,6 @@ class ComputeDescriptor : public Observable
     // Other
     /*! \brief Is the computation stopped */
     std::atomic<bool> is_computation_stopped{true};
-    /*! \brief Is holovibes currently recording */
-    std::atomic<bool> frame_record_enabled{false};
     /*! \brief Wait the beginning of the file to start the recording. */
     std::atomic<bool> synchronized_record{false};
     /*! \brief Max size of unwrapping corrections in number of images.

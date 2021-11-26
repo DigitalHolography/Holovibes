@@ -183,7 +183,7 @@ bool Pipe::make_requests()
     {
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
-        cd_.frame_record_enabled = false;
+        GSH::instance().set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
 
@@ -283,17 +283,18 @@ bool Pipe::make_requests()
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
-        cd_.frame_record_enabled = true;
+        GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = std::nullopt;
     }
 
     if (raw_record_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG << "Raw Record Request Processing";
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
 
-        cd_.frame_record_enabled = true;
+        GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = std::nullopt;
     }
@@ -303,9 +304,11 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
+    // This call has to be before make_requests() because this method needs
+    // to get updated values during exec_all() call
+    // This call could be removed if make_requests() only gets value through
+    // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
+    synchronize_caches();
 
     refresh_requested_ = false;
 
@@ -317,6 +320,10 @@ void Pipe::refresh()
         refresh_requested_ = false;
         return;
     }
+
+    // This call has to be after make_requests() because this method needs
+    // to honor cache modifications
+    synchronize_caches();
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -556,7 +563,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         fn_compute_vect_.push_back([&]() {
             gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, compute_cache_.get_batch_size());
@@ -566,7 +573,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         fn_compute_vect_.conditional_push_back([&]() {
             if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
@@ -579,7 +586,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (cd_.frame_record_enabled)
+    if (export_cache_.get_frame_record_enabled())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -607,9 +614,7 @@ void Pipe::exec()
     if (refresh_requested_)
         refresh();
 
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
+    synchronize_caches();
 
     while (!termination_requested_)
     {
@@ -638,9 +643,7 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
 
 void Pipe::run_all()
 {
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
+    synchronize_caches();
 
     for (FnType& f : fn_compute_vect_)
         f();
@@ -650,5 +653,13 @@ void Pipe::run_all()
             f();
         fn_end_vect_.clear();
     }
+}
+
+void Pipe::synchronize_caches()
+{
+    compute_cache_.synchronize();
+    export_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
 }
 } // namespace holovibes

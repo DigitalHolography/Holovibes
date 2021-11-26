@@ -31,6 +31,12 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, convolution_enabled, false),
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60));
+
+/*! \brief Construct a new new micro cache object
+ *  \param frame_record_enabled Is holovibes currently recording
+ */
+NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false));
+
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
  */
