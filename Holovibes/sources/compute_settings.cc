@@ -270,8 +270,15 @@ void load_compute_settings(const std::string& json_path)
 
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
-    json_to_compute_settings(j_cs);
 
+    try
+    {
+        json_to_compute_settings(j_cs);
+    }
+    catch(json::exception&)
+    {
+        LOG_ERROR << "Bad format in file : " << json_path;
+    }
     // boost::property_tree::ptree ptree;
     // boost::property_tree::ini_parser::read_ini(json_path, ptree);
     // load_image_rendering(ptree, get_cd());
@@ -363,7 +370,7 @@ void save_compute_settings(const std::string& json_path)
         return;
 
     auto j_cs = compute_settings_to_json();
-
+    
     std::ofstream file(json_path);
     file << j_cs.dump(1);
 
