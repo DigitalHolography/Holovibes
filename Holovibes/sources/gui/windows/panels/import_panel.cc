@@ -204,10 +204,6 @@ void ImportPanel::import_end_spinbox_update()
         start_spinbox->setValue(end_spinbox->value());
 }
 
-void ImportPanel::on_input_fps_change(int value)
-{
-    LOG_ERROR << value;
-    api::set_input_fps(value);
-}
+void ImportPanel::on_input_fps_change(int value) { api::set_input_fps(value); }
 
 } // namespace holovibes::gui

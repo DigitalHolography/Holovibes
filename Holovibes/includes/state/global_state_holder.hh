@@ -293,11 +293,7 @@ class GSH
 
     void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
 
-    void set_input_fps(uint value)
-    {
-        LOG_WARN << "input_fps = " << value;
-        compute_cache_.set_input_fps(value);
-    };
+    void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
 
 #pragma endregion
 
