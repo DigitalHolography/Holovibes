@@ -216,7 +216,6 @@ bool Pipe::make_requests()
     if (request_update_time_transformation_stride_)
     {
         batch_env_.batch_index = 0;
-        LOG_DEBUG << "reset batch_index";
         request_update_time_transformation_stride_ = false;
     }
 
@@ -412,6 +411,10 @@ void Pipe::refresh()
 
     // Must be the last inserted function
     insert_reset_batch_index();
+
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
 }
 
 void Pipe::insert_wait_frames()
@@ -425,10 +428,7 @@ void Pipe::insert_wait_frames()
 
 void Pipe::insert_reset_batch_index()
 {
-    fn_compute_vect_.conditional_push_back([&]() {
-        LOG_DEBUG << "reset batch_index";
-        batch_env_.batch_index = 0;
-    });
+    fn_compute_vect_.conditional_push_back([&]() { batch_env_.batch_index = 0; });
 }
 
 void Pipe::insert_transfer_for_time_transformation()
@@ -582,10 +582,6 @@ void Pipe::exec()
 {
     if (refresh_requested_)
         refresh();
-
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
 
     while (!termination_requested_)
     {

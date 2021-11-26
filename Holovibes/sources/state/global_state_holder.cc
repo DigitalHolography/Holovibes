@@ -213,7 +213,16 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
 
 void xyzf_load(const boost::property_tree::ptree& ptree, const std::string name, View_Window& view)
 {
+    LOG_DEBUG << std::string("GSH::instance().get_") << name
+              << "_log_scale_slice_enabled() = " << GSH::instance().get_xy_log_scale_slice_enabled();
+
+    LOG_DEBUG << "view." << name << "_log_scale_enabled = "
+              << ptree.get<bool>("view." + name + "_log_scale_enabled", view.log_scale_slice_enabled);
+
     view.log_scale_slice_enabled = ptree.get<bool>("view." + name + "_log_scale_enabled", view.log_scale_slice_enabled);
+
+    LOG_DEBUG << std::string("GSH::instance().get_") << name
+              << "_log_scale_slice_enabled() = " << GSH::instance().get_xy_log_scale_slice_enabled();
 
     view.contrast_enabled = ptree.get<bool>("view." + name + "_contrast_enabled", view.contrast_enabled);
     view.contrast_auto_refresh = ptree.get<bool>("view." + name + "_auto_contrast_enabled", view.contrast_auto_refresh);
@@ -245,6 +254,9 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     xyz_load(ptree, "xz", view_cache_.get_xz_ref());
     xyz_load(ptree, "yz", view_cache_.get_yz_ref());
     xyzf_load(ptree, "filter2d", view_cache_.get_filter2d_ref());
+
+    LOG_DEBUG << std::string("GSH::instance().get_xy_log_scale_slice_enabled() = ")
+              << GSH::instance().get_xy_log_scale_slice_enabled();
 }
 
 // je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,

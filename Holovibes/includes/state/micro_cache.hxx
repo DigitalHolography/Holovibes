@@ -203,24 +203,28 @@
     inline type get_##var() const noexcept { return var.obj; }
 
 #define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
-    void set_##var(const type& _val)                                                                                   \
+    inline void set_##var(const type& _val)                                                                            \
     {                                                                                                                  \
         var = _val;                                                                                                    \
         trigger_##var();                                                                                               \
     }                                                                                                                  \
                                                                                                                        \
-    type get_##var() const noexcept { return var; }                                                                    \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline type get_##var() const noexcept { return var; }                                                             \
                                                                                                                        \
-    type& get_##var##_ref() noexcept                                                                                   \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline const type& get_##var##_const_ref() const noexcept { return var; }                                          \
+                                                                                                                       \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline type& get_##var##_ref() noexcept                                                                            \
     {                                                                                                                  \
         trigger_##var();                                                                                               \
         return var;                                                                                                    \
     }                                                                                                                  \
                                                                                                                        \
-    const type& get_##var##_const_ref() const noexcept { return var; }                                                 \
-                                                                                                                       \
     void trigger_##var()                                                                                               \
     {                                                                                                                  \
+        LOG_DEBUG << "Trigger " << #var << " = " << var;                                                               \
         for (cache_t * cache : micro_caches<cache_t>)                                                                  \
             cache->var.to_update = true;                                                                               \
     }

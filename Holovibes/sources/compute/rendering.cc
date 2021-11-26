@@ -277,6 +277,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 WindowKind::Filter2D);
             autocontrast_filter2d_request = false;
         }
+
+        view_cache_.synchronize();
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);
@@ -302,6 +304,7 @@ void Rendering::autocontrast_caller(
                                    cd_.getReticleZone(),
                                    cd_.reticle_display_enabled,
                                    stream_);
+        LOG_TRACE << "mdr";
         GSH::instance().set_xy_contrast_min(percent_min_max_[0]);
         GSH::instance().set_xy_contrast_max(percent_min_max_[1]);
         break;

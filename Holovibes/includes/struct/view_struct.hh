@@ -48,7 +48,8 @@ inline std::ostream& operator<<(std::ostream& os, View_Window obj)
 
 inline std::ostream& operator<<(std::ostream& os, View_XYZ obj)
 {
-    return os << obj.flip_enabled << obj.rot << obj.img_accu_level;
+    return os << '{' << obj.flip_enabled << ',' << obj.rot << ',' << obj.img_accu_level << ',' << std::boolalpha
+              << obj.log_scale_slice_enabled << '}';
 }
 
 inline std::ostream& operator<<(std::ostream& os, View_Accu obj) { return os << obj.accu_level; }
@@ -56,11 +57,3 @@ inline std::ostream& operator<<(std::ostream& os, View_Accu obj) { return os << 
 inline std::ostream& operator<<(std::ostream& os, View_XY obj) { return os << obj.cuts; }
 
 inline std::ostream& operator<<(std::ostream& os, View_PQ obj) { return os << obj.index; }
-
-// inline std::ostream& operator<<(std::ostream& os, View_Accu obj)
-// {
-//     boost::pfr::for_each_field(obj, [](auto& field) {
-//         os << field;
-//     }
-//     return os;
-// }

@@ -172,7 +172,7 @@ class GSH
 
     void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
 
-    void set_x(View_XY value) noexcept { view_cache_.get_x() = value; }
+    void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
     void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref().accu_level = value; }
     void set_x_cuts(int value) noexcept { view_cache_.get_x_ref().cuts = value; }
 
@@ -191,7 +191,13 @@ class GSH
     void set_xy(View_XYZ value) noexcept { view_cache_.set_xy(value); }
     void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref().flip_enabled = value; }
     void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref().rot = value; }
-    void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref().img_accu_level = value; }
+    void set_xy_img_accu_level(uint value) noexcept
+    {
+        LOG_TRACE << "value : " << value;
+        LOG_TRACE << "xy_img_accu_level before : " << view_cache_.get_xy_ref().img_accu_level;
+        view_cache_.get_xy_ref().img_accu_level = value;
+        LOG_TRACE << "xy_img_accu_level after : " << view_cache_.get_xy_ref().img_accu_level;
+    }
     void set_xy_log_scale_slice_enabled(bool value) noexcept
     {
         view_cache_.get_xy_ref().log_scale_slice_enabled = value;
@@ -205,7 +211,10 @@ class GSH
     }
     void set_xy_contrast_max(float value) noexcept
     {
+        LOG_TRACE << "value: " << value;
+        LOG_TRACE << "xy_contrast_max before : " << view_cache_.get_xy_ref().contrast_max;
         view_cache_.get_xy_ref().contrast_max = value > 1.0f ? value : 1.0f;
+        LOG_TRACE << "xy_contrast_max after : " << view_cache_.get_xy_ref().contrast_max;
     }
 
     void set_xz(View_XYZ value) noexcept { view_cache_.set_xz(value); }

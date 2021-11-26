@@ -67,22 +67,22 @@ void ImageAccumulation::init()
     if (GSH::instance().get_xy_img_accu_enabled())
     {
         auto new_fd = fd_;
-        new_fd.depth = view_cache_.get_img_type() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
+        new_fd.depth = GSH::instance().get_img_type() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
                                     image_acc_env_.gpu_float_average_xy_frame,
-                                    view_cache_.get_xy().img_accu_level,
+                                    GSH::instance().get_xy_img_accu_level(),
                                     new_fd);
     }
 
     // XZ view
-    if (GSH::instance().get_xy_img_accu_enabled())
+    if (GSH::instance().get_xz_img_accu_enabled())
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.height = compute_cache_.get_time_transformation_size();
+        new_fd.height = GSH::instance().get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
-                                    view_cache_.get_xz().img_accu_level,
+                                    GSH::instance().get_xz_img_accu_level(),
                                     new_fd);
     }
 
@@ -91,10 +91,10 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.width = compute_cache_.get_time_transformation_size();
+        new_fd.width = GSH::instance().get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
-                                    view_cache_.get_yz().img_accu_level,
+                                    GSH::instance().get_yz_img_accu_level(),
                                     new_fd);
     }
 }
