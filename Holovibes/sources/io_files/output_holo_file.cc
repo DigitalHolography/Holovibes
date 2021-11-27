@@ -50,7 +50,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"pixel_size", cd.pixel_size.load()},
                           {"z", GSH::instance().get_z_distance()},
 
-                          {"fft_shift_enabled", cd.fft_shift_enabled.load()},
+                          {"fft_shift_enabled", GSH::instance().get_fft_shift_enabled()},
 
                           {"x_acc_level", GSH::instance().get_x_accu_level()},
                           {"y_acc_level", GSH::instance().get_y_accu_level()},

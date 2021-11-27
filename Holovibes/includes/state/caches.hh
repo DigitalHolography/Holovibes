@@ -34,7 +34,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, convolution_enabled, false),
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
-                            (Computation, compute_mode, Computation::Raw));
+                            (Computation, compute_mode, Computation::Raw),
+                            (bool, fft_shift_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind

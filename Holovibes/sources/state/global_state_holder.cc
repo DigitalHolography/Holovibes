@@ -210,6 +210,7 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
     compute_cache_.set_divide_convolution_enabled(ptree.get<bool>("image_rendering.divide_convolution_enabled", false));
     compute_cache_.set_compute_mode(
         static_cast<Computation>(ptree.get<int>("image_rendering.image_mode", static_cast<int>(Computation::Raw))));
+    compute_cache_.set_fft_shift_enabled(ptree.get<bool>("view.fft_shift_enabled", false));
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
@@ -290,6 +291,7 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
     ptree.put<bool>("image_rendering.convolution_enabled", compute_cache_.get_convolution_enabled());
     ptree.put<bool>("image_rendering.divide_convolution_enabled", compute_cache_.get_divide_convolution_enabled());
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(compute_cache_.get_compute_mode()));
+    ptree.put<bool>("view.fft_shift_enabled", compute_cache_.get_fft_shift_enabled());
 
     ptree.put<int>("image_rendering.filter2d_n1", filter2d_cache_.get_filter2d_n1());
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());

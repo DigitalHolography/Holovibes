@@ -175,7 +175,8 @@ inline void set_divide_convolution_enabled(bool value) { return GSH::instance().
 
 inline bool get_renorm_enabled() { return get_cd().get_renorm_enabled(); }
 
-inline bool get_fft_shift_enabled() { return get_cd().get_fft_shift_enabled(); }
+inline bool get_fft_shift_enabled() { return GSH::instance().get_fft_shift_enabled(); }
+inline void set_fft_shift_enabled(bool value) { GSH::instance().set_fft_shift_enabled(value); }
 
 inline bool get_log_scale_slice_xy_enabled() { return GSH::instance().get_xy_log_scale_slice_enabled(); }
 

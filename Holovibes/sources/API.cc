@@ -548,7 +548,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void set_fft_shift(const bool value)
 {
-    get_cd().set_fft_shift_enabled(value);
+    set_fft_shift_enabled(value);
 
     pipe_refresh();
 }

@@ -12,9 +12,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 }
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    // Add unwrap_2d
-    set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
-
     toggle_renormalize(ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled));
 
     display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
@@ -134,7 +131,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
-    ptree.put<bool>("view.fft_shift_enabled", cd.fft_shift_enabled);
     ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
     auto pq_save = [&](const std::string& name, const View_PQ& view) {

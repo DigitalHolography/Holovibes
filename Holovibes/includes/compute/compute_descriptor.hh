@@ -294,9 +294,6 @@ class ComputeDescriptor : public Observable
     inline bool get_renorm_enabled() const { return renorm_enabled; }
     inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
 
-    inline bool get_fft_shift_enabled() const { return fft_shift_enabled; }
-    inline void set_fft_shift_enabled(bool fft_shift_enabled) { this->fft_shift_enabled = fft_shift_enabled; }
-
     inline bool get_3d_cuts_view_enabled() const { return time_transformation_cuts_enabled; }
     inline void set_3d_cuts_view_enabled(bool time_transformation_cuts_enabled)
     {
@@ -410,8 +407,6 @@ class ComputeDescriptor : public Observable
     // TODO: Add unwrap2d
     /*! \brief Are slices YZ and XZ enabled */
     std::atomic<bool> time_transformation_cuts_enabled{false};
-    /*! \brief Is shift fft enabled (switching representation diagram) */
-    std::atomic<bool> fft_shift_enabled{false};
     /*! \brief Display the raw interferogram when we are in hologram mode. */
     std::atomic<bool> raw_view_enabled{false};
 
