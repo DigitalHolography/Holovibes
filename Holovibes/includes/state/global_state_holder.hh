@@ -160,6 +160,8 @@ class GSH
 
     bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
 
+    bool get_filter2d_view_enabled() const noexcept { return view_cache_.get_filter2d_view_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -314,6 +316,8 @@ class GSH
     void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
 
     void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
+
+    void set_filter2d_view_enabled(bool value) { view_cache_.set_filter2d_view_enabled(value); }
 
 #pragma endregion
 

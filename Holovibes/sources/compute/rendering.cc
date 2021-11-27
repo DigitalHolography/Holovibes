@@ -132,7 +132,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (cd_.filter2d_view_enabled && view_cache_.get_filter2d().contrast_enabled)
+    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast_enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -169,7 +169,7 @@ void Rendering::insert_slice_log()
 
 void Rendering::insert_filter2d_view_log()
 {
-    if (cd_.filter2d_view_enabled)
+    if (GSH::instance().get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back([=]() {
             map_log10(buffers_.gpu_float_filter2d_frame.get(),

@@ -155,7 +155,7 @@ bool Pipe::make_requests()
     if (disable_filter2d_view_requested_)
     {
         gpu_filter2d_view_queue_.reset(nullptr);
-        cd_.filter2d_view_enabled = false;
+        GSH::instance().set_filter2d_view_enabled(false);
         disable_filter2d_view_requested_ = false;
     }
 
@@ -258,7 +258,7 @@ bool Pipe::make_requests()
     {
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
-        cd_.filter2d_view_enabled = true;
+        GSH::instance().set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
 
@@ -508,7 +508,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output yz frame in output yz queue");
         }
 
-        if (cd_.filter2d_view_enabled)
+        if (view_cache_.get_filter2d_view_enabled())
         {
             safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                 buffers_.gpu_filter2d_frame.get(),
@@ -520,7 +520,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_filter2d_enabled() && cd_.filter2d_view_enabled)
+    if (view_cache_.get_filter2d_enabled() && view_cache_.get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back([&]() {
             float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),

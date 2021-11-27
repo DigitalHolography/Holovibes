@@ -191,7 +191,7 @@ inline bool get_contrast_invert() { return GSH::instance().get_contrast_invert()
 inline bool get_filter2d_enabled() { return GSH::instance().get_filter2d_enabled(); }
 inline void set_filter2d_enabled(bool value) { return GSH::instance().set_filter2d_enabled(value); }
 
-inline bool get_filter2d_view_enabled() { return get_cd().get_filter2d_view_enabled(); }
+inline bool get_filter2d_view_enabled() { return GSH::instance().get_filter2d_view_enabled(); }
 
 inline bool get_3d_cuts_view_enabled() { return get_cd().get_3d_cuts_view_enabled(); }
 

@@ -301,12 +301,6 @@ class ComputeDescriptor : public Observable
     inline bool get_fft_shift_enabled() const { return fft_shift_enabled; }
     inline void set_fft_shift_enabled(bool fft_shift_enabled) { this->fft_shift_enabled = fft_shift_enabled; }
 
-    inline bool get_filter2d_view_enabled() const { return filter2d_view_enabled; }
-    inline void set_filter2d_view_enabled(bool filter2d_view_enabled)
-    {
-        this->filter2d_view_enabled = filter2d_view_enabled;
-    }
-
     inline bool get_3d_cuts_view_enabled() const { return time_transformation_cuts_enabled; }
     inline void set_3d_cuts_view_enabled(bool time_transformation_cuts_enabled)
     {
@@ -415,10 +409,6 @@ class ComputeDescriptor : public Observable
     /*! \} */
 
 #pragma region Atomics vars
-    // Variables are regroup by module. Those are the same as in the compute_settings.ini
-    // Image rendering
-    /*! \brief Enables filter 2D View */
-    std::atomic<bool> filter2d_view_enabled{false};
 
     // View
     // TODO: Add unwrap2d
