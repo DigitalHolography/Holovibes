@@ -215,7 +215,8 @@ inline bool get_composite_p_activated_s() { return get_cd().get_composite_p_acti
 
 inline bool get_composite_p_activated_v() { return get_cd().get_composite_p_activated_v(); }
 
-inline bool get_composite_auto_weights() { return get_cd().get_composite_auto_weights(); }
+inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
+inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
 
 inline uint get_start_frame() { return get_cd().get_start_frame(); }
 

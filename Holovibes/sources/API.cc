@@ -760,8 +760,6 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
     pipe_refresh();
 }
 
-void set_composite_auto_weights(bool value) { get_cd().set_composite_auto_weights(value); }
-
 void select_composite_rgb() { set_composite_kind(CompositeKind::RGB); }
 
 void select_composite_hsv() { set_composite_kind(CompositeKind::HSV); }

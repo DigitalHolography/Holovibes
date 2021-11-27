@@ -39,7 +39,9 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 /*! \brief Construct a new new micro cache object
  * \param composite_kind
  */
-NEW_INITIALIZED_MICRO_CACHE(CompositeCache, (CompositeKind, composite_kind, CompositeKind::RGB));
+NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
+                            (CompositeKind, composite_kind, CompositeKind::RGB),
+                            (bool, composite_auto_weights, false));
 
 /*! \brief Construct a new new micro cache object
  * \param frame_record_enabled Is holovibes currently recording

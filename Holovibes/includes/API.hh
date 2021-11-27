@@ -290,12 +290,6 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
  */
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
 
-/*! \brief Automatic equalization (Auto-constrast)
- *
- * \param value the new value of composite auto weight
- */
-void set_composite_auto_weights(bool value);
-
 /*! \brief Switchs between to RGB mode
  *
  */

@@ -168,6 +168,8 @@ class GSH
 
     bool get_raw_view_enabled() const noexcept { return view_cache_.get_raw_view_enabled(); }
 
+    bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -330,6 +332,8 @@ class GSH
     void set_fft_shift_enabled(bool value) { view_cache_.set_fft_shift_enabled(value); }
 
     void set_raw_view_enabled(bool value) { view_cache_.set_raw_view_enabled(value); }
+
+    void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
 
 #pragma endregion
 

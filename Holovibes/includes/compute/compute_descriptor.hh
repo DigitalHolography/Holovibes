@@ -321,12 +321,6 @@ class ComputeDescriptor : public Observable
         this->hsv.v.p_activated = composite_p_activated_v;
     }
 
-    inline bool get_composite_auto_weights() const { return composite_auto_weights; }
-    inline void set_composite_auto_weights(bool composite_auto_weights)
-    {
-        this->composite_auto_weights = composite_auto_weights;
-    }
-
     inline uint get_start_frame() const { return start_frame; }
     inline void set_start_frame(uint start_frame) { this->start_frame = start_frame; }
 
@@ -415,7 +409,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
 
-    std::atomic<bool> composite_auto_weights;
     Composite_RGB rgb{};
     Composite_HSV hsv{};
 

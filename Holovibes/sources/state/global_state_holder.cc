@@ -264,6 +264,7 @@ static void load_composite(const boost::property_tree::ptree& ptree, CompositeCa
 {
     composite_cache_.set_composite_kind(
         static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(CompositeKind::RGB))));
+    composite_cache_.set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", false));
 }
 
 // je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
@@ -352,6 +353,7 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
 static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)
 {
     ptree.put<int>("composite.mode", static_cast<int>(composite_cache_.get_composite_kind()));
+    ptree.put<bool>("composite.auto_weights_enabled", composite_cache_.get_composite_auto_weights());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
