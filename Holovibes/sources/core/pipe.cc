@@ -520,7 +520,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (cd_.filter2d_enabled == true && cd_.filter2d_view_enabled == true)
+    if (view_cache_.get_filter2d_enabled() && cd_.filter2d_view_enabled)
     {
         fn_compute_vect_.conditional_push_back([&]() {
             float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),

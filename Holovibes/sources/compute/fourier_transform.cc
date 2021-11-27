@@ -56,7 +56,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 
 void FourierTransform::insert_fft()
 {
-    if (cd_.filter2d_enabled)
+    if (view_cache_.get_filter2d_enabled())
     {
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
@@ -136,7 +136,7 @@ void FourierTransform::insert_fft2()
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
-    if (cd_.filter2d_enabled)
+    if (view_cache_.get_filter2d_enabled())
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();

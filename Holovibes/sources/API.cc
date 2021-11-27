@@ -503,7 +503,7 @@ void toggle_renormalize(bool value)
 
 void set_filter2d(bool checked)
 {
-    get_cd().set_filter2d_enabled(checked);
+    set_filter2d_enabled(checked);
     set_auto_contrast_all();
 }
 

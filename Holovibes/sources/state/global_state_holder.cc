@@ -251,6 +251,7 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     xyzf_load(ptree, "filter2d", view_cache_.get_filter2d_ref());
 
     view_cache_.set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", false));
+    view_cache_.set_filter2d_enabled(ptree.get<bool>("image_rendering.filter2d_enabled", false));
 }
 
 // je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
@@ -329,6 +330,7 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     xyzf_save(ptree, "filter2d", view_cache_.get_filter2d());
 
     ptree.put<bool>("view.lens_view_enabled", view_cache_.get_lens_view_enabled());
+    ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(view_cache_.get_filter2d_enabled()));
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

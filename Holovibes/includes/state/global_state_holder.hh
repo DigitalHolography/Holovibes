@@ -158,6 +158,8 @@ class GSH
 
     Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
 
+    bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -310,6 +312,8 @@ class GSH
     void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
 
     void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
+
+    void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
 
 #pragma endregion
 

@@ -355,7 +355,8 @@ void ICompute::request_autocontrast(WindowKind kind)
     else if (kind == WindowKind::YZview && GSH::instance().get_yz_contrast_enabled() &&
              cd_.time_transformation_cuts_enabled)
         autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D && GSH::instance().get_filter2d_contrast_enabled() && cd_.filter2d_enabled)
+    else if (kind == WindowKind::Filter2D && GSH::instance().get_filter2d_contrast_enabled() &&
+             view_cache_.get_filter2d_enabled())
         autocontrast_filter2d_requested_ = true;
 }
 
