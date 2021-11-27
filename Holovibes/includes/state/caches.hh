@@ -34,8 +34,7 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, convolution_enabled, false),
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
-                            (Computation, compute_mode, Computation::Raw),
-                            (bool, fft_shift_enabled, false));
+                            (Computation, compute_mode, Computation::Raw));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind
@@ -63,6 +62,8 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (b
  * \param chart_display_enabled Enables the signal and noise chart display
  * \param filter2d_enabled Enables filter 2D
  * \param filter2d_view_enabled Enables filter 2D View
+ * \param fft_shift_enabled Is shift fft enabled (switching representation diagram)
+ * \param raw_view_enabled Display the raw interferogram when we are in hologram mode.
  */
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
@@ -78,7 +79,9 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (bool, lens_view_enabled, false),
                             (bool, chart_display_enabled, false),
                             (bool, filter2d_enabled, false),
-                            (bool, filter2d_view_enabled, false));
+                            (bool, filter2d_view_enabled, false),
+                            (bool, fft_shift_enabled, false),
+                            (bool, raw_view_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

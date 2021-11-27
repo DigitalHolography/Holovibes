@@ -210,7 +210,6 @@ static void load_image_rendering(const boost::property_tree::ptree& ptree,
     compute_cache_.set_divide_convolution_enabled(ptree.get<bool>("image_rendering.divide_convolution_enabled", false));
     compute_cache_.set_compute_mode(
         static_cast<Computation>(ptree.get<int>("image_rendering.image_mode", static_cast<int>(Computation::Raw))));
-    compute_cache_.set_fft_shift_enabled(ptree.get<bool>("view.fft_shift_enabled", false));
 
     filter2d_cache_.set_filter2d_n1(ptree.get<int>("image_rendering.filter2d_n1", 0));
     filter2d_cache_.set_filter2d_n2(ptree.get<int>("image_rendering.filter2d_n2", 1));
@@ -251,10 +250,14 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     xyz_load(ptree, "yz", view_cache_.get_yz_ref());
     xyzf_load(ptree, "filter2d", view_cache_.get_filter2d_ref());
 
-    view_cache_.set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", false));
     view_cache_.set_filter2d_enabled(ptree.get<bool>("image_rendering.filter2d_enabled", false));
-    // Unstable
+    // FIXME: Currently not working.
+    // The app crash when one of the visibility is already set at when the app begins.
+    // Possible problem: Concurrency between maindisplay and the other displays
+    // view_cache_.set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", false));
     // view_cache_.set_filter2d_view_enabled(ptree.get<bool>("image_rendering.filter2d_view_enabled", false));
+    // view_cache_.set_fft_shift_enabled(ptree.get<bool>("view.fft_shift_enabled", false));
+    // view_cache_.set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", false));
 }
 
 static void load_composite(const boost::property_tree::ptree& ptree, CompositeCache::Ref& composite_cache_)
@@ -291,7 +294,6 @@ static void save_image_rendering(boost::property_tree::ptree& ptree,
     ptree.put<bool>("image_rendering.convolution_enabled", compute_cache_.get_convolution_enabled());
     ptree.put<bool>("image_rendering.divide_convolution_enabled", compute_cache_.get_divide_convolution_enabled());
     ptree.put<int>("image_rendering.image_mode", static_cast<int>(compute_cache_.get_compute_mode()));
-    ptree.put<bool>("view.fft_shift_enabled", compute_cache_.get_fft_shift_enabled());
 
     ptree.put<int>("image_rendering.filter2d_n1", filter2d_cache_.get_filter2d_n1());
     ptree.put<int>("image_rendering.filter2d_n2", filter2d_cache_.get_filter2d_n2());
@@ -343,6 +345,8 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("view.lens_view_enabled", view_cache_.get_lens_view_enabled());
     ptree.put<bool>("image_rendering.filter2d_enabled", static_cast<int>(view_cache_.get_filter2d_enabled()));
     ptree.put<bool>("image_rendering.filter2d_view_enabled", static_cast<int>(view_cache_.get_filter2d_view_enabled()));
+    ptree.put<bool>("view.fft_shift_enabled", view_cache_.get_fft_shift_enabled());
+    ptree.put<bool>("view.raw_view_enabled", view_cache_.get_raw_view_enabled());
 }
 
 static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)

@@ -164,7 +164,9 @@ class GSH
 
     CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
 
-    bool get_fft_shift_enabled() const noexcept { return compute_cache_.get_fft_shift_enabled(); }
+    bool get_fft_shift_enabled() const noexcept { return view_cache_.get_fft_shift_enabled(); }
+
+    bool get_raw_view_enabled() const noexcept { return view_cache_.get_raw_view_enabled(); }
 
 #pragma endregion
 
@@ -325,7 +327,9 @@ class GSH
 
     void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
-    void set_fft_shift_enabled(bool value) { compute_cache_.set_fft_shift_enabled(value); }
+    void set_fft_shift_enabled(bool value) { view_cache_.set_fft_shift_enabled(value); }
+
+    void set_raw_view_enabled(bool value) { view_cache_.set_raw_view_enabled(value); }
 
 #pragma endregion
 

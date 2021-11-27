@@ -149,7 +149,7 @@ bool Pipe::make_requests()
     if (disable_raw_view_requested_)
     {
         gpu_raw_view_queue_.reset(nullptr);
-        cd_.raw_view_enabled = false;
+        GSH::instance().set_raw_view_enabled(false);
         disable_raw_view_requested_ = false;
     }
 
@@ -251,7 +251,7 @@ bool Pipe::make_requests()
     {
         auto fd = gpu_input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
-        cd_.raw_view_enabled = true;
+        GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
 
@@ -550,7 +550,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (cd_.raw_view_enabled)
+    if (view_cache_.get_raw_view_enabled())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the

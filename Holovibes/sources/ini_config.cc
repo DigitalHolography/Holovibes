@@ -79,7 +79,6 @@ void load_view_visibility(const boost::property_tree::ptree& ptree, ComputeDescr
     // Sets directly using cd because no need of the intern checks of the api function
 
     get_cd().set_3d_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled));
-    get_cd().set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", cd.raw_view_enabled));
 }
 
 void after_load_checks(ComputeDescriptor& cd)
@@ -131,7 +130,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
     ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
-    ptree.put<bool>("view.raw_view_enabled", cd.raw_view_enabled);
 
     auto pq_save = [&](const std::string& name, const View_PQ& view) {
         ptree.put<ushort>("view." + name + "_index", view.index);
