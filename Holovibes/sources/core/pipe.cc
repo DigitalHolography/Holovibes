@@ -83,6 +83,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     output.get_fd(),
                                                     stream_,
                                                     compute_cache_,
+                                                    composite_cache_,
                                                     view_cache_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,

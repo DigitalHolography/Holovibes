@@ -256,6 +256,12 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     // view_cache_.set_filter2d_view_enabled(ptree.get<bool>("image_rendering.filter2d_view_enabled", false));
 }
 
+static void load_composite(const boost::property_tree::ptree& ptree, CompositeCache::Ref& composite_cache_)
+{
+    composite_cache_.set_composite_kind(
+        static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(CompositeKind::RGB))));
+}
+
 // je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
 // un peu comme ils faisaient déjà
 
@@ -263,6 +269,7 @@ void GSH::load_ptree(const boost::property_tree::ptree& ptree)
 {
     load_image_rendering(ptree, compute_cache_, filter2d_cache_);
     load_view(ptree, view_cache_);
+    load_composite(ptree, composite_cache_);
 }
 
 // void GSH::load_advanced(const boost::property_tree::ptree& ptree) {
@@ -336,10 +343,16 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("image_rendering.filter2d_view_enabled", static_cast<int>(view_cache_.get_filter2d_view_enabled()));
 }
 
+static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)
+{
+    ptree.put<int>("composite.mode", static_cast<int>(composite_cache_.get_composite_kind()));
+}
+
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
 {
     save_image_rendering(ptree, compute_cache_, filter2d_cache_);
     save_view(ptree, view_cache_);
+    save_composite(ptree, composite_cache_);
 }
 
 } // namespace holovibes

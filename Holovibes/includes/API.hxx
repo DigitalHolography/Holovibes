@@ -101,7 +101,8 @@ inline float get_reticle_scale() { return get_cd().get_reticle_scale(); }
 
 inline uint get_raw_bitshift() { return get_cd().get_raw_bitshift(); }
 
-inline CompositeKind get_composite_kind() { return get_cd().get_composite_kind(); }
+inline CompositeKind get_composite_kind() { return GSH::instance().get_composite_kind(); }
+inline void set_composite_kind(CompositeKind value) { GSH::instance().set_composite_kind(value); }
 
 inline bool get_flip_enabled() { return GSH::instance().get_flip_enabled(); }
 

@@ -121,7 +121,7 @@ void RainbowOverlay::setBuffer()
 
     int red;
     int blue;
-    if (cd.composite_kind == CompositeKind::RGB)
+    if (api::get_composite_kind() == CompositeKind::RGB)
     {
         red = cd.rgb.p_min;
         blue = cd.rgb.p_max;
@@ -193,7 +193,7 @@ void RainbowOverlay::move(QMouseEvent* e)
         zone_.setDst(getMousePos(e->pos()));
         if (parent_->getKindOfView() == KindOfView::SliceYZ)
         {
-            if (api::get_cd().composite_kind == CompositeKind::RGB)
+            if (api::get_composite_kind() == CompositeKind::RGB)
             {
                 api::get_cd().rgb.p_min = check_interval(zone_.src().x());
                 api::get_cd().rgb.p_max = check_interval(zone_.dst().x());
@@ -206,7 +206,7 @@ void RainbowOverlay::move(QMouseEvent* e)
         }
         else
         {
-            if (api::get_cd().composite_kind == CompositeKind::RGB)
+            if (api::get_composite_kind() == CompositeKind::RGB)
             {
                 api::get_cd().rgb.p_min = check_interval(zone_.src().y());
                 api::get_cd().rgb.p_max = check_interval(zone_.dst().y());

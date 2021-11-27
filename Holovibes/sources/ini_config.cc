@@ -23,8 +23,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
 void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    set_composite_kind(
-        static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load()))));
     set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights));
 
     auto p_load = [&](const std::string& name, Composite_P& p) {
@@ -151,7 +149,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 
 void save_composite(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
-    ptree.put<int>("composite.mode", static_cast<int>(cd.composite_kind.load()));
     ptree.put<bool>("composite.auto_weights_enabled", cd.composite_auto_weights);
 
     auto p_save = [&](const std::string& name, const Composite_P& p) {

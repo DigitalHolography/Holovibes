@@ -296,7 +296,6 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
  */
 void set_composite_auto_weights(bool value);
 
-void set_composite_kind(const CompositeKind& value);
 /*! \brief Switchs between to RGB mode
  *
  */

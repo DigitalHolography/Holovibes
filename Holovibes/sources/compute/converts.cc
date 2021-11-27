@@ -28,6 +28,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const camera::FrameDescriptor& output_fd,
                    const cudaStream_t& stream,
                    ComputeCache::Cache& compute_cache,
+                   CompositeCache::Cache& composite_cache,
                    ViewCache::Cache& view_cache)
     : pmin_(0)
     , pmax_(0)
@@ -43,6 +44,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , output_fd_(output_fd)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , composite_cache_(composite_cache)
     , view_cache_(view_cache)
 {
 }
@@ -131,7 +133,7 @@ void Converts::insert_to_composite()
             !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache_.get_time_transformation_size()))
             return;
 
-        if (cd_.composite_kind == CompositeKind::RGB)
+        if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
             rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                 buffers_.gpu_postprocess_frame,
                 fd_.get_frame_res(),

@@ -762,11 +762,9 @@ void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 
 void set_composite_auto_weights(bool value) { get_cd().set_composite_auto_weights(value); }
 
-void set_composite_kind(const CompositeKind& value) { get_cd().set_composite_kind(value); }
+void select_composite_rgb() { set_composite_kind(CompositeKind::RGB); }
 
-void select_composite_rgb() { get_cd().set_composite_kind(CompositeKind::RGB); }
-
-void select_composite_hsv() { get_cd().set_composite_kind(CompositeKind::HSV); }
+void select_composite_hsv() { set_composite_kind(CompositeKind::HSV); }
 
 void actualize_frequency_channel_s(bool composite_p_activated_s)
 {

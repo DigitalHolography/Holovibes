@@ -162,6 +162,8 @@ class GSH
 
     bool get_filter2d_view_enabled() const noexcept { return view_cache_.get_filter2d_view_enabled(); }
 
+    CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -319,6 +321,8 @@ class GSH
 
     void set_filter2d_view_enabled(bool value) { view_cache_.set_filter2d_view_enabled(value); }
 
+    void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
+
 #pragma endregion
 
     void change_window(uint index);
@@ -333,6 +337,7 @@ class GSH
     View_Window& get_current_window();
 
     ComputeCache::Ref compute_cache_;
+    CompositeCache::Ref composite_cache_;
     ExportCache::Ref export_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;

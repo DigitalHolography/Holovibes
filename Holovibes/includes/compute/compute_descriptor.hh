@@ -16,7 +16,6 @@
 #include "enum_computation.hh"
 #include "enum_access_mode.hh"
 #include "enum_window_kind.hh"
-#include "enum_composite_kind.hh"
 
 // struct
 #include "composite_struct.hh"
@@ -172,9 +171,6 @@ class ComputeDescriptor : public Observable
 
     inline uint get_raw_bitshift() const { return raw_bitshift; }
     inline void set_raw_bitshift(uint raw_bitshift) { this->raw_bitshift = raw_bitshift; }
-
-    inline CompositeKind get_composite_kind() const { return composite_kind; }
-    inline void set_composite_kind(CompositeKind composite_kind) { this->composite_kind = composite_kind; }
 
     // RGB
     inline uint get_rgb_p_min() const { return rgb.p_min; }
@@ -429,10 +425,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Last window selected */
     std::atomic<WindowKind> current_window{WindowKind::XYview};
 
-    // View_Window* current = &xy;
-
-    // Composite images
-    std::atomic<CompositeKind> composite_kind;
     std::atomic<bool> composite_auto_weights;
     Composite_RGB rgb{};
     Composite_HSV hsv{};

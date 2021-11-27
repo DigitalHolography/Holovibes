@@ -43,6 +43,7 @@ class Converts
              const camera::FrameDescriptor& output_fd,
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
+             CompositeCache::Cache& composite_cache,
              ViewCache::Cache& view_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
@@ -113,6 +114,8 @@ class Converts
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
+    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
+    CompositeCache::Cache& composite_cache_;
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
 };

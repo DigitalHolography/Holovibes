@@ -5,6 +5,7 @@
 #include "enum_window_kind.hh"
 #include "enum_img_type.hh"
 #include "enum_computation.hh"
+#include "enum_composite_kind.hh"
 #include "view_struct.hh"
 
 namespace holovibes
@@ -34,6 +35,11 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw));
+
+/*! \brief Construct a new new micro cache object
+ * \param composite_kind
+ */
+NEW_INITIALIZED_MICRO_CACHE(CompositeCache, (CompositeKind, composite_kind, CompositeKind::RGB));
 
 /*! \brief Construct a new new micro cache object
  * \param frame_record_enabled Is holovibes currently recording
