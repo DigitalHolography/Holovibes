@@ -100,6 +100,8 @@ void close_windows()
 
 void save_user_preferences(boost::property_tree::ptree& ptree)
 {
+    //Display
+    ptree.put<ushort>("display.rate", get_display_rate());
     // Step
     ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
     // Camera
@@ -117,6 +119,8 @@ void save_user_preferences(boost::property_tree::ptree& ptree)
 }
 void load_user_preferences(const boost::property_tree::ptree& ptree)
 {
+    // Display
+    set_display_rate(ptree.get<uint>("display.rate", get_display_rate()));
     // Step
     UserInterfaceDescriptor::instance().record_frame_step_ =
         ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
