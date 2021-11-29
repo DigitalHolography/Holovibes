@@ -457,6 +457,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
     {
         LOG_ERROR << e.what();
     }
+
+    set_3d_cuts_view_enabled(false);
 }
 
 #pragma endregion
