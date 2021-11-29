@@ -9,7 +9,7 @@ typedef unsigned int uint;
 
 namespace holovibes
 {
-struct View_Window : public json_struct
+struct View_Window // : public json_struct
 {
     // FIXME: remove slice in attr name
     std::atomic<bool> log_scale_slice_enabled{false};
@@ -20,7 +20,7 @@ struct View_Window : public json_struct
     std::atomic<float> contrast_min{1.f};
     std::atomic<float> contrast_max{65535.f};
 
-    json to_json() const override
+    json to_json() const
     {
         return json{{"log enabled", log_scale_slice_enabled.load()},
                     {"contrast",
@@ -31,7 +31,7 @@ struct View_Window : public json_struct
                       {"max", contrast_max.load()}}}};
     }
 
-    void from_json(const json& data) override
+    void from_json(const json& data)
     {
         log_scale_slice_enabled = data["log enabled"];
 
@@ -51,7 +51,7 @@ struct View_XYZ : public View_Window
 
     std::atomic<uint> img_accu_level{1};
 
-    json to_json() const override
+    json to_json() const
     {
         auto j = json{View_Window::to_json()};
         j["flip"] = flip_enabled.load();
@@ -61,7 +61,7 @@ struct View_XYZ : public View_Window
         return j;
     }
 
-    void from_json(const json& data) override
+    void from_json(const json& data)
     {
         View_Window::from_json(data);
         flip_enabled = data["flip"];
@@ -70,22 +70,22 @@ struct View_XYZ : public View_Window
     }
 };
 
-struct View_Accu : public json_struct
+struct View_Accu // : public json_struct
 {
     std::atomic<int> accu_level{1};
 
-    json to_json() const override { return json{"accu level", accu_level.load()}; }
+    json to_json() const { return json{"accu level", accu_level.load()}; }
 
-    void from_json(const json& data) override { accu_level = data["accu level"]; }
+    void from_json(const json& data) { accu_level = data["accu level"]; }
 };
 
 struct View_PQ : public View_Accu
 {
     std::atomic<uint> index{0};
 
-    json to_json() const override { return json{View_Accu::to_json(), {"index", index.load()}}; }
+    json to_json() const { return json{View_Accu::to_json(), {"index", index.load()}}; }
 
-    void from_json(const json& data) override
+    void from_json(const json& data)
     {
         View_Accu::from_json(data);
         index = data["index"];
@@ -96,9 +96,9 @@ struct View_XY : public View_Accu
 {
     std::atomic<uint> cuts{0};
 
-    json to_json() const override { return json{View_Accu::to_json(), {"cuts", cuts.load()}}; }
+    json to_json() const { return json{View_Accu::to_json(), {"cuts", cuts.load()}}; }
 
-    void from_json(const json& data) override
+    void from_json(const json& data)
     {
         View_Accu::from_json(data);
         cuts = data["cuts"];
