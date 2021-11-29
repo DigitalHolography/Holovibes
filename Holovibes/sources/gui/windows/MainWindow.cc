@@ -211,6 +211,8 @@ void MainWindow::on_notify()
     }
 
     ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    resize(baseSize());
+    adjustSize();
 }
 
 void MainWindow::notify_error(const std::exception& e)
