@@ -8,7 +8,7 @@
 #include "holovibes.hh"
 #include "view_panel.hh"
 #include "AdvancedSettingsWindow.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 
 #include <nlohmann/json.hpp>
