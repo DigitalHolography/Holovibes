@@ -16,4 +16,3 @@
 	qt:qtcharts=True
 	qt:widgets=True
 	qt:shared=True
-	opencv:shared=True

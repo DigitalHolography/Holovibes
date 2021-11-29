@@ -102,6 +102,30 @@ def goal(func, name: str = None):
 # Goals                            #
 #----------------------------------#
 
+@goal
+def conan(args):
+    cmd = []
+    generator = get_generator(args.generator)
+    build_mode = get_build_mode(args.build_mode)
+    build_dir = get_build_dir(args.build_dir, generator)
+
+    # if build dir exist, remove it
+    if os.path.isdir(build_dir):
+        print("Warning: deleting previous build")
+        sys.stdout.flush()
+        if subprocess.call(['rm', '-rf', build_dir], shell=True):
+            return 1
+
+    cmd += ['conan', 'install', '.',
+            '-if', build_dir,
+            '--build', 'missing',
+            ]
+
+    if args.verbose:
+        print("Cmake cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
+
+    return subprocess.call(cmd)
 
 @goal
 def cmake(args):
@@ -112,11 +136,10 @@ def cmake(args):
     build_mode = get_build_mode(args.build_mode)
     build_dir = get_build_dir(args.build_dir, generator)
 
-    # if build dir exist, remove it
-    if os.path.isdir(build_dir):
-        print("Warning: deleting previous build")
+    if not os.path.isdir(build_dir):
+        print("Build directory not found, Running conan goal before cmake")
         sys.stdout.flush()
-        if subprocess.call(['rm', '-rf', build_dir], shell=True):
+        if conan(args):
             return 1
 
     cmd += ['cmake', '-B', build_dir,
@@ -130,7 +153,7 @@ def cmake(args):
         cmd += ['-A', 'x64']
 
     if args.verbose:
-        print("Configure cmd: {}".format(' '.join(cmd)))
+        print("Cmake cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -142,9 +165,10 @@ def build(args):
     build_dir = get_build_dir(args.build_dir, get_generator(args.generator))
 
     if not os.path.isdir(build_dir):
-        print("Build directory not found, Running configure goal before build")
+        print("Build directory not found, Running cmake goal before build")
         sys.stdout.flush()
-        run_goal("cmake", args)
+        if cmake(args):
+            return 1
 
     cmd = ['cmd.exe', '/c', 'call']
     cmd += [args.build_env or find_vcvars(), '&&']

@@ -5,7 +5,7 @@
 
 namespace gpib
 {
-std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const LPCWSTR& dll_filepath)
+std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const LPCSTR& dll_filepath)
 {
     HINSTANCE dll_handle = nullptr;
 

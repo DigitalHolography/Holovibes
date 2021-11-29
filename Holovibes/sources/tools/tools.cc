@@ -33,7 +33,7 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
 
 std::string get_exe_dir()
 {
-    wchar_t path[MAX_PATH];
+    char path[MAX_PATH];
     HMODULE hmodule = GetModuleHandle(NULL);
     if (hmodule != NULL)
     {

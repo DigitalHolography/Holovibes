@@ -65,14 +65,14 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     {
         try
         {
-            static std::map<CameraKind, LPCWSTR> camera_dictionary = {
-                {CameraKind::Adimec, L"CameraAdimec.dll"},
-                {CameraKind::BitflowCyton, L"BitflowCyton.dll"},
-                {CameraKind::IDS, L"CameraIds.dll"},
-                {CameraKind::Phantom, L"CameraPhantom.dll"},
-                {CameraKind::Hamamatsu, L"CameraHamamatsu.dll"},
-                {CameraKind::xiQ, L"CameraXiq.dll"},
-                {CameraKind::xiB, L"CameraXib.dll"},
+            static std::map<CameraKind, LPCSTR> camera_dictionary = {
+                {CameraKind::Adimec, "CameraAdimec.dll"},
+                {CameraKind::BitflowCyton, "BitflowCyton.dll"},
+                {CameraKind::IDS, "CameraIds.dll"},
+                {CameraKind::Phantom, "CameraPhantom.dll"},
+                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
+                {CameraKind::xiQ, "CameraXiq.dll"},
+                {CameraKind::xiB, "CameraXib.dll"},
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
