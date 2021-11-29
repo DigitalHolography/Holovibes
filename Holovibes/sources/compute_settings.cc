@@ -40,14 +40,15 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     // Add unwrap_2d
     set_fft_shift(ptree.get<bool>("view.fft_shift_enabled", cd.fft_shift_enabled));
 
-    auto xypq_load = [&](const std::string name, View_Accu& view) {
-        view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level);
-    };
-    auto xy_load = [&](const std::string name, View_XY& view) {
+    auto xypq_load = [&](const std::string name, View_Accu& view)
+    { view.accu_level = ptree.get<short>("view." + name + "_accu_level", view.accu_level); };
+    auto xy_load = [&](const std::string name, View_XY& view)
+    {
         view.cuts = ptree.get<ushort>("view." + name + "_cuts", view.cuts);
         xypq_load(name, view);
     };
-    auto pq_load = [&](const std::string name, View_PQ& view) {
+    auto pq_load = [&](const std::string name, View_PQ& view)
+    {
         view.index = ptree.get<ushort>("view." + name + "_index", view.index);
         xypq_load(name, view);
     };
@@ -57,7 +58,8 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     pq_load("p", cd.p);
     pq_load("q", cd.q);
 
-    auto xyzf_load = [&](const std::string name, View_Window& view) {
+    auto xyzf_load = [&](const std::string name, View_Window& view)
+    {
         view.log_scale_slice_enabled =
             ptree.get<bool>("view." + name + "_log_scale_enabled", view.log_scale_slice_enabled);
 
@@ -69,7 +71,8 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
         view.contrast_max = ptree.get<float>("view." + name + "_contrast_max", view.contrast_max);
     };
 
-    auto xyz_load = [&](const std::string name, View_XYZ& view) {
+    auto xyz_load = [&](const std::string name, View_XYZ& view)
+    {
         view.flip_enabled = ptree.get<bool>("view." + name + "_flip_enabled", view.flip_enabled);
         view.rot = ptree.get<float>("view." + name + "_rot", view.rot);
 
@@ -95,7 +98,8 @@ void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor&
         static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(cd.composite_kind.load()))));
     set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", cd.composite_auto_weights));
 
-    auto p_load = [&](const std::string& name, Composite_P& p) {
+    auto p_load = [&](const std::string& name, Composite_P& p)
+    {
         p.p_min = ptree.get<ushort>("composite." + name + "_p_min", cd.rgb.p_min);
         p.p_max = ptree.get<ushort>("composite." + name + "_p_max", cd.rgb.p_max);
     };
@@ -105,7 +109,8 @@ void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor&
     cd.rgb.weight_g = ptree.get<float>("composite.rgb_weight_g", cd.rgb.weight_g);
     cd.rgb.weight_b = ptree.get<float>("composite.rgb_weight_b", cd.rgb.weight_b);
 
-    auto hsv_load = [&](const std::string& name, Composite_hsv& s) {
+    auto hsv_load = [&](const std::string& name, Composite_hsv& s)
+    {
         p_load(name, s);
         s.slider_threshold_min = ptree.get<float>("composite." + name + "_min_value", s.slider_threshold_min);
         s.slider_threshold_max = ptree.get<float>("composite." + name + "_max_value", s.slider_threshold_max);
@@ -117,7 +122,8 @@ void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor&
     cd.hsv.h.blur_enabled = ptree.get<bool>("hsv_h.blur_enabled", cd.hsv.h.blur_enabled);
     cd.hsv.h.blur_kernel_size = ptree.get<uint>("hsv_h.blur_size", cd.hsv.h.blur_kernel_size);
 
-    auto sv_load = [&](const std::string& name, Composite_SV& s) {
+    auto sv_load = [&](const std::string& name, Composite_SV& s)
+    {
         s.p_activated = ptree.get<bool>("composite." + name + "_enabled", s.p_activated);
         hsv_load(name, s);
     };
@@ -266,25 +272,36 @@ void load_compute_settings(const std::string& json_path)
     if (json_path.empty())
         return;
 
-    LOG_INFO << "Compute settings loaded from : " << json_path;
-
-    std::ifstream ifs(json_path);
-    auto j_cs = json::parse(ifs);
-
-    try
+    if (json_path.ends_with(".json"))
     {
-        json_to_compute_settings(j_cs);
+
+        LOG_INFO << "Compute settings loaded from : " << json_path;
+
+        std::ifstream ifs(json_path);
+        auto j_cs = json::parse(ifs);
+
+        try
+        {
+            json_to_compute_settings(j_cs);
+        }
+        catch (json::exception&)
+        {
+            LOG_ERROR << "Bad format in file : " << json_path;
+        }
     }
-    catch(json::exception&)
+    else if (json_path.ends_with(".ini"))
     {
-        LOG_ERROR << "Bad format in file : " << json_path;
+
+        boost::property_tree::ptree ptree;
+        boost::property_tree::ini_parser::read_ini(json_path, ptree);
+        
+        load_image_rendering(ptree, get_cd());
+        load_view(ptree, get_cd());
+        load_composite(ptree, get_cd());
+        load_advanced(ptree, get_cd());
+
+        save_compute_settings(json_path);
     }
-    // boost::property_tree::ptree ptree;
-    // boost::property_tree::ini_parser::read_ini(json_path, ptree);
-    // load_image_rendering(ptree, get_cd());
-    // load_view(ptree, get_cd());
-    // load_composite(ptree, get_cd());
-    // load_advanced(ptree, get_cd());
 
     // Currently not working.
     // The app crash when one of the visibility is already set at when the app begins.
@@ -370,7 +387,7 @@ void save_compute_settings(const std::string& json_path)
         return;
 
     auto j_cs = compute_settings_to_json();
-    
+
     std::ofstream file(json_path);
     file << j_cs.dump(1);
 

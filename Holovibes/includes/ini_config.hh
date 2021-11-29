@@ -4,12 +4,8 @@
  */
 #pragma once
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include "logger.hh"
-#include "compute_descriptor.hh"
-#include "tools.hh"
+#include <string>
+#include <filesystem>
 
 namespace holovibes::ini
 {
