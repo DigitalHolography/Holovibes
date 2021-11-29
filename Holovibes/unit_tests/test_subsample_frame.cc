@@ -75,9 +75,3 @@ TEST(SubSampleFrame, subsample_8x8_step_4)
 
     ASSERT_EQ(memcmp(output_image, ref_output_image, 2 * 2), 0);
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

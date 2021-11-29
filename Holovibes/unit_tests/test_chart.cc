@@ -214,9 +214,3 @@ TEST(ChartTest, DifferentValuesImage)
 
     ASSERT_EQ(*output, expected_value);
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

@@ -698,9 +698,3 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
     // Destination should be equal to:
     // | i | j | h (start index) |
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

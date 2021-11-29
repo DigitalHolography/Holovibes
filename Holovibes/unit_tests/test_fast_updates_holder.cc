@@ -26,9 +26,3 @@ TEST(FastUpdatesHolder, testMapRemove)
     ASSERT_TRUE(map.remove_entry(holovibes::ProgressType::FRAME_RECORD));
     ASSERT_THROW(map.get_entry(holovibes::ProgressType::FRAME_RECORD), std::out_of_range);
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

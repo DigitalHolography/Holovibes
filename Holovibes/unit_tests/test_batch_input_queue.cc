@@ -619,9 +619,3 @@ TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
     queue.resize(new_batch_size);
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - (total_nb_frames % new_batch_size));
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

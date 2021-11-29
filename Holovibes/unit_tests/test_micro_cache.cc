@@ -188,12 +188,4 @@ TEST(TestMicroCache, stl_sync_constructor)
     ASSERT_EQ(y.get_c().size(), 1);
     ASSERT_EQ(y.get_c().at("key"), "value");
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-
-    return RUN_ALL_TESTS();
-}
-
 } // namespace holovibes

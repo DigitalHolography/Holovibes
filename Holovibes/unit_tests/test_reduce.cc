@@ -461,9 +461,3 @@ TEST(ReduceTest, Test_float_max_1024x1024)
 
     check_result(d_result, expected, d_data);
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

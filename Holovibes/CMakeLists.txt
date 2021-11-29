@@ -33,7 +33,7 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/external:W0"            : Tells MSVC that external headers should not do any warnings
 # "/fsanitize=address       : Add ASAn to build
 string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
-#string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
+string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
 
 #Remove 'no debug *.pdg file found' warning
 string(APPEND CMAKE_EXE_LINKER_FLAGS " /ignore:4099")
@@ -182,34 +182,27 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
 
     message(STATUS "TESTS: Unit tests enabled")
 
-    # For each test file create an executable of test. Launched using ctest
-    foreach(f IN LISTS SRC_TESTS)
-        # Find the test_name by deleting the extension and the parent_dir
-        string(REGEX REPLACE "\\.[^.]*$" "" F_WITHOUT_EXT ${f})
-        string(REGEX REPLACE "[^/]*/" "" TEST_NAME ${F_WITHOUT_EXT})
+    set(TEST_NAME "unit_tests")
 
-        # Create an executable with all sources and lib needed
-        add_executable(${TEST_NAME} ${f})
-
-	target_include_directories(${TEST_NAME} PUBLIC
-		${GTest_INCLUDE_DIRS}
-		${HOLO_INCLUDES}
-	)
-
-        target_link_libraries(${TEST_NAME} PRIVATE
-            "${PROJECT_NAME}_lib"
-	    GTest::gtest
-	    GTest::gtest_main
-        )
-
-        set_target_properties(${TEST_NAME} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
-
-        # Add the executable created to the test list of ctest
-        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-        # Set timeout of the test to 60 seconds
-        set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 60)
-    endforeach()
+    # Create an executable with all sources and lib needed
+    add_executable(${TEST_NAME} ${SRC_TESTS})
+    
+    target_include_directories(${TEST_NAME} PUBLIC
+    	${GTest_INCLUDE_DIRS}
+    	${HOLO_INCLUDES}
+    )
+    
+    target_link_libraries(${TEST_NAME} PRIVATE
+        "${PROJECT_NAME}_lib"
+        GTest::gtest
+        GTest::gtest_main
+    )
+    
+    set_target_properties(${TEST_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
+    
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
 else()
     message(STATUS "TESTS: Unit tests disabled in Release mode")
 endif()
