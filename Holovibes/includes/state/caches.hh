@@ -73,6 +73,7 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
  * \param fft_shift_enabled Is shift fft enabled (switching representation diagram)
  * \param raw_view_enabled Display the raw interferogram when we are in hologram mode.
  */
+
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
                             (View_XY, x, View_XY{}),
@@ -100,4 +101,11 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
 NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
                             (int, filter2d_n1, 0),
                             (int, filter2d_n2, 1)); /*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
+
+/*! \brief Construct a new new micro cache object
+ *
+ * \param display_rate of frame per seconds displayed
+ */
+NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
+                            (float, display_rate, 30)); /*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
 } // namespace holovibes

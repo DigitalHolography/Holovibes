@@ -61,7 +61,6 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
         ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
                           cd.time_transformation_cuts_output_buffer_size);
 
-    cd.display_rate = ptree.get<float>("advanced.display_rate", cd.display_rate);
     cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
     cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
     cd.contrast_lower_threshold = ptree.get<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
@@ -180,7 +179,6 @@ void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& 
     ptree.put<uint>("advanced.output_buffer_size", cd.output_buffer_size);
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
                     cd.time_transformation_cuts_output_buffer_size);
-    ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(cd.display_rate));
     ptree.put<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low.load());
     ptree.put<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high.load());
     ptree.put<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);

@@ -163,9 +163,6 @@ class ComputeDescriptor : public Observable
         time_transformation_cuts_output_buffer_size = value;
     }
 
-    inline float get_display_rate() const { return display_rate; }
-    inline void set_display_rate(float display_rate) { this->display_rate = display_rate; }
-
     inline float get_reticle_scale() const { return reticle_scale; }
     inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
 
@@ -417,8 +414,6 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> output_buffer_size{64};
     /*! \brief Max size of time transformation cuts queue in number of images. */
     std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
-    /*! \brief Number of frame per seconds displayed */
-    std::atomic<float> display_rate{30};
     /*! \brief Filter2D low smoothing */ // May be moved in filter2d Struct
     std::atomic<int> filter2d_smooth_low{0};
     /*! \brief Filter2D high smoothing */

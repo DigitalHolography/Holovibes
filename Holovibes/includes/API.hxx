@@ -66,8 +66,8 @@ inline void set_filter2d_smooth_low(int value) { get_cd().set_filter2d_smooth_lo
 inline int get_filter2d_smooth_high() { return get_cd().get_filter2d_smooth_high(); }
 inline void set_filter2d_smooth_high(int value) { get_cd().set_filter2d_smooth_high(value); }
 
-inline float get_display_rate() { return get_cd().get_display_rate(); }
-inline void set_display_rate(float value) { get_cd().set_display_rate(value); }
+inline float get_display_rate() { return GSH::instance().get_display_rate(); }
+inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
 
 inline View_XY get_x(void) { return GSH::instance().get_x(); }
 inline View_XY get_y(void) { return GSH::instance().get_y(); }

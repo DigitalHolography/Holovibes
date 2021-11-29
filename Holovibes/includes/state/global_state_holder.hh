@@ -173,6 +173,8 @@ class GSH
     uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
     uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
 
+    inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -342,6 +344,8 @@ class GSH
 
     void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
 
+    inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
+
 #pragma endregion
 
     void change_window(uint index);
@@ -361,6 +365,7 @@ class GSH
     ImportCache::Ref import_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
+    AdvancedCache::Ref advanced_cache_;
 
     mutable std::mutex mutex_;
 };
