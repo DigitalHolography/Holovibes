@@ -87,16 +87,14 @@ set(HOLO_INCLUDES
 # the main executable and tests based on it.
 
 
-# ---
+# ---------------------------------------------------------------------
 # Target "${PROJECT_NAME}_cuda_lib"
-# ---
+# ---------------------------------------------------------------------
 
 add_library("${PROJECT_NAME}_cuda_lib" STATIC)
 
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
-
-target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE Qt6::Core)
 
 target_include_directories("${PROJECT_NAME}_cuda_lib" PUBLIC ${HOLO_INCLUDES})
 
@@ -104,9 +102,9 @@ add_subdirectory(cuda_sources) # Add cuda sources to the target
 
 
 
-# ---
+# ---------------------------------------------------------------------
 # Target "${PROJECT_NAME}_lib"
-# ---
+# ---------------------------------------------------------------------
 
 add_library("${PROJECT_NAME}_lib" STATIC
      # CMake will automatically generate C++ headers
@@ -130,10 +128,8 @@ if(COMMAND target_precompile_headers)
 endif()
 
 target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
-    Boost::boost
     Boost::program_options
     Qt6::OpenGL
-    Qt6::OpenGLWidgets
     Qt6::Charts
     Qt6::Core
     Qt6::Gui
@@ -163,9 +159,9 @@ else()
     target_link_libraries("${PROJECT_NAME}_lib" PUBLIC Boost::program_options)
 endif(MSVC)
 
-# ---
-# Targets test_* (unit tests)
-# ---
+# ---------------------------------------------------------------------
+# Target test_* (unit tests)
+# ---------------------------------------------------------------------
 
 set(SRC_TESTS
     unit_tests/test_example.cc
@@ -220,9 +216,9 @@ endif()
 
 
 
-# ---
-# Targets Holovibes
-# ---
+# ---------------------------------------------------------------------
+# Target Holovibes
+# ---------------------------------------------------------------------
 
 add_executable("${PROJECT_NAME}"
     mainwindow.ui
@@ -243,9 +239,9 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 )
 
 
-# ---
+# ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
-# ---
+# ---------------------------------------------------------------------
 
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy shaders and convolution kernels
