@@ -20,7 +20,7 @@ namespace holovibes
  * \param z_distance z value used by fresnel transform
  * \param convolution_enabled Is convolution enabled
  * \param divide_convolution_enabled
- * \param input_fps The input FPS
+ * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
@@ -48,6 +48,12 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
  * \param chart_record_enabled Enables the signal and noise chart record
  */
 NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false));
+
+/*! \brief Construct a new new micro cache object
+ * \param start_frame First frame read
+ * \param start_frame Last frame read
+ */
+NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_frame, 0));
 
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed

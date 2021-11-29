@@ -170,6 +170,9 @@ class GSH
 
     bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
 
+    uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
+    uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -335,6 +338,10 @@ class GSH
 
     void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
 
+    void set_start_frame(uint value) { import_cache_.set_start_frame(value); }
+
+    void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
+
 #pragma endregion
 
     void change_window(uint index);
@@ -351,6 +358,7 @@ class GSH
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;
     ExportCache::Ref export_cache_;
+    ImportCache::Ref import_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
 

@@ -189,19 +189,32 @@ void ImportPanel::import_start()
 void ImportPanel::import_start_spinbox_update()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    if (start_spinbox->value() > end_spinbox->value())
-        end_spinbox->setValue(start_spinbox->value());
+    api::set_start_frame(start_spinbox->value());
+
+    start_spinbox->setValue(api::get_start_frame());
+
+    if (api::get_start_frame() > api::get_end_frame())
+    {
+        QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
+        end_spinbox->setValue(api::get_start_frame());
+        import_end_spinbox_update();
+    }
 }
 
 void ImportPanel::import_end_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    if (end_spinbox->value() < start_spinbox->value())
-        start_spinbox->setValue(end_spinbox->value());
+    api::set_end_frame(end_spinbox->value());
+    end_spinbox->setValue(api::get_end_frame());
+
+    if (api::get_end_frame() < api::get_start_frame())
+    {
+        QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+        start_spinbox->setValue(api::get_end_frame());
+        import_start_spinbox_update();
+    }
 }
 
 void ImportPanel::on_input_fps_change(int value) { api::set_input_fps(value); }

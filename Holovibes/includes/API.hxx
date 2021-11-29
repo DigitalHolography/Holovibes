@@ -218,16 +218,17 @@ inline bool get_composite_p_activated_v() { return get_cd().get_composite_p_acti
 inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
 inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
 
-inline uint get_start_frame() { return get_cd().get_start_frame(); }
+inline uint get_start_frame() { return GSH::instance().get_start_frame(); }
+inline void set_start_frame(uint value) { GSH::instance().set_start_frame(value); }
 
-inline uint get_end_frame() { return get_cd().get_end_frame(); }
+inline uint get_end_frame() { return GSH::instance().get_end_frame(); }
+inline void set_end_frame(uint value) { GSH::instance().set_end_frame(value); }
 
 inline uint get_file_buffer_size() { return get_cd().get_file_buffer_size(); }
 inline void set_file_buffer_size(uint value) { get_cd().set_file_buffer_size(value); }
 
 inline uint get_input_buffer_size() { return get_cd().get_input_buffer_size(); }
 inline void set_input_buffer_size(uint value) { get_cd().set_input_buffer_size(value); }
-
 inline uint get_output_buffer_size() { return get_cd().get_output_buffer_size(); }
 inline void set_output_buffer_size(uint value) { get_cd().set_output_buffer_size(value); }
 

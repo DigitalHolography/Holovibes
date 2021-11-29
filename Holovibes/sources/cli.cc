@@ -81,7 +81,7 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
         err_message("start_frame", start_frame, "-s");
         return false;
     }
-    cd.start_frame = start_frame;
+    holovibes::GSH::instance().set_start_frame(start_frame);
 
     uint end_frame = opts.end_frame.value_or(nb_frames);
     if (!is_between(end_frame, (uint)1, nb_frames))
@@ -89,7 +89,7 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
         err_message("end_frame", end_frame, "-e");
         return false;
     }
-    cd.end_frame = end_frame;
+    holovibes::api::set_end_frame(end_frame);
 
     if (start_frame > end_frame)
     {
@@ -207,7 +207,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     if (!set_parameters(holovibes, opts))
         return 1;
 
-    size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
+    size_t input_nb_frames =
+        holovibes::GSH::instance().get_end_frame() - holovibes::GSH::instance().get_start_frame() + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
 
     // Force hologram mode
@@ -228,7 +229,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,
                                     opts.fps.value_or(60),
-                                    cd.start_frame - 1,
+                                    holovibes::GSH::instance().get_start_frame() - 1,
                                     static_cast<uint>(input_nb_frames),
                                     opts.gpu);
 

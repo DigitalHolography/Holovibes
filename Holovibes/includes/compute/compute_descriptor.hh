@@ -321,12 +321,6 @@ class ComputeDescriptor : public Observable
         this->hsv.v.p_activated = composite_p_activated_v;
     }
 
-    inline uint get_start_frame() const { return start_frame; }
-    inline void set_start_frame(uint start_frame) { this->start_frame = start_frame; }
-
-    inline uint get_end_frame() const { return end_frame; }
-    inline void set_end_frame(uint end_frame) { this->end_frame = end_frame; }
-
     // #############################################
     //  END GETTER AND SETTER ZONE
     // #############################################
@@ -451,11 +445,6 @@ class ComputeDescriptor : public Observable
     std::atomic<float> pixel_size{12.0f};
     /*! \brief Number of bits to shift when in raw mode */
     std::atomic<uint> raw_bitshift{0}; // Never change and surely not used
-
-    /*! \brief First frame read */
-    std::atomic<uint> start_frame{0};
-    /*! \brief Lasrt frame read */
-    std::atomic<uint> end_frame{0};
 
 #pragma endregion
 };
