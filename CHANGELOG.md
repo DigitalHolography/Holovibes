@@ -1,5 +1,9 @@
 ## Changelog
 
+### 10.5
+
+* Compute settings in JSON
+
 ### 10.4
 
 * Upgraded from Qt 5.9.9 to Qt 6.2.1
