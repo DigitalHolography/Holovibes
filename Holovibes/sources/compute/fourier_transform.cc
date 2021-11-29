@@ -332,7 +332,7 @@ void FourierTransform::insert_store_p_frame()
 void FourierTransform::insert_time_transformation_cuts_view()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (cd_.time_transformation_cuts_enabled)
+        if (view_cache_.get_cuts_view_enabled())
         {
             static ushort mouse_posx;
             static ushort mouse_posy;

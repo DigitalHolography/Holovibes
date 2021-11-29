@@ -173,7 +173,9 @@ class GSH
     uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
     uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
 
-    inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
+    float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
+
+    inline bool get_cuts_view_enabled() const noexcept { return view_cache_.get_cuts_view_enabled(); }
 
 #pragma endregion
 
@@ -334,7 +336,7 @@ class GSH
 
     void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
-    void set_fft_shift_enabled(bool value) { view_cache_.set_fft_shift_enabled(value); }
+    void set_fft_shift_enabled(bool value);
 
     void set_raw_view_enabled(bool value) { view_cache_.set_raw_view_enabled(value); }
 
@@ -344,7 +346,9 @@ class GSH
 
     void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
 
-    inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
+    void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
+
+    void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
 #pragma endregion
 

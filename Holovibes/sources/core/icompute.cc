@@ -350,10 +350,10 @@ void ICompute::request_autocontrast(WindowKind kind)
     if (kind == WindowKind::XYview && GSH::instance().get_xy_contrast_enabled())
         autocontrast_requested_ = true;
     else if (kind == WindowKind::XZview && GSH::instance().get_xz_contrast_enabled() &&
-             cd_.time_transformation_cuts_enabled)
+             view_cache_.get_cuts_view_enabled())
         autocontrast_slice_xz_requested_ = true;
     else if (kind == WindowKind::YZview && GSH::instance().get_yz_contrast_enabled() &&
-             cd_.time_transformation_cuts_enabled)
+             view_cache_.get_cuts_view_enabled())
         autocontrast_slice_yz_requested_ = true;
     else if (kind == WindowKind::Filter2D && GSH::instance().get_filter2d_contrast_enabled() &&
              view_cache_.get_filter2d_enabled())

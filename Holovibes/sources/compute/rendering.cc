@@ -101,7 +101,7 @@ void Rendering::insert_log()
 {
     if (view_cache_.get_xy().log_scale_slice_enabled)
         insert_main_log();
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
     if (view_cache_.get_filter2d().log_scale_slice_enabled)
         insert_filter2d_view_log();
@@ -123,7 +123,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
         insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
     {
         if (view_cache_.get_xz().contrast_enabled)
             insert_apply_contrast(WindowKind::XZview);

@@ -1,7 +1,7 @@
 #include "global_state_holder.hh"
 
 #include "holovibes.hh"
-
+#include "API.hh"
 namespace holovibes
 {
 
@@ -186,6 +186,12 @@ void GSH::set_flip_enabled(double value)
     w.flip_enabled = value;
 }
 
+void GSH::set_fft_shift_enabled(bool value)
+{
+    view_cache_.set_fft_shift_enabled(value);
+    api::pipe_refresh();
+}
+
 #pragma endregion
 
 /*! \brief Change the window according to the given index */
@@ -256,8 +262,10 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     // Possible problem: Concurrency between maindisplay and the other displays
     // view_cache_.set_lens_view_enabled(ptree.get<bool>("view.lens_view_enabled", false));
     // view_cache_.set_filter2d_view_enabled(ptree.get<bool>("image_rendering.filter2d_view_enabled", false));
-    // view_cache_.set_fft_shift_enabled(ptree.get<bool>("view.fft_shift_enabled", false));
+    view_cache_.set_fft_shift_enabled(ptree.get<bool>("view.fft_shift_enabled", false));
     // view_cache_.set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", false));
+    // GSH::instance().set_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled",
+    // false));
 }
 
 static void load_composite(const boost::property_tree::ptree& ptree, CompositeCache::Ref& composite_cache_)
@@ -271,9 +279,6 @@ static void load_advanced(const boost::property_tree::ptree& ptree, AdvancedCach
 {
     advanced_cache_.set_display_rate(ptree.get<float>("advanced.display_rate", 30));
 }
-
-// je trouve ça bien que les load et save soient séparés dans le code, même si tout sera exécuté simultanément,
-// un peu comme ils faisaient déjà
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
 {
@@ -354,6 +359,7 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("image_rendering.filter2d_view_enabled", static_cast<int>(view_cache_.get_filter2d_view_enabled()));
     ptree.put<bool>("view.fft_shift_enabled", view_cache_.get_fft_shift_enabled());
     ptree.put<bool>("view.raw_view_enabled", view_cache_.get_raw_view_enabled());
+    ptree.put<bool>("view.3d_cuts_enabled", view_cache_.get_cuts_view_enabled());
 }
 
 static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)

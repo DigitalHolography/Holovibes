@@ -547,12 +547,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
  */
 void set_time_transformation_size(std::function<void()> callback);
 
-/*! \brief Enables or Disables fft shift mode on the main display window
- *
- * \param value true: enable, false: disable
- */
-void set_fft_shift(const bool value);
-
 /*! \brief Changes the focused windows
  *
  * \param index the index representing the window to select

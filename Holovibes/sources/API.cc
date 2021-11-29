@@ -443,7 +443,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(GSH::instance().get_yz_flip_enabled());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().set_3d_cuts_view_enabled(true);
+        GSH::instance().set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -482,7 +482,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         LOG_ERROR << e.what();
     }
 
-    get_cd().set_3d_cuts_view_enabled(false);
+    GSH::instance().set_cuts_view_enabled(false);
 }
 
 #pragma endregion
@@ -542,13 +542,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         while (pipe->get_disable_filter2d_view_requested())
             continue;
     }
-
-    pipe_refresh();
-}
-
-void set_fft_shift(const bool value)
-{
-    set_fft_shift_enabled(value);
 
     pipe_refresh();
 }
@@ -837,7 +830,7 @@ void close_critical_compute()
     if (get_convolution_enabled())
         unset_convolution_mode();
 
-    if (get_cd().time_transformation_cuts_enabled)
+    if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
 
     Holovibes::instance().stop_compute();
@@ -924,7 +917,7 @@ void set_auto_contrast_all()
 
     auto pipe = get_compute_pipe();
     pipe->request_autocontrast(WindowKind::XYview);
-    if (get_cd().time_transformation_cuts_enabled)
+    if (api::get_cuts_view_enabled())
     {
         pipe->request_autocontrast(WindowKind::XZview);
         pipe->request_autocontrast(WindowKind::YZview);

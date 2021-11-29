@@ -80,7 +80,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
 void Converts::insert_to_ushort()
 {
     insert_main_ushort();
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
         insert_slice_ushort();
     if (view_cache_.get_filter2d_view_enabled())
         insert_filter2d_ushort();

@@ -291,12 +291,6 @@ class ComputeDescriptor : public Observable
     inline bool get_renorm_enabled() const { return renorm_enabled; }
     inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
 
-    inline bool get_3d_cuts_view_enabled() const { return time_transformation_cuts_enabled; }
-    inline void set_3d_cuts_view_enabled(bool time_transformation_cuts_enabled)
-    {
-        this->time_transformation_cuts_enabled = time_transformation_cuts_enabled;
-    }
-
     inline bool get_synchronized_record() const { return synchronized_record; }
     inline void set_synchronized_record(bool synchronized_record) { this->synchronized_record = synchronized_record; }
 
@@ -384,11 +378,6 @@ class ComputeDescriptor : public Observable
     /*! \} */
 
 #pragma region Atomics vars
-
-    // View
-    // TODO: Add unwrap2d
-    /*! \brief Are slices YZ and XZ enabled */
-    std::atomic<bool> time_transformation_cuts_enabled{false};
 
     /*! \brief Postprocessing renorm enabled */
     std::atomic<bool> renorm_enabled{true};

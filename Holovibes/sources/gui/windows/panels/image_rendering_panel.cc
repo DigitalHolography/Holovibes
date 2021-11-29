@@ -50,7 +50,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
     ui_->TimeTransformationComboBox->setEnabled(!is_raw);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
@@ -58,7 +58,7 @@ void ImageRenderingPanel::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);

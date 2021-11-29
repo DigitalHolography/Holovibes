@@ -69,15 +69,6 @@ void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& 
     cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
 }
 
-void load_view_visibility(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
-    // May just not be in compute_settings.ini because those are settings the user will be able to see
-    // if it checked the relevent checbox in the UI.
-    // Sets directly using cd because no need of the intern checks of the api function
-
-    get_cd().set_3d_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled));
-}
-
 void after_load_checks(ComputeDescriptor& cd)
 {
     if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
@@ -111,11 +102,6 @@ void load_compute_settings(const std::string& ini_path)
 
     GSH::instance().load_ptree(ptree);
 
-    // Currently not working.
-    // The app crash when one of the visibility is already set at when the app begins.
-    // Possible problem: Concurrency between maindisplay and the other displays
-    // load_view_visibility(ptree, get_cd());
-
     after_load_checks(get_cd());
 
     pipe_refresh();
@@ -126,7 +112,6 @@ void save_image_rendering(boost::property_tree::ptree& ptree, const ComputeDescr
 void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     // ptree.put<bool>("view.unwrap_2d_enabled", cd.unwrap_2d);
-    ptree.put<bool>("view.3d_cuts_enabled", cd.time_transformation_cuts_enabled);
 
     auto pq_save = [&](const std::string& name, const View_PQ& view) {
         ptree.put<ushort>("view." + name + "_index", view.index);
