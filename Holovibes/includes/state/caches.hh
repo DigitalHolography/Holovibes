@@ -108,6 +108,11 @@ NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
  *
  * \param display_rate of frame per seconds displayed
  */
-NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
-                            (float, display_rate, 30)); /*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
+NEW_INITIALIZED_MICRO_CACHE(AdvancedCache, (float, display_rate, 30));
+
+/*! \brief Construct a new new micro cache object
+ *
+ * \param file_buffer_size Max file buffer size
+ */
+NEW_INITIALIZED_MICRO_CACHE(FileReadCache, (uint, file_buffer_size, 32));
 } // namespace holovibes

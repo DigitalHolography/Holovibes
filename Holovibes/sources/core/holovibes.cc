@@ -49,14 +49,8 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
-    file_read_worker_controller_.start(file_path,
-                                       loop,
-                                       fps,
-                                       first_frame_id,
-                                       nb_frames_to_read,
-                                       load_file_in_gpu,
-                                       gpu_input_queue_,
-                                       cd_.file_buffer_size);
+    file_read_worker_controller_
+        .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
 }
 
 void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)

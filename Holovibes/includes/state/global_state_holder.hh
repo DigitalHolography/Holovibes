@@ -177,6 +177,8 @@ class GSH
 
     inline bool get_cuts_view_enabled() const noexcept { return view_cache_.get_cuts_view_enabled(); }
 
+    inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -350,6 +352,12 @@ class GSH
 
     void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
+    inline void set_file_buffer_size(uint value)
+    {
+        LOG_WARN << value;
+        file_read_cache_.set_file_buffer_size(value);
+    }
+
 #pragma endregion
 
     void change_window(uint index);
@@ -370,6 +378,8 @@ class GSH
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
     AdvancedCache::Ref advanced_cache_;
+
+    FileReadCache::Ref file_read_cache_;
 
     mutable std::mutex mutex_;
 };

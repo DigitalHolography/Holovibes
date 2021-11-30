@@ -142,9 +142,6 @@ class ComputeDescriptor : public Observable
         this->filter2d_smooth_high = filter2d_smooth_high;
     }
 
-    inline uint get_file_buffer_size() const { return file_buffer_size; }
-    inline void set_file_buffer_size(uint file_buffer_size) { this->file_buffer_size = file_buffer_size; }
-
     inline uint get_input_buffer_size() const { return input_buffer_size; }
     inline void set_input_buffer_size(uint input_buffer_size) { this->input_buffer_size = input_buffer_size; }
 
@@ -393,8 +390,6 @@ class ComputeDescriptor : public Observable
     Composite_HSV hsv{};
 
     // Advanced
-    /*! \brief Max number of frames read each time by the thread_reader. */
-    std::atomic<uint> file_buffer_size{32};
     /*! \brief Max size of input queue in number of images. */
     std::atomic<uint> input_buffer_size{256};
     /*! \brief Max size of frame record queue in number of images. */

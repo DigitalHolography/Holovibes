@@ -275,9 +275,12 @@ static void load_composite(const boost::property_tree::ptree& ptree, CompositeCa
     composite_cache_.set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", false));
 }
 
-static void load_advanced(const boost::property_tree::ptree& ptree, AdvancedCache::Ref& advanced_cache_)
+static void load_advanced(const boost::property_tree::ptree& ptree,
+                          AdvancedCache::Ref& advanced_cache_,
+                          FileReadCache::Ref& file_read_cache_)
 {
     advanced_cache_.set_display_rate(ptree.get<float>("advanced.display_rate", 30));
+    file_read_cache_.set_file_buffer_size(ptree.get<ushort>("advanced.file_buffer_size", 32));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -285,7 +288,7 @@ void GSH::load_ptree(const boost::property_tree::ptree& ptree)
     load_image_rendering(ptree, compute_cache_, filter2d_cache_);
     load_view(ptree, view_cache_);
     load_composite(ptree, composite_cache_);
-    load_advanced(ptree, advanced_cache_);
+    load_advanced(ptree, advanced_cache_, file_read_cache_);
 }
 
 // void GSH::load_advanced(const boost::property_tree::ptree& ptree) {
@@ -368,9 +371,12 @@ static void save_composite(boost::property_tree::ptree& ptree, const CompositeCa
     ptree.put<bool>("composite.auto_weights_enabled", composite_cache_.get_composite_auto_weights());
 }
 
-static void save_advanced(boost::property_tree::ptree& ptree, const AdvancedCache::Ref& advanced_cache_)
+static void save_advanced(boost::property_tree::ptree& ptree,
+                          const AdvancedCache::Ref& advanced_cache_,
+                          const FileReadCache::Ref& file_read_cache_)
 {
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(advanced_cache_.get_display_rate()));
+    ptree.put<uint>("advanced.file_buffer_size", static_cast<ushort>(file_read_cache_.get_file_buffer_size()));
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
@@ -378,7 +384,7 @@ void GSH::dump_ptree(boost::property_tree::ptree& ptree) const
     save_image_rendering(ptree, compute_cache_, filter2d_cache_);
     save_view(ptree, view_cache_);
     save_composite(ptree, composite_cache_);
-    save_advanced(ptree, advanced_cache_);
+    save_advanced(ptree, advanced_cache_, file_read_cache_);
 }
 
 } // namespace holovibes
