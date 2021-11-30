@@ -107,7 +107,8 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
-    input_frame_file->import_compute_settings(holovibes.get_cd());
+    if (!opts.compute_settings_path)
+        input_frame_file->import_compute_settings(holovibes::api::get_cd());
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
@@ -188,11 +189,11 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 {
     auto& cd = holovibes.get_cd();
 
-    if (opts.ini_path)
+    if (opts.compute_settings_path)
     {
         try
         {
-            holovibes::api::load_compute_settings(opts.ini_path.value());
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
         }
         catch (std::exception&)
         {

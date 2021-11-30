@@ -26,7 +26,7 @@ struct OptionsDescriptor
     std::optional<unsigned int> n_rec;
     std::optional<std::string> input_path;
     std::optional<std::string> output_path;
-    std::optional<std::string> ini_path;
+    std::optional<std::string> compute_settings_path;
     std::optional<std::string> convo_path;
     std::optional<unsigned int> start_frame;
     std::optional<unsigned int> end_frame;

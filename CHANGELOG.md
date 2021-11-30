@@ -11,6 +11,7 @@
 * Moved the z boundary value to the Info panel
 * Space transformation can now be changed while 3D cuts are enabled
 * Some GUI elements are hidden until the corresponding image type or such is selected
+* Changed a CLI argument from --ini to --compute-settings
 
 ### 10.4
 

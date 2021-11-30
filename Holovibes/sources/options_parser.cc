@@ -40,9 +40,9 @@ OptionsParser::OptionsParser()
         "Output file path"
     )
     (
-        "ini",
+        "compute_settings",
         po::value<std::string>(),
-        ".ini config file path (default = holovibes.ini)"
+        ".json config file path"
     )
     (
         "convolution,c",
@@ -110,8 +110,8 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.input_path = boost::any_cast<std::string>(vm_["input"].value());
         if (vm_.count("output"))
             options_.output_path = boost::any_cast<std::string>(vm_["output"].value());
-        if (vm_.count("ini"))
-            options_.ini_path = boost::any_cast<std::string>(vm_["ini"].value());
+        if (vm_.count("compute_settings"))
+            options_.compute_settings_path = boost::any_cast<std::string>(vm_["compute_settings"].value());
         if (vm_.count("convolution"))
             options_.convo_path = boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
