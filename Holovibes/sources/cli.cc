@@ -41,9 +41,6 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
 {
     std::cout << "Config:\n";
     boost::property_tree::ptree ptree;
-    // Ask if removable, cli should not change settings
-    // holovibes::ini::save_ini(cd, opts);
-    // boost::property_tree::write_ini(std::cout, ptree);
     std::cout << std::endl;
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
@@ -69,7 +66,8 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
                               const uint& nb_frames,
                               holovibes::ComputeDescriptor& cd)
 {
-    auto err_message = [&](const std::string& name, const uint& value, const std::string& option) {
+    auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
+    {
         std::cerr << option << " (" << name << ") value: " << value
                   << " is not valid. The valid condition is: 1 <= " << name
                   << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";

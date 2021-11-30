@@ -11,7 +11,7 @@
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
-#include "compute_descriptor.hh"
+#include "ini_config.hh"
 #include "logger.hh"
 #include "cli.hh"
 #include "global_state_holder.hh"
