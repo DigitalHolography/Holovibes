@@ -4,6 +4,7 @@
 
 * Add folder creation in AppData at RT
 * Compute settings in JSON
+* Change CLI arg --ini in --compute-settings
 
 ### 10.4
 
