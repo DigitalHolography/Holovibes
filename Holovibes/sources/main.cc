@@ -106,10 +106,10 @@ int main(int argc, char* argv[])
 
 #ifndef _DEBUG
     // Put every log message in "everything.log":
-    loguru::add_file("everything.log", loguru::Append, loguru::Verbosity_MAX);
+    loguru::add_file(holovibes::settings::everything_log_path.c_str(), loguru::Append, loguru::Verbosity_MAX);
 
     // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
-    loguru::add_file("latest_readable.log", loguru::Truncate, loguru::Verbosity_INFO);
+    loguru::add_file(holovibes::settings::latest_readable_path.c_str(), loguru::Truncate, loguru::Verbosity_INFO);
 
     loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
 #else
