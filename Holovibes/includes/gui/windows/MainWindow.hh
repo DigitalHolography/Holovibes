@@ -6,8 +6,6 @@
 
 // without namespace
 #include "tools.hh"
-#include <nlohmann/json.hpp>
-using json = ::nlohmann::json;
 
 // namespace camera
 #include "camera_exception.hh"

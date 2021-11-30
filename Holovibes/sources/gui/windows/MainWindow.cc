@@ -9,7 +9,7 @@
 
 #include "MainWindow.hh"
 #include "logger.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
@@ -212,6 +212,8 @@ void MainWindow::on_notify()
     }
 
     ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    resize(baseSize());
+    adjustSize();
 }
 
 void MainWindow::notify_error(const std::exception& e)

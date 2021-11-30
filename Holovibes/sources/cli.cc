@@ -4,7 +4,7 @@
 
 #include "tools.hh"
 #include "icompute.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"

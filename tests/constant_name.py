@@ -4,7 +4,7 @@ import os.path
 INPUT_FILENAME = "input.holo"
 OUTPUT_FILENAME = "last_generated_output.holo"
 REF_FILENAME = "ref.holo"
-CONFIG_FILENAME = "holovibes.ini"
+CONFIG_FILENAME = "holovibes.json"
 CLI_ARGUMENT_FILENAME = "cli_argument.json"
 
 OUTPUT_FAILED_IMAGE = "out.png"
