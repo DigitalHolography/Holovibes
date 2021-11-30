@@ -107,8 +107,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
-    input_frame_file->import_compute_settings(holovibes.get_cd());
-
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))
