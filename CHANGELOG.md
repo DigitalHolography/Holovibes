@@ -1,5 +1,10 @@
 ## Changelog
 
+### XX
+
+* Add folder creation in AppData at RT
+
+
 ### 10.4
 
 * Upgraded from Qt 5.9.9 to Qt 6.2.1
