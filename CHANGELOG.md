@@ -1,9 +1,16 @@
 ## Changelog
 
-###10.5
+### 10.5
 
-* Add folder creation in AppData at RT
-* Compute settings in JSON
+* New HOLO footer v4
+* Add folder creation in AppData at runtime
+* Compute settings from .ini format to JSON
+* Upgraded CUDA from 11.2 to 11.5
+* Solved some crashed linked to auxiliary windows
+* Fixed a problem with the batch size not being initialized properly
+* Moved the z boundary value to the Info panel
+* Space transformation can now be changed while 3D cuts are enabled
+* Some GUI elements are hidden until the corresponding image type or such is selected
 
 ### 10.4
 
