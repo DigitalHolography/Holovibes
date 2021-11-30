@@ -111,7 +111,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("output"))
             options_.output_path = boost::any_cast<std::string>(vm_["output"].value());
         if (vm_.count("ini"))
-            options_.ini_path = boost::any_cast<std::string>(vm_["ini"].value());
+            options_.compute_settings_path = boost::any_cast<std::string>(vm_["ini"].value());
         if (vm_.count("convolution"))
             options_.convo_path = boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))

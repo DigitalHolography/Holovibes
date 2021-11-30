@@ -186,11 +186,11 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 {
     auto& cd = holovibes.get_cd();
 
-    if (opts.ini_path)
+    if (opts.compute_settings_path)
     {
         try
         {
-            holovibes::api::load_compute_settings(opts.ini_path.value());
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
         }
         catch (std::exception&)
         {
