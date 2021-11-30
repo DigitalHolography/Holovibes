@@ -107,8 +107,9 @@ NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
 /*! \brief Construct a new new micro cache object
  *
  * \param display_rate of frame per seconds displayed
+ * \param input_buffer_size Max size of input queue in number of images.
  */
-NEW_INITIALIZED_MICRO_CACHE(AdvancedCache, (float, display_rate, 30));
+NEW_INITIALIZED_MICRO_CACHE(AdvancedCache, (float, display_rate, 30), (uint, input_buffer_size, 256));
 
 /*! \brief Construct a new new micro cache object
  *

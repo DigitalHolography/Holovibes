@@ -100,8 +100,8 @@ unsigned GSH::get_img_accu_level() const
 
 void GSH::set_batch_size(uint value)
 {
-    if (value > Holovibes::instance().get_cd().input_buffer_size)
-        value = Holovibes::instance().get_cd().input_buffer_size.load();
+    if (value > advanced_cache_.get_input_buffer_size())
+        value = advanced_cache_.get_input_buffer_size();
 
     if (compute_cache_.get_time_transformation_stride() < value)
         compute_cache_.set_time_transformation_stride(value);
@@ -281,6 +281,7 @@ static void load_advanced(const boost::property_tree::ptree& ptree,
 {
     advanced_cache_.set_display_rate(ptree.get<float>("advanced.display_rate", 30));
     file_read_cache_.set_file_buffer_size(ptree.get<ushort>("advanced.file_buffer_size", 32));
+    advanced_cache_.set_input_buffer_size(ptree.get<ushort>("advanced.input_buffer_size", 256));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -377,6 +378,7 @@ static void save_advanced(boost::property_tree::ptree& ptree,
 {
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(advanced_cache_.get_display_rate()));
     ptree.put<uint>("advanced.file_buffer_size", static_cast<ushort>(file_read_cache_.get_file_buffer_size()));
+    ptree.put<uint>("advanced.input_buffer_size", advanced_cache_.get_input_buffer_size());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

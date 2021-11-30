@@ -45,7 +45,7 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 void AdvancedSettingsWindow::set_ui_values()
 {
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
-    api::get_cd().set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
+    api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
     api::get_cd().set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
     api::get_cd().set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
     api::get_cd().set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
@@ -94,7 +94,7 @@ void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
 void AdvancedSettingsWindow::set_current_values()
 {
     ui.FileBSSpinBox->setValue(api::get_file_buffer_size());
-    ui.InputBSSpinBox->setValue(api::get_cd().get_input_buffer_size());
+    ui.InputBSSpinBox->setValue(api::get_input_buffer_size());
     ui.RecordBSSpinBox->setValue(api::get_cd().get_record_buffer_size());
     ui.OutputBSSpinBox->setValue(api::get_cd().get_output_buffer_size());
     ui.Cuts3DBSSpinBox->setValue(api::get_cd().get_time_transformation_cuts_output_buffer_size());

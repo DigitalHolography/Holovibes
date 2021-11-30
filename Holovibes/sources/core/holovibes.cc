@@ -80,7 +80,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         cd_.pixel_size = active_camera_->get_pixel_size();
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
-        init_input_queue(camera_fd, cd_.input_buffer_size);
+        init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);

@@ -179,6 +179,8 @@ class GSH
 
     inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
 
+    inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -352,10 +354,12 @@ class GSH
 
     void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
-    inline void set_file_buffer_size(uint value)
+    inline void set_file_buffer_size(uint value) { file_read_cache_.set_file_buffer_size(value); }
+
+    inline void set_input_buffer_size(uint value)
     {
         LOG_WARN << value;
-        file_read_cache_.set_file_buffer_size(value);
+        advanced_cache_.set_input_buffer_size(value);
     }
 
 #pragma endregion

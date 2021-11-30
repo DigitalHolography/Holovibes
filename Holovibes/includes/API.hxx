@@ -227,8 +227,9 @@ inline void set_end_frame(uint value) { GSH::instance().set_end_frame(value); }
 inline uint get_file_buffer_size() { return GSH::instance().get_file_buffer_size(); }
 inline void set_file_buffer_size(uint value) { GSH::instance().set_file_buffer_size(value); }
 
-inline uint get_input_buffer_size() { return get_cd().get_input_buffer_size(); }
-inline void set_input_buffer_size(uint value) { get_cd().set_input_buffer_size(value); }
+inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }
+inline void set_input_buffer_size(uint value) { GSH::instance().set_input_buffer_size(value); }
+
 inline uint get_output_buffer_size() { return get_cd().get_output_buffer_size(); }
 inline void set_output_buffer_size(uint value) { get_cd().set_output_buffer_size(value); }
 

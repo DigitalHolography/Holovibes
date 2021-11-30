@@ -118,7 +118,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const unsigned int fps = opts.fps.value_or(60);
 
-    holovibes.init_input_queue(fd, cd.input_buffer_size);
+    holovibes.init_input_queue(fd, holovibes::api::get_input_buffer_size());
 
     try
     {

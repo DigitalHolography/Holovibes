@@ -19,7 +19,7 @@ void pipe_refresh()
         LOG_ERROR << e.what();
     }
 }
-
+/*
 bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
@@ -53,7 +53,7 @@ bool init_holovibes_import_mode(
     UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
     return true;
 }
-
+*/
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
 const std::string get_credits()
@@ -1268,7 +1268,7 @@ bool import_start(
     {
 
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               get_cd().get_input_buffer_size());
+                                               api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read(file_path,
                                                     true,
                                                     fps,
