@@ -116,7 +116,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
-    if (GSH::instance().get_batch_size() > cd_.record_buffer_size)
+    if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
         LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
         return;
@@ -128,7 +128,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                           nb_frames_to_record,
                                           record_mode,
                                           nb_frames_skip,
-                                          cd_.output_buffer_size);
+                                          GSH::instance().get_output_buffer_size());
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -157,7 +157,7 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
                                         output_path,
                                         nb_frames_to_record,
                                         record_mode,
-                                        cd_.output_buffer_size);
+                                        GSH::instance().get_output_buffer_size());
 }
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
@@ -201,7 +201,8 @@ void Holovibes::init_pipe()
             output_fd.depth = 6;
     }
 
-    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(
+        std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
 
     if (compute_pipe_.load())
         compute_pipe_ = nullptr;

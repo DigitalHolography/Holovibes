@@ -282,6 +282,8 @@ static void load_advanced(const boost::property_tree::ptree& ptree,
     advanced_cache_.set_display_rate(ptree.get<float>("advanced.display_rate", 30));
     file_read_cache_.set_file_buffer_size(ptree.get<ushort>("advanced.file_buffer_size", 32));
     advanced_cache_.set_input_buffer_size(ptree.get<ushort>("advanced.input_buffer_size", 256));
+    advanced_cache_.set_record_buffer_size(ptree.get<ushort>("advanced.record_buffer_size", 64));
+    advanced_cache_.set_output_buffer_size(ptree.get<ushort>("advanced.output_buffer_size", 64));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -379,6 +381,8 @@ static void save_advanced(boost::property_tree::ptree& ptree,
     ptree.put<ushort>("advanced.display_rate", static_cast<ushort>(advanced_cache_.get_display_rate()));
     ptree.put<uint>("advanced.file_buffer_size", static_cast<ushort>(file_read_cache_.get_file_buffer_size()));
     ptree.put<uint>("advanced.input_buffer_size", advanced_cache_.get_input_buffer_size());
+    ptree.put<uint>("advanced.record_buffer_size", advanced_cache_.get_record_buffer_size());
+    ptree.put<uint>("advanced.output_buffer_size", advanced_cache_.get_output_buffer_size());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

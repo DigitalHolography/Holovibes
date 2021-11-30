@@ -250,7 +250,7 @@ bool Pipe::make_requests()
     if (raw_view_requested_)
     {
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
+        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
         GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -258,7 +258,7 @@ bool Pipe::make_requests()
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
         GSH::instance().set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
@@ -284,7 +284,7 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = std::nullopt;
@@ -294,7 +294,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG << "Raw Record Request Processing";
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
