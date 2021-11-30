@@ -625,7 +625,7 @@ void init_image_mode(QPoint& position, QSize& size);
  *
  * \param path The location of the .ini file saved
  */
-void save_compute_settings(const std::string& path = ::holovibes::ini::default_compute_config_filepath);
+void save_compute_settings(const std::string& path = ::holovibes::settings::default_compute_config_filepath);
 json compute_settings_to_json();
 
 /*! \brief Setups program from .ini file

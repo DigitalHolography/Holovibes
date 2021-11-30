@@ -100,7 +100,7 @@ void close_windows()
 
 void save_user_preferences(boost::property_tree::ptree& ptree)
 {
-    //Display
+    // Display
     ptree.put<ushort>("display.rate", get_display_rate());
     // Step
     ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
@@ -205,7 +205,7 @@ bool change_camera(CameraKind c)
 
 void configure_camera()
 {
-    auto path = std::filesystem::path(ini::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
+    auto path = std::filesystem::path(settings::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(path.string())));
 }
 

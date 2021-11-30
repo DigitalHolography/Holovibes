@@ -1,7 +1,8 @@
 ## Changelog
 
-### 10.5
+###10.5
 
+* Add folder creation in AppData at RT
 * Compute settings in JSON
 
 ### 10.4

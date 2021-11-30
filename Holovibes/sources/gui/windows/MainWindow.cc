@@ -93,6 +93,8 @@ MainWindow::MainWindow(QWidget* parent)
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
     std::filesystem::create_directory(holovibes_documents_path);
+    std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER_));
+    std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
     try
     {
@@ -100,20 +102,20 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
+        LOG_INFO << ::holovibes::settings::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
         save_gui();
     }
 
     try
     {
-        api::load_compute_settings(holovibes::ini::default_compute_config_filepath);
+        api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::settings::default_compute_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
-        api::save_compute_settings(holovibes::ini::default_compute_config_filepath);
+        api::save_compute_settings(holovibes::settings::default_compute_config_filepath);
     }
 
     // Display default values
@@ -319,7 +321,7 @@ void MainWindow::browse_import_ini()
         reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::ini::default_compute_config_filepath); }
+void MainWindow::reload_ini() { reload_ini(::holovibes::settings::default_compute_config_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -330,7 +332,7 @@ void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 void MainWindow::load_gui()
 {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(ini::global_config_filepath, ptree);
+    boost::property_tree::ini_parser::read_ini(settings::global_config_filepath, ptree);
 
     if (!ptree.empty())
     {
@@ -362,7 +364,7 @@ void MainWindow::save_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(ptree);
 
-    auto path = holovibes::ini::global_config_filepath;
+    auto path = holovibes::settings::global_config_filepath;
     boost::property_tree::write_ini(path, ptree);
 
     LOG_INFO << " GUI settings overwritten at " << path;

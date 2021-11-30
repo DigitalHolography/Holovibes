@@ -41,9 +41,6 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
 {
     std::cout << "Config:\n";
     boost::property_tree::ptree ptree;
-    // Ask if removable, cli should not change settings
-    // holovibes::ini::save_ini(cd, opts);
-    // boost::property_tree::write_ini(std::cout, ptree);
     std::cout << std::endl;
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";

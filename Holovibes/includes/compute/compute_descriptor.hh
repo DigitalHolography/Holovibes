@@ -24,10 +24,6 @@
 
 namespace holovibes
 {
-
-#define __HOLOVIBES_VERSION__ "10.5"
-#define __APPNAME__ "Holovibes"
-
 /*! \class ComputeDescriptor
  *
  * \brief Contains compute parameters.
