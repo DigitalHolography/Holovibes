@@ -1,5 +1,18 @@
 ## Changelog
 
+### 10.5
+
+* New HOLO footer v4
+* Add folder creation in AppData at runtime
+* Compute settings from .ini format to JSON
+* Upgraded CUDA from 11.2 to 11.5
+* Solved some crashed linked to auxiliary windows
+* Fixed a problem with the batch size not being initialized properly
+* Moved the z boundary value to the Info panel
+* Space transformation can now be changed while 3D cuts are enabled
+* Some GUI elements are hidden until the corresponding image type or such is selected
+* Changed a CLI argument from --ini to --compute-settings
+
 ### 10.4
 
 * Upgraded from Qt 5.9.9 to Qt 6.2.1

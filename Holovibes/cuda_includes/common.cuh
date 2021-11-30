@@ -20,7 +20,6 @@
 #include "cusolverDn.h"
 
 #include "tools.cuh"
-#include "compute_descriptor.hh"
 #include "cudalaunch_exception.hh"
 #include "popup_error.hh"
 #include "checker.hh"

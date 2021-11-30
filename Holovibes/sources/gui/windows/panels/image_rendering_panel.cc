@@ -51,7 +51,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
+    ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
     ui_->TimeTransformationComboBox->setEnabled(!is_raw);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
@@ -67,7 +67,6 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    ui_->BoundaryLineEdit->setText(QString::number(api::get_boundary()));
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);

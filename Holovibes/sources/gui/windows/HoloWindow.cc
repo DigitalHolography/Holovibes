@@ -15,12 +15,15 @@ HoloWindow::HoloWindow(QPoint p,
                        DisplayQueue* q,
                        SharedPipe ic,
                        std::unique_ptr<SliceWindow>& xz,
-                       std::unique_ptr<SliceWindow>& yz)
-    : RawWindow(p, s, q, KindOfView::Hologram)
+                       std::unique_ptr<SliceWindow>& yz,
+                       float ratio)
+    : RawWindow(p, s, q, ratio, KindOfView::Hologram)
     , Ic(ic)
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
+    if (api::get_contrast_auto_refresh())
+        Ic->request_autocontrast(WindowKind::XYview);
 }
 
 HoloWindow::~HoloWindow() {}

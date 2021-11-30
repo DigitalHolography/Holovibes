@@ -84,9 +84,12 @@ void close_windows()
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+
+    if (UserInterfaceDescriptor::instance().lens_window)
+        set_lens_view(false, 0);
+    if (UserInterfaceDescriptor::instance().raw_window)
+        set_raw_view(false, 0);
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
@@ -97,6 +100,8 @@ void close_windows()
 
 void save_user_preferences(boost::property_tree::ptree& ptree)
 {
+    // Display
+    ptree.put<ushort>("display.rate", get_display_rate());
     // Step
     ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
     // Camera
@@ -114,6 +119,8 @@ void save_user_preferences(boost::property_tree::ptree& ptree)
 }
 void load_user_preferences(const boost::property_tree::ptree& ptree)
 {
+    // Display
+    set_display_rate(ptree.get<uint>("display.rate", get_display_rate()));
     // Step
     UserInterfaceDescriptor::instance().record_frame_step_ =
         ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
@@ -198,7 +205,7 @@ bool change_camera(CameraKind c)
 
 void configure_camera()
 {
-    auto path = std::filesystem::path(ini::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
+    auto path = std::filesystem::path(settings::camera_config_folderpath) / Holovibes::instance().get_camera_ini_name();
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(path.string())));
 }
 
@@ -241,9 +248,11 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     get_cd().set_compute_mode(Computation::Raw);
     create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos, size, get_gpu_input_queue().get()));
+        new holovibes::gui::RawWindow(pos,
+                                      size,
+                                      get_gpu_input_queue().get(),
+                                      static_cast<float>(width) / static_cast<float>(height)));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) / static_cast<float>(height));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
     unset_convolution_mode();
@@ -268,14 +277,13 @@ void create_holo_window(ushort window_size)
                                 get_gpu_output_queue().get(),
                                 get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ));
+                                UserInterfaceDescriptor::instance().sliceYZ,
+                                static_cast<float>(width) / static_cast<float>(height)));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_cd().get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_cd().get_flip_enabled());
-        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
-                                                                  static_cast<float>(height));
     }
     catch (const std::runtime_error& e)
     {
@@ -381,7 +389,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
 
 bool set_3d_cuts_view(uint time_transformation_size)
 {
-    // if checked
     try
     {
         get_compute_pipe()->create_stft_slice_queue();
@@ -416,7 +423,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_cd().get_yz_flip_enabled());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        get_cd().set_3d_cuts_view_enabled(true);
+        set_3d_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -455,7 +462,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         LOG_ERROR << e.what();
     }
 
-    get_cd().set_3d_cuts_view_enabled(false);
+    set_3d_cuts_view_enabled(false);
 }
 
 #pragma endregion
@@ -563,6 +570,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
                 new gui::RawWindow(pos,
                                    QSize(lens_window_width, lens_window_height),
                                    pipe->get_lens_queue().get(),
+                                   0.f,
                                    gui::KindOfView::Lens));
 
             UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
@@ -1032,9 +1040,9 @@ void unset_convolution_mode()
 void set_divide_convolution(const bool value)
 {
     if (value == get_cd().get_divide_convolution_enabled())
-        return
+        return;
 
-            get_cd().set_divide_convolution_enabled(value);
+    get_cd().set_divide_convolution_enabled(value);
 
     pipe_refresh();
 }

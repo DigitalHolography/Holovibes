@@ -29,7 +29,7 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 ## Requirements
 
 - Microsoft Windows 7 x64 (or later)
-- NVIDIA graphic card supporting CUDA 11.2 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported))
+- NVIDIA graphic card supporting CUDA 11.5 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported))
 
 ## Documention
 

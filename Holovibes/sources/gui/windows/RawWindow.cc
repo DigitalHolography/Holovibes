@@ -22,20 +22,23 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 namespace gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
     , texDepth(0)
     , texType(0)
 {
+    this->ratio = ratio;
     show();
 }
 
 RawWindow::~RawWindow()
 {
-    // The following line causes a crash in debug mode but prevent
-    // memory leaks in release.
+    // For unknown reasons, this causes a crash in debug and prevents memory leaks in release.
+    // It is therefore removed when using the debug mode
+#ifdef NDEBUG
     if (cuResource)
         cudaGraphicsUnregisterResource(cuResource);
+#endif
 }
 
 void RawWindow::initShaders()
@@ -352,8 +355,6 @@ void RawWindow::zoomInRect(units::RectOpengl zone)
 
     setTransform();
 }
-
-void RawWindow::setRatio(float ratio_) { ratio = ratio_; }
 
 bool RawWindow::is_resize_call() const { return is_resize; }
 

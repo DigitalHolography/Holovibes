@@ -38,7 +38,7 @@ void ViewPanel::on_notify()
 
     ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
 
-    ui_->PhaseUnwrap2DCheckBox->setEnabled(api::get_img_type() == ImgType::PhaseIncrease ||
+    ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_3d_cuts_view_enabled());
@@ -106,8 +106,10 @@ void ViewPanel::on_notify()
 
     // q accu
     bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
-    ui_->Q_AccSpinBox->setEnabled(is_ssa_stft && !is_raw);
-    ui_->Q_SpinBox->setEnabled(is_ssa_stft && !is_raw);
+    ui_->Q_AccSpinBox->setVisible(is_ssa_stft && !is_raw);
+    ui_->Q_SpinBox->setVisible(is_ssa_stft && !is_raw);
+    ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
+    ui_->QaccLabel->setVisible(is_ssa_stft && !is_raw);
 
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
@@ -210,7 +212,7 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
     {
         callback = ([=]() {
-            api::set_3d_cuts_view(false);
+            api::set_3d_cuts_view_enabled(false);
             pipe->delete_stft_slice_queue();
 
             ui_->TimeTransformationCutsCheckBox->setChecked(false);

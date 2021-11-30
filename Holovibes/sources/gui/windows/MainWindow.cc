@@ -9,7 +9,7 @@
 
 #include "MainWindow.hh"
 #include "logger.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
@@ -80,9 +80,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     setWindowIcon(QIcon(":/Holovibes.ico"));
 
-    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text) {
-        synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); });
-    };
+    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
+    { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -94,6 +93,8 @@ MainWindow::MainWindow(QWidget* parent)
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
     std::filesystem::create_directory(holovibes_documents_path);
+    std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER_));
+    std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
     try
     {
@@ -101,20 +102,20 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::ini::global_config_filepath << ": global configuration file not found. "
+        LOG_INFO << ::holovibes::settings::global_config_filepath << ": global configuration file not found. "
                  << "Initialization with default values.";
         save_gui();
     }
 
     try
     {
-        api::load_compute_settings(holovibes::ini::default_compute_config_filepath);
+        api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::ini::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::settings::default_compute_config_filepath << ": Configuration file not found. "
                  << "Initialization with default values.";
-        api::save_compute_settings(holovibes::ini::default_compute_config_filepath);
+        api::save_compute_settings(holovibes::settings::default_compute_config_filepath);
     }
 
     // Display default values
@@ -211,6 +212,8 @@ void MainWindow::on_notify()
     }
 
     ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    resize(baseSize());
+    adjustSize();
 }
 
 void MainWindow::notify_error(const std::exception& e)
@@ -221,7 +224,8 @@ void MainWindow::notify_error(const std::exception& e)
         const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
         if (err_update_ptr)
         {
-            auto lambda = [&, this] {
+            auto lambda = [&, this]
+            {
                 // notify will be in close_critical_compute
                 api::get_cd().handle_update_exception();
                 api::close_windows();
@@ -233,7 +237,8 @@ void MainWindow::notify_error(const std::exception& e)
             synchronize_thread(lambda);
         }
 
-        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
+        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
+        {
             if (accu)
             {
                 api::get_cd().handle_accumulation_exception();
@@ -255,11 +260,13 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
-    synchronize_thread([=]() {
-        // Resizing to original size, then adjust it to fit the groupboxes
-        resize(baseSize());
-        adjustSize();
-    });
+    synchronize_thread(
+        [=]()
+        {
+            // Resizing to original size, then adjust it to fit the groupboxes
+            resize(baseSize());
+            adjustSize();
+        });
 }
 
 void MainWindow::credits()
@@ -314,7 +321,7 @@ void MainWindow::browse_import_ini()
         reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::ini::default_compute_config_filepath); }
+void MainWindow::reload_ini() { reload_ini(::holovibes::settings::default_compute_config_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -325,7 +332,7 @@ void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 void MainWindow::load_gui()
 {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(ini::global_config_filepath, ptree);
+    boost::property_tree::ini_parser::read_ini(settings::global_config_filepath, ptree);
 
     if (!ptree.empty())
     {
@@ -357,7 +364,7 @@ void MainWindow::save_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(ptree);
 
-    auto path = holovibes::ini::global_config_filepath;
+    auto path = holovibes::settings::global_config_filepath;
     boost::property_tree::write_ini(path, ptree);
 
     LOG_INFO << " GUI settings overwritten at " << path;

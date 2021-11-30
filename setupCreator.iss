@@ -5,7 +5,7 @@
 #define BuildDir "build\Ninja\Release"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "10.4"
+#define MyAppVersion "10.5"
 #define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -13,7 +13,7 @@
 
 #define QtPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\bin"
 #define QtPlatformPath "C:\Qt\Qt6.2.1\6.2.1\msvc2019_64\plugins\platforms"
-#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin"
+#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\bin"
 #define OpenCVPath "C:\opencv\build\x64\vc15\bin"
 
 [Setup]
@@ -67,6 +67,7 @@ Source: "{#BuildDir}\*"; DestDir: "{app}\{#MyAppVersion}"; Components: program; 
 Source: "{#QtPath}\Qt6Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt6Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt6OpenGL.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt6OpenGLWidgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt6PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt6Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt6Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

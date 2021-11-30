@@ -19,11 +19,10 @@ class SliceWindow;
 class RawWindow : public BasicOpenGLWindow
 {
   public:
-    RawWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k = KindOfView::Raw);
+    RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio = 0.f, KindOfView k = KindOfView::Raw);
     virtual ~RawWindow();
 
     void zoomInRect(units::RectOpengl zone);
-    void setRatio(float ratio_);
 
     bool is_resize_call() const;
     void set_is_resize(bool b);
