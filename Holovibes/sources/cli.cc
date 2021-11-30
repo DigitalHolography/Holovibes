@@ -4,7 +4,7 @@
 
 #include "tools.hh"
 #include "icompute.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
@@ -69,7 +69,8 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
                               const uint& nb_frames,
                               holovibes::ComputeDescriptor& cd)
 {
-    auto err_message = [&](const std::string& name, const uint& value, const std::string& option) {
+    auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
+    {
         std::cerr << option << " (" << name << ") value: " << value
                   << " is not valid. The valid condition is: 1 <= " << name
                   << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";

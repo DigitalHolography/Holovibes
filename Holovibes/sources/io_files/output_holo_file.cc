@@ -2,6 +2,7 @@
 #include "file_exception.hh"
 #include "logger.hh"
 #include "holovibes.hh"
+#include "API.hh"
 
 namespace holovibes::io_files
 {
@@ -31,40 +32,12 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 void OutputHoloFile::export_compute_settings(bool record_raw)
 {
     const auto& cd = ::holovibes::Holovibes::instance().get_cd();
-    // export as a json
     try
     {
-        Computation mode = Computation::Raw;
+        auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
+                         {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}}};
 
-        if (record_raw && cd.compute_mode.load() == Computation::Hologram)
-            mode = Computation::Hologram;
-
-        meta_data_ = json{{"mode", mode},
-
-                          {"algorithm", cd.space_transformation.load()},
-                          {"time_filter", cd.time_transformation.load()},
-
-                          {"#img", cd.time_transformation_size.load()},
-                          {"p", cd.p.index.load()},
-                          {"lambda", cd.lambda.load()},
-                          {"pixel_size", cd.pixel_size.load()},
-                          {"z", cd.zdistance.load()},
-
-                          {"fft_shift_enabled", cd.fft_shift_enabled.load()},
-
-                          {"x_acc_level", cd.x.accu_level.load()},
-                          {"y_acc_level", cd.y.accu_level.load()},
-                          {"p_acc_level", cd.p.accu_level.load()},
-
-                          {"log_scale", cd.xy.log_scale_slice_enabled.load()},
-                          {"contrast_min", cd.xy.contrast_min.load()},
-                          {"contrast_max", cd.xy.contrast_max.load()},
-
-                          {"img_acc_slice_xy_level", cd.xy.img_accu_level.load()},
-                          {"img_acc_slice_xz_level", cd.xz.img_accu_level.load()},
-                          {"img_acc_slice_yz_level", cd.yz.img_accu_level.load()},
-
-                          {"renorm_enabled", cd.renorm_enabled.load()}};
+        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"file info", j_fi}};
     }
     catch (const json::exception& e)
     {

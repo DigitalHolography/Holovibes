@@ -1,7 +1,7 @@
 target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
     cli.cc
-    ini_config.cc
+    compute_settings.cc
     gpib_dll.cc
     options_parser.cc
     function_vector.cc

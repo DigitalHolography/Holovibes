@@ -8,8 +8,11 @@
 #include "holovibes.hh"
 #include "view_panel.hh"
 #include "AdvancedSettingsWindow.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
+
+#include <nlohmann/json.hpp>
+using json = ::nlohmann::json;
 
 namespace holovibes::api
 {
@@ -623,12 +626,14 @@ void init_image_mode(QPoint& position, QSize& size);
  * \param path The location of the .ini file saved
  */
 void save_compute_settings(const std::string& path = ::holovibes::ini::default_compute_config_filepath);
+json compute_settings_to_json();
 
 /*! \brief Setups program from .ini file
  *
  * \param path the path where the .ini file is
  */
 void load_compute_settings(const std::string& path);
+void json_to_compute_settings(const json& data);
 
 void save_user_preferences(boost::property_tree::ptree& ptree);
 void load_user_preferences(const boost::property_tree::ptree& ptree);

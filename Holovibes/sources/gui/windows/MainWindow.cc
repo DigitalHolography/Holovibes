@@ -9,7 +9,7 @@
 
 #include "MainWindow.hh"
 #include "logger.hh"
-#include "ini_config.hh"
+#include "holovibes_config.hh"
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
@@ -80,9 +80,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     setWindowIcon(QIcon(":/Holovibes.ico"));
 
-    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text) {
-        synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); });
-    };
+    ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
+    { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
@@ -221,7 +220,8 @@ void MainWindow::notify_error(const std::exception& e)
         const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
         if (err_update_ptr)
         {
-            auto lambda = [&, this] {
+            auto lambda = [&, this]
+            {
                 // notify will be in close_critical_compute
                 api::get_cd().handle_update_exception();
                 api::close_windows();
@@ -233,7 +233,8 @@ void MainWindow::notify_error(const std::exception& e)
             synchronize_thread(lambda);
         }
 
-        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)] {
+        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
+        {
             if (accu)
             {
                 api::get_cd().handle_accumulation_exception();
@@ -255,11 +256,13 @@ void MainWindow::notify_error(const std::exception& e)
 
 void MainWindow::layout_toggled()
 {
-    synchronize_thread([=]() {
-        // Resizing to original size, then adjust it to fit the groupboxes
-        resize(baseSize());
-        adjustSize();
-    });
+    synchronize_thread(
+        [=]()
+        {
+            // Resizing to original size, then adjust it to fit the groupboxes
+            resize(baseSize());
+            adjustSize();
+        });
 }
 
 void MainWindow::credits()

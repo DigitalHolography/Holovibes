@@ -4,16 +4,12 @@
  */
 #pragma once
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-
-#include "logger.hh"
-#include "compute_descriptor.hh"
-#include "tools.hh"
+#include <string>
+#include <filesystem>
 
 namespace holovibes::ini
 {
-#define __COMPUTE_CONFIG_FILENAME__ "compute_settings.ini"
+#define __COMPUTE_CONFIG_FILENAME__ "compute_settings.json"
 #define __GUI_CONFIG_FILENAME__ "user_settings.ini"
 #define __CAMERAS_CONFIG_FOLDER__ "cameras_config"
 
