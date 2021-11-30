@@ -40,9 +40,9 @@ OptionsParser::OptionsParser()
         "Output file path"
     )
     (
-        "ini",
+        "compute-settings",
         po::value<std::string>(),
-        ".ini config file path (default = holovibes.ini)"
+        ".json config file path"
     )
     (
         "convolution,c",
