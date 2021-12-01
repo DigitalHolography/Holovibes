@@ -23,6 +23,10 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
+add_definitions(-DWIN32 -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D_XKEYCHECK_H -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS -D_WIN32_WINNT=0x0600 -DUNICODE -D_UNICODE)
+string(APPEND CMAKE_CXX_FLAGS " -fuse-ld=lld-link")
+string(APPEND CMAKE_CXX_FLAGS " -fms-extensions -fms-compatibility -Wno-ignored-attributes -Wno-unused-local-typedef -Wno-expansion-to-defined -Wno-pragma-pack -Wno-ignored-pragma-intrinsic -Wno-unknown-pragmas -Wno-invalid-token-paste -Wno-deprecated-declarations -Wno-macro-redefined -Wno-dllimport-static-field-def -Wno-unused-command-line-argument -Wno-unknown-argument -Wno-int-to-void-pointer-cast")
+
 
 # "/W3"                     : Activate almost all warningd
 # "/sdl"                    : Activate all security warnings
@@ -32,8 +36,8 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
 # "/external:W0"            : Tells MSVC that external headers should not do any warnings
 # "/fsanitize=address       : Add ASAn to build
-string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
-string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
+#string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
+#string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
 
 #Remove 'no debug *.pdg file found' warning
 string(APPEND CMAKE_EXE_LINKER_FLAGS " /ignore:4099")
