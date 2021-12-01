@@ -7,12 +7,12 @@ ASWMainWindowPanel::ASWMainWindowPanel(ImageRenderingPanel* parent)
     : parent_(parent)
     , AdvancedSettingsWindowPanel("MainWindow")
 {
-    mainwindow_layout_ = new QVBoxLayout();
+    QVBoxLayout* mainwindow_layout = new QVBoxLayout();
 
     // Widgets creation
-    create_z_step_widget();
+    create_z_step_widget(mainwindow_layout);
 
-    setLayout(mainwindow_layout_);
+    setLayout(mainwindow_layout);
 }
 
 ASWMainWindowPanel::~ASWMainWindowPanel() {}
@@ -23,11 +23,12 @@ void ASWMainWindowPanel::set_current_values() { z_step_->set_value(parent_->get_
 
 #pragma region WIDGETS
 
-void ASWMainWindowPanel::create_z_step_widget()
+void ASWMainWindowPanel::create_z_step_widget(QVBoxLayout* layout)
 {
     // z step spin box
     z_step_ = new QDoubleSpinBoxLayout(nullptr, "z_step");
-    mainwindow_layout_->addItem(z_step_);
+    z_step_->set_value(parent_->z_step_)
+    layout->addItem(z_step_);
 }
 
 #pragma endregion
