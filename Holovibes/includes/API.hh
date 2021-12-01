@@ -90,14 +90,9 @@ bool is_gpu_input_queue();
 
 /*! \brief Enables the divide convolution mode
  *
- * \param str the file containing the convolution's settings
+ * \param value the file containing the convolution's settings
  */
-void set_convolution_mode(std::string& str);
-
-/*! \brief Disables the divide convolution mode
- *
- */
-void unset_convolution_mode();
+void set_convolution_mode(bool value);
 
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(Observer& observer, uint window_max_size);
@@ -106,11 +101,10 @@ void set_raw_mode(Observer& observer, uint window_max_size);
  *
  * \param observer parent of the new window that can be triggered on event
  * \param window_size the size of the window
- * \param fd the frame descriptor that will be initialized and returned by reference
  * \return true on success
  * \return false on failure
  */
-bool set_holographic_mode(Observer& observer, ushort window_size, camera::FrameDescriptor& fd);
+bool set_holographic_mode(Observer& observer, ushort window_size);
 
 /*! \brief Restarts everything to change the view mode
  *
@@ -189,6 +183,10 @@ bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
+void create_holo_window(ushort window_size);
+void create_pipe(Observer& observer);
+
+void func_to_rename_display_start(Observer& observer, ushort window_size);
 
 /*! \brief Modifies p accumulation
  *

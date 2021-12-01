@@ -141,10 +141,9 @@ MainWindow::MainWindow(QWidget* parent)
     if (std::filesystem::exists(convo_matrix_path))
     {
         QVector<QString> files;
+        files.push_back(QString(UID_CONVOLUTION_TYPE_DEFAULT));
         for (const auto& file : std::filesystem::directory_iterator(convo_matrix_path))
-        {
             files.push_back(QString(file.path().filename().string().c_str()));
-        }
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         ui_->KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
@@ -184,6 +183,7 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
+    LOG_INFO;
     synchronize_thread([this]() { on_notify(); });
 }
 
@@ -297,10 +297,10 @@ void MainWindow::browse_export_ini()
 void MainWindow::reload_ini(const std::string& filename)
 {
     ImportType it = UserInterfaceDescriptor::instance().import_type_;
-    // May be removed because it is the first call of import_start call just after.
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
+    // api::get_cd().set_compute_mode(Computation::Raw);
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();

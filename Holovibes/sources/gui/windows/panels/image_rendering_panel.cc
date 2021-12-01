@@ -83,6 +83,8 @@ void ImageRenderingPanel::on_notify()
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
+    ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
+        QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
 
 void ImageRenderingPanel::load_gui(const boost::property_tree::ptree& ptree)
@@ -105,6 +107,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
+    LOG_INFO << "a";
+
     if (mode == static_cast<int>(Computation::Raw))
     {
         api::close_windows();
@@ -114,8 +118,10 @@ void ImageRenderingPanel::set_image_mode(int mode)
             return;
 
         api::set_raw_mode(*parent_, parent_->window_max_size);
+        LOG_INFO;
 
         parent_->notify();
+        LOG_INFO;
         parent_->layout_toggled();
     }
     else if (mode == static_cast<int>(Computation::Hologram))
@@ -126,12 +132,12 @@ void ImageRenderingPanel::set_image_mode(int mode)
         api::close_windows();
         api::close_critical_compute();
 
-        camera::FrameDescriptor fd;
-        const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size, fd);
+        const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size);
 
         if (res)
         {
             /* Filter2D */
+            camera::FrameDescriptor fd = api::get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
             /* Record Frame Calculation */
@@ -155,7 +161,8 @@ void ImageRenderingPanel::update_batch_size()
     if (batch_size == api::get_batch_size())
         return;
 
-    auto callback = [=]() {
+    auto callback = [=]()
+    {
         api::set_batch_size(batch_size);
         api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_batch_size();
@@ -175,7 +182,8 @@ void ImageRenderingPanel::update_time_transformation_stride()
     if (time_transformation_stride == api::get_time_transformation_stride())
         return;
 
-    auto callback = [=]() {
+    auto callback = [=]()
+    {
         api::set_time_transformation_stride(time_transformation_stride);
         api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
@@ -280,7 +288,8 @@ void ImageRenderingPanel::set_time_transformation_size()
     if (time_transformation_size == api::get_time_transformation_size())
         return;
 
-    auto callback = [=]() {
+    auto callback = [=]()
+    {
         api::set_time_transformation_size(time_transformation_size);
         api::get_compute_pipe()->request_update_time_transformation_size();
         ui_->ViewPanel->set_p_accu();
@@ -323,19 +332,18 @@ void ImageRenderingPanel::decrement_z()
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (value)
-    {
-        std::string str = ui_->KernelQuickSelectComboBox->currentText().toStdString();
-        api::set_convolution_mode(str);
-    }
-    else
-        api::unset_convolution_mode();
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
+    api::set_convolution_mode(value);
     parent_->notify();
 }
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     if (!api::get_convolution_enabled())
         return;
 
@@ -346,9 +354,9 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
     api::set_divide_convolution(value);
-
-    parent_->notify();
 }
 
 void ImageRenderingPanel::set_z_step(double value)
