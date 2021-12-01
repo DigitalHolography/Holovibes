@@ -43,7 +43,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
   public:
     // Constructor & Destructor
     BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
-    virtual ~BasicOpenGLWindow();
+    virtual ~BasicOpenGLWindow() = 0;
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
@@ -101,21 +101,22 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     GLuint Tex;
     /*! \} */
 
-    /*! \name Virtual Pure Functions
+    /*! \name Virtual Pure Functions (trick used because Qt define these functions, please implement them)
      * \{
      */
-    void initShaders() = 0 override;
-    void initializeGL() = 0 override;
-    void resizeGL(int width, int height) override;
-    void paintGL() = 0 override;
+    virtual void initShaders() = 0;
+    void initializeGL() override {}
+    void paintGL() override {}
     /*! \} */
+
+    void resizeGL(int width, int height) override;
 
     /*! \name Event functions
      * \{
      */
-    void timerEvent(QTimerEvent* e);
+    void timerEvent(QTimerEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
-    bool eventFilter(QObject* obj, QEvent* event) override override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
     /*! \} */
 
   protected:

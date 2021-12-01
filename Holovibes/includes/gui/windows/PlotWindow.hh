@@ -79,7 +79,7 @@ class PlotWindow : public QMainWindow
     void change_points_nb(int n);
 
     /*! \brief emit signal closed on window is closed */
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     /*! \brief Ask curve_plot_ to change ploted curve */
     void change_curve(int curve_to_plot);
