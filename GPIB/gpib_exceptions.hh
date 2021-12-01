@@ -23,7 +23,7 @@ class GpibInvalidPath : public std::exception
 
     virtual ~GpibInvalidPath() {}
 
-    virtual const char* what() const override { return msg.c_str(); }
+    virtual const char* what() const override { return msg_.c_str(); }
 
   private:
     const std::string msg_;
@@ -47,10 +47,10 @@ class GpibParseError : public std::exception
         NoWait
     };
 
-    GpibParseError(const std::string& line, const ErrorType type)
+    GpibParseError(size_t line, const ErrorType type)
     {
         msg_ = "Bad format at line ";
-        msg_.append(line_);
+        msg_.append(std::to_string(line));
 
         if (type == NoBlock)
             msg_.append(" : no #Block");
@@ -86,7 +86,7 @@ class GpibInstrError : public std::exception
 
     virtual ~GpibInstrError() {}
 
-    virtual const char* what() const override { return msg.c_str(); }
+    virtual const char* what() const override { return msg_.c_str(); }
 
   private:
     const std::string msg_;
