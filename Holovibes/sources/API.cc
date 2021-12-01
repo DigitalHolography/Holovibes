@@ -185,7 +185,7 @@ void camera_none()
     Holovibes::instance().stop_frame_read();
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-    get_cd().set_computation_stopped(true);
+    set_is_computation_stopped(true);
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 }
@@ -213,7 +213,7 @@ bool change_camera(CameraKind c)
         UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
         UserInterfaceDescriptor::instance().kCamera = c;
 
-        get_cd().set_computation_stopped(false);
+        set_is_computation_stopped(false);
 
         return true;
     }
@@ -1251,13 +1251,13 @@ void import_stop()
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 
-    get_cd().set_computation_stopped(true);
+    set_is_computation_stopped(true);
 }
 
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    get_cd().set_computation_stopped(false);
+    set_is_computation_stopped(false);
 
     bool res = true;
 

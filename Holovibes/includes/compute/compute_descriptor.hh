@@ -261,12 +261,6 @@ class ComputeDescriptor : public Observable
         this->hsv.v.high_threshold = composite_high_v_threshold;
     }
 
-    inline bool get_is_computation_stopped() const { return is_computation_stopped; }
-    inline void set_is_computation_stopped(bool is_computation_stopped)
-    {
-        this->is_computation_stopped = is_computation_stopped;
-    }
-
     inline bool get_renorm_enabled() const { return renorm_enabled; }
     inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
 
@@ -336,8 +330,6 @@ class ComputeDescriptor : public Observable
     void change_angle();
     void change_flip();
 
-    void set_computation_stopped(bool value);
-
     void set_weight_rgb(int r, int g, int b);
 
     /*! \brief Reset values used to check if GUY windows are displayed */
@@ -385,8 +377,6 @@ class ComputeDescriptor : public Observable
     std::atomic<uint> cuts_contrast_p_offset{2};
 
     // Other
-    /*! \brief Is the computation stopped */
-    std::atomic<bool> is_computation_stopped{true};
     /*! \brief Wait the beginning of the file to start the recording. */
     std::atomic<bool> synchronized_record{false};
 

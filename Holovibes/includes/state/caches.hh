@@ -26,6 +26,7 @@ namespace holovibes
  * \param unwrap_history_size Max size of unwrapping corrections in number of images.
  * Determines how far, meaning how many iterations back, phase corrections
  * are taken in order to be applied to the current phase image.
+ * \param is_computation_stopped Is the computation stopped
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -40,7 +41,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw),
                             (float, pixel_size, 12.0f),
-                            (uint, unwrap_history_size, 1));
+                            (uint, unwrap_history_size, 1),
+                            (bool, is_computation_stopped, true));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind

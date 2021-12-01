@@ -189,6 +189,8 @@ class GSH
 
     inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
 
+    inline bool get_is_computation_stopped() const noexcept { return compute_cache_.get_is_computation_stopped(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -377,6 +379,8 @@ class GSH
     }
 
     inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
+
+    inline void set_is_computation_stopped(bool value) { compute_cache_.set_is_computation_stopped(value); }
 
 #pragma endregion
 
