@@ -18,8 +18,11 @@ InfoPanel::~InfoPanel() {}
 void InfoPanel::init()
 {
     ::holovibes::worker::InformationWorker::update_progress_function_ =
-        [=](ProgressType type, const size_t value, const size_t max_size) {
-            parent_->synchronize_thread([=]() {
+        [=](ProgressType type, const size_t value, const size_t max_size)
+    {
+        parent_->synchronize_thread(
+            [=]()
+            {
                 switch (type)
                 {
                 case ProgressType::FILE_READ:
@@ -35,7 +38,7 @@ void InfoPanel::init()
                     return;
                 };
             });
-        };
+    };
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
 }

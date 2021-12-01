@@ -184,7 +184,6 @@ bool change_camera(CameraKind c)
 
         Holovibes::instance().start_camera_frame_read(c);
         UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
         UserInterfaceDescriptor::instance().kCamera = c;
 
         get_cd().set_computation_stopped(false);
@@ -236,6 +235,24 @@ void create_pipe(Observer& observer)
     }
 }
 
+void func_to_rename_display_start(Observer& observer, ushort window_max_size)
+{
+    close_windows();
+
+    bool save_convo = get_convolution_enabled();
+    close_critical_compute();
+
+    if (get_compute_mode() == Computation::Raw)
+        set_raw_mode(observer, window_max_size);
+    else
+    {
+        set_holographic_mode(observer, window_max_size);
+        // TODO: Add all settings that need the pipe to be added: Contrast...
+
+        set_convolution_mode(save_convo);
+    }
+}
+
 void set_raw_mode(Observer& observer, uint window_max_size)
 {
     QPoint pos(0, 0);
@@ -246,7 +263,6 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     QSize size(width, height);
     init_image_mode(pos, size);
     get_cd().set_compute_mode(Computation::Raw);
-    create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -255,8 +271,6 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-    unset_convolution_mode();
-    set_divide_convolution(false);
 }
 
 void create_holo_window(ushort window_size)
@@ -291,7 +305,7 @@ void create_holo_window(ushort window_size)
     }
 }
 
-bool set_holographic_mode(Observer& observer, ushort window_size, camera::FrameDescriptor& fd)
+bool set_holographic_mode(Observer& observer, ushort window_size)
 {
     /* ---------- */
     try
@@ -301,7 +315,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size, camera::FrameD
         create_pipe(observer);
         create_holo_window(window_size);
         /* Info Manager */
-        fd = get_fd();
+        auto fd = get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
@@ -814,7 +828,7 @@ void set_composite_area()
 void close_critical_compute()
 {
     if (get_cd().convolution_enabled)
-        unset_convolution_mode();
+        set_convolution_mode(false);
 
     if (get_cd().time_transformation_cuts_enabled)
         cancel_time_transformation_cuts([]() { return; });
@@ -980,70 +994,53 @@ void check_batch_size_limit() { get_cd().check_batch_size_limit(); }
 
 void update_convo_kernel(const std::string& value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == None)
+        return;
+
     get_cd().set_convolution(true, value);
+    UserInterfaceDescriptor::instance().convo_name = value;
 
     try
     {
         auto pipe = get_compute_pipe();
         pipe->request_convolution();
-        // Wait for the convolution to be enabled for notify
         while (pipe->get_convolution_requested())
             continue;
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         get_cd().set_convolution_enabled(false);
-        LOG_ERROR << e.what();
     }
 }
 
-void set_convolution_mode(std::string& str)
+void set_convolution_mode(bool value)
 {
-    get_cd().set_convolution(true, str);
+    get_cd().set_convolution_enabled(value);
 
-    try
+    if (value)
     {
-        auto pipe = get_compute_pipe();
-
-        pipe->request_convolution();
-        // Wait for the convolution to be enabled for notify
-        while (pipe->get_convolution_requested())
-            continue;
+        if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
+            update_convo_kernel(UserInterfaceDescriptor::instance().convo_name);
     }
-    catch (const std::exception& e)
+    else
     {
-        get_cd().set_convolution_enabled(false);
-        LOG_ERROR << e.what();
-    }
-}
-
-void unset_convolution_mode()
-{
-    Holovibes::instance().get_cd().set_convolution(false, "");
-
-    try
-    {
-        auto pipe = get_compute_pipe();
-
-        pipe->request_disable_convolution();
-        // Wait for the convolution to be disabled for notify
-        while (pipe->get_disable_convolution_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        get_cd().set_convolution_enabled(false);
-        LOG_ERROR << e.what();
+        try
+        {
+            auto pipe = get_compute_pipe();
+            pipe->request_disable_convolution();
+            while (pipe->get_disable_convolution_requested())
+                continue;
+        }
+        catch (const std::exception&)
+        {
+            get_cd().set_convolution_enabled(false);
+        }
     }
 }
 
 void set_divide_convolution(const bool value)
 {
-    if (value == get_cd().get_divide_convolution_enabled())
-        return;
-
     get_cd().set_divide_convolution_enabled(value);
-
     pipe_refresh();
 }
 

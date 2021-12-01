@@ -137,6 +137,7 @@ void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
 
 void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
 {
+    return;
     if (holo_file_header_.version == 4)
         import_holo_v4(cd, meta_data_);
     else if (holo_file_header_.version < 4)

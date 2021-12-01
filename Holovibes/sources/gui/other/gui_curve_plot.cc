@@ -131,9 +131,10 @@ void CurvePlot::auto_scale()
 {
     std::vector<ChartPoint> tmp = chart_vector_;
 
-    auto minmax = std::minmax_element(tmp.cbegin(), tmp.cend(), [&](const ChartPoint& lhs, const ChartPoint& rhs) {
-        return curve_get_(lhs) < curve_get_(rhs);
-    });
+    auto minmax = std::minmax_element(tmp.cbegin(),
+                                      tmp.cend(),
+                                      [&](const ChartPoint& lhs, const ChartPoint& rhs)
+                                      { return curve_get_(lhs) < curve_get_(rhs); });
 
     double min = curve_get_(*(minmax.first));
     double max = curve_get_(*(minmax.second));

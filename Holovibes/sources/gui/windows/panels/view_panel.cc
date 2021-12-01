@@ -73,7 +73,8 @@ void ViewPanel::on_notify()
     ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
 
     // ImgAccWindow
-    auto set_xyzf_visibility = [&](bool val) {
+    auto set_xyzf_visibility = [&](bool val)
+    {
         ui_->ImgAccuLabel->setVisible(val);
         ui_->ImgAccuSpinBox->setVisible(val);
         ui_->RotatePushButton->setVisible(val);

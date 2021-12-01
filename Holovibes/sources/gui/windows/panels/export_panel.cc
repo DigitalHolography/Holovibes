@@ -272,9 +272,8 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]() {
-        parent_->synchronize_thread([=]() { record_finished(record_mode); });
-    };
+    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]()
+    { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
     api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);
 }
