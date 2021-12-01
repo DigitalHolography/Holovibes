@@ -187,6 +187,8 @@ class GSH
 
     inline float get_pixel_size() const noexcept { return compute_cache_.get_pixel_size(); }
 
+    inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -371,8 +373,13 @@ class GSH
     inline void set_pixel_size(float value)
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        LOG_WARN << value;
         compute_cache_.set_pixel_size(value);
+    }
+
+    inline void set_unwrap_history_size(uint value)
+    {
+        LOG_WARN << value;
+        compute_cache_.set_unwrap_history_size(value);
     }
 
 #pragma endregion

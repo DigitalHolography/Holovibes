@@ -163,7 +163,7 @@ inline float get_composite_low_v_threshold() { return get_cd().get_composite_low
 
 inline float get_composite_high_v_threshold() { return get_cd().get_composite_high_v_threshold(); }
 
-inline int get_unwrap_history_size() { return get_cd().get_unwrap_history_size(); }
+inline int get_unwrap_history_size() { return GSH::instance().get_unwrap_history_size(); }
 
 inline bool get_is_computation_stopped() { return get_cd().get_is_computation_stopped(); }
 

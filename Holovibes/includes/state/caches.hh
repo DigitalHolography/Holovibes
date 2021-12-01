@@ -23,6 +23,9 @@ namespace holovibes
  * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
  * \param pixel_size Size of a pixel in micron. Depends on camera or input file.
+ * \param unwrap_history_size Max size of unwrapping corrections in number of images.
+ * Determines how far, meaning how many iterations back, phase corrections
+ * are taken in order to be applied to the current phase image.
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -36,7 +39,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw),
-                            (float, pixel_size, 12.0f));
+                            (float, pixel_size, 12.0f),
+                            (uint, unwrap_history_size, 1));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind

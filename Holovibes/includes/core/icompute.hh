@@ -198,7 +198,6 @@ class ICompute : public Observable
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
-    void request_update_unwrap_size(const unsigned size);
     void request_unwrapping_1d(const bool value);
     void request_unwrapping_2d(const bool value);
     void request_display_chart();

@@ -264,9 +264,6 @@ class ComputeDescriptor : public Observable
         this->hsv.v.high_threshold = composite_high_v_threshold;
     }
 
-    inline int get_unwrap_history_size() const { return unwrap_history_size; }
-    inline void set_unwrap_history_size(int unwrap_history_size) { this->unwrap_history_size = unwrap_history_size; }
-
     inline bool get_is_computation_stopped() const { return is_computation_stopped; }
     inline void set_is_computation_stopped(bool is_computation_stopped)
     {
@@ -395,12 +392,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> is_computation_stopped{true};
     /*! \brief Wait the beginning of the file to start the recording. */
     std::atomic<bool> synchronized_record{false};
-    /*! \brief Max size of unwrapping corrections in number of images.
-     *
-     * Determines how far, meaning how many iterations back, phase corrections
-     * are taken in order to be applied to the current phase image.
-     */
-    std::atomic<uint> unwrap_history_size{1};
 
     /*! \brief Number of bits to shift when in raw mode */
     std::atomic<uint> raw_bitshift{0}; // Never change and surely not used

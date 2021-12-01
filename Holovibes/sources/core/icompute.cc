@@ -347,15 +347,13 @@ void ICompute::request_disable_frame_record()
 
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    if (kind == WindowKind::XYview && GSH::instance().get_xy_contrast_enabled())
+    if (kind == WindowKind::XYview && view_cache_.get_xy().contrast_enabled)
         autocontrast_requested_ = true;
-    else if (kind == WindowKind::XZview && GSH::instance().get_xz_contrast_enabled() &&
-             view_cache_.get_cuts_view_enabled())
+    else if (kind == WindowKind::XZview && view_cache_.get_xz().contrast_enabled && view_cache_.get_cuts_view_enabled())
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && GSH::instance().get_yz_contrast_enabled() &&
-             view_cache_.get_cuts_view_enabled())
+    else if (kind == WindowKind::YZview && view_cache_.get_yz().contrast_enabled && view_cache_.get_cuts_view_enabled())
         autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D && GSH::instance().get_filter2d_contrast_enabled() &&
+    else if (kind == WindowKind::Filter2D && view_cache_.get_filter2d().contrast_enabled &&
              view_cache_.get_filter2d_enabled())
         autocontrast_filter2d_requested_ = true;
 }
@@ -363,12 +361,6 @@ void ICompute::request_autocontrast(WindowKind kind)
 void ICompute::request_update_time_transformation_size()
 {
     update_time_transformation_size_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_update_unwrap_size(const unsigned size)
-{
-    cd_.unwrap_history_size = size;
     request_refresh();
 }
 
