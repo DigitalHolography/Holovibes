@@ -192,6 +192,12 @@ void GSH::set_fft_shift_enabled(bool value)
     api::pipe_refresh();
 }
 
+void GSH::set_weight_rgb(int r, int g, int b)
+{
+    set_weight_r(r);
+    set_weight_g(g);
+    set_weight_b(b);
+}
 #pragma endregion
 
 /*! \brief Change the window according to the given index */
@@ -270,11 +276,46 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     api::toggle_renormalize(ptree.get<bool>("view.renorm_enabled", true));
 }
 
+void p_load(const boost::property_tree::ptree& ptree, const std::string& name, Composite_P& p)
+{
+    p.p_min = ptree.get<ushort>("composite." + name + "_p_min", p.p_min);
+    p.p_max = ptree.get<ushort>("composite." + name + "_p_max", p.p_max);
+}
+
+void hsv_load(const boost::property_tree::ptree& ptree, const std::string& name, Composite_hsv& s)
+{
+    p_load(ptree, name, s);
+    s.slider_threshold_min = ptree.get<float>("composite." + name + "_min_value", s.slider_threshold_min);
+    s.slider_threshold_max = ptree.get<float>("composite." + name + "_max_value", s.slider_threshold_max);
+    s.low_threshold = ptree.get<float>("composite." + name + "_low_threshold", s.low_threshold);
+    s.high_threshold = ptree.get<float>("composite." + name + "_high_threshold", s.high_threshold);
+}
+
+void sv_load(const boost::property_tree::ptree& ptree, const std::string& name, Composite_SV& s)
+{
+    s.p_activated = ptree.get<bool>("composite." + name + "_enabled", s.p_activated);
+    hsv_load(ptree, name, s);
+}
+
 static void load_composite(const boost::property_tree::ptree& ptree, CompositeCache::Ref& composite_cache_)
 {
     composite_cache_.set_composite_kind(
         static_cast<CompositeKind>(ptree.get<int>("composite.mode", static_cast<int>(CompositeKind::RGB))));
     composite_cache_.set_composite_auto_weights(ptree.get<bool>("composite.auto_weights_enabled", false));
+
+    auto rgb = composite_cache_.get_rgb_ref();
+    p_load(ptree, "rgb", rgb);
+    rgb.weight_r = ptree.get<float>("composite.rgb_weight_r", 1);
+    rgb.weight_g = ptree.get<float>("composite.rgb_weight_g", 1);
+    rgb.weight_b = ptree.get<float>("composite.rgb_weight_b", 1);
+
+    auto hsv = composite_cache_.get_hsv_ref();
+    hsv_load(ptree, "hsv_h", hsv.h);
+    hsv.h.blur_enabled = ptree.get<bool>("hsv_h.blur_enabled", false);
+    hsv.h.blur_kernel_size = ptree.get<uint>("hsv_h.blur_size", 1);
+
+    sv_load(ptree, "hsv_s", hsv.s);
+    sv_load(ptree, "hsv_v", hsv.v);
 }
 
 static void load_advanced(const boost::property_tree::ptree& ptree,
@@ -372,10 +413,45 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("view.renorm_enabled", view_cache_.get_renorm_enabled());
 }
 
+void p_save(boost::property_tree::ptree& ptree, const std::string& name, const Composite_P& p)
+{
+    ptree.put<ushort>("composite." + name + "_p_min", p.p_min);
+    ptree.put<ushort>("composite." + name + "_p_max", p.p_max);
+}
+
+void hsv_save(boost::property_tree::ptree& ptree, const std::string& name, const Composite_hsv& s)
+{
+    p_save(ptree, name, s);
+    ptree.put<float>("composite." + name + "_min_value", s.slider_threshold_min);
+    ptree.put<float>("composite." + name + "_max_value", s.slider_threshold_max);
+    ptree.put<float>("composite." + name + "_low_threshold", s.low_threshold);
+    ptree.put<float>("composite." + name + "_high_threshold", s.high_threshold);
+}
+
+void sv_save(boost::property_tree::ptree& ptree, const std::string& name, const Composite_SV& s)
+{
+    ptree.put<bool>("composite." + name + "_enabled", s.p_activated);
+    hsv_save(ptree, name, s);
+}
+
 static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)
 {
     ptree.put<int>("composite.mode", static_cast<int>(composite_cache_.get_composite_kind()));
     ptree.put<bool>("composite.auto_weights_enabled", composite_cache_.get_composite_auto_weights());
+
+    auto rgb = composite_cache_.get_rgb();
+    p_save(ptree, "rgb", rgb);
+    ptree.put<float>("composite.rgb_weight_r", rgb.weight_r);
+    ptree.put<float>("composite.rgb_weight_g", rgb.weight_g);
+    ptree.put<float>("composite.rgb_weight_b", rgb.weight_b);
+
+    auto hsv = composite_cache_.get_hsv();
+    hsv_save(ptree, "hsv_h", hsv.h);
+    ptree.put<bool>("composite.hsv_h_blur_enabled", hsv.h.blur_enabled);
+    ptree.put<ushort>("composite.hsv_h_blur_size", hsv.h.blur_kernel_size);
+
+    sv_save(ptree, "hsv_s", hsv.s);
+    sv_save(ptree, "hsv_v", hsv.v);
 }
 
 static void save_advanced(boost::property_tree::ptree& ptree,

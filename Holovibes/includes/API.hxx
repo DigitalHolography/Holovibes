@@ -107,59 +107,63 @@ inline bool get_flip_enabled() { return GSH::instance().get_flip_enabled(); }
 inline double get_rotation() { return GSH::instance().get_rotation(); }
 
 // RGB
-inline uint get_composite_p_red() { return get_cd().get_rgb_p_min(); }
+inline uint get_composite_p_red() { return GSH::instance().get_rgb_p_min(); }
+inline void set_composite_p_red(int value) { GSH::instance().set_rgb_p_min(value); }
 
-inline uint get_composite_p_blue() { return get_cd().get_rgb_p_max(); }
+inline uint get_composite_p_blue() { return GSH::instance().get_rgb_p_max(); }
+inline void set_composite_p_blue(int value) { GSH::instance().set_rgb_p_max(value); }
 
-inline float get_weight_r() { return get_cd().get_weight_r(); }
+inline float get_weight_r() { return GSH::instance().get_weight_r(); }
 
-inline float get_weight_g() { return get_cd().get_weight_g(); }
+inline float get_weight_g() { return GSH::instance().get_weight_g(); }
 
-inline float get_weight_b() { return get_cd().get_weight_b(); }
+inline float get_weight_b() { return GSH::instance().get_weight_b(); }
 
 // HSV
-inline uint get_composite_p_min_h() { return get_cd().get_composite_p_min_h(); }
+inline uint get_composite_p_min_h() { return GSH::instance().get_composite_p_min_h(); }
+inline void set_composite_p_min_h(int value) { GSH::instance().set_composite_p_min_h(value); }
 
-inline uint get_composite_p_max_h() { return get_cd().get_composite_p_max_h(); }
+inline uint get_composite_p_max_h() { return GSH::instance().get_composite_p_max_h(); }
+inline void set_composite_p_max_h(int value) { GSH::instance().set_composite_p_max_h(value); }
 
-inline float get_slider_h_threshold_min() { return get_cd().get_slider_h_threshold_min(); }
-inline void set_slider_h_threshold_min(float value) { get_cd().set_slider_h_threshold_min(value); }
+inline float get_slider_h_threshold_min() { return GSH::instance().get_slider_h_threshold_min(); }
+inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider_h_threshold_min(value); }
 
-inline float get_slider_h_threshold_max() { return get_cd().get_slider_h_threshold_max(); }
-inline void set_slider_h_threshold_max(float value) { get_cd().set_slider_h_threshold_max(value); }
+inline float get_slider_h_threshold_max() { return GSH::instance().get_slider_h_threshold_max(); }
+inline void set_slider_h_threshold_max(float value) { GSH::instance().set_slider_h_threshold_max(value); }
 
-inline float get_composite_low_h_threshold() { return get_cd().get_composite_low_h_threshold(); }
+inline float get_composite_low_h_threshold() { return GSH::instance().get_composite_low_h_threshold(); }
 
-inline float get_composite_high_h_threshold() { return get_cd().get_composite_high_h_threshold(); }
+inline float get_composite_high_h_threshold() { return GSH::instance().get_composite_high_h_threshold(); }
 
-inline uint get_h_blur_kernel_size() { return get_cd().get_h_blur_kernel_size(); }
+inline uint get_h_blur_kernel_size() { return GSH::instance().get_h_blur_kernel_size(); }
 
-inline uint get_composite_p_min_s() { return get_cd().get_composite_p_min_s(); }
-inline uint get_composite_p_max_s() { return get_cd().get_composite_p_max_s(); }
+inline uint get_composite_p_min_s() { return GSH::instance().get_composite_p_min_s(); }
+inline uint get_composite_p_max_s() { return GSH::instance().get_composite_p_max_s(); }
 
-inline float get_slider_s_threshold_min() { return get_cd().get_slider_s_threshold_min(); }
-inline void set_slider_s_threshold_min(float value) { get_cd().set_slider_s_threshold_min(value); }
+inline float get_slider_s_threshold_min() { return GSH::instance().get_slider_s_threshold_min(); }
+inline void set_slider_s_threshold_min(float value) { GSH::instance().set_slider_s_threshold_min(value); }
 
-inline float get_slider_s_threshold_max() { return get_cd().get_slider_s_threshold_max(); }
-inline void set_slider_s_threshold_max(float value) { get_cd().set_slider_s_threshold_max(value); }
+inline float get_slider_s_threshold_max() { return GSH::instance().get_slider_s_threshold_max(); }
+inline void set_slider_s_threshold_max(float value) { GSH::instance().set_slider_s_threshold_max(value); }
 
-inline float get_composite_low_s_threshold() { return get_cd().get_composite_low_s_threshold(); }
+inline float get_composite_low_s_threshold() { return GSH::instance().get_composite_low_s_threshold(); }
 
-inline float get_composite_high_s_threshold() { return get_cd().get_composite_high_s_threshold(); }
+inline float get_composite_high_s_threshold() { return GSH::instance().get_composite_high_s_threshold(); }
 
-inline uint get_composite_p_min_v() { return get_cd().get_composite_p_min_v(); }
+inline uint get_composite_p_min_v() { return GSH::instance().get_composite_p_min_v(); }
 
-inline uint get_composite_p_max_v() { return get_cd().get_composite_p_max_v(); }
+inline uint get_composite_p_max_v() { return GSH::instance().get_composite_p_max_v(); }
 
-inline float get_slider_v_threshold_min() { return get_cd().get_slider_v_threshold_min(); }
-inline void set_slider_v_threshold_min(float value) { get_cd().set_slider_v_threshold_min(value); }
+inline float get_slider_v_threshold_min() { return GSH::instance().get_slider_v_threshold_min(); }
+inline void set_slider_v_threshold_min(float value) { GSH::instance().set_slider_v_threshold_min(value); }
 
-inline float get_slider_v_threshold_max() { return get_cd().get_slider_v_threshold_max(); }
-inline void set_slider_v_threshold_max(float value) { get_cd().set_slider_v_threshold_max(value); }
+inline float get_slider_v_threshold_max() { return GSH::instance().get_slider_v_threshold_max(); }
+inline void set_slider_v_threshold_max(float value) { GSH::instance().set_slider_v_threshold_max(value); }
 
-inline float get_composite_low_v_threshold() { return get_cd().get_composite_low_v_threshold(); }
+inline float get_composite_low_v_threshold() { return GSH::instance().get_composite_low_v_threshold(); }
 
-inline float get_composite_high_v_threshold() { return get_cd().get_composite_high_v_threshold(); }
+inline float get_composite_high_v_threshold() { return GSH::instance().get_composite_high_v_threshold(); }
 
 inline int get_unwrap_history_size() { return GSH::instance().get_unwrap_history_size(); }
 
@@ -207,11 +211,11 @@ inline bool get_raw_view_enabled() { return GSH::instance().get_raw_view_enabled
 
 inline bool get_reticle_display_enabled() { return get_cd().get_reticle_display_enabled(); }
 
-inline bool get_h_blur_activated() { return get_cd().get_h_blur_activated(); }
+inline bool get_h_blur_activated() { return GSH::instance().get_h_blur_activated(); }
 
-inline bool get_composite_p_activated_s() { return get_cd().get_composite_p_activated_s(); }
+inline bool get_composite_p_activated_s() { return GSH::instance().get_composite_p_activated_s(); }
 
-inline bool get_composite_p_activated_v() { return get_cd().get_composite_p_activated_v(); }
+inline bool get_composite_p_activated_v() { return GSH::instance().get_composite_p_activated_v(); }
 
 inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
 inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }

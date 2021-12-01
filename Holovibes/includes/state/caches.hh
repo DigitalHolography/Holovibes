@@ -7,6 +7,7 @@
 #include "enum_computation.hh"
 #include "enum_composite_kind.hh"
 #include "view_struct.hh"
+#include "composite_struct.hh"
 
 namespace holovibes
 {
@@ -47,10 +48,15 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind
+ * \param composite_auto_weights
+ * \param rgb
+ * \param hsv
  */
 NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
                             (CompositeKind, composite_kind, CompositeKind::RGB),
-                            (bool, composite_auto_weights, false));
+                            (bool, composite_auto_weights, false),
+                            (Composite_RGB, rgb, Composite_RGB{}),
+                            (Composite_HSV, hsv, Composite_HSV{}));
 
 /*! \brief Construct a new new micro cache object
  * \param frame_record_enabled Is holovibes currently recording

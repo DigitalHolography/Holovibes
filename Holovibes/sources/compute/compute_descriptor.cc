@@ -118,13 +118,6 @@ void ComputeDescriptor::handle_update_exception()
 
 void ComputeDescriptor::handle_accumulation_exception() { GSH::instance().set_xy_img_accu_level(1); }
 
-void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
-{
-    rgb.weight_r = r;
-    rgb.weight_g = g;
-    rgb.weight_b = b;
-}
-
 void ComputeDescriptor::change_angle()
 {
     double rot = GSH::instance().get_rotation();

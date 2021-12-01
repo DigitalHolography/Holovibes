@@ -705,51 +705,51 @@ void set_p_index(uint value)
 
 void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
 {
-    get_cd().set_rgb_p_min(composite_p_red);
-    get_cd().set_rgb_p_max(composite_p_blue);
+    GSH::instance().set_rgb_p_min(composite_p_red);
+    GSH::instance().set_rgb_p_max(composite_p_blue);
 
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
-    get_cd().set_composite_p_min_h(composite_p_min_h);
+    set_composite_p_min_h(composite_p_min_h);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
-    get_cd().set_composite_p_max_h(composite_p_max_h);
+    set_composite_p_max_h(composite_p_max_h);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_min(uint composite_p_min_s)
 {
-    get_cd().set_composite_p_min_s(composite_p_min_s);
+    GSH::instance().set_composite_p_min_s(composite_p_min_s);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_s_max(uint composite_p_max_s)
 {
-    get_cd().set_composite_p_max_s(composite_p_max_s);
+    GSH::instance().set_composite_p_max_s(composite_p_max_s);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_min(uint composite_p_min_v)
 {
-    get_cd().set_composite_p_min_v(composite_p_min_v);
+    GSH::instance().set_composite_p_min_v(composite_p_min_v);
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 {
-    get_cd().set_composite_p_max_v(composite_p_max_v);
+    GSH::instance().set_composite_p_max_v(composite_p_max_v);
     pipe_refresh();
 }
 
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
 {
-    get_cd().set_weight_rgb(weight_r, weight_g, weight_b);
+    GSH::instance().set_weight_rgb(weight_r, weight_g, weight_b);
     pipe_refresh();
 }
 
@@ -759,17 +759,20 @@ void select_composite_hsv() { set_composite_kind(CompositeKind::HSV); }
 
 void actualize_frequency_channel_s(bool composite_p_activated_s)
 {
-    get_cd().set_composite_p_activated_s(composite_p_activated_s);
+    GSH::instance().set_composite_p_activated_s(composite_p_activated_s);
 }
 
 void actualize_frequency_channel_v(bool composite_p_activated_v)
 {
-    get_cd().set_composite_p_activated_v(composite_p_activated_v);
+    GSH::instance().set_composite_p_activated_v(composite_p_activated_v);
 }
 
-void actualize_selection_h_gaussian_blur(bool h_blur_activated) { get_cd().set_h_blur_activated(h_blur_activated); }
+void actualize_selection_h_gaussian_blur(bool h_blur_activated)
+{
+    GSH::instance().set_h_blur_activated(h_blur_activated);
+}
 
-void actualize_kernel_size_blur(uint h_blur_kernel_size) { get_cd().set_h_blur_kernel_size(h_blur_kernel_size); }
+void actualize_kernel_size_blur(uint h_blur_kernel_size) { GSH::instance().set_h_blur_kernel_size(h_blur_kernel_size); }
 
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)

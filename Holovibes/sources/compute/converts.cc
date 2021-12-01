@@ -129,8 +129,9 @@ void Converts::insert_to_squaredmodulus()
 void Converts::insert_to_composite()
 {
     fn_compute_vect_.conditional_push_back([=]() {
-        if (!is_between<ushort>(cd_.rgb.p_min, 0, compute_cache_.get_time_transformation_size()) ||
-            !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache_.get_time_transformation_size()))
+        Composite_RGB rgb_struct = composite_cache_.get_rgb();
+        if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_time_transformation_size()) ||
+            !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_time_transformation_size()))
             return;
 
         if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
@@ -138,11 +139,11 @@ void Converts::insert_to_composite()
                 buffers_.gpu_postprocess_frame,
                 fd_.get_frame_res(),
                 composite_cache_.get_composite_auto_weights(),
-                cd_.rgb.p_min,
-                cd_.rgb.p_max,
-                cd_.rgb.weight_r,
-                cd_.rgb.weight_g,
-                cd_.rgb.weight_b,
+                rgb_struct.p_min,
+                rgb_struct.p_max,
+                rgb_struct.weight_r,
+                rgb_struct.weight_g,
+                rgb_struct.weight_b,
                 stream_);
         else
             hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -151,16 +152,17 @@ void Converts::insert_to_composite()
                 fd_.height,
                 cd_,
                 stream_,
-                compute_cache_.get_time_transformation_size());
+                compute_cache_.get_time_transformation_size(),
+                composite_cache_.get_hsv_const_ref());
 
         if (composite_cache_.get_composite_auto_weights())
             postcolor_normalize(buffers_.gpu_postprocess_frame,
                                 fd_.get_frame_res(),
                                 fd_.width,
                                 cd_.getCompositeZone(),
-                                cd_.rgb.weight_r,
-                                cd_.rgb.weight_g,
-                                cd_.rgb.weight_b,
+                                rgb_struct.weight_r,
+                                rgb_struct.weight_g,
+                                rgb_struct.weight_b,
                                 stream_);
     });
 }

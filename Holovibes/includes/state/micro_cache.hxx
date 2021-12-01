@@ -200,7 +200,8 @@
     var##_t var;
 
 #define _GETTER_INIT(type, var, val)                                                                                   \
-    inline type get_##var() const noexcept { return var.obj; }
+    inline type get_##var() const noexcept { return var.obj; }                                                         \
+    inline const type& get_##var##_const_ref() const noexcept { return var.obj; }
 
 #define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
     inline void set_##var(const type& _val)                                                                            \

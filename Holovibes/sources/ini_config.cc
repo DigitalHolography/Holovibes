@@ -17,39 +17,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
     reticle_scale(ptree.get<float>("view.reticle_scale", cd.reticle_scale));
 }
 
-void load_composite(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
-    auto p_load = [&](const std::string& name, Composite_P& p) {
-        p.p_min = ptree.get<ushort>("composite." + name + "_p_min", cd.rgb.p_min);
-        p.p_max = ptree.get<ushort>("composite." + name + "_p_max", cd.rgb.p_max);
-    };
-
-    p_load("rgb", cd.rgb);
-    cd.rgb.weight_r = ptree.get<float>("composite.rgb_weight_r", cd.rgb.weight_r);
-    cd.rgb.weight_g = ptree.get<float>("composite.rgb_weight_g", cd.rgb.weight_g);
-    cd.rgb.weight_b = ptree.get<float>("composite.rgb_weight_b", cd.rgb.weight_b);
-
-    auto hsv_load = [&](const std::string& name, Composite_hsv& s) {
-        p_load(name, s);
-        s.slider_threshold_min = ptree.get<float>("composite." + name + "_min_value", s.slider_threshold_min);
-        s.slider_threshold_max = ptree.get<float>("composite." + name + "_max_value", s.slider_threshold_max);
-        s.low_threshold = ptree.get<float>("composite." + name + "_low_threshold", s.low_threshold);
-        s.high_threshold = ptree.get<float>("composite." + name + "_high_threshold", s.high_threshold);
-    };
-
-    hsv_load("hsv_h", cd.hsv.h);
-    cd.hsv.h.blur_enabled = ptree.get<bool>("hsv_h.blur_enabled", cd.hsv.h.blur_enabled);
-    cd.hsv.h.blur_kernel_size = ptree.get<uint>("hsv_h.blur_size", cd.hsv.h.blur_kernel_size);
-
-    auto sv_load = [&](const std::string& name, Composite_SV& s) {
-        s.p_activated = ptree.get<bool>("composite." + name + "_enabled", s.p_activated);
-        hsv_load(name, s);
-    };
-
-    sv_load("hsv_s", cd.hsv.s);
-    sv_load("hsv_v", cd.hsv.v);
-}
-
 void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
     cd.time_transformation_cuts_output_buffer_size =
@@ -92,7 +59,6 @@ void load_compute_settings(const std::string& ini_path)
 
     load_image_rendering(ptree, get_cd());
     load_view(ptree, get_cd());
-    load_composite(ptree, get_cd());
     load_advanced(ptree, get_cd());
 
     GSH::instance().load_ptree(ptree);
@@ -117,39 +83,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 }
 
-void save_composite(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
-{
-    auto p_save = [&](const std::string& name, const Composite_P& p) {
-        ptree.put<ushort>("composite." + name + "_p_min", cd.rgb.p_min);
-        ptree.put<ushort>("composite." + name + "_p_max", cd.rgb.p_max);
-    };
-
-    p_save("rgb", cd.rgb);
-    ptree.put<float>("composite.rgb_weight_r", cd.rgb.weight_r);
-    ptree.put<float>("composite.rgb_weight_g", cd.rgb.weight_g);
-    ptree.put<float>("composite.rgb_weight_b", cd.rgb.weight_b);
-
-    auto hsv_save = [&](const std::string& name, const Composite_hsv& s) {
-        p_save(name, s);
-        ptree.put<float>("composite." + name + "_min_value", s.slider_threshold_min);
-        ptree.put<float>("composite." + name + "_max_value", s.slider_threshold_max);
-        ptree.put<float>("composite." + name + "_low_threshold", s.low_threshold);
-        ptree.put<float>("composite." + name + "_high_threshold", s.high_threshold);
-    };
-
-    hsv_save("hsv_h", cd.hsv.h);
-    ptree.put<bool>("composite.hsv_h_blur_enabled", cd.hsv.h.blur_enabled);
-    ptree.put<ushort>("composite.hsv_h_blur_size", cd.hsv.h.blur_kernel_size);
-
-    auto sv_save = [&](const std::string& name, const Composite_SV& s) {
-        ptree.put<bool>("composite." + name + "_enabled", s.p_activated);
-        hsv_save(name, s);
-    };
-
-    sv_save("hsv_s", cd.hsv.s);
-    sv_save("hsv_v", cd.hsv.v);
-}
-
 void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
@@ -171,7 +104,6 @@ void save_compute_settings(const std::string& ini_path)
 
     save_image_rendering(ptree, get_cd());
     save_view(ptree, get_cd());
-    save_composite(ptree, get_cd());
     save_advanced(ptree, get_cd());
 
     GSH::instance().dump_ptree(ptree);

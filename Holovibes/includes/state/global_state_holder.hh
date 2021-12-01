@@ -193,6 +193,57 @@ class GSH
 
     inline bool get_renorm_enabled() const noexcept { return view_cache_.get_renorm_enabled(); }
 
+    // RGB
+    inline Composite_RGB get_rgb() const noexcept { return composite_cache_.get_rgb(); }
+    inline uint get_rgb_p_min() const noexcept { return composite_cache_.get_rgb().p_min; }
+    inline uint get_rgb_p_max() const noexcept { return composite_cache_.get_rgb().p_max; }
+    inline float get_weight_r() const noexcept { return composite_cache_.get_rgb().weight_r; }
+    inline float get_weight_g() const noexcept { return composite_cache_.get_rgb().weight_g; }
+    inline float get_weight_b() const noexcept { return composite_cache_.get_rgb().weight_b; }
+
+    // HSV
+    inline Composite_HSV get_hsv() const noexcept { return composite_cache_.get_hsv(); }
+    inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.p_min; }
+    inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.p_max; }
+    inline float get_slider_h_threshold_min() const noexcept
+    {
+        return composite_cache_.get_hsv().h.slider_threshold_min;
+    }
+    inline float get_slider_h_threshold_max() const noexcept
+    {
+        return composite_cache_.get_hsv().h.slider_threshold_max;
+    }
+    inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.low_threshold; }
+    inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.high_threshold; }
+    inline uint get_h_blur_kernel_size() const noexcept { return composite_cache_.get_hsv().h.blur_kernel_size; }
+    inline uint get_composite_p_min_s() const noexcept { return composite_cache_.get_hsv().s.p_min; }
+    inline uint get_composite_p_max_s() const noexcept { return composite_cache_.get_hsv().s.p_max; }
+    inline float get_slider_s_threshold_min() const noexcept
+    {
+        return composite_cache_.get_hsv().s.slider_threshold_min;
+    }
+    inline float get_slider_s_threshold_max() const noexcept
+    {
+        return composite_cache_.get_hsv().s.slider_threshold_max;
+    }
+    inline float get_composite_low_s_threshold() const noexcept { return composite_cache_.get_hsv().s.low_threshold; }
+    inline float get_composite_high_s_threshold() const noexcept { return composite_cache_.get_hsv().s.high_threshold; }
+    inline uint get_composite_p_min_v() const noexcept { return composite_cache_.get_hsv().v.p_min; }
+    inline uint get_composite_p_max_v() const noexcept { return composite_cache_.get_hsv().v.p_max; }
+    inline float get_slider_v_threshold_min() const noexcept
+    {
+        return composite_cache_.get_hsv().v.slider_threshold_min;
+    }
+    inline float get_slider_v_threshold_max() const noexcept
+    {
+        return composite_cache_.get_hsv().v.slider_threshold_max;
+    }
+    inline float get_composite_low_v_threshold() const noexcept { return composite_cache_.get_hsv().v.low_threshold; }
+    inline float get_composite_high_v_threshold() const noexcept { return composite_cache_.get_hsv().v.high_threshold; }
+    inline bool get_h_blur_activated() const noexcept { return composite_cache_.get_hsv().h.blur_enabled; }
+    inline bool get_composite_p_activated_s() const noexcept { return composite_cache_.get_hsv().s.p_activated; }
+    inline bool get_composite_p_activated_v() const noexcept { return composite_cache_.get_hsv().v.p_activated; }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -384,11 +435,61 @@ class GSH
 
     inline void set_is_computation_stopped(bool value) { compute_cache_.set_is_computation_stopped(value); }
 
-    inline void set_renorm_enabled(bool value)
+    inline void set_renorm_enabled(bool value) { view_cache_.set_renorm_enabled(value); }
+
+    // RGB
+    inline void set_rgb(Composite_RGB value) { composite_cache_.set_rgb(value); }
+
+    inline void set_rgb_p_min(int value) { composite_cache_.get_rgb_ref().p_min = value; }
+    inline void set_rgb_p_max(int value) { composite_cache_.get_rgb_ref().p_max = value; }
+    inline void set_weight_r(float value) { composite_cache_.get_rgb_ref().weight_r = value; }
+    inline void set_weight_g(float value) { composite_cache_.get_rgb_ref().weight_g = value; }
+    inline void set_weight_b(float value) { composite_cache_.get_rgb_ref().weight_b = value; }
+
+    void set_weight_rgb(int r, int g, int b);
+
+    // HSV
+    inline void set_hsv(Composite_HSV value) { composite_cache_.set_hsv(value); }
+    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref().h.p_min = value; }
+    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref().h.p_max = value; }
+    inline void set_slider_h_threshold_min(float value)
     {
-        LOG_WARN << std::boolalpha << value;
-        view_cache_.set_renorm_enabled(value);
+        composite_cache_.get_hsv_ref().h.slider_threshold_min = value;
     }
+    inline void set_slider_h_threshold_max(float value)
+    {
+        composite_cache_.get_hsv_ref().h.slider_threshold_max = value;
+    }
+    inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref().h.low_threshold = value; }
+    inline void set_composite_high_h_threshold(float value) { composite_cache_.get_hsv_ref().h.high_threshold = value; }
+    inline void set_h_blur_kernel_size(uint value) { composite_cache_.get_hsv_ref().h.blur_kernel_size = value; }
+    inline void set_composite_p_min_s(uint value) { composite_cache_.get_hsv_ref().s.p_min = value; }
+    inline void set_composite_p_max_s(uint value) { composite_cache_.get_hsv_ref().s.p_max = value; }
+    inline void set_slider_s_threshold_min(float value)
+    {
+        composite_cache_.get_hsv_ref().s.slider_threshold_min = value;
+    }
+    inline void set_slider_s_threshold_max(float value)
+    {
+        composite_cache_.get_hsv_ref().s.slider_threshold_max = value;
+    }
+    inline void set_composite_low_s_threshold(float value) { composite_cache_.get_hsv_ref().s.low_threshold = value; }
+    inline void set_composite_high_s_threshold(float value) { composite_cache_.get_hsv_ref().s.high_threshold = value; }
+    inline void set_composite_p_min_v(uint value) { composite_cache_.get_hsv_ref().v.p_min = value; }
+    inline void set_composite_p_max_v(uint value) { composite_cache_.get_hsv_ref().v.p_max = value; }
+    inline void set_slider_v_threshold_min(float value)
+    {
+        composite_cache_.get_hsv_ref().v.slider_threshold_min = value;
+    }
+    inline void set_slider_v_threshold_max(float value)
+    {
+        composite_cache_.get_hsv_ref().v.slider_threshold_max = value;
+    }
+    inline void set_composite_low_v_threshold(float value) { composite_cache_.get_hsv_ref().v.low_threshold = value; }
+    inline void set_composite_high_v_threshold(float value) { composite_cache_.get_hsv_ref().v.high_threshold = value; }
+    inline void set_h_blur_activated(bool value) { composite_cache_.get_hsv_ref().h.blur_enabled = value; }
+    inline void set_composite_p_activated_s(bool value) { composite_cache_.get_hsv_ref().s.p_activated = value; }
+    inline void set_composite_p_activated_v(bool value) { composite_cache_.get_hsv_ref().v.p_activated = value; }
 
 #pragma endregion
 
