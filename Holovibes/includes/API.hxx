@@ -99,8 +99,6 @@ inline uint get_q_accu_level() { return GSH::instance().get_q_accu_level(); }
 
 inline float get_reticle_scale() { return get_cd().get_reticle_scale(); }
 
-inline uint get_raw_bitshift() { return get_cd().get_raw_bitshift(); }
-
 inline CompositeKind get_composite_kind() { return GSH::instance().get_composite_kind(); }
 inline void set_composite_kind(CompositeKind value) { GSH::instance().set_composite_kind(value); }
 

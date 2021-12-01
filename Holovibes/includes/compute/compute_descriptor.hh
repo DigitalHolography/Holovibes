@@ -151,9 +151,6 @@ class ComputeDescriptor : public Observable
     inline float get_reticle_scale() const { return reticle_scale; }
     inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
 
-    inline uint get_raw_bitshift() const { return raw_bitshift; }
-    inline void set_raw_bitshift(uint raw_bitshift) { this->raw_bitshift = raw_bitshift; }
-
     // RGB
     inline uint get_rgb_p_min() const { return rgb.p_min; }
     inline void set_rgb_p_min(uint composite_p_red) { this->rgb.p_min = composite_p_red; }
@@ -392,9 +389,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> is_computation_stopped{true};
     /*! \brief Wait the beginning of the file to start the recording. */
     std::atomic<bool> synchronized_record{false};
-
-    /*! \brief Number of bits to shift when in raw mode */
-    std::atomic<uint> raw_bitshift{0}; // Never change and surely not used
 
 #pragma endregion
 };

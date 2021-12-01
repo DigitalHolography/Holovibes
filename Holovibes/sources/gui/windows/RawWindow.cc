@@ -261,8 +261,7 @@ void RawWindow::paintGL()
     }
     else
     {
-        ushort bitshift = kView == KindOfView::Raw ? api::get_cd().raw_bitshift.load() : 0;
-        convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, bitshift, cuStream);
+        convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, 0, cuStream);
     }
 
     // Release resources (needs to be done at each call) and sync
