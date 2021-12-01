@@ -26,12 +26,11 @@ class ASWMainWindowPanel : public AdvancedSettingsWindowPanel
 
   private:
     /*! \brief Creates attribute z_step widget */
-    void create_z_step_widget();
+    void create_z_step_widget(QVBoxLayout* layout);
 
   private:
     // parent_ is only use to access getters and setters
     ImageRenderingPanel* parent_;
-    QVBoxLayout* mainwindow_layout_;
     QDoubleSpinBoxLayout* z_step_;
 };
 } // namespace holovibes::gui
