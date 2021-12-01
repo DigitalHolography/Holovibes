@@ -72,12 +72,11 @@ struct View_XYZ : public View_Window
 
 struct View_Accu // : public json_struct
 {
-    std::atomic<int> accu_level{1};
+    std::atomic<int> accu_level{0};
 
     json to_json() const { return json{"accu level", accu_level.load()}; }
 
     void from_json(const json& data) { accu_level = data["accu level"]; }
-
 };
 
 struct View_PQ : public View_Accu
