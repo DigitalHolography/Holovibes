@@ -81,7 +81,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     // No async needed for Qt buffer
     cuda_status = cudaMemcpyAsync(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind, stream);
 
-    if (cuda_status != CUDA_SUCCESS)
+    if (cuda_status) // 0 = CUDA_SUCCESS
     {
         LOG_ERROR << "Queue: could not enqueue: " << std::string(cudaGetErrorString(cuda_status));
         data_.reset();
