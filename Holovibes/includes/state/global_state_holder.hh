@@ -376,11 +376,7 @@ class GSH
         compute_cache_.set_pixel_size(value);
     }
 
-    inline void set_unwrap_history_size(uint value)
-    {
-        LOG_WARN << value;
-        compute_cache_.set_unwrap_history_size(value);
-    }
+    inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
 
 #pragma endregion
 
