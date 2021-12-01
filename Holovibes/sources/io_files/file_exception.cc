@@ -1,5 +1,3 @@
-#pragma once
-
 #include "file_exception.hh"
 
 namespace holovibes::io_files
