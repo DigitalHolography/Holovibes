@@ -156,13 +156,11 @@ void ImportPanel::import_start()
 
     std::string file_path = import_line_edit->text().toStdString();
 
-    LOG_INFO;
     bool res_import_start = api::import_start(file_path,
                                               fps_spinbox->value(),
                                               start_spinbox->value(),
                                               load_file_gpu_box->isChecked(),
                                               end_spinbox->value());
-    LOG_INFO;
 
     if (res_import_start)
     {

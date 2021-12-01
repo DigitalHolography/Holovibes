@@ -45,16 +45,6 @@ OptionsParser::OptionsParser()
         ".json config file path"
     )
     (
-        "convolution,c",
-        po::value<std::string>(),
-        "Convolution matrix path (default = no convolution)"
-    )
-    (
-        "divide,d",
-        po::bool_switch()->default_value(false),
-        "Divide by convolution matrix (default = false)"
-    )
-    (
         "noskip_acc",
         po::bool_switch()->default_value(false),
         "Don't skip img acc frames at the beginning (default = false)"
@@ -112,8 +102,6 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.output_path = boost::any_cast<std::string>(vm_["output"].value());
         if (vm_.count("compute_settings"))
             options_.compute_settings_path = boost::any_cast<std::string>(vm_["compute_settings"].value());
-        if (vm_.count("convolution"))
-            options_.convo_path = boost::any_cast<std::string>(vm_["convolution"].value());
         if (vm_.count("fps"))
             options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
         if (vm_.count("n_rec"))
@@ -124,7 +112,6 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             options_.end_frame = boost::any_cast<unsigned int>(vm_["end_frame"].value());
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
-        options_.divide_convo = vm_["divide"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
     }

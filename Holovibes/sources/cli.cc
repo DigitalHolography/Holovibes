@@ -8,6 +8,7 @@
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
+#include "user_interface_descriptor.hh"
 #include "API.hh"
 
 namespace cli
@@ -52,11 +53,6 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
     else
         std::cout << "full file\n";
     std::cout << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
-    if (opts.convo_path.has_value())
-    {
-        std::cout << "Convolution matrix: " << opts.convo_path.value() << "\n";
-        std::cout << "Divide by convolution matrix: " << std::boolalpha << opts.divide_convo << std::dec << "\n";
-    }
     std::cout << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
     std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
     std::cout << std::endl;
@@ -117,14 +113,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const unsigned int fps = opts.fps.value_or(60);
 
-    if (opts.convo_path.has_value())
-    {
-        auto convo_path = std::filesystem::path(opts.convo_path.value()).filename().string();
-        cd.set_convolution(true, convo_path);
-        cd.set_divide_by_convo(opts.divide_convo);
-        holovibes.get_compute_pipe()->request_convolution();
-    }
-
     holovibes.init_input_queue(fd, cd.input_buffer_size);
 
     try
@@ -137,10 +125,16 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
         return false;
     }
 
+    cd.set_convolution(cd.get_convolution_enabled(), holovibes::UserInterfaceDescriptor::instance().convo_name);
+
     auto pipe = holovibes.get_compute_pipe();
     pipe->request_update_batch_size();
     pipe->request_update_time_transformation_stride();
     pipe->request_update_time_transformation_size();
+
+    if (cd.get_convolution_enabled())
+        pipe->request_convolution();
+
     pipe->request_refresh();
 
     delete input_frame_file;
