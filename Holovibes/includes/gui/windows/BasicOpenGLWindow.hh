@@ -104,18 +104,18 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \name Virtual Pure Functions
      * \{
      */
-    virtual void initShaders() = 0;
-    virtual void initializeGL() = 0;
-    virtual void resizeGL(int width, int height);
-    virtual void paintGL() = 0;
+    void initShaders() = 0 override;
+    void initializeGL() = 0 override;
+    void resizeGL(int width, int height) override;
+    void paintGL() = 0 override;
     /*! \} */
 
     /*! \name Event functions
      * \{
      */
     void timerEvent(QTimerEvent* e);
-    virtual void keyPressEvent(QKeyEvent* e);
-    virtual bool eventFilter(QObject* obj, QEvent* event) override;
+    void keyPressEvent(QKeyEvent* e) override;
+    bool eventFilter(QObject* obj, QEvent* event) override override;
     /*! \} */
 
   protected:

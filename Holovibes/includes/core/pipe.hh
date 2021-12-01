@@ -101,7 +101,7 @@ class Pipe : public ICompute
      *
      * \return return false if an allocation failed.
      */
-    bool make_requests() override;
+    bool make_requests();
 
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
