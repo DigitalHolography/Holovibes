@@ -204,8 +204,6 @@ inline bool get_chart_record_enabled() { return GSH::instance().get_chart_record
 
 inline bool get_raw_view_enabled() { return GSH::instance().get_raw_view_enabled(); }
 
-inline bool get_synchronized_record() { return get_cd().get_synchronized_record(); }
-
 inline bool get_reticle_display_enabled() { return get_cd().get_reticle_display_enabled(); }
 
 inline bool get_h_blur_activated() { return get_cd().get_h_blur_activated(); }

@@ -264,9 +264,6 @@ class ComputeDescriptor : public Observable
     inline bool get_renorm_enabled() const { return renorm_enabled; }
     inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
 
-    inline bool get_synchronized_record() const { return synchronized_record; }
-    inline void set_synchronized_record(bool synchronized_record) { this->synchronized_record = synchronized_record; }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -375,10 +372,6 @@ class ComputeDescriptor : public Observable
     /*! \brief postprocessing remormalize multiplication constant */
     std::atomic<unsigned> renorm_constant{5};
     std::atomic<uint> cuts_contrast_p_offset{2};
-
-    // Other
-    /*! \brief Wait the beginning of the file to start the recording. */
-    std::atomic<bool> synchronized_record{false};
 
 #pragma endregion
 };
