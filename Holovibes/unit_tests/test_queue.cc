@@ -73,7 +73,7 @@ TEST(QueueNotFull, QueueIsFullTest)
     q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_FALSE(q.is_full());
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(QueueFull, QueueIsFull)
@@ -88,7 +88,7 @@ TEST(QueueFull, QueueIsFull)
     q.enqueue(new_elt, stream, cudaMemcpyHostToDevice);
     ASSERT_TRUE(q.is_full());
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(SimpleQueueResize, QueueResize)
@@ -163,7 +163,7 @@ TEST(SimpleEnqueues, QueueEnqueue)
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(EnqueueNotSquare, QueueEnqueue)
@@ -178,7 +178,7 @@ TEST(EnqueueNotSquare, QueueEnqueue)
     ASSERT_TRUE(res);
     ASSERT_EQ(q.get_size(), 1);
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
@@ -250,7 +250,7 @@ TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
@@ -282,7 +282,7 @@ TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
     ASSERT_EQ(q.get_size(), 2);
     ASSERT_EQ(q.get_start_index(), 0);
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
@@ -374,7 +374,7 @@ TEST(DequeueOneFrame, QueueDequeue)
     q.dequeue();
     ASSERT_EQ(q.get_start_index(), 0);
 
-    delete new_elt;
+    delete[] new_elt;
 }
 
 TEST(DequeueMultipleFrames, QueueDequeue)
@@ -427,7 +427,7 @@ TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
     ASSERT_EQ(q.get_start_index(), 0);
     ASSERT_DEATH(q.dequeue(buff, stream, cudaMemcpyDeviceToHost), "");
 
-    delete buff;
+    delete[] buff;
 }
 
 TEST(SimpleDequeueValue, QueueDequeueValue)
@@ -476,7 +476,7 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    delete res;
+    delete[] res;
 }
 
 TEST(EmptyCopyMultiple, QueueCopyMultiple)
