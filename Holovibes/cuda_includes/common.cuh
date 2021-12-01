@@ -14,9 +14,6 @@
 #include <chrono>
 #include <thread>
 
-#define BOOST_STACKTRACE_USE_ADDR2LINE
-#include <boost/stacktrace.hpp>
-
 #include "cusolverDn.h"
 
 #include "tools.cuh"
@@ -80,8 +77,6 @@ inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool ab
         // FIXME: Print callers stack for a more efficient debug
         // See std::source_location (still not implemented by msvc)
         fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-
-        std::cerr << boost::stacktrace::stacktrace() << std::endl;
 
         if (abort)
             exit(code);
