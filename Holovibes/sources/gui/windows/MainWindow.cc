@@ -290,7 +290,7 @@ void MainWindow::write_ini() { api::save_compute_settings(); }
 
 void MainWindow::browse_export_ini()
 {
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.ini)"));
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.json)"));
     api::save_compute_settings(filename.toStdString());
 }
 
@@ -313,9 +313,9 @@ void MainWindow::reload_ini(const std::string& filename)
 void MainWindow::browse_import_ini()
 {
     QString filename = QFileDialog::getOpenFileName(this,
-                                                    tr("import .ini file"),
+                                                    tr("import .json file"),
                                                     UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
-                                                    tr("All files (*.ini);; Ini files (*.ini)"));
+                                                    tr("All files (*.json);; Json files (*.json)"));
 
     if (!filename.isEmpty())
         reload_ini(filename.toStdString());
