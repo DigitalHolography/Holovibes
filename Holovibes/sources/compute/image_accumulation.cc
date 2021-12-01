@@ -139,7 +139,8 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
 
 void ImageAccumulation::insert_compute_average()
 {
-    auto compute_average_lambda = [&]() {
+    auto compute_average_lambda = [&]()
+    {
         // XY view
         if (image_acc_env_.gpu_accumulation_xy_queue && cd_.get_img_accu_xy_enabled())
             compute_average(image_acc_env_.gpu_accumulation_xy_queue,
@@ -170,7 +171,8 @@ void ImageAccumulation::insert_compute_average()
 
 void ImageAccumulation::insert_copy_accumulation_result()
 {
-    auto copy_accumulation_result = [&]() {
+    auto copy_accumulation_result = [&]()
+    {
         // XY view
         if (image_acc_env_.gpu_accumulation_xy_queue && cd_.get_img_accu_xy_enabled())
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,

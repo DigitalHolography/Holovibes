@@ -1,4 +1,5 @@
 #include "compute_descriptor.hh"
+#include "user_interface_descriptor.hh"
 
 #include "holovibes.hh"
 #include "tools.hh"
@@ -289,16 +290,10 @@ void ComputeDescriptor::reset_slice_view()
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
 {
-    if (enable)
-    {
+    if (enable && file != UID_CONVOLUTION_TYPE_DEFAULT)
         load_convolution_matrix(file);
-        convolution_enabled = true;
-    }
-    else
-    {
-        convolution_enabled = false;
-        divide_convolution_enabled = false;
-    }
+
+    convolution_enabled = enable;
 }
 
 void ComputeDescriptor::set_divide_by_convo(bool enable) { divide_convolution_enabled = enable && convolution_enabled; }

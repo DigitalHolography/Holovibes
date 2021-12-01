@@ -23,8 +23,13 @@ void load_image_rendering(const json& data)
 
     const json& convolution_data = data["convolution"];
     cd.convolution_enabled = convolution_data["enabled"];
-    // FIXME: When GSH,            convolution_data["type"]
+    // FIXME: Use GSH instead of UID
+    UserInterfaceDescriptor::instance().convo_name = convolution_data["type"];
+    // FIXME: Loads convolution matrix
     cd.divide_convolution_enabled = convolution_data["divide"];
+
+    // FIXME: Need to use setters that are currently in CD
+    // Example, matrix is not loaded if we do not pass through setter
 }
 
 void load_view(const json& data)
@@ -140,7 +145,8 @@ json compute_settings_to_json()
              {"z distance", cd.zdistance.load()},
              {"convolution",
               {{"enabled", cd.convolution_enabled.load()},
-               {"type", "45"}, // TODO: When GSH will be merged, need a parameter storing name of the file
+               {"type", UserInterfaceDescriptor::instance().convo_name}, // TODO: See user_interface_descriptor.hh (put
+                                                                         // var in GSH)
                {"divide", cd.divide_convolution_enabled.load()}}},
          }},
         {"view",

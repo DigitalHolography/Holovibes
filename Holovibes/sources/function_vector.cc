@@ -10,11 +10,13 @@ FunctionVector::FunctionVector(ConditionType condition)
 
 void FunctionVector::conditional_push_back(const FnType& function)
 {
-    push_back([=]() {
-        if (!condition_())
-            return;
+    push_back(
+        [=]()
+        {
+            if (!condition_())
+                return;
 
-        function();
-    });
+            function();
+        });
 }
 } // namespace holovibes

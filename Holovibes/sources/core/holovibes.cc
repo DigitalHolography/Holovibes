@@ -87,6 +87,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         init_input_queue(camera_fd, cd_.input_buffer_size);
+        UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
 
         camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
@@ -191,6 +192,9 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 
 void Holovibes::init_pipe()
 {
+    LOG_TRACE << "Entering Holovibes::init_pipe()";
+    LOG_INFO << "a";
+
     auto& cd = Holovibes::instance().get_cd();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (cd.compute_mode == Computation::Hologram)
@@ -199,17 +203,17 @@ void Holovibes::init_pipe()
         if (cd.img_type == ImgType::Composite)
             output_fd.depth = 6;
     }
+    LOG_INFO << "b";
 
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
 
-    if (compute_pipe_.load())
-        compute_pipe_ = nullptr;
-
-    compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
-                                               *(gpu_output_queue_.load()),
-                                               cd,
-                                               get_cuda_streams().compute_stream));
-
+    if (!compute_pipe_.load())
+    {
+        compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
+                                                   *(gpu_output_queue_.load()),
+                                                   cd,
+                                                   get_cuda_streams().compute_stream));
+    }
     LOG_TRACE << "Exiting Holovibes::init_pipe()";
 }
 
@@ -228,6 +232,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
+        LOG_INFO << "toto";
         LOG_ERROR << e.what();
         return;
     }

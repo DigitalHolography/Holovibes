@@ -175,6 +175,7 @@ bool Pipe::make_requests()
     /* Allocate buffer */
     if (convolution_requested_)
     {
+        LOG_INFO;
         postprocess_->init();
         cd_.convolution_enabled = true;
         convolution_requested_ = false;
@@ -420,11 +421,13 @@ void Pipe::refresh()
 
 void Pipe::insert_wait_frames()
 {
-    fn_compute_vect_.push_back([&]() {
-        // Wait while the input queue is enough filled
-        while (gpu_input_queue_.is_empty())
-            continue;
-    });
+    fn_compute_vect_.push_back(
+        [&]()
+        {
+            // Wait while the input queue is enough filled
+            while (gpu_input_queue_.is_empty())
+                continue;
+        });
 }
 
 void Pipe::insert_reset_batch_index()
@@ -434,20 +437,24 @@ void Pipe::insert_reset_batch_index()
 
 void Pipe::insert_transfer_for_time_transformation()
 {
-    fn_compute_vect_.push_back([&]() {
-        time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
-            buffers_.gpu_spatial_transformation_buffer.get(),
-            cd_.batch_size,
-            stream_);
-    });
+    fn_compute_vect_.push_back(
+        [&]()
+        {
+            time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
+                buffers_.gpu_spatial_transformation_buffer.get(),
+                cd_.batch_size,
+                stream_);
+        });
 }
 
 void Pipe::update_batch_index()
 {
-    fn_compute_vect_.push_back([&]() {
-        batch_env_.batch_index += cd_.batch_size;
-        CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
-    });
+    fn_compute_vect_.push_back(
+        [&]()
+        {
+            batch_env_.batch_index += cd_.batch_size;
+            CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
+        });
 }
 
 void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error)
@@ -458,79 +465,85 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 
 void Pipe::insert_dequeue_input()
 {
-    fn_compute_vect_.push_back([&]() {
-        *processed_output_fps_ += cd_.batch_size;
+    fn_compute_vect_.push_back(
+        [&]()
+        {
+            *processed_output_fps_ += cd_.batch_size;
 
-        // FIXME: It seems this enqueue is useless because the RawWindow use
-        // the gpu input queue for display
-        /* safe_enqueue_output(
-        **    gpu_output_queue_,
-        **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-        **    "Can't enqueue the input frame in gpu_output_queue");
-        */
+            // FIXME: It seems this enqueue is useless because the RawWindow use
+            // the gpu input queue for display
+            /* safe_enqueue_output(
+            **    gpu_output_queue_,
+            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+            **    "Can't enqueue the input frame in gpu_output_queue");
+            */
 
-        // Dequeue a batch
-        gpu_input_queue_.dequeue();
-    });
+            // Dequeue a batch
+            gpu_input_queue_.dequeue();
+        });
 }
 
 void Pipe::insert_output_enqueue_hologram_mode()
 {
-    fn_compute_vect_.conditional_push_back([&]() {
-        (*processed_output_fps_)++;
-
-        safe_enqueue_output(gpu_output_queue_,
-                            buffers_.gpu_output_frame.get(),
-                            "Can't enqueue the output frame in gpu_output_queue");
-
-        // Always enqueue the cuts if enabled
-        if (cd_.time_transformation_cuts_enabled)
+    fn_compute_vect_.conditional_push_back(
+        [&]()
         {
-            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
-                                buffers_.gpu_output_frame_xz.get(),
-                                "Can't enqueue the output xz frame in output xz queue");
+            (*processed_output_fps_)++;
 
-            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
-                                buffers_.gpu_output_frame_yz.get(),
-                                "Can't enqueue the output yz frame in output yz queue");
-        }
+            safe_enqueue_output(gpu_output_queue_,
+                                buffers_.gpu_output_frame.get(),
+                                "Can't enqueue the output frame in gpu_output_queue");
 
-        if (cd_.filter2d_view_enabled)
-        {
-            safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
-                                buffers_.gpu_filter2d_frame.get(),
-                                "Can't enqueue the output frame in "
-                                "gpu_filter2d_view_queue");
-        }
-    });
+            // Always enqueue the cuts if enabled
+            if (cd_.time_transformation_cuts_enabled)
+            {
+                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
+                                    buffers_.gpu_output_frame_xz.get(),
+                                    "Can't enqueue the output xz frame in output xz queue");
+
+                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
+                                    buffers_.gpu_output_frame_yz.get(),
+                                    "Can't enqueue the output yz frame in output yz queue");
+            }
+
+            if (cd_.filter2d_view_enabled)
+            {
+                safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
+                                    buffers_.gpu_filter2d_frame.get(),
+                                    "Can't enqueue the output frame in "
+                                    "gpu_filter2d_view_queue");
+            }
+        });
 }
 
 void Pipe::insert_filter2d_view()
 {
     if (cd_.filter2d_enabled == true && cd_.filter2d_view_enabled == true)
     {
-        fn_compute_vect_.conditional_push_back([&]() {
-            float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
-                             buffers_.gpu_postprocess_frame.get(),
-                             buffers_.gpu_postprocess_frame_size,
-                             stream_);
+        fn_compute_vect_.conditional_push_back(
+            [&]()
+            {
+                float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
+                                 buffers_.gpu_postprocess_frame.get(),
+                                 buffers_.gpu_postprocess_frame_size,
+                                 stream_);
 
-            int width = gpu_output_queue_.get_fd().width;
-            int height = gpu_output_queue_.get_fd().height;
-            CufftHandle handle{width, height, CUFFT_C2C};
+                int width = gpu_output_queue_.get_fd().width;
+                int height = gpu_output_queue_.get_fd().height;
+                CufftHandle handle{width, height, CUFFT_C2C};
 
-            cufftSafeCall(cufftExecC2C(handle,
-                                       buffers_.gpu_complex_filter2d_frame.get(),
-                                       buffers_.gpu_complex_filter2d_frame.get(),
-                                       CUFFT_FORWARD));
-            shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
-            complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
-                               buffers_.gpu_complex_filter2d_frame.get(),
-                               0,
-                               0,
-                               buffers_.gpu_postprocess_frame_size,
-                               stream_);
-        });
+                cufftSafeCall(cufftExecC2C(handle,
+                                           buffers_.gpu_complex_filter2d_frame.get(),
+                                           buffers_.gpu_complex_filter2d_frame.get(),
+                                           CUFFT_FORWARD));
+                shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
+                complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
+                                   buffers_.gpu_complex_filter2d_frame.get(),
+                                   0,
+                                   0,
+                                   buffers_.gpu_postprocess_frame_size,
+                                   stream_);
+            });
     }
 }
 
@@ -541,11 +554,13 @@ void Pipe::insert_raw_view()
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
         // last image of the batch.
-        fn_compute_vect_.push_back([&]() {
-            // Copy a batch of frame from the input queue to the raw view
-            // queue
-            gpu_input_queue_.copy_multiple(*get_raw_view_queue());
-        });
+        fn_compute_vect_.push_back(
+            [&]()
+            {
+                // Copy a batch of frame from the input queue to the raw view
+                // queue
+                gpu_input_queue_.copy_multiple(*get_raw_view_queue());
+            });
     }
 }
 
@@ -553,9 +568,9 @@ void Pipe::insert_raw_record()
 {
     if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
-        fn_compute_vect_.push_back([&]() {
-            gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, cd_.batch_size.load());
-        });
+        fn_compute_vect_.push_back(
+            [&]()
+            { gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, cd_.batch_size.load()); });
     }
 }
 
@@ -563,12 +578,15 @@ void Pipe::insert_hologram_record()
 {
     if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
-        fn_compute_vect_.conditional_push_back([&]() {
-            if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
-                frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(), stream_);
-            else
-                frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
-        });
+        fn_compute_vect_.conditional_push_back(
+            [&]()
+            {
+                if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
+                    frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                                                  stream_);
+                else
+                    frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
+            });
     }
 }
 
@@ -578,15 +596,15 @@ void Pipe::insert_cuts_record()
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
-            fn_compute_vect_.push_back([&]() {
-                frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_);
-            });
+            fn_compute_vect_.push_back(
+                [&]()
+                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
         }
         else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
         {
-            fn_compute_vect_.push_back([&]() {
-                frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_);
-            });
+            fn_compute_vect_.push_back(
+                [&]()
+                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
         }
     }
 }
