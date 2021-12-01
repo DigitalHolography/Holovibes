@@ -130,7 +130,7 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
         get_value(meta_data_, "mode", GSH::instance().get_compute_mode()) == Computation::Raw ? Computation::Raw
                                                                                               : Computation::Hologram);
 
-    cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
+    GSH::instance().set_pixel_size(get_value(meta_data_, "pixel_size", GSH::instance().get_pixel_size()));
     GSH::instance().set_fft_shift_enabled(
         get_value(meta_data_, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled()));
     cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());

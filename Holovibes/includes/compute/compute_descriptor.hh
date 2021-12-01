@@ -127,9 +127,6 @@ class ComputeDescriptor : public Observable
         this->cuts_contrast_p_offset = cuts_contrast_p_offset;
     }
 
-    inline float get_pixel_size() const { return pixel_size; }
-    inline void set_pixel_size(float pixel_size) { this->pixel_size = pixel_size; }
-
     inline unsigned get_renorm_constant() const { return renorm_constant; }
     inline void set_renorm_constant(unsigned renorm_constant) { this->renorm_constant = renorm_constant; }
 
@@ -405,8 +402,6 @@ class ComputeDescriptor : public Observable
      */
     std::atomic<uint> unwrap_history_size{1};
 
-    /*! \brief Size of a pixel in micron */ // Depends on camera or input file.
-    std::atomic<float> pixel_size{12.0f};
     /*! \brief Number of bits to shift when in raw mode */
     std::atomic<uint> raw_bitshift{0}; // Never change and surely not used
 

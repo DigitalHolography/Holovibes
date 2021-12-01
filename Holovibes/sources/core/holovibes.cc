@@ -24,7 +24,7 @@ const float Holovibes::get_boundary()
     {
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
         const float n = static_cast<float>(fd.height);
-        const float d = cd_.pixel_size * 0.000001f;
+        const float d = GSH::instance().get_pixel_size() * 0.000001f;
         return (n * d * d) / GSH::instance().get_lambda();
     }
     return 0.f;
@@ -77,7 +77,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             throw;
         }
 
-        cd_.pixel_size = active_camera_->get_pixel_size();
+        GSH::instance().set_pixel_size(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         init_input_queue(camera_fd, api::get_input_buffer_size());

@@ -22,6 +22,7 @@ namespace holovibes
  * \param divide_convolution_enabled
  * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
+ * \param pixel_size Size of a pixel in micron. Depends on camera or input file.
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -34,7 +35,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, convolution_enabled, false),
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
-                            (Computation, compute_mode, Computation::Raw));
+                            (Computation, compute_mode, Computation::Raw),
+                            (float, pixel_size, 12.0f));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind

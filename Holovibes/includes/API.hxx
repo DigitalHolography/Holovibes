@@ -41,7 +41,7 @@ inline void set_contrast_upper_threshold(float value) { get_cd().set_contrast_up
 inline uint get_cuts_contrast_p_offset() { return get_cd().get_cuts_contrast_p_offset(); }
 inline void set_cuts_contrast_p_offset(uint value) { get_cd().set_cuts_contrast_p_offset(value); }
 
-inline float get_pixel_size() { return get_cd().get_pixel_size(); }
+inline float get_pixel_size() { return GSH::instance().get_pixel_size(); }
 
 inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
 inline void set_renorm_constant(unsigned int value) { get_cd().set_renorm_constant(value); }

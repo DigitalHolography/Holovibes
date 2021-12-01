@@ -181,9 +181,11 @@ class GSH
 
     inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
 
-    inline uint get_record_buffer_size() { return advanced_cache_.get_record_buffer_size(); }
+    inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
 
-    inline uint get_output_buffer_size() { return advanced_cache_.get_output_buffer_size(); }
+    inline uint get_output_buffer_size() const noexcept { return advanced_cache_.get_output_buffer_size(); }
+
+    inline float get_pixel_size() const noexcept { return compute_cache_.get_pixel_size(); }
 
 #pragma endregion
 
@@ -365,6 +367,13 @@ class GSH
     inline void set_record_buffer_size(uint value) { advanced_cache_.set_record_buffer_size(value); }
 
     inline void set_output_buffer_size(uint value) { advanced_cache_.set_output_buffer_size(value); }
+
+    inline void set_pixel_size(float value)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        LOG_WARN << value;
+        compute_cache_.set_pixel_size(value);
+    }
 
 #pragma endregion
 
