@@ -46,5 +46,4 @@ class ConversionData
 
     const gui::BasicOpenGLWindow* window_;
 };
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

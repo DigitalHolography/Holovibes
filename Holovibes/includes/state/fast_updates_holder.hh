@@ -20,7 +20,7 @@ class FastUpdatesHolder
   public:
     using Key = T;
     using Value = std::shared_ptr<FastUpdateTypeValue<T>>;
-    using const_iterator = std::unordered_map<Key, Value>::const_iterator;
+    using const_iterator = typename std::unordered_map<Key, Value>::const_iterator;
 
     /*!
      * \brief Create a fast update entry object in the map of type T

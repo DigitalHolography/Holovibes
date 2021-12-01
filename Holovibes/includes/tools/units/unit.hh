@@ -112,7 +112,7 @@ class Unit
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
+inline std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
 {
     return o << x.get();
 }
