@@ -1082,7 +1082,7 @@ void display_reticle(bool value)
 
 void reticle_scale(float value)
 {
-    get_cd().set_reticle_scale(value);
+    set_reticle_scale(value);
     pipe_refresh();
 }
 

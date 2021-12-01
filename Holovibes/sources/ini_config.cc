@@ -14,7 +14,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
 
     display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
-    reticle_scale(ptree.get<float>("view.reticle_scale", cd.reticle_scale));
 }
 
 void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
@@ -80,7 +79,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
     };
 
     ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
-    ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 }
 
 void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)

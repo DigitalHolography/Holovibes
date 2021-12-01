@@ -133,9 +133,6 @@ class ComputeDescriptor : public Observable
         time_transformation_cuts_output_buffer_size = value;
     }
 
-    inline float get_reticle_scale() const { return reticle_scale; }
-    inline void set_reticle_scale(float reticle_scale) { this->reticle_scale = reticle_scale; }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -204,8 +201,6 @@ class ComputeDescriptor : public Observable
 
     /*! \brief Is the reticle overlay enabled */
     std::atomic<bool> reticle_display_enabled{false};
-    /*! \brief Reticle border scale */
-    std::atomic<float> reticle_scale{0.5f};
 
     // Advanced
     /*! \brief Max size of time transformation cuts queue in number of images. */

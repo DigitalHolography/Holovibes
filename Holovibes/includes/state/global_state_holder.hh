@@ -244,6 +244,8 @@ class GSH
     inline bool get_composite_p_activated_s() const noexcept { return composite_cache_.get_hsv().s.p_activated; }
     inline bool get_composite_p_activated_v() const noexcept { return composite_cache_.get_hsv().v.p_activated; }
 
+    inline float get_reticle_scale() const noexcept { return view_cache_.get_reticle_scale(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -490,6 +492,8 @@ class GSH
     inline void set_h_blur_activated(bool value) { composite_cache_.get_hsv_ref().h.blur_enabled = value; }
     inline void set_composite_p_activated_s(bool value) { composite_cache_.get_hsv_ref().s.p_activated = value; }
     inline void set_composite_p_activated_v(bool value) { composite_cache_.get_hsv_ref().v.p_activated = value; }
+
+    inline void set_reticle_scale(float value) { view_cache_.set_reticle_scale(value); }
 
 #pragma endregion
 

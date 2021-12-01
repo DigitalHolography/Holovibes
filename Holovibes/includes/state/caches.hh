@@ -88,6 +88,7 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
  * \param fft_shift_enabled Is shift fft enabled (switching representation diagram)
  * \param raw_view_enabled Display the raw interferogram when we are in hologram mode.
  * \param cuts_view_enabled Are slices YZ and XZ enabled
+ * \param reticle_scale Reticle border scale
  */
 
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
@@ -108,7 +109,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (bool, fft_shift_enabled, false),
                             (bool, raw_view_enabled, false),
                             (bool, cuts_view_enabled, false),
-                            (bool, renorm_enabled, true));
+                            (bool, renorm_enabled, true),
+                            (float, reticle_scale, 0.5f));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

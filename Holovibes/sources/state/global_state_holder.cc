@@ -274,6 +274,7 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     // false));
 
     api::toggle_renormalize(ptree.get<bool>("view.renorm_enabled", true));
+    api::reticle_scale(ptree.get<float>("view.reticle_scale", 0.5f));
 }
 
 void p_load(const boost::property_tree::ptree& ptree, const std::string& name, Composite_P& p)
@@ -411,6 +412,8 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("view.3d_cuts_enabled", view_cache_.get_cuts_view_enabled());
 
     ptree.put<bool>("view.renorm_enabled", view_cache_.get_renorm_enabled());
+
+    ptree.put<float>("view.reticle_scale", view_cache_.get_reticle_scale());
 }
 
 void p_save(boost::property_tree::ptree& ptree, const std::string& name, const Composite_P& p)

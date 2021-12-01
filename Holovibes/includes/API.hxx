@@ -97,7 +97,8 @@ inline uint get_q_index() { return GSH::instance().get_q_index(); }
 
 inline uint get_q_accu_level() { return GSH::instance().get_q_accu_level(); }
 
-inline float get_reticle_scale() { return get_cd().get_reticle_scale(); }
+inline float get_reticle_scale() { return GSH::instance().get_reticle_scale(); }
+inline void set_reticle_scale(float value) { GSH::instance().set_reticle_scale(value); }
 
 inline CompositeKind get_composite_kind() { return GSH::instance().get_composite_kind(); }
 inline void set_composite_kind(CompositeKind value) { GSH::instance().set_composite_kind(value); }
