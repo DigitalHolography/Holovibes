@@ -12,7 +12,6 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 }
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    toggle_renormalize(ptree.get<bool>("view.renorm_enabled", cd.renorm_enabled));
 
     display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
     reticle_scale(ptree.get<float>("view.reticle_scale", cd.reticle_scale));
@@ -114,7 +113,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
         ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
 
-    ptree.put<bool>("view.renorm_enabled", cd.renorm_enabled);
     ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
     ptree.put<float>("view.reticle_scale", cd.reticle_scale);
 }

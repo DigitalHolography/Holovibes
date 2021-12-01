@@ -133,6 +133,6 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
     GSH::instance().set_pixel_size(get_value(meta_data_, "pixel_size", GSH::instance().get_pixel_size()));
     GSH::instance().set_fft_shift_enabled(
         get_value(meta_data_, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled()));
-    cd.renorm_enabled = get_value(meta_data_, "renorm_enabled", cd.renorm_enabled.load());
+    GSH::instance().set_renorm_enabled(get_value(meta_data_, "renorm_enabled", GSH::instance().get_renorm_enabled()));
 }
 } // namespace holovibes::io_files

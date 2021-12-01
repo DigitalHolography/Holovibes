@@ -261,9 +261,6 @@ class ComputeDescriptor : public Observable
         this->hsv.v.high_threshold = composite_high_v_threshold;
     }
 
-    inline bool get_renorm_enabled() const { return renorm_enabled; }
-    inline void set_renorm_enabled(bool renorm_enabled) { this->renorm_enabled = renorm_enabled; }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -347,8 +344,6 @@ class ComputeDescriptor : public Observable
 
 #pragma region Atomics vars
 
-    /*! \brief Postprocessing renorm enabled */
-    std::atomic<bool> renorm_enabled{true};
     /*! \brief Is the reticle overlay enabled */
     std::atomic<bool> reticle_display_enabled{false};
     /*! \brief Reticle border scale */

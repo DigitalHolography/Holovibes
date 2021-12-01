@@ -266,6 +266,8 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
     // view_cache_.set_raw_view_enabled(ptree.get<bool>("view.raw_view_enabled", false));
     // GSH::instance().set_cuts_view_enabled(ptree.get<bool>("view.3d_cuts_enabled",
     // false));
+
+    api::toggle_renormalize(ptree.get<bool>("view.renorm_enabled", true));
 }
 
 static void load_composite(const boost::property_tree::ptree& ptree, CompositeCache::Ref& composite_cache_)
@@ -366,6 +368,8 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("view.fft_shift_enabled", view_cache_.get_fft_shift_enabled());
     ptree.put<bool>("view.raw_view_enabled", view_cache_.get_raw_view_enabled());
     ptree.put<bool>("view.3d_cuts_enabled", view_cache_.get_cuts_view_enabled());
+
+    ptree.put<bool>("view.renorm_enabled", view_cache_.get_renorm_enabled());
 }
 
 static void save_composite(boost::property_tree::ptree& ptree, const CompositeCache::Ref& composite_cache_)

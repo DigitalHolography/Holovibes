@@ -493,7 +493,7 @@ void change_window(const int index) { GSH::instance().change_window(index); }
 
 void toggle_renormalize(bool value)
 {
-    get_cd().set_renorm_enabled(value);
+    set_renorm_enabled(value);
 
     if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
         get_compute_pipe()->request_clear_img_acc();

@@ -172,7 +172,8 @@ inline void set_convolution_enabled(bool value) { GSH::instance().set_convolutio
 inline bool get_divide_convolution_enabled() { return GSH::instance().get_divide_convolution_enabled(); }
 inline void set_divide_convolution_enabled(bool value) { return GSH::instance().set_divide_convolution_enabled(value); }
 
-inline bool get_renorm_enabled() { return get_cd().get_renorm_enabled(); }
+inline bool get_renorm_enabled() { return GSH::instance().get_renorm_enabled(); }
+inline void set_renorm_enabled(bool value) { GSH::instance().set_renorm_enabled(value); }
 
 inline bool get_fft_shift_enabled() { return GSH::instance().get_fft_shift_enabled(); }
 inline void set_fft_shift_enabled(bool value) { GSH::instance().set_fft_shift_enabled(value); }

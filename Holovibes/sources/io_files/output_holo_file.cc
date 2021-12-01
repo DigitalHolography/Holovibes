@@ -64,7 +64,7 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
                           {"img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()},
                           {"img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()},
 
-                          {"renorm_enabled", cd.renorm_enabled.load()}};
+                          {"renorm_enabled", GSH::instance().get_renorm_enabled()}};
     }
     catch (const json::exception& e)
     {

@@ -151,7 +151,7 @@ void Postprocessing::insert_convolution()
 
 void Postprocessing::insert_renormalize()
 {
-    if (!cd_.renorm_enabled)
+    if (!view_cache_.get_renorm_enabled())
         return;
 
     fn_compute_vect_.conditional_push_back([=]() {

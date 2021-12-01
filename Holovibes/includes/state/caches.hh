@@ -27,6 +27,7 @@ namespace holovibes
  * Determines how far, meaning how many iterations back, phase corrections
  * are taken in order to be applied to the current phase image.
  * \param is_computation_stopped Is the computation stopped
+ * \param renorm_enabled Postprocessing renorm enabled
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -100,7 +101,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (bool, filter2d_view_enabled, false),
                             (bool, fft_shift_enabled, false),
                             (bool, raw_view_enabled, false),
-                            (bool, cuts_view_enabled, false));
+                            (bool, cuts_view_enabled, false),
+                            (bool, renorm_enabled, true));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

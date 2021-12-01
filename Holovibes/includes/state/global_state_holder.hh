@@ -191,6 +191,8 @@ class GSH
 
     inline bool get_is_computation_stopped() const noexcept { return compute_cache_.get_is_computation_stopped(); }
 
+    inline bool get_renorm_enabled() const noexcept { return view_cache_.get_renorm_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -381,6 +383,12 @@ class GSH
     inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
 
     inline void set_is_computation_stopped(bool value) { compute_cache_.set_is_computation_stopped(value); }
+
+    inline void set_renorm_enabled(bool value)
+    {
+        LOG_WARN << std::boolalpha << value;
+        view_cache_.set_renorm_enabled(value);
+    }
 
 #pragma endregion
 
