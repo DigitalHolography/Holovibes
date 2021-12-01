@@ -183,7 +183,6 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 
 void MainWindow::notify()
 {
-    LOG_INFO;
     synchronize_thread([this]() { on_notify(); });
 }
 

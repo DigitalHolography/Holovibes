@@ -175,7 +175,6 @@ bool Pipe::make_requests()
     /* Allocate buffer */
     if (convolution_requested_)
     {
-        LOG_INFO;
         postprocess_->init();
         cd_.convolution_enabled = true;
         convolution_requested_ = false;

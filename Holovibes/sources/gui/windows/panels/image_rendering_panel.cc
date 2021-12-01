@@ -107,8 +107,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    LOG_INFO << "a";
-
     if (mode == static_cast<int>(Computation::Raw))
     {
         api::close_windows();
@@ -118,10 +116,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
             return;
 
         api::set_raw_mode(*parent_, parent_->window_max_size);
-        LOG_INFO;
 
         parent_->notify();
-        LOG_INFO;
         parent_->layout_toggled();
     }
     else if (mode == static_cast<int>(Computation::Hologram))
@@ -357,6 +353,8 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
     api::set_divide_convolution(value);
+
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_z_step(double value)

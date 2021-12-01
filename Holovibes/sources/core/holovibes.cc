@@ -193,7 +193,6 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 void Holovibes::init_pipe()
 {
     LOG_TRACE << "Entering Holovibes::init_pipe()";
-    LOG_INFO << "a";
 
     auto& cd = Holovibes::instance().get_cd();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
@@ -203,7 +202,6 @@ void Holovibes::init_pipe()
         if (cd.img_type == ImgType::Composite)
             output_fd.depth = 6;
     }
-    LOG_INFO << "b";
 
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd, cd.output_buffer_size, QueueType::OUTPUT_QUEUE));
 
@@ -232,7 +230,6 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
-        LOG_INFO << "toto";
         LOG_ERROR << e.what();
         return;
     }
