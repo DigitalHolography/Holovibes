@@ -241,11 +241,11 @@ inline void set_record_buffer_size(uint value) { GSH::instance().set_record_buff
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
-    return get_cd().get_time_transformation_cuts_output_buffer_size();
+    return GSH::instance().get_time_transformation_cuts_output_buffer_size();
 }
 inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
-    get_cd().set_time_transformation_cuts_output_buffer_size(value);
+    GSH::instance().set_time_transformation_cuts_output_buffer_size(value);
 }
 
 inline uint get_input_fps() { return GSH::instance().get_input_fps(); }

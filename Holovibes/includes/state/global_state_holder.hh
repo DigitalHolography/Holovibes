@@ -246,6 +246,11 @@ class GSH
 
     inline float get_reticle_scale() const noexcept { return view_cache_.get_reticle_scale(); }
 
+    inline uint get_time_transformation_cuts_output_buffer_size() const noexcept
+    {
+        return compute_cache_.get_time_transformation_cuts_output_buffer_size();
+    }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -494,6 +499,12 @@ class GSH
     inline void set_composite_p_activated_v(bool value) { composite_cache_.get_hsv_ref().v.p_activated = value; }
 
     inline void set_reticle_scale(float value) { view_cache_.set_reticle_scale(value); }
+
+    inline void set_time_transformation_cuts_output_buffer_size(uint value)
+    {
+        LOG_WARN << value;
+        compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
+    }
 
 #pragma endregion
 

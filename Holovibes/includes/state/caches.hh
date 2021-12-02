@@ -29,6 +29,7 @@ namespace holovibes
  * are taken in order to be applied to the current phase image.
  * \param is_computation_stopped Is the computation stopped
  * \param renorm_enabled Postprocessing renorm enabled
+ * \param time_transformation_cuts_output_buffer_size Max size of time transformation cuts queue in number of images.
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -44,7 +45,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (Computation, compute_mode, Computation::Raw),
                             (float, pixel_size, 12.0f),
                             (uint, unwrap_history_size, 1),
-                            (bool, is_computation_stopped, true));
+                            (bool, is_computation_stopped, true),
+                            (uint, time_transformation_cuts_output_buffer_size, 8));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind

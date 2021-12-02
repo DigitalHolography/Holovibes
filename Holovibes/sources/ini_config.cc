@@ -13,15 +13,13 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
 void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
 
-    display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
+    // FIXME: if display_raticle param is true, holovibes crashes on load only
+    // display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
+    display_reticle(false); // To remove when issue solved
 }
 
 void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    cd.time_transformation_cuts_output_buffer_size =
-        ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size",
-                          cd.time_transformation_cuts_output_buffer_size);
-
     cd.filter2d_smooth_low = ptree.get<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low);
     cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
     cd.contrast_lower_threshold = ptree.get<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
@@ -83,8 +81,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 
 void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
-    ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
-                    cd.time_transformation_cuts_output_buffer_size);
     ptree.put<int>("advanced.filter2d_smooth_low", cd.filter2d_smooth_low.load());
     ptree.put<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high.load());
     ptree.put<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);

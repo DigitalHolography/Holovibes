@@ -124,15 +124,6 @@ class ComputeDescriptor : public Observable
         this->filter2d_smooth_high = filter2d_smooth_high;
     }
 
-    inline uint get_time_transformation_cuts_output_buffer_size() const
-    {
-        return time_transformation_cuts_output_buffer_size;
-    }
-    inline void set_time_transformation_cuts_output_buffer_size(uint value)
-    {
-        time_transformation_cuts_output_buffer_size = value;
-    }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -203,8 +194,6 @@ class ComputeDescriptor : public Observable
     std::atomic<bool> reticle_display_enabled{false};
 
     // Advanced
-    /*! \brief Max size of time transformation cuts queue in number of images. */
-    std::atomic<uint> time_transformation_cuts_output_buffer_size{8};
     /*! \brief Filter2D low smoothing */ // May be moved in filter2d Struct
     std::atomic<int> filter2d_smooth_low{0};
     /*! \brief Filter2D high smoothing */
