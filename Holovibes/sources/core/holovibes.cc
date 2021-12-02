@@ -178,7 +178,8 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                           nb_frames_skip,
                                           cd_.output_buffer_size);
 
-    while (compute_pipe_.load()->get_hologram_record_requested() == std::nullopt)
+    while ((compute_pipe_.load()->get_hologram_record_requested() == std::nullopt) &&
+           (compute_pipe_.load()->get_raw_record_requested() == std::nullopt))
         continue;
 
     compute_pipe_.load()->request_refresh();
