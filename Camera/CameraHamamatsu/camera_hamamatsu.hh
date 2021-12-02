@@ -3,7 +3,7 @@
  * Camera Hamamatsu C11440 */
 #pragma once
 
-#include <camera.hh>
+#include "camera.hh"
 #include "camera_exception.hh"
 
 #include "dcamapi4.h"

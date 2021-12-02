@@ -6,7 +6,7 @@
 #include <Windows.h>
 #include <xiApi.h>
 
-#include <camera.hh>
+#include "camera.hh"
 
 namespace camera
 {

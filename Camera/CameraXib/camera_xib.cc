@@ -1,7 +1,7 @@
 #include "camera_xib.hh"
 
 #include <chrono>
-#include <camera_exception.hh>
+#include "camera_exception.hh"
 #include <iostream>
 #include <cstring>
 

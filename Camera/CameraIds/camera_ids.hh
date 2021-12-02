@@ -3,7 +3,7 @@
  * Camera IDS */
 #pragma once
 
-#include <camera.hh>
+#include "camera.hh"
 
 /* Disable warnings. */
 #pragma warning(push, 0)

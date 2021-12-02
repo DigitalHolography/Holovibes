@@ -5,7 +5,7 @@
 
 #include <BFType.h>
 #include <BiDef.h>
-#include <camera.hh>
+#include "camera.hh"
 
 #include "camera_exception.hh"
 
@@ -55,10 +55,7 @@ class CameraAdimec : public Camera
      * \param cam_ex A CameraException type.
      * \param flag See CloseFlag enum.
      */
-    void err_check(const BFRC status,
-                   const std::string err_mess,
-                   const CameraException cam_ex,
-                   const int flag);
+    void err_check(const BFRC status, const std::string err_mess, const CameraException cam_ex, const int flag);
 
   private:
     /*! \brief Selecting a component to release.
