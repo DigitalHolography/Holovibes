@@ -333,6 +333,7 @@ static void load_advanced(const boost::property_tree::ptree& ptree,
     compute_cache_.set_time_transformation_cuts_output_buffer_size(
         ptree.get<ushort>("advanced.time_transformation_cuts_output_buffer_size", 8));
     filter2d_cache_.set_filter2d_smooth_low(ptree.get<int>("advanced.filter2d_smooth_low", 0));
+    filter2d_cache_.set_filter2d_smooth_high(ptree.get<int>("advanced.filter2d_smooth_high", 0));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -476,6 +477,7 @@ static void save_advanced(boost::property_tree::ptree& ptree,
     ptree.put<uint>("advanced.time_transformation_cuts_output_buffer_size",
                     compute_cache_.get_time_transformation_cuts_output_buffer_size());
     ptree.put<int>("advanced.filter2d_smooth_low", filter2d_cache_.get_filter2d_smooth_low());
+    ptree.put<int>("advanced.filter2d_smooth_high", filter2d_cache_.get_filter2d_smooth_high());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

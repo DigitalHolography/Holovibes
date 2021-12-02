@@ -115,12 +115,6 @@ class ComputeDescriptor : public Observable
     inline unsigned get_renorm_constant() const { return renorm_constant; }
     inline void set_renorm_constant(unsigned renorm_constant) { this->renorm_constant = renorm_constant; }
 
-    inline int get_filter2d_smooth_high() const { return filter2d_smooth_high; }
-    inline void set_filter2d_smooth_high(int filter2d_smooth_high)
-    {
-        this->filter2d_smooth_high = filter2d_smooth_high;
-    }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -190,8 +184,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Is the reticle overlay enabled */
     std::atomic<bool> reticle_display_enabled{false};
 
-    /*! \brief Filter2D high smoothing */
-    std::atomic<int> filter2d_smooth_high{0};
     std::atomic<float> contrast_lower_threshold{0.5f};
     std::atomic<float> contrast_upper_threshold{99.5f};
     /*! \brief postprocessing remormalize multiplication constant */

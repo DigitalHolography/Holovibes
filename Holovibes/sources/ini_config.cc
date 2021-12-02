@@ -20,7 +20,6 @@ void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 
 void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
 {
-    cd.filter2d_smooth_high = ptree.get<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high);
     cd.contrast_lower_threshold = ptree.get<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
     cd.contrast_upper_threshold = ptree.get<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
     cd.renorm_constant = ptree.get<uint>("advanced.renorm_constant", cd.renorm_constant);
@@ -80,7 +79,6 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 
 void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
 {
-    ptree.put<int>("advanced.filter2d_smooth_high", cd.filter2d_smooth_high.load());
     ptree.put<float>("advanced.contrast_lower_threshold", cd.contrast_lower_threshold);
     ptree.put<float>("advanced.contrast_upper_threshold", cd.contrast_upper_threshold);
     ptree.put<uint>("advanced.renorm_constant", cd.renorm_constant);

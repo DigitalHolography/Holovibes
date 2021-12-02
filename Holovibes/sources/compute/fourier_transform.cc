@@ -64,7 +64,7 @@ void FourierTransform::insert_fft()
                                      filter2d_cache_.get_filter2d_n1(),
                                      filter2d_cache_.get_filter2d_n2(),
                                      filter2d_cache_.get_filter2d_smooth_low(),
-                                     cd_.filter2d_smooth_high,
+                                     filter2d_cache_.get_filter2d_smooth_high(),
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same

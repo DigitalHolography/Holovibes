@@ -63,8 +63,8 @@ inline void set_filter2d_n2(int value)
 inline int get_filter2d_smooth_low() { return GSH::instance().get_filter2d_smooth_low(); }
 inline void set_filter2d_smooth_low(int value) { GSH::instance().set_filter2d_smooth_low(value); }
 
-inline int get_filter2d_smooth_high() { return get_cd().get_filter2d_smooth_high(); }
-inline void set_filter2d_smooth_high(int value) { get_cd().set_filter2d_smooth_high(value); }
+inline int get_filter2d_smooth_high() { return GSH::instance().get_filter2d_smooth_high(); }
+inline void set_filter2d_smooth_high(int value) { GSH::instance().set_filter2d_smooth_high(value); }
 
 inline float get_display_rate() { return GSH::instance().get_display_rate(); }
 inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }

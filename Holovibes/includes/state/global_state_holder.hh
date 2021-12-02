@@ -253,6 +253,8 @@ class GSH
 
     inline int get_filter2d_smooth_low() const noexcept { return filter2d_cache_.get_filter2d_smooth_low(); }
 
+    inline int get_filter2d_smooth_high() const noexcept { return filter2d_cache_.get_filter2d_smooth_high(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -507,10 +509,12 @@ class GSH
         compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
     }
 
-    inline void set_filter2d_smooth_low(int value)
+    inline void set_filter2d_smooth_low(int value) { filter2d_cache_.set_filter2d_smooth_low(value); }
+
+    inline void set_filter2d_smooth_high(int value)
     {
         LOG_WARN << value;
-        filter2d_cache_.set_filter2d_smooth_low(value);
+        filter2d_cache_.set_filter2d_smooth_high(value);
     }
 
 #pragma endregion
