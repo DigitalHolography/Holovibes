@@ -6,7 +6,7 @@
 
 namespace holovibes::settings
 {
-#define __HOLOVIBES_VERSION__ "10.5"
+#define __HOLOVIBES_VERSION__ "10.5.1"
 #define __APPNAME__ "Holovibes"
 
 #define __COMPUTE_CONFIG_FILENAME__ "compute_settings.json"
