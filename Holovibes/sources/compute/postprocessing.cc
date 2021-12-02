@@ -22,7 +22,8 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                ComputeDescriptor& cd,
                                const cudaStream_t& stream,
                                ComputeCache::Cache& compute_cache,
-                               ViewCache::Cache& view_cache)
+                               ViewCache::Cache& view_cache,
+                               AdvancedCache::Cache& advanced_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -35,6 +36,7 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , stream_(stream)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
+    , advanced_cache_(advanced_cache)
 {
 }
 
@@ -161,7 +163,7 @@ void Postprocessing::insert_renormalize()
         gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                       reduce_result_.get(),
                       frame_res,
-                      cd_.renorm_constant,
+                      advanced_cache_.get_renorm_constant(),
                       stream_);
     });
 }

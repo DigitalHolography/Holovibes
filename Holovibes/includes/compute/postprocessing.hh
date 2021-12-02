@@ -34,8 +34,9 @@ class Postprocessing
                    const camera::FrameDescriptor& fd,
                    holovibes::ComputeDescriptor& cd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache_,
-                   ViewCache::Cache& view_cache);
+                   ComputeCache::Cache& compute_cache,
+                   ViewCache::Cache& view_cache,
+                   AdvancedCache::Cache& advanced_cache);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -81,6 +82,7 @@ class Postprocessing
     /*! \brief All view related variables, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
     ComputeCache::Cache& compute_cache_;
+    AdvancedCache::Cache& advanced_cache_;
 };
 } // namespace compute
 } // namespace holovibes

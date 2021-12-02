@@ -55,7 +55,7 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
     api::set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
     api::set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
-    api::get_cd().set_renorm_constant(ui.RenormConstantSpinBox->value());
+    api::set_renorm_constant(ui.RenormConstantSpinBox->value());
     api::get_cd().set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
 
     UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
@@ -104,7 +104,7 @@ void AdvancedSettingsWindow::set_current_values()
     ui.Filter2DHighSpinBox->setValue(api::get_filter2d_smooth_high());
     ui.ContrastLowerSpinBox->setValue(api::get_contrast_lower_threshold());
     ui.ContrastUpperSpinBox->setValue(api::get_contrast_upper_threshold());
-    ui.RenormConstantSpinBox->setValue(api::get_cd().get_renorm_constant());
+    ui.RenormConstantSpinBox->setValue(api::get_renorm_constant());
     ui.CutsContrastSpinBox->setValue(api::get_cd().get_cuts_contrast_p_offset());
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());

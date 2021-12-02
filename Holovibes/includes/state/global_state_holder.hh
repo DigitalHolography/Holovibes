@@ -265,6 +265,8 @@ class GSH
         return advanced_cache_.get_contrast_upper_threshold();
     }
 
+    inline unsigned get_renorm_constant() const noexcept { return advanced_cache_.get_renorm_constant(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -523,16 +525,14 @@ class GSH
 
     inline void set_filter2d_smooth_high(int value) { filter2d_cache_.set_filter2d_smooth_high(value); }
 
-    inline void set_contrast_lower_threshold(float value)
-    {
-        LOG_WARN << value;
-        advanced_cache_.set_contrast_lower_threshold(value);
-    }
+    inline void set_contrast_lower_threshold(float value) { advanced_cache_.set_contrast_lower_threshold(value); }
 
-    inline void set_contrast_upper_threshold(float value)
+    inline void set_contrast_upper_threshold(float value) { advanced_cache_.set_contrast_upper_threshold(value); }
+
+    inline void set_renorm_constant(unsigned value)
     {
         LOG_WARN << value;
-        advanced_cache_.set_contrast_upper_threshold(value);
+        advanced_cache_.set_renorm_constant(value);
     }
 
 #pragma endregion

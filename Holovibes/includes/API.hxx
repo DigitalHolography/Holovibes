@@ -43,8 +43,8 @@ inline void set_cuts_contrast_p_offset(uint value) { get_cd().set_cuts_contrast_
 
 inline float get_pixel_size() { return GSH::instance().get_pixel_size(); }
 
-inline unsigned get_renorm_constant() { return get_cd().get_renorm_constant(); }
-inline void set_renorm_constant(unsigned int value) { get_cd().set_renorm_constant(value); }
+inline unsigned get_renorm_constant() { return GSH::instance().get_renorm_constant(); }
+inline void set_renorm_constant(unsigned int value) { GSH::instance().set_renorm_constant(value); }
 
 inline int get_filter2d_n1() { return GSH::instance().get_filter2d_n1(); }
 inline void set_filter2d_n1(int value)

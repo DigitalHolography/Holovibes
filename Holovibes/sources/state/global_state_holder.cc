@@ -336,6 +336,7 @@ static void load_advanced(const boost::property_tree::ptree& ptree,
     filter2d_cache_.set_filter2d_smooth_high(ptree.get<int>("advanced.filter2d_smooth_high", 0));
     advanced_cache_.set_contrast_lower_threshold(ptree.get<float>("advanced.contrast_lower_threshold", 0.5f));
     advanced_cache_.set_contrast_upper_threshold(ptree.get<float>("advanced.contrast_upper_threshold", 99.5f));
+    advanced_cache_.set_renorm_constant(ptree.get<uint>("advanced.renorm_constant", 5));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -482,6 +483,7 @@ static void save_advanced(boost::property_tree::ptree& ptree,
     ptree.put<int>("advanced.filter2d_smooth_high", filter2d_cache_.get_filter2d_smooth_high());
     ptree.put<float>("advanced.contrast_lower_threshold", advanced_cache_.get_contrast_lower_threshold());
     ptree.put<float>("advanced.contrast_upper_threshold", advanced_cache_.get_contrast_upper_threshold());
+    ptree.put<uint>("advanced.renorm_constant", advanced_cache_.get_renorm_constant());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

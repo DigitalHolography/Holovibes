@@ -100,9 +100,6 @@ class ComputeDescriptor : public Observable
         this->cuts_contrast_p_offset = cuts_contrast_p_offset;
     }
 
-    inline unsigned get_renorm_constant() const { return renorm_constant; }
-    inline void set_renorm_constant(unsigned renorm_constant) { this->renorm_constant = renorm_constant; }
-
     inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
     inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
 
@@ -172,8 +169,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Is the reticle overlay enabled */
     std::atomic<bool> reticle_display_enabled{false};
 
-    /*! \brief postprocessing remormalize multiplication constant */
-    std::atomic<unsigned> renorm_constant{5};
     std::atomic<uint> cuts_contrast_p_offset{2};
 
 #pragma endregion

@@ -92,7 +92,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                              desc,
                                                              stream_,
                                                              compute_cache_,
-                                                             view_cache_);
+                                                             view_cache_,
+                                                             advanced_cache_);
 
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;

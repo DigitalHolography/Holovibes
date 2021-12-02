@@ -30,6 +30,7 @@ namespace holovibes
  * \param is_computation_stopped Is the computation stopped
  * \param renorm_enabled Postprocessing renorm enabled
  * \param time_transformation_cuts_output_buffer_size Max size of time transformation cuts queue in number of images.
+ * \param renorm_constant postprocessing remormalize multiplication constant
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
@@ -144,7 +145,8 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (uint, record_buffer_size, 64),
                             (uint, output_buffer_size, 64),
                             (float, contrast_lower_threshold, 0.5f),
-                            (float, contrast_upper_threshold, 99.5f));
+                            (float, contrast_upper_threshold, 99.5f),
+                            (unsigned, renorm_constant, 5));
 
 /*! \brief Construct a new new micro cache object
  *
