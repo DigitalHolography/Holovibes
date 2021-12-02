@@ -23,10 +23,8 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
-add_definitions(-DWIN32 -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D_XKEYCHECK_H -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS -D_WIN32_WINNT=0x0600 -DUNICODE -D_UNICODE)
-string(APPEND CMAKE_CXX_FLAGS " -fuse-ld=lld-link")
-string(APPEND CMAKE_CXX_FLAGS " -fms-extensions -fms-compatibility -Wno-ignored-attributes -Wno-unused-local-typedef -Wno-expansion-to-defined -Wno-pragma-pack -Wno-ignored-pragma-intrinsic -Wno-unknown-pragmas -Wno-invalid-token-paste -Wno-deprecated-declarations -Wno-macro-redefined -Wno-dllimport-static-field-def -Wno-unused-command-line-argument -Wno-unknown-argument -Wno-int-to-void-pointer-cast")
 
+### C++ Flags
 
 # "/W3"                     : Activate almost all warningd
 # "/sdl"                    : Activate all security warnings
@@ -36,13 +34,32 @@ string(APPEND CMAKE_CXX_FLAGS " -fms-extensions -fms-compatibility -Wno-ignored-
 # "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
 # "/external:W0"            : Tells MSVC that external headers should not do any warnings
 # "/fsanitize=address       : Add ASAn to build
-#string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /external:anglebrackets /external:W0")
+string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /std:c++20")
 #string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
 
-#Remove 'no debug *.pdg file found' warning
+#Remove 'no debug *.pdg file found' warning cause conan dont keep them
 string(APPEND CMAKE_EXE_LINKER_FLAGS " /ignore:4099")
 
-set(HOLO_INCLUDES
+function(target_include_external_dirs target type)
+    foreach(dir ${ARGN})
+        target_compile_options(${target} ${type} "/external:I${dir}")
+    endforeach()
+endfunction()
+
+SET(CUDA_EXTERNAL_INCLUDES
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+    ${glm_INCLUDE_DIRS}
+)
+
+set(EXTERNAL_INCLUDES
+    ${opencv_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    ${Qt6_INCLUDE_DIRS}
+    ${nlohmann_json_INCLUDE_DIRS}
+    ${CUDA_EXTERNAL_INCLUDES}
+)
+
+set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
     includes/state/
@@ -68,23 +85,14 @@ set(HOLO_INCLUDES
 
 
     "${CMAKE_SOURCE_DIR}/GPIB/"
-    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
     "${CAMERA_DIR}/include/"
-    "${opencv_INCLUDE_DIRS}"
-    "${Boost_INCLUDE_DIRS}"
-    "${Qt6_INCLUDE_DIRS}"
-    "${glm_INCLUDE_DIRS}"
-    "${nlohmann_json_INCLUDE_DIRS}"
 )
-
-
-    #"${LIBS_DIR}/glm/"
 
 # The following targets are going to be generated:
 # - Holovibes_cuda_lib (lib)
 # - Holovibes_lib (lib, inherits from Holovibes_cuda_lib)
 # - Holovibes (executable, inherits from Holovibes_lib)
-# - test_* (executable, inherits from Holovibes_lib)
+# - unit_tests (executable, inherits from Holovibes_lib)
 #
 # Holovibes_lib is the core containing all sources and linked to every external
 # libraries (QT, Boost, ...). This way we can prevent redundancy and generate
@@ -100,12 +108,9 @@ add_library("${PROJECT_NAME}_cuda_lib" STATIC)
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
 set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
 
-target_include_directories("${PROJECT_NAME}_cuda_lib" PUBLIC ${HOLO_INCLUDES})
+target_include_directories("${PROJECT_NAME}_cuda_lib" PRIVATE ${CUDA_EXTERNAL_INCLUDES} ${INTERNAL_INCLUDES})
 
 add_subdirectory(cuda_sources) # Add cuda sources to the target
-
-
-
 # ---------------------------------------------------------------------
 # Target "${PROJECT_NAME}_lib"
 # ---------------------------------------------------------------------
@@ -120,7 +125,8 @@ add_library("${PROJECT_NAME}_lib" STATIC
      plotwindow.ui
 )
 
-target_compile_features("${PROJECT_NAME}_lib" PUBLIC cxx_std_20)
+target_include_external_dirs("${PROJECT_NAME}_cuda_lib" INTERFACE ${EXTERNAL_INCLUDES})
+target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLUDES})
 
 # Add sources to the target and includes that
 # need to be compiled to the target
@@ -164,7 +170,7 @@ else()
 endif(MSVC)
 
 # ---------------------------------------------------------------------
-# Target test_* (unit tests)
+# Target unit_tests (unit tests)
 # ---------------------------------------------------------------------
 
 set(SRC_TESTS
@@ -190,21 +196,16 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
 
     # Create an executable with all sources and lib needed
     add_executable(${TEST_NAME} ${SRC_TESTS})
-    
-    target_include_directories(${TEST_NAME} PUBLIC
-    	${GTest_INCLUDE_DIRS}
-    	${HOLO_INCLUDES}
-    )
-    
+
     target_link_libraries(${TEST_NAME} PRIVATE
         "${PROJECT_NAME}_lib"
         GTest::gtest
         GTest::gtest_main
     )
-    
+
     set_target_properties(${TEST_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
-    
+
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
     set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
 else()

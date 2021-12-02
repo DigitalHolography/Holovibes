@@ -13,6 +13,7 @@ REF_FAILED_IMAGE = "ref.png"
 TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
 TESTS_INPUTS = os.path.join(TESTS_DATA, "inputs")
 
+
 def find_tests() -> List[str]:
     return [name for name in os.listdir(TESTS_DATA) if os.path.isdir(os.path.join(TESTS_DATA, name)) and name != "inputs"]
 

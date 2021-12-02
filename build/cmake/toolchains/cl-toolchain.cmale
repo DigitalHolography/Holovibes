@@ -1,0 +1,7 @@
+set(CMAKE_C_COMPILER cl)
+set(CMAKE_CXX_COMPILER cl)
+
+set(CMAKE_LINKER "link.exe")
+
+# Tells MSVC that all #include <path/to/.h> are from external sources (not implemented with clang)
+string(APPEND CMAKE_CXX_FLAGS " /external:anglebrackets /external:W0")
