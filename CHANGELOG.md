@@ -1,5 +1,10 @@
 ## Changelog
 
+### 10.5.1
+
+* CLI remove --divide and --convolution (already present in compute_settings)
+* Buffer default values changed
+
 ### 10.5
 
 * New HOLO footer v4
