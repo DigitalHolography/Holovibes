@@ -1,5 +1,9 @@
 ## Changelog
 
+### XXX
+
+* CLI Fixed --raw opion
+
 ### 10.5.1
 
 * CLI remove --divide and --convolution (already present in compute_settings)
