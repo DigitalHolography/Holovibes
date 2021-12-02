@@ -40,7 +40,7 @@ OptionsParser::OptionsParser()
         "Output file path"
     )
     (
-        "compute_settings",
+        "compute_settings,c",
         po::value<std::string>(),
         ".json config file path"
     )
