@@ -275,6 +275,10 @@ static void load_view(const boost::property_tree::ptree& ptree, ViewCache::Ref& 
 
     api::toggle_renormalize(ptree.get<bool>("view.renorm_enabled", true));
     api::reticle_scale(ptree.get<float>("view.reticle_scale", 0.5f));
+
+    // FIXME: if display_raticle param is true, holovibes crashes on load only
+    // display_reticle(ptree.get<bool>("view.reticle_display_enabled", false));
+    api::display_reticle(false); // To remove when issue solved
 }
 
 void p_load(const boost::property_tree::ptree& ptree, const std::string& name, Composite_P& p)
@@ -337,6 +341,7 @@ static void load_advanced(const boost::property_tree::ptree& ptree,
     advanced_cache_.set_contrast_lower_threshold(ptree.get<float>("advanced.contrast_lower_threshold", 0.5f));
     advanced_cache_.set_contrast_upper_threshold(ptree.get<float>("advanced.contrast_upper_threshold", 99.5f));
     advanced_cache_.set_renorm_constant(ptree.get<uint>("advanced.renorm_constant", 5));
+    advanced_cache_.set_cuts_contrast_p_offset(ptree.get<ushort>("advanced.cuts_contrast_p_offset", 2));
 }
 
 void GSH::load_ptree(const boost::property_tree::ptree& ptree)
@@ -423,6 +428,7 @@ static void save_view(boost::property_tree::ptree& ptree, const ViewCache::Ref& 
     ptree.put<bool>("view.renorm_enabled", view_cache_.get_renorm_enabled());
 
     ptree.put<float>("view.reticle_scale", view_cache_.get_reticle_scale());
+    ptree.put<bool>("view.reticle_display_enabled", view_cache_.get_reticle_display_enabled());
 }
 
 void p_save(boost::property_tree::ptree& ptree, const std::string& name, const Composite_P& p)
@@ -484,6 +490,7 @@ static void save_advanced(boost::property_tree::ptree& ptree,
     ptree.put<float>("advanced.contrast_lower_threshold", advanced_cache_.get_contrast_lower_threshold());
     ptree.put<float>("advanced.contrast_upper_threshold", advanced_cache_.get_contrast_upper_threshold());
     ptree.put<uint>("advanced.renorm_constant", advanced_cache_.get_renorm_constant());
+    ptree.put<ushort>("advanced.cuts_contrast_p_offset", advanced_cache_.get_cuts_contrast_p_offset());
 }
 
 void GSH::dump_ptree(boost::property_tree::ptree& ptree) const

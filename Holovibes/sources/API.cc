@@ -1065,10 +1065,10 @@ void set_divide_convolution(const bool value)
 
 void display_reticle(bool value)
 {
-    if (value == get_cd().get_reticle_display_enabled())
+    if (value == get_reticle_display_enabled())
         return;
 
-    get_cd().set_reticle_display_enabled(value);
+    set_reticle_display_enabled(value);
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();

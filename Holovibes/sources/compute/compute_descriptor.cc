@@ -133,7 +133,7 @@ void ComputeDescriptor::reset_windows_display()
     GSH::instance().set_lens_view_enabled(false);
     GSH::instance().set_filter2d_view_enabled(false);
     GSH::instance().set_raw_view_enabled(false);
-    reticle_display_enabled = false;
+    GSH::instance().set_reticle_display_enabled(false);
 }
 
 void ComputeDescriptor::reset_slice_view()

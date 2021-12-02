@@ -92,6 +92,7 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
  * \param raw_view_enabled Display the raw interferogram when we are in hologram mode.
  * \param cuts_view_enabled Are slices YZ and XZ enabled
  * \param reticle_scale Reticle border scale
+ * \param reticle_display_enabled Is the reticle overlay enabled
  */
 
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
@@ -113,7 +114,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (bool, raw_view_enabled, false),
                             (bool, cuts_view_enabled, false),
                             (bool, renorm_enabled, true),
-                            (float, reticle_scale, 0.5f));
+                            (float, reticle_scale, 0.5f),
+                            (bool, reticle_display_enabled, false));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius
@@ -146,7 +148,8 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (uint, output_buffer_size, 64),
                             (float, contrast_lower_threshold, 0.5f),
                             (float, contrast_upper_threshold, 99.5f),
-                            (unsigned, renorm_constant, 5));
+                            (unsigned, renorm_constant, 5),
+                            (uint, cuts_contrast_p_offset, 2));
 
 /*! \brief Construct a new new micro cache object
  *

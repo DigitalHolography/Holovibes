@@ -10,18 +10,7 @@ void load_image_rendering(const boost::property_tree::ptree& ptree, ComputeDescr
     ////// set_convolution_enabled(ptree.get<bool>("image_rendering.convolution_enabled", cd.convolution_enabled));
     ////// cd.convolution_type( ptree.get("image_rendering.convolution_type", cd.convolution_enabled));
 }
-void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
-
-    // FIXME: if display_raticle param is true, holovibes crashes on load only
-    // display_reticle(ptree.get<bool>("view.reticle_display_enabled", cd.reticle_display_enabled));
-    display_reticle(false); // To remove when issue solved
-}
-
-void load_advanced(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd)
-{
-    cd.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
-}
+void load_view(const boost::property_tree::ptree& ptree, ComputeDescriptor& cd) {}
 
 void after_load_checks(ComputeDescriptor& cd)
 {
@@ -35,8 +24,8 @@ void after_load_checks(ComputeDescriptor& cd)
         GSH::instance().set_p_index(0);
     if (GSH::instance().get_q_index() >= time_transformation_size)
         GSH::instance().set_q_index(0);
-    if (cd.cuts_contrast_p_offset > time_transformation_size - 1)
-        cd.cuts_contrast_p_offset = time_transformation_size - 1;
+    if (GSH::instance().get_cuts_contrast_p_offset() > time_transformation_size - 1)
+        GSH::instance().set_cuts_contrast_p_offset(time_transformation_size - 1);
 }
 
 void load_compute_settings(const std::string& ini_path)
@@ -51,7 +40,6 @@ void load_compute_settings(const std::string& ini_path)
 
     load_image_rendering(ptree, get_cd());
     load_view(ptree, get_cd());
-    load_advanced(ptree, get_cd());
 
     GSH::instance().load_ptree(ptree);
 
@@ -70,14 +58,9 @@ void save_view(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
         ptree.put<ushort>("view." + name + "_index", view.index);
         ptree.put<short>("view." + name + "_accu_level", view.accu_level);
     };
-
-    ptree.put<bool>("view.reticle_display_enabled", cd.reticle_display_enabled);
 }
 
-void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd)
-{
-    ptree.put<ushort>("advanced.cuts_contrast_p_offset", cd.cuts_contrast_p_offset);
-}
+void save_advanced(boost::property_tree::ptree& ptree, const ComputeDescriptor& cd) {}
 
 void save_compute_settings(const std::string& ini_path)
 {

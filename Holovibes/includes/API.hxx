@@ -38,8 +38,8 @@ inline void set_contrast_lower_threshold(float value) { GSH::instance().set_cont
 inline float get_contrast_upper_threshold() { return GSH::instance().get_contrast_upper_threshold(); }
 inline void set_contrast_upper_threshold(float value) { GSH::instance().set_contrast_upper_threshold(value); }
 
-inline uint get_cuts_contrast_p_offset() { return get_cd().get_cuts_contrast_p_offset(); }
-inline void set_cuts_contrast_p_offset(uint value) { get_cd().set_cuts_contrast_p_offset(value); }
+inline uint get_cuts_contrast_p_offset() { return GSH::instance().get_cuts_contrast_p_offset(); }
+inline void set_cuts_contrast_p_offset(uint value) { GSH::instance().set_cuts_contrast_p_offset(value); }
 
 inline float get_pixel_size() { return GSH::instance().get_pixel_size(); }
 
@@ -210,7 +210,8 @@ inline bool get_chart_record_enabled() { return GSH::instance().get_chart_record
 
 inline bool get_raw_view_enabled() { return GSH::instance().get_raw_view_enabled(); }
 
-inline bool get_reticle_display_enabled() { return get_cd().get_reticle_display_enabled(); }
+inline bool get_reticle_display_enabled() { return GSH::instance().get_reticle_display_enabled(); }
+inline void set_reticle_display_enabled(bool value) { GSH::instance().set_reticle_display_enabled(value); }
 
 inline bool get_h_blur_activated() { return GSH::instance().get_h_blur_activated(); }
 

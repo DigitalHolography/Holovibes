@@ -267,6 +267,10 @@ class GSH
 
     inline unsigned get_renorm_constant() const noexcept { return advanced_cache_.get_renorm_constant(); }
 
+    inline uint get_cuts_contrast_p_offset() const noexcept { return advanced_cache_.get_cuts_contrast_p_offset(); }
+
+    inline bool get_reticle_display_enabled() const noexcept { return view_cache_.get_reticle_display_enabled(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -529,11 +533,11 @@ class GSH
 
     inline void set_contrast_upper_threshold(float value) { advanced_cache_.set_contrast_upper_threshold(value); }
 
-    inline void set_renorm_constant(unsigned value)
-    {
-        LOG_WARN << value;
-        advanced_cache_.set_renorm_constant(value);
-    }
+    inline void set_renorm_constant(unsigned value) { advanced_cache_.set_renorm_constant(value); }
+
+    inline void set_cuts_contrast_p_offset(uint value) { advanced_cache_.set_cuts_contrast_p_offset(value); }
+
+    inline void set_reticle_display_enabled(bool value) { view_cache_.set_reticle_display_enabled(value); }
 
 #pragma endregion
 

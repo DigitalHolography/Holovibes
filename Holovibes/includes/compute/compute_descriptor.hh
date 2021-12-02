@@ -93,16 +93,6 @@ class ComputeDescriptor : public Observable
     //  GETTER AND SETTER ZONE
     // #############################################
 
-    inline uint get_cuts_contrast_p_offset() const { return cuts_contrast_p_offset; }
-
-    inline void set_cuts_contrast_p_offset(uint cuts_contrast_p_offset)
-    {
-        this->cuts_contrast_p_offset = cuts_contrast_p_offset;
-    }
-
-    inline bool get_reticle_display_enabled() const { return reticle_display_enabled; }
-    inline void set_reticle_display_enabled(bool reticle_enabled) { this->reticle_display_enabled = reticle_enabled; }
-
     // #############################################
     //  END GETTER AND SETTER ZONE
     // #############################################
@@ -165,11 +155,6 @@ class ComputeDescriptor : public Observable
     /*! \} */
 
 #pragma region Atomics vars
-
-    /*! \brief Is the reticle overlay enabled */
-    std::atomic<bool> reticle_display_enabled{false};
-
-    std::atomic<uint> cuts_contrast_p_offset{2};
 
 #pragma endregion
 };
