@@ -4,12 +4,16 @@ set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
 set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /MANIFEST:NO")
 
+set(CXX_STANDARD 20)
 set(MSVC_INCREMENTAL_DEFAULT ON)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GX /EHsc")
 
 # Default linker is needed because some conan packages are breaking lld-link
 set(CMAKE_LINKER "link.exe")
+
+string(APPEND CMAKE_CXX_FLAGS " /std:c++20")
+
+#Remove 'no debug *.pdg file found' warning cause conan dont keep them
+string(APPEND CMAKE_EXE_LINKER_FLAGS " /ignore:4099")
 
 #add_compile_options(-fuse-ld=lld-link)
 set(MSVC_INCREMENTAL_DEFAULT ON)
@@ -21,7 +25,7 @@ string(APPEND CMAKE_CXX_FLAGS " -fms-extensions -fms-compatibility -Wno-ignored-
 #set(MSVC_TOOLSET_VERSION 144)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string(APPEND CMAKE_CXX_FLAGS " /Od /MTd /DEBUG /Z7")
+    string(APPEND CMAKE_CXX_FLAGS " /Od /MTd /DEBUG /Z7 /EHa")
 else()
-    string(APPEND CMAKE_CXX_FLAGS " /02")
+    string(APPEND CMAKE_CXX_FLAGS " /02 /EHsc")
 endif()

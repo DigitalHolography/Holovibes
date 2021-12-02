@@ -3,11 +3,11 @@ os=Windows
 os_build=Windows
 arch=x86_64
 arch_build=x86_64
-compiler=clang
+compiler=Visual Studio
 compiler.cppstd=20
 
 [build_requires]
 cmake/3.21.1:01edd76db8e16db9b38c3cca44ec466a9444c388
 
 [env]
-CMAKE_TOOLCHAINE_FILE=build/cmake/toolchains/clang-cl-toolchain.cmake
+CMAKE_TOOLCHAINE_FILE={{ os.path.join(profile_dir, "..", "..", "cmake", "toolchains" "cl-toolchain.cmake") }}

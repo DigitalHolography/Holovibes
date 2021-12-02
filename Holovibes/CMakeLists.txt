@@ -1,17 +1,13 @@
 project(Holovibes CXX CUDA)
 
-# Packages
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
-find_package(opengl_system REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(GTest REQUIRED)
-find_package(glm REQUIRED)
-find_package(nlohmann_json REQUIRED)
+# ---------------------------------------------------------------------
+# Options and utils
+# ---------------------------------------------------------------------
 
-# compile_commands.json
+# compile_commands.json for vscode
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Force cmake to generate MOC from *.ui files
+# Force cmake to generate MOC from *.ui files for Qt
 cmake_policy(SET CMP0100 NEW)
 
 # Qt file generators
@@ -20,6 +16,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
+### CUDA Flags
+
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
@@ -27,19 +25,23 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 ### C++ Flags
 
 # "/W3"                     : Activate almost all warningd
-# "/sdl"                    : Activate all security warnings
 # "/WX"                     : Transform all warnings into errors
-# "/DEBUG"                  : Create Debug symbols
-# "/Zi"                     : Create Debug database .pdb for debug with devenv
-# "/external:anglebrackets" : Tells MSVC that all #include <path/to/.h> are from external sources
-# "/external:W0"            : Tells MSVC that external headers should not do any warnings
-# "/fsanitize=address       : Add ASAn to build
-string(APPEND CMAKE_CXX_FLAGS " /W3 /WX /std:c++20")
-#string(APPEND CMAKE_CXX_FLAGS " /DEBUG /fsanitize=address")
+string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
+#string(APPEND CMAKE_CXX_FLAGS " /fsanitize=address")
 
-#Remove 'no debug *.pdg file found' warning cause conan dont keep them
-string(APPEND CMAKE_EXE_LINKER_FLAGS " /ignore:4099")
+# ---------------------------------------------------------------------
+# Includes and linkages
+# ---------------------------------------------------------------------
 
+# Packages
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
+find_package(opengl_system REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(GTest REQUIRED)
+find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
+# Includes
 function(target_include_external_dirs target type)
     foreach(dir ${ARGN})
         target_compile_options(${target} ${type} "/external:I${dir}")
@@ -133,6 +135,7 @@ target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLU
 add_subdirectory(sources)
 add_subdirectory(includes)
 
+# Precompile header (to remove)
 if(COMMAND target_precompile_headers)
     target_precompile_headers("${PROJECT_NAME}_lib" PUBLIC "includes/stdafx.hh")
 endif()
