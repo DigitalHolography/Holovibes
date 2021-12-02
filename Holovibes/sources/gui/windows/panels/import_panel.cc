@@ -170,16 +170,10 @@ void ImportPanel::import_start()
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
 
-        // parent_->notify();
-
         // Notify is horrible and might create a window, so this is done to prevent recreating a window while still
         // displaying the correct one
         if (api::get_main_display() == nullptr)
-        {
-            // api::create_pipe(*parent_);
             api::func_to_rename_display_start(*parent_, parent_->window_max_size);
-            // parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
-        }
     }
     else
     {
