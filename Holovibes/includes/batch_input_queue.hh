@@ -36,7 +36,7 @@ class Queue;
  *   i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
  *   Dequeue, Enqueue
  */
-class BatchInputQueue : public DisplayQueue
+class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
     BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
@@ -179,7 +179,7 @@ class BatchInputQueue : public DisplayQueue
     }
 
   private: /* Private attributes */
-    cuda_tools::UniquePtr<char> data_;
+    cuda_tools::UniquePtr<char> data_{nullptr};
 
     /*! \brief FastUpdatesHolder entry */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;

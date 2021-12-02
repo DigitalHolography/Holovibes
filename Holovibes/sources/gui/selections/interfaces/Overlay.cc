@@ -16,12 +16,12 @@ Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     , verticesIndex_(0)
     , colorIndex_(0)
     , elemIndex_(0)
+    , verticesShader_(2)
+    , colorShader_(3)
     , alpha_(0.7f)
     , active_(true)
     , display_(false)
     , parent_(parent)
-    , verticesShader_(2)
-    , colorShader_(3)
 {
 }
 

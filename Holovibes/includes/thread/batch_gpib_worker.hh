@@ -22,7 +22,7 @@ namespace holovibes::worker
  *
  * \brief Class used for batch functionality (chart or frame record multiple times)
  */
-class BatchGPIBWorker : public Worker
+class BatchGPIBWorker final : public Worker
 {
   public:
     /*!

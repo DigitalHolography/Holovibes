@@ -32,7 +32,7 @@ namespace holovibes
  *
  * The Queue ensures that all elements it contains are written in little endian.
  */
-class Queue : public DisplayQueue
+class Queue final : public DisplayQueue
 {
     friend class BatchInputQueue;
 

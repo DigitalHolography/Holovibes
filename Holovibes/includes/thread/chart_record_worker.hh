@@ -12,7 +12,7 @@ namespace holovibes::worker
  *
  * \brief Class used to record chart
  */
-class ChartRecordWorker : public Worker
+class ChartRecordWorker final : public Worker
 {
   public:
     /*!

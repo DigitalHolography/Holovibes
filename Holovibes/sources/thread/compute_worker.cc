@@ -9,12 +9,9 @@
 
 namespace holovibes::worker
 {
-ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe,
-                             std::atomic<std::shared_ptr<BatchInputQueue>>& input,
-                             std::atomic<std::shared_ptr<Queue>>& output)
+ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe, std::atomic<std::shared_ptr<Queue>>& output)
     : Worker()
     , pipe_(pipe)
-    , input_(input)
     , output_(output)
     , stream_(Holovibes::instance().get_cuda_streams().compute_stream)
 {

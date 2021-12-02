@@ -122,8 +122,6 @@ TEST(ChartTest, SmallDifferentValuesImage)
 
     ushort total_image_size = image_width * image_height;
 
-    const ushort total_zone_size = zone_width * zone_height;
-
     float* input;
     cudaMallocManaged(&input, total_image_size * sizeof(float));
     /*
@@ -180,8 +178,6 @@ TEST(ChartTest, DifferentValuesImage)
     ushort y_zone_offset = 0;
 
     ushort total_image_size = image_width * image_height;
-
-    const ushort total_zone_size = zone_width * zone_height;
 
     double expected_value = 0.f;
 

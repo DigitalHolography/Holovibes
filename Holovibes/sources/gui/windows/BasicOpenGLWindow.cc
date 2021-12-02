@@ -26,12 +26,8 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , output_(q)
     , fd_(q->get_fd())
     , kView(k)
-    , translate_(0.f, 0.f, 0.f, 0.f)
-    , scale_(1.f)
-    , angle_(0.f)
-    , flip_(0)
+    , overlay_manager_(this)
     , cuResource(nullptr)
-    , cuStream()
     , cuPtrToPbo(nullptr)
     , sizeBuffer(0)
     , Program(nullptr)
@@ -40,7 +36,10 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , Ebo(0)
     , Pbo(0)
     , Tex(0)
-    , overlay_manager_(this)
+    , translate_(0.f, 0.f, 0.f, 0.f)
+    , scale_(1.f)
+    , angle_(0.f)
+    , flip_(0)
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
@@ -92,7 +91,6 @@ void BasicOpenGLWindow::timerEvent(QTimerEvent* e) { QPaintDeviceWindow::update(
 
 void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 {
-    const QRect screen = QGuiApplication::primaryScreen()->availableGeometry();
     switch (e->key())
     {
     case Qt::Key::Key_F11:

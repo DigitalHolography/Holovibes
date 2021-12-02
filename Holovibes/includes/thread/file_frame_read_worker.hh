@@ -23,7 +23,7 @@ namespace worker
  *
  * \brief    Class used to read frames from a file
  */
-class FileFrameReadWorker : public FrameReadWorker
+class FileFrameReadWorker final : public FrameReadWorker
 {
   public:
     /*! \brief Constructor

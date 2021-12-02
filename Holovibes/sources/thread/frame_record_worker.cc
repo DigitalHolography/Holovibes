@@ -65,7 +65,7 @@ void FrameRecordWorker::run()
         frame_buffer = new char[output_frame_size];
 
         while (nb_frames_to_record_ == std::nullopt ||
-               nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_)
+               (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
             wait_for_frames(record_queue);
 

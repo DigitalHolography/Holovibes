@@ -184,7 +184,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 
     compute_worker_controller_.set_callback([]() {});
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 
     LOG_TRACE << "Exiting Holovibes::start_cli_compute_and_record()";
 }
@@ -234,7 +234,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
 
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 
     while (!compute_pipe_.load())
         continue;

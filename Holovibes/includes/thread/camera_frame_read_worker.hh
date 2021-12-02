@@ -21,7 +21,7 @@ namespace worker
  *
  * \brief Class used to read frames from a camera
  */
-class CameraFrameReadWorker : public FrameReadWorker
+class CameraFrameReadWorker final : public FrameReadWorker
 {
   public:
     /*! \brief Constructor

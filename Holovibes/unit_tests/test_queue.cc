@@ -9,10 +9,8 @@
 
 static constexpr cudaStream_t stream = 0;
 
-namespace // Tools for testing the queue
-{
 /*! \brief Get the element at a specific position in the queue */
-char* get_element_from_queue(holovibes::Queue& q, size_t pos)
+static char* get_element_from_queue(holovibes::Queue& q, size_t pos)
 {
     if (pos >= q.get_max_size())
         return nullptr;
@@ -26,8 +24,9 @@ char* get_element_from_queue(holovibes::Queue& q, size_t pos)
     return h_buffer;
 }
 
+#if 0
 /*! \brief Print a queue (for debug purpose) */
-std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
+static std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
 {
     size_t pos = q.get_start_index();
     for (size_t i = 0; i != q.get_size(); ++i)
@@ -37,7 +36,7 @@ std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
     }
     return os;
 }
-} // namespace
+#endif
 
 TEST(QueueTest, SimpleInstantiatingTest)
 {
@@ -187,7 +186,6 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elts[] = {'a', 'b', 'c'};
-    unsigned int nb_elts = 3;
 
     q.enqueue_multiple(elts, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_size(), 2);
@@ -223,7 +221,6 @@ TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
     holovibes::Queue q(fd, queue_size, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elts[] = {'a', 'b', 'c', 'd'};
-    unsigned int nb_elts = 4;
 
     q.enqueue_multiple(elts, 2, stream, cudaMemcpyHostToDevice);
     ASSERT_EQ(q.get_start_index(), 0);
@@ -668,7 +665,6 @@ TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // 11 + 3 = 14 characters
-    unsigned int nb_frames = 14;
     char* new_elt = strdup("a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0k\0l\0m\0n\0");
 
     // Make the queue full
