@@ -119,10 +119,10 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
  * \param filter2d_n2 Filter2D high radius
  * \param filter2d_enabled Enables filter 2D
  * \param filter2d_view_enabled Enables filter 2D View
+ * \param \brief Filter2D low smoothing // May be moved in filter2d Struct
  */
-NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
-                            (int, filter2d_n1, 0),
-                            (int, filter2d_n2, 1)); /*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
+NEW_INITIALIZED_MICRO_CACHE(Filter2DCache, (int, filter2d_n1, 0), (int, filter2d_n2, 1), (int, filter2d_smooth_low, 0));
+/*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
 
 /*! \brief Construct a new new micro cache object
  *
