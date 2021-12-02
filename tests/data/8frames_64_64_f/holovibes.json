@@ -86,14 +86,14 @@
  "image rendering": {
   "batch size": 1,
   "convolution": {
-   "divide": false,
+   "divide": true,
    "enabled": true,
    "type": "gaussian_16_16_1.txt"
   },
   "filter2d": {
    "enabled": false,
-   "n1": 0,
-   "n2": 1
+   "n1": 20,
+   "n2": 350
   },
   "image mode": "HOLOGRAM",
   "lambda": 8.519999710188131e-07,
