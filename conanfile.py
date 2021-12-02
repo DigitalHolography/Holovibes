@@ -29,13 +29,13 @@ class HolovibesConan(ConanFile):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("Build only available on windows")
 
-    def configure(self):
+    def requirements(self):
         if self.options.testing:
             self.requires("gtest/1.10.0")
 
-        self.requires["qt/6.2.1"].qtcharts = True
-        self.requires["qt/6.2.1"].shared = True
-        self.requires["qt/6.2.1"].widgets = True
+        self.requires["qt"].qtcharts = True
+        self.requires["qt"].shared = True
+        self.requires["qt"].widgets = True
 
     def source(self):
         self.run("git clone https://github.com/DigitalHolography/Holovibes.git")
