@@ -255,6 +255,16 @@ class GSH
 
     inline int get_filter2d_smooth_high() const noexcept { return filter2d_cache_.get_filter2d_smooth_high(); }
 
+    inline float get_contrast_lower_threshold() const noexcept
+    {
+        return advanced_cache_.get_contrast_lower_threshold();
+    }
+
+    inline float get_contrast_upper_threshold() const noexcept
+    {
+        return advanced_cache_.get_contrast_upper_threshold();
+    }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -511,10 +521,18 @@ class GSH
 
     inline void set_filter2d_smooth_low(int value) { filter2d_cache_.set_filter2d_smooth_low(value); }
 
-    inline void set_filter2d_smooth_high(int value)
+    inline void set_filter2d_smooth_high(int value) { filter2d_cache_.set_filter2d_smooth_high(value); }
+
+    inline void set_contrast_lower_threshold(float value)
     {
         LOG_WARN << value;
-        filter2d_cache_.set_filter2d_smooth_high(value);
+        advanced_cache_.set_contrast_lower_threshold(value);
+    }
+
+    inline void set_contrast_upper_threshold(float value)
+    {
+        LOG_WARN << value;
+        advanced_cache_.set_contrast_upper_threshold(value);
     }
 
 #pragma endregion

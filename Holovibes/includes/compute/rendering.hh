@@ -45,8 +45,9 @@ class Rendering
               ICompute* Ic,
               const cudaStream_t& stream,
               ComputeCache::Cache& compute_cache,
-              ExportCache::Cache& expoer_cache,
-              ViewCache::Cache& view_cache);
+              ExportCache::Cache& export_cache,
+              ViewCache::Cache& view_cache,
+              AdvancedCache::Cache& advanced_cache);
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -106,8 +107,8 @@ class Rendering
     ComputeCache::Cache& compute_cache_;
 
     ExportCache::Cache& export_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
+    AdvancedCache::Cache& advanced_cache_;
 
     float* percent_min_max_;
 };

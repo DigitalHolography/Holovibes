@@ -72,7 +72,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       stream_,
                                                       compute_cache_,
                                                       export_cache_,
-                                                      view_cache_);
+                                                      view_cache_,
+                                                      advanced_cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     batch_env_,

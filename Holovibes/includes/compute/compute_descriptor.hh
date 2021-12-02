@@ -93,18 +93,6 @@ class ComputeDescriptor : public Observable
     //  GETTER AND SETTER ZONE
     // #############################################
 
-    inline float get_contrast_lower_threshold() const { return contrast_lower_threshold; }
-    inline void set_contrast_lower_threshold(float contrast_lower_threshold)
-    {
-        this->contrast_lower_threshold = contrast_lower_threshold;
-    }
-
-    inline float get_contrast_upper_threshold() const { return contrast_upper_threshold; }
-    inline void set_contrast_upper_threshold(float contrast_upper_threshold)
-    {
-        this->contrast_upper_threshold = contrast_upper_threshold;
-    }
-
     inline uint get_cuts_contrast_p_offset() const { return cuts_contrast_p_offset; }
 
     inline void set_cuts_contrast_p_offset(uint cuts_contrast_p_offset)
@@ -184,8 +172,6 @@ class ComputeDescriptor : public Observable
     /*! \brief Is the reticle overlay enabled */
     std::atomic<bool> reticle_display_enabled{false};
 
-    std::atomic<float> contrast_lower_threshold{0.5f};
-    std::atomic<float> contrast_upper_threshold{99.5f};
     /*! \brief postprocessing remormalize multiplication constant */
     std::atomic<unsigned> renorm_constant{5};
     std::atomic<uint> cuts_contrast_p_offset{2};

@@ -26,7 +26,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const cudaStream_t& stream,
                      ComputeCache::Cache& compute_cache,
                      ExportCache::Cache& export_cache,
-                     ViewCache::Cache& view_cache)
+                     ViewCache::Cache& view_cache,
+                     AdvancedCache::Cache& advanced_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -40,6 +41,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , compute_cache_(compute_cache)
     , export_cache_(export_cache)
     , view_cache_(view_cache)
+    , advanced_cache_(advanced_cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -289,7 +291,8 @@ void Rendering::autocontrast_caller(
 {
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {cd_.contrast_lower_threshold, cd_.contrast_upper_threshold};
+    const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),
+                                            advanced_cache_.get_contrast_upper_threshold()};
     switch (view)
     {
     case WindowKind::XYview:

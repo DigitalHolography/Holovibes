@@ -385,5 +385,6 @@ class ICompute : public Observable
     CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
+    AdvancedCache::Cache advanced_cache_;
 };
 } // namespace holovibes

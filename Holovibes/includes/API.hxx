@@ -32,11 +32,11 @@ inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
 
 inline float get_z_distance() { return GSH::instance().get_z_distance(); }
 
-inline float get_contrast_lower_threshold() { return get_cd().get_contrast_lower_threshold(); }
-inline void set_contrast_lower_threshold(float value) { get_cd().set_contrast_lower_threshold(value); }
+inline float get_contrast_lower_threshold() { return GSH::instance().get_contrast_lower_threshold(); }
+inline void set_contrast_lower_threshold(float value) { GSH::instance().set_contrast_lower_threshold(value); }
 
-inline float get_contrast_upper_threshold() { return get_cd().get_contrast_upper_threshold(); }
-inline void set_contrast_upper_threshold(float value) { get_cd().set_contrast_upper_threshold(value); }
+inline float get_contrast_upper_threshold() { return GSH::instance().get_contrast_upper_threshold(); }
+inline void set_contrast_upper_threshold(float value) { GSH::instance().set_contrast_upper_threshold(value); }
 
 inline uint get_cuts_contrast_p_offset() { return get_cd().get_cuts_contrast_p_offset(); }
 inline void set_cuts_contrast_p_offset(uint value) { get_cd().set_cuts_contrast_p_offset(value); }

@@ -135,12 +135,16 @@ NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
  * \param input_buffer_size Max size of input queue in number of images.
  * \param record_buffer_size Max size of frame record queue in number of images.
  * \param output_buffer_size Max size of output queue in number of images.
+ * \param contrast_lower_threshold
+ * \param contrast_upper_threshold
  */
 NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (float, display_rate, 30),
                             (uint, input_buffer_size, 256),
                             (uint, record_buffer_size, 64),
-                            (uint, output_buffer_size, 64));
+                            (uint, output_buffer_size, 64),
+                            (float, contrast_lower_threshold, 0.5f),
+                            (float, contrast_upper_threshold, 99.5f));
 
 /*! \brief Construct a new new micro cache object
  *
