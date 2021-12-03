@@ -8,7 +8,7 @@
 
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
-#include "filter2d.cuh"
+#include "filter2D.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "transforms.cuh"
@@ -30,7 +30,6 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const camera::FrameDescriptor& fd,
                                    holovibes::ComputeDescriptor& cd,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
-                                   const holovibes::BatchEnv& batch_env,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream)
     : gpu_lens_(nullptr)
@@ -41,7 +40,6 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , fd_(fd)
     , cd_(cd)
     , spatial_transformation_plan_(spatial_transformation_plan)
-    , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
 {

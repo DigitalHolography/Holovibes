@@ -1,0 +1,18 @@
+[requires]
+	qt/6.2.1
+	boost/1.71.0
+	glm/0.9.9.8
+	nlohmann_json/3.10.4
+	opencv/4.5.3
+	gtest/1.10.0
+	opengl/system
+	freetype/2.11.0 # needed to overwrite qt bad dependency
+
+[generators]
+	cmake_paths
+	cmake_find_package
+
+[options]
+	qt:qtcharts=True
+	qt:widgets=True
+	qt:shared=True

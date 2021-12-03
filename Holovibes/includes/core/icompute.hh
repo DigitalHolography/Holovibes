@@ -7,6 +7,8 @@
 #include <atomic>
 #include <memory>
 
+#include "queue.hh"
+
 #include "rect.hh"
 #include "observable.hh"
 #include "frame_desc.hh"
@@ -17,12 +19,6 @@
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
 
-namespace holovibes
-{
-class Queue;
-class ComputeDescriptor;
-class BatchInputQueue;
-} // namespace holovibes
 
 namespace holovibes
 {

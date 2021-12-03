@@ -22,17 +22,15 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ComputeDescriptor& cd,
                      const camera::FrameDescriptor& input_fd,
                      const camera::FrameDescriptor& output_fd,
-                     ICompute* Ic,
                      const cudaStream_t& stream)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
-    , image_acc_env_(image_acc_env)
     , time_transformation_env_(time_transformation_env)
-    , cd_(cd)
+    , image_acc_env_(image_acc_env)
     , input_fd_(input_fd)
     , fd_(output_fd)
-    , Ic_(Ic)
+    , cd_(cd)
     , stream_(stream)
 {
     // Hold 2 float values (min and max)

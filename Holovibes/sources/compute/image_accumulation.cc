@@ -23,8 +23,8 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      const camera::FrameDescriptor& fd,
                                      const holovibes::ComputeDescriptor& cd,
                                      const cudaStream_t& stream)
-    : fn_compute_vect_(fn_compute_vect)
-    , image_acc_env_(image_acc_env)
+    : image_acc_env_(image_acc_env)
+    , fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , fd_(fd)
     , cd_(cd)

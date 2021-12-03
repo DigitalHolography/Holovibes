@@ -1,5 +1,3 @@
-#pragma once
-
 #include "API.hh"
 #include "overlay_manager.hh"
 #include "zoom_overlay.hh"

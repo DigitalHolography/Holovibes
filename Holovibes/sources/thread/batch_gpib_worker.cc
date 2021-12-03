@@ -138,7 +138,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoAddress);
+                throw gpib::GpibParseError(line_num, gpib::GpibParseError::NoAddress);
             }
         }
         else if (line.compare("#WAIT") == 0)
@@ -156,7 +156,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
             }
             catch (const boost::bad_lexical_cast& /*e*/)
             {
-                throw gpib::GpibParseError(boost::lexical_cast<std::string>(line_num), gpib::GpibParseError::NoWait);
+                throw gpib::GpibParseError(line_num, gpib::GpibParseError::NoWait);
             }
         }
         else if (line.compare("#Capture") == 0)
@@ -193,7 +193,7 @@ void BatchGPIBWorker::parse_file(const std::string& batch_input_path)
 void BatchGPIBWorker::execute_instrument_command(gpib::BatchCommand instrument_command)
 {
     if (!gpib_interface_)
-        gpib_interface_ = gpib::GpibDLL::load_gpib(L"gpib.dll");
+        gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll");
 
     gpib_interface_->execute_instrument_command(instrument_command);
 }

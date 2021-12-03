@@ -40,7 +40,7 @@ class HoloWindow : public RawWindow
   protected:
     SharedPipe Ic;
 
-    virtual void initShaders() override;
+    void initShaders() override;
 
     void focusInEvent(QFocusEvent* e) override;
 

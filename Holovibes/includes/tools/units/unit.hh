@@ -4,23 +4,15 @@
  */
 #pragma once
 
+#include "axis.hh"
 #include "frame_desc.hh"
 #include "conversion_data.hh"
 
 #include <iostream>
 
-namespace holovibes
-{
 /*! \brief Contains functions and casts related to the three coordinates system. */
-namespace units
+namespace holovibes::units
 {
-
-/*! \brief Describes which axis should be used when converting */
-enum Axis
-{
-    HORIZONTAL,
-    VERTICAL
-};
 
 /*! \class Unit
  *
@@ -120,9 +112,8 @@ class Unit
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
+inline std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
 {
     return o << x.get();
 }
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

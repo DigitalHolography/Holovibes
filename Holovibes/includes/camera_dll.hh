@@ -30,7 +30,7 @@ class CameraDLL
      * \param dll_filepath Path to the dll file.
      * \return shared_ptr on ICamera who FreeLibrary on reset().
      */
-    static std::shared_ptr<ICamera> load_camera(const LPCWSTR& dll_filepath);
+    static std::shared_ptr<ICamera> load_camera(const std::string& dll_filepath);
 
   private:
     /*! \class DeleterDLL

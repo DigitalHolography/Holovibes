@@ -8,11 +8,9 @@
 
 namespace camera
 {
-std::shared_ptr<ICamera> CameraDLL::load_camera(const LPCWSTR& dll_filepath)
+std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
 {
-    HINSTANCE dll_handle = nullptr;
-
-    dll_handle = LoadLibrary(dll_filepath);
+    HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
     if (!dll_handle)
         throw std::runtime_error("unable to load DLL camera");
 

@@ -122,8 +122,6 @@ TEST(ChartTest, SmallDifferentValuesImage)
 
     ushort total_image_size = image_width * image_height;
 
-    const ushort total_zone_size = zone_width * zone_height;
-
     float* input;
     cudaMallocManaged(&input, total_image_size * sizeof(float));
     /*
@@ -181,8 +179,6 @@ TEST(ChartTest, DifferentValuesImage)
 
     ushort total_image_size = image_width * image_height;
 
-    const ushort total_zone_size = zone_width * zone_height;
-
     double expected_value = 0.f;
 
     float* input;
@@ -213,10 +209,4 @@ TEST(ChartTest, DifferentValuesImage)
     cudaXStreamSynchronize(0);
 
     ASSERT_EQ(*output, expected_value);
-}
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

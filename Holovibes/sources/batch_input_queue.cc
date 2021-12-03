@@ -1,5 +1,3 @@
-#pragma once
-
 #include <cassert>
 
 #include "holovibes.hh"
@@ -14,7 +12,6 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
     , curr_nb_frames_(fast_updates_entry_->first)
     , total_nb_frames_(fast_updates_entry_->second)
     , frame_capacity_(total_nb_frames)
-    , data_(nullptr)
 {
     curr_nb_frames_ = 0;
     total_nb_frames_ = total_nb_frames;

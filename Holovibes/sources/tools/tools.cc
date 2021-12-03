@@ -33,7 +33,11 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
 
 std::string get_exe_dir()
 {
+#ifdef UNICODE
     wchar_t path[MAX_PATH];
+#else
+    char path[MAX_PATH];
+#endif
     HMODULE hmodule = GetModuleHandle(NULL);
     if (hmodule != NULL)
     {
@@ -41,10 +45,9 @@ std::string get_exe_dir()
         std::filesystem::path p(path);
         return p.parent_path().string();
     }
-    else
-    {
-        return "";
-    }
+
+    LOG_ERROR << "Failed to find executable dir";
+    throw std::runtime_error("Failed to find executable dir");
 }
 
 std::string get_record_filename(std::string filename)

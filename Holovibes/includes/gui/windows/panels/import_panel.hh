@@ -7,11 +7,7 @@
 #include "panel.hh"
 #include "frame_desc.hh"
 
-namespace holovibes
-{
-enum ImportType;
-
-namespace gui
+namespace holovibes::gui
 {
 class MainWindow;
 
@@ -62,5 +58,4 @@ class ImportPanel : public Panel
     /*! \brief Handles the ui output fps */
     void import_end_spinbox_update();
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

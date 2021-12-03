@@ -46,8 +46,8 @@ void ReticleOverlay::setBuffer()
     float h = parent_->size().height();
     float w_2 = w / 2;
     float h_2 = h / 2;
-    float cross_width = 20.0f / w_2;
-    float cross_height = 20.0f / h_2;
+    // float cross_width = 20.0f / w_2;
+    // float cross_height = 20.0f / h_2;
     float w_border = (w_2 * scale) / w_2;
     float h_border = (h_2 * scale) / h_2;
 

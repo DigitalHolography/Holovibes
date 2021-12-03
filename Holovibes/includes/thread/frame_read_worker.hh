@@ -24,11 +24,7 @@ class FrameReadWorker : public Worker
      */
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
 
-    /*! \brief Default copy constructor */
-    FrameReadWorker(const FrameReadWorker&) = default;
-
-    /*! \brief Default copy operator */
-    FrameReadWorker& operator=(const FrameReadWorker&) = default;
+    virtual ~FrameReadWorker(){};
 
   protected:
     /*! \brief The queue in which the frames are stored */

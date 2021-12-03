@@ -36,7 +36,6 @@ class FourierTransform
                      const camera::FrameDescriptor& fd,
                      holovibes::ComputeDescriptor& cd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
-                     const BatchEnv& batch_env,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream);
 
@@ -108,8 +107,6 @@ class FourierTransform
     ComputeDescriptor& cd_;
     /*! \brief Pland 2D. Used by FFTs (1, 2, filter2D). */
     cuda_tools::CufftHandle& spatial_transformation_plan_;
-    /*! \brief Batch environment. */
-    const BatchEnv& batch_env_;
     /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
     /*! \brief Compute stream to perform  pipe computation */

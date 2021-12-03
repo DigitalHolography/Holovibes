@@ -4,17 +4,15 @@
  */
 #pragma once
 
-namespace holovibes
-{
-namespace gui
+#include "axis.hh"
+
+namespace holovibes::gui
 {
 class BasicOpenGLWindow;
 }
 
-namespace units
+namespace holovibes::units
 {
-
-enum Axis;
 
 /*! \class ConversionData
  *
@@ -48,5 +46,4 @@ class ConversionData
 
     const gui::BasicOpenGLWindow* window_;
 };
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

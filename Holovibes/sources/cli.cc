@@ -111,8 +111,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))
         return false;
 
-    const unsigned int fps = opts.fps.value_or(60);
-
     holovibes.init_input_queue(fd, cd.input_buffer_size);
 
     try

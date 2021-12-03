@@ -229,7 +229,7 @@ CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
     BFU32 idx = old_captured % nb_buffers;
     CapturedFramesDescriptor ret;
     ret.region1 = frames[idx];
-    ret.count1 = min(nb_frames, nb_buffers - idx);
+    ret.count1 = (nb_frames <= nb_buffers - idx) ? nb_frames : nb_buffers - idx;
     ret.region2 = frames[0];
     ret.count2 = nb_frames - ret.count1;
 

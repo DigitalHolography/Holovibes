@@ -17,21 +17,16 @@ class GpibInvalidPath : public std::exception
 {
   public:
     GpibInvalidPath(const std::string& path)
-        : path_(path)
+        : msg_("Could not open file : " + path)
     {
     }
 
     virtual ~GpibInvalidPath() {}
 
-    virtual const char* what() const override
-    {
-        std::string msg("Could not open file : ");
-        msg.append(path_);
-        return msg.c_str();
-    }
+    virtual const char* what() const override { return msg_.c_str(); }
 
   private:
-    const std::string path_;
+    const std::string msg_;
 };
 
 class GpibNoFilepath : public std::exception
@@ -52,32 +47,25 @@ class GpibParseError : public std::exception
         NoWait
     };
 
-    GpibParseError(const std::string& line, const ErrorType type)
-        : line_(line)
-        , type_{type}
+    GpibParseError(size_t line, const ErrorType type)
     {
+        msg_ = "Bad format at line ";
+        msg_.append(std::to_string(line));
+
+        if (type == NoBlock)
+            msg_.append(" : no #Block");
+        if (type == NoAddress)
+            msg_.append(" : no valid instrument address");
+        if (type == NoWait)
+            msg_.append(" : no valid wait status");
     }
 
     virtual ~GpibParseError() {}
 
-    virtual const char* what() const override
-    {
-        std::string msg("Bad format at line ");
-        msg.append(line_);
-
-        if (type_ == NoBlock)
-            msg.append(" : no #Block");
-        if (type_ == NoAddress)
-            msg.append(" : no valid instrument address");
-        if (type_ == NoWait)
-            msg.append(" : no valid wait status");
-
-        return msg.c_str();
-    }
+    virtual const char* what() const override { return msg_.c_str(); }
 
   private:
-    const std::string line_;
-    const ErrorType type_;
+    std::string msg_;
 };
 
 class GpibSetupError : public std::exception
@@ -92,21 +80,16 @@ class GpibInstrError : public std::exception
 {
   public:
     GpibInstrError(const std::string& address)
-        : address_(address)
+        : msg_("Could not setup connexion at address " + address)
     {
     }
 
     virtual ~GpibInstrError() {}
 
-    virtual const char* what() const override
-    {
-        std::string msg("Could not setup connexion at address ");
-        msg.append(address_);
-        return msg.c_str();
-    }
+    virtual const char* what() const override { return msg_.c_str(); }
 
   private:
-    const std::string address_;
+    const std::string msg_;
 };
 
 class GpibBlankFileError : public std::exception

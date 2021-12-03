@@ -6,7 +6,7 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
-#include "filter2d.cuh"
+#include "filter2D.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -50,7 +50,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                       input.get_fd(),
                                                                       desc,
                                                                       spatial_transformation_plan_,
-                                                                      batch_env_,
                                                                       time_transformation_env_,
                                                                       stream_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
@@ -61,16 +60,13 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       desc,
                                                       input.get_fd(),
                                                       output.get_fd(),
-                                                      this,
                                                       stream_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
-                                                    batch_env_,
                                                     time_transformation_env_,
                                                     plan_unwrap_2d_,
                                                     desc,
                                                     input.get_fd(),
-                                                    output.get_fd(),
                                                     stream_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
 
@@ -350,8 +346,6 @@ void Pipe::refresh()
         insert_dequeue_input();
         return;
     }
-
-    const camera::FrameDescriptor& input_fd = gpu_input_queue_.get_fd();
 
     insert_raw_view();
 

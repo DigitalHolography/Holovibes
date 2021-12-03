@@ -89,11 +89,11 @@ class Pipe : public ICompute
      * You **must** wait until the end of the refresh, or use the insert_fn_end_vect function to update
      * the ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash.
      */
-    virtual void exec();
+    void exec() override;
 
   protected:
     /*! \brief Enqueue the main FunctionVector according to the requests. */
-    virtual void refresh();
+    void refresh() override;
 
     /*! \brief Make requests at the beginning of the refresh.
      *
@@ -101,7 +101,7 @@ class Pipe : public ICompute
      *
      * \return return false if an allocation failed.
      */
-    virtual bool make_requests();
+    bool make_requests();
 
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();

@@ -35,12 +35,10 @@ class Converts
     /*! \brief Constructor */
     Converts(FunctionVector& fn_compute_vect,
              const CoreBuffersEnv& buffers,
-             const BatchEnv& batch_env,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan2d,
              ComputeDescriptor& cd,
              const camera::FrameDescriptor& input_fd,
-             const camera::FrameDescriptor& output_fd,
              const cudaStream_t& stream);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
@@ -90,8 +88,6 @@ class Converts
 
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
-    /*! \brief Batch environment. */
-    const BatchEnv& batch_env_;
     /*! \brief Time transformation environment */
     const TimeTransformationEnv& time_transformation_env_;
     /*! \brief Phase unwrapping 1D. Used for phase increase and Argument. */
@@ -102,8 +98,6 @@ class Converts
     cuda_tools::CufftHandle& plan_unwrap_2d_;
     /*! \brief Describes the input frame size */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Describes the output frame size */
-    const camera::FrameDescriptor& output_fd_;
     /*! \brief Variables needed for the computation in the pipe */
     ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform pipe computation */

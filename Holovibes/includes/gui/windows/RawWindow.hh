@@ -40,14 +40,14 @@ class RawWindow : public BasicOpenGLWindow
 
     const float translation_step_ = 0.05f;
 
-    virtual void initShaders() override;
-    virtual void initializeGL() override;
-    virtual void resizeGL(int width, int height) override;
-    virtual void paintGL() override;
+    void initShaders() override;
+    void initializeGL() override;
+    void resizeGL(int width, int height) override;
+    void paintGL() override;
 
-    void mousePressEvent(QMouseEvent* e);
-    void mouseMoveEvent(QMouseEvent* e);
-    void mouseReleaseEvent(QMouseEvent* e);
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
 };

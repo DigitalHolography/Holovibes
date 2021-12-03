@@ -5,11 +5,11 @@
 
 namespace gpib
 {
-std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const LPCWSTR& dll_filepath)
+std::shared_ptr<IVisaInterface> GpibDLL::load_gpib(const std::string& dll_filepath)
 {
     HINSTANCE dll_handle = nullptr;
 
-    dll_handle = LoadLibrary(dll_filepath);
+    dll_handle = LoadLibraryA(dll_filepath.c_str());
     if (!dll_handle)
         throw std::runtime_error("Unable to load DLL gpib");
 

@@ -4,93 +4,18 @@ import os
 import sys
 import subprocess
 import argparse
-import shutil
 import subprocess
 from time import sleep
 from collections import namedtuple
 
 from tests.constant_name import *
+from build.build_constants import *
+from build import build_utils
 
-DEFAULT_GENERATOR = "Ninja"
-DEFAULT_BUILD_MODE = "Debug"
 DEFAULT_GOAL = "build"
-DEFAULT_BUILD_BASE = "build"
-
-TEST_DATA = "data"
-
-RELEASE_OPT = ["Release", "release", "R", "r"]
-DEBUG_OPT = ["Debug", "debug", "D", "d"]
-NINJA_OPT = ["Ninja", "ninja", "N", "n"]
-NMAKE_OPT = ["NMake", "nmake", "NM", "nm"]
-VS_OPT = ["Visual Studio 14", "Visual Studio 15", "Visual Studio 16"]
-
-#----------------------------------#
-# Utils                            #
-#----------------------------------#
-
-
-def get_generator(arg):
-    if not arg:
-        return DEFAULT_GENERATOR
-    elif arg in NINJA_OPT:
-        return "Ninja"
-    elif arg in NMAKE_OPT:
-        return "NMake Makefiles"
-    elif arg in VS_OPT:
-        return arg
-    else:
-        raise Exception("Unreachable statement thanks to argparse")
-
-
-def get_build_mode(arg):
-    if not arg:
-        return DEFAULT_BUILD_MODE
-    elif arg in RELEASE_OPT:
-        return "Release"
-    elif arg in DEBUG_OPT:
-        return "Debug"
-    else:
-        raise Exception("Unreachable statement thanks to argparse")
-
-
-def get_build_dir(arg, generator):
-    return arg or os.path.join(DEFAULT_BUILD_BASE, generator)
-
-
-def cannot_find_vcvars():
-    print("Cannot find the Developer Prompt launcher, you can either:")
-    print("    - Find by yourself the vcvars64.bat file in your Visual Studio install")
-    print("      Then specify it with the '-e' option")
-    print("    - Find by yourself your Visual Studio install")
-    print("      Then fill the env variable 'VS2019INSTALLDIR' with the path to it")
-    exit(1)
-
-
-def find_vcvars():
-    parent2 = os.environ.get('VS2019INSTALLDIR')
-    if not parent2 or not os.path.isdir(parent2):
-        parent2 = os.environ.get('VS2017INSTALLDIR')
-    if not parent2 or not os.path.isdir(parent2):
-        parent1 = os.path.join('C:', 'Program Files (x86)',
-                               'Microsoft Visual Studio', '2019')
-        if not os.path.isdir(parent1):
-            cannot_find_vcvars()
-
-        parent2 = os.path.join(parent1, 'Professional')
-        if not os.path.isdir(parent2):
-            parent2 = os.path.join(parent1, 'Community')
-        if not os.path.isdir(parent2):
-            cannot_find_vcvars()
-
-    res = os.path.join(parent2, 'VC', 'Auxiliary', 'Build', 'vcvars64.bat')
-    if not os.path.isfile(res):
-        cannot_find_vcvars()
-
-    return "{}".format(res)
-
 
 GoalArgs = namedtuple('GoalArgs', [
-                      'build_mode', 'generator', 'build_env', 'build_dir', 'verbose', 'goal_args'])
+                      'build_mode', 'generator', 'toolchain', 'build_env', 'build_dir', 'verbose', 'goal_args'])
 GoalsFuncs = {}
 
 
@@ -104,13 +29,11 @@ def goal(func, name: str = None):
 
 
 @goal
-def cmake(args):
-    cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.build_env or find_vcvars(), '&&']
-
-    generator = get_generator(args.generator)
-    build_mode = get_build_mode(args.build_mode)
-    build_dir = get_build_dir(args.build_dir, generator)
+def conan(args) -> int:
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
@@ -119,18 +42,43 @@ def cmake(args):
         if subprocess.call(['rm', '-rf', build_dir], shell=True):
             return 1
 
+    cmd += ['conan', 'install', '.',
+            '-if', build_dir,
+            '--build', 'missing',
+            '-s', f'build_type={build_mode}'
+            ] + args.goal_args
+
+    if args.verbose:
+        print("conan cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
+
+    return subprocess.call(cmd)
+
+
+@goal
+def cmake(args):
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    toolchain = build_utils.get_toolchain(args.toolchain)
+    generator = build_utils.get_generator(args.generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+
+    if not os.path.isdir(build_dir):
+        print("Build directory not found, Running conan goal before cmake")
+        sys.stdout.flush()
+        if conan(args):
+            return 1
+
     cmd += ['cmake', '-B', build_dir,
             '-G', generator,
             '-S', '.',
             '-DCMAKE_VERBOSE_MAKEFILE=OFF',
             f'-DCMAKE_BUILD_TYPE={build_mode}',
+            f'-DCMAKE_TOOLCHAIN_FILE={toolchain}'
             ] + args.goal_args
 
-    if args.generator in VS_OPT:
-        cmd += ['-A', 'x64']
-
     if args.verbose:
-        print("Configure cmd: {}".format(' '.join(cmd)))
+        print("Cmake cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -138,22 +86,18 @@ def cmake(args):
 
 @goal
 def build(args):
-    build_mode = get_build_mode(args.build_mode)
-    build_dir = get_build_dir(args.build_dir, get_generator(args.generator))
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(
+        args.build_dir, build_utils.get_generator(args.generator))
 
     if not os.path.isdir(build_dir):
-        print("Build directory not found, Running configure goal before build")
+        print("Build directory not found, Running cmake goal before build")
         sys.stdout.flush()
-        run_goal("cmake", args)
+        if cmake(args):
+            return 1
 
-    cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.build_env or find_vcvars(), '&&']
-    cmd += ['cmake', '--build', build_dir]
-
-    if args.generator in VS_OPT:
-        cmd += ['--config', build_mode,
-                '--', '/verbosity:normal'
-                ]
+    cmd += ['cmake', '--build', build_dir] + args.goal_args
 
     if args.verbose:
         print("Build cmd: {}".format(' '.join(cmd)))
@@ -164,9 +108,9 @@ def build(args):
 
 @goal
 def run(args):
-    build_mode = get_build_mode(args.build_mode)
-    exe_path = os.path.join(get_build_dir(
-        args.build_dir, get_generator(args.generator)), build_mode, "Holovibes.exe")
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    exe_path = os.path.join(build_utils.get_build_dir(
+        args.build_dir, build_utils.get_generator(args.generator)), build_mode, RUN_BINARY_FILE)
 
     cmd = [exe_path, ] + args.goal_args
 
@@ -196,13 +140,13 @@ def pytest(args):
 
 @goal
 def ctest(args):
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
     exe_path = args.build_dir or os.path.join(
-        'build', get_generator(args.generator), "Holovibes")
+        DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes")
     previous_path = os.getcwd()
 
     os.chdir(exe_path)
-    cmd = ['cmd.exe', '/c', 'call', args.build_env or find_vcvars(), '&&' 'ctest',
-           '--verbose'] + args.goal_args
+    cmd += ['ctest', '--verbose'] + args.goal_args
 
     if args.verbose:
         print("Ctest cmd: {}".format(' '.join(cmd)))
@@ -266,6 +210,52 @@ def clean(args) -> int:
     return 0
 
 
+@goal
+def release(args) -> int:
+    if len(args.goal_args) <= 0:
+        print("Please specify part of version to bump")
+        return 1
+
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    bump_part = args.goal_args[0]
+
+    if build_mode != "Release":
+        print("Can only create release with a Release build")
+        return 1
+
+    if not os.path.isdir(build_dir):
+        print("Build directory not found, Running build goal before release")
+        sys.stdout.flush()
+        if build(args) or ctest(args) or pytest(args):
+            return 1
+
+    if not os.path.isdir(INSTALLER_OUTPUT):
+        os.mkdir(INSTALLER_OUTPUT)
+
+    cmd += ['conan', 'build', '.',
+            '-if', build_dir,
+            '-s', f'build_type={build_mode}'
+            ]
+
+    if args.verbose:
+        print("conan cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
+
+    if subprocess.call(cmd):
+        return 1
+
+    paths = build_utils.get_lib_paths()
+    if build_utils.bump_all_versions(bump_part):
+        return 1
+
+    build_utils.create_release_file(paths)
+
+    return subprocess.call(["iscc", ISCC_FILE])
+
+
 def run_goal(goal: str, args) -> int:
 
     goal_func = GoalsFuncs.get(goal)
@@ -287,21 +277,24 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Holovibes Dev Tools (only runnable from project root)')
 
-    build_mode = parser.add_argument_group(
-        'Build Mode', 'Choose between Release mode and Debug mode (Default: Debug)')
-    build_mode.add_argument(
+    build = parser.add_argument_group(
+        'Build Arguments', 'Choose between Release mode and Debug mode (Default: Debug)')
+    build.add_argument(
         '-b', choices=RELEASE_OPT + DEBUG_OPT, default=None)
+    build.add_argument(
+        '-g', choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT, default=None, help='Choose between NMake, Make and Ninja (Default: Ninja)')
+    build.add_argument(
+        '-t', choices=CLANG_CL_OPT + CL_OPT, default=None, help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)"
+    )
 
     build_generator = parser.add_argument_group(
         'Build Generator', 'Choose between NMake, Visual Studio and Ninja (Default: Ninja)')
-    build_generator.add_argument(
-        '-g', choices=NINJA_OPT + NMAKE_OPT + VS_OPT, default=None)
 
-    build_env = parser.add_argument_group('Build Environment')
+    build_env = parser.add_argument_group('Build environment')
     build_env.add_argument(
-        '-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+        '-p', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
     build_env.add_argument(
-        '-p', help='Path used by cmake to store compiled objects and exe (Default: build/<generator>/)', default=None)
+        '-i', help=f'Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
@@ -329,7 +322,7 @@ if __name__ == '__main__':
     args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        run_goal(goal, GoalArgs(args.b, args.g,
-                 args.e, args.p, args.v, goal_args))
+        run_goal(goal, GoalArgs(args.b, args.g, args.t,
+                 args.p, args.i, args.v, goal_args))
 
     exit(0)

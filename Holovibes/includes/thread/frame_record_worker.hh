@@ -19,7 +19,7 @@ namespace worker
  *
  * \brief Class used to record frames
  */
-class FrameRecordWorker : public Worker
+class FrameRecordWorker final : public Worker
 {
   public:
     /*! \brief Constructor

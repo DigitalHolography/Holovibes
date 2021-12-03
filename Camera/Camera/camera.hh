@@ -5,8 +5,8 @@
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <Windows.h>
-#include <icamera.hh>
-#include <frame_desc.hh>
+#include "icamera.hh"
+#include "frame_desc.hh"
 #include "camera_config.hh"
 
 namespace camera

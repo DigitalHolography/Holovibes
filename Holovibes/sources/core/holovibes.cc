@@ -65,14 +65,14 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     {
         try
         {
-            static std::map<CameraKind, LPCWSTR> camera_dictionary = {
-                {CameraKind::Adimec, L"CameraAdimec.dll"},
-                {CameraKind::BitflowCyton, L"BitflowCyton.dll"},
-                {CameraKind::IDS, L"CameraIds.dll"},
-                {CameraKind::Phantom, L"CameraPhantom.dll"},
-                {CameraKind::Hamamatsu, L"CameraHamamatsu.dll"},
-                {CameraKind::xiQ, L"CameraXiq.dll"},
-                {CameraKind::xiB, L"CameraXib.dll"},
+            static std::map<CameraKind, LPCSTR> camera_dictionary = {
+                {CameraKind::Adimec, "CameraAdimec.dll"},
+                {CameraKind::BitflowCyton, "BitflowCyton.dll"},
+                {CameraKind::IDS, "CameraIds.dll"},
+                {CameraKind::Phantom, "CameraPhantom.dll"},
+                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
+                {CameraKind::xiQ, "CameraXiq.dll"},
+                {CameraKind::xiB, "CameraXib.dll"},
             };
             active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
         }
@@ -186,7 +186,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 
     compute_worker_controller_.set_callback([]() {});
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 
     LOG_TRACE << "Exiting Holovibes::start_cli_compute_and_record()";
 }
@@ -237,7 +237,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
 
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_input_queue_, gpu_output_queue_);
+    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 
     while (!compute_pipe_.load())
         continue;

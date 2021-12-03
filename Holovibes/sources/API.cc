@@ -1228,8 +1228,6 @@ bool import_start(
 {
     get_cd().set_computation_stopped(false);
 
-    bool res = true;
-
     // Because we are in file mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
 

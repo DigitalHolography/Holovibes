@@ -4,8 +4,8 @@ namespace holovibes::gui
 {
 
 ASWMainWindowPanel::ASWMainWindowPanel(ImageRenderingPanel* parent)
-    : parent_(parent)
-    , AdvancedSettingsWindowPanel("MainWindow")
+    : AdvancedSettingsWindowPanel("MainWindow")
+    , parent_(parent)
 {
     QVBoxLayout* mainwindow_layout = new QVBoxLayout();
 

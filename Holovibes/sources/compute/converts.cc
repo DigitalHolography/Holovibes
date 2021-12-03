@@ -20,25 +20,19 @@ namespace compute
 {
 Converts::Converts(FunctionVector& fn_compute_vect,
                    const CoreBuffersEnv& buffers,
-                   const BatchEnv& batch_env,
                    const TimeTransformationEnv& time_transformation_env,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
                    ComputeDescriptor& cd,
                    const camera::FrameDescriptor& input_fd,
-                   const camera::FrameDescriptor& output_fd,
                    const cudaStream_t& stream)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
-    , batch_env_(batch_env)
     , time_transformation_env_(time_transformation_env)
-    , unwrap_res_()
-    , unwrap_res_2d_()
     , plan_unwrap_2d_(plan_unwrap_2d)
-    , cd_(cd)
     , fd_(input_fd)
-    , output_fd_(output_fd)
+    , cd_(cd)
     , stream_(stream)
 {
 }

@@ -41,7 +41,6 @@ class Rendering
               ComputeDescriptor& cd,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
-              ICompute* Ic,
               const cudaStream_t& stream);
 
     ~Rendering();
@@ -99,8 +98,6 @@ class Rendering
     const camera::FrameDescriptor& fd_;
     /*! \brief Variables needed for the computation in the pipe */
     ComputeDescriptor& cd_;
-    /*! \brief Pointer on the parent. */
-    ICompute* Ic_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

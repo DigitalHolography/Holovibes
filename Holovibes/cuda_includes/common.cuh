@@ -14,9 +14,6 @@
 #include <chrono>
 #include <thread>
 
-#define BOOST_STACKTRACE_USE_ADDR2LINE
-#include <boost/stacktrace.hpp>
-
 #include "cusolverDn.h"
 
 #include "tools.cuh"
@@ -80,8 +77,6 @@ inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool ab
         // See std::source_location (still not implemented by msvc)
         fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
 
-        std::cerr << boost::stacktrace::stacktrace() << std::endl;
-
         if (abort)
             exit(code);
     }
@@ -97,27 +92,21 @@ static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
     {
     case CUBLAS_STATUS_NOT_INITIALIZED:
         return "CUBLAS_STATUS_NOT_INITIALIZED";
-
     case CUBLAS_STATUS_ALLOC_FAILED:
         return "CUBLAS_STATUS_ALLOC_FAILED";
-
     case CUBLAS_STATUS_INVALID_VALUE:
         return "CUBLAS_STATUS_INVALID_VALUE";
-
     case CUBLAS_STATUS_ARCH_MISMATCH:
         return "CUBLAS_STATUS_ARCH_MISMATCH";
-
     case CUBLAS_STATUS_MAPPING_ERROR:
         return "CUBLAS_STATUS_MAPPING_ERROR";
-
     case CUBLAS_STATUS_EXECUTION_FAILED:
         return "CUBLAS_STATUS_EXECUTION_FAILED";
-
     case CUBLAS_STATUS_INTERNAL_ERROR:
         return "CUBLAS_STATUS_INTERNAL_ERROR";
+    default:
+        return "Unknown cublas error";
     }
-
-    return "Unknown cublas error";
 }
 #define cublasSafeCall(err) __cublasSafeCall(err, __FILE__, __LINE__)
 inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int line)
@@ -156,9 +145,9 @@ static const char* _cudaGetCusolverErrorEnum(cusolverStatus_t error)
         return "CUSOLVER_STATUS_INTERNAL_ERROR";
     case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
         return "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED";
+    default:
+        return "Unknown cusolver error";
     }
-
-    return "Unknown cusolver error";
 }
 #define cusolverSafeCall(err) __cusolverSafeCall(err, __FILE__, __LINE__)
 inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int line)
@@ -185,36 +174,27 @@ static const char* _cudaGetErrorEnum(cufftResult error)
     {
     case CUFFT_SUCCESS:
         return "CUFFT_SUCCESS";
-
     case CUFFT_INVALID_PLAN:
         return "CUFFT_INVALID_PLAN";
-
     case CUFFT_ALLOC_FAILED:
         return "CUFFT_ALLOC_FAILED";
-
     case CUFFT_INVALID_TYPE:
         return "CUFFT_INVALID_TYPE";
-
     case CUFFT_INVALID_VALUE:
         return "CUFFT_INVALID_VALUE";
-
     case CUFFT_INTERNAL_ERROR:
         return "CUFFT_INTERNAL_ERROR";
-
     case CUFFT_EXEC_FAILED:
         return "CUFFT_EXEC_FAILED";
-
     case CUFFT_SETUP_FAILED:
         return "CUFFT_SETUP_FAILED";
-
     case CUFFT_INVALID_SIZE:
         return "CUFFT_INVALID_SIZE";
-
     case CUFFT_UNALIGNED_DATA:
         return "CUFFT_UNALIGNED_DATA";
+    default:
+        return "Unknown cufft error";
     }
-
-    return "<unknown>";
 }
 
 #define cufftSafeCall(err) __cufftSafeCall(err, __FILE__, __LINE__)

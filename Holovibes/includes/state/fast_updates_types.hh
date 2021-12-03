@@ -101,7 +101,7 @@ struct TypeValue<QueueType>
  *  please do not use before checking is_fast_update_key_type
  */
 template <typename T>
-using FastUpdateTypeValue = _internal::TypeValue<T>::value;
+using FastUpdateTypeValue = typename _internal::TypeValue<T>::value;
 
 /*!
  * \brief compile time boolean to check if the type T matches a key type of the FastUpdateHolder map class

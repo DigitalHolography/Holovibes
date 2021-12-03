@@ -95,9 +95,3 @@ TEST(MapTest, MappDivisbleBy4Divide)
     constexpr float value = 5.f;
     map_test<float, MAP_OPERATION::DIVIDE>(size, value);
 }
-
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

@@ -8,16 +8,17 @@ import pytest
 import json
 from typing import List, Tuple
 
+from build.build_constants import *
 from .constant_name import *
 from . import holo
 
 DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
-    os.getcwd(), "build", "Ninja", "Release", "Holovibes.exe")
+    os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Release", RUN_BINARY_FILE)
 if not os.path.isfile(HOLOVIBES_BIN):
     HOLOVIBES_BIN = os.path.join(
-        os.getcwd(), "build", "Ninja", "Debug", "Holovibes.exe")
+        os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Debug", RUN_BINARY_FILE)
 
 assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"

@@ -2,7 +2,7 @@
 
 #include <BFType.h>
 #include <BiDef.h>
-#include <camera.hh>
+#include "camera.hh"
 
 #include "camera_exception.hh"
 

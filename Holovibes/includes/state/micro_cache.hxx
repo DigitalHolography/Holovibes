@@ -1,7 +1,11 @@
 #pragma once
 
-#include "micro_cache.hh"
+#if defined(_MSC_VER) && !defined(__clang__)
+#include "map_macro_msvc.hh"
+#else
 #include "map_macro.hh"
+#endif
+#include "micro_cache.hh"
 #include "checker.hh"
 
 /*
