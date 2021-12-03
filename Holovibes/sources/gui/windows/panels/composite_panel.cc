@@ -66,11 +66,30 @@ void CompositePanel::on_notify()
     ui_->CompositePanel->slide_update_threshold_v_max();
 
     bool rgbMode = ui_->radioButton_rgb->isChecked();
-    ui_->groupBox->setHidden(!rgbMode);
-    ui_->groupBox_5->setHidden(!rgbMode && !ui_->RenormalizationCheckBox->isChecked());
-    ui_->groupBox_hue->setHidden(rgbMode);
-    ui_->groupBox_saturation->setHidden(rgbMode);
-    ui_->groupBox_value->setHidden(rgbMode);
+
+    auto show_rgb = [this, rgbMode]()
+    {
+        ui_->groupBox->setVisible(rgbMode);
+        ui_->groupBox_5->setVisible(rgbMode || ui_->RenormalizationCheckBox->isChecked());
+    };
+
+    auto show_hsv = [this, rgbMode]()
+    {
+        ui_->groupBox_hue->setHidden(rgbMode);
+        ui_->groupBox_saturation->setHidden(rgbMode);
+        ui_->groupBox_value->setHidden(rgbMode);
+    };
+
+    if (rgbMode)
+    {
+        show_hsv();
+        show_rgb();
+    }
+    else
+    {
+        show_rgb();
+        show_hsv();
+    }
 }
 
 void CompositePanel::set_composite_intervals()
