@@ -296,22 +296,14 @@ void MainWindow::browse_export_ini()
 void MainWindow::reload_ini(const std::string& filename)
 {
     ImportType it = UserInterfaceDescriptor::instance().import_type_;
-    Computation last_compu = api::get_compute_mode();
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
-
-    // WTF fix
-    Computation new_compu = api::get_compute_mode();
-    if (last_compu == Computation::Raw && new_compu == Computation::Hologram)
-        api::set_compute_mode(Computation::Raw);
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
         change_camera(UserInterfaceDescriptor::instance().kCamera);
-
-    notify();
 }
 
 void MainWindow::browse_import_ini()

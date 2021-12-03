@@ -235,24 +235,6 @@ void create_pipe(Observer& observer)
     }
 }
 
-void func_to_rename_display_start(Observer& observer, ushort window_max_size)
-{
-    close_windows();
-
-    bool save_convo = get_convolution_enabled();
-    close_critical_compute();
-
-    if (get_compute_mode() == Computation::Raw)
-        set_raw_mode(observer, window_max_size);
-    else
-    {
-        set_holographic_mode(observer, window_max_size);
-        // TODO: Add all settings that need the pipe to be added: Contrast...
-
-        set_convolution_mode(save_convo);
-    }
-}
-
 void set_raw_mode(Observer& observer, uint window_max_size)
 {
     QPoint pos(0, 0);
