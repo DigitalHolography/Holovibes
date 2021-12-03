@@ -304,6 +304,8 @@ void MainWindow::reload_ini(const std::string& filename)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
         change_camera(UserInterfaceDescriptor::instance().kCamera);
+    else // if (it == ImportType::None)
+        notify();
 }
 
 void MainWindow::browse_import_ini()
