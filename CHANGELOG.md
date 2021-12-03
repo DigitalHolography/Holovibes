@@ -1,8 +1,11 @@
 ## Changelog
 
-### XXX
+### 10.5.2
 
-* CLI Fixed --raw opion
+* Fix --raw option
+* Fix Camera ini opening
+* Fix Advanced Settings Window size
+* Fix Z_step initialization in ASW
 
 ### 10.5.1
 
