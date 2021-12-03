@@ -27,7 +27,7 @@ void ASWMainWindowPanel::create_z_step_widget(QVBoxLayout* layout)
 {
     // z step spin box
     z_step_ = new QDoubleSpinBoxLayout(nullptr, "z_step");
-    z_step_->set_value(parent_->z_step_)
+    z_step_->set_decimals(3)->set_single_step(0.005)->set_value(parent_->z_step_);
     layout->addItem(z_step_);
 }
 
