@@ -27,5 +27,5 @@ string(APPEND CMAKE_CXX_FLAGS " -fms-extensions -fms-compatibility -Wno-ignored-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     string(APPEND CMAKE_CXX_FLAGS " /Od /MTd /DEBUG /Z7 /EHa")
 else()
-    string(APPEND CMAKE_CXX_FLAGS " /02 /EHsc")
+    string(APPEND CMAKE_CXX_FLAGS " /O2 /EHsc")
 endif()

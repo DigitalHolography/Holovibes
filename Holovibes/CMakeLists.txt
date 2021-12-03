@@ -194,7 +194,6 @@ find_package(Threads)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
 
     message(STATUS "TESTS: Unit tests enabled")
-
     set(TEST_NAME "unit_tests")
 
     # Create an executable with all sources and lib needed
@@ -211,6 +210,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
 
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
     set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
+
+    ### Pytest
+
+    #add_test(NAME "pytest" COMMAND "python -m pytest ${CMAKE_SOURCE_DIR}")
+
 else()
     message(STATUS "TESTS: Unit tests disabled in Release mode")
 endif()

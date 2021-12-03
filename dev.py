@@ -12,11 +12,11 @@ from tests.constant_name import *
 from build.build_constants import *
 from build import build_utils
 
-GoalArgs = namedtuple('GoalArgs', [
-                      'build_mode', 'generator', 'build_env', 'build_dir', 'verbose', 'goal_args'])
-GoalsFuncs = {}
-
 DEFAULT_GOAL = "build"
+
+GoalArgs = namedtuple('GoalArgs', [
+                      'build_mode', 'generator', 'toolchain', 'build_env', 'build_dir', 'verbose', 'goal_args'])
+GoalsFuncs = {}
 
 
 def goal(func, name: str = None):
@@ -29,7 +29,7 @@ def goal(func, name: str = None):
 
 
 @goal
-def conan(args):
+def conan(args) -> int:
     cmd = []
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
@@ -45,10 +45,11 @@ def conan(args):
     cmd += ['conan', 'install', '.',
             '-if', build_dir,
             '--build', 'missing',
+            '-s', f'build_type={build_mode}'
             ] + args.goal_args
 
     if args.verbose:
-        print("Cmake cmd: {}".format(' '.join(cmd)))
+        print("conan cmd: {}".format(' '.join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -56,9 +57,8 @@ def conan(args):
 
 @goal
 def cmake(args):
-    cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.build_env or build_utils.find_vcvars(), '&&']
-
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    toolchain = build_utils.get_toolchain(args.toolchain)
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
@@ -74,6 +74,7 @@ def cmake(args):
             '-S', '.',
             '-DCMAKE_VERBOSE_MAKEFILE=OFF',
             f'-DCMAKE_BUILD_TYPE={build_mode}',
+            f'-DCMAKE_TOOLCHAIN_FILE={toolchain}'
             ] + args.goal_args
 
     if args.verbose:
@@ -85,6 +86,7 @@ def cmake(args):
 
 @goal
 def build(args):
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(
         args.build_dir, build_utils.get_generator(args.generator))
@@ -95,9 +97,7 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd = ['cmd.exe', '/c', 'call']
-    cmd += [args.build_env or build_utils.find_vcvars(), '&&']
-    cmd += ['cmake', '--build', build_dir]
+    cmd += ['cmake', '--build', build_dir] + args.goal_args
 
     if args.verbose:
         print("Build cmd: {}".format(' '.join(cmd)))
@@ -110,7 +110,7 @@ def build(args):
 def run(args):
     build_mode = build_utils.get_build_mode(args.build_mode)
     exe_path = os.path.join(build_utils.get_build_dir(
-        args.build_dir, build_utils.get_generator(args.generator)), build_mode, "Holovibes.exe")
+        args.build_dir, build_utils.get_generator(args.generator)), build_mode, RUN_BINARY_FILE)
 
     cmd = [exe_path, ] + args.goal_args
 
@@ -140,13 +140,13 @@ def pytest(args):
 
 @goal
 def ctest(args):
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
     exe_path = args.build_dir or os.path.join(
         DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes")
     previous_path = os.getcwd()
 
     os.chdir(exe_path)
-    cmd = ['cmd.exe', '/c', 'call', args.build_env or build_utils.find_vcvars(), '&&' 'ctest',
-           '--verbose'] + args.goal_args
+    cmd += ['ctest', '--verbose'] + args.goal_args
 
     if args.verbose:
         print("Ctest cmd: {}".format(' '.join(cmd)))
@@ -231,21 +231,24 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Holovibes Dev Tools (only runnable from project root)')
 
-    build_mode = parser.add_argument_group(
-        'Build Mode', 'Choose between Release mode and Debug mode (Default: Debug)')
-    build_mode.add_argument(
+    build = parser.add_argument_group(
+        'Build Arguments', 'Choose between Release mode and Debug mode (Default: Debug)')
+    build.add_argument(
         '-b', choices=RELEASE_OPT + DEBUG_OPT, default=None)
+    build.add_argument(
+        '-g', choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT, default=None, help='Choose between NMake, Make and Ninja (Default: Ninja)')
+    build.add_argument(
+        '-t', choices=CLANG_CL_OPT + CL_OPT, default=None, help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)"
+    )
 
     build_generator = parser.add_argument_group(
         'Build Generator', 'Choose between NMake, Visual Studio and Ninja (Default: Ninja)')
-    build_generator.add_argument(
-        '-g', choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT, default=None)
 
-    build_env = parser.add_argument_group('Build Environment')
+    build_env = parser.add_argument_group('Build environment')
     build_env.add_argument(
-        '-e', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+        '-p', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
     build_env.add_argument(
-        '-p', help=f'Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)', default=None)
+        '-i', help=f'Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)', default=None)
 
     parser.add_argument('-v', action="store_true",
                         help="Activate verbose mode")
@@ -273,7 +276,7 @@ if __name__ == '__main__':
     args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        run_goal(goal, GoalArgs(args.b, args.g,
-                 args.e, args.p, args.v, goal_args))
+        run_goal(goal, GoalArgs(args.b, args.g, args.t,
+                 args.p, args.i, args.v, goal_args))
 
     exit(0)
