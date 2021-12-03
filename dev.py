@@ -248,8 +248,10 @@ def release(args) -> int:
         return 1
 
     paths = build_utils.get_lib_paths()
-    version = build_utils.bump_all_versions(bump_part)
-    build_utils.create_release_file(paths, version)
+    if build_utils.bump_all_versions(bump_part):
+        return 1
+
+    build_utils.create_release_file(paths)
 
     return subprocess.call(["iscc", ISCC_FILE])
 

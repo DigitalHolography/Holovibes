@@ -5,14 +5,14 @@
 #define BuildDir {{ build_dir }}
 
 #define MyAppName "Holovibes"
-#define MyAppVersion {{ version }}
+#define MyAppVersion "10.4.0"
 #define MyAppPublisher "Digital Holography"
 #define MyAppURL "http://www.holovibes.com/"
-#define MyAppExeName {{ binary_filename }}
+#define MyAppExeName "{{ binary_filename }}"
 #define MyLicense "LICENSE"
 
 {% for key, value in paths.items() %}
-#define {{ key }}Path {{ value }}
+#define {{ key }}Path "{{ value }}"
 {% endfor %}
 
 {% raw %}
