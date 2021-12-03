@@ -186,8 +186,6 @@ void pipe_refresh();
 void create_holo_window(ushort window_size);
 void create_pipe(Observer& observer);
 
-void func_to_rename_display_start(Observer& observer, ushort window_size);
-
 /*! \brief Modifies p accumulation
  *
  * \param p_value the new value of p accu

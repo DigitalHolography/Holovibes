@@ -170,10 +170,18 @@ void ImportPanel::import_start()
         QAction* settings = ui_->actionSettings;
         settings->setEnabled(false);
 
-        // Notify is horrible and might create a window, so this is done to prevent recreating a window while still
-        // displaying the correct one
+        // This notify is required.
+        // We do not know what is really done during this notify but it allows to prevent bugs such as:
+        // Passing from Raw to Process using the function reload_compute_settings OR
+        // launching Holovibes with a file that footer Computation value is HOLOGRAM
+        // We suspect that this notify triggers an event that create the pipe which prevent the previous crash explained
+        // above.
+        // Something in the notify cancel the convolution. An issue is open exposing the problem.
+        parent_->notify();
+
+        // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
         if (api::get_main_display() == nullptr)
-            api::func_to_rename_display_start(*parent_, parent_->window_max_size);
+            parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
     }
     else
     {
