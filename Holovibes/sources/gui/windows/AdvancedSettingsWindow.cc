@@ -65,7 +65,8 @@ void AdvancedSettingsWindow::set_ui_values()
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
-    specific_panel_->set_ui_values();
+    if (specific_panel_ != nullptr)
+        specific_panel_->set_ui_values();
 
     ui.ReloadLabel->setVisible(true);
     UserInterfaceDescriptor::instance().need_close = true;
@@ -115,7 +116,8 @@ void AdvancedSettingsWindow::set_current_values()
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
 
-    specific_panel_->set_current_values();
+    if (specific_panel_ != nullptr)
+        specific_panel_->set_current_values();
 
     ui.ReloadLabel->setVisible(false);
 }
