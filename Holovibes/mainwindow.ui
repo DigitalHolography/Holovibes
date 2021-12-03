@@ -65,8 +65,21 @@
     <property name="spacing">
      <number>0</number>
     </property>
+    <item row="0" column="1">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>10</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
       <property name="spacing">
        <number>3</number>
       </property>
@@ -76,6 +89,19 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item>
        <widget class="holovibes::gui::ImageRenderingPanel" name="ImageRenderingPanel">
         <property name="sizePolicy">
@@ -2247,6 +2273,12 @@
       </item>
       <item>
        <widget class="holovibes::gui::Frame" name="ImportExportFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -2855,21 +2887,21 @@
               </layout>
              </widget>
             </item>
+            <item row="2" column="0">
+             <spacer name="BottomExportSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
-         </item>
-         <item>
-          <spacer name="BottomExportSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -3289,6 +3321,11 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>holovibes::gui::Drag_drop_lineedit</class>
+   <extends>QLineEdit</extends>
+   <header>gui_drag_drop_lineedit.hh</header>
+  </customwidget>
+  <customwidget>
    <class>holovibes::gui::Frame</class>
    <extends>QFrame</extends>
    <header>gui_frame.hh</header>
@@ -3296,11 +3333,6 @@ p, li { white-space: pre-wrap; }
    <slots>
     <slot>ShowOrHide()</slot>
    </slots>
-  </customwidget>
-  <customwidget>
-   <class>holovibes::gui::Drag_drop_lineedit</class>
-   <extends>QLineEdit</extends>
-   <header>gui_drag_drop_lineedit.hh</header>
   </customwidget>
   <customwidget>
    <class>holovibes::gui::ImportPanel</class>
