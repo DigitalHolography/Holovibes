@@ -14,7 +14,6 @@ QDoubleSpinBoxLayout::QDoubleSpinBoxLayout(QMainWindow* parent, const std::strin
     // spin box's default settings
     set_minimum_value(DEFAULT_MINIMUM_VALUE)->set_maximum_value(DEFAULT_MAXIMUM_VALUE);
 
-    connect(spin_box_, SIGNAL(valueChanged(double)), this, SIGNAL(value_changed()));
     addWidget(spin_box_, Qt::AlignRight);
 }
 
@@ -37,6 +36,18 @@ QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::set_minimum_value(double minimum_val
 QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::set_maximum_value(double maximum_value)
 {
     spin_box_->setMaximum(maximum_value);
+    return this;
+}
+
+QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::set_single_step(double step)
+{
+    spin_box_->setSingleStep(step);
+    return this;
+}
+
+QDoubleSpinBoxLayout* QDoubleSpinBoxLayout::set_decimals(int precision)
+{
+    spin_box_->setDecimals(precision);
     return this;
 }
 
