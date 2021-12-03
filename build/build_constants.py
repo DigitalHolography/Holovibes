@@ -14,3 +14,6 @@ MAKE_OPT = ["Make", "make", "M", "m"]
 
 CLANG_CL_OPT = ["clang-cl", "ClangCL", "clangcl", "Clang-cl", "Clang-CL"]
 CL_OPT = ["cl", "CL", "MSVC", "msvc"]
+
+INSTALLER_OUTPUT = "Output"
+LIBS_PATH_FILE = "paths.json"

@@ -1,6 +1,9 @@
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 import os
+import json
+
+from build.build_constants import *
 
 
 class HolovibesConan(ConanFile):
@@ -37,3 +40,11 @@ class HolovibesConan(ConanFile):
 
     def source(self):
         self.run("git clone https://github.com/DigitalHolography/Holovibes.git")
+
+    def build(self):
+        res = dict()
+        for dep in self.deps_cpp_info.deps:
+            res[dep] = self.deps_cpp_info[dep].rootpath
+
+        with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'r') as fp:
+            json.dump(res, fp)
