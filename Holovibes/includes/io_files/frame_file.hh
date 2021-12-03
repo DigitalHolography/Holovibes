@@ -48,12 +48,6 @@ class FrameFile
     /*! \brief Close the file */
     virtual ~FrameFile();
 
-    // /*! \brief Default copy constructor */
-    // FrameFile(const FrameFile&) = default;
-
-    // /*! \brief Default copy operator */
-    // FrameFile& operator=(const FrameFile&) = default;
-
     /*! \brief The path of the file */
     const std::string file_path_;
     /*! \brief Frame descriptor associated to the file */
