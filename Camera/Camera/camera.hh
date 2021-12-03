@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <icamera.hh>
 #include <frame_desc.hh>
+#include "camera_config.hh"
 
 namespace camera
 {
@@ -49,10 +50,10 @@ class Camera : public ICamera
         , name_("Unknown")
         , exposure_time_(0.0f)
         , pixel_size_(0.0f)
-        , ini_name_(ini_filename)
-        , ini_file_(ini_filename, std::ifstream::in)
         , ini_pt_()
     {
+        ini_name_ = (__CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
+        ini_file_ = std::ifstream(ini_name_);
         if (ini_file_is_open())
             boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
     }

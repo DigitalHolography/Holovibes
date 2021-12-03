@@ -93,7 +93,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Set default files
     std::filesystem::path holovibes_documents_path = get_user_documents_path() / __APPNAME__;
     std::filesystem::create_directory(holovibes_documents_path);
-    std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER_));
+    std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
     try
