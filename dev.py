@@ -210,6 +210,50 @@ def clean(args) -> int:
     return 0
 
 
+@goal
+def release(args) -> int:
+    if len(args.goal_args) <= 0:
+        print("Please specify part of version to bump")
+        return 1
+
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    bump_part = args.goal_args[0]
+
+    if build_mode != "Release":
+        print("Can only create release with a Release build")
+        return 1
+
+    if not os.path.isdir(build_dir):
+        print("Build directory not found, Running build goal before release")
+        sys.stdout.flush()
+        if build(args) or ctest(args) or pytest(args):
+            return 1
+
+    if not os.path.isdir(INSTALLER_OUTPUT):
+        os.mkdir(INSTALLER_OUTPUT)
+
+    cmd += ['conan', 'build', '.',
+            '-if', build_dir,
+            '-s', f'build_type={build_mode}'
+            ]
+
+    if args.verbose:
+        print("conan cmd: {}".format(' '.join(cmd)))
+        sys.stdout.flush()
+
+    if subprocess.call(cmd):
+        return 1
+
+    paths = build_utils.get_lib_paths()
+    version = build_utils.bump_all_versions(bump_part)
+    build_utils.create_release_file(paths, version)
+
+    return subprocess.call(["iscc", ISCC_FILE])
+
+
 def run_goal(goal: str, args) -> int:
 
     goal_func = GoalsFuncs.get(goal)

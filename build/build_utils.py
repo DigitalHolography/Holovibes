@@ -121,3 +121,31 @@ def get_vcvars_start_cmd(env) -> List[str]:
         print("Warning: using vcvars cmd in not-windows env")
 
     return ['cmd.exe', '/c', 'call', env or find_vcvars(), '&&']
+
+
+def get_lib_paths() -> str:
+    with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'r') as fp:
+        return json.load(fp)
+
+
+def bump_all_versions(type) -> str:
+    return subprocess.call([
+        "bump2version",
+        type,
+        "--config-file", os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), ".bumpversion.cfg")
+    ]
+    )
+
+
+def create_release_file(paths, version):
+    from jinja2 import Environment, FileSystemLoader
+    env = Environment(loader=FileSystemLoader(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)))))
+    template = env.get_template(ISCC_FILE_TEMPLATE)
+    output_from_parsed_template = template.render(
+        paths=paths, version=version, binary_filename=RUN_BINARY_FILE)
+
+    # to save the results
+    with open(ISCC_FILE, "w") as fh:
+        fh.write(output_from_parsed_template)

@@ -16,4 +16,6 @@ CLANG_CL_OPT = ["clang-cl", "ClangCL", "clangcl", "Clang-cl", "Clang-CL"]
 CL_OPT = ["cl", "CL", "MSVC", "msvc"]
 
 INSTALLER_OUTPUT = "Output"
+ISCC_FILE_TEMPLATE = "setupCreator.iss.jinja"
+ISCC_FILE = "setupCreator.iss"
 LIBS_PATH_FILE = "paths.json"

@@ -25,7 +25,7 @@
 namespace holovibes
 {
 
-#define __HOLOVIBES_VERSION__ "10.4"
+#define __HOLOVIBES_VERSION__ "10.4.0"
 #define __APPNAME__ "Holovibes"
 
 /*! \class ComputeDescriptor

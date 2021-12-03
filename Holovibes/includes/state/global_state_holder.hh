@@ -40,7 +40,6 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-
   private:
     GSH() {}
 
