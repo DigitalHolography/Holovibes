@@ -171,12 +171,13 @@ void ImportPanel::import_start()
         settings->setEnabled(false);
 
         // This notify is required.
-        // We do not know what is really done during this notify but it allows to prevent bugs such as:
-        // Passing from Raw to Process using the function reload_compute_settings OR
-        // launching Holovibes with a file that footer Computation value is HOLOGRAM
-        // We suspect that this notify triggers an event that create the pipe which prevent the previous crash explained
-        // above.
-        // Something in the notify cancel the convolution. An issue is open exposing the problem.
+        // This sets GUI values and avoid having callbacks destroy and recreate the window and pipe.
+        // This prevents a double pipe initialization which is the source of many crashed (for example,
+        // going from Raw to Processed using reload_compute_settings or starting a .holo in Hologram mode).
+        // Ideally, every value should be set without callbacks before the window is created, which would avoid such
+        // problems.
+        // This is for now absolutely terrible, but it's a necessary evil until notify is reworked.
+        // Something in the notify cancels the convolution. An issue is opened about this problem.
         parent_->notify();
 
         // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.

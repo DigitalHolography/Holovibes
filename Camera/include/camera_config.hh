@@ -10,7 +10,7 @@
 
 namespace holovibes::settings
 {
-// Very uggly to define version in CAMERA folder but no choice if we want to define it only once.
+// Very ugly to redefine the version in the "camera" folder but we have no choice if we want to define it only once.
 #define __HOLOVIBES_VERSION__ "10.5.1"
 #define __APPNAME__ "Holovibes"
 
