@@ -1,4 +1,4 @@
-#!python
+#!/bin/env python
 
 import os
 import sys
@@ -14,8 +14,18 @@ from build import build_utils
 
 DEFAULT_GOAL = "build"
 
-GoalArgs = namedtuple('GoalArgs', [
-                      'build_mode', 'generator', 'toolchain', 'build_env', 'build_dir', 'verbose', 'goal_args'])
+GoalArgs = namedtuple(
+    "GoalArgs",
+    [
+        "build_mode",
+        "generator",
+        "toolchain",
+        "build_env",
+        "build_dir",
+        "verbose",
+        "goal_args",
+    ],
+)
 GoalsFuncs = {}
 
 
@@ -23,9 +33,10 @@ def goal(func, name: str = None):
     GoalsFuncs[name or func.__name__] = func
     return func
 
-#----------------------------------#
+
+# ----------------------------------#
 # Goals                            #
-#----------------------------------#
+# ----------------------------------#
 
 
 @goal
@@ -39,17 +50,23 @@ def conan(args) -> int:
     if os.path.isdir(build_dir):
         print("Warning: deleting previous build")
         sys.stdout.flush()
-        if subprocess.call(['rm', '-rf', build_dir], shell=True):
+        if subprocess.call(["rm", "-rf", build_dir], shell=True):
             return 1
 
-    cmd += ['conan', 'install', '.',
-            '-if', build_dir,
-            '--build', 'missing',
-            '-s', f'build_type={build_mode}'
-            ] + args.goal_args
+    cmd += [
+        "conan",
+        "install",
+        ".",
+        "-if",
+        build_dir,
+        "--build",
+        "missing",
+        "-s",
+        f"build_type={build_mode}",
+    ] + args.goal_args
 
     if args.verbose:
-        print("conan cmd: {}".format(' '.join(cmd)))
+        print("conan cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -69,16 +86,21 @@ def cmake(args):
         if conan(args):
             return 1
 
-    cmd += ['cmake', '-B', build_dir,
-            '-G', generator,
-            '-S', '.',
-            '-DCMAKE_VERBOSE_MAKEFILE=OFF',
-            f'-DCMAKE_BUILD_TYPE={build_mode}',
-            f'-DCMAKE_TOOLCHAIN_FILE={toolchain}'
-            ] + args.goal_args
+    cmd += [
+        "cmake",
+        "-B",
+        build_dir,
+        "-G",
+        generator,
+        "-S",
+        ".",
+        "-DCMAKE_VERBOSE_MAKEFILE=OFF",
+        f"-DCMAKE_BUILD_TYPE={build_mode}",
+        f"-DCMAKE_TOOLCHAIN_FILE={toolchain}",
+    ] + args.goal_args
 
     if args.verbose:
-        print("Cmake cmd: {}".format(' '.join(cmd)))
+        print("Cmake cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -89,7 +111,8 @@ def build(args):
     cmd = build_utils.get_vcvars_start_cmd(args.build_env)
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(
-        args.build_dir, build_utils.get_generator(args.generator))
+        args.build_dir, build_utils.get_generator(args.generator)
+    )
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running cmake goal before build")
@@ -97,10 +120,10 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd += ['cmake', '--build', build_dir] + args.goal_args
+    cmd += ["cmake", "--build", build_dir] + args.goal_args
 
     if args.verbose:
-        print("Build cmd: {}".format(' '.join(cmd)))
+        print("Build cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     return subprocess.call(cmd)
@@ -109,13 +132,20 @@ def build(args):
 @goal
 def run(args):
     build_mode = build_utils.get_build_mode(args.build_mode)
-    exe_path = os.path.join(build_utils.get_build_dir(
-        args.build_dir, build_utils.get_generator(args.generator)), build_mode, RUN_BINARY_FILE)
+    exe_path = os.path.join(
+        build_utils.get_build_dir(
+            args.build_dir, build_utils.get_generator(args.generator)
+        ),
+        build_mode,
+        RUN_BINARY_FILE,
+    )
 
-    cmd = [exe_path, ] + args.goal_args
+    cmd = [
+        exe_path,
+    ] + args.goal_args
 
     if args.verbose:
-        print("Run cmd: {}".format(' '.join(cmd)))
+        print("Run cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     out = subprocess.call(cmd)
@@ -135,21 +165,27 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(args=['-v', ] + args.goal_args)
+    return pytest.main(
+        args=[
+            "-v",
+        ]
+        + args.goal_args
+    )
 
 
 @goal
 def ctest(args):
     cmd = build_utils.get_vcvars_start_cmd(args.build_env)
     exe_path = args.build_dir or os.path.join(
-        DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes")
+        DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes"
+    )
     previous_path = os.getcwd()
 
     os.chdir(exe_path)
-    cmd += ['ctest', '--verbose'] + args.goal_args
+    cmd += ["ctest", "--verbose"] + args.goal_args
 
     if args.verbose:
-        print("Ctest cmd: {}".format(' '.join(cmd)))
+        print("Ctest cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     out = subprocess.call(cmd)
@@ -174,8 +210,7 @@ def build_ref(args) -> int:
             if not os.path.isfile(input):
                 input = get_input_file(path)
                 if input is None:
-                    print(
-                        f"Did not find the {INPUT_FILENAME} file in folder {path}")
+                    print(f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
             if not os.path.isfile(config):
                 config = None
@@ -193,7 +228,7 @@ def build_ref(args) -> int:
 def clean(args) -> int:
     # Remove build directory
     if os.path.isdir(DEFAULT_BUILD_BASE):
-        if subprocess.call(['rm', '-rf', DEFAULT_BUILD_BASE], shell=True):
+        if subprocess.call(["rm", "-rf", DEFAULT_BUILD_BASE], shell=True):
             return 1
 
     # Remove last_generated_output.holo from tests/data
@@ -235,13 +270,10 @@ def release(args) -> int:
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
 
-    cmd += ['conan', 'build', '.',
-            '-if', build_dir,
-            '-s', f'build_type={build_mode}'
-            ]
+    cmd += ["conan", "build", ".", "-if", build_dir, "-s", f"build_type={build_mode}"]
 
     if args.verbose:
-        print("conan cmd: {}".format(' '.join(cmd)))
+        print("conan cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
     if subprocess.call(cmd):
@@ -268,36 +300,50 @@ def run_goal(goal: str, args) -> int:
         sys.stdout.flush()
         exit(out)
 
-#----------------------------------#
+
+# ----------------------------------#
 # CLI                              #
-#----------------------------------#
+# ----------------------------------#
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Holovibes Dev Tools (only runnable from project root)')
-
-    build = parser.add_argument_group(
-        'Build Arguments', 'Choose between Release mode and Debug mode (Default: Debug)')
-    build.add_argument(
-        '-b', choices=RELEASE_OPT + DEBUG_OPT, default=None)
-    build.add_argument(
-        '-g', choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT, default=None, help='Choose between NMake, Make and Ninja (Default: Ninja)')
-    build.add_argument(
-        '-t', choices=CLANG_CL_OPT + CL_OPT, default=None, help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)"
+        description="Holovibes Dev Tool (only runnable from project root)"
     )
 
-    build_generator = parser.add_argument_group(
-        'Build Generator', 'Choose between NMake, Visual Studio and Ninja (Default: Ninja)')
+    build = parser.add_argument_group("Build Arguments")
+    build.add_argument(
+        "-b",
+        choices=RELEASE_OPT + DEBUG_OPT,
+        default=None,
+        help="Choose between Release mode and Debug mode (Default: Debug)",
+    )
+    build.add_argument(
+        "-g",
+        choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT,
+        default=None,
+        help="Choose between NMake, Make and Ninja (Default: Ninja)",
+    )
+    build.add_argument(
+        "-t",
+        choices=CLANG_CL_OPT + CL_OPT,
+        default=None,
+        help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)",
+    )
 
-    build_env = parser.add_argument_group('Build environment')
+    build_env = parser.add_argument_group("Build environment")
     build_env.add_argument(
-        '-p', help='Path to find the VS Developer Prompt to use to build (Default: auto-find)', default=None)
+        "-p",
+        help="Path to find the VS Developer Prompt to use to build (Default: auto-find)",
+        default=None,
+    )
     build_env.add_argument(
-        '-i', help=f'Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)', default=None)
+        "-i",
+        help=f"Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)",
+        default=None,
+    )
 
-    parser.add_argument('-v', action="store_true",
-                        help="Activate verbose mode")
+    parser.add_argument("-v", action="store_true", help="Activate verbose mode")
 
     args, leftovers = parser.parse_known_args()
 
@@ -318,11 +364,12 @@ def parse_args():
     return args, goals
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args, goals = parse_args()
 
     for goal, goal_args in goals.items():
-        run_goal(goal, GoalArgs(args.b, args.g, args.t,
-                 args.p, args.i, args.v, goal_args))
+        run_goal(
+            goal, GoalArgs(args.b, args.g, args.t, args.p, args.i, args.v, goal_args)
+        )
 
     exit(0)
