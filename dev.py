@@ -48,9 +48,9 @@ def conan(args) -> int:
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
-        print("Warning: deleting previous build")
+        print(f"Warning: deleting previous build: {build_dir}")
         sys.stdout.flush()
-        if subprocess.call(["rm", "-rf", build_dir], shell=True):
+        if subprocess.call(f"rm -rf {build_dir}", shell=True):
             return 1
 
     cmd += [
@@ -74,7 +74,7 @@ def conan(args) -> int:
 
 @goal
 def cmake(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
     toolchain = build_utils.get_toolchain(args.toolchain)
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
@@ -108,7 +108,7 @@ def cmake(args):
 
 @goal
 def build(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(
         args.build_dir, build_utils.get_generator(args.generator)
@@ -175,7 +175,7 @@ def pytest(args):
 
 @goal
 def ctest(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env)
+    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
     exe_path = args.build_dir or os.path.join(
         DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes"
     )
@@ -228,7 +228,7 @@ def build_ref(args) -> int:
 def clean(args) -> int:
     # Remove build directory
     if os.path.isdir(DEFAULT_BUILD_BASE):
-        if subprocess.call(["rm", "-rf", DEFAULT_BUILD_BASE], shell=True):
+        if subprocess.call(f"rm -rf {DEFAULT_BUILD_BASE}", shell=True):
             return 1
 
     # Remove last_generated_output.holo from tests/data

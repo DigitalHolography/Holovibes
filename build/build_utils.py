@@ -11,6 +11,9 @@ from .build_constants import *
 # Utils                            #
 #----------------------------------#
 
+def is_windows() -> bool:
+    return sys.platform.startswith('win32') or sys.platform.startswith('cygwin')
+
 
 def get_generator(arg: str) -> str:
     if not arg:
@@ -46,11 +49,16 @@ def _get_toolchain_path(file: str) -> str:
 
 def get_toolchain(arg: str) -> str:
     if not arg:
-        return _get_toolchain_path(DEFAUT_TOOLCHAIN_FILE)
+        if is_windows():
+            return _get_toolchain_path(DEFAUT_WIN64_TOOLCHAIN_FILE)
+        else:
+            return _get_toolchain_path(DEFAUT_LINUX_TOOLCHAIN_FILE)
     elif arg in CLANG_CL_OPT:
         return _get_toolchain_path("clang-cl-toolchain.cmake")
     elif arg in CL_OPT:
         return _get_toolchain_path("cl-toolchain.cmake")
+    elif arg in GCC_OPT:
+        return _get_toolchain_path("gcc-toolchain.cmake")
     else:
         raise Exception(f"Unknown toolchain: {arg}")
 
@@ -110,11 +118,6 @@ def find_vcvars() -> str:
         pass
 
     return find_vcvars_manual()
-
-
-def is_windows() -> bool:
-    return sys.platform.startswith('win32') or sys.platform.startswith('cygwin')
-
 
 def get_vcvars_start_cmd(env) -> List[str]:
     if not is_windows():
