@@ -38,7 +38,7 @@ void OutputHoloFile::export_compute_settings(int input_fps)
                          {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}},
                          {"input fps", input_fps}};
 
-        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"file info", j_fi}};
+        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"info", j_fi}};
     }
     catch (const json::exception& e)
     {

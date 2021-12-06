@@ -104,7 +104,7 @@ void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
 {
     api::json_to_compute_settings(meta_data["compute settings"]);
 
-    const json& file_info_data = meta_data["file info"];
+    const json& file_info_data = meta_data["info"];
     cd.pixel_size = file_info_data["pixel size"]["x"];
     cd.raw_bitshift = file_info_data["raw bitshift"];
 }
