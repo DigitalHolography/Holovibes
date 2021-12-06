@@ -36,6 +36,7 @@ void FrameRecordWorker::run()
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
+
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
     nb_frames_recorded = 0;
@@ -84,7 +85,7 @@ void FrameRecordWorker::run()
             (*processed_fps)++;
             nb_frames_recorded++;
 
-            if (nb_frames_to_record_.has_value())
+            if (!nb_frames_to_record_.has_value())
                 nb_frames_to_record++;
         }
 
