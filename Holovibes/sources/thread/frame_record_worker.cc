@@ -18,8 +18,6 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
     , nb_frames_skip_(nb_frames_skip)
     , record_mode_(record_mode)
     , output_buffer_size_(output_buffer_size)
-    , fps_nb_values_(0)
-    , fps_average_(0)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
 }
@@ -30,10 +28,7 @@ void FrameRecordWorker::integrate_fps_average()
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
     int current_fps = input_fps->load();
 
-    fps_average_ = fps_average_ + ((current_fps - fps_average_) / ++fps_nb_values_);
-
-    LOG_INFO << "curr : " << current_fps;
-    LOG_INFO << "aver : " << fps_average_;
+    fps_buffer_[fps_current_index_++ % 4] = current_fps;
 }
 void FrameRecordWorker::run()
 {
@@ -108,7 +103,8 @@ void FrameRecordWorker::run()
             output_frame_file->correct_number_of_frames(nb_frames_recorded);
         }
 
-        output_frame_file->export_compute_settings(fps_average_);
+        auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
+        output_frame_file->export_compute_settings(fps_average);
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)
