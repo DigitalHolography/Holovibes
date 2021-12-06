@@ -6,7 +6,6 @@
 
 #include "worker.hh"
 #include "enum_record_mode.hh"
-#include <chrono>
 
 namespace holovibes
 {
@@ -80,8 +79,6 @@ class FrameRecordWorker final : public Worker
     unsigned int fps_nb_values_;
     /*! \brief Useful for Input fps value. */
     float fps_average_;
-    /*! \brief Useful for Input fps value. */
-    std::chrono::time_point<std::chrono::steady_clock> start_;
 
     const cudaStream_t stream_;
 };

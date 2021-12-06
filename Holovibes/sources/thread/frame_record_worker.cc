@@ -28,17 +28,13 @@ void FrameRecordWorker::integrate_fps_average()
 {
     auto& fps_map = GSH::fast_updates_map<FpsType>;
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
-    auto tick = std::chrono::high_resolution_clock::now();
-    auto waited_time = std::chrono::duration_cast<std::chrono::milliseconds>(tick - start_).count();
-
-    int current_fps = (input_fps->load() * (1000.f / waited_time));
+    int current_fps = input_fps->load();
 
     fps_average_ = fps_average_ + ((current_fps - fps_average_) / ++fps_nb_values_);
 
     LOG_INFO << "curr : " << current_fps;
     LOG_INFO << "aver : " << fps_average_;
 }
-
 void FrameRecordWorker::run()
 {
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
@@ -77,7 +73,6 @@ void FrameRecordWorker::run()
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
         output_frame_file->write_header();
-        start_ = std::chrono::high_resolution_clock::now();
 
         frame_buffer = new char[output_frame_size];
 
