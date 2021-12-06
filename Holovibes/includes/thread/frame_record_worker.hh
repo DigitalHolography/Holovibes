@@ -6,6 +6,7 @@
 
 #include "worker.hh"
 #include "enum_record_mode.hh"
+#include <chrono>
 
 namespace holovibes
 {
@@ -57,6 +58,8 @@ class FrameRecordWorker final : public Worker
      */
     void reset_gpu_record_queue();
 
+    void integrate_fps_average();
+
   private:
     /*! \brief The path of the file to record */
     const std::string file_path_;
@@ -68,6 +71,17 @@ class FrameRecordWorker final : public Worker
     RecordMode record_mode_;
     /*! \brief Output buffer size */
     unsigned int output_buffer_size_;
+
+    // Mathematics to compute an incremental average value without storing all values.
+    // m_n = m_(n - 1) + ((a_n - m_(n - 1)) / n)
+    // where n is fps_nb_values_
+    // and   m_n fps_average_
+    /*! \brief Useful for Input fps value. */
+    unsigned int fps_nb_values_;
+    /*! \brief Useful for Input fps value. */
+    float fps_average_;
+    /*! \brief Useful for Input fps value. */
+    std::chrono::time_point<std::chrono::steady_clock> start_;
 
     const cudaStream_t stream_;
 };

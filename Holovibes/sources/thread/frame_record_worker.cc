@@ -18,8 +18,25 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
     , nb_frames_skip_(nb_frames_skip)
     , record_mode_(record_mode)
     , output_buffer_size_(output_buffer_size)
+    , fps_nb_values_(0)
+    , fps_average_(0)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
+}
+
+void FrameRecordWorker::integrate_fps_average()
+{
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
+    auto tick = std::chrono::high_resolution_clock::now();
+    auto waited_time = std::chrono::duration_cast<std::chrono::milliseconds>(tick - start_).count();
+
+    int current_fps = (input_fps->load() * (1000.f / waited_time));
+
+    fps_average_ = fps_average_ + ((current_fps - fps_average_) / ++fps_nb_values_);
+
+    LOG_INFO << "curr : " << current_fps;
+    LOG_INFO << "aver : " << fps_average_;
 }
 
 void FrameRecordWorker::run()
@@ -60,7 +77,7 @@ void FrameRecordWorker::run()
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
         output_frame_file->write_header();
-        auto start = std::chrono::high_resolution_clock::now();
+        start_ = std::chrono::high_resolution_clock::now();
 
         frame_buffer = new char[output_frame_size];
 
@@ -84,6 +101,8 @@ void FrameRecordWorker::run()
             (*processed_fps)++;
             nb_frames_recorded++;
 
+            integrate_fps_average();
+
             if (nb_frames_to_record_.has_value())
                 nb_frames_to_record++;
         }
@@ -94,7 +113,7 @@ void FrameRecordWorker::run()
             output_frame_file->correct_number_of_frames(nb_frames_recorded);
         }
 
-        output_frame_file->export_compute_settings(record_mode_ == RecordMode::RAW);
+        output_frame_file->export_compute_settings(fps_average_);
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)
