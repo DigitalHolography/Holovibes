@@ -76,7 +76,7 @@ void Postprocessing::dispose()
 
 void Postprocessing::convolution_composite()
 {
-    const uint frame_res = fd_.get_frame_res();
+    const size_t frame_res = fd_.get_frame_res();
 
     from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
                                                        hsv_arr_.get(),
@@ -154,7 +154,7 @@ void Postprocessing::insert_renormalize()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            uint frame_res = fd_.get_frame_res();
+            size_t frame_res = fd_.get_frame_res();
             if (cd_.img_type == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),

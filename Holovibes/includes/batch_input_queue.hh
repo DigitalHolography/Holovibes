@@ -75,7 +75,7 @@ class BatchInputQueue final : public DisplayQueue
      * src, dst, batch_size, frame_res, depth, stream -> void
      */
     using dequeue_func_t =
-        std::function<void(const void* const, void* const, const uint, const uint, const uint, const cudaStream_t)>;
+        std::function<void(const void* const, void* const, const uint, const size_t, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *

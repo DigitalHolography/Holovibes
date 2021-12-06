@@ -60,7 +60,7 @@ void SliceWindow::initializeGL()
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
 
-    uint size = fd_.get_frame_size();
+    size_t size = fd_.get_frame_size();
     ushort* mTexture = new ushort[size];
     std::memset(mTexture, 0, size * sizeof(ushort));
 
