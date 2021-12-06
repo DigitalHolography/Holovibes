@@ -1,5 +1,12 @@
 ## Changelog
 
+### 10.6
+
+* Now compiles with Clang as well as MSVC
+* Fixed a crash when stopping the import with 3Dcuts enabled
+* Fixed a memory allocation problem with very large queues
+* Fixed a visual bug with the record progress bar
+
 ### 10.5.2
 
 * Fix --raw option
