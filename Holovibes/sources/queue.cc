@@ -186,7 +186,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
     start_index_ = tmp_src_start_index;
 }
 
-void Queue::copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const uint frame_size, const cudaStream_t stream)
+void Queue::copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const size_t frame_size, const cudaStream_t stream)
 {
     // Handle copies depending on regions info
     if (src.overflow())

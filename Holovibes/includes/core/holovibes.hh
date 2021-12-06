@@ -226,6 +226,7 @@ class Holovibes
 
     void stop_compute();
 
+    // Always close the 3D cuts before calling this function
     void stop_all_worker_controller();
 
     void start_cli_record_and_compute(const std::string& path,

@@ -67,7 +67,7 @@ void RawWindow::initializeGL()
 #pragma region Texture
     glGenBuffers(1, &Pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-    uint size;
+    size_t size;
     if (fd_.depth == 8) // cuComplex displayed as a uint
         size = fd_.get_frame_res() * sizeof(uint);
     else if (fd_.depth == 4) // Float are displayed as ushort
