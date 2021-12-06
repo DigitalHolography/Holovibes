@@ -35,9 +35,9 @@ void InformationWorker::run()
 {
     std::shared_ptr<ICompute> pipe;
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
-    unsigned int output_frame_res = 0;
-    unsigned int input_frame_size = 0;
-    unsigned int record_frame_size = 0;
+    size_t output_frame_res = 0;
+    size_t input_frame_size = 0;
+    size_t record_frame_size = 0;
 
     // Init start
     auto start = std::chrono::high_resolution_clock::now();
