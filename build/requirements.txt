@@ -1,4 +1,4 @@
-conan
+conan=1.42.2
 bump2version
 jinja2
 numpy==1.19.3

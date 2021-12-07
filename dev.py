@@ -69,7 +69,11 @@ def conan(args) -> int:
         print("conan cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
-    return subprocess.call(cmd)
+    try:
+        return subprocess.call(cmd)
+    except:
+        print("Please make sure you have installed the build/requirements.txt")
+        raise
 
 
 @goal
@@ -261,16 +265,24 @@ def release(args) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
     bump_part = args.goal_args[0]
+    args = GoalArgs(args.build_mode, args.generator, args.toolchain, args.build_env, args.build_dir, args.verbose,
+                    [])
 
     if build_mode != "Release":
         print("Can only create release with a Release build")
         return 1
 
-    if not os.path.isdir(build_dir):
+    if build_utils.bump_all_versions(bump_part):
+        return 1
+
+    if os.path.isdir(build_dir):
         print("Build directory not found, Running build goal before release")
         sys.stdout.flush()
-        if build(args) or ctest(args) or pytest(args):
+        if clean(args):
             return 1
+
+    if build(args):
+        return 1
 
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
@@ -282,17 +294,21 @@ def release(args) -> int:
         print("conan cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
-    if subprocess.call(cmd):
-        return 1
-
-    build_dir = os.path.join(build_dir, "Release")
+    try:
+        if subprocess.call(cmd):
+            return 1
+    except:
+        print("Please make sure you have installed the build/requirements.txt")
+        raise
 
     paths = build_utils.get_lib_paths()
-    if build_utils.bump_all_versions(bump_part):
-        return 1
+    nvcc_path = build_utils.get_cmake_variable(
+        build_dir, 'CMAKE_CUDA_COMPILER')
+    build_dir = os.path.join(build_dir, "Release")
 
     # Temporary fix
-    paths["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.5"
+    paths["cuda"] = os.path.abspath(os.path.join(
+        os.path.dirname(os.path.realpath(nvcc_path)), '..',))
 
     build_utils.create_release_file(paths, build_dir)
 
