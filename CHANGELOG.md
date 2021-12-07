@@ -1,6 +1,12 @@
 ## Changelog
 
-### 10.6
+### 10.6.1
+
+* Advanced Settings window does not force the program to close after saving the changes
+* Fix Batch input size not being set to 1 when using raw mode
+* Added Input fps in footer HOLO v4
+
+### 10.6.0
 
 * Now compiles with Clang as well as MSVC
 * Fixed a crash when stopping the import with 3Dcuts enabled
