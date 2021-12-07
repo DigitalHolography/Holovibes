@@ -219,7 +219,8 @@ class Queue final : public DisplayQueue
      * \param frame_size Size of the frame in bytes
      * \param stream Stream perfoming the copy
      */
-    static void copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const uint frame_size, const cudaStream_t stream);
+    static void
+    copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const size_t frame_size, const cudaStream_t stream);
 
   private: /* Attributes */
     /*! \brief Mutex to lock the queue */
@@ -284,13 +285,13 @@ class Queue final : public DisplayQueue
 
         bool overflow(void) { return second != nullptr; }
 
-        void consume_first(unsigned int size, unsigned int frame_size)
+        void consume_first(unsigned int size, size_t frame_size)
         {
             first += static_cast<size_t>(size) * frame_size * sizeof(char);
             first_size -= size;
         }
 
-        void consume_second(unsigned int size, unsigned int frame_size)
+        void consume_second(unsigned int size, size_t frame_size)
         {
             second += static_cast<size_t>(size) * frame_size * sizeof(char);
             second_size -= size;

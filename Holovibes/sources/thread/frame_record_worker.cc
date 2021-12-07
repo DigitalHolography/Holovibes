@@ -92,8 +92,7 @@ void FrameRecordWorker::run()
             nb_frames_recorded++;
 
             integrate_fps_average();
-
-            if (nb_frames_to_record_.has_value())
+            if (!nb_frames_to_record_.has_value())
                 nb_frames_to_record++;
         }
 

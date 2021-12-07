@@ -1213,10 +1213,11 @@ void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = fal
 
 void import_stop()
 {
+    close_windows();
+    close_critical_compute();
+
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display();
-
-    close_critical_compute();
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 

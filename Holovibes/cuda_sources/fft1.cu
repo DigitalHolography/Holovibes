@@ -65,7 +65,7 @@ void fft_1(cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            const cufftHandle plan2D,
-           const uint frame_resolution,
+           const size_t frame_resolution,
            const cudaStream_t stream)
 {
     apply_mask(input, lens, output, frame_resolution, batch_size, stream);

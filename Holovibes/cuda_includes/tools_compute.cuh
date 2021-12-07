@@ -53,6 +53,6 @@ void multiply_frames_complex(
  */
 void gpu_normalize(float* const input,
                    double* const result_reduce,
-                   const uint frame_res,
+                   const size_t frame_res,
                    const uint norm_constant,
                    const cudaStream_t stream);

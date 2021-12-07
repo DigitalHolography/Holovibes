@@ -9,7 +9,7 @@
 // Computes 3 different p slices and put them in each color
 void rgb(cuComplex* input,
          float* output,
-         const uint frame_res,
+         const size_t frame_res,
          bool normalize,
          const ushort red,
          const ushort blue,
@@ -19,7 +19,7 @@ void rgb(cuComplex* input,
          const cudaStream_t stream);
 
 void postcolor_normalize(float* output,
-                         const uint frame_res,
+                         const size_t frame_res,
                          const uint real_line_size,
                          holovibes::units::RectFd selection,
                          const float weight_r,

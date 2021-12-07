@@ -53,7 +53,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
                                             CUDA_C_32F);        // Computation type
 
     int inembed[1];
-    int zone_size = gpu_input_queue_.get_fd().get_frame_res();
+    int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
     inembed[0] = cd_.time_transformation_size;
 
@@ -69,12 +69,12 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd,
                                                            gpu_input_queue_.get_fd().get_frame_res()))
         err++;
 
-    int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
+    int output_buffer_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
     if (cd_.img_type == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
-    buffers_.gpu_postprocess_frame_size = gpu_input_queue_.get_fd().get_frame_res();
+    buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
     if (cd_.img_type == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
@@ -113,7 +113,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = gpu_input_queue_.get_fd().get_frame_res();
+        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -136,7 +136,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = gpu_input_queue_.get_fd().get_frame_res();
+        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
