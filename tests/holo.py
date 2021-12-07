@@ -140,8 +140,16 @@ class HoloFile:
         def __assert(lhs, rhs, name: str):
             assert lhs == rhs, f"{name} differ: {lhs} != {rhs}"
 
-        for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images', 'footer'):
+        for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
+
+        def check_footer(lhs : json, rhs : json):
+            assert "info" in rhs
+            assert "input fps" in rhs["info"]
+            rhs["info"]["input fps"], lhs["info"]["input fps"] = 0, 0
+            assert lhs == lhs, f"Compute setings differs : {set(lhs.items()) ^ set(rhs.items())}"
+
+        check_footer(getattr(ref, 'footer'), getattr(chal, 'footer'))
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(

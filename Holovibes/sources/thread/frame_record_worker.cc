@@ -22,6 +22,14 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
 {
 }
 
+void FrameRecordWorker::integrate_fps_average()
+{
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
+    int current_fps = input_fps->load();
+
+    fps_buffer_[fps_current_index_++ % 4] = current_fps;
+}
 void FrameRecordWorker::run()
 {
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
@@ -59,7 +67,6 @@ void FrameRecordWorker::run()
         output_frame_file =
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
-        output_frame_file->export_compute_settings(record_mode_ == RecordMode::RAW);
         output_frame_file->write_header();
 
         frame_buffer = new char[output_frame_size];
@@ -84,6 +91,7 @@ void FrameRecordWorker::run()
             (*processed_fps)++;
             nb_frames_recorded++;
 
+            integrate_fps_average();
             if (!nb_frames_to_record_.has_value())
                 nb_frames_to_record++;
         }
@@ -94,6 +102,8 @@ void FrameRecordWorker::run()
             output_frame_file->correct_number_of_frames(nb_frames_recorded);
         }
 
+        auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
+        output_frame_file->export_compute_settings(fps_average);
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)

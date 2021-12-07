@@ -11,7 +11,7 @@ OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDe
     img_nb_ = img_nb;
 }
 
-void OutputAviFile::export_compute_settings(bool record_raw) {}
+void OutputAviFile::export_compute_settings(int input_fps) {}
 
 void OutputAviFile::write_header()
 {
