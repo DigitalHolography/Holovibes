@@ -364,9 +364,6 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 // FIXME: Same fucntion as under
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
-    if (batch_size == api::get_batch_size())
-        return;
-
     auto callback = [=]()
     {
         set_batch_size(batch_size);

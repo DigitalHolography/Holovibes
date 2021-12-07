@@ -48,7 +48,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
     api::check_batch_size_limit();
-    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    // ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
@@ -109,6 +109,11 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
     if (mode == static_cast<int>(Computation::Raw))
     {
+        /* Batch size */
+        if (!api::is_raw_mode()) // To be sure that a pipe exist
+            api::update_batch_size([]() {},
+                                   1); // Because batch size is not set in on_notify() the value will not change on GUI.
+
         api::close_windows();
         api::close_critical_compute();
 
@@ -140,6 +145,9 @@ void ImageRenderingPanel::set_image_mode(int mode)
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+            /* Batch size */
+            update_batch_size();
 
             /* Notify */
             parent_->notify();
