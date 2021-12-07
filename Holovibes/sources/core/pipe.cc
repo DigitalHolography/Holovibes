@@ -1,5 +1,6 @@
 #include "pipe.hh"
 
+#include "API.hh"
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
@@ -205,7 +206,7 @@ bool Pipe::make_requests()
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(cd_.batch_size);
+        gpu_input_queue_.resize(api::is_raw_mode() ? 1 : cd_.batch_size.load());
         request_update_batch_size_ = false;
     }
 
