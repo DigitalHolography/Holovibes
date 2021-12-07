@@ -522,10 +522,18 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 void MainWindow::close_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().need_close)
-        close();
-    else
-        UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+    if (UserInterfaceDescriptor::instance().has_been_updated)
+    {
+        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ui_->ImportPanel->import_stop();
+
+        if (it == ImportType::File)
+            ui_->ImportPanel->import_start();
+        else if (it == ImportType::Camera)
+            change_camera(UserInterfaceDescriptor::instance().kCamera);
+    }
+
+    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
 }
 
 void MainWindow::open_advanced_settings()
