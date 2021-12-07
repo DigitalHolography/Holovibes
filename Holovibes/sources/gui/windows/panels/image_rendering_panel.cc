@@ -48,7 +48,6 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
     api::check_batch_size_limit();
-    // ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);

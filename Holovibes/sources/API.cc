@@ -301,7 +301,6 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         get_cd().set_contrast_enabled(true);
-        /* Batch size */
 
         return true;
     }
