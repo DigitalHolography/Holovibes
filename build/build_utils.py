@@ -162,5 +162,4 @@ def create_release_file(paths, build_dir: str):
 
 def get_cmake_variable(build_dir: str, variable: str) -> str:
     cmd = f"cmake -B {build_dir} -LA | grep {variable} | cut -d '=' -f 2 -"
-    pop = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-    return pop.stdout.read()
+    return subprocess.check_output(cmd, shell=True).decode('utf-8')

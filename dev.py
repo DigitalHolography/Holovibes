@@ -265,7 +265,7 @@ def release(args) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
     bump_part = args.goal_args[0]
-    args = GoalArgs(args.build_mode, args.generator, args.toolchain, args.build_env, args.build_dir, args.verbose,
+    args = GoalArgs(build_mode, generator, args.toolchain, args.build_env, build_dir, args.verbose,
                     [])
 
     if build_mode != "Release":
@@ -276,7 +276,7 @@ def release(args) -> int:
         return 1
 
     if os.path.isdir(build_dir):
-        print("Build directory not found, Running build goal before release")
+        print("Build directory found, Running clean goal before release")
         sys.stdout.flush()
         if clean(args):
             return 1
@@ -307,8 +307,8 @@ def release(args) -> int:
     build_dir = os.path.join(build_dir, "Release")
 
     # Temporary fix
-    paths["cuda"] = os.path.abspath(os.path.join(
-        os.path.dirname(os.path.realpath(nvcc_path)), '..',))
+    paths["cuda"] = os.path.abspath(
+        os.path.join(os.path.dirname(nvcc_path), '..'))
 
     build_utils.create_release_file(paths, build_dir)
 
