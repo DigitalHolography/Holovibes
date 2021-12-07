@@ -202,6 +202,7 @@ void BatchInputQueue::dequeue_update_attr()
 
 void BatchInputQueue::resize(const uint new_batch_size)
 {
+    LOG_INFO;
     // No action on any batch must be proceed
     const std::lock_guard<std::mutex> lock(m_producer_busy_);
 
