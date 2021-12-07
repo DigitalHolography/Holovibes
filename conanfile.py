@@ -44,7 +44,8 @@ class HolovibesConan(ConanFile):
     def build(self):
         res = dict()
         for dep in self.deps_cpp_info.deps:
-            res[dep] = self.deps_cpp_info[dep].rootpath
+            if '-' not in dep:
+                res[dep] = self.deps_cpp_info[dep].rootpath
 
         with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'w') as fp:
             json.dump(res, fp)

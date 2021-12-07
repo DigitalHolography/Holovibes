@@ -141,13 +141,13 @@ def bump_all_versions(type) -> str:
     )
 
 
-def create_release_file(paths, version):
+def create_release_file(paths, build_dir):
     from jinja2 import Environment, FileSystemLoader
     env = Environment(loader=FileSystemLoader(
         os.path.join(os.path.dirname(os.path.realpath(__file__)))))
     template = env.get_template(ISCC_FILE_TEMPLATE)
     output_from_parsed_template = template.render(
-        paths=paths, version=version, binary_filename=RUN_BINARY_FILE)
+        paths=paths, build_dir = build_dir, binary_filename=RUN_BINARY_FILE)
 
     # to save the results
     with open(ISCC_FILE, "w") as fh:

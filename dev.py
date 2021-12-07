@@ -74,7 +74,8 @@ def conan(args) -> int:
 
 @goal
 def cmake(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
+    cmd = build_utils.get_vcvars_start_cmd(
+        args.build_env) if build_utils.is_windows() else []
     toolchain = build_utils.get_toolchain(args.toolchain)
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
@@ -108,7 +109,8 @@ def cmake(args):
 
 @goal
 def build(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
+    cmd = build_utils.get_vcvars_start_cmd(
+        args.build_env) if build_utils.is_windows() else []
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(
         args.build_dir, build_utils.get_generator(args.generator)
@@ -175,9 +177,11 @@ def pytest(args):
 
 @goal
 def ctest(args):
-    cmd = build_utils.get_vcvars_start_cmd(args.build_env) if build_utils.is_windows() else []
+    cmd = build_utils.get_vcvars_start_cmd(
+        args.build_env) if build_utils.is_windows() else []
     exe_path = args.build_dir or os.path.join(
-        DEFAULT_BUILD_BASE, build_utils.get_generator(args.generator), "Holovibes"
+        DEFAULT_BUILD_BASE, build_utils.get_generator(
+            args.generator), "Holovibes"
     )
     previous_path = os.getcwd()
 
@@ -210,7 +214,8 @@ def build_ref(args) -> int:
             if not os.path.isfile(input):
                 input = get_input_file(path)
                 if input is None:
-                    print(f"Did not find the {INPUT_FILENAME} file in folder {path}")
+                    print(
+                        f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
             if not os.path.isfile(config):
                 config = None
@@ -270,7 +275,8 @@ def release(args) -> int:
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
 
-    cmd += ["conan", "build", ".", "-if", build_dir, "-s", f"build_type={build_mode}"]
+    cmd += ["conan", "build", ".", "-if",
+            build_dir, "-s", f"build_type={build_mode}"]
 
     if args.verbose:
         print("conan cmd: {}".format(" ".join(cmd)))
@@ -279,11 +285,16 @@ def release(args) -> int:
     if subprocess.call(cmd):
         return 1
 
+    build_dir = os.path.join(build_dir, "Release")
+
     paths = build_utils.get_lib_paths()
     if build_utils.bump_all_versions(bump_part):
         return 1
 
-    build_utils.create_release_file(paths)
+    # Temporary fix
+    paths["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.5"
+
+    build_utils.create_release_file(paths, build_dir)
 
     return subprocess.call(["iscc", ISCC_FILE])
 
@@ -343,7 +354,8 @@ def parse_args():
         default=None,
     )
 
-    parser.add_argument("-v", action="store_true", help="Activate verbose mode")
+    parser.add_argument("-v", action="store_true",
+                        help="Activate verbose mode")
 
     args, leftovers = parser.parse_known_args()
 
@@ -369,7 +381,8 @@ if __name__ == "__main__":
 
     for goal, goal_args in goals.items():
         run_goal(
-            goal, GoalArgs(args.b, args.g, args.t, args.p, args.i, args.v, goal_args)
+            goal, GoalArgs(args.b, args.g, args.t, args.p,
+                           args.i, args.v, goal_args)
         )
 
     exit(0)
