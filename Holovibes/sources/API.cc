@@ -301,6 +301,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         get_cd().set_contrast_enabled(true);
+        /* Batch size */
 
         return true;
     }
@@ -361,10 +362,23 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 #pragma region Batch
 // FIXME: Same fucntion as under
-void update_batch_size(std::function<void()> callback, const uint batch_size)
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
+    if (batch_size == api::get_batch_size())
+        return;
+
+    auto callback = [=]()
+    {
+        set_batch_size(batch_size);
+        adapt_time_transformation_stride_to_batch_size();
+        get_compute_pipe()->request_update_batch_size();
+    };
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
         pipe->insert_fn_end_vect(callback);
+        pipe->insert_fn_end_vect(notify_callback);
+    }
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }

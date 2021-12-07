@@ -154,18 +154,10 @@ void ImageRenderingPanel::update_batch_size()
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
 
-    if (batch_size == api::get_batch_size())
-        return;
+    // Need a notify because time transformation stride might change due to change on batch size
+    auto notify_callback = [=]() { parent_->notify(); };
 
-    auto callback = [=]()
-    {
-        api::set_batch_size(batch_size);
-        api::adapt_time_transformation_stride_to_batch_size();
-        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
-        parent_->notify();
-    };
-
-    api::update_batch_size(callback, batch_size);
+    api::update_batch_size(notify_callback, batch_size);
 }
 
 void ImageRenderingPanel::update_time_transformation_stride()
