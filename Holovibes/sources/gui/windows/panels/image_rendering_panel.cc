@@ -109,7 +109,10 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (mode == static_cast<int>(Computation::Raw))
     {
         /* Batch size */
-        if (!api::is_raw_mode()) // To be sure that a pipe exist
+        // To set batch size, we need the pipe.
+        // The next 'if' is needed because if it is the first time we set the mode Raw, no pipe exist.
+        // Removing it, will cause a crash a launch.
+        if (!api::is_raw_mode())
             api::update_batch_size([]() {},
                                    1); // Because batch size is not set in on_notify() the value will not change on GUI.
 
@@ -146,6 +149,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
                      (float)ui_->TimeTransformationStrideSpinBox->value()));
 
             /* Batch size */
+            // The batch size is set with the value present in GUI.
             update_batch_size();
 
             /* Notify */

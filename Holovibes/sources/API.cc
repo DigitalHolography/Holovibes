@@ -244,6 +244,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     QSize size(width, height);
     init_image_mode(pos, size);
     get_cd().set_compute_mode(Computation::Raw);
+    create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
