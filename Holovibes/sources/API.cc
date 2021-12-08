@@ -489,8 +489,14 @@ void toggle_renormalize(bool value)
 
 void set_filter2d(bool checked)
 {
+    if (api::is_raw_mode())
+        return;
+
     get_cd().set_filter2d_enabled(checked);
     set_auto_contrast_all();
+
+    if (!checked)
+        set_filter2d_view(false, 0);
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)

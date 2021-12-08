@@ -192,9 +192,6 @@ void ImageRenderingPanel::update_time_transformation_stride()
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    if (api::is_raw_mode())
-        return;
-
     api::set_filter2d(checked);
 
     if (checked)
@@ -203,9 +200,9 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         const camera::FrameDescriptor& fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
-    else
-        update_filter2d_view(false);
 
+    // Enabled filter2d linked spinbox +
+    // Might uncheck filter2d view
     parent_->notify();
 }
 
