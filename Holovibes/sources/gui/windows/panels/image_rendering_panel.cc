@@ -233,27 +233,16 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
-    time_transformation_size = std::max(1, time_transformation_size);
-
-    if (time_transformation_size == api::get_time_transformation_size())
-        return;
 
     auto callback = [=]()
     {
-        api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe()->request_update_time_transformation_size();
-        ui_->ViewPanel->set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.
+        ui_->ViewPanel->set_p_accu();
     };
 
-    api::set_time_transformation_size(callback);
-
-    parent_->notify();
+    api::set_time_transformation_size(callback, time_transformation_size);
 }
 
 void ImageRenderingPanel::set_wavelength(const double value)

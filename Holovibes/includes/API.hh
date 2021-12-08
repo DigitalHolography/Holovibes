@@ -520,7 +520,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
  *
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
  */
-void set_time_transformation_size(std::function<void()> callback);
+void set_time_transformation_size(std::function<void()> callback, int time_transformation_size);
 
 /*! \brief Enables or Disables fft shift mode on the main display window
  *

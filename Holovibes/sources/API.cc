@@ -600,11 +600,25 @@ void set_fft_shift(const bool value)
     pipe_refresh();
 }
 
-void set_time_transformation_size(std::function<void()> callback)
+void set_time_transformation_size(std::function<void()> gui_callback, int time_transformation_size)
 {
-    auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get());
-    if (pipe)
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    if (time_transformation_size == api::get_time_transformation_size())
+        return;
+
+    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
+        auto callback = [=]()
+        {
+            set_time_transformation_size(time_transformation_size);
+            get_compute_pipe()->request_update_time_transformation_size();
+        };
+
         pipe->insert_fn_end_vect(callback);
+        pipe->insert_fn_end_vect(gui_callback);
+    }
 }
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
