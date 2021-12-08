@@ -495,6 +495,14 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
+    // Pipe is not launched
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    // Views are available in holo mode
+    if (api::is_raw_mode())
+        return;
+
     if (checked)
     {
         if (auto pipe = get_compute_pipe())

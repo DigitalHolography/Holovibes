@@ -215,12 +215,6 @@ void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    if (api::is_raw_mode())
-        return;
-
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
 }
 
@@ -328,6 +322,8 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value) { api::updat
 
 void ImageRenderingPanel::set_divide_convolution(const bool value) { api::set_divide_convolution(value); }
 
+#pragma region AdvancedSettingsWindow
+
 void ImageRenderingPanel::set_z_step(double value)
 {
     z_step_ = value;
@@ -335,5 +331,7 @@ void ImageRenderingPanel::set_z_step(double value)
 }
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }
+
+#pragma endregion
 
 } // namespace holovibes::gui
