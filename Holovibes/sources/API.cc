@@ -1013,6 +1013,7 @@ void update_convo_kernel(const std::string& value)
 
 void set_convolution_mode(bool value)
 {
+    // Pipe is not active if nothing is running
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 

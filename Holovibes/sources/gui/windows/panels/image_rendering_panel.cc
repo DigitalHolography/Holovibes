@@ -319,6 +319,8 @@ void ImageRenderingPanel::decrement_z()
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
     api::set_convolution_mode(value);
+
+    // Notify because all Qt object concerned by convolution are disabled.
     parent_->notify();
 }
 
