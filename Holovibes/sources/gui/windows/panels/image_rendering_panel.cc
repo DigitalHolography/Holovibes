@@ -103,33 +103,10 @@ void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
 
 void ImageRenderingPanel::set_image_mode(int mode)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     if (mode == static_cast<int>(Computation::Raw))
-    {
-        api::close_windows();
-        api::close_critical_compute();
-
-        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
-            return;
-
         api::set_raw_mode(*parent_, parent_->window_max_size);
-
-        // Because batch size is not set in on_notify() the value will not change on GUI.
-        api::update_batch_size([]() {}, 1);
-
-        parent_->notify();
-        parent_->layout_toggled();
-    }
     else if (mode == static_cast<int>(Computation::Hologram))
     {
-        // That function is used to reallocate the buffers since the Square
-        // input mode could have changed
-        /* Close windows & destory thread compute */
-        api::close_windows();
-        api::close_critical_compute();
-
         const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size);
 
         if (res)
@@ -144,13 +121,16 @@ void ImageRenderingPanel::set_image_mode(int mode)
                      (float)ui_->TimeTransformationStrideSpinBox->value()));
 
             /* Batch size */
-            // The batch size is set with the value present in GUI.
+            // The batch size is set with the value present in GUI that may be different from the one in back.
+            // In Raw mode, batch size has to be 1, we put it at 1 in back and the front store the value.
             update_batch_size();
-
-            /* Notify */
-            parent_->notify();
         }
     }
+
+    // Might enable or disable Qt front.
+    parent_->notify();
+    // In Raw/Holo mode, the raw window might have different shape
+    parent_->layout_toggled();
 }
 
 void ImageRenderingPanel::update_batch_size()

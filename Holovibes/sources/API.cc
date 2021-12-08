@@ -236,6 +236,15 @@ void create_pipe(Observer& observer)
 
 void set_raw_mode(Observer& observer, uint window_max_size)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    api::close_windows();
+    api::close_critical_compute();
+
+    if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+        return;
+
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
@@ -253,6 +262,9 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+
+    // Because batch size is not set in on_notify() the value will not change on GUI.
+    api::update_batch_size([]() {}, 1);
 }
 
 void create_holo_window(ushort window_size)
@@ -289,7 +301,15 @@ void create_holo_window(ushort window_size)
 
 bool set_holographic_mode(Observer& observer, ushort window_size)
 {
-    /* ---------- */
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return false;
+
+    // That function is used to reallocate the buffers since the Square
+    // input mode could have changed
+    /* Close windows & destory thread compute */
+    api::close_windows();
+    api::close_critical_compute();
+
     try
     {
         get_cd().set_compute_mode(Computation::Hologram);
