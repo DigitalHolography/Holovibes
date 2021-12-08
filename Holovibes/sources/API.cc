@@ -992,7 +992,16 @@ void check_batch_size_limit() { get_cd().check_batch_size_limit(); }
 
 void update_convo_kernel(const std::string& value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == None)
+    // Pipe is not active
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    // To load a matrix, we need the gpu_output_queue which exist only in Holo mode.
+    if (is_raw_mode())
+        return;
+
+    // No need to load anything if convolution is not enabled
+    if (!get_convolution_enabled())
         return;
 
     get_cd().set_convolution(true, value);
@@ -1007,6 +1016,7 @@ void update_convo_kernel(const std::string& value)
     }
     catch (const std::exception&)
     {
+        LOG_WARN << "Could not set convolution";
         get_cd().set_convolution_enabled(false);
     }
 }

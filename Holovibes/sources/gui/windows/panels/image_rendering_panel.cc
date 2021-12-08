@@ -320,22 +320,11 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
     api::set_convolution_mode(value);
 
-    // Notify because all Qt object concerned by convolution are disabled.
+    // Notify because all Qt object concerned by convolution are disabled or enabled.
     parent_->notify();
 }
 
-void ImageRenderingPanel::update_convo_kernel(const QString& value)
-{
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    if (!api::get_convolution_enabled())
-        return;
-
-    api::update_convo_kernel(value.toStdString());
-
-    parent_->notify();
-}
+void ImageRenderingPanel::update_convo_kernel(const QString& value) { api::update_convo_kernel(value.toStdString()); }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
