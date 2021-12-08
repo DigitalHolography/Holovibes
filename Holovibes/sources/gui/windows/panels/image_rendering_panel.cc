@@ -135,9 +135,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     uint batch_size = ui_->BatchSizeSpinBox->value();
 
     // Need a notify because time transformation stride might change due to change on batch size

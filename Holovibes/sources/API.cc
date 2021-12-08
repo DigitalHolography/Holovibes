@@ -20,6 +20,26 @@ void pipe_refresh()
     }
 }
 
+void update_batch_size_bypass(std::function<void()> notify_callback, const uint batch_size)
+{
+    auto callback = [=]()
+    {
+        set_batch_size(batch_size);
+        adapt_time_transformation_stride_to_batch_size();
+        get_compute_pipe()->request_update_batch_size();
+    };
+
+    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
+        pipe->insert_fn_end_vect(callback);
+        pipe->insert_fn_end_vect(notify_callback);
+    }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+}
+
+#pragma endregion
+
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
 const std::string get_credits()
@@ -93,8 +113,6 @@ void close_windows()
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
-
-#pragma endregion
 
 #pragma region Ini
 
@@ -264,7 +282,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
 
     // Because batch size is not set in on_notify() the value will not change on GUI.
-    api::update_batch_size([]() {}, 1);
+    api::update_batch_size_bypass([]() {}, 1);
 }
 
 void create_holo_window(ushort window_size)
@@ -381,23 +399,13 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 #pragma endregion
 
 #pragma region Batch
-// FIXME: Same fucntion as under
+
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
-    auto callback = [=]()
-    {
-        set_batch_size(batch_size);
-        adapt_time_transformation_stride_to_batch_size();
-        get_compute_pipe()->request_update_batch_size();
-    };
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(callback);
-        pipe->insert_fn_end_vect(notify_callback);
-    }
-    else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+    update_batch_size_bypass(notify_callback, batch_size);
 }
 
 #pragma endregion
