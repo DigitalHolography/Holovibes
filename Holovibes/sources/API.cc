@@ -1052,6 +1052,10 @@ void set_convolution_mode(bool value)
 
 void set_divide_convolution(const bool value)
 {
+    // Pipe is not active if nothing is running
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     get_cd().set_divide_convolution_enabled(value);
     pipe_refresh();
 }

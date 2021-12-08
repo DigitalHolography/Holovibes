@@ -326,14 +326,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value) { api::update_convo_kernel(value.toStdString()); }
 
-void ImageRenderingPanel::set_divide_convolution(const bool value)
-{
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-    api::set_divide_convolution(value);
-
-    parent_->notify();
-}
+void ImageRenderingPanel::set_divide_convolution(const bool value) { api::set_divide_convolution(value); }
 
 void ImageRenderingPanel::set_z_step(double value)
 {
