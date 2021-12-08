@@ -5083,7 +5083,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionExport</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>write_ini()</slot>
+   <slot>write_compute_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5192,7 +5192,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>
   <slot>browse_import_ini()</slot>
-  <slot>write_ini()</slot>
+  <slot>write_compute_settings()</slot>
   <slot>browse_export_ini()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_transformation_stride()</slot>

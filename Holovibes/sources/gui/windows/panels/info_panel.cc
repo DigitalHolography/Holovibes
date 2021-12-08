@@ -43,14 +43,14 @@ void InfoPanel::init()
     set_visible_record_progress(false);
 }
 
-void InfoPanel::load_gui(const boost::property_tree::ptree& ptree)
+void InfoPanel::load_gui(const json& j_us)
 {
-    bool h = ptree.get<bool>("window.info_hidden", isHidden());
+    bool h = json_get_or_default(j_us, isHidden(), "panels", "info hidden");
     ui_->actionInfo->setChecked(!h);
     setHidden(h);
 }
 
-void InfoPanel::save_gui(boost::property_tree::ptree& ptree) { ptree.put<bool>("window.info_hidden", isHidden()); }
+void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 
 void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
 

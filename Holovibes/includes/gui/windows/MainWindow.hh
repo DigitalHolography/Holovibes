@@ -96,7 +96,7 @@ class MainWindow : public QMainWindow, public Observer
     void browse_export_ini();
     void reload_ini();
     void reload_ini(const std::string& filename);
-    void write_ini();
+    void write_compute_settings();
     void open_advanced_settings();
     void close_advanced_settings();
 

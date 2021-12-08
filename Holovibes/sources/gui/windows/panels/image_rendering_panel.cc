@@ -86,19 +86,18 @@ void ImageRenderingPanel::on_notify()
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
 
-void ImageRenderingPanel::load_gui(const boost::property_tree::ptree& ptree)
+void ImageRenderingPanel::load_gui(const json& j_us)
 {
-    // Step
-    z_step_ = ptree.get<double>("gui_settings.image_rendering_z_step", z_step_);
-    bool h = ptree.get<bool>("window.image_rendering_hidden", isHidden());
+    z_step_ = json_get_or_default(j_us, z_step_, "gui settings", "z step");
+    bool h = json_get_or_default(j_us, isHidden(), "panels", "image rendering hidden");
     ui_->actionImage_rendering->setChecked(!h);
     setHidden(h);
 }
 
-void ImageRenderingPanel::save_gui(boost::property_tree::ptree& ptree)
+void ImageRenderingPanel::save_gui(json& j_us)
 {
-    ptree.put<double>("gui_settings.image_rendering_z_step", z_step_);
-    ptree.put<bool>("window.image_rendering_hidden", isHidden());
+    j_us["gui settings"]["z step"] = z_step_;
+    j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
 void ImageRenderingPanel::set_image_mode(int mode)

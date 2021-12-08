@@ -115,12 +115,11 @@ void load_compute_settings(const std::string& json_path)
     if (json_path.empty())
         return;
 
-    LOG_INFO << "Compute settings loaded from : " << json_path;
-
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
 
     json_to_compute_settings(j_cs);
+    LOG_INFO << "Compute settings loaded from : " << json_path;
 
     after_load_checks(get_cd());
     pipe_refresh();

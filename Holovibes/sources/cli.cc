@@ -189,7 +189,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         }
         catch (std::exception&)
         {
-            LOG_WARN << "Compute settings file not found.";
+            LOG_WARN << " Compute settings file not found.";
             std::exit(1);
         }
     }

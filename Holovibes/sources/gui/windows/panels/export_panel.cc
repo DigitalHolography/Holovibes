@@ -75,10 +75,6 @@ void ExportPanel::on_notify()
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void ExportPanel::load_gui(const boost::property_tree::ptree& ptree) {}
-
-void ExportPanel::save_gui(boost::property_tree::ptree& ptree) {}
-
 void ExportPanel::browse_record_output_file()
 {
     QString filepath;

@@ -27,9 +27,6 @@ class ExportPanel : public Panel
     void init() override;
     void on_notify() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
-
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/

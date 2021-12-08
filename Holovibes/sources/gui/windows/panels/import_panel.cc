@@ -19,22 +19,22 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped()); }
 
-void ImportPanel::load_gui(const boost::property_tree::ptree& ptree)
+void ImportPanel::load_gui(const json& j_us)
 {
-    bool h = ptree.get<bool>("window.import_export_hidden", ui_->ImportExportFrame->isHidden());
+    bool h = json_get_or_default(j_us, ui_->ImportExportFrame->isHidden(), "panels", "import export hidden");
     ui_->actionImportExport->setChecked(!h);
     ui_->ImportExportFrame->setHidden(h);
 
-    ui_->ImportInputFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
-    ui_->LoadFileInGpuCheckBox->setChecked(ptree.get<bool>("import.from_gpu", false));
+    ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
+    ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
 }
 
-void ImportPanel::save_gui(boost::property_tree::ptree& ptree)
+void ImportPanel::save_gui(json& j_us)
 {
-    ptree.put<bool>("window.import_export_hidden", ui_->ImportExportFrame->isHidden());
+    j_us["panels"]["import export hidden"] = ui_->ImportExportFrame->isHidden();
 
-    ptree.put<uint>("import.fps", ui_->ImportInputFpsSpinBox->value());
-    ptree.put<bool>("import.from_gpu", ui_->LoadFileInGpuCheckBox->isChecked());
+    j_us["import"]["fps"] = ui_->ImportInputFpsSpinBox->value();
+    j_us["import"]["from gpu"] = ui_->LoadFileInGpuCheckBox->isChecked();
 }
 
 std::string& ImportPanel::get_file_input_directory()

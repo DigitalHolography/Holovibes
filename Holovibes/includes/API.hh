@@ -630,9 +630,6 @@ json compute_settings_to_json();
 void load_compute_settings(const std::string& path);
 void json_to_compute_settings(const json& data);
 
-void save_user_settings(boost::property_tree::ptree& ptree);
-void load_user_settings(const boost::property_tree::ptree& ptree);
-
 void check_batch_size_limit();
 
 /*! \brief Gets the documentation url

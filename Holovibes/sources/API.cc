@@ -96,52 +96,6 @@ void close_windows()
 
 #pragma endregion
 
-#pragma region Json
-
-void save_user_settings(boost::property_tree::ptree& ptree)
-{
-    // Display
-    ptree.put<ushort>("display.rate", get_display_rate());
-    // Step
-    ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-    // Chart
-    ptree.put<size_t>("chart.auto_scale_point_threshold",
-                      UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-    // Files
-    ptree.put<std::string>("files.default_output_filename",
-                           UserInterfaceDescriptor::instance().default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory",
-                           UserInterfaceDescriptor::instance().record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
-}
-void load_user_settings(const boost::property_tree::ptree& ptree)
-{
-    // Display
-    set_display_rate(ptree.get<uint>("display.rate", get_display_rate()));
-    // Step
-    UserInterfaceDescriptor::instance().record_frame_step_ =
-        ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
-    // Chart
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
-        ptree.get<size_t>("chart.auto_scale_point_threshold",
-                          UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-    // Files
-    UserInterfaceDescriptor::instance().default_output_filename_ =
-        ptree.get<std::string>("files.default_output_filename",
-                               UserInterfaceDescriptor::instance().default_output_filename_);
-    UserInterfaceDescriptor::instance().record_output_directory_ =
-        ptree.get<std::string>("files.record_output_directory",
-                               UserInterfaceDescriptor::instance().record_output_directory_);
-    UserInterfaceDescriptor::instance().file_input_directory_ =
-        ptree.get<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        ptree.get<std::string>("files.batch_input_directory",
-                               UserInterfaceDescriptor::instance().batch_input_directory_);
-}
-
-#pragma endregion
-
 #pragma region Close Compute
 
 void camera_none()
