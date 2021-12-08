@@ -1,5 +1,9 @@
 ## Changelog
 
+### 10.6.2
+
+* Fix Record in Raw mode
+
 ### 10.6.1
 
 * Advanced Settings window does not force the program to close after saving the changes
