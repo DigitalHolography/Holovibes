@@ -302,13 +302,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     api::set_wavelength(value * 1.0e-9f);
 }
 
-void ImageRenderingPanel::set_z(const double value)
-{
-    if (api::is_raw_mode())
-        return;
-
-    api::set_z_distance(value);
-}
+void ImageRenderingPanel::set_z(const double value) { api::set_z_distance(value); }
 
 void ImageRenderingPanel::increment_z()
 {

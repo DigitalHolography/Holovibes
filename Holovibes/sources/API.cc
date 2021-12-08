@@ -790,6 +790,9 @@ void set_wavelength(const double value)
 
 void set_z_distance(const double value)
 {
+    if (is_raw_mode())
+        return;
+
     get_cd().set_zdistance(static_cast<float>(value));
 
     pipe_refresh();
