@@ -123,6 +123,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
             /* Batch size */
             // The batch size is set with the value present in GUI that may be different from the one in back.
             // In Raw mode, batch size has to be 1, we put it at 1 in back and the front store the value.
+            // The next statement cannot be in API because the value is taken from GUI.
             update_batch_size();
         }
     }

@@ -22,15 +22,15 @@ void pipe_refresh()
 
 void update_batch_size_bypass(std::function<void()> notify_callback, const uint batch_size)
 {
-    auto callback = [=]()
-    {
-        set_batch_size(batch_size);
-        adapt_time_transformation_stride_to_batch_size();
-        get_compute_pipe()->request_update_batch_size();
-    };
-
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
+        auto callback = [=]()
+        {
+            set_batch_size(batch_size);
+            adapt_time_transformation_stride_to_batch_size();
+            get_compute_pipe()->request_update_batch_size();
+        };
+
         pipe->insert_fn_end_vect(callback);
         pipe->insert_fn_end_vect(notify_callback);
     }
