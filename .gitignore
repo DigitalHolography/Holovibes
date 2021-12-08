@@ -48,9 +48,6 @@ Output
 
 libs/glm/
 
-# Holovibes global configuration file
-Holovibes/holovibes.ini
-
 # Doxygen generated files
 latex
 html

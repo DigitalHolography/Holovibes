@@ -122,7 +122,7 @@ class Holovibes
 
     /*! \brief Set ComputeDescriptor options
      *
-     * Used when options are loaded from an INI file.
+     * Used when options are loaded from a JSON file.
      *
      * \param cd ComputeDescriptor to load
      */

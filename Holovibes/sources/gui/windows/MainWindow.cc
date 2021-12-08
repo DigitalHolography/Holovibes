@@ -102,22 +102,22 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::global_config_filepath << ": global configuration file not found. "
+        LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
                  << "Initialization with default values.";
         save_gui();
     }
 
     try
     {
-        api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
                  << "Initialization with default values.";
-        api::save_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
     // Display default values
@@ -285,7 +285,7 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 
 #pragma endregion
 /* ------------ */
-#pragma region Ini
+#pragma region Json
 
 void MainWindow::write_ini() { api::save_compute_settings(); }
 
@@ -324,7 +324,7 @@ void MainWindow::browse_import_ini()
         reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::settings::default_compute_config_filepath); }
+void MainWindow::reload_ini() { reload_ini(::holovibes::settings::compute_settings_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -335,7 +335,7 @@ void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 void MainWindow::load_gui()
 {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(settings::global_config_filepath, ptree);
+    boost::property_tree::ini_parser::read_ini(settings::user_settings_filepath, ptree);
 
     if (!ptree.empty())
     {
@@ -344,7 +344,7 @@ void MainWindow::load_gui()
         window_max_size = ptree.get<uint>("window_size.main_window_max_size", window_max_size);
         auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
 
-        api::load_user_preferences(ptree);
+        api::load_user_settings(ptree);
 
         for (auto it = panels_.begin(); it != panels_.end(); it++)
             (*it)->load_gui(ptree);
@@ -362,12 +362,12 @@ void MainWindow::save_gui()
     ptree.put<uint>("window_size.main_window_max_size", window_max_size);
     ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
 
-    api::save_user_preferences(ptree);
+    api::save_user_settings(ptree);
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(ptree);
 
-    auto path = holovibes::settings::global_config_filepath;
+    auto path = holovibes::settings::user_settings_filepath;
     boost::property_tree::write_ini(path, ptree);
 
     LOG_INFO << " GUI settings overwritten at " << path;

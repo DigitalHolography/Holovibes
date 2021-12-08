@@ -620,7 +620,7 @@ class ComputeDescriptor : public Observable
     /*! \} */
 
 #pragma region Atomics vars
-    // Variables are regroup by module. Those are the same as in the compute_settings.ini
+    // Variables are regroup by module. Those are the same as in the compute_settings.json
     // Image rendering
     /*! \brief Mode of computation of the image */
     std::atomic<Computation> compute_mode{Computation::Raw};

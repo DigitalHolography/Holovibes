@@ -37,11 +37,11 @@ namespace gui
  *
  * These slots are divided into several sections:
  *
- * * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
+ * * Menu: every action in the menu (e-g: configuration of .json, camera selection ...).
  * * Image rendering: #img, p, z, lambda ...
  * * View: log scale, shifted corner, contrast ...
  * * Special: image ratio, Chart plot ...
- * * Record: record of raw frames, Chart file ...
+ * * Export: record of raw frames, Chart file ...
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
@@ -50,7 +50,7 @@ class MainWindow : public QMainWindow, public Observer
     Q_OBJECT
 
   public:
-    /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
+    /*! \brief Set keyboard shortcuts, set visibility and load default values from corresponding .json files.
      *
      * \param parent Qt parent (should be null as it is the GUI hierarchy top class)
      */
@@ -167,7 +167,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
-    /*! \brief Setups gui from .ini file */
+    /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();
 

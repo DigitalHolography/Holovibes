@@ -540,7 +540,6 @@ void set_filter2d(bool checked);
 /*! \brief Adds filter2d view
  *
  * \param auxiliary_window_max_size
- * ComputeSettings INI file.
  */
 void set_filter2d_view(bool check, uint auxiliary_window_max_size);
 
@@ -619,20 +618,20 @@ void init_image_mode(QPoint& position, QSize& size);
 
 /*! \brief Saves the current state of holovibes
  *
- * \param path The location of the .ini file saved
+ * \param path The location of the .json file saved
  */
-void save_compute_settings(const std::string& path = ::holovibes::settings::default_compute_config_filepath);
+void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
 json compute_settings_to_json();
 
-/*! \brief Setups program from .ini file
+/*! \brief Setups program from .json file
  *
- * \param path the path where the .ini file is
+ * \param path the path where the .json file is
  */
 void load_compute_settings(const std::string& path);
 void json_to_compute_settings(const json& data);
 
-void save_user_preferences(boost::property_tree::ptree& ptree);
-void load_user_preferences(const boost::property_tree::ptree& ptree);
+void save_user_settings(boost::property_tree::ptree& ptree);
+void load_user_settings(const boost::property_tree::ptree& ptree);
 
 void check_batch_size_limit();
 
