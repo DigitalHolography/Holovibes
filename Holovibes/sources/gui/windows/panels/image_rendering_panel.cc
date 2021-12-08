@@ -108,14 +108,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
     if (mode == static_cast<int>(Computation::Raw))
     {
-        /* Batch size */
-        // To set batch size, we need the pipe.
-        // The next 'if' is needed because if it is the first time we set the mode Raw, no pipe exist.
-        // Removing it, will cause a crash a launch.
-        if (!api::is_raw_mode())
-            api::update_batch_size([]() {},
-                                   1); // Because batch size is not set in on_notify() the value will not change on GUI.
-
         api::close_windows();
         api::close_critical_compute();
 
@@ -123,6 +115,9 @@ void ImageRenderingPanel::set_image_mode(int mode)
             return;
 
         api::set_raw_mode(*parent_, parent_->window_max_size);
+
+        // Because batch size is not set in on_notify() the value will not change on GUI.
+        api::update_batch_size([]() {}, 1);
 
         parent_->notify();
         parent_->layout_toggled();
