@@ -298,9 +298,7 @@ void ImageRenderingPanel::set_time_transformation_size()
 
 void ImageRenderingPanel::set_wavelength(const double value)
 {
-    if (api::is_raw_mode())
-        return;
-
+    // 1.0e-9f because GUI is storing the value in nm and back use it in m.
     api::set_wavelength(value * 1.0e-9f);
 }
 

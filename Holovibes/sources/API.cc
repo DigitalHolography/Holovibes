@@ -780,6 +780,9 @@ bool slide_update_threshold(
 
 void set_wavelength(const double value)
 {
+    if (is_raw_mode())
+        return;
+
     get_cd().set_lambda(static_cast<float>(value));
 
     pipe_refresh();
