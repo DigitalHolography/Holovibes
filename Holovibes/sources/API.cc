@@ -412,11 +412,26 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 
 #pragma region STFT
 
-// FIXME: Same fucntion as above
-void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
+void update_time_transformation_stride(std::function<void()> notify_callback, const uint time_transformation_stride)
 {
+    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    if (time_transformation_stride == api::get_time_transformation_stride())
+        return;
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
+        auto callback = [=]()
+        {
+            set_time_transformation_stride(time_transformation_stride);
+            adapt_time_transformation_stride_to_batch_size();
+            Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
+        };
+
         pipe->insert_fn_end_vect(callback);
+        pipe->insert_fn_end_vect(notify_callback);
+    }
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }

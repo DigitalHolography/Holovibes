@@ -146,19 +146,10 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
-
-    if (time_transformation_stride == api::get_time_transformation_stride())
-        return;
 
     auto callback = [=]()
     {
-        api::set_time_transformation_stride(time_transformation_stride);
-        api::adapt_time_transformation_stride_to_batch_size();
-        Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeTransformationStrideSpinBox->value()));
