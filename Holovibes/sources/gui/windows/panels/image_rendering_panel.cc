@@ -318,9 +318,6 @@ void ImageRenderingPanel::decrement_z()
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     api::set_convolution_mode(value);
     parent_->notify();
 }

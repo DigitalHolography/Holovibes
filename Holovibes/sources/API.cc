@@ -1013,6 +1013,9 @@ void update_convo_kernel(const std::string& value)
 
 void set_convolution_mode(bool value)
 {
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     get_cd().set_convolution_enabled(value);
 
     if (value)
