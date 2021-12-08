@@ -339,7 +339,7 @@ void MainWindow::load_gui()
 
     if (!ptree.empty())
     {
-        set_theme(ptree.get<int>("display.theme_type", theme_index_));
+        set_theme(static_cast<Theme>(ptree.get<int>("display.theme_type", static_cast<int>(theme_))));
 
         window_max_size = ptree.get<uint>("window_size.main_window_max_size", window_max_size);
         auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
@@ -357,7 +357,7 @@ void MainWindow::save_gui()
 {
     boost::property_tree::ptree ptree;
 
-    ptree.put<ushort>("display.theme_type", theme_index_);
+    ptree.put<ushort>("display.theme_type", static_cast<int>(theme_));
 
     ptree.put<uint>("window_size.main_window_max_size", window_max_size);
     ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
@@ -578,8 +578,6 @@ void MainWindow::shift_screen()
 void MainWindow::set_night()
 {
     // Dark mode style
-    qApp->setStyle(QStyleFactory::create("Fusion"));
-
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -594,40 +592,31 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
     darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
     darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
+    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
     darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
     darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
     darkPalette.setColor(QPalette::Light, Qt::black);
 
     qApp->setPalette(darkPalette);
-    theme_index_ = 0;
+    theme_ = Theme::Dark;
 }
 
 void MainWindow::set_classic()
 {
     qApp->setPalette(this->style()->standardPalette());
     qApp->setStyleSheet("");
-    theme_index_ = 1;
+    theme_ = Theme::Classic;
 }
 
-void MainWindow::set_theme(const int index)
+void MainWindow::set_theme(const Theme theme)
 {
-    if (index == theme_index_)
-        return;
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 
-    switch (index)
-    {
-    case 0:
-        set_night();
-        break;
-    case 1:
+    if (theme == Theme::Classic)
         set_classic();
-        break;
-    default:
-        return;
-    }
-
-    theme_index_ = index;
+    else
+        set_night();
 }
 #pragma endregion
 } // namespace gui

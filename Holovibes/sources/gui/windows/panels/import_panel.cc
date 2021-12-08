@@ -17,14 +17,6 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
-void ImportPanel::init()
-{
-    // Fix for the placeholder color that was black by default because of QT6
-    auto p = ui_->ImportPathLineEdit->palette();
-    p.setColor(QPalette::PlaceholderText, Qt::darkGray);
-    ui_->ImportPathLineEdit->setPalette(p);
-}
-
 void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped()); }
 
 void ImportPanel::load_gui(const boost::property_tree::ptree& ptree)
