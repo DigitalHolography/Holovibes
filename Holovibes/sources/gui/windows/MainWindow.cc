@@ -210,7 +210,8 @@ void MainWindow::on_notify()
         ui_->ExportPanel->setEnabled(true);
     }
 
-    ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
+                                   (api::get_img_type() != ImgType::Composite));
     resize(baseSize());
     adjustSize();
 }
@@ -469,8 +470,11 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
+    {
+        LOG_ERROR << "Cannot set view image type in raw mode";
         return;
+    }
 
     const std::string& str = value.toStdString();
 
@@ -482,6 +486,18 @@ void MainWindow::set_view_image_type(const QString& value)
             set_composite_values();
         }
     }
+
+    // FIXME: delete comment
+    // C'est ce que philippe faisait pour les space/time_transform aussi
+    // Pas faux
+    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
+    // Perso la string me va très bien
+    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
+    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
+    // Faudrait peut-être demander l'avis de tt le monde
+    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
+    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
+    // On peut demander aux autres
 
     auto callback = ([=]() {
         api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));

@@ -25,7 +25,7 @@ const float Holovibes::get_boundary()
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
         const float n = static_cast<float>(fd.height);
         const float d = cd_.pixel_size * 0.000001f;
-        return (n * d * d) / cd_.lambda;
+        return (n * d * d) / GSH::instance().get_lambda();
     }
     return 0.f;
 }
@@ -116,6 +116,12 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
+    if (GSH::instance().get_batch_size() > cd_.record_buffer_size)
+    {
+        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
+        return;
+    }
+
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
@@ -170,13 +176,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              RecordMode record_mode,
                                              unsigned int nb_frames_skip)
 {
-    frame_record_worker_controller_.set_callback([]() {});
-    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path,
-                                          nb_frames_to_record,
-                                          record_mode,
-                                          nb_frames_skip,
-                                          cd_.output_buffer_size);
+    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
 
     while ((compute_pipe_.load()->get_hologram_record_requested() == std::nullopt) &&
            (compute_pipe_.load()->get_raw_record_requested() == std::nullopt))
@@ -200,7 +200,7 @@ void Holovibes::init_pipe()
     if (cd.compute_mode == Computation::Hologram)
     {
         output_fd.depth = 2;
-        if (cd.img_type == ImgType::Composite)
+        if (GSH::instance().get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
 

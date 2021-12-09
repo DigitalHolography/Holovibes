@@ -61,3 +61,5 @@ ref.png
 out.png
 
 setupCreator.iss
+
+*.dll

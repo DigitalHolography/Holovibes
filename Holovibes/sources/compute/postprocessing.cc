@@ -21,7 +21,9 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const camera::FrameDescriptor& input_fd,
                                ComputeDescriptor& cd,
-                               const cudaStream_t& stream)
+                               const cudaStream_t& stream,
+                               ComputeCache::Cache& compute_cache,
+                               ViewCache::Cache& view_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -32,6 +34,8 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , cd_(cd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
     , stream_(stream)
+    , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
 {
 }
 
@@ -121,10 +125,11 @@ void Postprocessing::convolution_composite()
 
 void Postprocessing::insert_convolution()
 {
-    if (!cd_.convolution_enabled || UserInterfaceDescriptor::instance().convo_name == UID_CONVOLUTION_TYPE_DEFAULT)
+    if (!compute_cache_.get_convolution_enabled() ||
+        UserInterfaceDescriptor::instance().convo_name == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
 
-    if (cd_.img_type != ImgType::Composite)
+    if (view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -155,7 +160,7 @@ void Postprocessing::insert_renormalize()
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (cd_.img_type == ImgType::Composite)
+            if (view_cache_.get_img_type() == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

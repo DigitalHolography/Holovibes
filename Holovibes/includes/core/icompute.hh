@@ -18,7 +18,7 @@
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
-
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -375,5 +375,9 @@ class ICompute : public Observable
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
+
+    ComputeCache::Cache compute_cache_;
+    Filter2DCache::Cache filter2d_cache_;
+    ViewCache::Cache view_cache_;
 };
 } // namespace holovibes

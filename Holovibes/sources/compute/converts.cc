@@ -24,7 +24,9 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
                    ComputeDescriptor& cd,
                    const camera::FrameDescriptor& input_fd,
-                   const cudaStream_t& stream)
+                   const cudaStream_t& stream,
+                   ComputeCache::Cache& compute_cache,
+                   ViewCache::Cache& view_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -34,24 +36,27 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , cd_(cd)
     , stream_(stream)
+    , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
 {
 }
 
 void Converts::insert_to_float(bool unwrap_2d_requested)
 {
     insert_compute_p_accu();
-    if (cd_.img_type == ImgType::Composite)
+    if (view_cache_.get_img_type() == ImgType::Composite)
         insert_to_composite();
-    else if (cd_.img_type == ImgType::Modulus) // img type in ui : magnitude
+    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (cd_.img_type == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (cd_.img_type == ImgType::Argument)
+    else if (view_cache_.get_img_type() == ImgType::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (cd_.img_type == ImgType::PhaseIncrease)
+    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (cd_.time_transformation == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
+        view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -80,11 +85,14 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            pmin_ = cd_.p.index;
-            if (cd_.p.accu_level != 0)
-                pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
+            View_PQ p = view_cache_.get_p();
+            pmin_ = p.index;
+            if (p.accu_level != 0)
+                pmax_ = std::max(0,
+                                 std::min<int>(pmin_ + p.accu_level,
+                                               static_cast<int>(compute_cache_.get_time_transformation_size())));
             else
-                pmax_ = cd_.p.index;
+                pmax_ = p.index;
         });
 }
 
@@ -123,8 +131,8 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (!is_between<ushort>(cd_.rgb.p_min, 0, cd_.time_transformation_size) ||
-                !is_between<ushort>(cd_.rgb.p_max, 0, cd_.time_transformation_size))
+            if (!is_between<ushort>(cd_.rgb.p_min, 0, compute_cache_.get_time_transformation_size()) ||
+                !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache_.get_time_transformation_size()))
                 return;
 
             if (cd_.composite_kind == CompositeKind::RGB)
@@ -144,7 +152,8 @@ void Converts::insert_to_composite()
                     fd_.width,
                     fd_.height,
                     cd_,
-                    stream_);
+                    stream_,
+                    compute_cache_.get_time_transformation_size());
 
             if (cd_.composite_auto_weights)
                 postcolor_normalize(buffers_.gpu_postprocess_frame,

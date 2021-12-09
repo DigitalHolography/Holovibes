@@ -3,6 +3,7 @@
 
 #include "holovibes.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -69,145 +70,56 @@ units::RectFd ComputeDescriptor::getReticleZone() const
     return reticle_zone;
 }
 
-float ComputeDescriptor::get_contrast_min() const
-{
-    return current->log_scale_slice_enabled ? current->contrast_min.load() : log10(current->contrast_min);
-}
-
-float ComputeDescriptor::get_contrast_max() const
-{
-    return current->log_scale_slice_enabled ? current->contrast_max.load() : log10(current->contrast_max);
-}
-
-bool ComputeDescriptor::get_img_log_scale_slice_enabled() const { return current->log_scale_slice_enabled; }
-
-unsigned ComputeDescriptor::get_img_accu_level() const { return reinterpret_cast<View_XYZ*>(current)->img_accu_level; }
-
 float ComputeDescriptor::get_truncate_contrast_max(const int precision) const
 {
-    float value = get_contrast_max();
+    float value = GSH::instance().get_contrast_max();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
 float ComputeDescriptor::get_truncate_contrast_min(const int precision) const
 {
-    float value = get_contrast_min();
+    float value = GSH::instance().get_contrast_min();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-void ComputeDescriptor::set_contrast_min(float value)
-{
-    current->contrast_min = current->log_scale_slice_enabled ? value : pow(10, value);
-}
-
-void ComputeDescriptor::set_contrast_max(float value)
-{
-    current->contrast_max = current->log_scale_slice_enabled ? value : pow(10, value);
-}
-
-void ComputeDescriptor::set_log_scale_slice_enabled(bool value) { current->log_scale_slice_enabled = value; }
-
-void ComputeDescriptor::set_accumulation_level(int value)
-{
-    reinterpret_cast<View_XYZ*>(current)->img_accu_level = value;
-}
-
 void ComputeDescriptor::check_p_limits()
 {
-    int upper_bound = time_transformation_size - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size() - 1;
 
-    if (p.accu_level > upper_bound)
-        p.accu_level = upper_bound;
+    if (GSH::instance().get_p_accu_level() > upper_bound)
+        api::set_p_accu_level(upper_bound);
 
-    upper_bound -= p.accu_level;
+    upper_bound -= GSH::instance().get_p_accu_level();
 
-    if (upper_bound >= 0 && p.index > static_cast<uint>(upper_bound))
-        p.index = upper_bound;
+    if (upper_bound >= 0 && GSH::instance().get_p_index() > static_cast<uint>(upper_bound))
+        api::set_p_index(upper_bound);
 }
 
 void ComputeDescriptor::check_q_limits()
 {
-    int upper_bound = time_transformation_size - 1;
+    int upper_bound = GSH::instance().get_time_transformation_size() - 1;
 
-    if (q.accu_level > upper_bound)
-        q.accu_level = upper_bound;
+    if (GSH::instance().get_q_accu_level() > upper_bound)
+        api::set_q_accu_level(upper_bound);
 
-    upper_bound -= q.accu_level;
+    upper_bound -= GSH::instance().get_q_accu_level();
 
-    if (upper_bound >= 0 && q.index > static_cast<uint>(upper_bound))
-        q.index = upper_bound;
-}
-
-void ComputeDescriptor::check_batch_size_limit()
-{
-    if (batch_size > input_buffer_size)
-        batch_size = input_buffer_size.load();
-}
-
-void ComputeDescriptor::set_space_transformation_from_string(const std::string& value)
-{
-    if (value == "None")
-        space_transformation = SpaceTransformation::NONE;
-    else if (value == "1FFT")
-        space_transformation = SpaceTransformation::FFT1;
-    else if (value == "2FFT")
-        space_transformation = SpaceTransformation::FFT2;
-    else
-    {
-        // Shouldn't happen
-        space_transformation = SpaceTransformation::NONE;
-        LOG_ERROR << "Unknown space transform: " << value << ", falling back to None";
-    }
-}
-
-void ComputeDescriptor::set_time_transformation_from_string(const std::string& value)
-{
-    if (value == "STFT")
-        time_transformation = TimeTransformation::STFT;
-    else if (value == "PCA")
-        time_transformation = TimeTransformation::PCA;
-    else if (value == "None")
-        time_transformation = TimeTransformation::NONE;
-    else if (value == "SSA_STFT")
-        time_transformation = TimeTransformation::SSA_STFT;
-}
-
-void ComputeDescriptor::adapt_time_transformation_stride()
-{
-    if (time_transformation_stride < batch_size)
-        time_transformation_stride = batch_size.load();
-    else if (time_transformation_stride % batch_size != 0) // Go to lower multiple
-        time_transformation_stride -= time_transformation_stride % batch_size;
+    if (upper_bound >= 0 && GSH::instance().get_q_index() > static_cast<uint>(upper_bound))
+        api::set_q_index(upper_bound);
 }
 
 void ComputeDescriptor::handle_update_exception()
 {
-    p.index = 0;
-    time_transformation_size = 1;
-    convolution_enabled = false;
+    api::set_p_index(0);
+    api::set_time_transformation_size({1});
+    api::set_convolution_enabled(false);
 }
 
-void ComputeDescriptor::handle_accumulation_exception() { xy.img_accu_level = 1; }
+void ComputeDescriptor::handle_accumulation_exception() { GSH::instance().set_xy_img_accu_level(1); }
 
 void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
-
-void ComputeDescriptor::set_x_cuts(int value)
-{
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value < fd.width)
-        x.cuts = value;
-}
-
-void ComputeDescriptor::set_y_cuts(int value)
-{
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value < fd.height)
-        y.cuts = value;
-}
 
 void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
 {
@@ -218,57 +130,13 @@ void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
 
 void ComputeDescriptor::change_angle()
 {
-    auto w = reinterpret_cast<View_XYZ*>(current);
-    if (w == nullptr)
-    {
-        LOG_ERROR << "Current window cannot be rotated.";
-        return;
-    }
+    double rot = GSH::instance().get_rotation();
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
 
-    w->rot = (w->rot == 270.f) ? 0.f : w->rot + 90.f;
+    GSH::instance().set_rotation(new_rot);
 }
 
-void ComputeDescriptor::change_flip()
-{
-    auto w = reinterpret_cast<View_XYZ*>(current);
-    if (w == nullptr)
-    {
-        LOG_ERROR << "Current window cannot be flipped.";
-        return;
-    }
-
-    w->flip_enabled = !w->flip_enabled;
-}
-
-void ComputeDescriptor::change_window(int index)
-{
-    if (index == 0)
-    {
-        current = &xy;
-        current_window = WindowKind::XYview;
-    }
-    else if (index == 1)
-    {
-        current = &xz;
-        current_window = WindowKind::XZview;
-    }
-    else if (index == 2)
-    {
-        current = &yz;
-        current_window = WindowKind::YZview;
-    }
-    else if (index == 3)
-    {
-        current = &filter2d;
-        current_window = WindowKind::Filter2D;
-    }
-}
-
-void ComputeDescriptor::set_rendering_params(float value)
-{
-    time_transformation_stride = std::ceil(value / 20.0f);
-    batch_size = 1;
-}
+void ComputeDescriptor::change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
 
 void ComputeDescriptor::reset_windows_display()
 {
@@ -280,12 +148,14 @@ void ComputeDescriptor::reset_windows_display()
 
 void ComputeDescriptor::reset_slice_view()
 {
-    xz.contrast_max = false;
-    yz.contrast_max = false;
-    xz.log_scale_slice_enabled = false;
-    yz.log_scale_slice_enabled = false;
-    xz.img_accu_level = 1;
-    yz.img_accu_level = 1;
+    GSH::instance().set_xz_contrast_max(false);
+    GSH::instance().set_yz_contrast_max(false);
+
+    GSH::instance().set_xz_log_scale_slice_enabled(false);
+    GSH::instance().set_yz_log_scale_slice_enabled(false);
+
+    GSH::instance().set_xz_img_accu_level(1);
+    GSH::instance().set_yz_img_accu_level(1);
 }
 
 void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
@@ -296,7 +166,10 @@ void ComputeDescriptor::set_convolution(bool enable, const std::string& file)
     convolution_enabled = enable;
 }
 
-void ComputeDescriptor::set_divide_by_convo(bool enable) { divide_convolution_enabled = enable && convolution_enabled; }
+void ComputeDescriptor::set_divide_by_convo(bool enable)
+{
+    divide_convolution_enabled = enable && GSH::instance().get_convolution_enabled();
+}
 
 void ComputeDescriptor::load_convolution_matrix(const std::string& file)
 {

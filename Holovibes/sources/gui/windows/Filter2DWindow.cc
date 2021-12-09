@@ -9,6 +9,7 @@
 #include "Filter2DWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {

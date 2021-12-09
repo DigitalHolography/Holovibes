@@ -11,6 +11,7 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -41,8 +42,9 @@ class Rendering
               ComputeDescriptor& cd,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
-              const cudaStream_t& stream);
-
+              const cudaStream_t& stream,
+              ComputeCache::Cache& compute_cache,
+              ViewCache::Cache& view_cache);
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -77,11 +79,6 @@ class Rendering
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
-    /*! \brief Set the maximum and minimum contrast boundaries (according to the percentile) */
-    void set_contrast_min_max(const float* const percent_out,
-                              std::atomic<float>& contrast_min,
-                              std::atomic<float>& contrast_max);
-
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
     /*! \brief Main buffers */
@@ -100,6 +97,11 @@ class Rendering
     ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
+
+    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
+    ComputeCache::Cache& compute_cache_;
+    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
+    ViewCache::Cache& view_cache_;
 
     float* percent_min_max_;
 };

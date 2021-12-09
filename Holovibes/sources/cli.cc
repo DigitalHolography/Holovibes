@@ -147,7 +147,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !cd.xy.contrast_auto_refresh;
+    bool requested_autocontrast = !holovibes::GSH::instance().get_xy_contrast_auto_refresh();
     while (cd.frame_record_enabled)
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -163,14 +163,19 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= cd.xy.img_accu_level && !requested_autocontrast)
+                if (progress->first >= holovibes::api::get_img_accu_xy_level() && !requested_autocontrast)
                 {
-                    holovibes.get_compute_pipe()->request_autocontrast(cd.current_window);
+                    holovibes.get_compute_pipe()->request_autocontrast(holovibes::api::get_current_window_type());
                     requested_autocontrast = true;
                 }
             }
         }
-        // Don't make the current thread loop too fast
+
+        // LOG_TRACE << "api::get_xy_contrast_min() : " << holovibes::api::get_xy_contrast_min();
+        // LOG_TRACE << "cli GSH::instance().get_xy_contrast_min() : " <<
+        // holovibes::GSH::instance().get_xy_contrast_min(); holovibes::GSH::instance().set_xy_contrast_min(20);
+        // LOG_TRACE << "cli GSH::instance().get_xy_contrast_min() : " <<
+        // holovibes::GSH::instance().get_xy_contrast_min(); Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     // Show 100% completion to avoid rounding errors
@@ -179,6 +184,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    LOG_DEBUG << "opts.ini_path : " << opts.ini_path.value() << std::endl;
     auto& cd = holovibes.get_cd();
 
     if (opts.compute_settings_path)
@@ -198,7 +204,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         return 1;
 
     size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
-    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
+    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
 
     // Force hologram mode
     cd.compute_mode = holovibes::Computation::Hologram;
@@ -207,8 +213,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     uint nb_frames_skip = 0;
 
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && cd.get_img_accu_xy_enabled())
-        nb_frames_skip = cd.xy.img_accu_level;
+    if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
+        nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
 
     cd.frame_record_enabled = true;
 

@@ -5,6 +5,7 @@
 #include "MainWindow.hh"
 #include "SliceWindow.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {

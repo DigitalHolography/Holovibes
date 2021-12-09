@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+// #include <boost/pfr/core.hpp>
 
 #include "logger.hh"
 #include "all_struct.hh"
@@ -12,13 +13,12 @@ namespace holovibes
 struct View_Window // : public json_struct
 {
     // FIXME: remove slice in attr name
-    std::atomic<bool> log_scale_slice_enabled{false};
-
-    std::atomic<bool> contrast_enabled{false};
-    std::atomic<bool> contrast_auto_refresh{true};
-    std::atomic<bool> contrast_invert{false};
-    std::atomic<float> contrast_min{1.f};
-    std::atomic<float> contrast_max{65535.f};
+    bool log_scale_slice_enabled = false;
+    bool contrast_enabled = false;
+    bool contrast_auto_refresh = true;
+    bool contrast_invert = false;
+    float contrast_min = 1.f;
+    float contrast_max = 65535.f;
 
     json to_json() const
     {
@@ -46,10 +46,10 @@ struct View_Window // : public json_struct
 
 struct View_XYZ : public View_Window
 {
-    std::atomic<bool> flip_enabled{false};
-    std::atomic<float> rot{0};
+    bool flip_enabled = false;
+    float rot = 0;
 
-    std::atomic<uint> img_accu_level{1};
+    uint img_accu_level = 1;
 
     json to_json() const
     {
@@ -72,7 +72,7 @@ struct View_XYZ : public View_Window
 
 struct View_Accu // : public json_struct
 {
-    std::atomic<int> accu_level{1};
+    int accu_level = 0;
 
     json to_json() const { return json{"accu level", accu_level.load()}; }
 
@@ -81,7 +81,7 @@ struct View_Accu // : public json_struct
 
 struct View_PQ : public View_Accu
 {
-    std::atomic<uint> index{0};
+    uint index = 0;
 
     json to_json() const { return json{View_Accu::to_json(), {"index", index.load()}}; }
 
@@ -94,7 +94,7 @@ struct View_PQ : public View_Accu
 
 struct View_XY : public View_Accu
 {
-    std::atomic<uint> cuts{0};
+    uint cuts = 0;
 
     json to_json() const { return json{View_Accu::to_json(), {"cuts", cuts.load()}}; }
 
@@ -105,3 +105,21 @@ struct View_XY : public View_Accu
     }
 };
 } // namespace holovibes
+
+inline std::ostream& operator<<(std::ostream& os, View_Window obj)
+{
+    return os << obj.log_scale_slice_enabled << obj.contrast_enabled << obj.contrast_auto_refresh << obj.contrast_invert
+              << obj.contrast_min << obj.contrast_max;
+}
+
+inline std::ostream& operator<<(std::ostream& os, View_XYZ obj)
+{
+    return os << '{' << obj.flip_enabled << ',' << obj.rot << ',' << obj.img_accu_level << ',' << std::boolalpha
+              << obj.log_scale_slice_enabled << '}';
+}
+
+inline std::ostream& operator<<(std::ostream& os, View_Accu obj) { return os << obj.accu_level; }
+
+inline std::ostream& operator<<(std::ostream& os, View_XY obj) { return os << obj.cuts; }
+
+inline std::ostream& operator<<(std::ostream& os, View_PQ obj) { return os << obj.index; }

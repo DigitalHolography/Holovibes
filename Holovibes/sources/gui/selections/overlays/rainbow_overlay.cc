@@ -1,6 +1,7 @@
 #include "API.hh"
 #include "rainbow_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -222,7 +223,7 @@ void RainbowOverlay::move(QMouseEvent* e)
 
 int RainbowOverlay::check_interval(int x)
 {
-    const int max = api::get_cd().time_transformation_size - 1;
+    const int max = api::get_time_transformation_size() - 1;
     return std::min(max, std::max(x, 0));
 }
 } // namespace gui

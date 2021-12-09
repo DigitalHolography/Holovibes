@@ -15,6 +15,7 @@
 #include "cuda_memory.cuh"
 #include "common.cuh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -175,9 +176,9 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((api::get_cd().compute_mode == Computation::Hologram &&
-         api::get_cd().space_transformation == SpaceTransformation::NONE) ||
-        api::get_cd().compute_mode == Computation::Raw)
+    if ((api::get_compute_mode() == Computation::Hologram &&
+         api::get_space_transformation() == SpaceTransformation::NONE) ||
+        api::get_compute_mode() == Computation::Raw)
     {
         if (w != old_width)
         {
@@ -256,7 +257,7 @@ void RawWindow::paintGL()
     void* frame = output_->get_last_image();
 
     // Put the frame inside the cuda ressrouce
-    if (api::get_cd().img_type == ImgType::Composite)
+    if (api::get_img_type() == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }

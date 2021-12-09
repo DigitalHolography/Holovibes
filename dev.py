@@ -135,7 +135,7 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(args=['-v', ] + args.goal_args)
+    return pytest.main(args=[] + args.goal_args)
 
 
 @goal

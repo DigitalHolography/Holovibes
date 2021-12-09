@@ -8,7 +8,7 @@ double OutputFrameFile::compute_output_fps()
 {
     ComputeDescriptor& cd = Holovibes::instance().get_cd();
     double input_fps = static_cast<double>(cd.input_fps);
-    double time_transformation_stride = static_cast<double>(cd.time_transformation_stride);
+    double time_transformation_stride = static_cast<double>(GSH::instance().get_time_transformation_stride());
 
     assert(time_transformation_stride != 0);
     double output_fps = input_fps / time_transformation_stride;

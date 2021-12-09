@@ -72,7 +72,7 @@ void InformationWorker::run()
                 record_frame_size = 0;
             }
 
-            compute_throughput(cd, output_frame_res, input_frame_size, record_frame_size);
+            compute_throughput(output_frame_res, input_frame_size, record_frame_size);
 
             start = std::chrono::high_resolution_clock::now();
         }
@@ -106,13 +106,10 @@ void InformationWorker::compute_fps(const long long waited_time)
     }
 }
 
-void InformationWorker::compute_throughput(ComputeDescriptor& cd,
-                                           size_t output_frame_res,
-                                           size_t input_frame_size,
-                                           size_t record_frame_size)
+void InformationWorker::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
 {
     input_throughput_ = input_fps_ * input_frame_size;
-    output_throughput_ = output_fps_ * output_frame_res * cd.time_transformation_size;
+    output_throughput_ = output_fps_ * output_frame_res * GSH::instance().get_time_transformation_size();
     saving_throughput_ = saving_fps_ * record_frame_size;
 }
 

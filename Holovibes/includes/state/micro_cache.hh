@@ -70,29 +70,18 @@ struct MicroCache;
  *        Each class created with NEW_MICRO_CACHE respect this concept.
  */
 template <class T>
-concept MicroCacheDerived = std::is_base_of<MicroCache, std::remove_reference_t<T>>::value;
+concept MicroCacheDerived = std::is_base_of<MicroCache, T>::value;
 
 struct MicroCache
 {
-    MicroCache(bool truth)
-        : truth_(truth)
-    {
-    }
-
-    /*! \brief Copy the equivalent truth cache into this cache */
-    virtual void synchronize() = 0;
-
   protected:
-    /*! \brief is this cache a truth cache */
-    const bool truth_;
-
     /*! \brief static templated variable containing the truth cache for this type */
     template <MicroCacheDerived T>
-    static inline std::remove_reference_t<T>* cache_truth;
+    static inline T* cache_truth = nullptr;
 
     /*! \brief static templated variable contaning all the micro caches refering to the same truth */
     template <MicroCacheDerived T>
-    static inline std::set<std::remove_reference_t<T>*> micro_caches;
+    static inline std::set<T*> micro_caches;
 };
 } // namespace holovibes
 

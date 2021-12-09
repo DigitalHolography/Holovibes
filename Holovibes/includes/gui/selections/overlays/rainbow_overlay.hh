@@ -6,6 +6,7 @@
 
 #include "Overlay.hh"
 #include "unit.hh"
+#include "api.hh"
 
 namespace holovibes
 {

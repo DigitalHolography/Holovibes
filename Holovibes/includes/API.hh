@@ -10,6 +10,7 @@
 #include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
+#include "global_state_holder.hh"
 
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
@@ -74,12 +75,6 @@ int get_gpu_input_queue_fd_height();
  * \return float boundary
  */
 float get_boundary();
-
-/*! \brief Checks if we are currently in raw mode
- *
- * \return true if we are in raw mode, false otherwise
- */
-bool is_raw_mode();
 
 /*! \brief Checks if we have an input queue
  *
@@ -190,26 +185,38 @@ void create_pipe(Observer& observer);
  *
  * \param p_value the new value of p accu
  */
-void set_p_accu(uint p_value);
+void set_p_accu_level(uint p_value);
 
 /*! \brief Modifies x accumulation
  *
  * \param x_value the new value of x accu
  */
-void set_x_accu(uint x_value);
+void set_x_accu_level(uint x_value);
+
+/*! \brief Modifies x cuts
+ *
+ * \param x_value the new value of x cuts
+ */
+void set_x_cuts(uint x_value);
 
 /*! \brief Modifies y accumulation
  *
  * \param y_value the new value of y accu
  */
-void set_y_accu(uint y_value);
+void set_y_accu_level(uint y_value);
+
+/*! \brief Modifies y cuts
+ *
+ * \param y_value the new value of y cuts
+ */
+void set_y_cuts(uint y_value);
 
 /*! \brief Modifies q accumulation
  *
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(uint q_value);
+void set_q_accu_level(uint q_value);
 
 /*! \brief Modifies x and y
  *
@@ -222,13 +229,13 @@ void set_x_y(uint x, uint y);
  *
  * \param value the new value of p
  */
-void set_p(int value);
+void set_p_index(uint value);
 
 /*! \brief Modifies q
  *
  * \param value the new value of q
  */
-void set_q(int value);
+void set_q_index(uint value);
 
 /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
  *
@@ -334,7 +341,7 @@ void decrement_p();
  *
  * \param value the new value
  */
-void set_wavelength(const double value);
+void set_wavelength(double value);
 
 /*! \brief Modifies z
  *
@@ -346,13 +353,13 @@ void set_z_distance(const double value);
  *
  * \param value the string to match to determine the kind of space transformation
  */
-void set_space_transformation(const SpaceTransformation& value);
+void set_space_transformation(const SpaceTransformation value);
 
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
  */
-void set_time_transformation(const TimeTransformation& value);
+void set_time_transformation(const TimeTransformation value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -460,6 +467,30 @@ bool get_contrast_invert_enabled();
  * \return false Disabled
  */
 bool get_img_log_scale_slice_enabled();
+
+/*! \brief get x
+ *
+ * \return x
+ */
+View_XY get_x(void);
+
+/*! \brief get y
+ *
+ * \return y
+ */
+View_XY get_y(void);
+
+/*! \brief get p
+ *
+ * \return p
+ */
+View_PQ get_p(void);
+
+/*! \brief get q
+ *
+ * \return q
+ */
+View_PQ get_q(void);
 
 /*! \brief Modifies convolution kernel
  *
@@ -571,9 +602,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
 
-/*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
-void adapt_time_transformation_stride_to_batch_size();
-
 /*! \brief Modifies view image type
  *
  * \param value The new image type
@@ -633,8 +661,6 @@ void json_to_compute_settings(const json& data);
 
 void save_user_preferences(boost::property_tree::ptree& ptree);
 void load_user_preferences(const boost::property_tree::ptree& ptree);
-
-void check_batch_size_limit();
 
 /*! \brief Gets the documentation url
  *

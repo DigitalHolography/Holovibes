@@ -31,6 +31,8 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 
 void OutputHoloFile::export_compute_settings(bool record_raw)
 {
+    LOG_TRACE << "Entering OutputHoloFile export_compute_settings()";
+
     const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     try
     {
@@ -55,7 +57,7 @@ void OutputHoloFile::write_header()
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
-    size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
+    const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
@@ -65,7 +67,7 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputHoloFile::write_footer()
 {
-    const std::string& meta_data_str = meta_data_.dump();
+    const std::string meta_data_str = meta_data_.dump();
     const size_t meta_data_size = meta_data_str.size();
 
     if (std::fwrite(meta_data_str.data(), 1, meta_data_size, file_) != meta_data_size)
