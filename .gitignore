@@ -60,4 +60,9 @@ last_generated_output.holo
 ref.png
 out.png
 
+# Jinja Generated files
 setupCreator.iss
+
+# Python venv
+.venv/
+venv/
