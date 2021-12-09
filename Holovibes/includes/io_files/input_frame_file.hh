@@ -26,6 +26,12 @@ class InputFrameFile : public FrameFile
      */
     virtual void import_compute_settings(ComputeDescriptor& cd) const = 0;
 
+    /*! \brief Update ComputeDescriptor with the info settings present in the file
+     *
+     * \param cd The ComputeDescriptor to update
+     */
+    virtual void import_info(ComputeDescriptor& cd) const = 0;
+
     /*! \brief Set the pointer in the file to the frame requested
      *
      * This method must be called before the first read_frames call
