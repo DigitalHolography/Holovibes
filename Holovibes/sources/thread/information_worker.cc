@@ -34,7 +34,6 @@ InformationWorker::InformationWorker()
 void InformationWorker::run()
 {
     std::shared_ptr<ICompute> pipe;
-    ComputeDescriptor& cd = Holovibes::instance().get_cd();
     unsigned int output_frame_res = 0;
     unsigned int input_frame_size = 0;
     unsigned int record_frame_size = 0;

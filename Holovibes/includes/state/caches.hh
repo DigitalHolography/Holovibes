@@ -17,6 +17,7 @@ namespace holovibes
  * \param lambda Wave length of the laser
  * \param z_distance z value used by fresnel transform
  * \param convolution_enabled Is convolution enabled
+ * \param convo_matrix Input matrix used for convolution
  */
 
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
@@ -27,7 +28,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (TimeTransformation, time_transformation, TimeTransformation::STFT),
                             (float, lambda, 852e-9f),
                             (float, z_distance, 1.50f),
-                            (bool, convolution_enabled, false));
+                            (bool, convolution_enabled, false),
+                            (std::vector<float>, convo_matrix, {}));
 /*! \brief Construct a new new micro cache object
  * \param img_type Type of the image displayed
  */

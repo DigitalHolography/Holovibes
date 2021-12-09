@@ -24,8 +24,8 @@ bool init_holovibes_import_mode(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
     // Set the image rendering ui params
-    GSH::instance().set_time_transformation_stride({static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f))});
-    GSH::instance().set_batch_size({1});
+    GSH::instance().set_time_transformation_stride(static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f)));
+    GSH::instance().set_batch_size(1);
 
     // Because we are in import mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
@@ -312,10 +312,6 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_flip_enabled());
-
-        // To remove ?
-        UserInterfaceDescriptor::instance().mainDisplay->setRatio(static_cast<float>(width) /
-                                                                  static_cast<float>(height));
     }
     catch (const std::runtime_error& e)
     {
@@ -845,7 +841,7 @@ void set_composite_area()
 void close_critical_compute()
 {
     if (get_convolution_enabled())
-        unset_convolution_mode();
+        disable_convolution();
 
     if (get_cd().time_transformation_cuts_enabled)
         cancel_time_transformation_cuts([]() {});
@@ -1004,9 +1000,12 @@ bool get_img_log_scale_slice_enabled() { return GSH::instance().get_img_log_scal
 
 #pragma region Convolution
 
-void update_convo_kernel(const std::string& value)
+void enable_convolution(const std::string& filename)
 {
-    get_cd().set_convolution(true, value);
+    GSH::instance().enable_convolution(filename);
+
+    if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+        return;
 
     try
     {
@@ -1018,34 +1017,25 @@ void update_convo_kernel(const std::string& value)
     }
     catch (const std::exception& e)
     {
-        set_convolution_enabled(false);
+        disable_convolution();
         LOG_ERROR << e.what();
     }
 }
 
-void set_convolution_mode(bool value)
+void disable_convolution()
 {
-    get_cd().set_convolution_enabled(value);
 
-    if (value)
+    GSH::instance().disable_convolution();
+    try
     {
-        if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
-            update_convo_kernel(UserInterfaceDescriptor::instance().convo_name);
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_convolution();
+        while (pipe->get_disable_convolution_requested())
+            continue;
     }
-    else
+    catch (const std::exception& e)
     {
-        try
-        {
-            auto pipe = get_compute_pipe();
-            pipe->request_disable_convolution();
-            while (pipe->get_disable_convolution_requested())
-                continue;
-        }
-        catch (const std::exception&)
-        {
-            set_convolution_enabled(false);
-            LOG_ERROR << e.what();
-        }
+        LOG_ERROR << e.what();
     }
 }
 
@@ -1243,10 +1233,10 @@ void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = fal
 
 void import_stop()
 {
+    close_windows();
+    close_critical_compute();
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display();
-
-    close_critical_compute();
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
 

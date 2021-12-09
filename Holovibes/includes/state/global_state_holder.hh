@@ -151,6 +151,9 @@ class GSH
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_transformation_stride(uint value);
+    void disable_convolution();
+    void enable_convolution(const std::string& file);
+    void set_convolution_enabled(bool value);
 
     void set_space_transformation(const SpaceTransformation value) noexcept
     {
@@ -165,7 +168,6 @@ class GSH
     void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
 
     void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
-    void set_convolution_enabled(bool value);
 
     void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
     void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
@@ -173,104 +175,107 @@ class GSH
     void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
 
     void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
-    void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref().accu_level = value; }
-    void set_x_cuts(int value) noexcept { view_cache_.get_x_ref().cuts = value; }
+    void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
+    void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
 
     void set_y(View_XY value) noexcept { view_cache_.set_y(value); }
-    void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref().accu_level = value; }
-    void set_y_cuts(int value) noexcept { view_cache_.get_y_ref().cuts = value; }
+    void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
+    void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
 
     void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
-    void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref().accu_level = value; }
-    void set_p_index(uint value) noexcept { view_cache_.get_p_ref().index = value; }
+    void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
+    void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
 
     void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
-    void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref().accu_level = value; }
-    void set_q_index(uint value) noexcept { view_cache_.get_q_ref().index = value; }
+    void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
+    void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->index = value; }
 
     void set_xy(View_XYZ value) noexcept { view_cache_.set_xy(value); }
-    void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref().flip_enabled = value; }
-    void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref().rot = value; }
-    void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref().img_accu_level = value; }
+    void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->flip_enabled = value; }
+    void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rot = value; }
+    void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref()->img_accu_level = value; }
     void set_xy_log_scale_slice_enabled(bool value) noexcept
     {
-        view_cache_.get_xy_ref().log_scale_slice_enabled = value;
+        view_cache_.get_xy_ref()->log_scale_slice_enabled = value;
     }
-    void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref().contrast_enabled = value; }
-    void set_xy_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xy_ref().contrast_auto_refresh = value; }
-    void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref().contrast_invert = value; }
+    void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast_enabled = value; }
+    void set_xy_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xy_ref()->contrast_auto_refresh = value; }
+    void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast_invert = value; }
     void set_xy_contrast_min(float value) noexcept
     {
-        view_cache_.get_xy_ref().contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xy_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
     void set_xy_contrast_max(float value) noexcept
     {
-        view_cache_.get_xy_ref().contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xy_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
     void set_xz(View_XYZ value) noexcept { view_cache_.set_xz(value); }
-    void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref().flip_enabled = value; }
-    void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref().rot = value; }
-    void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref().img_accu_level = value; }
+    void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->flip_enabled = value; }
+    void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rot = value; }
+    void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref()->img_accu_level = value; }
     void set_xz_log_scale_slice_enabled(bool value) noexcept
     {
-        view_cache_.get_xz_ref().log_scale_slice_enabled = value;
+        view_cache_.get_xz_ref()->log_scale_slice_enabled = value;
     }
-    void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref().contrast_enabled = value; }
-    void set_xz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xz_ref().contrast_auto_refresh = value; }
-    void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref().contrast_invert = value; }
+    void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast_enabled = value; }
+    void set_xz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xz_ref()->contrast_auto_refresh = value; }
+    void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast_invert = value; }
     void set_xz_contrast_min(float value) noexcept
     {
-        view_cache_.get_xz_ref().contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
     void set_xz_contrast_max(float value) noexcept
     {
-        view_cache_.get_xz_ref().contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
     void set_yz(View_XYZ value) noexcept { view_cache_.set_yz(value); }
-    void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref().flip_enabled = value; }
-    void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref().rot = value; }
-    void set_yz_img_accu_level(uint value) noexcept { view_cache_.get_yz_ref().img_accu_level = value; }
+    void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref()->flip_enabled = value; }
+    void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref()->rot = value; }
+    void set_yz_img_accu_level(uint value) noexcept { view_cache_.get_yz_ref()->img_accu_level = value; }
     void set_yz_log_scale_slice_enabled(bool value) noexcept
     {
-        view_cache_.get_yz_ref().log_scale_slice_enabled = value;
+        view_cache_.get_yz_ref()->log_scale_slice_enabled = value;
     }
-    void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref().contrast_enabled = value; }
-    void set_yz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_yz_ref().contrast_auto_refresh = value; }
-    void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref().contrast_invert = value; }
+    void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast_enabled = value; }
+    void set_yz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_yz_ref()->contrast_auto_refresh = value; }
+    void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast_invert = value; }
     void set_yz_contrast_min(float value) noexcept
     {
-        view_cache_.get_yz_ref().contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_yz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
     void set_yz_contrast_max(float value) noexcept
     {
-        view_cache_.get_yz_ref().contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_yz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
     void set_filter2d(View_Window value) noexcept { view_cache_.set_filter2d(value); }
     void set_filter2d_log_scale_slice_enabled(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref().log_scale_slice_enabled = value;
+        view_cache_.get_filter2d_ref()->log_scale_slice_enabled = value;
     }
-    void set_filter2d_contrast_enabled(bool value) noexcept { view_cache_.get_filter2d_ref().contrast_enabled = value; }
+    void set_filter2d_contrast_enabled(bool value) noexcept
+    {
+        view_cache_.get_filter2d_ref()->contrast_enabled = value;
+    }
     void set_filter2d_contrast_auto_refresh(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref().contrast_auto_refresh = value;
+        view_cache_.get_filter2d_ref()->contrast_auto_refresh = value;
     }
-    void set_filter2d_contrast_invert(bool value) noexcept { view_cache_.get_filter2d_ref().contrast_invert = value; }
+    void set_filter2d_contrast_invert(bool value) noexcept { view_cache_.get_filter2d_ref()->contrast_invert = value; }
     void set_filter2d_contrast_min(float value) noexcept
     {
-        view_cache_.get_filter2d_ref().contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_filter2d_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
     void set_filter2d_contrast_max(float value) noexcept
     {
-        view_cache_.get_filter2d_ref().contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_filter2d_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
     void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled) noexcept
     {
-        view_cache_.get_filter2d_ref().log_scale_slice_enabled = log_scale_filter2d_enabled;
+        view_cache_.get_filter2d_ref()->log_scale_slice_enabled = log_scale_filter2d_enabled;
     }
 
     void set_contrast_enabled(bool contrast_enabled);
@@ -284,17 +289,12 @@ class GSH
     void set_flip_enabled(double value);
 
 #pragma endregion
-
     void change_window(uint index);
-
-    void load_ptree(const boost::property_tree::ptree& ptree);
-
-    void dump_ptree(boost::property_tree::ptree& ptree) const;
 
   private:
     GSH() noexcept {}
 
-    View_Window& get_current_window();
+    std::shared_ptr<holovibes::View_Window> get_current_window();
 
     ComputeCache::Ref compute_cache_;
     Filter2DCache::Ref filter2d_cache_;

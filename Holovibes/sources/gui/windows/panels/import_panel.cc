@@ -127,9 +127,6 @@ void ImportPanel::import_stop()
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::close_windows();
-    // cancel_time_transformation_cuts();
-
     api::import_stop();
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file

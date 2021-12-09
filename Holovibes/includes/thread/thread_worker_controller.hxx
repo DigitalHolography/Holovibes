@@ -37,7 +37,7 @@ void ThreadWorkerController<T>::start(Args&&... args)
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
+    // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
 }
 
 template <WorkerDerived T>

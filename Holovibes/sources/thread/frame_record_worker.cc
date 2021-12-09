@@ -24,8 +24,6 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
 
 void FrameRecordWorker::run()
 {
-    ComputeDescriptor& cd = Holovibes::instance().get_cd();
-
     // Progress recording FastUpdatesHolder entry
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);

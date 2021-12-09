@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #if defined(_MSC_VER) && !defined(__clang__)
 #include "map_macro_msvc.hh"
 #else
@@ -128,7 +130,10 @@
                                                                                                                        \
     type get_##var() const noexcept { return var; }                                                                    \
                                                                                                                        \
-    type& get_##var##_ref() noexcept { return var; }                                                                   \
+    type& get_##var##_ref() noexcept                                                                                   \
+    {                                                                                                                  \
+        return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
+    }                                                                                                                  \
                                                                                                                        \
     const type& get_##var##_const_ref() const noexcept { return var; }                                                 \
                                                                                                                        \
@@ -203,7 +208,8 @@
     var##_t var;
 
 #define _GETTER_INIT(type, var, val)                                                                                   \
-    inline type get_##var() const noexcept { return var.obj; }
+    inline type get_##var() const noexcept { return var.obj; }                                                         \
+    inline const auto& get_##var##_const_ref() const noexcept { return var.obj; }
 
 #define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
     inline void set_##var(const type& _val)                                                                            \
@@ -213,22 +219,21 @@
     }                                                                                                                  \
                                                                                                                        \
     /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline type get_##var() const noexcept { return var; }                                                             \
+    inline auto get_##var() const noexcept { return var; }                                                             \
                                                                                                                        \
     /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline const type& get_##var##_const_ref() const noexcept { return var; }                                          \
-                                                                                                                       \
-    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline type& get_##var##_ref() noexcept                                                                            \
-    {                                                                                                                  \
-        trigger_##var();                                                                                               \
-        return var;                                                                                                    \
-    }                                                                                                                  \
+    inline const auto& get_##var##_const_ref() const noexcept { return var; }                                          \
                                                                                                                        \
     void trigger_##var()                                                                                               \
     {                                                                                                                  \
         for (cache_t * cache : micro_caches<cache_t>)                                                                  \
             cache->var.to_update = true;                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline auto get_##var##_ref()                                                                                      \
+    {                                                                                                                  \
+        return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
     }
 
 #define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \

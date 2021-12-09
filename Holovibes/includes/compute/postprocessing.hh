@@ -79,8 +79,8 @@ class Postprocessing
     const cudaStream_t& stream_;
 
     /*! \brief All view related variables, updated at each end of pipe */
-    ViewCache::Cache& view_cache_;
     ComputeCache::Cache& compute_cache_;
+    ViewCache::Cache& view_cache_;
 };
 } // namespace compute
 } // namespace holovibes

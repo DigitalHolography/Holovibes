@@ -87,7 +87,9 @@ bool is_gpu_input_queue();
  *
  * \param value the file containing the convolution's settings
  */
-void set_convolution_mode(bool value);
+void enable_convolution(const std::string& file);
+
+void disable_convolution();
 
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(Observer& observer, uint window_max_size);
@@ -491,12 +493,6 @@ View_PQ get_p(void);
  * \return q
  */
 View_PQ get_q(void);
-
-/*! \brief Modifies convolution kernel
- *
- * \param value The new kernel to apply
- */
-void update_convo_kernel(const std::string& value);
 
 /*! \brief Enable the divide convolution mode
  *

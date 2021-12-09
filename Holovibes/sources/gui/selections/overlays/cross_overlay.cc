@@ -198,10 +198,9 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        auto cd = parent_->getCd();
         api::set_x_cuts(mouse_position_.x());
         api::set_y_cuts(mouse_position_.y());
-        api::get_cd().notify_observers();
+        // api::get_cd().notify_observers();
     }
 }
 
@@ -209,7 +208,6 @@ void CrossOverlay::release(ushort frameside) {}
 
 void CrossOverlay::computeZone()
 {
-    ComputeDescriptor& cd = api::get_cd();
     units::PointFd topLeft;
     units::PointFd bottomRight;
 

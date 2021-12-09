@@ -346,39 +346,41 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_time_transformation_cuts_view()
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-    static ushort mouse_posx;
-    static ushort mouse_posy;
-
-    // Conservation of the coordinates when cursor is outside of the
-    // window
-    const ushort width = fd_.width;
-    const ushort height = fd_.height;
-
-    View_XY x = view_cache_.get_x();
-    View_XY y = view_cache_.get_y();
-    if (x.cuts < width && y.cuts < height)
+    if (cd_.time_transformation_cuts_enabled)
     {
-        mouse_posx = x.cuts;
-        mouse_posy = y.cuts;
+        fn_compute_vect_.conditional_push_back(
+            [=]()
+            {
+                ushort mouse_posx = 0;
+                ushort mouse_posy = 0;
+
+                // Conservation of the coordinates when cursor is outside of the
+                // window
+                const ushort width = fd_.width;
+                const ushort height = fd_.height;
+
+                View_XY x = view_cache_.get_x();
+                View_XY y = view_cache_.get_y();
+                if (x.cuts < width && y.cuts < height)
+                {
+                    mouse_posx = x.cuts;
+                    mouse_posy = y.cuts;
+                }
+                // -----------------------------------------------------
+                time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
+                                               buffers_.gpu_postprocess_frame_xz.get(),
+                                               buffers_.gpu_postprocess_frame_yz.get(),
+                                               mouse_posx,
+                                               mouse_posy,
+                                               mouse_posx + x.accu_level,
+                                               mouse_posy + y.accu_level,
+                                               width,
+                                               height,
+                                               compute_cache_.get_time_transformation_size(),
+                                               GSH::instance().get_xz_img_accu_level(),
+                                               GSH::instance().get_yz_img_accu_level(),
+                                               view_cache_.get_img_type(),
+                                               stream_);
+            });
     }
-    // -----------------------------------------------------
-    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                   buffers_.gpu_postprocess_frame_xz.get(),
-                                   buffers_.gpu_postprocess_frame_yz.get(),
-                                   mouse_posx,
-                                   mouse_posy,
-                                   mouse_posx + x.accu_level,
-                                   mouse_posy + y.accu_level,
-                                   width,
-                                   height,
-                                   compute_cache_.get_time_transformation_size(),
-                                   GSH::instance().get_xz_img_accu_level(),
-                                   GSH::instance().get_yz_img_accu_level(),
-                                   view_cache_.get_img_type(),
-                                   stream_);
-        }
-    });
 }

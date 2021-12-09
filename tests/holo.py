@@ -5,6 +5,7 @@ from struct import pack, unpack
 from typing import List, Tuple
 from PIL import Image
 from PIL import ImageChops
+from deepdiff import DeepDiff
 import numpy as np
 
 from .constant_name import *
@@ -135,6 +136,11 @@ class HoloFile:
 
         io.close()
 
+    def assert_footer(ref, chal: "HoloFile"):
+        ddiff = DeepDiff(ref.footer, chal.footer,
+                         ignore_order=True, significant_digits=5)
+        assert not ddiff, ddiff
+
     def assertHolo(ref, chal: "HoloFile", basepath: str):
 
         def __assert(lhs, rhs, name: str):
@@ -143,8 +149,9 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        assert ref.footer == chal.footer, "Footers differ: {}".format(
-            set(ref.footer.items()) ^ set(chal.footer.items()))
+        ref.assert_footer(chal)
+
+        assert ref.footer == chal.footer, "Footers differ: {}".format(get_)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(

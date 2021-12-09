@@ -9,6 +9,7 @@
 
 #include "logger.hh"
 #include "holovibes.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -77,9 +78,14 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     const uint end_ = (start_index_ + size_) % max_size_;
     char* new_elt_adress = data_.get() + (end_ * fd_.get_frame_size());
 
+    // LOG_DEBUG << std::setw(4) << api::compute_settings_to_json();
+    // LOG_DEBUG << std::hex << (void*)new_elt_adress;
+    // LOG_DEBUG << std::hex << (void*)elt;
+
     cudaError_t cuda_status;
     // No async needed for Qt buffer
     cuda_status = cudaMemcpyAsync(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind, stream);
+    // cuda_status = cudaMemcpy(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind);
 
     if (cuda_status) // 0 = CUDA_SUCCESS
     {
@@ -96,7 +102,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
-    cudaXStreamSynchronize(stream);
+    // cudaXStreamSynchronize(stream);
 
     if (size_ < max_size_)
         ++size_;

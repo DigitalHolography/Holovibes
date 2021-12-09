@@ -176,7 +176,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                              RecordMode record_mode,
                                              unsigned int nb_frames_skip)
 {
-    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
+    start_frame_record(path, nb_frames_to_record, record_mode, nb_frames_skip);
 
     while ((compute_pipe_.load()->get_hologram_record_requested() == std::nullopt) &&
            (compute_pipe_.load()->get_raw_record_requested() == std::nullopt))

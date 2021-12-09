@@ -105,6 +105,10 @@ class ComputeDescriptor : public Observable
 
     inline Computation get_compute_mode() const { return compute_mode; }
     inline void set_compute_mode(Computation compute_mode) { this->compute_mode = compute_mode; }
+    inline void set_compute_mode_from_string(const std::string& compute_mode)
+    {
+        set_compute_mode(computation_from_string(compute_mode));
+    }
 
     // inline WindowKind get_current_window() const { return current_window; }
 
@@ -469,8 +473,6 @@ class ComputeDescriptor : public Observable
     void set_convolution(bool enable, const std::string& file);
     void set_divide_by_convo(bool enable);
     void load_convolution_matrix(const std::string& file);
-    /*! \brief Input matrix used for convolution */
-    std::vector<float> convo_matrix;
     /*! \} */
 
 #pragma region Atomics vars

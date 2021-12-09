@@ -21,17 +21,13 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      ImageAccEnv& image_acc_env,
                                      const CoreBuffersEnv& buffers,
                                      const camera::FrameDescriptor& fd,
-                                     const holovibes::ComputeDescriptor& cd,
                                      const cudaStream_t& stream,
-                                     ComputeCache::Cache& compute_cache,
                                      ViewCache::Cache& view_cache)
     : fn_compute_vect_(fn_compute_vect)
     , image_acc_env_(image_acc_env)
     , buffers_(buffers)
     , fd_(fd)
-    , cd_(cd)
     , stream_(stream)
-    , compute_cache_(compute_cache)
     , view_cache_(view_cache)
 {
 }

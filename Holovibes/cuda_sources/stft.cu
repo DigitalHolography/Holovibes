@@ -90,6 +90,7 @@ void time_transformation_cuts_begin(const cuComplex* input,
                                     const holovibes::ImgType img_type,
                                     const cudaStream_t stream)
 {
+    LOG_DEBUG << "Entering time_transformation_cuts_begin()";
     const uint frame_size = width * height;
     const uint output_size = std::max(width, height) * time_transformation_size;
     const uint threads = get_max_threads_1d();

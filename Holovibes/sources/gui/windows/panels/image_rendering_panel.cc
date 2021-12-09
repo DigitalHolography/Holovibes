@@ -225,7 +225,18 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    auto st = space_transformation_from_string(value.toStdString());
+    SpaceTransformation st;
+
+    try
+    {
+        st = space_transformation_from_string(value.toStdString());
+    }
+    catch (std::out_of_range& e)
+    {
+        LOG_ERROR << e.what();
+        throw;
+    }
+
     // Prevent useless reload of Holo window
     if (st == api::get_space_transformation())
         return;
@@ -242,6 +253,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
         return;
 
     TimeTransformation tt = time_transformation_from_string(value.toStdString());
+    LOG_DEBUG << "value.toStdString() : " << value.toStdString();
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)
         return;
@@ -317,7 +329,11 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::set_convolution_mode(value);
+    if (value)
+        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    else
+        api::disable_convolution();
+
     parent_->notify();
 }
 
@@ -329,7 +345,10 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (!api::get_convolution_enabled())
         return;
 
-    api::update_convo_kernel(value.toStdString());
+    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
+
+    if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
+        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
 
     parent_->notify();
 }

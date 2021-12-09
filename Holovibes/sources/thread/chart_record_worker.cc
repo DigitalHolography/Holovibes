@@ -16,8 +16,6 @@ ChartRecordWorker::ChartRecordWorker(const std::string& path, const unsigned int
 
 void ChartRecordWorker::run()
 {
-    auto& cd = Holovibes::instance().get_cd();
-
     std::ofstream of(path_);
 
     // Header displaying

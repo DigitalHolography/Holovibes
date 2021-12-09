@@ -167,7 +167,6 @@ inline int get_unwrap_history_size() { return get_cd().get_unwrap_history_size()
 inline bool get_is_computation_stopped() { return get_cd().get_is_computation_stopped(); }
 
 inline bool get_convolution_enabled() { return GSH::instance().get_convolution_enabled(); }
-inline void set_convolution_enabled(bool value) { GSH::instance().set_convolution_enabled(value); }
 
 inline bool get_divide_convolution_enabled() { return get_cd().get_divide_convolution_enabled(); }
 

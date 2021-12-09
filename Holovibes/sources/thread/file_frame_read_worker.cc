@@ -245,6 +245,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         {
             // Memcopy in the gpu buffer
             cudaXMemcpyAsync(gpu_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice, stream_);
+            // cudaXMemcpy(gpu_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice);
         }
 
         cudaStreamSynchronize(stream_);

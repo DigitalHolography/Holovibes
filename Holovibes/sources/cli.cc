@@ -123,15 +123,16 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
         return false;
     }
 
-    cd.set_convolution(cd.get_convolution_enabled(), holovibes::UserInterfaceDescriptor::instance().convo_name);
-
     auto pipe = holovibes.get_compute_pipe();
+    if (holovibes::GSH::instance().get_convolution_enabled())
+    {
+        holovibes::GSH::instance().enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
+        pipe->request_convolution();
+    }
+
     pipe->request_update_batch_size();
     pipe->request_update_time_transformation_stride();
     pipe->request_update_time_transformation_size();
-
-    if (cd.get_convolution_enabled())
-        pipe->request_convolution();
 
     pipe->request_refresh();
 
@@ -184,7 +185,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-    LOG_DEBUG << "opts.ini_path : " << opts.ini_path.value() << std::endl;
+    // LOG_DEBUG << "opts.compute_settings_path : " << opts.compute_settings_path.value() << std::endl;
     auto& cd = holovibes.get_cd();
 
     if (opts.compute_settings_path)

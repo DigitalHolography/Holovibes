@@ -30,8 +30,8 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream)
-    : ICompute(input, output, desc, stream)
+Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream)
+    : ICompute(input, output, cd, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool
@@ -44,14 +44,12 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                        image_acc_env_,
                                                                        buffers_,
                                                                        input.get_fd(),
-                                                                       desc,
                                                                        stream_,
-                                                                       compute_cache_,
                                                                        view_cache_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                       buffers_,
                                                                       input.get_fd(),
-                                                                      desc,
+                                                                      cd,
                                                                       spatial_transformation_plan_,
                                                                       time_transformation_env_,
                                                                       stream_,
@@ -63,7 +61,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                       chart_env_,
                                                       image_acc_env_,
                                                       time_transformation_env_,
-                                                      desc,
+                                                      cd,
                                                       input.get_fd(),
                                                       output.get_fd(),
                                                       stream_,
@@ -73,15 +71,15 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                     buffers_,
                                                     time_transformation_env_,
                                                     plan_unwrap_2d_,
+                                                    cd_,
                                                     input.get_fd(),
-                                                    output.get_fd(),
                                                     stream_,
                                                     compute_cache_,
                                                     view_cache_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,
                                                              input.get_fd(),
-                                                             desc,
+                                                             cd,
                                                              stream_,
                                                              compute_cache_,
                                                              view_cache_);
@@ -129,7 +127,6 @@ bool Pipe::make_requests()
     if (disable_convolution_requested_)
     {
         postprocess_->dispose();
-        GSH::instance().set_convolution_enabled(false);
         disable_convolution_requested_ = false;
     }
 
@@ -188,7 +185,6 @@ bool Pipe::make_requests()
     if (convolution_requested_)
     {
         postprocess_->init();
-        GSH::instance().set_convolution_enabled(true);
         convolution_requested_ = false;
     }
 
@@ -301,9 +297,9 @@ bool Pipe::make_requests()
         fd_xyz.depth = sizeof(ushort);
 
         if (rm == RecordMode::CUTS_XZ)
-            fd_xyz.height = cd_.time_transformation_size;
+            fd_xyz.height = compute_cache_.get_time_transformation_size();
         else if (rm == RecordMode::CUTS_YZ)
-            fd_xyz.width = cd_.time_transformation_size;
+            fd_xyz.width = compute_cache_.get_time_transformation_size();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));

@@ -8,14 +8,17 @@ typedef unsigned int uint;
 
 namespace holovibes
 {
+// clang-format off
 struct Composite_P // : public json_struct
 {
-    std::atomic<int> p_min{0};
-    std::atomic<int> p_max{0};
+    int p_min = 0;
+    int p_max = 0;
 
-    json to_json() const { return json{"p", {{"min", p_min.load()}, {"max", p_max.load()}}}; }
+    operator json() const { return json{{"min", p_min}, {"max", p_max}}; }
 
-    void from_json(const json& data)
+    Composite_P() = default;
+
+    explicit Composite_P(const json& data)
     {
         const json& p_data = data["p"];
         p_min = p_data["min"];
@@ -25,22 +28,29 @@ struct Composite_P // : public json_struct
 
 struct Composite_RGB : public Composite_P
 {
-    std::atomic<float> weight_r{1};
-    std::atomic<float> weight_g{1};
-    std::atomic<float> weight_b{1};
+    float weight_r = 1;
+    float weight_g = 1;
+    float weight_b = 1;
 
-    json to_json() const
+    operator json() const
     {
         return json{
-            Composite_P::to_json(),
-            {"weight", {{"r", weight_r.load()}, {"g", weight_g.load()}, {"b", weight_b.load()}}},
+            {"p", static_cast<Composite_P>(*this)},
+            {"weight", {
+                    {"r", weight_r},
+                    {"g", weight_g},
+                    {"b", weight_b}
+                }
+            }
         };
     }
 
-    void from_json(const json& data)
+    Composite_RGB() = default;
+
+    explicit Composite_RGB(const json& data)
+        : Composite_P(data)
     {
-        Composite_P::from_json(data);
-        const json& weight_data = data["weight"];
+        auto weight_data = data["weight"];
         weight_r = weight_data["r"];
         weight_g = weight_data["g"];
         weight_b = weight_data["b"];
@@ -49,22 +59,33 @@ struct Composite_RGB : public Composite_P
 
 struct Composite_hsv : public Composite_P
 {
-    std::atomic<float> slider_threshold_min{0.01f};
-    std::atomic<float> slider_threshold_max{1.0f};
-    std::atomic<float> low_threshold{0.2f};
-    std::atomic<float> high_threshold{99.8f};
+    float slider_threshold_min{0.01f};
+    float slider_threshold_max{1.0f};
+    float low_threshold{0.2f};
+    float high_threshold{99.8f};
 
-    json to_json() const
+    operator json() const
     {
-        return json{Composite_P::to_json(),
-                    {"slider threshold", {{"min", slider_threshold_min.load()}, {"max", slider_threshold_max.load()}}},
-                    {"threshold", {{"low", low_threshold.load()}, {"high", high_threshold.load()}}}};
+        return json{
+            {"p", static_cast<Composite_P>(*this)},
+            {"slider threshold", {
+                    {"min", slider_threshold_min},
+                    {"max", slider_threshold_max}
+                }
+            },
+            {"threshold", {
+                    {"low", low_threshold},
+                    {"high", high_threshold}
+                }
+            }
+        };
     }
 
-    void from_json(const json& data)
-    {
-        Composite_P::from_json(data);
+    Composite_hsv() = default;
 
+    explicit Composite_hsv(const json& data)
+        : Composite_P(data)
+    {
         const json& slider_data = data["slider threshold"];
         slider_threshold_min = slider_data["min"];
         slider_threshold_max = slider_data["max"];
@@ -77,19 +98,24 @@ struct Composite_hsv : public Composite_P
 
 struct Composite_H : public Composite_hsv
 {
-    std::atomic<bool> blur_enabled{false};
-    std::atomic<uint> blur_kernel_size{1};
+    bool blur_enabled = false;
+    uint blur_kernel_size = 1;
 
-    json to_json() const
+    operator json() const
     {
-        auto hsv = Composite_hsv::to_json();
-        hsv["blur"] = json{{"enabled", blur_enabled.load()}, {"kernel size", blur_kernel_size.load()}};
-        return hsv;
+        json j = static_cast<Composite_hsv>(*this);
+        j["blur"] = json{
+            {"enabled", blur_enabled},
+            {"kernel size", blur_kernel_size}
+        };
+        return j;
     }
 
-    void from_json(const json& data)
+    Composite_H() = default;
+
+    explicit Composite_H(const json& data)
+        : Composite_hsv(data)
     {
-        Composite_hsv::from_json(data);
         const json& blur_data = data["blur"];
         blur_enabled = blur_data["enabled"];
         blur_kernel_size = blur_data["kernel size"];
@@ -98,19 +124,21 @@ struct Composite_H : public Composite_hsv
 
 struct Composite_SV : public Composite_hsv
 {
-    std::atomic<bool> p_activated{false};
+    bool p_activated = false;
 
-    json to_json() const
+    operator json() const
     {
-        auto hsv = Composite_hsv::to_json();
-        hsv["p"]["activated"] = p_activated.load();
-        return hsv;
+        json j = static_cast<Composite_hsv>(*this);
+        j["p"]["activated"] = p_activated;
+        return j;
     }
 
-    void from_json(const json& data)
+    Composite_SV() = default;
+
+    explicit Composite_SV(const json& data)
+        : Composite_hsv(data)
+        , p_activated(data["p"]["activated"])
     {
-        Composite_hsv::from_json(data);
-        p_activated = data["p"]["activated"];
     }
 };
 
@@ -120,13 +148,16 @@ struct Composite_HSV // : public json_struct
     Composite_SV s{};
     Composite_SV v{};
 
-    json to_json() const { return json{{"h", h.to_json()}, {"s", s.to_json()}, {"v", v.to_json()}}; }
+    operator json() const { return json{{"h", h}, {"s", s}, {"v", v}}; }
 
-    void from_json(const json& data)
+    Composite_HSV() = default;
+
+    explicit Composite_HSV(const json& data)
+        : h(data["h"])
+        , s(data["s"])
+        , v(data["v"])
     {
-        h.from_json(data["h"]);
-        s.from_json(data["s"]);
-        v.from_json(data["v"]);
     }
 };
+// clang-format on
 } // namespace holovibes

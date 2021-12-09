@@ -24,17 +24,18 @@ enum class TimeTransformation
 namespace _internal
 {
 
-const std::map<TimeTransformation, std::string> time_transformation_to_string = {
+const std::map<TimeTransformation, std::string> time_transform_to_string = {
     {TimeTransformation::STFT, "STFT"},
     {TimeTransformation::PCA, "PCA"},
     {TimeTransformation::NONE, "NONE"},
     {TimeTransformation::SSA_STFT, "SSA_STFT"},
 };
 
-const std::map<std::string, TimeTransformation> string_to_time_transformation = {
+const std::map<std::string, TimeTransformation> string_to_time_transform = {
     {"STFT", TimeTransformation::STFT},
     {"PCA", TimeTransformation::PCA},
     {"NONE", TimeTransformation::NONE},
+    {"None", TimeTransformation::NONE}, // for retrocompatibility
     {"SSA_STFT", TimeTransformation::SSA_STFT},
 };
 
