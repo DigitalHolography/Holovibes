@@ -2,6 +2,9 @@
 
 ### 10.6.2
 
+* Feat ASW with Raw Bit shift
+* Fix Batch stride changes does not affect record frame number
+* Fix CLI Import file info
 * Fix Record in Raw mode
 
 ### 10.6.1
