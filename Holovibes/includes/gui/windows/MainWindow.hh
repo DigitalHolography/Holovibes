@@ -11,6 +11,7 @@
 #include "camera_exception.hh"
 
 #include "enum_camera_kind.hh"
+#include "enum_theme.hh"
 
 // namespace holovibes
 #include "custom_exception.hh"
@@ -76,13 +77,6 @@ class MainWindow : public QMainWindow, public Observer
 
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
-
-  private:
-    enum Theme
-    {
-        Classic,
-        Dark,
-    };
 
   public slots:
     void on_notify();

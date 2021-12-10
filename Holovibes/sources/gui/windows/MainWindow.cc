@@ -344,7 +344,7 @@ void MainWindow::load_gui()
         return;
     }
 
-    set_theme(static_cast<Theme>(json_get_or_default(j_us, static_cast<int>(theme_), "display", "theme")));
+    set_theme(string_to_theme[json_get_or_default<std::string>(j_us, "DARK", "display", "theme")]);
 
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
     auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
@@ -394,7 +394,7 @@ void MainWindow::save_gui()
 
     json j_us;
 
-    j_us["display"]["theme"] = static_cast<int>(theme_);
+    j_us["display"]["theme"] = theme_to_string[theme_];
 
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
