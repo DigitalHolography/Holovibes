@@ -137,10 +137,11 @@ void ImageRenderingPanel::set_image_mode(int mode)
             camera::FrameDescriptor fd = api::get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
-            /* Record Frame Calculation */
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeTransformationStrideSpinBox->value()));
+            /* Record Frame Calculation. Only in file mode */
+            if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+                ui_->NumberOfFramesSpinBox->setValue(
+                    ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                         (float)ui_->TimeTransformationStrideSpinBox->value()));
 
             /* Batch size */
             // The batch size is set with the value present in GUI.
@@ -180,9 +181,13 @@ void ImageRenderingPanel::update_time_transformation_stride()
         api::set_time_transformation_stride(time_transformation_stride);
         api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+        // Only in file mode, if batch size change, the record frame number have to change
+        // User need.
+        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeTransformationStrideSpinBox->value()));
         parent_->notify();
     };
 
