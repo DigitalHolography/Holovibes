@@ -33,7 +33,7 @@ void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* sp
     if (specific_panel == nullptr)
         return;
 
-    ui.gridLayout->addWidget(specific_panel, 2, 1, 1, 1);
+    ui.gridLayout->addWidget(specific_panel, 4, 1, 1, 1);
 }
 
 #pragma endregion
