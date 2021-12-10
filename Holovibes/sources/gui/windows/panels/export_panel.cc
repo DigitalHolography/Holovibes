@@ -84,6 +84,14 @@ void ExportPanel::load_gui(const boost::property_tree::ptree& ptree) {}
 
 void ExportPanel::save_gui(boost::property_tree::ptree& ptree) {}
 
+void ExportPanel::set_record_frame_step(int step)
+{
+    UserInterfaceDescriptor::instance().record_frame_step_ = step;
+    parent_->ui_->NumberOfFramesSpinBox->setSingleStep(step);
+}
+
+int ExportPanel::get_record_frame_step() { return UserInterfaceDescriptor::instance().record_frame_step_; }
+
 void ExportPanel::browse_record_output_file()
 {
     QString filepath;
