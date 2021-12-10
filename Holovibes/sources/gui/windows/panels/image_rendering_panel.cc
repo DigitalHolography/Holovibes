@@ -48,7 +48,6 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
     api::check_batch_size_limit();
-    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
@@ -117,6 +116,9 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
         api::set_raw_mode(*parent_, parent_->window_max_size);
 
+        // Because batch size is not set in on_notify() the value will not change on GUI.
+        api::update_batch_size([]() {}, 1);
+
         parent_->notify();
         parent_->layout_toggled();
     }
@@ -136,10 +138,15 @@ void ImageRenderingPanel::set_image_mode(int mode)
             camera::FrameDescriptor fd = api::get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
-            /* Record Frame Calculation */
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeTransformationStrideSpinBox->value()));
+            /* Record Frame Calculation. Only in file mode */
+            if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+                ui_->NumberOfFramesSpinBox->setValue(
+                    ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                         (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+            /* Batch size */
+            // The batch size is set with the value present in GUI.
+            update_batch_size();
 
             /* Notify */
             parent_->notify();
@@ -154,18 +161,10 @@ void ImageRenderingPanel::update_batch_size()
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
 
-    if (batch_size == api::get_batch_size())
-        return;
+    // Need a notify because time transformation stride might change due to change on batch size
+    auto notify_callback = [=]() { parent_->notify(); };
 
-    auto callback = [=]()
-    {
-        api::set_batch_size(batch_size);
-        api::adapt_time_transformation_stride_to_batch_size();
-        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
-        parent_->notify();
-    };
-
-    api::update_batch_size(callback, batch_size);
+    api::update_batch_size(notify_callback, batch_size);
 }
 
 void ImageRenderingPanel::update_time_transformation_stride()
@@ -183,9 +182,13 @@ void ImageRenderingPanel::update_time_transformation_stride()
         api::set_time_transformation_stride(time_transformation_stride);
         api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeTransformationStrideSpinBox->value()));
+
+        // Only in file mode, if batch size change, the record frame number have to change
+        // User need.
+        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeTransformationStrideSpinBox->value()));
         parent_->notify();
     };
 

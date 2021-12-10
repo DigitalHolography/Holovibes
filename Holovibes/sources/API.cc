@@ -244,6 +244,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     QSize size(width, height);
     init_image_mode(pos, size);
     get_cd().set_compute_mode(Computation::Raw);
+    create_pipe(observer);
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -361,10 +362,20 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 #pragma region Batch
 // FIXME: Same fucntion as under
-void update_batch_size(std::function<void()> callback, const uint batch_size)
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
+    auto callback = [=]()
+    {
+        set_batch_size(batch_size);
+        adapt_time_transformation_stride_to_batch_size();
+        get_compute_pipe()->request_update_batch_size();
+    };
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
         pipe->insert_fn_end_vect(callback);
+        pipe->insert_fn_end_vect(notify_callback);
+    }
     else
         LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }

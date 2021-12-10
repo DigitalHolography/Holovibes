@@ -36,7 +36,9 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
+void InputCineFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const {}
+
+void InputCineFile::import_info(holovibes::ComputeDescriptor& cd) const
 {
     cd.pixel_size = 1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter);
 }

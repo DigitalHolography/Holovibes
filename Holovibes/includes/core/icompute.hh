@@ -19,7 +19,6 @@
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
 
-
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv

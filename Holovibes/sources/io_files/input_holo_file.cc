@@ -103,10 +103,6 @@ T get_value(const json& json, const std::string& key, const T& default_value)
 void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
 {
     api::json_to_compute_settings(meta_data["compute settings"]);
-
-    const json& file_info_data = meta_data["file info"];
-    cd.pixel_size = file_info_data["pixel size"]["x"];
-    cd.raw_bitshift = file_info_data["raw bitshift"];
 }
 
 void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
@@ -120,7 +116,6 @@ void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
     cd.time_transformation_size = get_value(meta_data, "#img", cd.time_transformation_size.load());
     cd.p.index = get_value(meta_data, "p", cd.p.index.load());
     cd.lambda = get_value(meta_data, "lambda", cd.lambda.load());
-    cd.pixel_size = get_value(meta_data, "pixel_size", cd.pixel_size.load());
     cd.zdistance = get_value(meta_data, "z", cd.zdistance.load());
     cd.xy.log_scale_slice_enabled = get_value(meta_data, "log_scale", cd.xy.log_scale_slice_enabled.load());
     cd.xy.contrast_min = get_value(meta_data, "contrast_min", cd.xy.contrast_min.load());
@@ -141,6 +136,22 @@ void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) co
         import_holo_v4(cd, meta_data_);
     else if (holo_file_header_.version < 4)
         import_holo_v2_v3(cd, meta_data_);
+    else
+        LOG_ERROR << "HOLO file version not supported!";
+}
+
+void InputHoloFile::import_info(holovibes::ComputeDescriptor& cd) const
+{
+    if (holo_file_header_.version == 4)
+    {
+        const json& file_info_data = meta_data_["info"];
+        cd.pixel_size = file_info_data["pixel size"]["x"];
+        cd.raw_bitshift = file_info_data["raw bitshift"];
+    }
+    else if (holo_file_header_.version < 4)
+    {
+        cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
+    }
     else
         LOG_ERROR << "HOLO file version not supported!";
 }

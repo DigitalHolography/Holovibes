@@ -33,6 +33,12 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      */
     void import_compute_settings(ComputeDescriptor& cd) const override;
 
+    /*! \brief Update ComputeDescriptor with the settings present in the file
+     *
+     * \param cd The ComputeDescriptor to update
+     */
+    void import_info(ComputeDescriptor& cd) const override;
+
   private:
     // Give access to private members to the factory
     friend class InputFrameFileFactory;

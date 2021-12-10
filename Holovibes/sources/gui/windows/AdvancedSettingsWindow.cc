@@ -65,11 +65,12 @@ void AdvancedSettingsWindow::set_ui_values()
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
+    api::get_cd().set_raw_bitshift(ui.rawBitShiftSpinBox->value());
+
     if (specific_panel_ != nullptr)
         specific_panel_->set_ui_values();
 
-    ui.ReloadLabel->setVisible(true);
-    UserInterfaceDescriptor::instance().need_close = true;
+    UserInterfaceDescriptor::instance().has_been_updated = true;
 }
 
 void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
@@ -116,10 +117,10 @@ void AdvancedSettingsWindow::set_current_values()
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
 
+    ui.rawBitShiftSpinBox->setValue(api::get_cd().get_raw_bitshift());
+
     if (specific_panel_ != nullptr)
         specific_panel_->set_current_values();
-
-    ui.ReloadLabel->setVisible(false);
 }
 
 } // namespace holovibes::gui
