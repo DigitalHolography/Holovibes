@@ -26,6 +26,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const camera::FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
                    ComputeCache::Cache& compute_cache,
+                   CompositeCache::Cache& composite_cache,
                    ViewCache::Cache& view_cache)
     : pmin_(0)
     , pmax_(0)
@@ -37,6 +38,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , cd_(cd)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , composite_cache_(composite_cache)
     , view_cache_(view_cache)
 {
 }
@@ -74,9 +76,9 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
 void Converts::insert_to_ushort()
 {
     insert_main_ushort();
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
         insert_slice_ushort();
-    if (cd_.filter2d_view_enabled)
+    if (view_cache_.get_filter2d_view_enabled())
         insert_filter2d_ushort();
 }
 
@@ -131,20 +133,21 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (!is_between<ushort>(cd_.rgb.p_min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(cd_.rgb.p_max, 0, compute_cache_.get_time_transformation_size()))
+            Composite_RGB rgb_struct = composite_cache_.get_rgb();
+            if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_time_transformation_size()) ||
+                !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_time_transformation_size()))
                 return;
 
-            if (cd_.composite_kind == CompositeKind::RGB)
+            if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    cd_.composite_auto_weights,
-                    cd_.rgb.p_min,
-                    cd_.rgb.p_max,
-                    cd_.rgb.weight_r,
-                    cd_.rgb.weight_g,
-                    cd_.rgb.weight_b,
+                    composite_cache_.get_composite_auto_weights(),
+                    rgb_struct.p_min,
+                    rgb_struct.p_max,
+                    rgb_struct.weight_r,
+                    rgb_struct.weight_g,
+                    rgb_struct.weight_b,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -153,16 +156,17 @@ void Converts::insert_to_composite()
                     fd_.height,
                     cd_,
                     stream_,
-                    compute_cache_.get_time_transformation_size());
+                    compute_cache_.get_time_transformation_size(),
+                    composite_cache_.get_hsv_const_ref());
 
-            if (cd_.composite_auto_weights)
+            if (composite_cache_.get_composite_auto_weights())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,
                                     cd_.getCompositeZone(),
-                                    cd_.rgb.weight_r,
-                                    cd_.rgb.weight_g,
-                                    cd_.rgb.weight_b,
+                                    rgb_struct.weight_r,
+                                    rgb_struct.weight_g,
+                                    rgb_struct.weight_b,
                                     stream_);
         });
 }
@@ -223,8 +227,9 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(cd_.unwrap_history_size);
+            unwrap_res_.reset(
+                new UnwrappingResources(compute_cache_.get_unwrap_history_size(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(compute_cache_.get_unwrap_history_size());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()

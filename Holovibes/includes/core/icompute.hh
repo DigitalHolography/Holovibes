@@ -193,7 +193,6 @@ class ICompute : public Observable
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
-    void request_update_unwrap_size(const unsigned size);
     void request_unwrapping_1d(const bool value);
     void request_unwrapping_2d(const bool value);
     void request_display_chart();
@@ -377,7 +376,10 @@ class ICompute : public Observable
     std::atomic<bool> disable_convolution_requested_{false};
 
     ComputeCache::Cache compute_cache_;
+    ExportCache::Cache export_cache_;
+    CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
+    AdvancedCache::Cache advanced_cache_;
 };
 } // namespace holovibes

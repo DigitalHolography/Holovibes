@@ -41,7 +41,7 @@ void ViewPanel::on_notify()
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
 
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_3d_cuts_view_enabled());
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
@@ -205,7 +205,7 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
 void ViewPanel::cancel_time_transformation_cuts()
 {
-    if (!api::get_3d_cuts_view_enabled())
+    if (!api::get_cuts_view_enabled())
         return;
 
     std::function<void()> callback = ([=]() {
@@ -228,7 +228,7 @@ void ViewPanel::set_fft_shift(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_fft_shift(value);
+    api::set_fft_shift_enabled(value);
 
     api::pipe_refresh();
 }

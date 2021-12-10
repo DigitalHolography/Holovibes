@@ -28,7 +28,6 @@ using holovibes::compute::FourierTransform;
 FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const holovibes::CoreBuffersEnv& buffers,
                                    const camera::FrameDescriptor& fd,
-                                   holovibes::ComputeDescriptor& cd,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
@@ -41,7 +40,6 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , fd_(fd)
-    , cd_(cd)
     , spatial_transformation_plan_(spatial_transformation_plan)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
@@ -54,15 +52,15 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 
 void FourierTransform::insert_fft()
 {
-    if (cd_.filter2d_enabled)
+    if (view_cache_.get_filter2d_enabled())
     {
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
                                      filter2d_cache_.get_filter2d_n1(),
                                      filter2d_cache_.get_filter2d_n2(),
-                                     cd_.filter2d_smooth_low,
-                                     cd_.filter2d_smooth_high,
+                                     filter2d_cache_.get_filter2d_smooth_low(),
+                                     filter2d_cache_.get_filter2d_smooth_high(),
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
@@ -105,7 +103,7 @@ void FourierTransform::insert_fft1()
               fd_.width,
               compute_cache_.get_lambda(),
               z,
-              cd_.pixel_size,
+              compute_cache_.get_pixel_size(),
               stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
@@ -133,12 +131,12 @@ void FourierTransform::insert_fft2()
               fd_.width,
               compute_cache_.get_lambda(),
               z,
-              cd_.pixel_size,
+              compute_cache_.get_pixel_size(),
               stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
-    if (cd_.filter2d_enabled)
+    if (view_cache_.get_filter2d_enabled())
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
@@ -158,7 +156,7 @@ void FourierTransform::insert_fft2()
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
-    if (!gpu_lens_queue_ && cd_.lens_view_enabled)
+    if (!gpu_lens_queue_)
     {
         auto fd = fd_;
         fd.depth = 8;
@@ -346,10 +344,10 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_time_transformation_cuts_view()
 {
-    if (cd_.time_transformation_cuts_enabled)
-    {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            if (view_cache_.get_cuts_view_enabled())
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;
@@ -363,24 +361,26 @@ void FourierTransform::insert_time_transformation_cuts_view()
                 View_XY y = view_cache_.get_y();
                 if (x.cuts < width && y.cuts < height)
                 {
-                    mouse_posx = x.cuts;
-                    mouse_posy = y.cuts;
+                    {
+                        mouse_posx = x.cuts;
+                        mouse_posy = y.cuts;
+                    }
+                    // -----------------------------------------------------
+                    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
+                                                   buffers_.gpu_postprocess_frame_xz.get(),
+                                                   buffers_.gpu_postprocess_frame_yz.get(),
+                                                   mouse_posx,
+                                                   mouse_posy,
+                                                   mouse_posx + x.accu_level,
+                                                   mouse_posy + y.accu_level,
+                                                   width,
+                                                   height,
+                                                   compute_cache_.get_time_transformation_size(),
+                                                   GSH::instance().get_xz_img_accu_level(),
+                                                   GSH::instance().get_yz_img_accu_level(),
+                                                   view_cache_.get_img_type(),
+                                                   stream_);
                 }
-                // -----------------------------------------------------
-                time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                               buffers_.gpu_postprocess_frame_xz.get(),
-                                               buffers_.gpu_postprocess_frame_yz.get(),
-                                               mouse_posx,
-                                               mouse_posy,
-                                               mouse_posx + x.accu_level,
-                                               mouse_posy + y.accu_level,
-                                               width,
-                                               height,
-                                               compute_cache_.get_time_transformation_size(),
-                                               GSH::instance().get_xz_img_accu_level(),
-                                               GSH::instance().get_yz_img_accu_level(),
-                                               view_cache_.get_img_type(),
-                                               stream_);
-            });
-    }
+            }
+        });
 }

@@ -3,6 +3,7 @@
  * \brief Enum for the different computation mode
  */
 #pragma once
+#include <map>
 
 #include <map>
 

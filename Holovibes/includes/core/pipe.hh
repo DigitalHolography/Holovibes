@@ -167,5 +167,8 @@ class Pipe : public ICompute
      * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
      */
     void run_all();
+
+    /*! \brief Updates all attribute caches with the reference held by GSH */
+    void synchronize_caches();
 };
 } // namespace holovibes

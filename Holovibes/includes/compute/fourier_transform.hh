@@ -35,7 +35,6 @@ class FourierTransform
     FourierTransform(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
-                     holovibes::ComputeDescriptor& cd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
@@ -107,8 +106,6 @@ class FourierTransform
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Compute Descriptor */
-    ComputeDescriptor& cd_;
     /*! \brief Pland 2D. Used by FFTs (1, 2, filter2D). */
     cuda_tools::CufftHandle& spatial_transformation_plan_;
     /*! \brief Time transformation environment. */

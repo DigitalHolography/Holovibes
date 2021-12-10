@@ -101,17 +101,18 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
-void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
+void import_holo_v4(const json& meta_data)
 {
     api::json_to_compute_settings(meta_data["compute settings"]);
 
     const json& file_info_data = meta_data["file info"];
-    cd.pixel_size = file_info_data["pixel size"]["x"];
-    cd.raw_bitshift = file_info_data["raw bitshift"];
+    GSH::instance().set_pixel_size(file_info_data["pixel size"]["x"]);
+    LOG_DEBUG << "file_info_data[ raw bitshift ] : " << file_info_data["raw bitshift"];
+    GSH::instance().set_raw_bitshift(file_info_data["raw bitshift"]);
 }
 
 // This is done for retrocompatibility
-void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
+void import_holo_v2_v3(const json& meta_data)
 {
     GSH::instance().set_space_transformation(
         get_value(meta_data, "algorithm", GSH::instance().get_space_transformation()));
@@ -139,21 +140,25 @@ void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
 
     if (meta_data.contains("mode"))
     {
-        cd.compute_mode = meta_data["mode"];
-        cd.compute_mode = static_cast<Computation>(static_cast<int>(cd.compute_mode.load()) - 1);
+        GSH::instance().set_compute_mode(meta_data["mode"]);
+        GSH::instance().set_compute_mode(
+            static_cast<Computation>(static_cast<int>(GSH::instance().get_compute_mode()) - 1));
     }
 
-    cd.pixel_size = get_value(meta_data, "pixel_size", cd.pixel_size.load());
-    cd.fft_shift_enabled = get_value(meta_data, "fft_shift_enabled", cd.fft_shift_enabled.load());
-    cd.renorm_enabled = get_value(meta_data, "renorm_enabled", cd.renorm_enabled.load());
+    GSH::instance().set_pixel_size(get_value(meta_data, "pixel_size", GSH::instance().get_pixel_size()));
+    GSH::instance().set_fft_shift_enabled(
+        get_value(meta_data, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled()));
+    GSH::instance().set_renorm_enabled(get_value(meta_data, "renorm_enabled", GSH::instance().get_renorm_enabled()));
 }
 
-void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
+void InputHoloFile::import_compute_settings() const
 {
+    // LOG_TRACE << "Entering Input HoloFile import_compute_settings";
+
     if (holo_file_header_.version == 4)
-        import_holo_v4(cd, meta_data_);
+        import_holo_v4(meta_data_);
     else if (holo_file_header_.version < 4)
-        import_holo_v2_v3(cd, meta_data_);
+        import_holo_v2_v3(meta_data_);
     else
         LOG_ERROR << "HOLO file version not supported!";
 }

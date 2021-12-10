@@ -24,7 +24,9 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const camera::FrameDescriptor& output_fd,
                      const cudaStream_t& stream,
                      ComputeCache::Cache& compute_cache,
-                     ViewCache::Cache& view_cache)
+                     ExportCache::Cache& export_cache,
+                     ViewCache::Cache& view_cache,
+                     AdvancedCache::Cache& advanced_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -35,7 +37,9 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , cd_(cd)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , export_cache_(export_cache)
     , view_cache_(view_cache)
+    , advanced_cache_(advanced_cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -45,7 +49,7 @@ Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
-    if (cd_.fft_shift_enabled)
+    if (view_cache_.get_fft_shift_enabled())
     {
         if (view_cache_.get_img_type() == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
@@ -64,7 +68,7 @@ void Rendering::insert_fft_shift()
 
 void Rendering::insert_chart()
 {
-    if (cd_.chart_display_enabled || cd_.chart_record_enabled)
+    if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -85,9 +89,9 @@ void Rendering::insert_chart()
                                                    noise_zone,
                                                    stream_);
 
-                if (cd_.chart_display_enabled)
+                if (view_cache_.get_chart_display_enabled())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (cd_.chart_record_enabled && chart_env_.nb_chart_points_to_record_ != 0)
+                if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
                     --chart_env_.nb_chart_points_to_record_;
@@ -100,7 +104,7 @@ void Rendering::insert_log()
 {
     if (view_cache_.get_xy().log_scale_slice_enabled)
         insert_main_log();
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
     if (view_cache_.get_filter2d().log_scale_slice_enabled)
         insert_filter2d_view_log();
@@ -122,7 +126,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
         insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
     {
         if (view_cache_.get_xz().contrast_enabled)
             insert_apply_contrast(WindowKind::XZview);
@@ -131,7 +135,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (cd_.filter2d_view_enabled && view_cache_.get_filter2d().contrast_enabled)
+    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast_enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -174,7 +178,7 @@ void Rendering::insert_slice_log()
 
 void Rendering::insert_filter2d_view_log()
 {
-    if (cd_.filter2d_view_enabled)
+    if (GSH::instance().get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -266,7 +270,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 compute_cache_.get_time_transformation_size(),
-                                cd_.cuts_contrast_p_offset,
+                                advanced_cache_.get_cuts_contrast_p_offset(),
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
         }
@@ -276,7 +280,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 compute_cache_.get_time_transformation_size(),
                                 fd_.height,
-                                cd_.cuts_contrast_p_offset,
+                                advanced_cache_.get_cuts_contrast_p_offset(),
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
         }
@@ -301,7 +305,8 @@ void Rendering::autocontrast_caller(
 {
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {cd_.contrast_lower_threshold, cd_.contrast_upper_threshold};
+    const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),
+                                            advanced_cache_.get_contrast_upper_threshold()};
     switch (view)
     {
     case WindowKind::XYview:
@@ -314,7 +319,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_display_enabled,
+                                   view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_xy_contrast_min(percent_min_max_[0]);
         GSH::instance().set_xy_contrast_max(percent_min_max_[1]);
@@ -328,7 +333,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_display_enabled,
+                                   view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_yz_contrast_min(percent_min_max_[0]);
         GSH::instance().set_yz_contrast_max(percent_min_max_[1]);
@@ -342,7 +347,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    cd_.getReticleZone(),
-                                   cd_.reticle_display_enabled,
+                                   view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_xz_contrast_min(percent_min_max_[0]);
         GSH::instance().set_xz_contrast_max(percent_min_max_[1]);

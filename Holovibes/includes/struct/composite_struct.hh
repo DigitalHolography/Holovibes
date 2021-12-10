@@ -15,7 +15,6 @@ struct Composite_P // : public json_struct
     int p_max = 0;
 
     operator json() const { return json{{"min", p_min}, {"max", p_max}}; }
-
     Composite_P() = default;
 
     explicit Composite_P(const json& data)
@@ -25,8 +24,7 @@ struct Composite_P // : public json_struct
         p_max = p_data["max"];
     }
 };
-
-struct Composite_RGB : public Composite_P
+struct Composite_RGB: public Composite_P
 {
     float weight_r = 1;
     float weight_g = 1;
@@ -160,4 +158,23 @@ struct Composite_HSV // : public json_struct
     }
 };
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, Composite_P obj)
+{
+    return os << "obj.pmin : " << obj.p_min << " - obj.pmax : " << obj.p_max;
+}
+
+inline std::ostream& operator<<(std::ostream& os, Composite_RGB obj)
+{
+    return os << "obj.weight_r : " << obj.weight_g << " - obj.weight_g" << obj.weight_b << " - obj.weight_b"
+              << static_cast<Composite_P>(obj);
+}
+
+inline std::ostream& operator<<(std::ostream& os, Composite_hsv obj) { return os; }
+
+inline std::ostream& operator<<(std::ostream& os, Composite_H obj) { return os; }
+
+inline std::ostream& operator<<(std::ostream& os, Composite_SV obj) { return os; }
+
+inline std::ostream& operator<<(std::ostream& os, Composite_HSV obj) { return os; }
 } // namespace holovibes

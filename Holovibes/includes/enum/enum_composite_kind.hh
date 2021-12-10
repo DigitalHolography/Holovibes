@@ -29,11 +29,12 @@ const std::map<std::string, CompositeKind> string_to_composite_kind = {
     {"RGB", CompositeKind::RGB},
     {"HSV", CompositeKind::HSV},
 };
+
 } // namespace _internal
 
-inline std::string composite_kind_to_string(CompositeKind value)
+inline std::string composite_kind_to_string(const CompositeKind in)
 {
-    return _internal::composite_kind_to_string.at(value);
+    return _internal::composite_kind_to_string.at(in);
 }
 
 inline CompositeKind composite_kind_from_string(const std::string& in)
@@ -43,7 +44,7 @@ inline CompositeKind composite_kind_from_string(const std::string& in)
 
 inline std::ostream& operator<<(std::ostream& os, holovibes::CompositeKind value)
 {
-    return os << composite_kind_to_string(value);
+    return os << _internal::composite_kind_to_string.at(value);
 }
 
 } // namespace holovibes

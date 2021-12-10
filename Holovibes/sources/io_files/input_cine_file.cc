@@ -1,6 +1,7 @@
 #include "input_cine_file.hh"
 #include "file_exception.hh"
 #include "compute_descriptor.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::io_files
 {
@@ -36,9 +37,9 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
+void InputCineFile::import_compute_settings() const
 {
-    cd.pixel_size = 1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter);
+    GSH::instance().set_pixel_size(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
 }
 
 void InputCineFile::set_pos_to_frame(size_t frame_id)

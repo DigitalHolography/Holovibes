@@ -32,10 +32,10 @@ class Postprocessing
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& fd,
-                   holovibes::ComputeDescriptor& cd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache_,
-                   ViewCache::Cache& view_cache);
+                   ComputeCache::Cache& compute_cache,
+                   ViewCache::Cache& view_cache,
+                   AdvancedCache::Cache& advanced_cache);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -69,9 +69,6 @@ class Postprocessing
     /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
 
-    /*! \brief Compute Descriptor */
-    ComputeDescriptor& cd_;
-
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
@@ -81,6 +78,7 @@ class Postprocessing
     /*! \brief All view related variables, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
     ViewCache::Cache& view_cache_;
+    AdvancedCache::Cache& advanced_cache_;
 };
 } // namespace compute
 } // namespace holovibes

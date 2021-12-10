@@ -160,7 +160,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_cd().display_rate);
+    startTimer(1000 / api::get_display_rate());
 }
 
 /* This part of code makes a resizing of the window displaying image to
@@ -190,7 +190,7 @@ void RawWindow::resizeGL(int w, int h)
             old_width = h * ratio;
             old_height = h;
         }
-    }
+    } // namespace gui
     else
     {
         if (is_resize)
@@ -229,7 +229,7 @@ void RawWindow::resizeGL(int w, int h)
     }
     resize(old_width, old_height);
     this->setPosition(point);
-}
+} // namespace holovibes
 
 void RawWindow::paintGL()
 {
@@ -257,13 +257,14 @@ void RawWindow::paintGL()
     void* frame = output_->get_last_image();
 
     // Put the frame inside the cuda ressrouce
-    if (api::get_img_type() == ImgType::Composite)
+
+    if (GSH::instance().get_img_type() == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
     else
     {
-        ushort bitshift = kView == KindOfView::Raw ? api::get_cd().raw_bitshift.load() : 0;
+        ushort bitshift = kView == KindOfView::Raw ? GSH::instance().get_raw_bitshift() : 0;
         convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, bitshift, cuStream);
     }
 

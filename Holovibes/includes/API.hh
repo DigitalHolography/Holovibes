@@ -291,13 +291,6 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
  */
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
 
-/*! \brief Automatic equalization (Auto-constrast)
- *
- * \param value the new value of composite auto weight
- */
-void set_composite_auto_weights(bool value);
-
-void set_composite_kind(const CompositeKind& value);
 /*! \brief Switchs between to RGB mode
  *
  */
@@ -548,12 +541,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
  */
 void set_time_transformation_size(std::function<void()> callback);
-
-/*! \brief Enables or Disables fft shift mode on the main display window
- *
- * \param value true: enable, false: disable
- */
-void set_fft_shift(const bool value);
 
 /*! \brief Changes the focused windows
  *

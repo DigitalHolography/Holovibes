@@ -119,15 +119,6 @@ void ComputeDescriptor::handle_update_exception()
 
 void ComputeDescriptor::handle_accumulation_exception() { GSH::instance().set_xy_img_accu_level(1); }
 
-void ComputeDescriptor::set_computation_stopped(bool value) { is_computation_stopped = value; }
-
-void ComputeDescriptor::set_weight_rgb(int r, int g, int b)
-{
-    rgb.weight_r = r;
-    rgb.weight_g = g;
-    rgb.weight_b = b;
-}
-
 void ComputeDescriptor::change_angle()
 {
     double rot = GSH::instance().get_rotation();
@@ -140,10 +131,10 @@ void ComputeDescriptor::change_flip() { GSH::instance().set_flip_enabled(!GSH::i
 
 void ComputeDescriptor::reset_windows_display()
 {
-    lens_view_enabled = false;
-    filter2d_view_enabled = false;
-    raw_view_enabled = false;
-    reticle_display_enabled = false;
+    GSH::instance().set_lens_view_enabled(false);
+    GSH::instance().set_filter2d_view_enabled(false);
+    GSH::instance().set_raw_view_enabled(false);
+    GSH::instance().set_reticle_display_enabled(false);
 }
 
 void ComputeDescriptor::reset_slice_view()
@@ -160,7 +151,7 @@ void ComputeDescriptor::reset_slice_view()
 
 void ComputeDescriptor::set_divide_by_convo(bool enable)
 {
-    divide_convolution_enabled = enable && GSH::instance().get_convolution_enabled();
+    GSH::instance().set_divide_convolution_enabled(enable && GSH::instance().get_convolution_enabled());
 }
 
 } // namespace holovibes

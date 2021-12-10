@@ -32,13 +32,13 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 void OutputHoloFile::export_compute_settings(bool record_raw)
 {
     LOG_TRACE << "Entering OutputHoloFile export_compute_settings()";
+    LOG_DEBUG << "raw bitshift : " << GSH::instance().get_raw_bitshift();
 
-    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     try
     {
-        auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
-                         {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}}};
-
+        auto j_fi =
+            json{{"raw bitshift", GSH::instance().get_raw_bitshift()},
+                 {"pixel size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}}};
         meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"file info", j_fi}};
     }
     catch (const json::exception& e)
