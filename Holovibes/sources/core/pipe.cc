@@ -309,6 +309,10 @@ bool Pipe::make_requests()
         cuts_record_requested_ = std::nullopt;
     }
 
+    compute_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
+
     return success_allocation;
 }
 

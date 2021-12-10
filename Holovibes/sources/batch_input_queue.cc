@@ -109,8 +109,6 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     char* const new_frame_adress =
         data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-    LOG_DEBUG << "start_index : " << start_index_ << "\nend_index : " << end_index_;
-
     cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
                      sizeof(char) * fd_.get_frame_size(),
@@ -130,14 +128,12 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         curr_batch_counter_ = 0;
         const uint prev_end_index = end_index_;
         end_index_ = (end_index_ + 1) % max_size_;
-        LOG_DEBUG << "new end index :" << end_index_;
 
         // The queue is full (in terms of batch)
         if (size_ == max_size_)
         {
             has_overridden_ = true;
             start_index_ = (start_index_ + 1) % max_size_;
-            LOG_DEBUG << "new start index :" << start_index_;
         }
         else
         {
