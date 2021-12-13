@@ -25,8 +25,8 @@ namespace holovibes
 using camera::FrameDescriptor;
 
 ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream)
-    : cd_(cd)
-    , gpu_input_queue_(input)
+    : gpu_input_queue_(input)
+    , cd_(cd)
     , gpu_output_queue_(output)
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())

@@ -6,6 +6,7 @@
 
 #include "worker.hh"
 #include "enum_record_mode.hh"
+#include <optional>
 #include <array>
 
 namespace holovibes
@@ -71,6 +72,8 @@ class FrameRecordWorker final : public Worker
     RecordMode record_mode_;
     /*! \brief Output buffer size */
     unsigned int output_buffer_size_;
+    /*! \brief Number of frame that keep integrity */
+    std::optional<size_t> sure_frames_ = std::nullopt;
 
     // Average fps is computed with the last 4 values of input fps.
     /*! \brief Useful for Input fps value. */
