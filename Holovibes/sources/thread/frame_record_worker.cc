@@ -73,12 +73,10 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        auto pipe = Holovibes::instance().get_compute_pipe();
-
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
-            if (record_queue.has_overridden() || pipe->gpu_input_queue_.has_overridden())
+            if (record_queue.has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
             {
                 // Due to overights when adding elements in full queue/batchInputQueue, the contiguousity is lost.
                 if (!contiguous_frames.has_value())
@@ -120,6 +118,7 @@ void FrameRecordWorker::run()
         auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
         output_frame_file->export_compute_settings(fps_average, contiguous);
+
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)
