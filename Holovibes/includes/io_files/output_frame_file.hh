@@ -21,7 +21,7 @@ class OutputFrameFile : public FrameFile
      * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
-    virtual void export_compute_settings(int input_fps) = 0;
+    virtual void export_compute_settings(int input_fps, size_t contiguous) = 0;
 
     /*! \brief Write the header in the file
      *

@@ -278,10 +278,9 @@ class ICompute : public Observable
 
     /*! \brief Reference on the input queue, owned by MainWindow. */
     BatchInputQueue& gpu_input_queue_;
-    *
 
-        protected : virtual void
-                    refresh() = 0;
+  protected:
+    virtual void refresh() = 0;
     virtual void pipe_error(const int& err_count, const std::exception& e);
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
