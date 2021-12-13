@@ -102,7 +102,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
                               stream);
 
     // Synchronize after the copy has been lauched and before updating the size
-    // cudaXStreamSynchronize(stream);
+    cudaXStreamSynchronize(stream);
 
     if (size_ < max_size_)
         ++size_;
