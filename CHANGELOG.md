@@ -1,5 +1,9 @@
 ## Changelog
 
+### 10.6.3
+
+* Feat Add contiguous in footer.
+
 ### 10.6.2
 
 * Feat ASW with Raw Bit shift

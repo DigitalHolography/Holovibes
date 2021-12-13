@@ -107,8 +107,8 @@ void FrameRecordWorker::run()
 
         if (contiguous_frames.has_value())
         {
-            LOG_INFO << "[RECORDER] Record lost its contiguousity at frame " << contiguous_frames.value() << ".";
-            LOG_INFO << "[RECORDER] To prevent this lost, you might need to increase Input AND/OR Record buffer size.";
+            LOG_WARN << "[RECORDER] Record lost its contiguousity at frame " << contiguous_frames.value() << ".";
+            LOG_WARN << "[RECORDER] To prevent this lost, you might need to increase Input AND/OR Record buffer size.";
         }
         else
         {
