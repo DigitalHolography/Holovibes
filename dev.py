@@ -98,8 +98,8 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd += ['cmake', 
-            '--build', 
+    cmd += ['cmake',
+            '--build',
             build_dir,
             '-j', str(cpu_count()),
             ] + args.goal_args
@@ -140,7 +140,7 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(args=[] + args.goal_args)
+    return pytest.main(args=["-v"] + args.goal_args)
 
 
 @goal
