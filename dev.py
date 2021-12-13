@@ -7,6 +7,7 @@ import argparse
 import subprocess
 from time import sleep
 from collections import namedtuple
+from multiprocessing import cpu_count
 
 from tests.constant_name import *
 from build.build_constants import *
@@ -97,7 +98,11 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd += ['cmake', '--build', build_dir] + args.goal_args
+    cmd += ['cmake', 
+            '--build', 
+            build_dir,
+            '-j', str(cpu_count()),
+            ] + args.goal_args
 
     if args.verbose:
         print("Build cmd: {}".format(' '.join(cmd)))

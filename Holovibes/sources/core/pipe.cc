@@ -312,10 +312,6 @@ bool Pipe::make_requests()
         cuts_record_requested_ = std::nullopt;
     }
 
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
-
     return success_allocation;
 }
 
@@ -439,10 +435,6 @@ void Pipe::refresh()
 
     // Must be the last inserted function
     insert_reset_batch_index();
-
-    compute_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
 }
 
 void Pipe::insert_wait_frames()
@@ -621,7 +613,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (export_cache_.get_frame_record_enabled())
+    if (GSH::instance().get_frame_record_enabled())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -659,7 +651,10 @@ void Pipe::exec()
             run_all();
 
             if (refresh_requested_)
+            {
                 refresh();
+                synchronize_caches();
+            }
         }
         catch (CustomException& e)
         {

@@ -55,6 +55,7 @@ class GSH
     float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
+    const std::vector<float>& get_convo_matrix_const_ref() { return compute_cache_.get_convo_matrix_const_ref(); };
 
     int get_filter2d_n1() const noexcept { return filter2d_cache_.get_filter2d_n1(); }
     int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
@@ -555,11 +556,7 @@ class GSH
 
     inline void set_reticle_display_enabled(bool value) { view_cache_.set_reticle_display_enabled(value); }
 
-    inline void set_raw_bitshift(int value)
-    {
-        LOG_DEBUG << "new raw bitshift: " << value;
-        advanced_cache_.set_raw_bitshift(value);
-    }
+    inline void set_raw_bitshift(int value) { advanced_cache_.set_raw_bitshift(value); }
 
 #pragma endregion
     void change_window(uint index);

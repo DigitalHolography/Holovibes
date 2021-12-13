@@ -54,7 +54,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   compute_cache_.get_convo_matrix_const_ref().data(),
+                                   GSH::instance().get_convo_matrix_const_ref().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -78,6 +78,7 @@ void Postprocessing::dispose()
     hsv_arr_.reset(nullptr);
 }
 
+// Inserted
 void Postprocessing::convolution_composite()
 {
     const uint frame_res = fd_.get_frame_res();

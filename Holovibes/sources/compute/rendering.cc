@@ -294,7 +294,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_filter2d_request = false;
         }
 
-        view_cache_.synchronize();
+        view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);

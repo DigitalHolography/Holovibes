@@ -243,8 +243,6 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
         return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
     }
 
-#define _CALL_GETTER(type, var, val) LOG_DEBUG << get_##var();
-
 #define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \
     struct name                                                                                                        \
     {                                                                                                                  \
@@ -259,11 +257,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
                                                                                                                        \
           public:                                                                                                      \
             MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
-            Ref()                                                                                                      \
-            {                                                                                                          \
-                cache_truth<ref_t> = this;                                                                             \
-                MAP(_CALL_GETTER, __VA_ARGS__);                                                                        \
-            }                                                                                                          \
+            Ref() { cache_truth<ref_t> = this; }                                                                       \
             ~Ref() { cache_truth<ref_t> = nullptr; }                                                                   \
                                                                                                                        \
             friend struct Cache;                                                                                       \

@@ -107,7 +107,6 @@ void import_holo_v4(const json& meta_data)
 
     const json& file_info_data = meta_data["file info"];
     GSH::instance().set_pixel_size(file_info_data["pixel size"]["x"]);
-    LOG_DEBUG << "file_info_data[ raw bitshift ] : " << file_info_data["raw bitshift"];
     GSH::instance().set_raw_bitshift(file_info_data["raw bitshift"]);
 }
 

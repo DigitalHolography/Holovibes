@@ -165,6 +165,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
     return gpu_lens_queue_;
 }
 
+// Inserted
 void FourierTransform::enqueue_lens()
 {
     if (gpu_lens_queue_)
@@ -376,8 +377,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_time_transformation_size(),
-                                                   GSH::instance().get_xz_img_accu_level(),
-                                                   GSH::instance().get_yz_img_accu_level(),
+                                                   view_cache_.get_xz_const_ref().img_accu_level,
+                                                   view_cache_.get_yz_const_ref().img_accu_level,
                                                    view_cache_.get_img_type(),
                                                    stream_);
                 }
