@@ -276,9 +276,6 @@ class ICompute : public Observable
 
     virtual std::unique_ptr<Queue>& get_frame_record_queue();
 
-    /*! \brief Reference on the input queue, owned by MainWindow. */
-    BatchInputQueue& gpu_input_queue_;
-
   protected:
     virtual void refresh() = 0;
     virtual void pipe_error(const int& err_count, const std::exception& e);
@@ -299,7 +296,10 @@ class ICompute : public Observable
     /*! \brief Compute Descriptor. */
     ComputeDescriptor& cd_;
 
-    /*! \brief Reference on the output queue, owned by MainWindow. */
+    /*! \brief Reference on the input queue */
+    BatchInputQueue& gpu_input_queue_;
+
+    /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;
 
     /*! \brief Main buffers. */
