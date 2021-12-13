@@ -133,6 +133,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         if (size_ == max_size_)
         {
             has_overridden_ = true;
+            LOG_INFO;
             start_index_ = (start_index_ + 1) % max_size_;
         }
         else
