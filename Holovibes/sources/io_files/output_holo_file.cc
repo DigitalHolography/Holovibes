@@ -29,14 +29,15 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(int input_fps)
+void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     const auto& cd = ::holovibes::Holovibes::instance().get_cd();
     try
     {
         auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
                          {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}},
-                         {"input fps", input_fps}};
+                         {"input fps", input_fps},
+                         {"contiguous", contiguous}};
 
         meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"info", j_fi}};
     }

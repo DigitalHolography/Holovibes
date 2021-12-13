@@ -25,7 +25,7 @@ class OutputMp4File : public OutputFrameFile, public Mp4File
      * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
-    void export_compute_settings(int input_fps) override;
+    void export_compute_settings(int input_fps, size_t contiguous) override;
 
     /*! \brief Write the header in the file
      *

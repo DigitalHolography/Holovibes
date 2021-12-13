@@ -69,34 +69,23 @@ void FrameRecordWorker::run()
 
         output_frame_file->write_header();
 
+        std::optional<int> contiguous_frames = std::nullopt;
+
         frame_buffer = new char[output_frame_size];
+
+        auto pipe = Holovibes::instance().get_compute_pipe();
 
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
-            // Has overriten ++
-            if (record_queue.has_overridden()) || pipe->gpu_input_queue_.has_overridden())
-                {
-                    // Solution 1 :
-                    // Arret direct. Toutes les données sont intègres mais on n'a pas forcement le nombre de frame
-                    // demandé
-                    // =>
-                    // stop();
-
-                    // Solution 2 :
-                    // On enregistre le nombre d'image demandé en précisant qu'on a perdu l'intégrité de nos
-                    // données à partir d'une certaines image. Comme on ecrit sur l'ancienne données dans la queue, on
-                    // perd l'intégrité à nb_frame déjà ecrites.
-                    // =>
-                    // if (!sure_frames_.has_value())
-                    //     sure_frames_ = std::make_optional(nb_frames_recorded);
-                }
-            // Has overriden --
+            if (record_queue.has_overridden() || pipe->gpu_input_queue_.has_overridden())
+            {
+                // Due to overights when adding elements in full queue/batchInputQueue, the contiguousity is lost.
+                if (!contiguous_frames.has_value())
+                    contiguous_frames = std::make_optional(nb_frames_recorded.load());
+            }
 
             wait_for_frames(record_queue);
-
-            if (stop_requested_)
-                break;
 
             if (nb_frames_skip_ > 0)
             {
@@ -115,15 +104,22 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        if (stop_requested_)
+        LOG_INFO << "[RECORDER] Recording stopped, written frames: " << nb_frames_recorded;
+        output_frame_file->correct_number_of_frames(nb_frames_recorded);
+
+        if (contiguous_frames.has_value())
         {
-            LOG_INFO << "[RECORDER] Recording stopped, written frames: " << nb_frames_recorded;
-            output_frame_file->correct_number_of_frames(nb_frames_recorded);
+            LOG_INFO << "[RECORDER] Record lost its contiguousity at frame " << contiguous_frames.value() << ".";
+            LOG_INFO << "[RECORDER] To prevent this lost, you might need to increase Input AND/OR Record buffer size.";
+        }
+        else
+        {
+            LOG_INFO << "[RECORDER] Record is contiguous!";
         }
 
         auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
-        // Integrity, add sure_frames_ to export_cs;
-        output_frame_file->export_compute_settings(fps_average);
+        auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
+        output_frame_file->export_compute_settings(fps_average, contiguous);
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)
@@ -133,12 +129,6 @@ void FrameRecordWorker::run()
 
     delete output_frame_file;
     delete[] frame_buffer;
-
-    if (record_queue.has_overridden())
-    {
-        LOG_INFO << "[RECORDER] Record buffer is full! "
-                    "Resize record buffer if more data is needed.";
-    }
 
     reset_gpu_record_queue();
 
