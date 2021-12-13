@@ -12,6 +12,26 @@
 namespace holovibes
 {
 /*! \brief Construct a new new micro cache object
+ *
+ * \param display_rate of frame per seconds displayed
+ * \param input_buffer_size Max size of input queue in number of images.
+ * \param record_buffer_size Max size of frame record queue in number of images.
+ * \param output_buffer_size Max size of output queue in number of images.
+ * \param contrast_lower_threshold
+ * \param contrast_upper_threshold
+ */
+NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
+                            (float, display_rate, 30),
+                            (uint, input_buffer_size, 256),
+                            (uint, output_buffer_size, 64),
+                            (uint, record_buffer_size, 64),
+                            (float, contrast_lower_threshold, 0.5f),
+                            (int, raw_bitshift, 0),
+                            (float, contrast_upper_threshold, 99.5f),
+                            (unsigned, renorm_constant, 5),
+                            (uint, cuts_contrast_p_offset, 2));
+
+/*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches
  * \param time_transformation_stride Number of pipe iterations between two time transformations (STFT/PCA)
  * \param time_transformation_size Number of images used by the time transformation
@@ -133,26 +153,6 @@ NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
                             (int, filter2d_smooth_low, 0),
                             (int, filter2d_smooth_high, 0));
 /*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
-
-/*! \brief Construct a new new micro cache object
- *
- * \param display_rate of frame per seconds displayed
- * \param input_buffer_size Max size of input queue in number of images.
- * \param record_buffer_size Max size of frame record queue in number of images.
- * \param output_buffer_size Max size of output queue in number of images.
- * \param contrast_lower_threshold
- * \param contrast_upper_threshold
- */
-NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
-                            (float, display_rate, 30),
-                            (uint, input_buffer_size, 256),
-                            (uint, record_buffer_size, 64),
-                            (uint, output_buffer_size, 64),
-                            (float, contrast_lower_threshold, 0.5f),
-                            (float, contrast_upper_threshold, 99.5f),
-                            (unsigned, renorm_constant, 5),
-                            (uint, cuts_contrast_p_offset, 2),
-                            (int, raw_bitshift, 0));
 
 /*! \brief Construct a new new micro cache object
  *

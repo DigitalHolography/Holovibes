@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <new>
 
 #if defined(_MSC_VER) && !defined(__clang__)
 #include "map_macro_msvc.hh"
@@ -89,6 +90,12 @@
  *
  *  Note: for complex type parameters with commas in template parameters please use a 'using' directive
  */
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
+{
+    return os << "vector";
+}
 
 #ifdef _DEBUG
 #define LOG_UPDATE(var) LOG_DEBUG << "Update " << #var << " : " << var.obj << " -> " << cache_truth<ref_t>->var;
@@ -197,7 +204,7 @@
         var.to_update = false;                                                                                         \
     }
 
-#define _DEFINE_VAR_INIT(type, var, val) type var = val;
+#define _DEFINE_VAR_INIT(type, var, val) alignas(std::hardware_constructive_interference_size) type var = val;
 
 #define _DEFINE_CACHE_VAR_INIT(type, var, val)                                                                         \
     struct var##_t                                                                                                     \
@@ -219,7 +226,7 @@
     }                                                                                                                  \
                                                                                                                        \
     /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline auto get_##var() const noexcept { return var; }                                                             \
+    inline type get_##var() const noexcept { return var; }                                                             \
                                                                                                                        \
     /* inline prevents MSVC from brain-dying, dunno why */                                                             \
     inline const auto& get_##var##_const_ref() const noexcept { return var; }                                          \
@@ -236,6 +243,8 @@
         return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
     }
 
+#define _CALL_GETTER(type, var, val) LOG_DEBUG << get_##var();
+
 #define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \
     struct name                                                                                                        \
     {                                                                                                                  \
@@ -249,10 +258,14 @@
             MAP(_DEFINE_VAR_INIT, __VA_ARGS__);                                                                        \
                                                                                                                        \
           public:                                                                                                      \
-            Ref() { cache_truth<ref_t> = this; }                                                                       \
+            MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
+            Ref()                                                                                                      \
+            {                                                                                                          \
+                cache_truth<ref_t> = this;                                                                             \
+                MAP(_CALL_GETTER, __VA_ARGS__);                                                                        \
+            }                                                                                                          \
             ~Ref() { cache_truth<ref_t> = nullptr; }                                                                   \
                                                                                                                        \
-            MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
             friend struct Cache;                                                                                       \
         };                                                                                                             \
                                                                                                                        \

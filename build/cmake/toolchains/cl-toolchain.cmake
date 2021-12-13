@@ -14,7 +14,7 @@ string(APPEND CMAKE_CXX_FLAGS " /std:c++20 /external:anglebrackets /external:W0"
 add_definitions(-DUNICODE -D_UNICODE)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string(APPEND CMAKE_CXX_FLAGS " /Od /MTd /DEBUG /Z7 /EHa")
+    string(APPEND CMAKE_CXX_FLAGS " /Od /MDd /DEBUG /Zi /EHa")
 else()
-    string(APPEND CMAKE_CXX_FLAGS " /O2 /EHsc")
+    string(APPEND CMAKE_CXX_FLAGS " /O2 /EHsc /MD")
 endif()

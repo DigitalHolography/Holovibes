@@ -32,7 +32,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 void OutputHoloFile::export_compute_settings(bool record_raw)
 {
     LOG_TRACE << "Entering OutputHoloFile export_compute_settings()";
-    LOG_DEBUG << "raw bitshift : " << GSH::instance().get_raw_bitshift();
+    // LOG_DEBUG << "raw bitshift : " << GSH::instance().get_raw_bitshift();
 
     try
     {

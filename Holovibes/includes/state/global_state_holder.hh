@@ -213,6 +213,8 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold_max;
     }
+    inline int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
+
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.low_threshold; }
     inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.high_threshold; }
     inline uint get_h_blur_kernel_size() const noexcept { return composite_cache_.get_hsv().h.blur_kernel_size; }
@@ -270,8 +272,6 @@ class GSH
     inline uint get_cuts_contrast_p_offset() const noexcept { return advanced_cache_.get_cuts_contrast_p_offset(); }
 
     inline bool get_reticle_display_enabled() const noexcept { return view_cache_.get_reticle_display_enabled(); }
-
-    inline int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
 #pragma endregion
 
