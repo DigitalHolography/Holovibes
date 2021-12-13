@@ -74,6 +74,25 @@ void FrameRecordWorker::run()
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
+            // Has overriten ++
+            if (record_queue.has_overridden()) || pipe->gpu_input_queue_.has_overridden())
+                {
+                    // Solution 1 :
+                    // Arret direct. Toutes les données sont intègres mais on n'a pas forcement le nombre de frame
+                    // demandé
+                    // =>
+                    // stop();
+
+                    // Solution 2 :
+                    // On enregistre le nombre d'image demandé en précisant qu'on a perdu l'intégrité de nos
+                    // données à partir d'une certaines image. Comme on ecrit sur l'ancienne données dans la queue, on
+                    // perd l'intégrité à nb_frame déjà ecrites.
+                    // =>
+                    // if (!sure_frames_.has_value())
+                    //     sure_frames_ = std::make_optional(nb_frames_recorded);
+                }
+            // Has overriden --
+
             wait_for_frames(record_queue);
 
             if (stop_requested_)
@@ -103,6 +122,7 @@ void FrameRecordWorker::run()
         }
 
         auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
+        // Integrity, add sure_frames_ to export_cs;
         output_frame_file->export_compute_settings(fps_average);
         output_frame_file->write_footer();
     }
@@ -165,15 +185,8 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
     auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
-        if (record_queue.get_size() == 0)
-        {
-            if (record_queue.has_overridden())
-                stop();
-        }
-        else
-        {
+        if (record_queue.get_size() != 0)
             break;
-        }
     }
 }
 
