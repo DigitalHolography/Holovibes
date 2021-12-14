@@ -141,7 +141,21 @@ class HoloFile:
                          ignore_order=True,
                          significant_digits=5,
                          exclude_paths=["root['info']['input fps']", ]
-                )
+                         )
+
+        if 'values_changed' in ddiff:
+            if "root['compute settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
+                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+            if "root['compute settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
+                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+
+            if not ddiff['values_changed']:
+                del ddiff['values_changed']
+
         assert not ddiff, ddiff
 
     def assertHolo(ref, chal: "HoloFile", basepath: str):
@@ -152,7 +166,7 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        def check_footer(lhs : json, rhs : json):
+        def check_footer(lhs: json, rhs: json):
             assert "info" in rhs
             assert "input fps" in rhs["info"]
             # rhs["info"]["input fps"], lhs["info"]["input fps"] = 0, 0
