@@ -19,41 +19,6 @@ void pipe_refresh()
         LOG_ERROR << e.what();
     }
 }
-/*
-bool init_holovibes_import_mode(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
-{
-    // Set the image rendering ui params
-    GSH::instance().set_time_transformation_stride(static_cast<uint>(std::ceil(static_cast<float>(fps) / 20.0f)));
-    GSH::instance().set_batch_size(1);
-
-    // Because we are in import mode
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-
-    try
-    {
-
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               get_cd().get_input_buffer_size());
-        Holovibes::instance().start_file_frame_read(file_path,
-                                                    true,
-                                                    fps,
-                                                    static_cast<unsigned int>(first_frame - 1),
-                                                    static_cast<unsigned int>(last_frame - first_frame + 1),
-                                                    load_file_in_gpu);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-        Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
-        return false;
-    }
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    return true;
-}
-*/
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
 const std::string get_credits()
@@ -397,9 +362,20 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 #pragma region Batch
 // FIXME: Same fucntion as under
-void update_batch_size(std::function<void()> callback, const uint batch_size)
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
-    get_compute_pipe()->insert_fn_end_vect(callback);
+    if (batch_size == api::get_batch_size())
+        return;
+
+    api::set_batch_size(batch_size);
+    Holovibes::instance().get_compute_pipe()->request_update_batch_size();
+
+    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
+        pipe->insert_fn_end_vect(notify_callback);
+    }
+    else
+        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
 }
 
 #pragma endregion
@@ -983,6 +959,10 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
+void set_raw_bitshift(int value) { GSH::instance().set_raw_bitshift(value); }
+
+int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
+
 float get_contrast_min() { return GSH::instance().get_contrast_min(); }
 
 float get_contrast_max() { return GSH::instance().get_contrast_max(); }
@@ -1233,6 +1213,7 @@ void import_stop()
 {
     close_windows();
     close_critical_compute();
+
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display();
 

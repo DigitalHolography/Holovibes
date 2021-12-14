@@ -2,10 +2,10 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 ; CMake: build/Generator      VisualStudio: x64
-#define BuildDir {{ build_dir }}
+#define BuildDir "{{ build_dir }}"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "10.5.2"
+#define MyAppVersion "10.6.3"
 #define MyAppPublisher "Digital Holography"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "{{ binary_filename }}"
@@ -71,16 +71,13 @@ Source: "{#qtPath}\bin\Qt6OpenGL.dll"; DestDir: "{app}\{#MyAppVersion}";Componen
 Source: "{#qtPath}\bin\Qt6OpenGLWidgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#qtPath}\bin\Qt6PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#qtPath}\bin\Qt6Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#qtPath}\bin\Qt6Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#qtPath}\bin\Qt6Charts.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#qtPath}\bin\res\archdatadir\plugins\platforms\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
+Source: "{#qtPath}\res\archdatadir\plugins\platforms\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#cudaPath}\bin\cufft64_10.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#cudaPath}\bin\cublas64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#cudaPath}\bin\cublasLt64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#cudaPath}\bin\cusolver64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#cudaPath}\bin\cudart64_110.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#opencvPath}\bin\opencv_videoio_ffmpeg450_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#opencvPath}\bin\opencv_world450.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 
 Source: "Camera\configs\*.ini"; DestDir: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"; Components: program; Flags: ignoreversion recursesubdirs
 

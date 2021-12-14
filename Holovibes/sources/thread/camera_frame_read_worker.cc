@@ -24,7 +24,7 @@ void CameraFrameReadWorker::run()
     *entry1 = camera_->get_name();
     *entry2 = input_format;
 
-    processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
 
     try
     {
@@ -69,7 +69,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
         gpu_input_queue_.load()->enqueue(ptr, copy_kind);
     }
 
-    *processed_fps_ += captured_fd.count1 + captured_fd.count2;
+    processed_frames_ += captured_fd.count1 + captured_fd.count2;
+    compute_fps();
 
     gpu_input_queue_.load()->sync_current_batch();
 }

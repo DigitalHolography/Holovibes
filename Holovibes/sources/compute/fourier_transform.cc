@@ -330,7 +330,7 @@ void FourierTransform::insert_store_p_frame()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            const int frame_res = fd_.get_frame_res();
+            const int frame_res = static_cast<int>(fd_.get_frame_res());
 
             /* Copies with DeviceToDevice (which is the case here) are asynchronous
              * with respect to the host but never overlap with kernel execution*/

@@ -22,6 +22,14 @@ FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
 {
 }
 
+void FrameRecordWorker::integrate_fps_average()
+{
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
+    int current_fps = input_fps->load();
+
+    fps_buffer_[fps_current_index_++ % 4] = current_fps;
+}
 void FrameRecordWorker::run()
 {
     // Progress recording FastUpdatesHolder entry
@@ -51,18 +59,23 @@ void FrameRecordWorker::run()
         output_frame_file =
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
 
-        output_frame_file->export_compute_settings(record_mode_ == RecordMode::RAW);
         output_frame_file->write_header();
+
+        std::optional<int> contiguous_frames = std::nullopt;
 
         frame_buffer = new char[output_frame_size];
 
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
-            wait_for_frames(record_queue);
+            if (record_queue.has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
+            {
+                // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
+                if (!contiguous_frames.has_value())
+                    contiguous_frames = std::make_optional(nb_frames_recorded.load());
+            }
 
-            if (stop_requested_)
-                break;
+            wait_for_frames(record_queue);
 
             if (nb_frames_skip_ > 0)
             {
@@ -76,15 +89,27 @@ void FrameRecordWorker::run()
             (*processed_fps)++;
             nb_frames_recorded++;
 
-            if (nb_frames_to_record_.has_value())
+            integrate_fps_average();
+            if (!nb_frames_to_record_.has_value())
                 nb_frames_to_record++;
         }
 
-        if (stop_requested_)
+        LOG_INFO << "[RECORDER] Recording stopped, written frames: " << nb_frames_recorded;
+        output_frame_file->correct_number_of_frames(nb_frames_recorded);
+
+        if (contiguous_frames.has_value())
         {
-            LOG_INFO << "[RECORDER] Recording stopped, written frames: " << nb_frames_recorded;
-            output_frame_file->correct_number_of_frames(nb_frames_recorded);
+            LOG_WARN << "[RECORDER] Record lost its contiguousity at frame " << contiguous_frames.value() << ".";
+            LOG_WARN << "[RECORDER] To prevent this lost, you might need to increase Input AND/OR Record buffer size.";
         }
+        else
+        {
+            LOG_INFO << "[RECORDER] Record is contiguous!";
+        }
+
+        auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
+        auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
+        output_frame_file->export_compute_settings(fps_average, contiguous);
 
         output_frame_file->write_footer();
     }
@@ -95,12 +120,6 @@ void FrameRecordWorker::run()
 
     delete output_frame_file;
     delete[] frame_buffer;
-
-    if (record_queue.has_overridden())
-    {
-        LOG_INFO << "[RECORDER] Record buffer is full! "
-                    "Resize record buffer if more data is needed.";
-    }
 
     reset_gpu_record_queue();
 
@@ -147,15 +166,8 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
     auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
-        if (record_queue.get_size() == 0)
-        {
-            if (record_queue.has_overridden())
-                stop();
-        }
-        else
-        {
+        if (record_queue.get_size() != 0)
             break;
-        }
     }
 }
 

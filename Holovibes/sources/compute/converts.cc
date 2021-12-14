@@ -332,7 +332,7 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
             static const BatchInputQueue::dequeue_func_t convert_to_complex = [](const void* const src,
                                                                                  void* const dest,
                                                                                  const uint batch_size,
-                                                                                 const uint frame_res,
+                                                                                 const size_t frame_res,
                                                                                  const uint depth,
                                                                                  const cudaStream_t stream)
             { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };

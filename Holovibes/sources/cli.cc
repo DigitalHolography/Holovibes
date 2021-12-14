@@ -106,6 +106,9 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     if (!opts.compute_settings_path)
         input_frame_file->import_compute_settings();
 
+    // Pixel size is set with info section of input file
+    input_frame_file->import_info();
+
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))

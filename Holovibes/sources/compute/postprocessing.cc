@@ -81,7 +81,7 @@ void Postprocessing::dispose()
 // Inserted
 void Postprocessing::convolution_composite()
 {
-    const uint frame_res = fd_.get_frame_res();
+    const size_t frame_res = fd_.get_frame_res();
 
     from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
                                                        hsv_arr_.get(),

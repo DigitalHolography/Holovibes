@@ -296,9 +296,10 @@ class ICompute : public Observable
     /*! \brief Compute Descriptor. */
     ComputeDescriptor& cd_;
 
-    /*! \brief Reference on the input queue, owned by MainWindow. */
+    /*! \brief Reference on the input queue */
     BatchInputQueue& gpu_input_queue_;
-    /*! \brief Reference on the output queue, owned by MainWindow. */
+
+    /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;
 
     /*! \brief Main buffers. */

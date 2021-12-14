@@ -9,6 +9,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
     : InputFrameFile(file_path)
     , CineFile()
 {
+
     // read the cine file and bitmap info headers
     size_t bytes_read = std::fread(&cine_file_header_, sizeof(char), sizeof(CineFileHeader), file_);
     bytes_read += std::fread(&bitmap_info_header_, sizeof(char), sizeof(BitmapInfoHeader), file_);
@@ -37,7 +38,9 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings() const
+void InputCineFile::import_compute_settings() const {}
+
+void InputCineFile::import_info() const
 {
     GSH::instance().set_pixel_size(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
 }

@@ -87,10 +87,7 @@ void InformationWorker::compute_fps(const long long waited_time)
     auto& fps_map = GSH::fast_updates_map<FpsType>;
     FastUpdatesHolder<FpsType>::const_iterator it;
     if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
-    {
-        input_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0); // TODO Remove
-    }
+        input_fps_ = it->second->load();
 
     if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
     {

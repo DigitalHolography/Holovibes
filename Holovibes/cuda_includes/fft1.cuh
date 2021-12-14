@@ -26,5 +26,5 @@ void fft_1(cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            const cufftHandle plan2D,
-           const uint frame_resolution,
+           const size_t frame_resolution,
            const cudaStream_t stream);

@@ -21,6 +21,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
+
 string(APPEND CMAKE_CUDA_FLAGS " -G")
 
 ### C++ Flags
@@ -144,6 +145,7 @@ endif()
 target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Boost::program_options
     Qt6::OpenGL
+    Qt6::OpenGLWidgets
     Qt6::Charts
     Qt6::Core
     Qt6::Gui

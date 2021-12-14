@@ -11,6 +11,9 @@ from .build_constants import *
 # Utils                            #
 #----------------------------------#
 
+def is_windows() -> bool:
+    return sys.platform.startswith('win32') or sys.platform.startswith('cygwin')
+
 
 def get_generator(arg: str) -> str:
     if not arg:
@@ -46,11 +49,16 @@ def _get_toolchain_path(file: str) -> str:
 
 def get_toolchain(arg: str) -> str:
     if not arg:
-        return _get_toolchain_path(DEFAUT_TOOLCHAIN_FILE)
+        if is_windows():
+            return _get_toolchain_path(DEFAUT_WIN64_TOOLCHAIN_FILE)
+        else:
+            return _get_toolchain_path(DEFAUT_LINUX_TOOLCHAIN_FILE)
     elif arg in CLANG_CL_OPT:
         return _get_toolchain_path("clang-cl-toolchain.cmake")
     elif arg in CL_OPT:
         return _get_toolchain_path("cl-toolchain.cmake")
+    elif arg in GCC_OPT:
+        return _get_toolchain_path("gcc-toolchain.cmake")
     else:
         raise Exception(f"Unknown toolchain: {arg}")
 
@@ -112,10 +120,6 @@ def find_vcvars() -> str:
     return find_vcvars_manual()
 
 
-def is_windows() -> bool:
-    return sys.platform.startswith('win32') or sys.platform.startswith('cygwin')
-
-
 def get_vcvars_start_cmd(env) -> List[str]:
     if not is_windows():
         print("Warning: using vcvars cmd in not-windows env")
@@ -129,23 +133,33 @@ def get_lib_paths() -> str:
 
 
 def bump_all_versions(type) -> str:
-    return subprocess.call([
-        "bump2version",
-        type,
-        "--config-file", os.path.join(os.path.dirname(
-            os.path.realpath(__file__)), ".bumpversion.cfg")
-    ]
-    )
+    try:
+        return subprocess.call([
+            "bump2version",
+            type,
+            '--allow-dirty',
+            "--config-file", os.path.join(os.path.dirname(
+                os.path.realpath(__file__)), ".bumpversion.cfg")
+        ]
+        )
+    except:
+        print("Please make sure you have installed the build/requirements.txt file")
+        raise
 
 
-def create_release_file(paths, version):
+def create_release_file(paths, build_dir: str):
     from jinja2 import Environment, FileSystemLoader
     env = Environment(loader=FileSystemLoader(
         os.path.join(os.path.dirname(os.path.realpath(__file__)))))
     template = env.get_template(ISCC_FILE_TEMPLATE)
     output_from_parsed_template = template.render(
-        paths=paths, version=version, binary_filename=RUN_BINARY_FILE)
+        paths=paths, build_dir=build_dir, binary_filename=RUN_BINARY_FILE)
 
     # to save the results
     with open(ISCC_FILE, "w") as fh:
         fh.write(output_from_parsed_template)
+
+
+def get_cmake_variable(build_dir: str, variable: str) -> str:
+    cmd = f"cmake -B {build_dir} -LA | grep {variable} | cut -d '=' -f 2 -"
+    return subprocess.check_output(cmd, shell=True).decode('utf-8')

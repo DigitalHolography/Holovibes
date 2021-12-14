@@ -70,7 +70,7 @@ class UserInterfaceDescriptor
 
     bool is_enabled_camera_ = false;
     bool is_advanced_settings_displayed = false;
-    bool need_close = false;
+    bool has_been_updated = false;
 
     std::string last_img_type_ = "Magnitude";
     ImportType import_type_ = ImportType::None;

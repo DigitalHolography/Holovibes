@@ -13,7 +13,7 @@ ASWMainWindowPanel::ASWMainWindowPanel(ImageRenderingPanel* parent)
     create_z_step_widget(mainwindow_layout);
 
     setLayout(mainwindow_layout);
-    setMaximumSize(210, INT_MAX);
+    setMaximumSize(210, 2000);
 }
 
 ASWMainWindowPanel::~ASWMainWindowPanel() {}

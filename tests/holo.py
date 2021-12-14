@@ -138,7 +138,10 @@ class HoloFile:
 
     def assert_footer(ref, chal: "HoloFile"):
         ddiff = DeepDiff(ref.footer, chal.footer,
-                         ignore_order=True, significant_digits=5)
+                         ignore_order=True,
+                         significant_digits=5,
+                         exclude_paths=["root['info']['input fps']", ]
+                )
         assert not ddiff, ddiff
 
     def assertHolo(ref, chal: "HoloFile", basepath: str):
@@ -149,9 +152,13 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        ref.assert_footer(chal)
+        def check_footer(lhs : json, rhs : json):
+            assert "info" in rhs
+            assert "input fps" in rhs["info"]
+            # rhs["info"]["input fps"], lhs["info"]["input fps"] = 0, 0
+            assert lhs == rhs, f"Compute setings differs : {set(lhs.items()) ^ set(rhs.items())}"
 
-        assert ref.footer == chal.footer, "Footers differ: {}".format(get_)
+        ref.assert_footer(chal)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(

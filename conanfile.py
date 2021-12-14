@@ -8,7 +8,7 @@ from build.build_constants import *
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "10.5.2"
+    version = "10.6.3"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
@@ -44,7 +44,8 @@ class HolovibesConan(ConanFile):
     def build(self):
         res = dict()
         for dep in self.deps_cpp_info.deps:
-            res[dep] = self.deps_cpp_info[dep].rootpath
+            if '-' not in dep:
+                res[dep] = self.deps_cpp_info[dep].rootpath
 
         with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'w') as fp:
             json.dump(res, fp)

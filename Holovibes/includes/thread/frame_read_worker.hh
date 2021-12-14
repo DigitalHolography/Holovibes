@@ -6,6 +6,7 @@
 
 #include "worker.hh"
 #include "queue.hh"
+#include <chrono>
 
 namespace holovibes::worker
 {
@@ -27,11 +28,17 @@ class FrameReadWorker : public Worker
     virtual ~FrameReadWorker(){};
 
   protected:
+    void compute_fps();
+
     /*! \brief The queue in which the frames are stored */
     std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue_;
 
     /*! \brief The current fps */
-    std::shared_ptr<std::atomic<unsigned int>> processed_fps_;
+    std::shared_ptr<std::atomic<unsigned int>> current_fps_;
+    std::atomic<unsigned int> processed_frames_;
+
+    /*! \brief Useful for Input fps value. */
+    std::chrono::time_point<std::chrono::steady_clock> start_;
 
     const cudaStream_t stream_;
 };

@@ -110,6 +110,8 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
+        // Set values not set by notify
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
     catch (const std::exception&)
     {
@@ -300,6 +302,9 @@ void MainWindow::reload_ini(const std::string& filename)
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
+
+    // Set values not set by notify
+    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
@@ -538,10 +543,18 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 void MainWindow::close_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().need_close)
-        close();
-    else
-        UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+    if (UserInterfaceDescriptor::instance().has_been_updated)
+    {
+        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ui_->ImportPanel->import_stop();
+
+        if (it == ImportType::File)
+            ui_->ImportPanel->import_start();
+        else if (it == ImportType::Camera)
+            change_camera(UserInterfaceDescriptor::instance().kCamera);
+    }
+
+    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
 }
 
 void MainWindow::open_advanced_settings()

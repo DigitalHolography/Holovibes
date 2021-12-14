@@ -106,7 +106,9 @@ void ImportPanel::import_file(const QString& filename)
         // Gather data from the newly opened file
         size_t nb_frames = input_file->get_total_nb_frames();
         UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
+
         input_file->import_compute_settings();
+        input_file->import_info();
 
         // Don't need the input file anymore
         delete input_file;
@@ -128,9 +130,11 @@ void ImportPanel::import_stop()
         return;
 
     api::import_stop();
+
     // FIXME: import_stop() and camera_none() call same methods
     // FIXME: camera_none() weird call because we are dealing with imported file
     parent_->camera_none();
+
     parent_->synchronize_thread([&]() { ui_->FileReaderProgressBar->hide(); });
     parent_->notify();
 }

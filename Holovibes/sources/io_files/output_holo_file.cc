@@ -29,7 +29,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(bool record_raw)
+void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_TRACE << "Entering OutputHoloFile export_compute_settings()";
     // LOG_DEBUG << "raw bitshift : " << GSH::instance().get_raw_bitshift();
@@ -38,8 +38,10 @@ void OutputHoloFile::export_compute_settings(bool record_raw)
     {
         auto j_fi =
             json{{"raw bitshift", GSH::instance().get_raw_bitshift()},
-                 {"pixel size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}}};
-        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"file info", j_fi}};
+                 {"pixel size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
+                 {"input fps", input_fps},
+                 {"contiguous", contiguous}};
+        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"info", j_fi}};
     }
     catch (const json::exception& e)
     {

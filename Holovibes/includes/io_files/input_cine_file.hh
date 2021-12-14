@@ -31,6 +31,12 @@ class InputCineFile : public InputFrameFile, public CineFile
      */
     void import_compute_settings() const override;
 
+    /*! \brief Update ComputeDescriptor with the settings present in the file
+     *
+     *  \param cd The ComputeDescriptor to update
+     */
+    void import_info() const override;
+
     /*! \brief Set the pointer in the file to the frame requested
      *
      * This method is mandatory to read frames.

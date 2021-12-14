@@ -62,7 +62,7 @@ void FileFrameReadWorker::run()
     *entry1 = "File";
     *entry2 = input_descriptor_info;
 
-    processed_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
 
     try
     {
@@ -267,8 +267,10 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
-        (*processed_fps_)++;
+        processed_frames_++;
         frames_enqueued++;
+
+        compute_fps();
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
