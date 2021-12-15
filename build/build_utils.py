@@ -96,10 +96,12 @@ def find_vcvars_manual() -> str:
 
 
 def find_vcvars_auto() -> str:
-    cmd = ['vswhere.exe', '-format', 'json', '-utf8', '-soft']
-    pop = subprocess.check_call(cmd, stdout=subprocess.PIPE)
+    cmd = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "vswhere.exe"), '-format', 'json', '-utf8', '-sort']
+    pop = subprocess.run(cmd, stdout=subprocess.PIPE)
 
-    for vs_install in json.loads(pop.stdout.read()):
+    pop.check_returncode()
+
+    for vs_install in json.loads(pop.stdout.decode('utf-8')):
         if not vs_install.get("installationPath"):
             continue
 
