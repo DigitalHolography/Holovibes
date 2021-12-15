@@ -84,6 +84,8 @@ void FrameRecordWorker::run()
             }
 
             wait_for_frames(record_queue);
+            if (stop_requested_)
+                break;
 
             if (nb_frames_skip_ > 0)
             {
