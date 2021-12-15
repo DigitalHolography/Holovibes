@@ -4,8 +4,6 @@ add_library("${PROJECT_NAME}" SHARED
     camera_phantom.cc
 )
 
-set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
-
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${EURESYS_SDK}/include/"
 
