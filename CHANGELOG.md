@@ -1,5 +1,10 @@
 ## Changelog
 
+### 10.6.4
+
+* Fixed a bug that prevented recording without crashing using the GUI
+* The info panel dynamically changes size to fit the text if its too big for the normal layout
+
 ### 10.6.3
 
 * Feat Add contiguous in footer.
