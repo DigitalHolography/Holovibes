@@ -89,6 +89,7 @@ Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
+Type: dirifempty; Name: "{app}"
 Type: filesandordirs; Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
 Type: dirifempty; Name: "{userappdata}\{#MyAppName}"
 
