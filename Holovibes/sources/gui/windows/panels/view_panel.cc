@@ -73,8 +73,7 @@ void ViewPanel::on_notify()
     ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
 
     // ImgAccWindow
-    auto set_xyzf_visibility = [&](bool val)
-    {
+    auto set_xyzf_visibility = [&](bool val) {
         ui_->ImgAccuLabel->setVisible(val);
         ui_->ImgAccuSpinBox->setVisible(val);
         ui_->RotatePushButton->setVisible(val);
@@ -96,7 +95,7 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
-    api::get_cd().check_p_limits(); // FIXME: May be moved in setters
+    api::check_p_limits(); // FIXME: May be moved in setters
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
@@ -114,7 +113,7 @@ void ViewPanel::on_notify()
 
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
-    api::get_cd().check_q_limits(); // FIXME: May be moved in setters
+    api::check_q_limits(); // FIXME: May be moved in setters
     ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
     ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);

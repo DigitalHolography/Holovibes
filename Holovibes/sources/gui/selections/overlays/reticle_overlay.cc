@@ -56,7 +56,7 @@ void ReticleOverlay::setBuffer()
     auto bottom_right = units::PointWindow(convert, w_2 + w_2 * scale, h_2 + h_2 * scale);
     units::RectWindow zone_window(top_left, bottom_right);
     zone_ = zone_window;
-    api::get_cd().setReticleZone(zone_);
+    api::set_reticle_zone(zone_);
 
     /*
             0-------------1

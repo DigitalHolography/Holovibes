@@ -73,6 +73,7 @@ inline View_XY get_x(void) { return GSH::instance().get_x(); }
 inline View_XY get_y(void) { return GSH::instance().get_y(); }
 
 inline uint get_img_accu_xy_level() { return GSH::instance().get_xy_img_accu_level(); }
+inline void set_img_accu_xy_level(uint value) { GSH::instance().set_xy_img_accu_level(value); }
 
 inline uint get_img_accu_xz_level() { return GSH::instance().get_xz_img_accu_level(); }
 
@@ -258,6 +259,18 @@ inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().g
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
 inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes::instance().get_gpu_input_queue(); };
+
+inline units::RectFd get_signal_zone() { return GSH::instance().get_signal_zone(); };
+inline units::RectFd get_noise_zone() { return GSH::instance().get_noise_zone(); };
+inline units::RectFd get_composite_zone() { return GSH::instance().get_composite_zone(); };
+inline units::RectFd get_zoomed_zone() { return GSH::instance().get_zoomed_zone(); };
+inline units::RectFd get_reticle_zone() { return GSH::instance().get_reticle_zone(); };
+
+inline void set_signal_zone(const units::RectFd& rect) { GSH::instance().set_signal_zone(rect); };
+inline void set_noise_zone(const units::RectFd& rect) { GSH::instance().set_noise_zone(rect); };
+inline void set_composite_zone(const units::RectFd& rect) { GSH::instance().set_composite_zone(rect); };
+inline void set_zoomed_zone(const units::RectFd& rect) { GSH::instance().set_zoomed_zone(rect); };
+inline void set_reticle_zone(const units::RectFd& rect) { GSH::instance().set_reticle_zone(rect); };
 
 #pragma endregion
 

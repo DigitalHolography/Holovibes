@@ -49,6 +49,9 @@ void camera_none();
  */
 void close_critical_compute();
 
+/*! \brief Reset some values after MainWindow receives an update exception */
+void handle_update_exception();
+
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
@@ -319,6 +322,11 @@ void actualize_frequency_channel_v(bool composite_p_activated_v);
  */
 void actualize_selection_h_gaussian_blur(bool h_blur_activated);
 
+/*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
+void check_p_limits();
+/*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
+void check_q_limits();
+
 /*! \brief Modified Hue blur size
  *
  * \param h_blur_kernel_size the new value
@@ -404,6 +412,19 @@ bool set_auto_contrast();
 /*! \brief Set the auto contrast to all windows */
 void set_auto_contrast_all();
 
+/*! \brief Get the rounded value of max contrast for the given WindowKind
+ *
+ * Qt rounds the value by default.
+ * In order to compare the compute descriptor values these values also needs to be rounded.
+ */
+float get_truncate_contrast_max(const int precision = 2);
+
+/*! \brief Get the rounded value of min contrast for the given WindowKind
+ *
+ * \see get_truncate_contrast_max()
+ */
+float get_truncate_contrast_min(const int precision = 2);
+
 /*! \brief Modifies the min contrast value on the current window
  *
  * \param value the new value
@@ -439,6 +460,16 @@ void set_log_scale(const bool value);
  * \param value to set
  */
 void set_raw_bitshift(int value);
+
+/*! \name	Setter of the overlay positions.
+ * \{
+ */
+void set_signal_zone(const units::RectFd& rect);
+void set_noise_zone(const units::RectFd& rect);
+void set_composite_zone(const units::RectFd& rect);
+void set_zoomed_zone(const units::RectFd& rect);
+void set_reticle_zone(const units::RectFd& rect);
+/*! \} */
 
 /*!
  * \brief Gets the raw bit shift
@@ -499,6 +530,16 @@ View_PQ get_p(void);
  * \return q
  */
 View_PQ get_q(void);
+
+/*! \name	Getter of the overlay positions.
+ * \{
+ */
+units::RectFd get_signal_zone();
+units::RectFd get_noise_zone();
+units::RectFd get_composite_zone();
+units::RectFd get_zoomed_zone();
+units::RectFd get_reticle_zone();
+/*! \} */
 
 /*! \brief Enable the divide convolution mode
  *

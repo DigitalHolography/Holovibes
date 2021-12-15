@@ -295,4 +295,5 @@ void GSH::disable_convolution()
 
 /*! \brief Change the window according to the given index */
 void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast<WindowKind>(index)); }
+
 } // namespace holovibes

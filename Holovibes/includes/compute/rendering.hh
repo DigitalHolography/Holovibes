@@ -46,7 +46,8 @@ class Rendering
               ComputeCache::Cache& compute_cache,
               ExportCache::Cache& export_cache,
               ViewCache::Cache& view_cache,
-              AdvancedCache::Cache& advanced_cache);
+              AdvancedCache::Cache& advanced_cache,
+              ZoneCache::Cache& zone_cache);
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -106,6 +107,7 @@ class Rendering
     ExportCache::Cache& export_cache_;
     ViewCache::Cache& view_cache_;
     AdvancedCache::Cache& advanced_cache_;
+    ZoneCache::Cache& zone_cache_;
 
     float* percent_min_max_;
 };

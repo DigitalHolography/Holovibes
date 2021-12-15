@@ -26,7 +26,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ComputeCache::Cache& compute_cache,
                      ExportCache::Cache& export_cache,
                      ViewCache::Cache& view_cache,
-                     AdvancedCache::Cache& advanced_cache)
+                     AdvancedCache::Cache& advanced_cache,
+                     ZoneCache::Cache& zone_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -40,6 +41,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , export_cache_(export_cache)
     , view_cache_(view_cache)
     , advanced_cache_(advanced_cache)
+    , zone_cache_(zone_cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -52,14 +54,13 @@ void Rendering::insert_fft_shift()
     if (view_cache_.get_fft_shift_enabled())
     {
         if (view_cache_.get_img_type() == ImgType::Composite)
-            fn_compute_vect_.conditional_push_back(
-                [=]() {
-                    shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
-                                  1,
-                                  fd_.width,
-                                  fd_.height,
-                                  stream_);
-                });
+            fn_compute_vect_.conditional_push_back([=]() {
+                shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
+                              1,
+                              fd_.width,
+                              fd_.height,
+                              stream_);
+            });
         else
             fn_compute_vect_.conditional_push_back(
                 [=]() { shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_); });
@@ -70,33 +71,29 @@ void Rendering::insert_chart()
 {
     if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
+        fn_compute_vect_.conditional_push_back([=]() {
+            auto signal_zone = zone_cache_.get_signal_zone();
+            auto noise_zone = zone_cache_.get_noise_zone();
+
+            if (signal_zone.width() == 0 || signal_zone.height() == 0 || noise_zone.width() == 0 ||
+                noise_zone.height() == 0)
+                return;
+
+            ChartPoint point = make_chart_plot(buffers_.gpu_postprocess_frame,
+                                               input_fd_.width,
+                                               input_fd_.height,
+                                               signal_zone,
+                                               noise_zone,
+                                               stream_);
+
+            if (view_cache_.get_chart_display_enabled())
+                chart_env_.chart_display_queue_->push_back(point);
+            if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
             {
-                units::RectFd signal_zone;
-                units::RectFd noise_zone;
-                cd_.signalZone(signal_zone, AccessMode::Get);
-                cd_.noiseZone(noise_zone, AccessMode::Get);
-
-                if (signal_zone.width() == 0 || signal_zone.height() == 0 || noise_zone.width() == 0 ||
-                    noise_zone.height() == 0)
-                    return;
-
-                ChartPoint point = make_chart_plot(buffers_.gpu_postprocess_frame,
-                                                   input_fd_.width,
-                                                   input_fd_.height,
-                                                   signal_zone,
-                                                   noise_zone,
-                                                   stream_);
-
-                if (view_cache_.get_chart_display_enabled())
-                    chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
-                {
-                    chart_env_.chart_record_queue_->push_back(point);
-                    --chart_env_.nb_chart_points_to_record_;
-                }
-            });
+                chart_env_.chart_record_queue_->push_back(point);
+                --chart_env_.nb_chart_points_to_record_;
+            }
+        });
     }
 }
 
@@ -141,38 +138,32 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
 
 void Rendering::insert_main_log()
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            map_log10(buffers_.gpu_postprocess_frame.get(),
-                      buffers_.gpu_postprocess_frame.get(),
-                      buffers_.gpu_postprocess_frame_size,
-                      stream_);
-        });
+    fn_compute_vect_.conditional_push_back([=]() {
+        map_log10(buffers_.gpu_postprocess_frame.get(),
+                  buffers_.gpu_postprocess_frame.get(),
+                  buffers_.gpu_postprocess_frame_size,
+                  stream_);
+    });
 }
 void Rendering::insert_slice_log()
 {
     if (view_cache_.get_xz().log_scale_slice_enabled)
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                map_log10(buffers_.gpu_postprocess_frame_xz.get(),
-                          buffers_.gpu_postprocess_frame_xz.get(),
-                          fd_.width * compute_cache_.get_time_transformation_size(),
-                          stream_);
-            });
+        fn_compute_vect_.conditional_push_back([=]() {
+            map_log10(buffers_.gpu_postprocess_frame_xz.get(),
+                      buffers_.gpu_postprocess_frame_xz.get(),
+                      fd_.width * compute_cache_.get_time_transformation_size(),
+                      stream_);
+        });
     }
     if (view_cache_.get_yz().log_scale_slice_enabled)
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                map_log10(buffers_.gpu_postprocess_frame_yz.get(),
-                          buffers_.gpu_postprocess_frame_yz.get(),
-                          fd_.height * compute_cache_.get_time_transformation_size(),
-                          stream_);
-            });
+        fn_compute_vect_.conditional_push_back([=]() {
+            map_log10(buffers_.gpu_postprocess_frame_yz.get(),
+                      buffers_.gpu_postprocess_frame_yz.get(),
+                      fd_.height * compute_cache_.get_time_transformation_size(),
+                      stream_);
+        });
     }
 }
 
@@ -180,67 +171,63 @@ void Rendering::insert_filter2d_view_log()
 {
     if (GSH::instance().get_filter2d_view_enabled())
     {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                map_log10(buffers_.gpu_float_filter2d_frame.get(),
-                          buffers_.gpu_float_filter2d_frame.get(),
-                          fd_.width * fd_.height,
-                          stream_);
-            });
+        fn_compute_vect_.conditional_push_back([=]() {
+            map_log10(buffers_.gpu_float_filter2d_frame.get(),
+                      buffers_.gpu_float_filter2d_frame.get(),
+                      fd_.width * fd_.height,
+                      stream_);
+        });
     }
 }
 
 void Rendering::insert_apply_contrast(WindowKind view)
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
+    fn_compute_vect_.conditional_push_back([=]() {
+        // Set parameters
+        float* input = nullptr;
+        uint size = 0;
+        constexpr ushort dynamic_range = 65535;
+        float min = 0;
+        float max = 0;
+
+        View_Window wind;
+        switch (view)
         {
-            // Set parameters
-            float* input = nullptr;
-            uint size = 0;
-            constexpr ushort dynamic_range = 65535;
-            float min = 0;
-            float max = 0;
+        case WindowKind::XYview:
+            input = buffers_.gpu_postprocess_frame;
+            size = buffers_.gpu_postprocess_frame_size;
+            wind = view_cache_.get_xy();
+            break;
+        case WindowKind::YZview:
+            input = buffers_.gpu_postprocess_frame_yz.get();
+            size = fd_.height * compute_cache_.get_time_transformation_size();
+            wind = view_cache_.get_yz();
+            break;
+        case WindowKind::XZview:
+            input = buffers_.gpu_postprocess_frame_xz.get();
+            size = fd_.width * compute_cache_.get_time_transformation_size();
+            wind = view_cache_.get_xz();
+            break;
+        case WindowKind::Filter2D:
+            input = buffers_.gpu_float_filter2d_frame.get();
+            size = fd_.width * fd_.height;
+            wind = view_cache_.get_filter2d();
+            break;
+        }
 
-            View_Window wind;
-            switch (view)
-            {
-            case WindowKind::XYview:
-                input = buffers_.gpu_postprocess_frame;
-                size = buffers_.gpu_postprocess_frame_size;
-                wind = view_cache_.get_xy();
-                break;
-            case WindowKind::YZview:
-                input = buffers_.gpu_postprocess_frame_yz.get();
-                size = fd_.height * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_yz();
-                break;
-            case WindowKind::XZview:
-                input = buffers_.gpu_postprocess_frame_xz.get();
-                size = fd_.width * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_xz();
-                break;
-            case WindowKind::Filter2D:
-                input = buffers_.gpu_float_filter2d_frame.get();
-                size = fd_.width * fd_.height;
-                wind = view_cache_.get_filter2d();
-                break;
-            }
+        if (wind.contrast_invert)
+        {
+            min = wind.contrast_max;
+            max = wind.contrast_min;
+        }
+        else
+        {
+            min = wind.contrast_min;
+            max = wind.contrast_max;
+        }
 
-            if (wind.contrast_invert)
-            {
-                min = wind.contrast_max;
-                max = wind.contrast_min;
-            }
-            else
-            {
-                min = wind.contrast_min;
-                max = wind.contrast_max;
-            }
-
-            apply_contrast_correction(input, size, dynamic_range, min, max, stream_);
-        });
+        apply_contrast_correction(input, size, dynamic_range, min, max, stream_);
+    });
 }
 
 void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
@@ -250,8 +237,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
 {
     // requested check are inside the lambda so that we don't need to
     // refresh the pipe at each autocontrast
-    auto lambda_autocontrast = [&]()
-    {
+    auto lambda_autocontrast = [&]() {
         // Compute autocontrast once the gpu time transformation queue is full
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
@@ -318,7 +304,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   cd_.getReticleZone(),
+                                   zone_cache_.get_reticle_zone(),
                                    view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_xy_contrast_min(percent_min_max_[0]);
@@ -332,7 +318,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   cd_.getReticleZone(),
+                                   zone_cache_.get_reticle_zone(),
                                    view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_yz_contrast_min(percent_min_max_[0]);
@@ -346,7 +332,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   cd_.getReticleZone(),
+                                   zone_cache_.get_reticle_zone(),
                                    view_cache_.get_reticle_display_enabled(),
                                    stream_);
         GSH::instance().set_xz_contrast_min(percent_min_max_[0]);
@@ -360,7 +346,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   cd_.getReticleZone(),
+                                   zone_cache_.get_reticle_zone(),
                                    false,
                                    stream_);
         GSH::instance().set_filter2d_contrast_min(percent_min_max_[0]);

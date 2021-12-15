@@ -481,6 +481,13 @@ void toggle_renormalize(bool value)
     pipe_refresh();
 }
 
+void handle_update_exception()
+{
+    api::set_p_index(0);
+    api::set_time_transformation_size(1);
+    api::disable_convolution();
+}
+
 void set_filter2d(bool checked)
 {
     set_filter2d_enabled(checked);
@@ -753,6 +760,32 @@ void actualize_selection_h_gaussian_blur(bool h_blur_activated)
     GSH::instance().set_h_blur_activated(h_blur_activated);
 }
 
+void check_p_limits()
+{
+    int upper_bound = get_time_transformation_size() - 1;
+
+    if (get_p_accu_level() > upper_bound)
+        api::set_p_accu_level(upper_bound);
+
+    upper_bound -= get_p_accu_level();
+
+    if (upper_bound >= 0 && get_p_index() > static_cast<uint>(upper_bound))
+        api::set_p_index(upper_bound);
+}
+
+void check_q_limits()
+{
+    int upper_bound = get_time_transformation_size() - 1;
+
+    if (get_q_accu_level() > upper_bound)
+        api::set_q_accu_level(upper_bound);
+
+    upper_bound -= get_q_accu_level();
+
+    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
+        api::set_q_index(upper_bound);
+}
+
 void actualize_kernel_size_blur(uint h_blur_kernel_size) { GSH::instance().set_h_blur_kernel_size(h_blur_kernel_size); }
 
 bool slide_update_threshold(
@@ -834,9 +867,17 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 #pragma region Texture
 
+static void change_angle()
+{
+    double rot = GSH::instance().get_rotation();
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
+
+    GSH::instance().set_rotation(new_rot);
+}
+
 void rotateTexture()
 {
-    get_cd().change_angle();
+    change_angle();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_xy_rot());
@@ -848,9 +889,11 @@ void rotateTexture()
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
 }
 
+static void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
+
 void flipTexture()
 {
-    get_cd().change_flip();
+    change_flip();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_xy_flip_enabled());
@@ -915,7 +958,7 @@ void set_auto_contrast_all()
 void set_contrast_min(const double value)
 {
     // Get the minimum contrast value rounded for the comparison
-    const float old_val = get_cd().get_truncate_contrast_min();
+    const float old_val = get_truncate_contrast_min();
     // Floating number issue: cast to float for the comparison
     const float val = value;
     if (old_val != val)
@@ -925,10 +968,24 @@ void set_contrast_min(const double value)
     }
 }
 
+float get_truncate_contrast_max(const int precision)
+{
+    float value = GSH::instance().get_contrast_max();
+    const double multiplier = std::pow(10.0, precision);
+    return std::round(value * multiplier) / multiplier;
+}
+
+float get_truncate_contrast_min(const int precision)
+{
+    float value = GSH::instance().get_contrast_min();
+    const double multiplier = std::pow(10.0, precision);
+    return std::round(value * multiplier) / multiplier;
+}
+
 void set_contrast_max(const double value)
 {
     // Get the maximum contrast value rounded for the comparison
-    const float old_val = get_cd().get_truncate_contrast_max();
+    const float old_val = get_truncate_contrast_max();
     // Floating number issue: cast to float for the comparison
     const float val = value;
     if (old_val != val)

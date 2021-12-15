@@ -274,6 +274,12 @@ class GSH
 
     inline bool get_reticle_display_enabled() const noexcept { return view_cache_.get_reticle_display_enabled(); }
 
+    inline units::RectFd get_signal_zone() const noexcept { return zone_cache_.get_signal_zone(); }
+    inline units::RectFd get_noise_zone() const noexcept { return zone_cache_.get_noise_zone(); }
+    inline units::RectFd get_composite_zone() const noexcept { return zone_cache_.get_composite_zone(); }
+    inline units::RectFd get_zoomed_zone() const noexcept { return zone_cache_.get_zoomed_zone(); }
+    inline units::RectFd get_reticle_zone() const noexcept { return zone_cache_.get_reticle_zone(); }
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -558,6 +564,12 @@ class GSH
 
     inline void set_raw_bitshift(int value) { advanced_cache_.set_raw_bitshift(value); }
 
+    inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
+    inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }
+    inline void set_composite_zone(units::RectFd value) { zone_cache_.set_composite_zone(value); }
+    inline void set_zoomed_zone(units::RectFd value) { zone_cache_.set_zoomed_zone(value); }
+    inline void set_reticle_zone(units::RectFd value) { zone_cache_.set_reticle_zone(value); }
+
 #pragma endregion
     void change_window(uint index);
 
@@ -573,8 +585,8 @@ class GSH
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
     AdvancedCache::Ref advanced_cache_;
-
     FileReadCache::Ref file_read_cache_;
+    ZoneCache::Ref zone_cache_;
 
     mutable std::mutex mutex_;
 };

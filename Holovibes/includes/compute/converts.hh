@@ -42,7 +42,8 @@ class Converts
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
              CompositeCache::Cache& composite_cache,
-             ViewCache::Cache& view_cache);
+             ViewCache::Cache& view_cache,
+             ZoneCache::Cache& zone_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested);
@@ -112,6 +113,7 @@ class Converts
     CompositeCache::Cache& composite_cache_;
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
+    ZoneCache::Cache& zone_cache_;
 };
 } // namespace compute
 } // namespace holovibes
