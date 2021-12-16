@@ -239,6 +239,8 @@ class Holovibes
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
 
+    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
@@ -247,7 +249,6 @@ class Holovibes
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
 
     worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;

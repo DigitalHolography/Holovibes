@@ -264,6 +264,16 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         fps_handler_.wait();
+
+        while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
+                   Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&
+               !stop_requested_)
+        {
+        }
+
+        if (stop_requested_)
+            break;
+
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;

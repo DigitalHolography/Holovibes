@@ -66,6 +66,8 @@ class ThreadWorkerController
      */
     void stop();
 
+    bool is_running() const { return worker_ != nullptr; }
+
   private:
     /*! \brief Method run in the thread
      *
