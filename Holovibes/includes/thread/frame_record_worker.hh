@@ -79,7 +79,9 @@ class FrameRecordWorker final : public Worker
     /*! \brief Useful for Input fps value. */
     std::array<unsigned int, FPS_LAST_X_VALUES> fps_buffer_ = {0};
 
+    /*! \brief Integrate Input Fps in fps_buffers if relevent */
     void integrate_fps_average();
+    /*! \brief Compute fps_buffer_ average on the correct number of value */
     size_t compute_fps_average() const;
 
     const cudaStream_t stream_;
