@@ -37,7 +37,6 @@ class Converts
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan2d,
-             ComputeDescriptor& cd,
              const camera::FrameDescriptor& input_fd,
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
@@ -102,8 +101,6 @@ class Converts
     cuda_tools::CufftHandle& plan_unwrap_2d_;
     /*! \brief Describes the input frame size */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Variables needed for the computation in the pipe */
-    ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
