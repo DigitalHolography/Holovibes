@@ -156,7 +156,5 @@ int main(int argc, char* argv[])
         ret = 1;
     }
 
-    LOG_WARN << count;
-
     return ret;
 }

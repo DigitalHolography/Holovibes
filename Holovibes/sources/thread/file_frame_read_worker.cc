@@ -265,12 +265,11 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     {
         fps_handler_.wait();
 
-        auto queue = gpu_input_queue_.load();
-
-        while (queue->size_ == queue->max_size_)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        // FIXME: Put this but only in CLI mode
+        // auto queue = gpu_input_queue_.load();
+        // while (queue->size_ == queue->max_size_)
+        // {
+        // }
 
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
