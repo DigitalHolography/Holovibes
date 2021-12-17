@@ -245,6 +245,10 @@ class Holovibes
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
 
+    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
+     * used to know if queues have to keep contiguity or not. */
+    bool is_cli;
+
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;

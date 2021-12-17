@@ -31,6 +31,9 @@ namespace holovibes
 
 bool Pipe::keep_contiguous(int nb_elm_to_add) const
 {
+    if (!Holovibes::instance().is_cli)
+        return true;
+
     while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
            frame_record_env_.gpu_frame_record_queue_->get_max_size())
     {

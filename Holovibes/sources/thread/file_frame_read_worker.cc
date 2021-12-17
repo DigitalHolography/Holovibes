@@ -265,10 +265,13 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     {
         fps_handler_.wait();
 
-        while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
-                   Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&
-               !stop_requested_)
+        if (Holovibes::instance().is_cli)
         {
+            while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
+                       Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&
+                   !stop_requested_)
+            {
+            }
         }
 
         if (stop_requested_)

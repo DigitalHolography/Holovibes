@@ -182,6 +182,8 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    holovibes.is_cli = true;
+
     auto& cd = holovibes.get_cd();
 
     if (opts.compute_settings_path)
