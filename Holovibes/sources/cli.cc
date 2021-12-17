@@ -38,7 +38,7 @@ static void progress_bar(int current, int total, int length)
     std::cout.flush();
 }
 
-static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovibes::ComputeDescriptor& cd)
+static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
     std::cout << "Config:\n";
     std::cout << holovibes::api::compute_settings_to_json().dump(1);
@@ -96,6 +96,19 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
 
 static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    if (opts.compute_settings_path)
+    {
+        try
+        {
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+        }
+        catch (std::exception&)
+        {
+            LOG_WARN << "Configuration file not found.";
+            std::exit(1);
+        }
+    }
+
     auto& cd = holovibes.get_cd();
 
     std::string input_path = opts.input_path.value();
@@ -178,55 +191,59 @@ static void main_loop(holovibes::Holovibes& holovibes)
     progress_bar(1, 1, 40);
 }
 
-int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+void start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     auto& cd = holovibes.get_cd();
 
-    if (opts.compute_settings_path)
-    {
-        try
-        {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
-        }
-        catch (std::exception&)
-        {
-            LOG_WARN << "Configuration file not found.";
-            std::exit(1);
-        }
-    }
-
-    if (!set_parameters(holovibes, opts))
-        return 1;
-
-    size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
-    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride);
-
-    // Force hologram mode
+    // Force some values
     cd.compute_mode = holovibes::Computation::Hologram;
+    cd.frame_record_enabled = true;
 
-    Chrono chrono;
+    // Value used in more than 1 thread
+    size_t input_nb_frames = cd.end_frame - cd.start_frame + 1;
+
+    // Thread 1
     uint nb_frames_skip = 0;
-
     // Skip img acc frames to avoid early black frames
     if (!opts.noskip_acc && cd.get_img_accu_xy_enabled())
         nb_frames_skip = cd.xy.img_accu_level;
+    holovibes.start_frame_record(opts.output_path.value(),
+                                 opts.n_rec.value_or(input_nb_frames / cd.time_transformation_stride),
+                                 opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM,
+                                 nb_frames_skip);
 
-    cd.frame_record_enabled = true;
+    // The following while ensure the record has been requested by the thread previously launched.
+    while ((holovibes.get_compute_pipe()->get_hologram_record_requested() == std::nullopt) &&
+           (holovibes.get_compute_pipe()->get_raw_record_requested() == std::nullopt))
+        continue;
 
-    holovibes::RecordMode rm = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
-    holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);
+    // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
+    // It has to be refresh in the main thread because the read of file is launched just after.
+    holovibes.get_compute_pipe()->refresh();
 
+    // Thread 2
+    holovibes.start_compute_worker();
+
+    // Thread 3
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,
                                     opts.fps.value_or(60),
                                     cd.start_frame - 1,
-                                    static_cast<uint>(input_nb_frames),
+                                    input_nb_frames,
                                     opts.gpu);
+}
+
+int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+{
+    if (!set_parameters(holovibes, opts))
+        return 1;
 
     if (opts.verbose)
-    {
-        print_verbose(opts, cd);
-    }
+        print_verbose(opts);
+
+    Chrono chrono;
+
+    start_cli_workers(holovibes, opts);
 
     main_loop(holovibes);
 
