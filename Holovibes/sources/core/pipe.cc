@@ -30,8 +30,8 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream)
-    : ICompute(input, output, cd, stream)
+Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
+    : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool
@@ -60,7 +60,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const c
                                                       chart_env_,
                                                       image_acc_env_,
                                                       time_transformation_env_,
-                                                      cd,
                                                       input.get_fd(),
                                                       output.get_fd(),
                                                       stream_,

@@ -32,6 +32,26 @@ ViewPanel::~ViewPanel()
     delete p_right_shortcut_;
 }
 
+// TODO: use parameters instead of directly the GSH
+void ViewPanel::view_callback(WindowKind, View_Window)
+{
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setEnabled(true);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
+
+    // Window selection
+    QComboBox* window_selection = ui_->WindowSelectionComboBox;
+    window_selection->setEnabled(!is_raw);
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+}
+
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
@@ -73,7 +93,8 @@ void ViewPanel::on_notify()
     ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
 
     // ImgAccWindow
-    auto set_xyzf_visibility = [&](bool val) {
+    auto set_xyzf_visibility = [&](bool val)
+    {
         ui_->ImgAccuLabel->setVisible(val);
         ui_->ImgAccuSpinBox->setVisible(val);
         ui_->RotatePushButton->setVisible(val);

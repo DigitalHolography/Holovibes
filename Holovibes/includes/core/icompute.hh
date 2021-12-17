@@ -186,7 +186,7 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
@@ -293,9 +293,6 @@ class ICompute : public Observable
     ICompute(const ICompute&) = delete;
 
   protected:
-    /*! \brief Compute Descriptor. */
-    ComputeDescriptor& cd_;
-
     /*! \brief Reference on the input queue */
     BatchInputQueue& gpu_input_queue_;
 

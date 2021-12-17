@@ -200,7 +200,6 @@ void Holovibes::init_pipe()
 {
     LOG_TRACE << "Entering Holovibes::init_pipe()";
 
-    auto& cd = Holovibes::instance().get_cd();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
     {
@@ -216,7 +215,6 @@ void Holovibes::init_pipe()
     {
         compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
-                                                   cd,
                                                    get_cuda_streams().compute_stream));
     }
     LOG_TRACE << "Exiting Holovibes::init_pipe()";

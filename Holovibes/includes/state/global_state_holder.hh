@@ -150,8 +150,6 @@ class GSH
 
     bool is_current_window_xyz_type() const;
 
-    const View_Window& get_current_window() const;
-
     // Over current window
     float get_contrast_min() const;
     float get_contrast_max() const;
@@ -600,10 +598,22 @@ class GSH
 #pragma endregion
     void change_window(uint index);
 
+    const View_Window& get_current_window() const;
+    const View_Window& get_window(WindowKind kind) const;
+
+    void set_update_view_callback(std::function<void(WindowKind, View_Window)> func) { update_view_callback_ = func; }
+
+    void update_view(WindowKind kind) const { update_view_callback_(kind, get_window(kind)); }
+
+    void update_contrast(WindowKind kind, float min, float max);
+
   private:
     GSH() noexcept {}
 
+    std::shared_ptr<holovibes::View_Window> get_window(WindowKind kind);
     std::shared_ptr<holovibes::View_Window> get_current_window();
+
+    std::function<void(WindowKind, View_Window)> update_view_callback_ = [](auto, auto) {};
 
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;

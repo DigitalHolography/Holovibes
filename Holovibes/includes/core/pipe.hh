@@ -61,7 +61,7 @@ class Pipe : public ICompute
      * \param desc ComputeDescriptor that contains computation parameters.
      * \param stream The compute stream on which all the computations are processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
     ~Pipe();
 
