@@ -46,7 +46,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
     std::cout << "Output file: " << opts.output_path.value() << "\n";
-    std::cout << "FPS: " << opts.fps.value_or(60) << "\n";
+    std::cout << "FPS: " << opts.fps.value_or(DEFAULT_CLI_FPS) << "\n";
     std::cout << "Number of frames to record: ";
     if (opts.n_rec)
         std::cout << opts.n_rec.value() << "\n";
@@ -220,7 +220,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,
-                                    opts.fps.value_or(60),
+                                    opts.fps.value_or(DEFAULT_CLI_FPS),
                                     cd.start_frame - 1,
                                     static_cast<uint>(input_nb_frames),
                                     opts.gpu);
