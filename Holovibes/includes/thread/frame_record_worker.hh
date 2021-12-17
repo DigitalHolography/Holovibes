@@ -9,6 +9,8 @@
 #include <optional>
 #include <array>
 
+#define FPS_LAST_X_VALUES 16
+
 namespace holovibes
 {
 // Fast forward declarations
@@ -59,8 +61,6 @@ class FrameRecordWorker final : public Worker
      */
     void reset_gpu_record_queue();
 
-    void integrate_fps_average();
-
   private:
     /*! \brief The path of the file to record */
     const std::string file_path_;
@@ -73,11 +73,14 @@ class FrameRecordWorker final : public Worker
     /*! \brief Output buffer size */
     unsigned int output_buffer_size_;
 
-    // Average fps is computed with the last 4 values of input fps.
+    // Average fps is computed with the last FPS_LAST_X_VALUES values of input fps.
     /*! \brief Useful for Input fps value. */
     unsigned int fps_current_index_ = 0;
     /*! \brief Useful for Input fps value. */
-    std::array<unsigned int, 4> fps_buffer_ = {0, 0, 0, 0};
+    std::array<unsigned int, FPS_LAST_X_VALUES> fps_buffer_ = {0};
+
+    void integrate_fps_average();
+    size_t compute_fps_average() const;
 
     const cudaStream_t stream_;
 };
