@@ -179,11 +179,14 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
                                           nb_frames_skip,
                                           cd_.output_buffer_size);
 
+    // The following while ensure the record has been requested by the thread previously launched.
     while ((compute_pipe_.load()->get_hologram_record_requested() == std::nullopt) &&
            (compute_pipe_.load()->get_raw_record_requested() == std::nullopt))
         continue;
 
-    compute_pipe_.load()->request_refresh();
+    // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
+    // It has to be refresh in the main thread because the read of file is launched just after.
+    compute_pipe_.load()->refresh();
 
     compute_worker_controller_.set_callback([]() {});
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);

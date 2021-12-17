@@ -136,8 +136,6 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     if (cd.get_convolution_enabled())
         pipe->request_convolution();
 
-    pipe->request_refresh();
-
     delete input_frame_file;
 
     return true;
