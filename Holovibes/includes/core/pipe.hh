@@ -169,5 +169,13 @@ class Pipe : public ICompute
      * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
      */
     void run_all();
+
+    /*! \brief Force contiguity on record queue
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     *
+     * \return false: if record has been stopped, otherwise true.
+     */
+    bool keep_contiguous(int nb_elm_to_add) const;
 };
 } // namespace holovibes

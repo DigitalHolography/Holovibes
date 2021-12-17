@@ -28,6 +28,20 @@
 
 namespace holovibes
 {
+
+bool Pipe::keep_contiguous(int nb_elm_to_add) const
+{
+    while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
+           frame_record_env_.gpu_frame_record_queue_->get_max_size())
+    {
+        // This check prevents being stuck in this loop because record might stop while in this loop
+        if (!Holovibes::instance().is_recording())
+            return false;
+    }
+
+    return true;
+}
+
 using camera::FrameDescriptor;
 
 Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream)
@@ -564,13 +578,8 @@ void Pipe::insert_raw_record()
         fn_compute_vect_.push_back(
             [&]()
             {
-                while (frame_record_env_.gpu_frame_record_queue_->get_size() + cd_.batch_size.load() >
-                       frame_record_env_.gpu_frame_record_queue_->get_max_size())
-                {
-                    // Might be stuck in this loop
-                    if (!Holovibes::instance().frame_record_worker_controller_.is_running())
-                        return;
-                }
+                if (!keep_contiguous(cd_.batch_size.load()))
+                    return;
 
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, cd_.batch_size.load());
             });
@@ -584,13 +593,8 @@ void Pipe::insert_hologram_record()
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
-                while (frame_record_env_.gpu_frame_record_queue_->get_size() + cd_.batch_size.load() >
-                       frame_record_env_.gpu_frame_record_queue_->get_max_size())
-                {
-                    // Might be stuck in this loop
-                    if (!Holovibes::instance().frame_record_worker_controller_.is_running())
-                        return;
-                }
+                if (!keep_contiguous(1))
+                    return;
 
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
