@@ -41,7 +41,7 @@ static void progress_bar(int current, int total, int length)
 static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovibes::ComputeDescriptor& cd)
 {
     std::cout << "Config:\n";
-    boost::property_tree::ptree ptree;
+    std::cout << holovibes::api::compute_settings_to_json().dump(1);
     std::cout << std::endl;
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
