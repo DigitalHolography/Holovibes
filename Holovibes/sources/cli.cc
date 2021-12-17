@@ -174,11 +174,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
             }
         }
 
-        // LOG_TRACE << "api::get_xy_contrast_min() : " << holovibes::api::get_xy_contrast_min();
-        // LOG_TRACE << "cli GSH::instance().get_xy_contrast_min() : " <<
-        // holovibes::GSH::instance().get_xy_contrast_min(); holovibes::GSH::instance().set_xy_contrast_min(20);
-        // LOG_TRACE << "cli GSH::instance().get_xy_contrast_min() : " <<
-        // holovibes::GSH::instance().get_xy_contrast_min(); Don't make the current thread loop too fast
+        // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     // Show 100% completion to avoid rounding errors
@@ -187,8 +183,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-    // LOG_DEBUG << "opts.compute_settings_path : " << opts.compute_settings_path.value() << std::endl;
-
     auto& cd = holovibes.get_cd();
 
     if (opts.compute_settings_path)

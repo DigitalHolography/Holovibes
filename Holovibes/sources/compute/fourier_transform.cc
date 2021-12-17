@@ -225,8 +225,6 @@ void FourierTransform::insert_stft()
 
 void FourierTransform::insert_pca()
 {
-    count++;
-
     uint time_transformation_size = compute_cache_.get_time_transformation_size();
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
