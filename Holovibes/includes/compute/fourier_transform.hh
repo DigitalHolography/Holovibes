@@ -14,6 +14,8 @@
 #include "function_vector.hh"
 #include "global_state_holder.hh"
 
+extern size_t count;
+
 namespace holovibes
 {
 class Queue;

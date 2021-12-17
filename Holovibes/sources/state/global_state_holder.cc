@@ -15,6 +15,8 @@ GSH& GSH::instance()
     return *instance_;
 }
 
+// GSH* GSH::instance_ = new GSH();
+
 #pragma region GETTERS
 
 const View_Window& GSH::get_current_window() const

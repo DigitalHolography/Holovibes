@@ -25,6 +25,8 @@ using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
+size_t count = 0;
+
 FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const holovibes::CoreBuffersEnv& buffers,
                                    const camera::FrameDescriptor& fd,
@@ -81,16 +83,14 @@ void FourierTransform::insert_fft()
 void FourierTransform::insert_filter2d()
 {
 
-    fn_compute_vect_.push_back(
-        [=]()
-        {
-            filter2D(buffers_.gpu_spatial_transformation_buffer,
-                     buffers_.gpu_filter2d_mask,
-                     compute_cache_.get_batch_size(),
-                     spatial_transformation_plan_,
-                     fd_.width * fd_.height,
-                     stream_);
-        });
+    fn_compute_vect_.push_back([=]() {
+        filter2D(buffers_.gpu_spatial_transformation_buffer,
+                 buffers_.gpu_filter2d_mask,
+                 compute_cache_.get_batch_size(),
+                 spatial_transformation_plan_,
+                 fd_.width * fd_.height,
+                 stream_);
+    });
 }
 
 void FourierTransform::insert_fft1()
@@ -108,17 +108,15 @@ void FourierTransform::insert_fft1()
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
-    fn_compute_vect_.push_back(
-        [=]()
-        {
-            fft_1(static_cast<cuComplex*>(input_output),
-                  static_cast<cuComplex*>(input_output),
-                  compute_cache_.get_batch_size(),
-                  gpu_lens_.get(),
-                  spatial_transformation_plan_,
-                  fd_.get_frame_res(),
-                  stream_);
-        });
+    fn_compute_vect_.push_back([=]() {
+        fft_1(static_cast<cuComplex*>(input_output),
+              static_cast<cuComplex*>(input_output),
+              compute_cache_.get_batch_size(),
+              gpu_lens_.get(),
+              spatial_transformation_plan_,
+              fd_.get_frame_res(),
+              stream_);
+    });
 }
 
 void FourierTransform::insert_fft2()
@@ -141,17 +139,15 @@ void FourierTransform::insert_fft2()
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
-    fn_compute_vect_.push_back(
-        [=]()
-        {
-            fft_2(static_cast<cuComplex*>(input_output),
-                  static_cast<cuComplex*>(input_output),
-                  compute_cache_.get_batch_size(),
-                  gpu_lens_.get(),
-                  spatial_transformation_plan_,
-                  fd_,
-                  stream_);
-        });
+    fn_compute_vect_.push_back([=]() {
+        fft_2(static_cast<cuComplex*>(input_output),
+              static_cast<cuComplex*>(input_output),
+              compute_cache_.get_batch_size(),
+              gpu_lens_.get(),
+              spatial_transformation_plan_,
+              fd_,
+              stream_);
+    });
 }
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
@@ -200,64 +196,60 @@ void FourierTransform::insert_time_transform()
     else // TimeTransformation::None
     {
         // Just copy data to the next buffer
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
-                auto& q = time_transformation_env_.gpu_time_transformation_queue;
-                size_t size = compute_cache_.get_time_transformation_size() * fd_.get_frame_res() * sizeof(cuComplex);
+        fn_compute_vect_.conditional_push_back([=]() {
+            cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
+            auto& q = time_transformation_env_.gpu_time_transformation_queue;
+            size_t size = compute_cache_.get_time_transformation_size() * fd_.get_frame_res() * sizeof(cuComplex);
 
-                cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
-            });
+            cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
+        });
     }
 }
 
 void FourierTransform::insert_stft()
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                 time_transformation_env_.gpu_p_acc_buffer,
-                 time_transformation_env_.stft_plan);
-        });
+    fn_compute_vect_.conditional_push_back([=]() {
+        stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+             time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.stft_plan);
+    });
 }
 
 void FourierTransform::insert_pca()
 {
+    count++;
+
     uint time_transformation_size = compute_cache_.get_time_transformation_size();
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
-            cuComplex* cov = time_transformation_env_.pca_cov.get();
-            cuComplex* V = nullptr;
+    fn_compute_vect_.conditional_push_back([=]() {
+        cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
+        cuComplex* cov = time_transformation_env_.pca_cov.get();
+        cuComplex* V = nullptr;
 
-            // cov = H' * H
-            cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
+        // cov = H' * H
+        cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
 
-            // Find eigen values and eigen vectors of cov
-            // pca_eigen_values will contain sorted eigen values
-            // cov and V will contain eigen vectors
-            eigen_values_vectors(cov,
-                                 time_transformation_size,
-                                 time_transformation_env_.pca_eigen_values,
-                                 &V,
-                                 cusolver_work_buffer_,
-                                 cusolver_work_buffer_size_,
-                                 time_transformation_env_.pca_dev_info);
+        // Find eigen values and eigen vectors of cov
+        // pca_eigen_values will contain sorted eigen values
+        // cov and V will contain eigen vectors
+        eigen_values_vectors(cov,
+                             time_transformation_size,
+                             time_transformation_env_.pca_eigen_values,
+                             &V,
+                             cusolver_work_buffer_,
+                             cusolver_work_buffer_size_,
+                             time_transformation_env_.pca_dev_info);
 
-            // gpu_p_acc_buffer = H * V
-            matrix_multiply(H,
-                            V,
-                            fd_.get_frame_res(),
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_env_.gpu_p_acc_buffer);
-        });
+        // gpu_p_acc_buffer = H * V
+        matrix_multiply(H,
+                        V,
+                        fd_.get_frame_res(),
+                        time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_env_.gpu_p_acc_buffer);
+    });
 }
 
 void FourierTransform::insert_ssa_stft()
@@ -270,118 +262,111 @@ void FourierTransform::insert_ssa_stft()
     static cuda_tools::UniquePtr<cuComplex> tmp_matrix = nullptr;
     tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
-            cuComplex* cov = time_transformation_env_.pca_cov.get();
-            cuComplex* V = nullptr;
+    fn_compute_vect_.conditional_push_back([=]() {
+        cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
+        cuComplex* cov = time_transformation_env_.pca_cov.get();
+        cuComplex* V = nullptr;
 
-            // cov = H' * H
-            cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
+        // cov = H' * H
+        cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
 
-            // pca_eigen_values = sorted eigen values of cov
-            // cov and V = eigen vectors of cov
-            eigen_values_vectors(cov,
-                                 time_transformation_size,
-                                 time_transformation_env_.pca_eigen_values,
-                                 &V,
-                                 cusolver_work_buffer_,
-                                 cusolver_work_buffer_size_,
-                                 time_transformation_env_.pca_dev_info);
+        // pca_eigen_values = sorted eigen values of cov
+        // cov and V = eigen vectors of cov
+        eigen_values_vectors(cov,
+                             time_transformation_size,
+                             time_transformation_env_.pca_eigen_values,
+                             &V,
+                             cusolver_work_buffer_,
+                             cusolver_work_buffer_size_,
+                             time_transformation_env_.pca_dev_info);
 
-            // filter eigen vectors
-            // only keep vectors between q and q + q_acc
-            View_PQ q_struct = view_cache_.get_q();
-            int q = q_struct.accu_level != 0 ? q_struct.index : 0;
-            int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
-            int q_index = q * time_transformation_size;
-            int q_acc_index = q_acc * time_transformation_size;
-            cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
-            int copy_size = time_transformation_size * (time_transformation_size - (q + q_acc));
-            cudaXMemsetAsync(V + q_index + q_acc_index, 0, copy_size * sizeof(cuComplex), stream_);
+        // filter eigen vectors
+        // only keep vectors between q and q + q_acc
+        View_PQ q_struct = view_cache_.get_q();
+        int q = q_struct.accu_level != 0 ? q_struct.index : 0;
+        int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
+        int q_index = q * time_transformation_size;
+        int q_acc_index = q_acc * time_transformation_size;
+        cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
+        int copy_size = time_transformation_size * (time_transformation_size - (q + q_acc));
+        cudaXMemsetAsync(V + q_index + q_acc_index, 0, copy_size * sizeof(cuComplex), stream_);
 
-            // tmp = V * V'
-            matrix_multiply(V,
-                            V,
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_size,
-                            tmp_matrix,
-                            CUBLAS_OP_N,
-                            CUBLAS_OP_C);
+        // tmp = V * V'
+        matrix_multiply(V,
+                        V,
+                        time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_size,
+                        tmp_matrix,
+                        CUBLAS_OP_N,
+                        CUBLAS_OP_C);
 
-            // H = H * tmp
-            matrix_multiply(H,
-                            tmp_matrix,
-                            fd_.get_frame_res(),
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_env_.gpu_p_acc_buffer);
+        // H = H * tmp
+        matrix_multiply(H,
+                        tmp_matrix,
+                        fd_.get_frame_res(),
+                        time_transformation_size,
+                        time_transformation_size,
+                        time_transformation_env_.gpu_p_acc_buffer);
 
-            stft(time_transformation_env_.gpu_p_acc_buffer,
-                 time_transformation_env_.gpu_p_acc_buffer,
-                 time_transformation_env_.stft_plan);
-        });
+        stft(time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.gpu_p_acc_buffer,
+             time_transformation_env_.stft_plan);
+    });
 }
 
 void FourierTransform::insert_store_p_frame()
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            const int frame_res = static_cast<int>(fd_.get_frame_res());
+    fn_compute_vect_.conditional_push_back([=]() {
+        const int frame_res = static_cast<int>(fd_.get_frame_res());
 
-            /* Copies with DeviceToDevice (which is the case here) are asynchronous
-             * with respect to the host but never overlap with kernel execution*/
-            cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
-                             (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                                 view_cache_.get_p().index * frame_res,
-                             sizeof(cuComplex) * frame_res,
-                             cudaMemcpyDeviceToDevice,
-                             stream_);
-        });
+        /* Copies with DeviceToDevice (which is the case here) are asynchronous
+         * with respect to the host but never overlap with kernel execution*/
+        cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
+                         (cuComplex*)time_transformation_env_.gpu_p_acc_buffer + view_cache_.get_p().index * frame_res,
+                         sizeof(cuComplex) * frame_res,
+                         cudaMemcpyDeviceToDevice,
+                         stream_);
+    });
 }
 
 void FourierTransform::insert_time_transformation_cuts_view()
 {
-    fn_compute_vect_.conditional_push_back(
-        [=]()
+    fn_compute_vect_.conditional_push_back([=]() {
+        if (view_cache_.get_cuts_view_enabled())
         {
-            if (view_cache_.get_cuts_view_enabled())
+            ushort mouse_posx = 0;
+            ushort mouse_posy = 0;
+
+            // Conservation of the coordinates when cursor is outside of the
+            // window
+            const ushort width = fd_.width;
+            const ushort height = fd_.height;
+
+            View_XY x = view_cache_.get_x();
+            View_XY y = view_cache_.get_y();
+            if (x.cuts < width && y.cuts < height)
             {
-                ushort mouse_posx = 0;
-                ushort mouse_posy = 0;
-
-                // Conservation of the coordinates when cursor is outside of the
-                // window
-                const ushort width = fd_.width;
-                const ushort height = fd_.height;
-
-                View_XY x = view_cache_.get_x();
-                View_XY y = view_cache_.get_y();
-                if (x.cuts < width && y.cuts < height)
                 {
-                    {
-                        mouse_posx = x.cuts;
-                        mouse_posy = y.cuts;
-                    }
-                    // -----------------------------------------------------
-                    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                                   buffers_.gpu_postprocess_frame_xz.get(),
-                                                   buffers_.gpu_postprocess_frame_yz.get(),
-                                                   mouse_posx,
-                                                   mouse_posy,
-                                                   mouse_posx + x.accu_level,
-                                                   mouse_posy + y.accu_level,
-                                                   width,
-                                                   height,
-                                                   compute_cache_.get_time_transformation_size(),
-                                                   view_cache_.get_xz_const_ref().img_accu_level,
-                                                   view_cache_.get_yz_const_ref().img_accu_level,
-                                                   view_cache_.get_img_type(),
-                                                   stream_);
+                    mouse_posx = x.cuts;
+                    mouse_posy = y.cuts;
                 }
+                // -----------------------------------------------------
+                time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
+                                               buffers_.gpu_postprocess_frame_xz.get(),
+                                               buffers_.gpu_postprocess_frame_yz.get(),
+                                               mouse_posx,
+                                               mouse_posy,
+                                               mouse_posx + x.accu_level,
+                                               mouse_posy + y.accu_level,
+                                               width,
+                                               height,
+                                               compute_cache_.get_time_transformation_size(),
+                                               view_cache_.get_xz_const_ref().img_accu_level,
+                                               view_cache_.get_yz_const_ref().img_accu_level,
+                                               view_cache_.get_img_type(),
+                                               stream_);
             }
-        });
+        }
+    });
 }

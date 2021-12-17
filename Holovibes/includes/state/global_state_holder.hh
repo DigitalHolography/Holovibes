@@ -32,10 +32,13 @@ namespace holovibes
  */
 class GSH
 {
+    static GSH* instance_;
+
   public:
     GSH(GSH& other) = delete;
     void operator=(const GSH&) = delete;
 
+    // static inline GSH& instance() { return *instance_; }
     static GSH& instance();
 
     // inline prevents MSVC from brain-dying, dunno why
@@ -44,94 +47,106 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    uint get_time_transformation_stride() const noexcept { return compute_cache_.get_time_transformation_stride(); }
+    inline uint get_time_transformation_stride() const noexcept
+    {
+        return compute_cache_.get_time_transformation_stride();
+    }
 
-    SpaceTransformation get_space_transformation() const noexcept { return compute_cache_.get_space_transformation(); }
+    inline SpaceTransformation get_space_transformation() const noexcept
+    {
+        return compute_cache_.get_space_transformation();
+    }
 
-    TimeTransformation get_time_transformation() const noexcept { return compute_cache_.get_time_transformation(); };
+    inline TimeTransformation get_time_transformation() const noexcept
+    {
+        return compute_cache_.get_time_transformation();
+    };
 
-    uint get_batch_size() const noexcept { return compute_cache_.get_batch_size(); }
-    uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
-    float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
-    float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
-    bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
-    const std::vector<float>& get_convo_matrix_const_ref() { return compute_cache_.get_convo_matrix_const_ref(); };
+    inline uint get_batch_size() const noexcept { return compute_cache_.get_batch_size(); }
+    inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
+    inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
+    inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
+    inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
+    inline const std::vector<float>& get_convo_matrix_const_ref()
+    {
+        return compute_cache_.get_convo_matrix_const_ref();
+    };
 
-    int get_filter2d_n1() const noexcept { return filter2d_cache_.get_filter2d_n1(); }
-    int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
-    ImgType get_img_type() const noexcept { return view_cache_.get_img_type(); }
+    inline int get_filter2d_n1() const noexcept { return filter2d_cache_.get_filter2d_n1(); }
+    inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
+    inline ImgType get_img_type() const noexcept { return view_cache_.get_img_type(); }
 
-    View_XY get_x() const noexcept { return view_cache_.get_x(); }
-    int get_x_accu_level() const noexcept { return view_cache_.get_x().accu_level; }
-    int get_x_cuts() const noexcept { return view_cache_.get_x().cuts; }
+    inline View_XY get_x() const noexcept { return view_cache_.get_x(); }
+    inline int get_x_accu_level() const noexcept { return view_cache_.get_x().accu_level; }
+    inline int get_x_cuts() const noexcept { return view_cache_.get_x().cuts; }
 
-    View_XY get_y() const noexcept { return view_cache_.get_y(); }
-    int get_y_accu_level() const noexcept { return view_cache_.get_y().accu_level; }
-    int get_y_cuts() const noexcept { return view_cache_.get_y().cuts; }
+    inline View_XY get_y() const noexcept { return view_cache_.get_y(); }
+    inline int get_y_accu_level() const noexcept { return view_cache_.get_y().accu_level; }
+    inline int get_y_cuts() const noexcept { return view_cache_.get_y().cuts; }
 
-    View_PQ get_p() const noexcept { return view_cache_.get_p(); }
-    int get_p_accu_level() const noexcept { return view_cache_.get_p().accu_level; }
-    uint get_p_index() const noexcept { return view_cache_.get_p().index; }
+    inline View_PQ get_p() const noexcept { return view_cache_.get_p(); }
+    inline int get_p_accu_level() const noexcept { return view_cache_.get_p().accu_level; }
+    inline uint get_p_index() const noexcept { return view_cache_.get_p().index; }
 
-    View_PQ get_q() const noexcept { return view_cache_.get_q(); }
-    int get_q_accu_level() const noexcept { return view_cache_.get_q().accu_level; }
-    uint get_q_index() const noexcept { return view_cache_.get_q().index; }
+    inline View_PQ get_q() const noexcept { return view_cache_.get_q(); }
+    inline int get_q_accu_level() const noexcept { return view_cache_.get_q().accu_level; }
+    inline uint get_q_index() const noexcept { return view_cache_.get_q().index; }
 
-    View_XYZ get_xy() const noexcept { return view_cache_.get_xy(); }
-    bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().flip_enabled; }
-    float get_xy_rot() const noexcept { return view_cache_.get_xy().flip_enabled; }
-    uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().img_accu_level; }
-    bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_scale_slice_enabled; }
-    bool get_xy_contrast_enabled() const noexcept { return view_cache_.get_xy().contrast_enabled; }
-    bool get_xy_contrast_auto_refresh() const noexcept { return view_cache_.get_xy().contrast_auto_refresh; }
-    bool get_xy_contrast_invert() const noexcept { return view_cache_.get_xy().contrast_invert; }
-    float get_xy_contrast_min() const noexcept { return view_cache_.get_xy().contrast_min; }
-    float get_xy_contrast_max() const noexcept { return view_cache_.get_xy().contrast_max; }
-    bool get_xy_img_accu_enabled() const noexcept { return view_cache_.get_xy().img_accu_level > 1; }
+    inline View_XYZ get_xy() const noexcept { return view_cache_.get_xy(); }
+    inline bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().flip_enabled; }
+    inline float get_xy_rot() const noexcept { return view_cache_.get_xy().flip_enabled; }
+    inline uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().img_accu_level; }
+    inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_scale_slice_enabled; }
+    inline bool get_xy_contrast_enabled() const noexcept { return view_cache_.get_xy().contrast_enabled; }
+    inline bool get_xy_contrast_auto_refresh() const noexcept { return view_cache_.get_xy().contrast_auto_refresh; }
+    inline bool get_xy_contrast_invert() const noexcept { return view_cache_.get_xy().contrast_invert; }
+    inline float get_xy_contrast_min() const noexcept { return view_cache_.get_xy().contrast_min; }
+    inline float get_xy_contrast_max() const noexcept { return view_cache_.get_xy().contrast_max; }
+    inline bool get_xy_img_accu_enabled() const noexcept { return view_cache_.get_xy().img_accu_level > 1; }
 
-    View_XYZ get_xz() const noexcept { return view_cache_.get_xz(); }
-    bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().flip_enabled; }
-    float get_xz_rot() const noexcept { return view_cache_.get_xz().flip_enabled; }
-    uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().img_accu_level; }
-    bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_scale_slice_enabled; }
-    bool get_xz_contrast_enabled() const noexcept { return view_cache_.get_xz().contrast_enabled; }
-    bool get_xz_contrast_auto_refresh() const noexcept { return view_cache_.get_xz().contrast_auto_refresh; }
-    bool get_xz_contrast_invert() const noexcept { return view_cache_.get_xz().contrast_invert; }
-    float get_xz_contrast_min() const noexcept { return view_cache_.get_xz().contrast_min; }
-    float get_xz_contrast_max() const noexcept { return view_cache_.get_xz().contrast_max; }
-    bool get_xz_img_accu_enabled() const noexcept { return view_cache_.get_xz().img_accu_level > 1; }
+    inline View_XYZ get_xz() const noexcept { return view_cache_.get_xz(); }
+    inline bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().flip_enabled; }
+    inline float get_xz_rot() const noexcept { return view_cache_.get_xz().flip_enabled; }
+    inline uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().img_accu_level; }
+    inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_scale_slice_enabled; }
+    inline bool get_xz_contrast_enabled() const noexcept { return view_cache_.get_xz().contrast_enabled; }
+    inline bool get_xz_contrast_auto_refresh() const noexcept { return view_cache_.get_xz().contrast_auto_refresh; }
+    inline bool get_xz_contrast_invert() const noexcept { return view_cache_.get_xz().contrast_invert; }
+    inline float get_xz_contrast_min() const noexcept { return view_cache_.get_xz().contrast_min; }
+    inline float get_xz_contrast_max() const noexcept { return view_cache_.get_xz().contrast_max; }
+    inline bool get_xz_img_accu_enabled() const noexcept { return view_cache_.get_xz().img_accu_level > 1; }
 
-    View_XYZ get_yz() const noexcept { return view_cache_.get_yz(); }
-    bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().flip_enabled; }
-    float get_yz_rot() const noexcept { return view_cache_.get_yz().flip_enabled; }
-    uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().img_accu_level; }
-    bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_scale_slice_enabled; }
-    bool get_yz_contrast_enabled() const noexcept { return view_cache_.get_yz().contrast_enabled; }
-    bool get_yz_contrast_auto_refresh() const noexcept { return view_cache_.get_yz().contrast_auto_refresh; }
-    bool get_yz_contrast_invert() const noexcept { return view_cache_.get_yz().contrast_invert; }
-    float get_yz_contrast_min() const noexcept { return view_cache_.get_yz().contrast_min; }
-    float get_yz_contrast_max() const noexcept { return view_cache_.get_yz().contrast_max; }
-    bool get_yz_img_accu_enabled() const noexcept { return view_cache_.get_yz().img_accu_level > 1; }
+    inline View_XYZ get_yz() const noexcept { return view_cache_.get_yz(); }
+    inline bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().flip_enabled; }
+    inline float get_yz_rot() const noexcept { return view_cache_.get_yz().flip_enabled; }
+    inline uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().img_accu_level; }
+    inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_scale_slice_enabled; }
+    inline bool get_yz_contrast_enabled() const noexcept { return view_cache_.get_yz().contrast_enabled; }
+    inline bool get_yz_contrast_auto_refresh() const noexcept { return view_cache_.get_yz().contrast_auto_refresh; }
+    inline bool get_yz_contrast_invert() const noexcept { return view_cache_.get_yz().contrast_invert; }
+    inline float get_yz_contrast_min() const noexcept { return view_cache_.get_yz().contrast_min; }
+    inline float get_yz_contrast_max() const noexcept { return view_cache_.get_yz().contrast_max; }
+    inline bool get_yz_img_accu_enabled() const noexcept { return view_cache_.get_yz().img_accu_level > 1; }
 
-    View_Window get_filter2d() const noexcept { return view_cache_.get_filter2d(); }
-    bool get_filter2d_contrast_enabled() const noexcept { return view_cache_.get_filter2d().contrast_enabled; }
-    bool get_filter2d_contrast_invert() const noexcept { return view_cache_.get_filter2d().contrast_invert; }
-    float get_filter2d_contrast_min() const noexcept { return view_cache_.get_filter2d().contrast_min; }
-    float get_filter2d_contrast_max() const noexcept { return view_cache_.get_filter2d().contrast_max; }
-    bool get_filter2d_log_scale_slice_enabled() const noexcept
+    inline View_Window get_filter2d() const noexcept { return view_cache_.get_filter2d(); }
+    inline bool get_filter2d_contrast_enabled() const noexcept { return view_cache_.get_filter2d().contrast_enabled; }
+    inline bool get_filter2d_contrast_invert() const noexcept { return view_cache_.get_filter2d().contrast_invert; }
+    inline float get_filter2d_contrast_min() const noexcept { return view_cache_.get_filter2d().contrast_min; }
+    inline float get_filter2d_contrast_max() const noexcept { return view_cache_.get_filter2d().contrast_max; }
+    inline bool get_filter2d_log_scale_slice_enabled() const noexcept
     {
         return view_cache_.get_filter2d().log_scale_slice_enabled;
     }
-    bool get_filter2d_contrast_auto_refresh() const noexcept
+    inline bool get_filter2d_contrast_auto_refresh() const noexcept
     {
         return view_cache_.get_filter2d().contrast_auto_refresh;
     }
 
-    WindowKind get_current_window_type() const noexcept { return view_cache_.get_current_window(); }
+    inline WindowKind get_current_window_type() const noexcept { return view_cache_.get_current_window(); }
 
-    bool get_contrast_auto_refresh() const noexcept { return get_current_window().contrast_auto_refresh; }
-    bool get_contrast_invert() const noexcept { return get_current_window().contrast_invert; }
-    bool get_contrast_enabled() const noexcept { return get_current_window().contrast_enabled; }
+    inline bool get_contrast_auto_refresh() const noexcept { return get_current_window().contrast_auto_refresh; }
+    inline bool get_contrast_invert() const noexcept { return get_current_window().contrast_invert; }
+    inline bool get_contrast_enabled() const noexcept { return get_current_window().contrast_enabled; }
 
     bool is_current_window_xyz_type() const;
 
@@ -145,36 +160,36 @@ class GSH
     bool get_img_log_scale_slice_enabled() const;
     unsigned get_img_accu_level() const;
 
-    bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
+    inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
-    bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
+    inline bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
 
-    uint get_input_fps() const { return compute_cache_.get_input_fps(); };
+    inline uint get_input_fps() const { return compute_cache_.get_input_fps(); };
 
-    bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
+    inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
-    bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
+    inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
-    bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
+    inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
 
-    Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
+    inline Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
 
-    bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
+    inline bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
 
-    bool get_filter2d_view_enabled() const noexcept { return view_cache_.get_filter2d_view_enabled(); }
+    inline bool get_filter2d_view_enabled() const noexcept { return view_cache_.get_filter2d_view_enabled(); }
 
-    CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
+    inline CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
 
-    bool get_fft_shift_enabled() const noexcept { return view_cache_.get_fft_shift_enabled(); }
+    inline bool get_fft_shift_enabled() const noexcept { return view_cache_.get_fft_shift_enabled(); }
 
-    bool get_raw_view_enabled() const noexcept { return view_cache_.get_raw_view_enabled(); }
+    inline bool get_raw_view_enabled() const noexcept { return view_cache_.get_raw_view_enabled(); }
 
-    bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
+    inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
 
-    uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
-    uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
+    inline uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
+    inline uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
 
-    float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
+    inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
 
     inline bool get_cuts_view_enabled() const noexcept { return view_cache_.get_cuts_view_enabled(); }
 
@@ -290,125 +305,137 @@ class GSH
     void enable_convolution(const std::string& file);
     void set_convolution_enabled(bool value);
 
-    void set_space_transformation(const SpaceTransformation value) noexcept
+    inline void set_space_transformation(const SpaceTransformation value) noexcept
     {
         compute_cache_.set_space_transformation(value);
     }
 
-    void set_time_transformation(const TimeTransformation value) noexcept
+    inline void set_time_transformation(const TimeTransformation value) noexcept
     {
         compute_cache_.set_time_transformation(value);
     }
 
-    void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
+    inline void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
 
-    void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
+    inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
 
-    void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
-    void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
+    inline void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
+    inline void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
 
-    void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
+    inline void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
 
-    void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
-    void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
-    void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
+    inline void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
+    inline void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
+    inline void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
 
-    void set_y(View_XY value) noexcept { view_cache_.set_y(value); }
-    void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
-    void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
+    inline void set_y(View_XY value) noexcept { view_cache_.set_y(value); }
+    inline void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
+    inline void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
 
-    void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
-    void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
-    void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
+    inline void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
+    inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
+    inline void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
 
-    void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
-    void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
-    void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->index = value; }
+    inline void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
+    inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
+    inline void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->index = value; }
 
-    void set_xy(View_XYZ value) noexcept { view_cache_.set_xy(value); }
-    void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->flip_enabled = value; }
-    void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rot = value; }
-    void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref()->img_accu_level = value; }
-    void set_xy_log_scale_slice_enabled(bool value) noexcept
+    inline void set_xy(View_XYZ value) noexcept { view_cache_.set_xy(value); }
+    inline void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->flip_enabled = value; }
+    inline void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rot = value; }
+    inline void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref()->img_accu_level = value; }
+    inline void set_xy_log_scale_slice_enabled(bool value) noexcept
     {
         view_cache_.get_xy_ref()->log_scale_slice_enabled = value;
     }
-    void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast_enabled = value; }
-    void set_xy_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xy_ref()->contrast_auto_refresh = value; }
-    void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast_invert = value; }
-    void set_xy_contrast_min(float value) noexcept
+    inline void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast_enabled = value; }
+    inline void set_xy_contrast_auto_refresh(bool value) noexcept
+    {
+        view_cache_.get_xy_ref()->contrast_auto_refresh = value;
+    }
+    inline void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast_invert = value; }
+    inline void set_xy_contrast_min(float value) noexcept
     {
         view_cache_.get_xy_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
-    void set_xy_contrast_max(float value) noexcept
+    inline void set_xy_contrast_max(float value) noexcept
     {
         view_cache_.get_xy_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
-    void set_xz(View_XYZ value) noexcept { view_cache_.set_xz(value); }
-    void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->flip_enabled = value; }
-    void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rot = value; }
-    void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref()->img_accu_level = value; }
-    void set_xz_log_scale_slice_enabled(bool value) noexcept
+    inline void set_xz(View_XYZ value) noexcept { view_cache_.set_xz(value); }
+    inline void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->flip_enabled = value; }
+    inline void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rot = value; }
+    inline void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref()->img_accu_level = value; }
+    inline void set_xz_log_scale_slice_enabled(bool value) noexcept
     {
         view_cache_.get_xz_ref()->log_scale_slice_enabled = value;
     }
-    void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast_enabled = value; }
-    void set_xz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_xz_ref()->contrast_auto_refresh = value; }
-    void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast_invert = value; }
-    void set_xz_contrast_min(float value) noexcept
+    inline void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast_enabled = value; }
+    inline void set_xz_contrast_auto_refresh(bool value) noexcept
+    {
+        view_cache_.get_xz_ref()->contrast_auto_refresh = value;
+    }
+    inline void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast_invert = value; }
+    inline void set_xz_contrast_min(float value) noexcept
     {
         view_cache_.get_xz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
-    void set_xz_contrast_max(float value) noexcept
+    inline void set_xz_contrast_max(float value) noexcept
     {
         view_cache_.get_xz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
-    void set_yz(View_XYZ value) noexcept { view_cache_.set_yz(value); }
-    void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref()->flip_enabled = value; }
-    void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref()->rot = value; }
-    void set_yz_img_accu_level(uint value) noexcept { view_cache_.get_yz_ref()->img_accu_level = value; }
-    void set_yz_log_scale_slice_enabled(bool value) noexcept
+    inline void set_yz(View_XYZ value) noexcept { view_cache_.set_yz(value); }
+    inline void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref()->flip_enabled = value; }
+    inline void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref()->rot = value; }
+    inline void set_yz_img_accu_level(uint value) noexcept { view_cache_.get_yz_ref()->img_accu_level = value; }
+    inline void set_yz_log_scale_slice_enabled(bool value) noexcept
     {
         view_cache_.get_yz_ref()->log_scale_slice_enabled = value;
     }
-    void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast_enabled = value; }
-    void set_yz_contrast_auto_refresh(bool value) noexcept { view_cache_.get_yz_ref()->contrast_auto_refresh = value; }
-    void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast_invert = value; }
-    void set_yz_contrast_min(float value) noexcept
+    inline void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast_enabled = value; }
+    inline void set_yz_contrast_auto_refresh(bool value) noexcept
+    {
+        view_cache_.get_yz_ref()->contrast_auto_refresh = value;
+    }
+    inline void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast_invert = value; }
+    inline void set_yz_contrast_min(float value) noexcept
     {
         view_cache_.get_yz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
-    void set_yz_contrast_max(float value) noexcept
+    inline void set_yz_contrast_max(float value) noexcept
     {
         view_cache_.get_yz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
-    void set_filter2d(View_Window value) noexcept { view_cache_.set_filter2d(value); }
-    void set_filter2d_log_scale_slice_enabled(bool value) noexcept
+    inline void set_filter2d(View_Window value) noexcept { view_cache_.set_filter2d(value); }
+    inline void set_filter2d_log_scale_slice_enabled(bool value) noexcept
     {
         view_cache_.get_filter2d_ref()->log_scale_slice_enabled = value;
     }
-    void set_filter2d_contrast_enabled(bool value) noexcept
+    inline void set_filter2d_contrast_enabled(bool value) noexcept
     {
         view_cache_.get_filter2d_ref()->contrast_enabled = value;
     }
-    void set_filter2d_contrast_auto_refresh(bool value) noexcept
+    inline void set_filter2d_contrast_auto_refresh(bool value) noexcept
     {
         view_cache_.get_filter2d_ref()->contrast_auto_refresh = value;
     }
-    void set_filter2d_contrast_invert(bool value) noexcept { view_cache_.get_filter2d_ref()->contrast_invert = value; }
-    void set_filter2d_contrast_min(float value) noexcept
+    inline void set_filter2d_contrast_invert(bool value) noexcept
+    {
+        view_cache_.get_filter2d_ref()->contrast_invert = value;
+    }
+    inline void set_filter2d_contrast_min(float value) noexcept
     {
         view_cache_.get_filter2d_ref()->contrast_min = value > 1.0f ? value : 1.0f;
     }
-    void set_filter2d_contrast_max(float value) noexcept
+    inline void set_filter2d_contrast_max(float value) noexcept
     {
         view_cache_.get_filter2d_ref()->contrast_max = value > 1.0f ? value : 1.0f;
     }
 
-    void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled) noexcept
+    inline void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled) noexcept
     {
         view_cache_.get_filter2d_ref()->log_scale_slice_enabled = log_scale_filter2d_enabled;
     }
@@ -424,39 +451,39 @@ class GSH
     void set_rotation(double value);
     void set_flip_enabled(double value);
 
-    void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
+    inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
-    void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
+    inline void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
 
-    void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
+    inline void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
 
-    void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
+    inline void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
 
-    void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
+    inline void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
 
-    void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
+    inline void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
 
-    void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
+    inline void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
 
-    void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
+    inline void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
 
-    void set_filter2d_view_enabled(bool value) { view_cache_.set_filter2d_view_enabled(value); }
+    inline void set_filter2d_view_enabled(bool value) { view_cache_.set_filter2d_view_enabled(value); }
 
-    void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
+    inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
     void set_fft_shift_enabled(bool value);
 
-    void set_raw_view_enabled(bool value) { view_cache_.set_raw_view_enabled(value); }
+    inline void set_raw_view_enabled(bool value) { view_cache_.set_raw_view_enabled(value); }
 
-    void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
+    inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
 
-    void set_start_frame(uint value) { import_cache_.set_start_frame(value); }
+    inline void set_start_frame(uint value) { import_cache_.set_start_frame(value); }
 
-    void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
+    inline void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
 
-    void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
+    inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
 
-    void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
+    inline void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
     inline void set_file_buffer_size(uint value) { file_read_cache_.set_file_buffer_size(value); }
 

@@ -434,7 +434,7 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaXStreamSynchronize(stream_); });
+    fn_compute_vect_.conditional_push_back([&]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();

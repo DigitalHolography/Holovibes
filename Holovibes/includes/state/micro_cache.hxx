@@ -257,6 +257,9 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
                                                                                                                        \
           public:                                                                                                      \
             MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
+                                                                                                                       \
+            Ref(const Ref&) = delete;                                                                                  \
+            Ref& operator=(const Ref&) = delete;                                                                       \
             Ref() { cache_truth<ref_t> = this; }                                                                       \
             ~Ref() { cache_truth<ref_t> = nullptr; }                                                                   \
                                                                                                                        \
@@ -269,6 +272,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             MAP(_DEFINE_CACHE_VAR_INIT, __VA_ARGS__);                                                                  \
                                                                                                                        \
           public:                                                                                                      \
+            Cache(const Cache&) = delete;                                                                              \
+            Cache& operator=(const Cache&) = delete;                                                                   \
             Cache()                                                                                                    \
             {                                                                                                          \
                 CHECK(cache_truth<ref_t> != nullptr) << "You must register a truth cache for class: " << #name;        \
