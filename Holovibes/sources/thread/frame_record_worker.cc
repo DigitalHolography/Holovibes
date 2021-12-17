@@ -43,10 +43,7 @@ size_t FrameRecordWorker::compute_fps_average() const
     size_t ret = 0;
     size_t upper = FPS_LAST_X_VALUES < fps_current_index_ ? FPS_LAST_X_VALUES : fps_current_index_;
     for (size_t i = 0; i < upper; i++)
-    {
-        LOG_INFO << fps_buffer_[i];
         ret += fps_buffer_[i];
-    }
 
     ret /= upper;
 
