@@ -443,7 +443,8 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 
 void ViewPanel::display_reticle(bool value)
 {
-    api::display_reticle(value);
+    if (api::get_reticle_display_enabled() != value)
+        api::display_reticle(value);
 
     parent_->notify();
 }

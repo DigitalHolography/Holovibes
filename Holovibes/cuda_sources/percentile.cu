@@ -65,7 +65,10 @@ uint calculate_frame_res(const uint width,
                          const holovibes::units::RectFd& sub_zone,
                          const bool compute_on_sub_zone)
 {
-    uint frame_res = compute_on_sub_zone ? sub_zone.area() : width * height - 2 * offset * factor;
+    // Sub_zone area might be equal to 0 if the overlay hasn't been loaded yet.
+    // This is a dirty fix, but it mostly works
+    uint frame_res =
+        (compute_on_sub_zone && sub_zone.area() != 0) ? sub_zone.area() : width * height - 2 * offset * factor;
     CHECK(frame_res > 0);
     return frame_res;
 }

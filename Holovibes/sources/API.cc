@@ -1042,9 +1042,6 @@ void set_divide_convolution(const bool value)
 
 void display_reticle(bool value)
 {
-    if (value == get_cd().get_reticle_display_enabled())
-        return;
-
     get_cd().set_reticle_display_enabled(value);
     if (value)
     {
