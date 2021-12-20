@@ -27,12 +27,10 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      */
     void set_pos_to_frame(size_t frame_id) override;
 
-    /*! \brief Update ComputeDescriptor with the settings present in the file */
+    /*! \brief Update GSH with the settings present in the file */
     void import_compute_settings() const override;
 
-    /*! \brief Update ComputeDescriptor with the settings present in the file
-     *
-     * \param cd The ComputeDescriptor to update
+    /*! \brief Update GSH with the settings present in the file
      */
     void import_info() const override;
 

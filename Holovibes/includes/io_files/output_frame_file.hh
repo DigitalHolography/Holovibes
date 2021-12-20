@@ -5,7 +5,6 @@
 #pragma once
 
 #include "frame_file.hh"
-#include "compute_descriptor.hh"
 
 namespace holovibes::io_files
 {
@@ -18,7 +17,6 @@ class OutputFrameFile : public FrameFile
   public:
     /*! \brief Export the compute settings in the file
      *
-     * \param cd The ComputeDescriptor containing the compute settings
      * \param record_raw Is the raw record enabled
      */
     virtual void export_compute_settings(int input_fps, size_t contiguous) = 0;

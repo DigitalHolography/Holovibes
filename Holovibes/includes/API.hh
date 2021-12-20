@@ -198,11 +198,12 @@ void set_p_accu_level(uint p_value);
  */
 void set_x_accu_level(uint x_value);
 
-/*! \brief Modifies x cuts
+/*! \brief Modifies x and y cuts
  *
- * \param x_value the new value of x cuts
+ * \param x the new value of x cuts
+ * \param y the new value of y cuts
  */
-void set_x_cuts(uint x_value);
+void set_cuts(uint x, uint y);
 
 /*! \brief Modifies y accumulation
  *
@@ -210,25 +211,12 @@ void set_x_cuts(uint x_value);
  */
 void set_y_accu_level(uint y_value);
 
-/*! \brief Modifies y cuts
- *
- * \param y_value the new value of y cuts
- */
-void set_y_cuts(uint y_value);
-
 /*! \brief Modifies q accumulation
  *
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
 void set_q_accu_level(uint q_value);
-
-/*! \brief Modifies x and y
- *
- * \param x value to modify
- * \param y value to modify
- */
-void set_x_y(uint x, uint y);
 
 /*! \brief Modifies p
  *
@@ -738,8 +726,6 @@ void start_information_display(const std::function<void()>& callback = []() {});
  */
 void open_advanced_settings(QMainWindow* parent = nullptr,
                             ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
-
-::holovibes::ComputeDescriptor& get_cd();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

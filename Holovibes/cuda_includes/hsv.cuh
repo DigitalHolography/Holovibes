@@ -3,7 +3,6 @@
  * \brief #TODO Add a description for this file
  */
 #pragma once
-#include "compute_descriptor.hh"
 #include "cuComplex.h"
 #include "composite_struct.hh"
 typedef unsigned int uint;

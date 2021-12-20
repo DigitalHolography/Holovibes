@@ -179,7 +179,6 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
     api::change_window(static_cast<int>(WindowKind::Filter2D));
-    // api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes
