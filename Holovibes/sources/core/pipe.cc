@@ -1,6 +1,5 @@
 #include "pipe.hh"
 
-#include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
@@ -30,11 +29,12 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream)
-    : ICompute(input, output, desc, stream)
+Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
+    : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
-    ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cd_.time_transformation_stride; };
+    ConditionType batch_condition = [&]() -> bool
+    { return batch_env_.batch_index == compute_cache_.get_time_transformation_stride(); };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
     fn_end_vect_ = FunctionVector(batch_condition);
@@ -43,32 +43,47 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const
                                                                        image_acc_env_,
                                                                        buffers_,
                                                                        input.get_fd(),
-                                                                       desc,
-                                                                       stream_);
+                                                                       stream_,
+                                                                       view_cache_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                       buffers_,
                                                                       input.get_fd(),
-                                                                      desc,
                                                                       spatial_transformation_plan_,
                                                                       time_transformation_env_,
-                                                                      stream_);
+                                                                      stream_,
+                                                                      compute_cache_,
+                                                                      view_cache_,
+                                                                      filter2d_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
                                                       image_acc_env_,
                                                       time_transformation_env_,
-                                                      desc,
                                                       input.get_fd(),
                                                       output.get_fd(),
-                                                      stream_);
+                                                      stream_,
+                                                      compute_cache_,
+                                                      export_cache_,
+                                                      view_cache_,
+                                                      advanced_cache_,
+                                                      zone_cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     time_transformation_env_,
                                                     plan_unwrap_2d_,
-                                                    desc,
                                                     input.get_fd(),
-                                                    stream_);
-    postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), desc, stream_);
+                                                    stream_,
+                                                    compute_cache_,
+                                                    composite_cache_,
+                                                    view_cache_,
+                                                    zone_cache_);
+    postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
+                                                             buffers_,
+                                                             input.get_fd(),
+                                                             stream_,
+                                                             compute_cache_,
+                                                             view_cache_,
+                                                             advanced_cache_);
 
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
@@ -113,7 +128,6 @@ bool Pipe::make_requests()
     if (disable_convolution_requested_)
     {
         postprocess_->dispose();
-        cd_.convolution_enabled = false;
         disable_convolution_requested_ = false;
     }
 
@@ -126,14 +140,14 @@ bool Pipe::make_requests()
     if (disable_raw_view_requested_)
     {
         gpu_raw_view_queue_.reset(nullptr);
-        cd_.raw_view_enabled = false;
+        GSH::instance().set_raw_view_enabled(false);
         disable_raw_view_requested_ = false;
     }
 
     if (disable_filter2d_view_requested_)
     {
         gpu_filter2d_view_queue_.reset(nullptr);
-        cd_.filter2d_view_enabled = false;
+        GSH::instance().set_filter2d_view_enabled(false);
         disable_filter2d_view_requested_ = false;
     }
 
@@ -146,14 +160,14 @@ bool Pipe::make_requests()
     if (disable_chart_display_requested_)
     {
         chart_env_.chart_display_queue_.reset(nullptr);
-        cd_.chart_display_enabled = false;
+        GSH::instance().set_chart_display_enabled(false);
         disable_chart_display_requested_ = false;
     }
 
     if (disable_chart_record_requested_)
     {
         chart_env_.chart_record_queue_.reset(nullptr);
-        cd_.chart_record_enabled = false;
+        GSH::instance().set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
         disable_chart_record_requested_ = false;
     }
@@ -162,7 +176,7 @@ bool Pipe::make_requests()
     {
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
-        cd_.frame_record_enabled = false;
+        GSH::instance().set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
 
@@ -172,7 +186,6 @@ bool Pipe::make_requests()
     if (convolution_requested_)
     {
         postprocess_->init();
-        cd_.convolution_enabled = true;
         convolution_requested_ = false;
     }
 
@@ -185,11 +198,11 @@ bool Pipe::make_requests()
     // Updating number of images
     if (update_time_transformation_size_requested_)
     {
-        if (!update_time_transformation_size(cd_.time_transformation_size))
+        if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
         {
             success_allocation = false;
-            cd_.p.index = 0;
-            cd_.time_transformation_size = 1;
+            GSH::instance().set_p_index(0);
+            GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN << "Updating #img failed, #img updated to 1";
         }
@@ -205,7 +218,7 @@ bool Pipe::make_requests()
     if (request_update_batch_size_)
     {
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(cd_.batch_size);
+        gpu_input_queue_.resize(compute_cache_.get_batch_size());
         request_update_batch_size_ = false;
     }
 
@@ -226,30 +239,30 @@ bool Pipe::make_requests()
     if (raw_view_requested_)
     {
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
-        cd_.raw_view_enabled = true;
+        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
 
     if (filter2d_view_requested_)
     {
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, cd_.output_buffer_size));
-        cd_.filter2d_view_enabled = true;
+        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        GSH::instance().set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
 
     if (chart_display_requested_)
     {
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        cd_.chart_display_enabled = true;
+        GSH::instance().set_chart_display_enabled(true);
         chart_display_requested_ = false;
     }
 
     if (chart_record_requested_.load() != std::nullopt)
     {
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        cd_.chart_record_enabled = true;
+        GSH::instance().set_chart_record_enabled(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
         chart_record_requested_ = std::nullopt;
     }
@@ -260,18 +273,19 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
-        cd_.frame_record_enabled = true;
+            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+        GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = std::nullopt;
     }
 
     if (raw_record_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG << "Raw Record Request Processing";
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
-        cd_.frame_record_enabled = true;
+        GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = std::nullopt;
     }
@@ -285,14 +299,14 @@ bool Pipe::make_requests()
         fd_xyz.depth = sizeof(ushort);
 
         if (rm == RecordMode::CUTS_XZ)
-            fd_xyz.height = cd_.time_transformation_size;
+            fd_xyz.height = compute_cache_.get_time_transformation_size();
         else if (rm == RecordMode::CUTS_YZ)
-            fd_xyz.width = cd_.time_transformation_size;
+            fd_xyz.width = compute_cache_.get_time_transformation_size();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, cd_.record_buffer_size, QueueType::RECORD_QUEUE));
+            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
-        cd_.frame_record_enabled = true;
+        GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = rm;
         cuts_record_requested_ = std::nullopt;
     }
@@ -302,6 +316,12 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    // This call has to be before make_requests() because this method needs
+    // to get updated values during exec_all() call
+    // This call could be removed if make_requests() only gets value through
+    // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
+    synchronize_caches();
+
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();
@@ -312,6 +332,10 @@ void Pipe::refresh()
         refresh_requested_ = false;
         return;
     }
+
+    // This call has to be after make_requests() because this method needs
+    // to honor cache modifications
+    synchronize_caches();
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -341,7 +365,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (cd_.compute_mode == Computation::Raw)
+    if (compute_cache_.get_compute_mode() == Computation::Raw)
     {
         insert_dequeue_input();
         return;
@@ -406,7 +430,7 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_.conditional_push_back([=]() { cudaXStreamSynchronize(stream_); });
+    fn_compute_vect_.conditional_push_back([&]() { cudaXStreamSynchronize(stream_); });
 
     // Must be the last inserted function
     insert_reset_batch_index();
@@ -435,7 +459,7 @@ void Pipe::insert_transfer_for_time_transformation()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
                 buffers_.gpu_spatial_transformation_buffer.get(),
-                cd_.batch_size,
+                compute_cache_.get_batch_size(),
                 stream_);
         });
 }
@@ -445,8 +469,9 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [&]()
         {
-            batch_env_.batch_index += cd_.batch_size;
-            CHECK(batch_env_.batch_index <= cd_.time_transformation_stride);
+            batch_env_.batch_index += compute_cache_.get_batch_size();
+            CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride())
+                << "batch_index = " << batch_env_.batch_index;
         });
 }
 
@@ -461,7 +486,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            *processed_output_fps_ += cd_.batch_size;
+            *processed_output_fps_ += compute_cache_.get_batch_size();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -488,7 +513,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (cd_.time_transformation_cuts_enabled)
+            if (view_cache_.get_cuts_view_enabled())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -499,7 +524,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (cd_.filter2d_view_enabled)
+            if (view_cache_.get_filter2d_view_enabled())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -511,7 +536,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (cd_.filter2d_enabled == true && cd_.filter2d_view_enabled == true)
+    if (view_cache_.get_filter2d_enabled() && view_cache_.get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -542,7 +567,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (cd_.raw_view_enabled)
+    if (view_cache_.get_raw_view_enabled())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
@@ -559,17 +584,19 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         fn_compute_vect_.push_back(
-            [&]()
-            { gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_, cd_.batch_size.load()); });
+            [&]() {
+                gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
+                                               compute_cache_.get_batch_size());
+            });
     }
 }
 
 void Pipe::insert_hologram_record()
 {
-    if (cd_.frame_record_enabled && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -585,7 +612,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (cd_.frame_record_enabled)
+    if (GSH::instance().get_frame_record_enabled())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -604,14 +631,16 @@ void Pipe::insert_cuts_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (cd_.get_contrast_enabled() && cd_.get_contrast_auto_refresh())
-        request_autocontrast(cd_.current_window);
+    if (GSH::instance().get_contrast_enabled() && GSH::instance().get_contrast_auto_refresh())
+        request_autocontrast(view_cache_.get_current_window());
 }
 
 void Pipe::exec()
 {
     if (refresh_requested_)
         refresh();
+
+    synchronize_caches();
 
     while (!termination_requested_)
     {
@@ -621,7 +650,10 @@ void Pipe::exec()
             run_all();
 
             if (refresh_requested_)
+            {
                 refresh();
+                synchronize_caches();
+            }
         }
         catch (CustomException& e)
         {
@@ -638,13 +670,10 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
     fn_end_vect_.push_back(function);
 }
 
-void Pipe::autocontrast_end_pipe(WindowKind kind)
-{
-    insert_fn_end_vect([this, kind]() { request_autocontrast(kind); });
-}
-
 void Pipe::run_all()
 {
+    synchronize_caches();
+
     for (FnType& f : fn_compute_vect_)
         f();
     {
@@ -653,5 +682,16 @@ void Pipe::run_all()
             f();
         fn_end_vect_.clear();
     }
+}
+
+void Pipe::synchronize_caches()
+{
+    compute_cache_.synchronize();
+    export_cache_.synchronize();
+    filter2d_cache_.synchronize();
+    view_cache_.synchronize();
+    // never updated during the life time of the app
+    // all updated params will be catched on json file when the app will load
+    // advanced_cache_.synchronize();
 }
 } // namespace holovibes

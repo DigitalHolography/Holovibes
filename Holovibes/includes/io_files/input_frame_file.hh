@@ -8,9 +8,6 @@
 
 namespace holovibes
 {
-// Fast forward declaration
-class ComputeDescriptor;
-
 namespace io_files
 {
 /*! \class InputFrameFile
@@ -20,17 +17,12 @@ namespace io_files
 class InputFrameFile : public FrameFile
 {
   public:
-    /*! \brief Update ComputeDescriptor with the settings present in the file
-     *
-     * \param cd The ComputeDescriptor to update
-     */
-    virtual void import_compute_settings(ComputeDescriptor& cd) const = 0;
+    /*! \brief Update GSH with the settings present in the file */
+    virtual void import_compute_settings() const = 0;
 
-    /*! \brief Update ComputeDescriptor with the info settings present in the file
-     *
-     * \param cd The ComputeDescriptor to update
+    /*! \brief Update GSH with the info settings present in the file
      */
-    virtual void import_info(ComputeDescriptor& cd) const = 0;
+    virtual void import_info() const = 0;
 
     /*! \brief Set the pointer in the file to the frame requested
      *

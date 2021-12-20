@@ -143,6 +143,7 @@ endif()
 target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Boost::program_options
     Qt6::OpenGL
+    Qt6::OpenGLWidgets
     Qt6::Charts
     Qt6::Core
     Qt6::Gui

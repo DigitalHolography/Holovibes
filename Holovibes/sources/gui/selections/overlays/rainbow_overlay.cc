@@ -1,6 +1,7 @@
 #include "API.hh"
 #include "rainbow_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -115,20 +116,19 @@ void RainbowOverlay::setBuffer()
     Program_->bind();
 
     units::ConversionData convert(parent_);
-    ComputeDescriptor& cd = api::get_cd();
     auto fd = parent_->getFd();
 
     int red;
     int blue;
-    if (cd.composite_kind == CompositeKind::RGB)
+    if (api::get_composite_kind() == CompositeKind::RGB)
     {
-        red = cd.rgb.p_min;
-        blue = cd.rgb.p_max;
+        red = api::get_composite_p_red();
+        blue = api::get_composite_p_blue();
     }
     else
     {
-        red = cd.hsv.h.p_min;
-        blue = cd.hsv.h.p_max;
+        red = api::get_composite_p_min_h();
+        blue = api::get_composite_p_max_h();
     }
     int green = (red + blue) / 2;
     units::PointFd red1;
@@ -192,37 +192,37 @@ void RainbowOverlay::move(QMouseEvent* e)
         zone_.setDst(getMousePos(e->pos()));
         if (parent_->getKindOfView() == KindOfView::SliceYZ)
         {
-            if (api::get_cd().composite_kind == CompositeKind::RGB)
+            if (api::get_composite_kind() == CompositeKind::RGB)
             {
-                api::get_cd().rgb.p_min = check_interval(zone_.src().x());
-                api::get_cd().rgb.p_max = check_interval(zone_.dst().x());
+                api::set_composite_p_red(check_interval(zone_.src().x()));
+                api::set_composite_p_blue(check_interval(zone_.dst().x()));
             }
             else
             {
-                api::get_cd().hsv.h.p_min = check_interval(zone_.src().x());
-                api::get_cd().hsv.h.p_max = check_interval(zone_.dst().x());
+                api::set_composite_p_min_h(check_interval(zone_.src().x()));
+                api::set_composite_p_max_h(check_interval(zone_.dst().x()));
             }
         }
         else
         {
-            if (api::get_cd().composite_kind == CompositeKind::RGB)
+            if (api::get_composite_kind() == CompositeKind::RGB)
             {
-                api::get_cd().rgb.p_min = check_interval(zone_.src().y());
-                api::get_cd().rgb.p_max = check_interval(zone_.dst().y());
+                api::set_composite_p_red(check_interval(zone_.src().y()));
+                api::set_composite_p_blue(check_interval(zone_.dst().y()));
             }
             else
             {
-                api::get_cd().hsv.h.p_min = check_interval(zone_.src().y());
-                api::get_cd().hsv.h.p_max = check_interval(zone_.dst().y());
+                api::set_composite_p_min_h(check_interval(zone_.src().y()));
+                api::set_composite_p_max_h(check_interval(zone_.dst().y()));
             }
         }
-        api::get_cd().notify_observers();
     }
 }
 
 int RainbowOverlay::check_interval(int x)
 {
-    const int max = api::get_cd().time_transformation_size - 1;
+    const int max = api::get_time_transformation_size() - 1;
+
     return std::min(max, std::max(x, 0));
 }
 } // namespace gui

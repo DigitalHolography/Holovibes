@@ -24,8 +24,8 @@ OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
 OverlayManager::~OverlayManager()
 {
     units::RectFd empty_zone;
-    api::get_cd().signalZone(empty_zone, AccessMode::Set);
-    api::get_cd().noiseZone(empty_zone, AccessMode::Set);
+    api::set_signal_zone(empty_zone);
+    api::set_noise_zone(empty_zone);
 }
 
 template <KindOfOverlay ko>
@@ -127,7 +127,6 @@ void OverlayManager::set_current(std::shared_ptr<Overlay> new_overlay)
 {
     current_overlay_ = new_overlay;
     current_overlay_->onSetCurrent();
-    api::get_cd().notify_observers();
 }
 
 void OverlayManager::press(QMouseEvent* e)

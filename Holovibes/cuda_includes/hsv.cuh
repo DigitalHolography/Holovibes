@@ -3,8 +3,8 @@
  * \brief #TODO Add a description for this file
  */
 #pragma once
-#include "compute_descriptor.hh"
 #include "cuComplex.h"
+#include "composite_struct.hh"
 typedef unsigned int uint;
 
 void from_distinct_components_to_interweaved_components(const float* src,
@@ -24,5 +24,6 @@ void hsv(const cuComplex* d_input,
          float* d_output,
          const uint width,
          const uint height,
-         const holovibes::ComputeDescriptor& cd,
-         const cudaStream_t stream);
+         const cudaStream_t stream,
+         const int time_transformation_size,
+         const holovibes::Composite_HSV& hsv_struct);

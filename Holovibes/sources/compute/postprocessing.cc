@@ -1,6 +1,5 @@
 #include "postprocessing.hh"
 #include "icompute.hh"
-#include "compute_descriptor.hh"
 #include "convolution.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -20,8 +19,10 @@ namespace compute
 Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const camera::FrameDescriptor& input_fd,
-                               ComputeDescriptor& cd,
-                               const cudaStream_t& stream)
+                               const cudaStream_t& stream,
+                               ComputeCache::Cache& compute_cache,
+                               ViewCache::Cache& view_cache,
+                               AdvancedCache::Cache& advanced_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -29,9 +30,11 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , fd_(input_fd)
-    , cd_(cd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
     , stream_(stream)
+    , compute_cache_(compute_cache)
+    , view_cache_(view_cache)
+    , advanced_cache_(advanced_cache)
 {
 }
 
@@ -50,7 +53,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   cd_.convo_matrix.data(),
+                                   GSH::instance().get_convo_matrix_const_ref().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -74,6 +77,7 @@ void Postprocessing::dispose()
     hsv_arr_.reset(nullptr);
 }
 
+// Inserted
 void Postprocessing::convolution_composite()
 {
     const size_t frame_res = fd_.get_frame_res();
@@ -89,7 +93,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -99,7 +103,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -109,7 +113,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       cd_.divide_convolution_enabled,
+                       compute_cache_.get_divide_convolution_enabled(),
                        true,
                        stream_);
 
@@ -121,10 +125,11 @@ void Postprocessing::convolution_composite()
 
 void Postprocessing::insert_convolution()
 {
-    if (!cd_.convolution_enabled || UserInterfaceDescriptor::instance().convo_name == UID_CONVOLUTION_TYPE_DEFAULT)
+    if (!compute_cache_.get_convolution_enabled() ||
+        UserInterfaceDescriptor::instance().convo_name == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
 
-    if (cd_.img_type != ImgType::Composite)
+    if (view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -135,7 +140,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   cd_.divide_convolution_enabled,
+                                   compute_cache_.get_divide_convolution_enabled(),
                                    true,
                                    stream_);
             });
@@ -148,19 +153,19 @@ void Postprocessing::insert_convolution()
 
 void Postprocessing::insert_renormalize()
 {
-    if (!cd_.renorm_enabled)
+    if (!view_cache_.get_renorm_enabled())
         return;
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            size_t frame_res = fd_.get_frame_res();
-            if (cd_.img_type == ImgType::Composite)
+            uint frame_res = fd_.get_frame_res();
+            if (view_cache_.get_img_type() == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),
                           frame_res,
-                          cd_.renorm_constant,
+                          advanced_cache_.get_renorm_constant(),
                           stream_);
         });
 }

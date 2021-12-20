@@ -15,8 +15,7 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
                                          unsigned int first_frame_id,
                                          unsigned int total_nb_frames_to_read,
                                          bool load_file_in_gpu,
-                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
-                                         const unsigned int file_buffer_size)
+                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
     : FrameReadWorker(gpu_input_queue)
     , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
     , current_nb_frames_read_(fast_updates_entry_->first)
@@ -26,7 +25,6 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
     , fps_handler_(FileFrameReadWorker::FpsHandler(fps))
     , first_frame_id_(first_frame_id)
     , load_file_in_gpu_(load_file_in_gpu)
-    , file_buffer_size_(file_buffer_size)
     , input_file_(nullptr)
     , frame_size_(0)
     , cpu_frame_buffer_(nullptr)
@@ -35,6 +33,7 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
 {
     current_nb_frames_read_ = 0;
     total_nb_frames_to_read_ = total_nb_frames_to_read;
+    file_read_cache_.synchronize();
 }
 
 void FileFrameReadWorker::run()
@@ -99,7 +98,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     if (load_file_in_gpu_)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
-        buffer_nb_frames = file_buffer_size_;
+        buffer_nb_frames = file_read_cache_.get_file_buffer_size();
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
@@ -171,7 +170,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = file_buffer_size_;
+    const unsigned int batch_size = file_read_cache_.get_file_buffer_size();
 
     fps_handler_.begin();
 
@@ -245,6 +244,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         {
             // Memcopy in the gpu buffer
             cudaXMemcpyAsync(gpu_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice, stream_);
+            // cudaXMemcpy(gpu_frame_buffer_, cpu_frame_buffer_, frames_total_size, cudaMemcpyHostToDevice);
         }
 
         cudaStreamSynchronize(stream_);
@@ -264,6 +264,13 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         fps_handler_.wait();
+
+        // FIXME: Put this but only in CLI mode
+        // auto queue = gpu_input_queue_.load();
+        // while (queue->get_size() == queue->get_max_size() && !stop_requested_)
+        // {
+        // }
+
         gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;

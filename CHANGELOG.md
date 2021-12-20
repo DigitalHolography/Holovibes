@@ -1,5 +1,9 @@
 ## Changelog
 
+### Current
+
+* Removed ComputeDescriptor, replace by the Global State Holder
+
 ### 10.6.4
 
 * Fixed a bug that prevented recording without crashing using the GUI

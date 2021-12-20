@@ -1,6 +1,7 @@
 #include "API.hh"
 #include "slice_cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -84,8 +85,7 @@ void SliceCrossOverlay::move(QMouseEvent* e)
         pIndex_ = getMousePos(e->pos());
 
         uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
-        api::get_cd().p.index = p;
-        api::get_cd().notify_observers();
+        api::set_p_index(p);
     }
 }
 
@@ -97,8 +97,10 @@ void SliceCrossOverlay::setBuffer()
     units::PointFd bottomRight;
     auto kView = parent_->getKindOfView();
 
-    uint pmin = api::get_cd().p.index;
-    uint pmax = pmin + api::get_cd().p.accu_level;
+    View_PQ p = api::get_p();
+
+    uint pmin = p.index;
+    uint pmax = pmin + p.accu_level;
 
     units::ConversionData convert(parent_);
 

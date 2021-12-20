@@ -1,6 +1,5 @@
 #include "converts.hh"
 #include "frame_desc.hh"
-#include "compute_descriptor.hh"
 #include "icompute.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
@@ -22,9 +21,12 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const CoreBuffersEnv& buffers,
                    const TimeTransformationEnv& time_transformation_env,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
-                   ComputeDescriptor& cd,
                    const camera::FrameDescriptor& input_fd,
-                   const cudaStream_t& stream)
+                   const cudaStream_t& stream,
+                   ComputeCache::Cache& compute_cache,
+                   CompositeCache::Cache& composite_cache,
+                   ViewCache::Cache& view_cache,
+                   ZoneCache::Cache& zone_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -32,26 +34,30 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , time_transformation_env_(time_transformation_env)
     , plan_unwrap_2d_(plan_unwrap_2d)
     , fd_(input_fd)
-    , cd_(cd)
     , stream_(stream)
+    , compute_cache_(compute_cache)
+    , composite_cache_(composite_cache)
+    , view_cache_(view_cache)
+    , zone_cache_(zone_cache)
 {
 }
 
 void Converts::insert_to_float(bool unwrap_2d_requested)
 {
     insert_compute_p_accu();
-    if (cd_.img_type == ImgType::Composite)
+    if (view_cache_.get_img_type() == ImgType::Composite)
         insert_to_composite();
-    else if (cd_.img_type == ImgType::Modulus) // img type in ui : magnitude
+    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (cd_.img_type == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (cd_.img_type == ImgType::Argument)
+    else if (view_cache_.get_img_type() == ImgType::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (cd_.img_type == ImgType::PhaseIncrease)
+    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (cd_.time_transformation == TimeTransformation::PCA && cd_.img_type != ImgType::Composite)
+    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
+        view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -69,9 +75,9 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
 void Converts::insert_to_ushort()
 {
     insert_main_ushort();
-    if (cd_.time_transformation_cuts_enabled)
+    if (view_cache_.get_cuts_view_enabled())
         insert_slice_ushort();
-    if (cd_.filter2d_view_enabled)
+    if (view_cache_.get_filter2d_view_enabled())
         insert_filter2d_ushort();
 }
 
@@ -80,11 +86,14 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            pmin_ = cd_.p.index;
-            if (cd_.p.accu_level != 0)
-                pmax_ = std::max(0, std::min(pmin_ + cd_.p.accu_level, static_cast<int>(cd_.time_transformation_size)));
+            View_PQ p = view_cache_.get_p();
+            pmin_ = p.index;
+            if (p.accu_level != 0)
+                pmax_ = std::max(0,
+                                 std::min<int>(pmin_ + p.accu_level,
+                                               static_cast<int>(compute_cache_.get_time_transformation_size())));
             else
-                pmax_ = cd_.p.index;
+                pmax_ = p.index;
         });
 }
 
@@ -123,37 +132,39 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (!is_between<ushort>(cd_.rgb.p_min, 0, cd_.time_transformation_size) ||
-                !is_between<ushort>(cd_.rgb.p_max, 0, cd_.time_transformation_size))
+            Composite_RGB rgb_struct = composite_cache_.get_rgb();
+            if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_time_transformation_size()) ||
+                !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_time_transformation_size()))
                 return;
 
-            if (cd_.composite_kind == CompositeKind::RGB)
+            if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    cd_.composite_auto_weights,
-                    cd_.rgb.p_min,
-                    cd_.rgb.p_max,
-                    cd_.rgb.weight_r,
-                    cd_.rgb.weight_g,
-                    cd_.rgb.weight_b,
+                    composite_cache_.get_composite_auto_weights(),
+                    rgb_struct.p_min,
+                    rgb_struct.p_max,
+                    rgb_struct.weight_r,
+                    rgb_struct.weight_g,
+                    rgb_struct.weight_b,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.width,
                     fd_.height,
-                    cd_,
-                    stream_);
+                    stream_,
+                    compute_cache_.get_time_transformation_size(),
+                    composite_cache_.get_hsv_const_ref());
 
-            if (cd_.composite_auto_weights)
+            if (composite_cache_.get_composite_auto_weights())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,
-                                    cd_.getCompositeZone(),
-                                    cd_.rgb.weight_r,
-                                    cd_.rgb.weight_g,
-                                    cd_.rgb.weight_b,
+                                    zone_cache_.get_composite_zone(),
+                                    rgb_struct.weight_r,
+                                    rgb_struct.weight_g,
+                                    rgb_struct.weight_b,
                                     stream_);
         });
 }
@@ -214,8 +225,9 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(cd_.unwrap_history_size);
+            unwrap_res_.reset(
+                new UnwrappingResources(compute_cache_.get_unwrap_history_size(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(compute_cache_.get_unwrap_history_size());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()

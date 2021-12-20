@@ -27,6 +27,7 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
+    void view_callback(WindowKind kind, View_Window window);
     void on_notify() override;
 
     void load_gui(const boost::property_tree::ptree& ptree) override;

@@ -22,7 +22,8 @@ inline void FileFrameReadWorker::FpsHandler::wait()
 
     // Wait until the next enqueue time point is reached
     while (std::chrono::high_resolution_clock::now() < end_time)
-        continue;
+    {
+    }
 
     /* Wait is done, it might have been too long (descheduling...)
      *
