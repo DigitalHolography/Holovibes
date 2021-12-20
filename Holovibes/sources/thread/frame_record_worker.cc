@@ -77,6 +77,12 @@ void FrameRecordWorker::run()
 
             wait_for_frames(record_queue);
 
+            // While wait_for_frames() is running, a stop might be requested and the queue reset.
+            // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
+            // and stop recording if needed.
+            if (stop_requested_)
+                break;
+
             if (nb_frames_skip_ > 0)
             {
                 record_queue.dequeue();
