@@ -96,6 +96,11 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
 
 static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    std::string input_path = opts.input_path.value();
+
+    holovibes::io_files::InputFrameFile* input_frame_file =
+        holovibes::io_files::InputFrameFileFactory::open(input_path);
+    
     if (opts.compute_settings_path)
     {
         try
@@ -108,16 +113,10 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
             std::exit(1);
         }
     }
-
-    auto& cd = holovibes.get_cd();
-
-    std::string input_path = opts.input_path.value();
-
-    holovibes::io_files::InputFrameFile* input_frame_file =
-        holovibes::io_files::InputFrameFileFactory::open(input_path);
-
-    if (!opts.compute_settings_path)
+    else
         input_frame_file->import_compute_settings(holovibes::api::get_cd());
+    
+    auto& cd = holovibes.get_cd();
 
     // Pixel size is set with info section of input file
     input_frame_file->import_info(holovibes::api::get_cd());
