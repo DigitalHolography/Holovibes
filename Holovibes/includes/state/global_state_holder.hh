@@ -150,8 +150,6 @@ class GSH
 
     bool is_current_window_xyz_type() const;
 
-    const View_Window& get_current_window() const;
-
     // Over current window
     float get_contrast_min() const;
     float get_contrast_max() const;
@@ -326,15 +324,27 @@ class GSH
 
     inline void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
     inline void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
-    inline void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
+    inline void set_x_cuts(int value) noexcept // FIXME: Put rules from API into this
+    {
+        view_cache_.get_x_ref()->cuts = value;
+        notify_callback_();
+    }
 
     inline void set_y(View_XY value) noexcept { view_cache_.set_y(value); }
     inline void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
-    inline void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
+    inline void set_y_cuts(int value) noexcept // FIXME: Put rules from API into this
+    {
+        view_cache_.get_y_ref()->cuts = value;
+        notify_callback_();
+    }
 
     inline void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
     inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
-    inline void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
+    inline void set_p_index(uint value) noexcept
+    {
+        view_cache_.get_p_ref()->index = value;
+        notify_callback_();
+    }
 
     inline void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
@@ -508,8 +518,16 @@ class GSH
     // RGB
     inline void set_rgb(Composite_RGB value) { composite_cache_.set_rgb(value); }
 
-    inline void set_rgb_p_min(int value) { composite_cache_.get_rgb_ref()->p_min = value; }
-    inline void set_rgb_p_max(int value) { composite_cache_.get_rgb_ref()->p_max = value; }
+    inline void set_rgb_p_min(int value)
+    {
+        composite_cache_.get_rgb_ref()->p_min = value;
+        notify_callback_();
+    }
+    inline void set_rgb_p_max(int value)
+    {
+        composite_cache_.get_rgb_ref()->p_max = value;
+        notify_callback_();
+    }
     inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight_r = value; }
     inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight_g = value; }
     inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight_b = value; }
@@ -518,8 +536,16 @@ class GSH
 
     // HSV
     inline void set_hsv(Composite_HSV value) { composite_cache_.set_hsv(value); }
-    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref()->h.p_min = value; }
-    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref()->h.p_max = value; }
+    inline void set_composite_p_min_h(uint value)
+    {
+        composite_cache_.get_hsv_ref()->h.p_min = value;
+        notify_callback_();
+    }
+    inline void set_composite_p_max_h(uint value)
+    {
+        composite_cache_.get_hsv_ref()->h.p_max = value;
+        notify_callback_();
+    }
     inline void set_slider_h_threshold_min(float value)
     {
         composite_cache_.get_hsv_ref()->h.slider_threshold_min = value;
@@ -600,10 +626,28 @@ class GSH
 #pragma endregion
     void change_window(uint index);
 
+    const View_Window& get_current_window() const;
+    const View_Window& get_window(WindowKind kind) const;
+
+    void set_update_view_callback(std::function<void(WindowKind, View_Window)> func) { update_view_callback_ = func; }
+
+    void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
+
+    void update_view(WindowKind kind) const { update_view_callback_(kind, get_window(kind)); }
+
+    void update_contrast(WindowKind kind, float min, float max);
+
   private:
     GSH() noexcept {}
 
+    std::shared_ptr<holovibes::View_Window> get_window(WindowKind kind);
     std::shared_ptr<holovibes::View_Window> get_current_window();
+
+    /*! \brief Callbacks set and used to update the GUI
+     *  Some variables have an impact on other variables and they need to be updated in the GUI
+     */
+    std::function<void(WindowKind, View_Window)> update_view_callback_ = [](auto, auto) {};
+    std::function<void()> notify_callback_ = []() {}; // Deprecated
 
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;

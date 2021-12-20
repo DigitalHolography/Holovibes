@@ -15,7 +15,6 @@
 
 namespace holovibes
 {
-class ComputeDescriptor;
 class ICompute;
 struct CoreBuffersEnv;
 struct ChartEnv;
@@ -39,7 +38,6 @@ class Rendering
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
               const TimeTransformationEnv& time_transformation_env,
-              ComputeDescriptor& cd,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
@@ -96,8 +94,6 @@ class Rendering
     const camera::FrameDescriptor& input_fd_;
     /*! \brief Describes the output frame size */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Variables needed for the computation in the pipe */
-    ComputeDescriptor& cd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

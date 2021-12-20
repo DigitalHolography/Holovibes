@@ -8,7 +8,6 @@
 
 #include <cufft.h>
 
-#include "compute_descriptor.hh"
 #include "frame_desc.hh"
 #include "batch_input_queue.hh"
 #include "cuda_tools\cufft_handle.hh"
@@ -17,7 +16,6 @@
 
 namespace holovibes
 {
-class ComputeDescriptor;
 struct CoreBuffersEnv;
 struct BatchEnv;
 struct TimeTransformationEnv;

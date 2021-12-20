@@ -17,7 +17,6 @@
 namespace holovibes
 {
 class Queue;
-class ComputeDescriptor;
 struct BatchEnv;
 struct TimeTransformationEnv;
 struct CoreBuffersEnv;

@@ -1,6 +1,5 @@
 #include "input_cine_file.hh"
 #include "file_exception.hh"
-#include "compute_descriptor.hh"
 #include "global_state_holder.hh"
 
 namespace holovibes::io_files

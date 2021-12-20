@@ -638,39 +638,40 @@ void set_x_accu_level(uint x_value)
     pipe_refresh();
 }
 
-void set_x_cuts(uint value)
+void set_cuts(uint x, uint y)
 {
     auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value < fd.width)
+    auto queue = holo.get_gpu_input_queue();
+    bool updated = false;
+
+    if (queue == nullptr)
     {
-        GSH::instance().set_x_cuts(value);
-        pipe_refresh();
+        GSH::instance().set_x_cuts(0);
+        GSH::instance().set_y_cuts(0);
+        updated = true;
     }
+    else
+    {
+        if (x < queue->get_fd().width)
+        {
+            GSH::instance().set_x_cuts(x);
+            updated = true;
+        }
+
+        if (y < queue->get_fd().height)
+        {
+            GSH::instance().set_y_cuts(y);
+            updated = true;
+        }
+    }
+
+    if (updated)
+        pipe_refresh();
 }
 
 void set_y_accu_level(uint y_value)
 {
     GSH::instance().set_y_accu_level(y_value);
-    pipe_refresh();
-}
-
-void set_y_cuts(uint value)
-{
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value < fd.height)
-    {
-        GSH::instance().set_y_cuts(value);
-        pipe_refresh();
-    }
-}
-
-void set_x_y(uint x, uint y)
-{
-
-    GSH::instance().set_x_cuts(x);
-    GSH::instance().set_y_cuts(y);
     pipe_refresh();
 }
 
@@ -791,7 +792,6 @@ void actualize_kernel_size_blur(uint h_blur_kernel_size) { GSH::instance().set_h
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
 {
-    // Store the slider value in ui_descriptor_.holovibes_.get_cd() (ComputeDescriptor)
     receiver = slider_value / 1000.0f;
 
     if (lower_bound > upper_bound)

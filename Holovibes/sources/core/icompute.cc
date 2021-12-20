@@ -9,7 +9,6 @@
 #include "chart.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
-#include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
@@ -24,9 +23,8 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream)
-    : cd_(cd)
-    , gpu_input_queue_(input)
+ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
+    : gpu_input_queue_(input)
     , gpu_output_queue_(output)
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())

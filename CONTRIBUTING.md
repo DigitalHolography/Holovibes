@@ -38,10 +38,10 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 ### Create a new release
 
 1. Merge all your feature branches on `develop`
-2. Change the version number in `compute_descriptor.hh` and `setupCreator.iss`.
 3. Update `CHANGELOG.md`.
-4. Make a clean build in release mode (`rm -rf build && ./build.py R P`).
-5. Make sure everything works as intended and run test suite (`./build.py && ./run_unit_tests.py`).
-6. Create a commit for the new version (`git commit -m "vX.X"`).
-7. Tag your commit and push (`git tag -a "vX.X" -m "vX.X" && git push origin develop --tags`).
-8. Go on *Inno Setup Compiler* choosing `setupCreator.iss` and launch the execution.
+4. Make a clean build in release mode (`./dev.py clean build -b Release`).
+5. Make sure everything works as intended and run test suite (`./dev.py ctest pytest -b Release`).
+6. Make sure the git repository has no work in progress
+7. Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
+if you want to modify either X, Y, or Z of the version number X.Y.Z
+8. do a `git push --follow-tags`

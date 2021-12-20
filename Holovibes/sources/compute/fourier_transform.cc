@@ -1,7 +1,6 @@
 #include <sstream>
 
 #include "fourier_transform.hh"
-#include "compute_descriptor.hh"
 #include "cublas_handle.hh"
 #include "cusolver_handle.hh"
 #include "icompute.hh"

@@ -1,5 +1,9 @@
 ## Changelog
 
+### Current
+
+* Removed ComputeDescriptor, replace by the Global State Holder
+
 ### 10.6.3
 
 * Feat Add contiguous in footer.

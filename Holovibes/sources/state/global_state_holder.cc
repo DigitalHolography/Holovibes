@@ -17,38 +17,7 @@ GSH& GSH::instance()
 
 // GSH* GSH::instance_ = new GSH();
 
-#pragma region GETTERS
-
-const View_Window& GSH::get_current_window() const
-{
-    switch (view_cache_.get_current_window())
-    {
-    case (WindowKind::XYview):
-        return view_cache_.get_xy_const_ref();
-    case (WindowKind::XZview):
-        return view_cache_.get_xz_const_ref();
-    case (WindowKind::YZview):
-        return view_cache_.get_yz_const_ref();
-    default: // case (WindowKind::Filter2D):
-        return view_cache_.get_filter2d_const_ref();
-    }
-}
-
-/* private */
-std::shared_ptr<holovibes::View_Window> GSH::get_current_window()
-{
-    switch (view_cache_.get_current_window())
-    {
-    case (WindowKind::XYview):
-        return view_cache_.get_xy_ref();
-    case (WindowKind::XZview):
-        return view_cache_.get_xz_ref();
-    case (WindowKind::YZview):
-        return view_cache_.get_yz_ref();
-    default: // case (WindowKind::Filter2D):
-        return view_cache_.get_filter2d_ref();
-    }
-}
+#pragma region(collapsed) GETTERS
 
 bool GSH::is_current_window_xyz_type() const
 {
@@ -99,7 +68,7 @@ unsigned GSH::get_img_accu_level() const
 }
 #pragma endregion
 
-#pragma region SETTERS
+#pragma region(collapsed) SETTERS
 
 void GSH::set_batch_size(uint value)
 {
@@ -296,6 +265,48 @@ void GSH::disable_convolution()
 #pragma endregion
 
 /*! \brief Change the window according to the given index */
-void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast<WindowKind>(index)); }
+void GSH::change_window(uint index)
+{
+    view_cache_.set_current_window(static_cast<WindowKind>(index));
+    notify_callback_();
+}
+
+void GSH::update_contrast(WindowKind kind, float min, float max)
+{
+    std::shared_ptr<View_Window> window = get_window(kind);
+    window->contrast_min = min;
+    window->contrast_max = max;
+
+    update_view(kind);
+}
+
+std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)
+{
+    const std::map<WindowKind, std::shared_ptr<View_Window>> kind_window = {
+        {WindowKind::XYview, view_cache_.get_xy_ref()},
+        {WindowKind::XZview, view_cache_.get_xz_ref()},
+        {WindowKind::YZview, view_cache_.get_yz_ref()},
+        {WindowKind::Filter2D, view_cache_.get_filter2d_ref()},
+    };
+
+    return kind_window.at(kind);
+}
+
+const View_Window& GSH::get_window(WindowKind kind) const
+{
+    const std::map<WindowKind, const View_Window*> kind_window = {
+        {WindowKind::XYview, &view_cache_.get_xy_const_ref()},
+        {WindowKind::XZview, &view_cache_.get_xz_const_ref()},
+        {WindowKind::YZview, &view_cache_.get_yz_const_ref()},
+        {WindowKind::Filter2D, &view_cache_.get_filter2d_const_ref()},
+    };
+
+    return *kind_window.at(kind);
+}
+
+const View_Window& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
+
+/* private */
+std::shared_ptr<View_Window> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
 } // namespace holovibes
