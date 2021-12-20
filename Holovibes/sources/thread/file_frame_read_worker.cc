@@ -267,7 +267,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         // FIXME: Put this but only in CLI mode
         // auto queue = gpu_input_queue_.load();
-        // while (queue->size_ == queue->max_size_)
+        // while (queue->get_size() == queue->get_max_size() && !stop_requested_)
         // {
         // }
 

@@ -23,9 +23,9 @@ namespace holovibes
  */
 NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (float, display_rate, 30),
-                            (uint, input_buffer_size, 256),
-                            (uint, output_buffer_size, 64),
-                            (uint, record_buffer_size, 64),
+                            (uint, input_buffer_size, 512),
+                            (uint, output_buffer_size, 256),
+                            (uint, record_buffer_size, 1024),
                             (float, contrast_lower_threshold, 0.5f),
                             (int, raw_bitshift, 0),
                             (float, contrast_upper_threshold, 99.5f),
@@ -59,7 +59,7 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, time_transformation_stride, 1),
                             (uint, time_transformation_size, 1),
                             (SpaceTransformation, space_transformation, SpaceTransformation::NONE),
-                            (TimeTransformation, time_transformation, TimeTransformation::STFT),
+                            (TimeTransformation, time_transformation, TimeTransformation::NONE),
                             (float, lambda, 852e-9f),
                             (float, z_distance, 1.50f),
                             (bool, convolution_enabled, false),
@@ -70,7 +70,7 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (float, pixel_size, 12.0f),
                             (uint, unwrap_history_size, 1),
                             (bool, is_computation_stopped, true),
-                            (uint, time_transformation_cuts_output_buffer_size, 8));
+                            (uint, time_transformation_cuts_output_buffer_size, 512));
 
 /*! \brief Construct a new new micro cache object
  * \param composite_kind
@@ -159,7 +159,7 @@ NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
  *
  * \param file_buffer_size Max file buffer size
  */
-NEW_INITIALIZED_MICRO_CACHE(FileReadCache, (uint, file_buffer_size, 32));
+NEW_INITIALIZED_MICRO_CACHE(FileReadCache, (uint, file_buffer_size, 512));
 
 /*! \brief Construct a new micro cache object
  *

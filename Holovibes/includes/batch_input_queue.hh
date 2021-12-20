@@ -127,6 +127,8 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_size() const { return size_; }
 
+    uint get_max_size() const { return max_size_; }
+
     bool has_overridden() const { return has_overridden_; }
 
     // HOLO: Can it be removed?
