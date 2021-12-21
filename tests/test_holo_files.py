@@ -107,7 +107,8 @@ def test_holo(folder: str):
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
-        not_found(CONFIG_FILENAME)
+        config = None
+        print("Default values might have changed")
 
     if os.path.isfile(output):
         os.remove(output)

@@ -228,7 +228,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
                 // Convert 12bit frame to 16bit
                 if (flag_packed == 12)
-                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
+                    unpack_12_to_16bit((short*)(gpu_framep_buffer_ + i * frame_size_),
                                        frame_size_ / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,

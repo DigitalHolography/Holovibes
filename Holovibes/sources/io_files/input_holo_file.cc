@@ -101,7 +101,11 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
-void import_holo_v4(const json& meta_data) { api::json_to_compute_settings(meta_data["compute settings"]); }
+void import_holo_v4(const json& meta_data)
+{
+    if (meta_data.contains("compute settings"))
+        api::json_to_compute_settings(meta_data["compute settings"]);
+}
 
 // This is done for retrocompatibility
 void import_holo_v2_v3(const json& meta_data)
