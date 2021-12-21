@@ -106,8 +106,9 @@ void ImportPanel::import_file(const QString& filename)
         // Gather data from the newly opened file
         size_t nb_frames = input_file->get_total_nb_frames();
         UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
-        input_file->import_compute_settings(api::get_cd());
-        input_file->import_info(api::get_cd());
+
+        input_file->import_compute_settings();
+        input_file->import_info();
 
         // Don't need the input file anymore
         delete input_file;
@@ -149,7 +150,10 @@ void ImportPanel::import_start()
 
     // Get all the useful ui items
     QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
-    QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
+
+    // Now stored in GSH
+    // QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
+
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
@@ -157,7 +161,7 @@ void ImportPanel::import_start()
     std::string file_path = import_line_edit->text().toStdString();
 
     bool res_import_start = api::import_start(file_path,
-                                              fps_spinbox->value(),
+                                              api::get_input_fps(),
                                               start_spinbox->value(),
                                               load_file_gpu_box->isChecked(),
                                               end_spinbox->value());
@@ -183,6 +187,10 @@ void ImportPanel::import_start()
         // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
         if (api::get_main_display() == nullptr)
             parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+
+        // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
+        // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
+        api::display_reticle(api::get_reticle_display_enabled());
     }
     else
     {
@@ -193,18 +201,34 @@ void ImportPanel::import_start()
 void ImportPanel::import_start_spinbox_update()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    if (start_spinbox->value() > end_spinbox->value())
-        end_spinbox->setValue(start_spinbox->value());
+    api::set_start_frame(start_spinbox->value());
+
+    start_spinbox->setValue(api::get_start_frame());
+
+    if (api::get_start_frame() > api::get_end_frame())
+    {
+        QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
+        end_spinbox->setValue(api::get_start_frame());
+        import_end_spinbox_update();
+    }
 }
 
 void ImportPanel::import_end_spinbox_update()
 {
-    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    if (end_spinbox->value() < start_spinbox->value())
-        start_spinbox->setValue(end_spinbox->value());
+    api::set_end_frame(end_spinbox->value());
+    end_spinbox->setValue(api::get_end_frame());
+
+    if (api::get_end_frame() < api::get_start_frame())
+    {
+        QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+        start_spinbox->setValue(api::get_end_frame());
+        import_start_spinbox_update();
+    }
 }
+
+void ImportPanel::on_input_fps_change(int value) { api::set_input_fps(value); }
+
 } // namespace holovibes::gui

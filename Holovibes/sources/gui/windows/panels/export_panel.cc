@@ -23,6 +23,7 @@ void ExportPanel::init()
     set_record_mode(QString::fromUtf8("Raw Image"));
 
     // Fix for the placeholder color that was black by default because of QT6
+    // to remove ?
     auto p = ui_->BatchInputPathLineEdit->palette();
     p.setColor(QPalette::PlaceholderText, Qt::darkGray);
     ui_->BatchInputPathLineEdit->setPalette(p);
@@ -30,7 +31,7 @@ void ExportPanel::init()
 
 void ExportPanel::on_notify()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
     {
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
@@ -83,6 +84,14 @@ void ExportPanel::on_notify()
 void ExportPanel::load_gui(const boost::property_tree::ptree& ptree) {}
 
 void ExportPanel::save_gui(boost::property_tree::ptree& ptree) {}
+
+void ExportPanel::set_record_frame_step(int step)
+{
+    UserInterfaceDescriptor::instance().record_frame_step_ = step;
+    parent_->ui_->NumberOfFramesSpinBox->setSingleStep(step);
+}
+
+int ExportPanel::get_record_frame_step() { return UserInterfaceDescriptor::instance().record_frame_step_; }
 
 void ExportPanel::browse_record_output_file()
 {

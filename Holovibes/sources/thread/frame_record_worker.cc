@@ -29,18 +29,30 @@ void FrameRecordWorker::integrate_fps_average()
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
     int current_fps = input_fps->load();
 
-    fps_buffer_[fps_current_index_++ % 4] = current_fps;
+    // An fps of 0 is not relevent. We do not includ it in fps average.
+    if (current_fps == 0)
+        return;
+
+    fps_buffer_[fps_current_index_++ % FPS_LAST_X_VALUES] = current_fps;
 }
+
+size_t FrameRecordWorker::compute_fps_average() const
+{
+    if (fps_current_index_ == 0)
+        return 0;
+
+    size_t ret = 0;
+    size_t upper = FPS_LAST_X_VALUES < fps_current_index_ ? FPS_LAST_X_VALUES : fps_current_index_;
+    for (size_t i = 0; i < upper; i++)
+        ret += fps_buffer_[i];
+
+    ret /= upper;
+
+    return ret;
+}
+
 void FrameRecordWorker::run()
 {
-    ComputeDescriptor& cd = Holovibes::instance().get_cd();
-
-    if (cd.batch_size > cd.record_buffer_size)
-    {
-        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
-        return;
-    }
-
     // Progress recording FastUpdatesHolder entry
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
@@ -122,9 +134,8 @@ void FrameRecordWorker::run()
             LOG_INFO << "[RECORDER] Record is contiguous!";
         }
 
-        auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        output_frame_file->export_compute_settings(fps_average, contiguous);
+        output_frame_file->export_compute_settings(compute_fps_average(), contiguous);
 
         output_frame_file->write_footer();
     }

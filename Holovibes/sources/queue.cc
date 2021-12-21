@@ -9,6 +9,7 @@
 
 #include "logger.hh"
 #include "holovibes.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -39,7 +40,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR << "Queue: could not allocate queue";
-        throw std::logic_error("Could not allocate queue");
+        throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 
     // Needed if input is embedded into a bigger square
@@ -80,6 +81,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     cudaError_t cuda_status;
     // No async needed for Qt buffer
     cuda_status = cudaMemcpyAsync(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind, stream);
+    // cuda_status = cudaMemcpy(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind);
 
     if (cuda_status) // 0 = CUDA_SUCCESS
     {

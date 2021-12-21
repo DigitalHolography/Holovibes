@@ -30,6 +30,9 @@ class ExportPanel : public Panel
     void load_gui(const boost::property_tree::ptree& ptree) override;
     void save_gui(boost::property_tree::ptree& ptree) override;
 
+    void set_record_frame_step(int step);
+    int get_record_frame_step();
+
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
