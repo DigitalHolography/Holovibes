@@ -61,8 +61,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     std::cout << std::endl;
 }
 
-bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
-                              const uint& nb_frames)
+int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
@@ -75,7 +74,7 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
     if (!is_between(start_frame, (uint)1, nb_frames))
     {
         err_message("start_frame", start_frame, "-s");
-        return false;
+        return 2;
     }
     holovibes::GSH::instance().set_start_frame(start_frame);
 
@@ -83,26 +82,26 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
     if (!is_between(end_frame, (uint)1, nb_frames))
     {
         err_message("end_frame", end_frame, "-e");
-        return false;
+        return 2;
     }
     holovibes::api::set_end_frame(end_frame);
 
     if (start_frame > end_frame)
     {
         std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
-        return false;
+        return 2;
     }
 
-    return true;
+    return 0;
 }
 
-static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
 
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
-    
+
     if (opts.compute_settings_path)
     {
         try
@@ -112,19 +111,19 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
         catch (std::exception&)
         {
             LOG_WARN << "Configuration file not found.";
-            return false;
+            return 1;
         }
     }
     else
-//         input_frame_file->import_compute_settings();
+        //         input_frame_file->import_compute_settings();
 
-    // Pixel size is set with info section of input file
-    input_frame_file->import_info();
+        // Pixel size is set with info section of input file
+        input_frame_file->import_info();
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
-    if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
-        return false;
+    if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
+        return ret;
 
     holovibes.init_input_queue(fd, holovibes::api::get_input_buffer_size());
 
@@ -135,7 +134,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
     catch (std::exception& e)
     {
         LOG_ERROR << e.what();
-        return false;
+        return 1;
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -151,7 +150,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     delete input_frame_file;
 
-    return true;
+    return 0;
 }
 
 static void main_loop(holovibes::Holovibes& holovibes)
@@ -193,7 +192,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     progress_bar(1, 1, 40);
 }
 
-void start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
+static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     // Force some values
     holovibes.is_cli = true;
@@ -216,7 +215,7 @@ void start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::Options
     // Skip img acc frames to avoid early black frames
     if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
-  
+
     holovibes.start_frame_record(opts.output_path.value(),
                                  record_nb_frames,
                                  opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM,
@@ -241,19 +240,22 @@ void start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::Options
                                     holovibes::GSH::instance().get_start_frame() - 1,
                                     static_cast<uint>(input_nb_frames),
                                     opts.gpu);
+
+    return 0;
 }
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-    if (!set_parameters(holovibes, opts))
-        return 1;
+    if (int ret = set_parameters(holovibes, opts))
+        return ret;
 
     if (opts.verbose)
         print_verbose(opts);
 
     Chrono chrono;
 
-    start_cli_workers(holovibes, opts);
+    if (int ret = start_cli_workers(holovibes, opts))
+        return ret;
 
     main_loop(holovibes);
 
