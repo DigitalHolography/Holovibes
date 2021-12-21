@@ -27,7 +27,6 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/W3"                     : Activate almost all warningd
 # "/WX"                     : Transform all warnings into errors
 string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
-#string(APPEND CMAKE_CXX_FLAGS " /fsanitize=address")
 
 # ---------------------------------------------------------------------
 # Includes and linkages

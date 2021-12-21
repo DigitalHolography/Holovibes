@@ -69,11 +69,19 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputHoloFile::write_footer()
 {
-    const std::string meta_data_str = meta_data_.dump();
-    const size_t meta_data_size = meta_data_str.size();
-
-    if (std::fwrite(meta_data_str.data(), 1, meta_data_size, file_) != meta_data_size)
-        throw FileException("Unable to write output holo file footer");
+    LOG_TRACE << "Entering OutputHoloFile::write_footer()";
+    std::string meta_data_str;
+    try
+    {
+        meta_data_str = meta_data_.dump();
+        if (std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), file_) != meta_data_str.size())
+            throw FileException("Unable to write output holo file footer");
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        throw;
+    }
 }
 
 void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)

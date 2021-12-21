@@ -15,6 +15,9 @@ namespace cli
 {
 static void progress_bar(int current, int total, int length)
 {
+    if (total == 0)
+        return;
+
     std::string text;
     text.reserve(length + 2);
 
@@ -147,6 +150,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !holovibes::GSH::instance().get_xy_contrast_auto_refresh();
+
     while (holovibes::GSH::instance().get_frame_record_enabled())
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -173,6 +177,8 @@ static void main_loop(holovibes::Holovibes& holovibes)
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    LOG_INFO << 1;
+
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
 }
@@ -198,6 +204,11 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     size_t input_nb_frames =
         holovibes::GSH::instance().get_end_frame() - holovibes::GSH::instance().get_start_frame() + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
+    if (record_nb_frames == 0)
+    {
+        LOG_ERROR << "Asking to record 0 frames, abort";
+        return 2;
+    }
 
     // Force hologram mode
     holovibes::GSH::instance().set_compute_mode(holovibes::Computation::Hologram);
@@ -212,8 +223,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     holovibes::GSH::instance().set_frame_record_enabled(true);
 
     holovibes::RecordMode rm = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
-    holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);
 
+    holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,
                                     opts.fps.value_or(60),

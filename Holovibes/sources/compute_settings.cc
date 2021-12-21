@@ -108,10 +108,10 @@ void after_load_checks()
 
 void load_compute_settings(const std::string& json_path)
 {
+    LOG_TRACE << "Entering load_compute_settings()";
+
     if (json_path.empty())
         return;
-
-    LOG_INFO << "Compute settings loaded from : " << json_path;
 
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
@@ -120,6 +120,8 @@ void load_compute_settings(const std::string& json_path)
 
     after_load_checks();
     pipe_refresh();
+
+    LOG_INFO << "Compute settings loaded from : " << json_path;
 }
 
 // clang-format off
@@ -212,13 +214,12 @@ json compute_settings_to_json()
 
 void save_compute_settings(const std::string& json_path)
 {
+    LOG_TRACE << "Entering save_compute_settings()";
     if (json_path.empty())
         return;
 
-    auto j_cs = compute_settings_to_json();
-
     std::ofstream file(json_path);
-    file << j_cs.dump(1);
+    file << std::setw(1) << compute_settings_to_json();
 
     LOG_INFO << "Compute settings overwritten at : " << json_path;
 }
