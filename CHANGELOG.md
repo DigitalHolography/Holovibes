@@ -7,6 +7,11 @@
 * Reintroduced the record frame step in the advanced settings window
 * Fixed crashes when enabling the reticle
 * Fixed another crash when the reticle is enabled at the start of a .holo import
+* Fixed crash on loading .holo with no footer
+* CLI is now deterministic
+* Fixed use of useless pipe in raw mode in CLI
+* Input FPS in footer computed with 16 values
+* CLI is contiguous and FPS default value is not constrained
 
 ### 10.7.0
 
