@@ -19,5 +19,5 @@ void CompositeAreaOverlay::release(ushort frameSide)
     if (zone_.topLeft() == zone_.bottomRight())
         return;
 
-    api::get_cd().setCompositeZone(zone_);
+    api::set_composite_zone(zone_);
 }

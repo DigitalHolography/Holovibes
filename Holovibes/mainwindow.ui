@@ -5143,6 +5143,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ImportInputFpsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>on_input_fps_change(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>889</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>117</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
@@ -5179,7 +5195,7 @@ p, li { white-space: pre-wrap; }
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
-  <slot>import_start_spinbox_update()</slot>
+  <slot>import_start_spinbox_update(int)</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
@@ -5241,5 +5257,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
   <slot>close_advanced_settings()</slot>
+  <slot>on_input_fps_change(int)</slot>
  </slots>
 </ui>

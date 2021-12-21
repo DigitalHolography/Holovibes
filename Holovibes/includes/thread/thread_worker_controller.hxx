@@ -37,7 +37,7 @@ void ThreadWorkerController<T>::start(Args&&... args)
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
+    // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
 }
 
 template <WorkerDerived T>
@@ -57,8 +57,16 @@ void ThreadWorkerController<T>::stop()
 template <WorkerDerived T>
 void ThreadWorkerController<T>::run()
 {
-    worker_->run();
-    callback_();
+    try
+    {
+        worker_->run();
+        callback_();
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
+        throw;
+    }
 
     MutexGuard m_guard(mutex_);
     worker_.reset(nullptr);

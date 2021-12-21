@@ -116,32 +116,6 @@ void compute_percentile_xy_view(const float* gpu_input,
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }
-
-void compute_percentile_xz_view(const float* gpu_input,
-                                const uint width,
-                                const uint height,
-                                uint offset,
-                                const float* const h_percent,
-                                float* const h_out_percent,
-                                const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone,
-                                const cudaStream_t stream)
-{
-    // Computing the contrast on xz view is the same as calculating it on the xy
-    // view with the offset.
-    compute_percentile_xy_view(gpu_input,
-                               width,
-                               height,
-                               offset,
-                               h_percent,
-                               h_out_percent,
-                               size_percent,
-                               sub_zone,
-                               compute_on_sub_zone,
-                               stream);
-}
-
 void compute_percentile_yz_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,

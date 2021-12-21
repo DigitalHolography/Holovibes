@@ -61,7 +61,7 @@ class Pipe : public ICompute
      * \param desc ComputeDescriptor that contains computation parameters.
      * \param stream The compute stream on which all the computations are processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
     ~Pipe();
 
@@ -70,8 +70,6 @@ class Pipe : public ICompute
 
     /*! \brief Runs a function after the current pipe iteration ends */
     void insert_fn_end_vect(std::function<void()> function);
-    /*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view */
-    void autocontrast_end_pipe(WindowKind kind);
 
     /*! \brief Execute one processing iteration.
      *
@@ -169,5 +167,8 @@ class Pipe : public ICompute
      * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
      */
     void run_all();
+
+    /*! \brief Updates all attribute caches with the reference held by GSH */
+    void synchronize_caches();
 };
 } // namespace holovibes
