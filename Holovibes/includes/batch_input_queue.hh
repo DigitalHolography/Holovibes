@@ -127,6 +127,8 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_size() const { return size_; }
 
+    uint get_max_size() const { return max_size_; }
+
     bool has_overridden() const { return has_overridden_; }
 
     // HOLO: Can it be removed?
@@ -198,6 +200,7 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief The total number of frames that can be contained in the queue */
     std::atomic<uint> frame_capacity_{0};
 
+  public:
     /*! \brief Current number of full batches
      *
      * Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize)
@@ -215,6 +218,8 @@ class BatchInputQueue final : public DisplayQueue
      * blocked. Thus std:atomic is not required.
      */
     uint max_size_{0};
+
+  private:
     /*! \brief Start batch index. */
     std::atomic<uint> start_index_{0};
     /*! \brief End index is the index after the last batch */

@@ -35,5 +35,9 @@ class InfoPanel : public Panel
 
     /*! \brief Show or hide the record progress */
     void set_visible_record_progress(bool visible);
+
+  private:
+    int height_ = 0;
+    int resize_again_ = 0;
 };
 } // namespace holovibes::gui

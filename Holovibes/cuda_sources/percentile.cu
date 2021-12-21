@@ -65,7 +65,10 @@ uint calculate_frame_res(const uint width,
                          const holovibes::units::RectFd& sub_zone,
                          const bool compute_on_sub_zone)
 {
-    uint frame_res = compute_on_sub_zone ? sub_zone.area() : width * height - 2 * offset * factor;
+    // Sub_zone area might be equal to 0 if the overlay hasn't been loaded yet.
+    // This is a dirty fix, but it mostly works
+    uint frame_res =
+        (compute_on_sub_zone && sub_zone.area() != 0) ? sub_zone.area() : width * height - 2 * offset * factor;
     CHECK(frame_res > 0);
     return frame_res;
 }
@@ -113,32 +116,6 @@ void compute_percentile_xy_view(const float* gpu_input,
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }
-
-void compute_percentile_xz_view(const float* gpu_input,
-                                const uint width,
-                                const uint height,
-                                uint offset,
-                                const float* const h_percent,
-                                float* const h_out_percent,
-                                const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
-                                const bool compute_on_sub_zone,
-                                const cudaStream_t stream)
-{
-    // Computing the contrast on xz view is the same as calculating it on the xy
-    // view with the offset.
-    compute_percentile_xy_view(gpu_input,
-                               width,
-                               height,
-                               offset,
-                               h_percent,
-                               h_out_percent,
-                               size_percent,
-                               sub_zone,
-                               compute_on_sub_zone,
-                               stream);
-}
-
 void compute_percentile_yz_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,

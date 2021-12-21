@@ -56,5 +56,11 @@ class ImportPanel : public Panel
 
     /*! \brief Handles the ui output fps */
     void import_end_spinbox_update();
+
+    /*! \brief Handles the ui input fps changes
+     *
+     * \param value the new value to set
+     */
+    void on_input_fps_change(int value);
 };
 } // namespace holovibes::gui

@@ -2,11 +2,13 @@
  *
  *  \brief This file is inspired by https://github.com/swansontec/map-macro which is
  *  a repository explaining how to do recursive macro.
- *  This one has been adapted to MSVC due to the post https://stackoverflow.com/questions/29457312/map-macro-in-msvc-2010
- *  Then it has been adapted to Holovibes in order to work with tuples.
+ *  This one has been adapted to MSVC due to the post
+ * https://stackoverflow.com/questions/29457312/map-macro-in-msvc-2010 Then it has been adapted to Holovibes in order to
+ * work with tuples.
  */
 
 #pragma once
+// clang-format off
 
 // combine names
 #define PLUS_TEXT_(x,y) x ## y
@@ -71,3 +73,5 @@
 
 // run foreach mapping... 1st arg must be function/macro with one input argument
 #define MAP(...)    EVAL(MAP_A(__VA_ARGS__))
+
+// clang-format on
