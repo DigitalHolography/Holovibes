@@ -93,57 +93,6 @@ void close_windows()
 
 #pragma endregion
 
-#pragma region Ini
-
-void save_user_preferences(boost::property_tree::ptree& ptree)
-{
-    // Display
-    ptree.put<ushort>("display.rate", get_display_rate());
-    // Step
-    ptree.put<uint>("gui_settings.record_frame_step", UserInterfaceDescriptor::instance().record_frame_step_);
-    // Camera
-    ptree.put<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera));
-    // Chart
-    ptree.put<size_t>("chart.auto_scale_point_threshold",
-                      UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-    // Files
-    ptree.put<std::string>("files.default_output_filename",
-                           UserInterfaceDescriptor::instance().default_output_filename_);
-    ptree.put<std::string>("files.record_output_directory",
-                           UserInterfaceDescriptor::instance().record_output_directory_);
-    ptree.put<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
-    ptree.put<std::string>("files.batch_input_directory", UserInterfaceDescriptor::instance().batch_input_directory_);
-}
-void load_user_preferences(const boost::property_tree::ptree& ptree)
-{
-    // Display
-    set_display_rate(ptree.get<uint>("display.rate", get_display_rate()));
-    // Step
-    UserInterfaceDescriptor::instance().record_frame_step_ =
-        ptree.get<uint>("gui_settings.record_frame_step_", UserInterfaceDescriptor::instance().record_frame_step_);
-    // Chart
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
-        ptree.get<size_t>("chart.auto_scale_point_threshold",
-                          UserInterfaceDescriptor::instance().auto_scale_point_threshold_);
-    // Camera
-    UserInterfaceDescriptor::instance().kCamera = static_cast<CameraKind>(
-        ptree.get<int>("image_rendering.camera", static_cast<int>(UserInterfaceDescriptor::instance().kCamera)));
-    // Files
-    UserInterfaceDescriptor::instance().default_output_filename_ =
-        ptree.get<std::string>("files.default_output_filename",
-                               UserInterfaceDescriptor::instance().default_output_filename_);
-    UserInterfaceDescriptor::instance().record_output_directory_ =
-        ptree.get<std::string>("files.record_output_directory",
-                               UserInterfaceDescriptor::instance().record_output_directory_);
-    UserInterfaceDescriptor::instance().file_input_directory_ =
-        ptree.get<std::string>("files.file_input_directory", UserInterfaceDescriptor::instance().file_input_directory_);
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        ptree.get<std::string>("files.batch_input_directory",
-                               UserInterfaceDescriptor::instance().batch_input_directory_);
-}
-
-#pragma endregion
-
 #pragma region Close Compute
 
 void camera_none()
@@ -791,7 +740,6 @@ void actualize_kernel_size_blur(uint h_blur_kernel_size) { GSH::instance().set_h
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
 {
-    // Store the slider value in ui_descriptor_.holovibes_.get_cd() (ComputeDescriptor)
     receiver = slider_value / 1000.0f;
 
     if (lower_bound > upper_bound)

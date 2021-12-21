@@ -19,7 +19,7 @@ ExportPanel::~ExportPanel() {}
 
 void ExportPanel::init()
 {
-    ui_->NumberOfFramesSpinBox->setSingleStep(UserInterfaceDescriptor::instance().record_frame_step_);
+    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
     set_record_mode(QString::fromUtf8("Raw Image"));
 }
 
@@ -75,17 +75,13 @@ void ExportPanel::on_notify()
     path_line_edit->insert(record_output_path.c_str());
 }
 
-void ExportPanel::load_gui(const boost::property_tree::ptree& ptree) {}
-
-void ExportPanel::save_gui(boost::property_tree::ptree& ptree) {}
-
 void ExportPanel::set_record_frame_step(int step)
 {
-    UserInterfaceDescriptor::instance().record_frame_step_ = step;
+    record_frame_step_ = step;
     parent_->ui_->NumberOfFramesSpinBox->setSingleStep(step);
 }
 
-int ExportPanel::get_record_frame_step() { return UserInterfaceDescriptor::instance().record_frame_step_; }
+int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
 void ExportPanel::browse_record_output_file()
 {

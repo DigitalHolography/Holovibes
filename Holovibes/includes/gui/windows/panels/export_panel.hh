@@ -27,9 +27,6 @@ class ExportPanel : public Panel
     void init() override;
     void on_notify() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
-
     void set_record_frame_step(int step);
     int get_record_frame_step();
 
@@ -76,5 +73,8 @@ class ExportPanel : public Panel
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
+
+  private:
+    int record_frame_step_ = 512;
 };
 } // namespace holovibes::gui

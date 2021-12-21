@@ -167,20 +167,20 @@ void ViewPanel::on_notify()
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
 }
 
-void ViewPanel::load_gui(const boost::property_tree::ptree& ptree)
+void ViewPanel::load_gui(const json& j_us)
 {
-    bool h = ptree.get<bool>("window.view_hidden", isHidden());
+    bool h = json_get_or_default(j_us, isHidden(), "panels", "view hidden", isHidden());
     ui_->actionView->setChecked(!h);
     setHidden(h);
 
     time_transformation_cuts_window_max_size =
-        ptree.get<uint>("window_size.time_transformation_cuts_window_max_size", 512);
+        json_get_or_default(j_us, 512, "windows", "time transformation cuts window max size");
 }
 
-void ViewPanel::save_gui(boost::property_tree::ptree& ptree)
+void ViewPanel::save_gui(json& j_us)
 {
-    ptree.put<bool>("window.view_hidden", isHidden());
-    ptree.put<uint>("window_size.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
+    j_us["panels"]["view hidden"] = isHidden();
+    j_us["windows"]["time transformation cuts window max size"] = time_transformation_cuts_window_max_size;
 }
 
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }

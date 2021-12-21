@@ -30,8 +30,8 @@ class ViewPanel : public Panel
     void view_callback(WindowKind kind, View_Window window);
     void on_notify() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
+    void load_gui(const json& j_us) override;
+    void save_gui(json& j_us) override;
 
     /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();

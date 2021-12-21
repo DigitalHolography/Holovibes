@@ -8,6 +8,8 @@
 #include <QObject>
 
 #include <boost/property_tree/ptree.hpp>
+#include <nlohmann/json.hpp>
+using json = ::nlohmann::json;
 
 namespace Ui
 {
@@ -39,8 +41,8 @@ class Panel : public QGroupBox
     // #TODO Put this into constructors when .ui files exist for every panel
     virtual void init(){};
 
-    virtual void load_gui(const boost::property_tree::ptree& ptree){};
-    virtual void save_gui(boost::property_tree::ptree& ptree){};
+    virtual void load_gui(const json& j_us){};
+    virtual void save_gui(json& j_us){};
 
     /*! \brief Changes Box value without triggering any signal
      *

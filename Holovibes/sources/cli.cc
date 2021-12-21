@@ -199,7 +199,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         }
         catch (std::exception&)
         {
-            LOG_WARN << "Configuration file not found.";
+            LOG_WARN << " Compute settings file not found.";
             std::exit(1);
         }
     }
@@ -216,7 +216,8 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         return 2;
     }
 
-    holovibes::GSH::instance().set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
+    holovibes::GSH::instance().set_compute_mode(opts.record_raw ? holovibes::Computation::Raw
+                                                                : holovibes::Computation::Hologram);
 
     Chrono chrono;
     uint nb_frames_skip = 0;

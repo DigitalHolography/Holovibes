@@ -13,6 +13,7 @@
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
+#include "tools.hh"
 
 #include "API.hh"
 
@@ -96,28 +97,19 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    try
-    {
-        load_gui();
-    }
-    catch (const std::exception&)
-    {
-        LOG_INFO << ::holovibes::settings::global_config_filepath << ": global configuration file not found. "
-                 << "Initialization with default values.";
-        save_gui();
-    }
+    load_gui();
 
     try
     {
-        api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
                  << "Initialization with default values.";
-        api::save_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
     // Display default values
@@ -292,9 +284,9 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 
 #pragma endregion
 /* ------------ */
-#pragma region Ini
+#pragma region Json
 
-void MainWindow::write_ini() { api::save_compute_settings(); }
+void MainWindow::write_compute_settings() { api::save_compute_settings(); }
 
 void MainWindow::browse_export_ini()
 {
@@ -331,7 +323,7 @@ void MainWindow::browse_import_ini()
         reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::settings::default_compute_config_filepath); }
+void MainWindow::reload_ini() { reload_ini(::holovibes::settings::compute_settings_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -341,43 +333,96 @@ void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 
 void MainWindow::load_gui()
 {
-    boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(settings::global_config_filepath, ptree);
+    if (holovibes::settings::user_settings_filepath.empty())
+        return;
 
-    if (!ptree.empty())
+    json j_us;
+
+    try
     {
-        set_theme(static_cast<Theme>(ptree.get<int>("display.theme_type", static_cast<int>(theme_))));
-
-        window_max_size = ptree.get<uint>("window_size.main_window_max_size", window_max_size);
-        auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
-
-        api::load_user_preferences(ptree);
-
-        for (auto it = panels_.begin(); it != panels_.end(); it++)
-            (*it)->load_gui(ptree);
-
-        notify();
+        std::ifstream ifs(settings::user_settings_filepath);
+        j_us = json::parse(ifs);
     }
+    catch (json::parse_error)
+    {
+        LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
+                 << "Initialization with default values.";
+        save_gui();
+        return;
+    }
+
+    set_theme(string_to_theme[json_get_or_default<std::string>(j_us, "DARK", "display", "theme")]);
+
+    window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
+    auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
+
+    api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
+    api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
+
+    ui_->ExportPanel->set_record_frame_step(
+        json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
+
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
+                            "chart",
+                            "auto scale point threshold");
+    UserInterfaceDescriptor::instance().default_output_filename_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().default_output_filename_,
+                            "files",
+                            "default output filename");
+    UserInterfaceDescriptor::instance().record_output_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().record_output_directory_,
+                            "files",
+                            "record output directory");
+    UserInterfaceDescriptor::instance().file_input_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().file_input_directory_,
+                            "files",
+                            "file input directory");
+    UserInterfaceDescriptor::instance().batch_input_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().batch_input_directory_,
+                            "files",
+                            "batch input directory");
+
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->load_gui(j_us);
+
+    notify();
 }
 
 void MainWindow::save_gui()
 {
-    boost::property_tree::ptree ptree;
+    if (holovibes::settings::user_settings_filepath.empty())
+        return;
 
-    ptree.put<ushort>("display.theme_type", static_cast<int>(theme_));
+    json j_us;
 
-    ptree.put<uint>("window_size.main_window_max_size", window_max_size);
-    ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
+    j_us["display"]["theme"] = theme_to_string[theme_];
 
-    api::save_user_preferences(ptree);
+    j_us["windows"]["main window max size"] = window_max_size;
+    j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
+
+    j_us["display"]["refresh rate"] = api::get_display_rate();
+    j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
+    j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
+    j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
+    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
+    j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
+    j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
+    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
-        (*it)->save_gui(ptree);
+        (*it)->save_gui(j_us);
 
-    auto path = holovibes::settings::global_config_filepath;
-    boost::property_tree::write_ini(path, ptree);
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ofstream file(path);
+    file << j_us.dump(1);
 
-    LOG_INFO << " GUI settings overwritten at " << path;
+    LOG_INFO << "user settings overwritten at " << path;
 }
 
 #pragma endregion

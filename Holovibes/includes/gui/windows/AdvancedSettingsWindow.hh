@@ -16,11 +16,6 @@
 #include "advanced_settings_window_panel.hh"
 #include "ui_advancedsettingswindow.h"
 
-/**
- * TODO: list
- * - (maybe) save into .ini file every managed params
- */
-
 namespace holovibes::gui
 {
 /*! \class AdvancedSettingsWindow

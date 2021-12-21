@@ -40,6 +40,9 @@ class FrameReadWorker : public Worker
     /*! \brief Useful for Input fps value. */
     std::chrono::time_point<std::chrono::steady_clock> start_;
 
+    float current_display_rate = 30.0f;
+    float time_to_wait = 33.0f;
+
     const cudaStream_t stream_;
 };
 } // namespace holovibes::worker

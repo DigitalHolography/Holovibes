@@ -25,8 +25,8 @@ class ImportPanel : public Panel
 
     void on_notify() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
+    void load_gui(const json& j_us) override;
+    void save_gui(json& j_us) override;
 
     std::string& get_file_input_directory();
 
