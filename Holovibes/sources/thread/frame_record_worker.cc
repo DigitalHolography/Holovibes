@@ -4,6 +4,7 @@
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
 
 namespace holovibes::worker
 {
@@ -150,6 +151,7 @@ void FrameRecordWorker::run()
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
+
     LOG_TRACE << "Exiting FrameRecordWorker::run()";
 }
 
@@ -200,9 +202,6 @@ void FrameRecordWorker::reset_gpu_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
-
-    while (pipe->get_disable_frame_record_requested() && !stop_requested_)
-        continue;
 
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)

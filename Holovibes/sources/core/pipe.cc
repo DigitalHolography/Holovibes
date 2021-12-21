@@ -28,6 +28,17 @@
 
 namespace holovibes
 {
+
+void Pipe::keep_contiguous(int nb_elm_to_add) const
+{
+    while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
+               frame_record_env_.gpu_frame_record_queue_->get_max_size() &&
+           // This check prevents being stuck in this loop because record might stop while in this loop
+           Holovibes::instance().is_recording())
+    {
+    }
+}
+
 using camera::FrameDescriptor;
 
 Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
@@ -587,6 +598,9 @@ void Pipe::insert_raw_record()
 {
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
+        if (Holovibes::instance().is_cli)
+            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
+
         fn_compute_vect_.push_back(
             [&]() {
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
@@ -599,6 +613,9 @@ void Pipe::insert_hologram_record()
 {
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
+        if (Holovibes::instance().is_cli)
+            fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+
         fn_compute_vect_.conditional_push_back(
             [&]()
             {

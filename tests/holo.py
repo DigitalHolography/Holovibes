@@ -166,12 +166,6 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        def check_footer(lhs: json, rhs: json):
-            assert "info" in rhs
-            assert "input fps" in rhs["info"]
-            # rhs["info"]["input fps"], lhs["info"]["input fps"] = 0, 0
-            assert lhs == rhs, f"Compute setings differs : {set(lhs.items()) ^ set(rhs.items())}"
-
         ref.assert_footer(chal)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):

@@ -49,7 +49,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovi
 
     std::cout << "Input file: " << opts.input_path.value() << "\n";
     std::cout << "Output file: " << opts.output_path.value() << "\n";
-    std::cout << "FPS: " << opts.fps.value_or(60) << "\n";
+    std::cout << "FPS: " << opts.fps.value_or(DEFAULT_CLI_FPS) << "\n";
     std::cout << "Number of frames to record: ";
     if (opts.n_rec)
         std::cout << opts.n_rec.value() << "\n";
@@ -181,7 +181,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    LOG_INFO << 1;
 
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
@@ -189,6 +188,8 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    holovibes.is_cli = true;
+
     auto& cd = holovibes.get_cd();
 
     if (opts.compute_settings_path)
@@ -233,7 +234,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
     holovibes.start_cli_record_and_compute(opts.output_path.value(), record_nb_frames, rm, nb_frames_skip);
     holovibes.start_file_frame_read(opts.input_path.value(),
                                     true,
-                                    opts.fps.value_or(60),
+                                    opts.fps.value_or(DEFAULT_CLI_FPS),
                                     holovibes::GSH::instance().get_start_frame() - 1,
                                     static_cast<uint>(input_nb_frames),
                                     opts.gpu);

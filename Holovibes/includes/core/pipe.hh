@@ -168,6 +168,12 @@ class Pipe : public ICompute
      */
     void run_all();
 
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
+
     /*! \brief Updates all attribute caches with the reference held by GSH */
     void synchronize_caches();
 };

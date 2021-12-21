@@ -142,6 +142,12 @@ class Holovibes
      */
     const float get_boundary();
 
+    /*! \brief Say if the worker recording raw/holo/cuts is running.
+     *
+     * \return bool true if recording, else false
+     */
+    bool is_recording() const;
+
     /*! \} */
 
     /*! \brief Initializes the input queue
@@ -238,6 +244,10 @@ class Holovibes
 
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
+
+    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
+     * used to know if queues have to keep contiguity or not. */
+    bool is_cli;
 
   private:
     /*! \brief Construct the holovibes object. */

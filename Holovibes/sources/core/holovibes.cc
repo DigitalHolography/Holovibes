@@ -31,6 +31,8 @@ const float Holovibes::get_boundary()
     return 0.f;
 }
 
+bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
+
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
     camera::FrameDescriptor queue_fd = fd;
