@@ -18,6 +18,7 @@
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes
 {
@@ -185,14 +186,13 @@ class ICompute : public Observable
     friend class ThreadCompute;
 
   public:
-    ICompute(BatchInputQueue& input, Queue& output, ComputeDescriptor& cd, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
-    void request_update_unwrap_size(const unsigned size);
     void request_unwrapping_1d(const bool value);
     void request_unwrapping_2d(const bool value);
     void request_display_chart();
@@ -293,12 +293,10 @@ class ICompute : public Observable
     ICompute(const ICompute&) = delete;
 
   protected:
-    /*! \brief Compute Descriptor. */
-    ComputeDescriptor& cd_;
-
-    /*! \brief Reference on the input queue, owned by MainWindow. */
+    /*! \brief Reference on the input queue */
     BatchInputQueue& gpu_input_queue_;
-    /*! \brief Reference on the output queue, owned by MainWindow. */
+
+    /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;
 
     /*! \brief Main buffers. */
@@ -374,5 +372,13 @@ class ICompute : public Observable
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
+
+    ComputeCache::Cache compute_cache_;
+    ExportCache::Cache export_cache_;
+    CompositeCache::Cache composite_cache_;
+    Filter2DCache::Cache filter2d_cache_;
+    ViewCache::Cache view_cache_;
+    AdvancedCache::Cache advanced_cache_;
+    ZoneCache::Cache zone_cache_;
 };
 } // namespace holovibes

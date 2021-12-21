@@ -35,7 +35,7 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 
 void ImageRenderingPanel::on_notify()
 {
-    const bool is_raw = api::is_raw_mode();
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
 
@@ -47,7 +47,6 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
-    api::check_batch_size_limit();
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
@@ -58,13 +57,13 @@ void ImageRenderingPanel::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_3d_cuts_view_enabled());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
     ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
     // Filter2D
@@ -155,7 +154,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -168,7 +168,8 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_transformation_stride()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
@@ -179,7 +180,6 @@ void ImageRenderingPanel::update_time_transformation_stride()
     auto callback = [=]()
     {
         api::set_time_transformation_stride(time_transformation_stride);
-        api::adapt_time_transformation_stride_to_batch_size();
         Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
@@ -196,7 +196,7 @@ void ImageRenderingPanel::update_time_transformation_stride()
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_filter2d(checked);
@@ -219,10 +219,8 @@ void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
@@ -230,17 +228,21 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    // String are set according to value in the appropriate ComboBox
-    static std::map<std::string, SpaceTransformation> space_transformation_dictionary = {
-        {"None", SpaceTransformation::NONE},
-        {"1FFT", SpaceTransformation::FFT1},
-        {"2FFT", SpaceTransformation::FFT2},
-    };
+    SpaceTransformation st;
 
-    auto st = space_transformation_dictionary.at(value.toStdString());
+    try
+    {
+        st = space_transformation_from_string(value.toStdString());
+    }
+    catch (std::out_of_range& e)
+    {
+        LOG_ERROR << e.what();
+        throw;
+    }
+
     // Prevent useless reload of Holo window
     if (st == api::get_space_transformation())
         return;
@@ -253,23 +255,16 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    // String are set according to value in the appropriate ComboBox
-    static std::map<std::string, TimeTransformation> time_transformation_dictionary = {
-        {"None", TimeTransformation::NONE},
-        {"PCA", TimeTransformation::PCA},
-        {"SSA_STFT", TimeTransformation::SSA_STFT},
-        {"STFT", TimeTransformation::STFT},
-    };
-
-    TimeTransformation tt = time_transformation_dictionary.at(value.toStdString());
+    TimeTransformation tt = time_transformation_from_string(value.toStdString());
+    LOG_DEBUG << "value.toStdString() : " << value.toStdString();
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)
         return;
 
-    api::set_time_transformation(time_transformation_dictionary.at(value.toStdString()));
+    api::set_time_transformation(tt);
 
     // Permit to reset holo window, to apply time transformation change
     set_image_mode(static_cast<int>(Computation::Hologram));
@@ -277,7 +272,8 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::is_raw_mode() || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
@@ -302,7 +298,7 @@ void ImageRenderingPanel::set_time_transformation_size()
 
 void ImageRenderingPanel::set_wavelength(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_wavelength(value * 1.0e-9f);
@@ -310,7 +306,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
 
 void ImageRenderingPanel::set_z(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_z_distance(value);
@@ -318,14 +314,20 @@ void ImageRenderingPanel::set_z(const double value)
 
 void ImageRenderingPanel::increment_z()
 {
-    set_z(api::get_zdistance() + z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    set_z(api::get_z_distance() + z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::decrement_z()
 {
-    set_z(api::get_zdistance() - z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_zdistance());
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    set_z(api::get_z_distance() - z_step_);
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
@@ -333,7 +335,11 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    api::set_convolution_mode(value);
+    if (value)
+        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    else
+        api::disable_convolution();
+
     parent_->notify();
 }
 
@@ -345,7 +351,10 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (!api::get_convolution_enabled())
         return;
 
-    api::update_convo_kernel(value.toStdString());
+    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
+
+    if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
+        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
 
     parent_->notify();
 }

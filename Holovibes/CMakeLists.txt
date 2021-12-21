@@ -27,7 +27,6 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 # "/W3"                     : Activate almost all warningd
 # "/WX"                     : Transform all warnings into errors
 string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
-#string(APPEND CMAKE_CXX_FLAGS " /fsanitize=address")
 
 # ---------------------------------------------------------------------
 # Includes and linkages
@@ -143,6 +142,7 @@ endif()
 target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Boost::program_options
     Qt6::OpenGL
+    Qt6::OpenGLWidgets
     Qt6::Charts
     Qt6::Core
     Qt6::Gui

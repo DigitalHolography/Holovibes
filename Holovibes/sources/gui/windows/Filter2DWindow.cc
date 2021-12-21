@@ -9,6 +9,7 @@
 #include "Filter2DWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -145,7 +146,7 @@ void Filter2DWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_cd().display_rate);
+    startTimer(1000 / api::get_display_rate());
 }
 
 void Filter2DWindow::paintGL()
@@ -177,8 +178,8 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::get_cd().change_window(static_cast<int>(WindowKind::Filter2D));
-    api::get_cd().notify_observers();
+    api::change_window(static_cast<int>(WindowKind::Filter2D));
+    // api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes

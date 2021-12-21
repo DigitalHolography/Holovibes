@@ -27,6 +27,9 @@ class ExportPanel : public Panel
     void init() override;
     void on_notify() override;
 
+    void set_record_frame_step(int step);
+    int get_record_frame_step();
+
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -70,5 +73,8 @@ class ExportPanel : public Panel
 
     /*! \brief Closes Chart window */
     void stop_chart_display();
+
+  private:
+    int record_frame_step_ = 512;
 };
 } // namespace holovibes::gui

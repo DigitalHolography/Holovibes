@@ -149,6 +149,10 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    GSH::instance().set_update_view_callback(
+        [&](WindowKind kind, View_Window window)
+        { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
 }
 
 MainWindow::~MainWindow()
@@ -204,10 +208,13 @@ void MainWindow::on_notify()
         ui_->ExportPanel->setEnabled(true);
     }
 
-    ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
+                                   (api::get_img_type() != ImgType::Composite));
     resize(baseSize());
     adjustSize();
 }
+
+static void handle_accumulation_exception() { api::set_img_accu_xy_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -220,7 +227,7 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::get_cd().handle_update_exception();
+                api::handle_update_exception();
                 api::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
@@ -234,7 +241,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             if (accu)
             {
-                api::get_cd().handle_accumulation_exception();
+                handle_accumulation_exception();
             }
             api::close_critical_compute();
 
@@ -350,14 +357,11 @@ void MainWindow::load_gui()
     auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
-    api::get_cd().set_raw_bitshift(
-        json_get_or_default(j_us, api::get_cd().get_raw_bitshift(), "file info", "raw bit shift"));
+    api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
 
-    UserInterfaceDescriptor::instance().record_frame_step_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().record_frame_step_,
-                            "gui settings",
-                            "record frame step");
+    ui_->ExportPanel->set_record_frame_step(
+        json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
+
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
         json_get_or_default(j_us,
                             UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
@@ -403,8 +407,8 @@ void MainWindow::save_gui()
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
 
     j_us["display"]["refresh rate"] = api::get_display_rate();
-    j_us["file info"]["raw bit shift"] = api::get_cd().get_raw_bitshift();
-    j_us["gui settings"]["record frame step"] = UserInterfaceDescriptor::instance().record_frame_step_;
+    j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
+    j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
@@ -522,8 +526,11 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
+    {
+        LOG_ERROR << "Cannot set view image type in raw mode";
         return;
+    }
 
     const std::string& str = value.toStdString();
 
@@ -536,6 +543,18 @@ void MainWindow::set_view_image_type(const QString& value)
         }
     }
 
+    // FIXME: delete comment
+    // C'est ce que philippe faisait pour les space/time_transform aussi
+    // Pas faux
+    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
+    // Perso la string me va très bien
+    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
+    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
+    // Faudrait peut-être demander l'avis de tt le monde
+    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
+    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
+    // On peut demander aux autres
+
     auto callback = ([=]() {
         api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
         notify();
@@ -546,7 +565,7 @@ void MainWindow::set_view_image_type(const QString& value)
     api::set_view_mode(str, callback);
 
     // Force cuts views autocontrast if needed
-    if (api::get_3d_cuts_view_enabled())
+    if (api::get_cuts_view_enabled())
         api::set_auto_contrast_cuts();
 }
 
@@ -594,7 +613,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    ASWMainWindowPanel* panel = new ASWMainWindowPanel(dynamic_cast<ImageRenderingPanel*>(panels_[0]));
+    ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
     api::open_advanced_settings(this, panel);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),

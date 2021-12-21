@@ -29,15 +29,18 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
-void OutputHoloFile::export_compute_settings(int input_fps)
+void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
-    const auto& cd = ::holovibes::Holovibes::instance().get_cd();
+    LOG_TRACE << "Entering OutputHoloFile export_compute_settings()";
+    // LOG_DEBUG << "raw bitshift : " << GSH::instance().get_raw_bitshift();
+
     try
     {
-        auto j_fi = json{{"raw bitshift", cd.raw_bitshift.load()},
-                         {"pixel size", {{"x", cd.pixel_size.load()}, {"y", cd.pixel_size.load()}}},
-                         {"input fps", input_fps}};
-
+        auto j_fi =
+            json{{"raw bitshift", GSH::instance().get_raw_bitshift()},
+                 {"pixel size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
+                 {"input fps", input_fps},
+                 {"contiguous", contiguous}};
         meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"info", j_fi}};
     }
     catch (const json::exception& e)
@@ -56,7 +59,7 @@ void OutputHoloFile::write_header()
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
-    size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
+    const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
@@ -66,11 +69,19 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputHoloFile::write_footer()
 {
-    const std::string& meta_data_str = meta_data_.dump();
-    const size_t meta_data_size = meta_data_str.size();
-
-    if (std::fwrite(meta_data_str.data(), 1, meta_data_size, file_) != meta_data_size)
-        throw FileException("Unable to write output holo file footer");
+    LOG_TRACE << "Entering OutputHoloFile::write_footer()";
+    std::string meta_data_str;
+    try
+    {
+        meta_data_str = meta_data_.dump();
+        if (std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), file_) != meta_data_str.size())
+            throw FileException("Unable to write output holo file footer");
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << e.what();
+        throw;
+    }
 }
 
 void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)

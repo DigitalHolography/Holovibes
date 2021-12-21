@@ -6,7 +6,10 @@ import subprocess
 import argparse
 import subprocess
 from time import sleep
-from collections import namedtuple
+from dataclasses import dataclass
+from multiprocessing import cpu_count
+from typing import List
+from typing_extensions import runtime
 
 from tests.constant_name import *
 from build.build_constants import *
@@ -14,18 +17,16 @@ from build import build_utils
 
 DEFAULT_GOAL = "build"
 
-GoalArgs = namedtuple(
-    "GoalArgs",
-    [
-        "build_mode",
-        "generator",
-        "toolchain",
-        "build_env",
-        "build_dir",
-        "verbose",
-        "goal_args",
-    ],
-)
+@dataclass
+class GoalArgs:
+    build_mode : str
+    generator : str
+    toolchain : str
+    build_env : str
+    build_dir : str
+    verbose : bool
+    goal_args : List[str]
+
 GoalsFuncs = {}
 
 
@@ -53,6 +54,11 @@ def conan(args) -> int:
         if subprocess.call(f"rm -rf {build_dir}", shell=True):
             return 1
 
+    if build_mode == "Debug":
+        runtime = "MDd"
+    else:
+        runtime = "MD"
+
     cmd += [
         "conan",
         "install",
@@ -61,8 +67,8 @@ def conan(args) -> int:
         build_dir,
         "--build",
         "missing",
-        "-s",
-        f"build_type={build_mode}",
+        "-s", f"build_type={build_mode}",
+        "-s", f"compiler.runtime={runtime}"
     ] + args.goal_args
 
     if args.verbose:
@@ -126,7 +132,11 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd += ["cmake", "--build", build_dir] + args.goal_args
+    cmd += ['cmake',
+            '--build',
+            build_dir,
+            '-j', str(cpu_count()),
+            ] + args.goal_args
 
     if args.verbose:
         print("Build cmd: {}".format(" ".join(cmd)))
@@ -171,12 +181,7 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(
-        args=[
-            "-v",
-        ]
-        + args.goal_args
-    )
+    return pytest.main(args=["-v"] + args.goal_args)
 
 
 @goal
@@ -201,34 +206,35 @@ def ctest(args):
     os.chdir(previous_path)
     return out
 
-
 @goal
 def build_ref(args) -> int:
     from tests.test_holo_files import generate_holo_from
 
-    dirs = find_tests()
-    for name in dirs:
+    for name in args.goal_args or find_tests():
         path = os.path.join(TESTS_DATA, name)
-        if (os.path.isdir(path) and len(args.goal_args) == 0) or name in args.goal_args:
-            input = os.path.join(path, INPUT_FILENAME)
-            ref = os.path.join(path, REF_FILENAME)
-            cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
-            config = os.path.join(path, CONFIG_FILENAME)
+        if not os.path.isdir(path):
+            print(f"Did not find test dir named: {path}")
+            continue
 
-            if not os.path.isfile(input):
-                input = get_input_file(path)
-                if input is None:
-                    print(
-                        f"Did not find the {INPUT_FILENAME} file in folder {path}")
+        input = os.path.join(path, INPUT_FILENAME)
+        ref = os.path.join(path, REF_FILENAME)
+        cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
+        config = os.path.join(path, CONFIG_FILENAME)
 
-            if not os.path.isfile(config):
-                config = None
+        if not os.path.isfile(input):
+            input = get_input_file(path)
+            if input is None:
+                print(
+                    f"Did not find the {INPUT_FILENAME} file in folder {path}")
 
-            if os.path.isfile(ref):
-                os.remove(ref)
+        if not os.path.isfile(config):
+            config = None
 
-            print(name)
-            generate_holo_from(input, ref, cli_argument, config)
+        if os.path.isfile(ref):
+            os.remove(ref)
+
+        print(name)
+        generate_holo_from(input, ref, cli_argument, config)
 
     return 0
 
@@ -265,8 +271,7 @@ def release(args) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
     bump_part = args.goal_args[0]
-    args = GoalArgs(build_mode, generator, args.toolchain, args.build_env, build_dir, args.verbose,
-                    [])
+    args.goal_args = []
 
     if build_mode != "Release":
         print("Can only create release with a Release build")

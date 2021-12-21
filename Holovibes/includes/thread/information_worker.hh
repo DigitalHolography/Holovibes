@@ -53,8 +53,7 @@ class InformationWorker final : public Worker
      * \param input_frame_size Frame size of input images
      * \param record_frame_size Frame size of record images
      */
-    void compute_throughput(ComputeDescriptor& cd,
-                            size_t output_frame_res,
+    void compute_throughput(size_t output_frame_res,
                             size_t input_frame_size,
                             size_t record_frame_size);
 

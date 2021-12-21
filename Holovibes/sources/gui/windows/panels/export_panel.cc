@@ -19,13 +19,13 @@ ExportPanel::~ExportPanel() {}
 
 void ExportPanel::init()
 {
-    ui_->NumberOfFramesSpinBox->setSingleStep(UserInterfaceDescriptor::instance().record_frame_step_);
+    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
     set_record_mode(QString::fromUtf8("Raw Image"));
 }
 
 void ExportPanel::on_notify()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
     {
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
@@ -74,6 +74,14 @@ void ExportPanel::on_notify()
             .string();
     path_line_edit->insert(record_output_path.c_str());
 }
+
+void ExportPanel::set_record_frame_step(int step)
+{
+    record_frame_step_ = step;
+    parent_->ui_->NumberOfFramesSpinBox->setSingleStep(step);
+}
+
+int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
 void ExportPanel::browse_record_output_file()
 {

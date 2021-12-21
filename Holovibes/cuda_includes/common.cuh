@@ -74,8 +74,8 @@ inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool ab
     if (code != cudaSuccess)
     {
         // FIXME: Print callers stack for a more efficient debug
-        // See std::source_location (still not implemented by msvc)
-        fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+        // See std::source_location
+        fprintf(stderr, "GPUassert: %s (%s:%d)\n", cudaGetErrorString(code), file, line);
 
         if (abort)
             exit(code);

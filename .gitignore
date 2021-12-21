@@ -60,6 +60,7 @@ out.png
 # Jinja Generated files
 setupCreator.iss
 
+*.dll
 # Python venv
 .venv/
 venv/
