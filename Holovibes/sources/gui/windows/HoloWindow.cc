@@ -5,6 +5,7 @@
 #include "MainWindow.hh"
 #include "SliceWindow.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -42,8 +43,8 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    api::get_cd().change_window(static_cast<int>(WindowKind::XYview));
-    api::get_cd().notify_observers();
+    api::change_window(static_cast<int>(WindowKind::XYview));
+    // api::get_cd().notify_observers();
 }
 
 void HoloWindow::update_slice_transforms()

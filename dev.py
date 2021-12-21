@@ -7,6 +7,8 @@ import argparse
 import subprocess
 from time import sleep
 from collections import namedtuple
+from multiprocessing import cpu_count
+from typing_extensions import runtime
 
 from tests.constant_name import *
 from build.build_constants import *
@@ -53,6 +55,11 @@ def conan(args) -> int:
         if subprocess.call(f"rm -rf {build_dir}", shell=True):
             return 1
 
+    if build_mode == "Debug":
+        runtime = "MDd"
+    else:
+        runtime = "MD"
+
     cmd += [
         "conan",
         "install",
@@ -61,8 +68,8 @@ def conan(args) -> int:
         build_dir,
         "--build",
         "missing",
-        "-s",
-        f"build_type={build_mode}",
+        "-s", f"build_type={build_mode}",
+        "-s", f"compiler.runtime={runtime}"
     ] + args.goal_args
 
     if args.verbose:
@@ -126,7 +133,11 @@ def build(args):
         if cmake(args):
             return 1
 
-    cmd += ["cmake", "--build", build_dir] + args.goal_args
+    cmd += ['cmake',
+            '--build',
+            build_dir,
+            '-j', str(cpu_count()),
+            ] + args.goal_args
 
     if args.verbose:
         print("Build cmd: {}".format(" ".join(cmd)))
@@ -171,12 +182,7 @@ def pytest(args):
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(
-        args=[
-            "-v",
-        ]
-        + args.goal_args
-    )
+    return pytest.main(args=["-v"] + args.goal_args)
 
 
 @goal
