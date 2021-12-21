@@ -691,6 +691,7 @@ void Pipe::synchronize_caches()
     export_cache_.synchronize();
     filter2d_cache_.synchronize();
     view_cache_.synchronize();
+    zone_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
     // advanced_cache_.synchronize();

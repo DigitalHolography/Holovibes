@@ -187,6 +187,10 @@ void ImportPanel::import_start()
         // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
         if (api::get_main_display() == nullptr)
             parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+
+        // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
+        // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
+        api::display_reticle(api::get_reticle_display_enabled());
     }
     else
     {
