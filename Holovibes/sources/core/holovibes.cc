@@ -178,26 +178,6 @@ void Holovibes::start_information_display(const std::function<void()>& callback)
 
 void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
-void Holovibes::start_cli_record_and_compute(const std::string& path,
-                                             std::optional<unsigned int> nb_frames_to_record,
-                                             RecordMode record_mode,
-                                             unsigned int nb_frames_skip)
-{
-    start_frame_record(path, nb_frames_to_record, record_mode, nb_frames_skip);
-
-    while ((compute_pipe_.load()->get_hologram_record_requested() == std::nullopt) &&
-           (compute_pipe_.load()->get_raw_record_requested() == std::nullopt))
-        continue;
-
-    compute_pipe_.load()->request_refresh();
-
-    compute_worker_controller_.set_callback([]() {});
-    compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
-
-    LOG_TRACE << "Exiting Holovibes::start_cli_compute_and_record()";
-}
-
 void Holovibes::init_pipe()
 {
     LOG_TRACE << "Entering Holovibes::init_pipe()";
@@ -222,6 +202,13 @@ void Holovibes::init_pipe()
     LOG_TRACE << "Exiting Holovibes::init_pipe()";
 }
 
+void Holovibes::start_compute_worker(const std::function<void()>& callback)
+{
+    compute_worker_controller_.set_callback(callback);
+    compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
+    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
+}
+
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
     /**
@@ -241,9 +228,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
         return;
     }
 
-    compute_worker_controller_.set_callback(callback);
-    compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
+    start_compute_worker(callback);
 
     while (!compute_pipe_.load())
         continue;

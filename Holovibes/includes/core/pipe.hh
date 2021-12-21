@@ -89,10 +89,10 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-  protected:
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
 
+  protected:
     /*! \brief Make requests at the beginning of the refresh.
      *
      * Make the allocation of buffers when it is requested.
