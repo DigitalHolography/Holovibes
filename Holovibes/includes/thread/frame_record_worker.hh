@@ -6,6 +6,7 @@
 
 #include "worker.hh"
 #include "enum_record_mode.hh"
+#include <optional>
 #include <array>
 
 namespace holovibes

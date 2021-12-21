@@ -4,6 +4,7 @@
 #include "compute_descriptor.hh"
 #include "logger.hh"
 #include "API.hh"
+#include "global_state_holder.hh"
 
 namespace holovibes::io_files
 {
@@ -100,57 +101,78 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
-void import_holo_v4(holovibes::ComputeDescriptor& cd, const json& meta_data)
+void import_holo_v4(const json& meta_data) { api::json_to_compute_settings(meta_data["compute settings"]); }
+
+// This is done for retrocompatibility
+void import_holo_v2_v3(const json& meta_data)
 {
-    api::json_to_compute_settings(meta_data["compute settings"]);
+    GSH::instance().set_space_transformation(
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation()));
+    GSH::instance().set_time_transformation(
+        get_value(meta_data, "time_filter", GSH::instance().get_time_transformation()));
+    GSH::instance().set_time_transformation_size(
+        get_value(meta_data, "#img", GSH::instance().get_time_transformation_size()));
+    GSH::instance().set_p_index(get_value(meta_data, "p", GSH::instance().get_p_index()));
+    GSH::instance().set_lambda(get_value(meta_data, "lambda", GSH::instance().get_lambda()));
+    GSH::instance().set_z_distance(get_value(meta_data, "z", GSH::instance().get_z_distance()));
+    GSH::instance().set_xy_log_scale_slice_enabled(
+        get_value(meta_data, "log_scale", GSH::instance().get_xy_log_scale_slice_enabled()));
+    GSH::instance().set_xy_contrast_min(get_value(meta_data, "contrast_min", GSH::instance().get_xy_contrast_min()));
+    GSH::instance().set_xy_contrast_max(get_value(meta_data, "contrast_max", GSH::instance().get_xy_contrast_max()));
+    GSH::instance().set_x_accu_level(get_value(meta_data, "x_acc_level", GSH::instance().get_x_accu_level()));
+    GSH::instance().set_y_accu_level(get_value(meta_data, "y_acc_level", GSH::instance().get_y_accu_level()));
+    GSH::instance().set_p_accu_level(get_value(meta_data, "p_acc_level", GSH::instance().get_p_accu_level()));
+    GSH::instance().set_xy_img_accu_level(
+        get_value(meta_data, "img_acc_slice_xy_level", GSH::instance().get_xy_img_accu_level()));
+    GSH::instance().set_xz_img_accu_level(
+        get_value(meta_data, "img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()));
+    GSH::instance().set_yz_img_accu_level(
+        get_value(meta_data, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()));
+
+    if (meta_data.contains("mode"))
+    {
+        GSH::instance().set_compute_mode(meta_data["mode"]);
+        GSH::instance().set_compute_mode(
+            static_cast<Computation>(static_cast<int>(GSH::instance().get_compute_mode()) - 1));
+    }
+
+    GSH::instance().set_fft_shift_enabled(
+        get_value(meta_data, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled()));
+    GSH::instance().set_renorm_enabled(get_value(meta_data, "renorm_enabled", GSH::instance().get_renorm_enabled()));
 }
 
-void import_holo_v2_v3(holovibes::ComputeDescriptor& cd, const json& meta_data)
+void InputHoloFile::import_compute_settings() const
 {
-    // This is done for retrocompatibility
-    cd.compute_mode = get_value(meta_data, "mode", cd.compute_mode.load()) == Computation::Raw ? Computation::Raw
-                                                                                               : Computation::Hologram;
+    // LOG_TRACE << "Entering Input HoloFile import_compute_settings";
 
-    cd.space_transformation = get_value(meta_data, "algorithm", cd.space_transformation.load());
-    cd.time_transformation = get_value(meta_data, "time_filter", cd.time_transformation.load());
-    cd.time_transformation_size = get_value(meta_data, "#img", cd.time_transformation_size.load());
-    cd.p.index = get_value(meta_data, "p", cd.p.index.load());
-    cd.lambda = get_value(meta_data, "lambda", cd.lambda.load());
-    cd.zdistance = get_value(meta_data, "z", cd.zdistance.load());
-    cd.xy.log_scale_slice_enabled = get_value(meta_data, "log_scale", cd.xy.log_scale_slice_enabled.load());
-    cd.xy.contrast_min = get_value(meta_data, "contrast_min", cd.xy.contrast_min.load());
-    cd.xy.contrast_max = get_value(meta_data, "contrast_max", cd.xy.contrast_max.load());
-    cd.fft_shift_enabled = get_value(meta_data, "fft_shift_enabled", cd.fft_shift_enabled.load());
-    cd.x.accu_level = get_value(meta_data, "x_acc_level", cd.x.accu_level.load());
-    cd.y.accu_level = get_value(meta_data, "y_acc_level", cd.y.accu_level.load());
-    cd.p.accu_level = get_value(meta_data, "p_acc_level", cd.p.accu_level.load());
-    cd.xy.img_accu_level = get_value(meta_data, "img_acc_slice_xy_level", cd.xy.img_accu_level.load());
-    cd.xz.img_accu_level = get_value(meta_data, "img_acc_slice_xz_level", cd.xz.img_accu_level.load());
-    cd.yz.img_accu_level = get_value(meta_data, "img_acc_slice_yz_level", cd.yz.img_accu_level.load());
-    cd.renorm_enabled = get_value(meta_data, "renorm_enabled", cd.renorm_enabled.load());
-}
-
-void InputHoloFile::import_compute_settings(holovibes::ComputeDescriptor& cd) const
-{
     if (holo_file_header_.version == 4)
-        import_holo_v4(cd, meta_data_);
+        import_holo_v4(meta_data_);
     else if (holo_file_header_.version < 4)
-        import_holo_v2_v3(cd, meta_data_);
+        import_holo_v2_v3(meta_data_);
     else
         LOG_ERROR << "HOLO file version not supported!";
 }
 
-void InputHoloFile::import_info(holovibes::ComputeDescriptor& cd) const
+void InputHoloFile::import_info() const
 {
     if (holo_file_header_.version == 4)
     {
-        const json& file_info_data = meta_data_["info"];
-        cd.pixel_size = file_info_data["pixel size"]["x"];
-        cd.raw_bitshift = file_info_data["raw bitshift"];
+        if (meta_data_.contains("info"))
+        {
+            const json& file_info_data = meta_data_["info"];
+            GSH::instance().set_raw_bitshift(
+                get_value(file_info_data, "raw bitshift", GSH::instance().get_raw_bitshift()));
+
+            if (file_info_data.contains("pixel size"))
+            {
+                const json& pixel_size_data = file_info_data["pixel size"];
+                GSH::instance().set_pixel_size(get_value(pixel_size_data, "x", GSH::instance().get_pixel_size()));
+            }
+        }
     }
     else if (holo_file_header_.version < 4)
     {
-        cd.pixel_size = get_value(meta_data_, "pixel_size", cd.pixel_size.load());
+        GSH::instance().set_pixel_size(get_value(meta_data_, "pixel_size", GSH::instance().get_pixel_size()));
     }
     else
         LOG_ERROR << "HOLO file version not supported!";
