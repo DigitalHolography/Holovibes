@@ -41,8 +41,7 @@ class FileFrameReadWorker final : public FrameReadWorker
                         unsigned int first_frame_id,
                         unsigned int total_nb_frames_to_read,
                         bool load_file_in_gpu,
-                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
-                        const unsigned int file_buffer_size);
+                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
 
     void run() override;
 
@@ -123,8 +122,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     unsigned int first_frame_id_;
     /*! \brief Whether the entire file should be loaded in the gpu */
     bool load_file_in_gpu_;
-    /*! \brief Max file buffer size */
-    const unsigned int file_buffer_size_;
     /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
     /*! \brief Size of an input frame */
@@ -135,6 +132,8 @@ class FileFrameReadWorker final : public FrameReadWorker
     char* gpu_frame_buffer_;
     /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
     char* gpu_packed_buffer_;
+
+    FileReadCache::Cache file_read_cache_;
 };
 } // namespace worker
 } // namespace holovibes

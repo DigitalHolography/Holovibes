@@ -11,6 +11,7 @@
 #include "camera_exception.hh"
 
 #include "enum_camera_kind.hh"
+#include "enum_theme.hh"
 
 // namespace holovibes
 #include "custom_exception.hh"
@@ -37,11 +38,11 @@ namespace gui
  *
  * These slots are divided into several sections:
  *
- * * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
+ * * Menu: every action in the menu (e-g: configuration of .json, camera selection ...).
  * * Image rendering: #img, p, z, lambda ...
  * * View: log scale, shifted corner, contrast ...
  * * Special: image ratio, Chart plot ...
- * * Record: record of raw frames, Chart file ...
+ * * Export: record of raw frames, Chart file ...
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
@@ -50,7 +51,7 @@ class MainWindow : public QMainWindow, public Observer
     Q_OBJECT
 
   public:
-    /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
+    /*! \brief Set keyboard shortcuts, set visibility and load default values from corresponding .json files.
      *
      * \param parent Qt parent (should be null as it is the GUI hierarchy top class)
      */
@@ -62,8 +63,6 @@ class MainWindow : public QMainWindow, public Observer
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
-/* ---------- */
-#pragma region Public Slots
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
@@ -91,7 +90,7 @@ class MainWindow : public QMainWindow, public Observer
     void browse_export_ini();
     void reload_ini();
     void reload_ini(const std::string& filename);
-    void write_ini();
+    void write_compute_settings();
     void open_advanced_settings();
     void close_advanced_settings();
 
@@ -112,7 +111,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the theme of the ui */
     void set_classic();
     void set_night();
-    void set_theme(const int index);
+    void set_theme(const Theme theme);
 
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
@@ -144,15 +143,13 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
-#pragma endregion
-    /* ---------- */
   signals:
     /*! \brief TODO: comment
      *
      * \param f
      */
     void synchronize_thread_signal(std::function<void()> f);
-#pragma region Protected / Private Methods
+
   public:
     /*! \brief Last call before the program is closed
      *
@@ -164,7 +161,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Sets camera frame timout */
     void set_camera_timeout();
 
-    /*! \brief Setups gui from .ini file */
+    /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();
 
@@ -175,17 +172,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void change_camera(CameraKind c);
 
-#pragma endregion
-/* ---------- */
-#pragma region Fields
-
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
 
     // Additional attributes
-    short theme_index_ = -1;
-
-#pragma endregion
+    Theme theme_ = Theme::Dark;
 };
 } // namespace gui
 } // namespace holovibes

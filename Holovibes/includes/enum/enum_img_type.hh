@@ -22,7 +22,10 @@ enum class ImgType
     Composite       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
 };
 
-static std::map<std::string, ImgType> string_to_img_type = {
+namespace _internal
+{
+
+const static std::map<std::string, ImgType> string_to_img_type = {
     {"MODULUS", ImgType::Modulus},
     {"SQUAREMODULUS", ImgType::SquaredModulus},
     {"ARGUMENT", ImgType::Argument},
@@ -30,12 +33,19 @@ static std::map<std::string, ImgType> string_to_img_type = {
     {"COMPOSITE", ImgType::Composite},
 };
 
-static std::map<ImgType, std::string> img_type_to_string = {
+const static std::map<ImgType, std::string> img_type_to_string = {
     {ImgType::Modulus, "MODULUS"},
     {ImgType::SquaredModulus, "SQUAREDMODULUS"},
     {ImgType::Argument, "ARGUMENT"},
     {ImgType::PhaseIncrease, "PHASEINCREASE"},
     {ImgType::Composite, "COMPOSITE"},
 };
+} // namespace _internal
+
+inline std::string img_type_to_string(ImgType value) { return _internal::img_type_to_string.at(value); }
+
+inline ImgType img_type_from_string(const std::string& in) { return _internal::string_to_img_type.at(in); }
+
+inline std::ostream& operator<<(std::ostream& os, holovibes::ImgType value) { return os << img_type_to_string(value); }
 
 } // namespace holovibes

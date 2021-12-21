@@ -10,6 +10,7 @@
 #include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
+#include "global_state_holder.hh"
 
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
@@ -48,6 +49,9 @@ void camera_none();
  */
 void close_critical_compute();
 
+/*! \brief Reset some values after MainWindow receives an update exception */
+void handle_update_exception();
+
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
@@ -75,12 +79,6 @@ int get_gpu_input_queue_fd_height();
  */
 float get_boundary();
 
-/*! \brief Checks if we are currently in raw mode
- *
- * \return true if we are in raw mode, false otherwise
- */
-bool is_raw_mode();
-
 /*! \brief Checks if we have an input queue
  *
  * \return true on success
@@ -92,7 +90,9 @@ bool is_gpu_input_queue();
  *
  * \param value the file containing the convolution's settings
  */
-void set_convolution_mode(bool value);
+void enable_convolution(const std::string& file);
+
+void disable_convolution();
 
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(Observer& observer, uint window_max_size);
@@ -190,26 +190,38 @@ void create_pipe(Observer& observer);
  *
  * \param p_value the new value of p accu
  */
-void set_p_accu(uint p_value);
+void set_p_accu_level(uint p_value);
 
 /*! \brief Modifies x accumulation
  *
  * \param x_value the new value of x accu
  */
-void set_x_accu(uint x_value);
+void set_x_accu_level(uint x_value);
+
+/*! \brief Modifies x cuts
+ *
+ * \param x_value the new value of x cuts
+ */
+void set_x_cuts(uint x_value);
 
 /*! \brief Modifies y accumulation
  *
  * \param y_value the new value of y accu
  */
-void set_y_accu(uint y_value);
+void set_y_accu_level(uint y_value);
+
+/*! \brief Modifies y cuts
+ *
+ * \param y_value the new value of y cuts
+ */
+void set_y_cuts(uint y_value);
 
 /*! \brief Modifies q accumulation
  *
  * \param is_q_accu if q accumulation is allowed
  * \param q_value the new value of q accu
  */
-void set_q_accu(uint q_value);
+void set_q_accu_level(uint q_value);
 
 /*! \brief Modifies x and y
  *
@@ -222,13 +234,13 @@ void set_x_y(uint x, uint y);
  *
  * \param value the new value of p
  */
-void set_p(int value);
+void set_p_index(uint value);
 
 /*! \brief Modifies q
  *
  * \param value the new value of q
  */
-void set_q(int value);
+void set_q_index(uint value);
 
 /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
  *
@@ -282,13 +294,6 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
  */
 void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
 
-/*! \brief Automatic equalization (Auto-constrast)
- *
- * \param value the new value of composite auto weight
- */
-void set_composite_auto_weights(bool value);
-
-void set_composite_kind(const CompositeKind& value);
 /*! \brief Switchs between to RGB mode
  *
  */
@@ -317,6 +322,11 @@ void actualize_frequency_channel_v(bool composite_p_activated_v);
  */
 void actualize_selection_h_gaussian_blur(bool h_blur_activated);
 
+/*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
+void check_p_limits();
+/*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
+void check_q_limits();
+
 /*! \brief Modified Hue blur size
  *
  * \param h_blur_kernel_size the new value
@@ -334,7 +344,7 @@ void decrement_p();
  *
  * \param value the new value
  */
-void set_wavelength(const double value);
+void set_wavelength(double value);
 
 /*! \brief Modifies z
  *
@@ -346,13 +356,13 @@ void set_z_distance(const double value);
  *
  * \param value the string to match to determine the kind of space transformation
  */
-void set_space_transformation(const SpaceTransformation& value);
+void set_space_transformation(const SpaceTransformation value);
 
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
  */
-void set_time_transformation(const TimeTransformation& value);
+void set_time_transformation(const TimeTransformation value);
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -402,6 +412,19 @@ bool set_auto_contrast();
 /*! \brief Set the auto contrast to all windows */
 void set_auto_contrast_all();
 
+/*! \brief Get the rounded value of max contrast for the given WindowKind
+ *
+ * Qt rounds the value by default.
+ * In order to compare the compute descriptor values these values also needs to be rounded.
+ */
+float get_truncate_contrast_max(const int precision = 2);
+
+/*! \brief Get the rounded value of min contrast for the given WindowKind
+ *
+ * \see get_truncate_contrast_max()
+ */
+float get_truncate_contrast_min(const int precision = 2);
+
 /*! \brief Modifies the min contrast value on the current window
  *
  * \param value the new value
@@ -432,6 +455,29 @@ void set_auto_refresh_contrast(bool value);
  */
 void set_log_scale(const bool value);
 
+/*! \brief Set value of raw bit shift
+ *
+ * \param value to set
+ */
+void set_raw_bitshift(int value);
+
+/*! \name	Setter of the overlay positions.
+ * \{
+ */
+void set_signal_zone(const units::RectFd& rect);
+void set_noise_zone(const units::RectFd& rect);
+void set_composite_zone(const units::RectFd& rect);
+void set_zoomed_zone(const units::RectFd& rect);
+void set_reticle_zone(const units::RectFd& rect);
+/*! \} */
+
+/*!
+ * \brief Gets the raw bit shift
+ *
+ * \return int the raw bit shift
+ */
+int get_raw_bitshift();
+
 /*!
  * \brief Gets the contrast min of a given window
  *
@@ -461,11 +507,39 @@ bool get_contrast_invert_enabled();
  */
 bool get_img_log_scale_slice_enabled();
 
-/*! \brief Modifies convolution kernel
+/*! \brief get x
  *
- * \param value The new kernel to apply
+ * \return x
  */
-void update_convo_kernel(const std::string& value);
+View_XY get_x(void);
+
+/*! \brief get y
+ *
+ * \return y
+ */
+View_XY get_y(void);
+
+/*! \brief get p
+ *
+ * \return p
+ */
+View_PQ get_p(void);
+
+/*! \brief get q
+ *
+ * \return q
+ */
+View_PQ get_q(void);
+
+/*! \name	Getter of the overlay positions.
+ * \{
+ */
+units::RectFd get_signal_zone();
+units::RectFd get_noise_zone();
+units::RectFd get_composite_zone();
+units::RectFd get_zoomed_zone();
+units::RectFd get_reticle_zone();
+/*! \} */
 
 /*! \brief Enable the divide convolution mode
  *
@@ -522,12 +596,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
  */
 void set_time_transformation_size(std::function<void()> callback);
 
-/*! \brief Enables or Disables fft shift mode on the main display window
- *
- * \param value true: enable, false: disable
- */
-void set_fft_shift(const bool value);
-
 /*! \brief Changes the focused windows
  *
  * \param index the index representing the window to select
@@ -540,7 +608,6 @@ void set_filter2d(bool checked);
 /*! \brief Adds filter2d view
  *
  * \param auxiliary_window_max_size
- * ComputeSettings INI file.
  */
 void set_filter2d_view(bool check, uint auxiliary_window_max_size);
 
@@ -570,9 +637,6 @@ void update_time_transformation_stride(std::function<void()> callback, const uin
  * \param batch_size the new value
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
-
-/*! \brief Adapats tim transformation stide to batch size. Time stride has to be a multiple of batch size*/
-void adapt_time_transformation_stride_to_batch_size();
 
 /*! \brief Modifies view image type
  *
@@ -619,22 +683,17 @@ void init_image_mode(QPoint& position, QSize& size);
 
 /*! \brief Saves the current state of holovibes
  *
- * \param path The location of the .ini file saved
+ * \param path The location of the .json file saved
  */
-void save_compute_settings(const std::string& path = ::holovibes::settings::default_compute_config_filepath);
+void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
 json compute_settings_to_json();
 
-/*! \brief Setups program from .ini file
+/*! \brief Setups program from .json file
  *
- * \param path the path where the .ini file is
+ * \param path the path where the .json file is
  */
 void load_compute_settings(const std::string& path);
 void json_to_compute_settings(const json& data);
-
-void save_user_preferences(boost::property_tree::ptree& ptree);
-void load_user_preferences(const boost::property_tree::ptree& ptree);
-
-void check_batch_size_limit();
 
 /*! \brief Gets the documentation url
  *

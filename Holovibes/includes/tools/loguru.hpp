@@ -106,7 +106,7 @@ loguru::Verbosity_MAX);
 #pragma once
 
 #if defined(LOGURU_IMPLEMENTATION)
-#error                                                                         \
+#error                                                                                                                 \
     "You are defining LOGURU_IMPLEMENTATION. This is for older versions of Loguru. You should now instead include loguru.cpp (or build it and link with it)"
 #endif
 
@@ -167,7 +167,7 @@ loguru::Verbosity_MAX);
 #endif
 
 #ifdef LOGURU_CATCH_SIGABRT
-#error                                                                         \
+#error                                                                                                                 \
     "You are defining LOGURU_CATCH_SIGABRT. This is for older versions of Loguru. You should now instead set the options passed to loguru::init"
 #endif
 
@@ -194,7 +194,7 @@ loguru::Verbosity_MAX);
 #endif
 
 #if defined(LOGURU_UNSAFE_SIGNAL_HANDLER)
-#error                                                                         \
+#error                                                                                                                 \
     "You are defining LOGURU_UNSAFE_SIGNAL_HANDLER. This is for older versions of Loguru. You should now instead set the unsafe_signal_handler option when you call loguru::init."
 #endif
 
@@ -242,8 +242,7 @@ loguru::Verbosity_MAX);
 #if defined(__clang__) || defined(__GNUC__)
 // Helper macro for declaring functions as having similar signature to printf.
 // This allows the compiler to catch format errors at compile-time.
-#define LOGURU_PRINTF_LIKE(fmtarg, firstvararg)                                \
-    __attribute__((__format__(__printf__, fmtarg, firstvararg)))
+#define LOGURU_PRINTF_LIKE(fmtarg, firstvararg) __attribute__((__format__(__printf__, fmtarg, firstvararg)))
 #define LOGURU_FORMAT_STRING_TYPE const char*
 #elif defined(_MSC_VER)
 #define LOGURU_PRINTF_LIKE(fmtarg, firstvararg)
@@ -283,6 +282,9 @@ loguru::Verbosity_MAX);
 #endif
 
 // --------------------------------------------------------------------
+#include "enum_space_transformation.hh"
+#include "enum_time_transformation.hh"
+#include "enum_img_type.hh"
 
 namespace loguru
 {
@@ -324,8 +326,7 @@ LOGURU_EXPORT
 Text vtextprintf(const char* format, fmt::format_args args);
 
 template <typename... Args>
-LOGURU_EXPORT Text textprintf(LOGURU_FORMAT_STRING_TYPE format,
-                              const Args&... args)
+LOGURU_EXPORT Text textprintf(LOGURU_FORMAT_STRING_TYPE format, const Args&... args)
 {
     return vtextprintf(format, fmt::make_format_args(args...));
 }
@@ -386,10 +387,10 @@ struct Message
 {
     // You would generally print a Message by just concatenating the buffers
     // without spacing. Optionally, ignore preamble and indentation.
-    Verbosity verbosity;  // Already part of preamble
-    const char* filename; // Already part of preamble
-    unsigned line;        // Already part of preamble
-    const char* preamble; // Date, time, uptime, thread, file:line, verbosity.
+    Verbosity verbosity;     // Already part of preamble
+    const char* filename;    // Already part of preamble
+    unsigned line;           // Already part of preamble
+    const char* preamble;    // Date, time, uptime, thread, file:line, verbosity.
     const char* indentation; // Just a bunch of spacing.
     const char* prefix;      // Assertion failure info goes here (or "").
     const char* message;     // User message goes here.
@@ -403,11 +404,9 @@ Default is 0, i.e. only log ERROR, WARNING and INFO are written to stderr.
 LOGURU_EXPORT extern Verbosity g_stderr_verbosity;
 LOGURU_EXPORT extern bool g_colorlogtostderr;      // True by default.
 LOGURU_EXPORT extern unsigned g_flush_interval_ms; // 0 (unbuffered) by default.
-LOGURU_EXPORT extern bool
-    g_preamble_header; // Prepend each log start by a descriptions line with all
-                       // columns name? True by default.
-LOGURU_EXPORT extern bool
-    g_preamble; // Prefix each log line with date, time etc? True by default.
+LOGURU_EXPORT extern bool g_preamble_header;       // Prepend each log start by a descriptions line with all
+                                                   // columns name? True by default.
+LOGURU_EXPORT extern bool g_preamble;              // Prefix each log line with date, time etc? True by default.
 
 /* Specify the verbosity used by loguru to log its info messages including the
 header logged when logged::init() is called or on exit. Default is 0 (INFO).
@@ -415,15 +414,13 @@ header logged when logged::init() is called or on exit. Default is 0 (INFO).
 LOGURU_EXPORT extern Verbosity g_internal_verbosity;
 
 // Turn off individual parts of the preamble
-LOGURU_EXPORT extern bool g_preamble_date;   // The date field
-LOGURU_EXPORT extern bool g_preamble_time;   // The time of the current day
-LOGURU_EXPORT extern bool g_preamble_uptime; // The time since init call
-LOGURU_EXPORT extern bool g_preamble_thread; // The logging thread
-LOGURU_EXPORT extern bool
-    g_preamble_file; // The file from which the log originates from
+LOGURU_EXPORT extern bool g_preamble_date;    // The date field
+LOGURU_EXPORT extern bool g_preamble_time;    // The time of the current day
+LOGURU_EXPORT extern bool g_preamble_uptime;  // The time since init call
+LOGURU_EXPORT extern bool g_preamble_thread;  // The logging thread
+LOGURU_EXPORT extern bool g_preamble_file;    // The file from which the log originates from
 LOGURU_EXPORT extern bool g_preamble_verbose; // The verbosity field
-LOGURU_EXPORT extern bool
-    g_preamble_pipe; // The pipe symbol right before the message
+LOGURU_EXPORT extern bool g_preamble_pipe;    // The pipe symbol right before the message
 
 // May not throw!
 typedef void (*log_handler_t)(void* user_data, const Message& message);
@@ -665,36 +662,24 @@ Verbosity current_verbosity_cutoff();
 #if LOGURU_USE_FMTLIB
 // Internal functions
 LOGURU_EXPORT
-void vlog(Verbosity verbosity,
-          const char* file,
-          unsigned line,
-          LOGURU_FORMAT_STRING_TYPE format,
-          fmt::format_args args);
+void vlog(
+    Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, fmt::format_args args);
 LOGURU_EXPORT
-void raw_vlog(Verbosity verbosity,
-              const char* file,
-              unsigned line,
-              LOGURU_FORMAT_STRING_TYPE format,
-              fmt::format_args args);
+void raw_vlog(
+    Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, fmt::format_args args);
 
 // Actual logging function. Use the LOG macro instead of calling this directly.
 template <typename... Args>
-LOGURU_EXPORT void log(Verbosity verbosity,
-                       const char* file,
-                       unsigned line,
-                       LOGURU_FORMAT_STRING_TYPE format,
-                       const Args&... args)
+LOGURU_EXPORT void
+log(Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, const Args&... args)
 {
     vlog(verbosity, file, line, format, fmt::make_format_args(args...));
 }
 
 // Log without any preamble or indentation.
 template <typename... Args>
-LOGURU_EXPORT void raw_log(Verbosity verbosity,
-                           const char* file,
-                           unsigned line,
-                           LOGURU_FORMAT_STRING_TYPE format,
-                           const Args&... args)
+LOGURU_EXPORT void
+raw_log(Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, const Args&... args)
 {
     raw_vlog(verbosity, file, line, format, fmt::make_format_args(args...));
 }
@@ -702,19 +687,13 @@ LOGURU_EXPORT void raw_log(Verbosity verbosity,
        // Actual logging function. Use the LOG macro instead of calling this
        // directly.
 LOGURU_EXPORT
-void log(Verbosity verbosity,
-         const char* file,
-         unsigned line,
-         LOGURU_FORMAT_STRING_TYPE format,
-         ...) LOGURU_PRINTF_LIKE(4, 5);
+void log(Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, ...)
+    LOGURU_PRINTF_LIKE(4, 5);
 
 // Log without any preamble or indentation.
 LOGURU_EXPORT
-void raw_log(Verbosity verbosity,
-             const char* file,
-             unsigned line,
-             LOGURU_FORMAT_STRING_TYPE format,
-             ...) LOGURU_PRINTF_LIKE(4, 5);
+void raw_log(Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, ...)
+    LOGURU_PRINTF_LIKE(4, 5);
 #endif // !LOGURU_USE_FMTLIB
 
 // Helper class for LOG_SCOPE_F
@@ -725,11 +704,8 @@ class LOGURU_EXPORT LogScopeRAII
         : _file(nullptr)
     {
     } // No logging
-    LogScopeRAII(Verbosity verbosity,
-                 const char* file,
-                 unsigned line,
-                 LOGURU_FORMAT_STRING_TYPE format,
-                 ...) LOGURU_PRINTF_LIKE(5, 6);
+    LogScopeRAII(Verbosity verbosity, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, ...)
+        LOGURU_PRINTF_LIKE(5, 6);
     ~LogScopeRAII();
 
 #if defined(_MSC_VER) && _MSC_VER > 1800
@@ -779,35 +755,23 @@ LOGURU_NORETURN void vlog_and_abort(int stack_trace_skip,
                                     LOGURU_FORMAT_STRING_TYPE format,
                                     fmt::format_args);
 template <typename... Args>
-LOGURU_EXPORT LOGURU_NORETURN void
-log_and_abort(int stack_trace_skip,
-              const char* expr,
-              const char* file,
-              unsigned line,
-              LOGURU_FORMAT_STRING_TYPE format,
-              const Args&... args)
+LOGURU_EXPORT LOGURU_NORETURN void log_and_abort(int stack_trace_skip,
+                                                 const char* expr,
+                                                 const char* file,
+                                                 unsigned line,
+                                                 LOGURU_FORMAT_STRING_TYPE format,
+                                                 const Args&... args)
 {
-    vlog_and_abort(stack_trace_skip,
-                   expr,
-                   file,
-                   line,
-                   format,
-                   fmt::make_format_args(args...));
+    vlog_and_abort(stack_trace_skip, expr, file, line, format, fmt::make_format_args(args...));
 }
 #else
 LOGURU_EXPORT
-LOGURU_NORETURN void log_and_abort(int stack_trace_skip,
-                                   const char* expr,
-                                   const char* file,
-                                   unsigned line,
-                                   LOGURU_FORMAT_STRING_TYPE format,
-                                   ...) LOGURU_PRINTF_LIKE(5, 6);
+LOGURU_NORETURN void log_and_abort(
+    int stack_trace_skip, const char* expr, const char* file, unsigned line, LOGURU_FORMAT_STRING_TYPE format, ...)
+    LOGURU_PRINTF_LIKE(5, 6);
 #endif
 LOGURU_EXPORT
-LOGURU_NORETURN void log_and_abort(int stack_trace_skip,
-                                   const char* expr,
-                                   const char* file,
-                                   unsigned line);
+LOGURU_NORETURN void log_and_abort(int stack_trace_skip, const char* expr, const char* file, unsigned line);
 
 // Flush output to stderr and files.
 // If g_flush_interval_ms is set to non-zero, this will be called automatically
@@ -883,9 +847,7 @@ void set_thread_name(const char* name);
    hexadecimal thread id will be written to the end of buffer.
 */
 LOGURU_EXPORT
-void get_thread_name(char* buffer,
-                     unsigned long long length,
-                     bool right_align_hex_id);
+void get_thread_name(char* buffer, unsigned long long length, bool right_align_hex_id);
 
 /* Generates a readable stacktrace as a string.
    'skip' specifies how many stack frames to skip.
@@ -996,11 +958,7 @@ class EcEntryData : public EcEntryBase
   public:
     using Printer = Text (*)(T data);
 
-    EcEntryData(const char* file,
-                unsigned line,
-                const char* descr,
-                T data,
-                Printer&& printer)
+    EcEntryData(const char* file, unsigned line, const char* descr, T data, Printer&& printer)
         : EcEntryBase(file, line, descr)
         , _data(data)
         , _printer(printer)
@@ -1070,8 +1028,7 @@ struct make_const_ptr<T*>
 template <class T>
 struct make_ec_type
 {
-    using type =
-        typename make_const_ptr<typename decay_char_array<T>::type>::type;
+    using type = typename make_const_ptr<typename decay_char_array<T>::type>::type;
 };
 
 /* 	A stack trace gives you the names of the function at the point of a
@@ -1103,16 +1060,14 @@ struct make_ec_type
         Error contexts are printed automatically on crashes, and only on
    crashes. This makes them much faster than logging the value of a variable.
 */
-#define ERROR_CONTEXT(descr, data)                                             \
-    const loguru::EcEntryData<loguru::make_ec_type<decltype(data)>::type>      \
-        LOGURU_ANONYMOUS_VARIABLE(error_context_scope_)(                       \
-            __FILE__,                                                          \
-            __LINE__,                                                          \
-            descr,                                                             \
-            data,                                                              \
-            static_cast<loguru::EcEntryData<                                   \
-                loguru::make_ec_type<decltype(data)>::type>::Printer>(         \
-                loguru::ec_to_text)) // For better error messages
+#define ERROR_CONTEXT(descr, data)                                                                                     \
+    const loguru::EcEntryData<loguru::make_ec_type<decltype(data)>::type> LOGURU_ANONYMOUS_VARIABLE(                   \
+        error_context_scope_)(__FILE__,                                                                                \
+                              __LINE__,                                                                                \
+                              descr,                                                                                   \
+                              data,                                                                                    \
+                              static_cast<loguru::EcEntryData<loguru::make_ec_type<decltype(data)>::type>::Printer>(   \
+                                  loguru::ec_to_text)) // For better error messages
 
 /*
         #define ERROR_CONTEXT(descr, data)                                 \
@@ -1215,41 +1170,35 @@ this scope!
 // Logging macros
 
 // LOG_F(2, "Only logged if verbosity is 2 or higher: %d", some_number);
-#define VLOG_F(verbosity, ...)                                                 \
-    ((verbosity) > loguru::current_verbosity_cutoff())                         \
-        ? (void)0                                                              \
-        : loguru::log(verbosity, __FILE__, __LINE__, __VA_ARGS__)
+#define VLOG_F(verbosity, ...)                                                                                         \
+    ((verbosity) > loguru::current_verbosity_cutoff()) ? (void)0                                                       \
+                                                       : loguru::log(verbosity, __FILE__, __LINE__, __VA_ARGS__)
 
 // LOG_F(INFO, "Foo: %d", some_number);
-#define LOG_F(verbosity_name, ...)                                             \
-    VLOG_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
+#define LOG_F(verbosity_name, ...) VLOG_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
 
-#define VLOG_IF_F(verbosity, cond, ...)                                        \
-    ((verbosity) > loguru::current_verbosity_cutoff() || (cond) == false)      \
-        ? (void)0                                                              \
+#define VLOG_IF_F(verbosity, cond, ...)                                                                                \
+    ((verbosity) > loguru::current_verbosity_cutoff() || (cond) == false)                                              \
+        ? (void)0                                                                                                      \
         : loguru::log(verbosity, __FILE__, __LINE__, __VA_ARGS__)
 
-#define LOG_IF_F(verbosity_name, cond, ...)                                    \
-    VLOG_IF_F(loguru::Verbosity_##verbosity_name, cond, __VA_ARGS__)
+#define LOG_IF_F(verbosity_name, cond, ...) VLOG_IF_F(loguru::Verbosity_##verbosity_name, cond, __VA_ARGS__)
 
-#define VLOG_SCOPE_F(verbosity, ...)                                           \
-    loguru::LogScopeRAII LOGURU_ANONYMOUS_VARIABLE(error_context_RAII_) =      \
-        ((verbosity) > loguru::current_verbosity_cutoff())                     \
-            ? loguru::LogScopeRAII()                                           \
+#define VLOG_SCOPE_F(verbosity, ...)                                                                                   \
+    loguru::LogScopeRAII LOGURU_ANONYMOUS_VARIABLE(error_context_RAII_) =                                              \
+        ((verbosity) > loguru::current_verbosity_cutoff())                                                             \
+            ? loguru::LogScopeRAII()                                                                                   \
             : loguru::LogScopeRAII(verbosity, __FILE__, __LINE__, __VA_ARGS__)
 
 // Raw logging - no preamble, no indentation. Slightly faster than full logging.
-#define RAW_VLOG_F(verbosity, ...)                                             \
-    ((verbosity) > loguru::current_verbosity_cutoff())                         \
-        ? (void)0                                                              \
-        : loguru::raw_log(verbosity, __FILE__, __LINE__, __VA_ARGS__)
+#define RAW_VLOG_F(verbosity, ...)                                                                                     \
+    ((verbosity) > loguru::current_verbosity_cutoff()) ? (void)0                                                       \
+                                                       : loguru::raw_log(verbosity, __FILE__, __LINE__, __VA_ARGS__)
 
-#define RAW_LOG_F(verbosity_name, ...)                                         \
-    RAW_VLOG_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
+#define RAW_LOG_F(verbosity_name, ...) RAW_VLOG_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
 
 // Use to book-end a scope. Affects logging on all threads.
-#define LOG_SCOPE_F(verbosity_name, ...)                                       \
-    VLOG_SCOPE_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
+#define LOG_SCOPE_F(verbosity_name, ...) VLOG_SCOPE_F(loguru::Verbosity_##verbosity_name, __VA_ARGS__)
 
 #define LOG_SCOPE_FUNCTION(verbosity_name) LOG_SCOPE_F(verbosity_name, __func__)
 
@@ -1257,55 +1206,42 @@ this scope!
 // ABORT_F macro. Usage:  ABORT_F("Cause of error: %s", error_str);
 
 // Message is optional
-#define ABORT_F(...)                                                           \
-    loguru::log_and_abort(0, "ABORT: ", __FILE__, __LINE__, __VA_ARGS__)
+#define ABORT_F(...) loguru::log_and_abort(0, "ABORT: ", __FILE__, __LINE__, __VA_ARGS__)
 
 // --------------------------------------------------------------------
 // CHECK_F macros:
 
-#define CHECK_WITH_INFO_F(test, info, ...)                                     \
-    LOGURU_PREDICT_TRUE((test) == true)                                        \
-    ? (void)0                                                                  \
-    : loguru::log_and_abort(0,                                                 \
-                            "CHECK FAILED:  " info "  ",                       \
-                            __FILE__,                                          \
-                            __LINE__,                                          \
-                            ##__VA_ARGS__)
+#define CHECK_WITH_INFO_F(test, info, ...)                                                                             \
+    LOGURU_PREDICT_TRUE((test) == true)                                                                                \
+    ? (void)0 : loguru::log_and_abort(0, "CHECK FAILED:  " info "  ", __FILE__, __LINE__, ##__VA_ARGS__)
 
 /* Checked at runtime too. Will print error, then call fatal_handler (if any),
    then 'abort'. Note that the test must be boolean. CHECK_F(ptr); will not
    compile, but CHECK_F(ptr != nullptr); will. */
 #define CHECK_F(test, ...) CHECK_WITH_INFO_F(test, #test, ##__VA_ARGS__)
 
-#define CHECK_NOTNULL_F(x, ...)                                                \
-    CHECK_WITH_INFO_F((x) != nullptr, #x " != nullptr", ##__VA_ARGS__)
+#define CHECK_NOTNULL_F(x, ...) CHECK_WITH_INFO_F((x) != nullptr, #x " != nullptr", ##__VA_ARGS__)
 
-#define CHECK_OP_F(expr_left, expr_right, op, ...)                                    \
-    do                                                                                \
-    {                                                                                 \
-        auto val_left = expr_left;                                                    \
-        auto val_right = expr_right;                                                  \
-        if (!LOGURU_PREDICT_TRUE(val_left op val_right))                              \
-        {                                                                             \
-            auto str_left = loguru::format_value(val_left);                           \
-            auto str_right = loguru::format_value(val_right);                         \
-            auto fail_info = loguru::textprintf(                                      \
-                "CHECK FAILED:  " LOGURU_FMT(s) " " LOGURU_FMT(s) " " LOGURU_FMT(     \
-                    s) "  (" LOGURU_FMT(s) " " LOGURU_FMT(s) " " LOGURU_FMT(s) ")  ", \
-                #expr_left,                                                           \
-                #op,                                                                  \
-                #expr_right,                                                          \
-                str_left.c_str(),                                                     \
-                #op,                                                                  \
-                str_right.c_str());                                                   \
-            auto user_msg = loguru::textprintf(__VA_ARGS__);                          \
-            loguru::log_and_abort(0,                                                  \
-                                  fail_info.c_str(),                                  \
-                                  __FILE__,                                           \
-                                  __LINE__,                                           \
-                                  LOGURU_FMT(s),                                      \
-                                  user_msg.c_str());                                  \
-        }                                                                             \
+#define CHECK_OP_F(expr_left, expr_right, op, ...)                                                                     \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        auto val_left = expr_left;                                                                                     \
+        auto val_right = expr_right;                                                                                   \
+        if (!LOGURU_PREDICT_TRUE(val_left op val_right))                                                               \
+        {                                                                                                              \
+            auto str_left = loguru::format_value(val_left);                                                            \
+            auto str_right = loguru::format_value(val_right);                                                          \
+            auto fail_info = loguru::textprintf("CHECK FAILED:  " LOGURU_FMT(s) " " LOGURU_FMT(s) " " LOGURU_FMT(      \
+                                                    s) "  (" LOGURU_FMT(s) " " LOGURU_FMT(s) " " LOGURU_FMT(s) ")  ",  \
+                                                #expr_left,                                                            \
+                                                #op,                                                                   \
+                                                #expr_right,                                                           \
+                                                str_left.c_str(),                                                      \
+                                                #op,                                                                   \
+                                                str_right.c_str());                                                    \
+            auto user_msg = loguru::textprintf(__VA_ARGS__);                                                           \
+            loguru::log_and_abort(0, fail_info.c_str(), __FILE__, __LINE__, LOGURU_FMT(s), user_msg.c_str());          \
+        }                                                                                                              \
     } while (false)
 
 #ifndef LOGURU_DEBUG_LOGGING
@@ -1406,13 +1342,11 @@ namespace loguru
 {
 // Like sprintf, but returns the formated text.
 LOGURU_EXPORT
-std::string strprintf(LOGURU_FORMAT_STRING_TYPE format, ...)
-    LOGURU_PRINTF_LIKE(1, 2);
+std::string strprintf(LOGURU_FORMAT_STRING_TYPE format, ...) LOGURU_PRINTF_LIKE(1, 2);
 
 // Like vsprintf, but returns the formated text.
 LOGURU_EXPORT
-std::string vstrprintf(LOGURU_FORMAT_STRING_TYPE format, va_list)
-    LOGURU_PRINTF_LIKE(1, 0);
+std::string vstrprintf(LOGURU_FORMAT_STRING_TYPE format, va_list) LOGURU_PRINTF_LIKE(1, 0);
 
 class LOGURU_EXPORT StreamLogger
 {
@@ -1492,28 +1426,21 @@ class LOGURU_EXPORT Voidify
         GLOG trick: The (int, int) specialization works around the issue that
    the compiler will not instantiate the template version of the function on
    values of unnamed enum type. */
-#define DEFINE_CHECK_OP_IMPL(name, op)                                         \
-    template <typename T1, typename T2>                                        \
-    inline std::string* name(const char* expr,                                 \
-                             const T1& v1,                                     \
-                             const char* op_str,                               \
-                             const T2& v2)                                     \
-    {                                                                          \
-        if (LOGURU_PREDICT_TRUE(v1 op v2))                                     \
-        {                                                                      \
-            return NULL;                                                       \
-        }                                                                      \
-        std::ostringstream ss;                                                 \
-        ss << "CHECK FAILED:  " << expr << "  (" << v1 << " " << op_str << " " \
-           << v2 << ")  ";                                                     \
-        return new std::string(ss.str());                                      \
-    }                                                                          \
-    inline std::string* name(const char* expr,                                 \
-                             int v1,                                           \
-                             const char* op_str,                               \
-                             int v2)                                           \
-    {                                                                          \
-        return name<int, int>(expr, v1, op_str, v2);                           \
+#define DEFINE_CHECK_OP_IMPL(name, op)                                                                                 \
+    template <typename T1, typename T2>                                                                                \
+    inline std::string* name(const char* expr, const T1& v1, const char* op_str, const T2& v2)                         \
+    {                                                                                                                  \
+        if (LOGURU_PREDICT_TRUE(v1 op v2))                                                                             \
+        {                                                                                                              \
+            return NULL;                                                                                               \
+        }                                                                                                              \
+        std::ostringstream ss;                                                                                         \
+        ss << "CHECK FAILED:  " << expr << "  (" << v1 << " " << op_str << " " << v2 << ")  ";                         \
+        return new std::string(ss.str());                                                                              \
+    }                                                                                                                  \
+    inline std::string* name(const char* expr, int v1, const char* op_str, int v2)                                     \
+    {                                                                                                                  \
+        return name<int, int>(expr, v1, op_str, v2);                                                                   \
     }
 
 DEFINE_CHECK_OP_IMPL(check_EQ_impl, ==)
@@ -1542,51 +1469,41 @@ inline unsigned int referenceable_value(unsigned int t) { return t; }
 inline long referenceable_value(long t) { return t; }
 inline unsigned long referenceable_value(unsigned long t) { return t; }
 inline long long referenceable_value(long long t) { return t; }
-inline unsigned long long referenceable_value(unsigned long long t)
-{
-    return t;
-}
+inline unsigned long long referenceable_value(unsigned long long t) { return t; }
 } // namespace loguru
 
 // -----------------------------------------------
 // Logging macros:
 
 // usage:  LOG_STREAM(INFO) << "Foo " << std::setprecision(10) << some_value;
-#define VLOG_IF_S(verbosity, cond)                                             \
-    ((verbosity) > loguru::current_verbosity_cutoff() || (cond) == false)      \
-        ? (void)0                                                              \
-        : loguru::Voidify() &                                                  \
-              loguru::StreamLogger(verbosity, __FILE__, __LINE__)
-#define LOG_IF_S(verbosity_name, cond)                                         \
-    VLOG_IF_S(loguru::Verbosity_##verbosity_name, cond)
+#define VLOG_IF_S(verbosity, cond)                                                                                     \
+    ((verbosity) > loguru::current_verbosity_cutoff() || (cond) == false)                                              \
+        ? (void)0                                                                                                      \
+        : loguru::Voidify() & loguru::StreamLogger(verbosity, __FILE__, __LINE__)
+#define LOG_IF_S(verbosity_name, cond) VLOG_IF_S(loguru::Verbosity_##verbosity_name, cond)
 #define VLOG_S(verbosity) VLOG_IF_S(verbosity, true)
 #define LOG_S(verbosity_name) VLOG_S(loguru::Verbosity_##verbosity_name)
 
 // -----------------------------------------------
 // ABORT_S macro. Usage:  ABORT_S() << "Causo of error: " << details;
 
-#define ABORT_S()                                                              \
-    loguru::Voidify() & loguru::AbortLogger("ABORT: ", __FILE__, __LINE__)
+#define ABORT_S() loguru::Voidify() & loguru::AbortLogger("ABORT: ", __FILE__, __LINE__)
 
 // -----------------------------------------------
 // CHECK_S macros:
 
-#define CHECK_WITH_INFO_S(cond, info)                                          \
-    LOGURU_PREDICT_TRUE((cond) == true)                                        \
-    ? (void)0                                                                  \
-    : loguru::Voidify() & loguru::AbortLogger("CHECK FAILED:  " info "  ",     \
-                                              __FILE__,                        \
-                                              __LINE__)
+#define CHECK_WITH_INFO_S(cond, info)                                                                                  \
+    LOGURU_PREDICT_TRUE((cond) == true)                                                                                \
+    ? (void)0 : loguru::Voidify() & loguru::AbortLogger("CHECK FAILED:  " info "  ", __FILE__, __LINE__)
 
 #define CHECK_S(cond) CHECK_WITH_INFO_S(cond, #cond)
 #define CHECK_NOTNULL_S(x) CHECK_WITH_INFO_S((x) != nullptr, #x " != nullptr")
 
-#define CHECK_OP_S(function_name, expr1, op, expr2)                            \
-    while (auto error_string =                                                 \
-               loguru::function_name(#expr1 " " #op " " #expr2,                \
-                                     loguru::referenceable_value(expr1),       \
-                                     #op,                                      \
-                                     loguru::referenceable_value(expr2)))      \
+#define CHECK_OP_S(function_name, expr1, op, expr2)                                                                    \
+    while (auto error_string = loguru::function_name(#expr1 " " #op " " #expr2,                                        \
+                                                     loguru::referenceable_value(expr1),                               \
+                                                     #op,                                                              \
+                                                     loguru::referenceable_value(expr2)))                              \
     loguru::AbortLogger(error_string->c_str(), __FILE__, __LINE__)
 
 #define CHECK_EQ_S(expr1, expr2) CHECK_OP_S(check_EQ_impl, expr1, ==, expr2)
@@ -1604,15 +1521,12 @@ inline unsigned long long referenceable_value(unsigned long long t)
 #define DLOG_S(verbosity_name) LOG_S(verbosity_name)
 #else
   // Debug logging disabled:
-#define DVLOG_IF_S(verbosity, cond)                                            \
-    (true || (verbosity) > loguru::current_verbosity_cutoff() ||               \
-     (cond) == false)                                                          \
-        ? (void)0                                                              \
-        : loguru::Voidify() &                                                  \
-              loguru::StreamLogger(verbosity, __FILE__, __LINE__)
+#define DVLOG_IF_S(verbosity, cond)                                                                                    \
+    (true || (verbosity) > loguru::current_verbosity_cutoff() || (cond) == false)                                      \
+        ? (void)0                                                                                                      \
+        : loguru::Voidify() & loguru::StreamLogger(verbosity, __FILE__, __LINE__)
 
-#define DLOG_IF_S(verbosity_name, cond)                                        \
-    DVLOG_IF_S(loguru::Verbosity_##verbosity_name, cond)
+#define DLOG_IF_S(verbosity_name, cond) DVLOG_IF_S(loguru::Verbosity_##verbosity_name, cond)
 #define DVLOG_S(verbosity) DVLOG_IF_S(verbosity, true)
 #define DLOG_S(verbosity_name) DVLOG_S(loguru::Verbosity_##verbosity_name)
 #endif
@@ -1690,8 +1604,7 @@ inline unsigned long long referenceable_value(unsigned long long t)
 #define DCHECK_LE DCHECK_LE_S
 #define DCHECK_GT DCHECK_GT_S
 #define DCHECK_GE DCHECK_GE_S
-#define VLOG_IS_ON(verbosity)                                                  \
-    ((verbosity) <= loguru::current_verbosity_cutoff())
+#define VLOG_IS_ON(verbosity) ((verbosity) <= loguru::current_verbosity_cutoff())
 
 #endif // LOGURU_REPLACE_GLOG
 
