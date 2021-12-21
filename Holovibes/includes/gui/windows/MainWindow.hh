@@ -62,8 +62,6 @@ class MainWindow : public QMainWindow, public Observer
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
-/* ---------- */
-#pragma region Public Slots
 
     /*! \brief Closes all the displayed windows */
     void close_windows();
@@ -78,6 +76,13 @@ class MainWindow : public QMainWindow, public Observer
 
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
+
+  private:
+    enum Theme
+    {
+        Classic,
+        Dark,
+    };
 
   public slots:
     void on_notify();
@@ -112,7 +117,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Changes the theme of the ui */
     void set_classic();
     void set_night();
-    void set_theme(const int index);
+    void set_theme(const Theme theme);
 
     /*! \brief Resize windows if one layout is toggled. */
     void layout_toggled();
@@ -144,15 +149,13 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
-#pragma endregion
-    /* ---------- */
   signals:
     /*! \brief TODO: comment
      *
      * \param f
      */
     void synchronize_thread_signal(std::function<void()> f);
-#pragma region Protected / Private Methods
+
   public:
     /*! \brief Last call before the program is closed
      *
@@ -175,17 +178,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void change_camera(CameraKind c);
 
-#pragma endregion
-/* ---------- */
-#pragma region Fields
-
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
 
     // Additional attributes
-    short theme_index_ = -1;
-
-#pragma endregion
+    Theme theme_ = Theme::Dark;
 };
 } // namespace gui
 } // namespace holovibes

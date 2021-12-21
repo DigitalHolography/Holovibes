@@ -23,7 +23,6 @@ class ImportPanel : public Panel
     ImportPanel(QWidget* parent = nullptr);
     ~ImportPanel();
 
-    void init() override;
     void on_notify() override;
 
     void load_gui(const boost::property_tree::ptree& ptree) override;

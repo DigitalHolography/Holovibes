@@ -21,12 +21,6 @@ void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(UserInterfaceDescriptor::instance().record_frame_step_);
     set_record_mode(QString::fromUtf8("Raw Image"));
-
-    // Fix for the placeholder color that was black by default because of QT6
-    // to remove ?
-    auto p = ui_->BatchInputPathLineEdit->palette();
-    p.setColor(QPalette::PlaceholderText, Qt::darkGray);
-    ui_->BatchInputPathLineEdit->setPalette(p);
 }
 
 void ExportPanel::on_notify()
