@@ -29,20 +29,14 @@
 namespace holovibes
 {
 
-bool Pipe::keep_contiguous(int nb_elm_to_add) const
+void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
-    if (!Holovibes::instance().is_cli)
-        return true;
-
     while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
-           frame_record_env_.gpu_frame_record_queue_->get_max_size())
+               frame_record_env_.gpu_frame_record_queue_->get_max_size() &&
+           // This check prevents being stuck in this loop because record might stop while in this loop
+           Holovibes::instance().is_recording())
     {
-        // This check prevents being stuck in this loop because record might stop while in this loop
-        if (!Holovibes::instance().is_recording())
-            return false;
     }
-
-    return true;
 }
 
 using camera::FrameDescriptor;
@@ -604,11 +598,11 @@ void Pipe::insert_raw_record()
 {
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
+        if (Holovibes::instance().is_cli)
+            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
+
         fn_compute_vect_.push_back(
-            [&]()
-            {
-                if (!keep_contiguous(cd_.batch_size.load()))
-                    return;
+            [&]() {
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
                                                compute_cache_.get_batch_size());
             });
@@ -619,12 +613,12 @@ void Pipe::insert_hologram_record()
 {
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
+        if (Holovibes::instance().is_cli)
+            fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
-                if (!keep_contiguous(1))
-                    return;
-
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
                                                                                   stream_);
