@@ -151,6 +151,10 @@ void ViewPanel::on_notify()
         max_width = api::get_gpu_input_queue_fd_width() - 1;
         max_height = api::get_gpu_input_queue_fd_height() - 1;
     }
+    else
+    {
+        api::set_x_y(0, 0);
+    }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
@@ -271,7 +275,7 @@ void ViewPanel::update_raw_view(bool checked)
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::set_x_y() { api::set_cuts(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
+void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
 
 void ViewPanel::set_x_accu()
 {

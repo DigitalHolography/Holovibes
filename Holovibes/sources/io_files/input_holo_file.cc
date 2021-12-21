@@ -1,6 +1,7 @@
 #include <filesystem>
 #include "input_holo_file.hh"
 #include "file_exception.hh"
+#include "compute_descriptor.hh"
 #include "logger.hh"
 #include "API.hh"
 #include "global_state_holder.hh"

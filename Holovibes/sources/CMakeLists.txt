@@ -13,6 +13,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
 
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
+    compute/compute_descriptor.cc
     compute/converts.cc
     compute/fourier_transform.cc
     compute/postprocessing.cc

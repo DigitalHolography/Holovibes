@@ -77,6 +77,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::gui::MainWindow window;
     window.show();
     splash.finish(&window);
+    holovibes.get_cd().register_observer(window);
 
     if (!filename.empty())
     {

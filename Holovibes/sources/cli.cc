@@ -41,7 +41,7 @@ static void progress_bar(int current, int total, int length)
     std::cout.flush();
 }
 
-static void print_verbose(const holovibes::OptionsDescriptor& opts)
+static void print_verbose(const holovibes::OptionsDescriptor& opts, const holovibes::ComputeDescriptor& cd)
 {
     std::cout << "Config:\n";
     boost::property_tree::ptree ptree;
@@ -61,7 +61,9 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     std::cout << std::endl;
 }
 
-bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
+bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts,
+                              const uint& nb_frames,
+                              holovibes::ComputeDescriptor& cd)
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
@@ -97,6 +99,8 @@ bool get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const ui
 
 static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    auto& cd = holovibes.get_cd();
+
     std::string input_path = opts.input_path.value();
 
     holovibes::io_files::InputFrameFile* input_frame_file =
@@ -110,7 +114,7 @@ static bool set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opt
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
-    if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
+    if (!get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames()), cd))
         return false;
 
     holovibes.init_input_queue(fd, holovibes::api::get_input_buffer_size());
@@ -185,6 +189,8 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    auto& cd = holovibes.get_cd();
+
     if (opts.compute_settings_path)
     {
         try
@@ -234,7 +240,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     if (opts.verbose)
     {
-        print_verbose(opts);
+        print_verbose(opts, cd);
     }
 
     main_loop(holovibes);

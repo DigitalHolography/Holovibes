@@ -265,11 +265,7 @@ void GSH::disable_convolution()
 #pragma endregion
 
 /*! \brief Change the window according to the given index */
-void GSH::change_window(uint index)
-{
-    view_cache_.set_current_window(static_cast<WindowKind>(index));
-    notify_callback_();
-}
+void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast<WindowKind>(index)); }
 
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {

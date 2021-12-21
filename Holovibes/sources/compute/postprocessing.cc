@@ -1,5 +1,6 @@
 #include "postprocessing.hh"
 #include "icompute.hh"
+#include "compute_descriptor.hh"
 #include "convolution.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"

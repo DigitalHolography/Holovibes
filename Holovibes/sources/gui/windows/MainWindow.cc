@@ -161,8 +161,6 @@ MainWindow::MainWindow(QWidget* parent)
     GSH::instance().set_update_view_callback(
         [&](WindowKind kind, View_Window window)
         { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
-
-    GSH::instance().set_notify_callback([&]() { notify(); });
 }
 
 MainWindow::~MainWindow()

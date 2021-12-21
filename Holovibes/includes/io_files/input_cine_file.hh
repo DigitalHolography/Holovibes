@@ -25,13 +25,15 @@ class InputCineFile : public InputFrameFile, public CineFile
     /*! \brief Getter on the total number of frames in the file */
     size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
-    /*! \brief Update GSH with the settings present in the file
+    /*! \brief Update ComputeDescriptor with the settings present in the file
+     *
+     *  \param cd The ComputeDescriptor to update
      */
     void import_compute_settings() const override;
 
-    /*! \brief Update GSH with the settings present in the file
+    /*! \brief Update ComputeDescriptor with the settings present in the file
      *
-     *  \param cd The GSH to update
+     *  \param cd The ComputeDescriptor to update
      */
     void import_info() const override;
 

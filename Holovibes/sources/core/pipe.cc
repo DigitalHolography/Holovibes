@@ -1,5 +1,6 @@
 #include "pipe.hh"
 
+#include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"

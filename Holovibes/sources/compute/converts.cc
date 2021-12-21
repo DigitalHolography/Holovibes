@@ -1,5 +1,6 @@
 #include "converts.hh"
 #include "frame_desc.hh"
+#include "compute_descriptor.hh"
 #include "icompute.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"

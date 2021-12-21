@@ -9,6 +9,7 @@
 #pragma once
 
 #include "frame_desc.hh"
+#include "compute_descriptor.hh"
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
 #include "display_queue.hh"

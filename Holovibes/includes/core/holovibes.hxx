@@ -16,6 +16,10 @@ inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe()
     return compute_pipe_.load();
 }
 
+inline ComputeDescriptor& Holovibes::get_cd() { return cd_; }
+
+inline void Holovibes::set_cd(const ComputeDescriptor& cd) { cd_ = cd; }
+
 inline const char* Holovibes::get_camera_ini_name() const { return active_camera_->get_ini_name(); }
 
 inline const Holovibes::CudaStreams& Holovibes::get_cuda_streams() const { return cuda_streams_; }

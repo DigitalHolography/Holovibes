@@ -216,6 +216,7 @@ void RainbowOverlay::move(QMouseEvent* e)
                 api::set_composite_p_max_h(check_interval(zone_.dst().y()));
             }
         }
+        api::get_cd().notify_observers();
     }
 }
 

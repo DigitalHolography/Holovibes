@@ -198,7 +198,9 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        api::set_cuts(mouse_position_.x(), mouse_position_.y());
+        api::set_x_cuts(mouse_position_.x());
+        api::set_y_cuts(mouse_position_.y());
+        // api::get_cd().notify_observers();
     }
 }
 

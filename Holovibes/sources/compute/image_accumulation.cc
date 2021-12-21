@@ -1,4 +1,5 @@
 #include "image_accumulation.hh"
+#include "compute_descriptor.hh"
 #include "rect.hh"
 #include "power_of_two.hh"
 #include "cufft_handle.hh"
