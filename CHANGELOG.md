@@ -1,5 +1,13 @@
 ## Changelog
 
+### Current
+
+* Fixed the color theme not working properly at the start
+* User settings are now in .json format instead of .ini
+* Reintroduced the record frame step in the advanced settings window
+* Fixed crashes when enabling the reticle
+* Fixed another crash when the reticle is enabled at the start of a .holo import
+
 ### 10.7.0
 
 * Global state refacto, needed to organize and gather up the global state (formerly in the compute descriptor) :
