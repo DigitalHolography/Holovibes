@@ -4,7 +4,6 @@ namespace holovibes::api
 {
 void load_image_rendering(const json& data)
 {
-
     GSH::instance().set_compute_mode(computation_from_string(data["image mode"]));
     GSH::instance().set_batch_size(data["batch size"]);
     GSH::instance().set_time_transformation_stride(data["time transformation stride"]);
@@ -63,7 +62,6 @@ void load_composite(const json& data)
 
 void load_advanced(const json& data)
 {
-
     const json& buffer_size_data = data["buffer size"];
     GSH::instance().set_file_buffer_size(buffer_size_data["file"]);
     GSH::instance().set_input_buffer_size(buffer_size_data["input"]);
