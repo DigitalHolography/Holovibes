@@ -977,7 +977,8 @@ bool get_img_log_scale_slice_enabled() { return GSH::instance().get_img_log_scal
 
 void enable_convolution(const std::string& filename)
 {
-    GSH::instance().enable_convolution(filename);
+    GSH::instance().enable_convolution(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt
+                                                                                : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
