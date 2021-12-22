@@ -10,7 +10,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSett
 {
 
     ui.setupUi(this);
-    setWindowIcon(QIcon(":/Holovibes.ico"));
+    setWindowIcon(QIcon(":/holovibes_logo.png"));
     this->setAttribute(Qt::WA_DeleteOnClose);
     this->show();
 

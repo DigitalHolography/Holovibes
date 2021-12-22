@@ -46,7 +46,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
-    setIcon(QIcon(":/Holovibes.ico"));
+    setIcon(QIcon(":/holovibes_logo.png"));
     this->installEventFilter(this);
 }
 
