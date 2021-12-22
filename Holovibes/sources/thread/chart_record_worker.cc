@@ -16,13 +16,12 @@ ChartRecordWorker::ChartRecordWorker(const std::string& path, const unsigned int
 
 void ChartRecordWorker::run()
 {
-    auto& cd = Holovibes::instance().get_cd();
-
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[#img : " << cd.time_transformation_size << ", p : " << cd.p.index << ", lambda : " << cd.lambda
-       << ", z : " << cd.zdistance << "]" << std::endl;
+    of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << GSH::instance().get_p_index()
+       << ", lambda : " << GSH::instance().get_lambda() << ", z : " << GSH::instance().get_z_distance() << "]"
+       << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "

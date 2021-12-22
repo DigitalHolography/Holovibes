@@ -5,6 +5,7 @@ project(Holovibes)
 set(CONAN_CMAKE_SILENT_OUTPUT ON)
 
 # Create all the FindXXX.cmake needed for the project
+set(CONAN_CMAKE_SILENT_OUTPUT ON)
 include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")

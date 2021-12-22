@@ -122,7 +122,7 @@ class Holovibes
 
     /*! \brief Set ComputeDescriptor options
      *
-     * Used when options are loaded from an INI file.
+     * Used when options are loaded from a JSON file.
      *
      * \param cd ComputeDescriptor to load
      */
@@ -141,6 +141,12 @@ class Holovibes
      * \return const float
      */
     const float get_boundary();
+
+    /*! \brief Say if the worker recording raw/holo/cuts is running.
+     *
+     * \return bool true if recording, else false
+     */
+    bool is_recording() const;
 
     /*! \} */
 
@@ -222,6 +228,9 @@ class Holovibes
 
     void stop_information_display();
 
+    /*! \brief Start compute worker */
+    void start_compute_worker(const std::function<void()>& callback = []() {});
+
     void start_compute(const std::function<void()>& callback = []() {});
 
     void stop_compute();
@@ -229,15 +238,14 @@ class Holovibes
     // Always close the 3D cuts before calling this function
     void stop_all_worker_controller();
 
-    void start_cli_record_and_compute(const std::string& path,
-                                      std::optional<unsigned int> nb_frames_to_record,
-                                      RecordMode record_mode,
-                                      unsigned int nb_frames_skip);
-
     void init_pipe();
 
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
+
+    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
+     * used to know if queues have to keep contiguity or not. */
+    bool is_cli;
 
   private:
     /*! \brief Construct the holovibes object. */

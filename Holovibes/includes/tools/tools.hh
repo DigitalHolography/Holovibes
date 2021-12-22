@@ -29,6 +29,10 @@ using ulong = unsigned long;
 #include "frame_desc.hh"
 #include "cufft.h"
 #include "checker.hh"
+#include "logger.hh"
+
+#include <nlohmann/json.hpp>
+using json = ::nlohmann::json;
 
 std::string engineering_notation(double n, int nb_significand_digit);
 
@@ -131,6 +135,68 @@ QString create_absolute_qt_path(const std::string& relative_path);
 std::string create_absolute_path(const std::string& relative_path);
 /*! \brief Returns the absolute path to the user Documents folder */
 std::filesystem::path get_user_documents_path();
+} // namespace holovibes
+
+// Json tools
+namespace holovibes
+{
+/*template <typename T>
+void json_get(const json& data, const std::string& key, std::function<void(T)> setter)
+{
+    auto it = data.find(key);
+    if (it != data.end())
+        setter(*it);
+}
+
+template <typename T>
+void json_get(const json& data, const std::string& key, void (GSH::*setter)(T))
+{
+    auto it = data.find(key);
+    if (it != data.end())
+        (GSH::instance().*setter)(*it);
+}
+
+template <typename T>
+void json_get(const json& data, const std::string& key, ComputeDescriptor& cd, void (ComputeDescriptor::*setter)(T))
+{
+    auto it = data.find(key);
+    if (it != data.end())
+        (cd.*setter)(*it);
+}
+
+template <typename T>
+void json_get(const json& data, const std::string& key, T& placeholder)
+{
+    auto it = data.find(key);
+    if (it != data.end())
+        placeholder = *it;
+}
+*/
+template <typename T>
+T json_get_or_default(const json& data, T default_value, const char* key)
+{
+    try
+    {
+        return data[key];
+    }
+    catch (json::exception)
+    {
+        return default_value;
+    }
+}
+
+template <typename T>
+T json_get_or_default(const json& data, T default_value, const char* key, const char* keys...)
+{
+    try
+    {
+        return json_get_or_default<T>(data[key], default_value, keys);
+    }
+    catch (json::exception)
+    {
+        return default_value;
+    }
+}
 } // namespace holovibes
 
 namespace image

@@ -5,7 +5,7 @@
 #define BuildDir "{{ build_dir }}"
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "10.6.3"
+#define MyAppVersion "10.7.0"
 #define MyAppPublisher "Digital Holography"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "{{ binary_filename }}"
@@ -89,6 +89,7 @@ Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
+Type: dirifempty; Name: "{app}"
 Type: filesandordirs; Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
 Type: dirifempty; Name: "{userappdata}\{#MyAppName}"
 

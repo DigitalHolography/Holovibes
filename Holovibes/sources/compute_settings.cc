@@ -4,29 +4,27 @@ namespace holovibes::api
 {
 void load_image_rendering(const json& data)
 {
-    ComputeDescriptor& cd = api::get_cd();
-
-    cd.compute_mode = string_to_computation[data["image mode"]];
-    cd.batch_size = data["batch size"];
-    cd.time_transformation_stride = data["time transformation stride"];
+    GSH::instance().set_compute_mode(computation_from_string(data["image mode"]));
+    GSH::instance().set_batch_size(data["batch size"]);
+    GSH::instance().set_time_transformation_stride(data["time transformation stride"]);
 
     const json& filter_2d_data = data["filter2d"];
-    cd.filter2d_enabled = filter_2d_data["enabled"];
-    cd.filter2d_n1 = filter_2d_data["n1"];
-    cd.filter2d_n2 = filter_2d_data["n2"];
+    GSH::instance().set_filter2d_enabled(filter_2d_data["enabled"]);
+    GSH::instance().set_filter2d_n1(filter_2d_data["n1"]);
+    GSH::instance().set_filter2d_n2(filter_2d_data["n2"]);
 
-    cd.space_transformation = string_to_space_transformation[data["space transformation"]];
-    cd.time_transformation = string_to_time_transformation[data["time transformation"]];
-    cd.time_transformation_size = data["time transformation size"];
-    cd.lambda = data["lambda"];
-    cd.zdistance = data["z distance"];
+    GSH::instance().set_space_transformation(space_transformation_from_string(data["space transformation"]));
+    GSH::instance().set_time_transformation(time_transformation_from_string(data["time transformation"]));
+    GSH::instance().set_time_transformation_size(data["time transformation size"]);
+    GSH::instance().set_lambda(data["lambda"]);
+    GSH::instance().set_z_distance(data["z distance"]);
 
     const json& convolution_data = data["convolution"];
-    cd.convolution_enabled = convolution_data["enabled"];
+    GSH::instance().set_convolution_enabled(convolution_data["enabled"]);
     // FIXME: Use GSH instead of UID
     UserInterfaceDescriptor::instance().convo_name = convolution_data["type"];
     // FIXME: Loads convolution matrix
-    cd.divide_convolution_enabled = convolution_data["divide"];
+    GSH::instance().set_divide_convolution_enabled(convolution_data["divide"]);
 
     // FIXME: Need to use setters that are currently in CD
     // Example, matrix is not loaded if we do not pass through setter
@@ -34,57 +32,53 @@ void load_image_rendering(const json& data)
 
 void load_view(const json& data)
 {
-    ComputeDescriptor& cd = api::get_cd();
-
-    cd.img_type = string_to_img_type[data["type"]];
-    cd.fft_shift_enabled = data["fft shift"];
-    cd.x.from_json(data["x"]);
-    cd.y.from_json(data["y"]);
-    cd.p.from_json(data["p"]);
-    cd.q.from_json(data["q"]);
+    GSH::instance().set_img_type(img_type_from_string(data["type"]));
+    GSH::instance().set_fft_shift_enabled(data["fft shift"]);
+    GSH::instance().set_x(View_XY(data["x"]));
+    GSH::instance().set_y(View_XY(data["y"]));
+    GSH::instance().set_p(View_PQ(data["p"]));
+    GSH::instance().set_q(View_PQ(data["q"]));
 
     const json& window_data = data["window"];
-    cd.xy.from_json(window_data["xy"]);
-    cd.yz.from_json(window_data["yz"]);
-    cd.xz.from_json(window_data["xz"]);
-    cd.filter2d.from_json(window_data["filter2d"]);
+    GSH::instance().set_xy(View_XYZ(window_data["xy"]));
+    GSH::instance().set_yz(View_XYZ(window_data["yz"]));
+    GSH::instance().set_xz(View_XYZ(window_data["xz"]));
+    GSH::instance().set_filter2d(View_Window(window_data["filter2d"]));
 
-    cd.renorm_enabled = data["renorm"];
+    GSH::instance().set_renorm_enabled(data["renorm"]);
 
     const json& reticle_data = data["reticle"];
-    cd.reticle_display_enabled = reticle_data["display enabled"];
-    cd.reticle_scale = reticle_data["scale"];
+    GSH::instance().set_reticle_display_enabled(reticle_data["display enabled"]);
+    GSH::instance().set_reticle_scale(reticle_data["scale"]);
 }
 
 void load_composite(const json& data)
 {
-    ComputeDescriptor& cd = api::get_cd();
-    cd.composite_kind = string_to_composite_kind[data["mode"]];
-    cd.composite_auto_weights = data["auto weight"];
-    cd.rgb.from_json(data["rgb"]);
-    cd.hsv.from_json(data["hsv"]);
+    GSH::instance().set_composite_kind(composite_kind_from_string(data["mode"]));
+    GSH::instance().set_composite_auto_weights(data["auto weight"]);
+    GSH::instance().set_rgb(Composite_RGB(data["rgb"]));
+    GSH::instance().set_hsv(Composite_HSV(data["hsv"]));
 }
+
 void load_advanced(const json& data)
 {
-    ComputeDescriptor& cd = api::get_cd();
-
     const json& buffer_size_data = data["buffer size"];
-    cd.file_buffer_size = buffer_size_data["file"];
-    cd.input_buffer_size = buffer_size_data["input"];
-    cd.output_buffer_size = buffer_size_data["output"];
-    cd.record_buffer_size = buffer_size_data["record"];
-    cd.time_transformation_cuts_output_buffer_size = buffer_size_data["time transformation cuts"];
+    GSH::instance().set_file_buffer_size(buffer_size_data["file"]);
+    GSH::instance().set_input_buffer_size(buffer_size_data["input"]);
+    GSH::instance().set_output_buffer_size(buffer_size_data["output"]);
+    GSH::instance().set_record_buffer_size(buffer_size_data["record"]);
+    GSH::instance().set_time_transformation_cuts_output_buffer_size(buffer_size_data["time transformation cuts"]);
 
     const json& contrast_data = data["contrast"];
-    cd.contrast_lower_threshold = contrast_data["lower"];
-    cd.contrast_upper_threshold = contrast_data["upper"];
-    cd.cuts_contrast_p_offset = contrast_data["cuts p offset"];
+    GSH::instance().set_contrast_lower_threshold(contrast_data["lower"]);
+    GSH::instance().set_contrast_upper_threshold(contrast_data["upper"]);
+    GSH::instance().set_cuts_contrast_p_offset(contrast_data["cuts p offset"]);
 
     const json& filter2d_smooth_data = data["filter2d smooth"];
-    cd.filter2d_smooth_high = filter2d_smooth_data["high"];
-    cd.filter2d_smooth_low = filter2d_smooth_data["low"];
+    GSH::instance().set_filter2d_smooth_high(filter2d_smooth_data["high"]);
+    GSH::instance().set_filter2d_smooth_low(filter2d_smooth_data["low"]);
 
-    cd.renorm_constant = data["renorm constant"];
+    GSH::instance().set_renorm_constant(data["renorm constant"]);
 }
 
 void json_to_compute_settings(const json& data)
@@ -95,115 +89,136 @@ void json_to_compute_settings(const json& data)
     load_advanced(data["advanced"]);
 }
 
-void after_load_checks(ComputeDescriptor& cd)
+void after_load_checks()
 {
-    if (cd.filter2d_n1 >= cd.filter2d_n2)
-        cd.filter2d_n1 = cd.filter2d_n2 - 1;
-    if (cd.time_transformation_size < 1)
-        cd.time_transformation_size = 1;
+    if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
+        GSH::instance().set_filter2d_n1(GSH::instance().get_filter2d_n1() - 1);
+    if (GSH::instance().get_time_transformation_size() < 1)
+        GSH::instance().set_time_transformation_size(1);
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (cd.p.index >= cd.time_transformation_size)
-        cd.p.index = 0;
-    if (cd.q.index >= cd.time_transformation_size)
-        cd.q.index = 0;
-    if (cd.cuts_contrast_p_offset > cd.time_transformation_size - 1)
-        cd.cuts_contrast_p_offset = cd.time_transformation_size - 1;
+    if (GSH::instance().get_p().index >= GSH::instance().get_time_transformation_size())
+        GSH::instance().set_p_index(0);
+    if (GSH::instance().get_q().index >= GSH::instance().get_time_transformation_size())
+        GSH::instance().set_q_index(0);
+    if (GSH::instance().get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
+        GSH::instance().set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);
 }
 
 void load_compute_settings(const std::string& json_path)
 {
+    LOG_TRACE << "Entering load_compute_settings()";
+
     if (json_path.empty())
         return;
-
-    LOG_INFO << "Compute settings loaded from : " << json_path;
 
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
 
     json_to_compute_settings(j_cs);
+    LOG_INFO << "Compute settings loaded from : " << json_path;
 
-    after_load_checks(get_cd());
+    after_load_checks();
     pipe_refresh();
+
+    LOG_INFO << "Compute settings loaded from : " << json_path;
 }
+
+// clang-format off
 
 json compute_settings_to_json()
 {
-    const ComputeDescriptor& cd = get_cd();
 
     auto j_cs = json{
-        {"image rendering",
-         {
-             {"image mode", computation_to_string[cd.compute_mode.load()]},
-             {"batch size", cd.batch_size.load()},
-             {"time transformation stride", cd.time_transformation_stride.load()},
-             {"filter2d",
-              {{"enabled", cd.filter2d_enabled.load()}, {"n1", cd.filter2d_n1.load()}, {"n2", cd.filter2d_n2.load()}}},
-             {"space transformation", space_transformation_to_string[cd.space_transformation.load()]},
-             {"time transformation", time_transformation_to_string[cd.time_transformation.load()]},
-             {"time transformation size", cd.time_transformation_size.load()},
-             {"lambda", cd.lambda.load()},
-             {"z distance", cd.zdistance.load()},
-             {"convolution",
-              {{"enabled", cd.convolution_enabled.load()},
-               {"type", UserInterfaceDescriptor::instance().convo_name}, // TODO: See user_interface_descriptor.hh (put
-                                                                         // var in GSH)
-               {"divide", cd.divide_convolution_enabled.load()}}},
-         }},
-        {"view",
-         {
-             {"type", img_type_to_string[cd.img_type.load()]},
-             {"fft shift", cd.fft_shift_enabled.load()},
-             {"x", cd.x.to_json()},
-             {"y", cd.y.to_json()},
-             {"p", cd.p.to_json()},
-             {"q", cd.q.to_json()},
-             {"window",
-              {{"xy", cd.xy.to_json()},
-               {"yz", cd.yz.to_json()},
-               {"xz", cd.xz.to_json()},
-               {"filter2d", cd.filter2d.to_json()}}},
-             {"renorm", cd.renorm_enabled.load()},
-             {"reticle", {{"display enabled", cd.reticle_display_enabled.load()}, {"scale", cd.reticle_scale.load()}}},
-         }},
-        {"composite",
-         {
-             {"mode", composite_kind_to_string[cd.composite_kind.load()]},
-             {"auto weight", cd.composite_auto_weights.load()},
-             {"rgb", cd.rgb.to_json()},
-             {"hsv", cd.hsv.to_json()},
-         }},
-        {
-            "advanced",
-            {{"buffer size",
-              {{"input", cd.input_buffer_size.load()},
-               {"file", cd.file_buffer_size.load()},
-               {"record", cd.record_buffer_size.load()},
-               {"output", cd.output_buffer_size.load()},
-               {"time transformation cuts", cd.time_transformation_cuts_output_buffer_size.load()}}},
-             {
-                 "filter2d smooth",
-                 {{"low", cd.filter2d_smooth_low.load()}, {"high", cd.filter2d_smooth_high.load()}},
-             },
-             {"contrast",
-              {{"lower", cd.contrast_lower_threshold.load()},
-               {"upper", cd.contrast_upper_threshold.load()},
-               {"cuts p offset", cd.cuts_contrast_p_offset.load()}}},
-             {"renorm constant", cd.renorm_constant.load()}},
+        {"image rendering", {
+                {"image mode", computation_to_string(GSH::instance().get_compute_mode())},
+                {"batch size", GSH::instance().get_batch_size()},
+                {"time transformation stride", GSH::instance().get_time_transformation_stride()},
+                {"filter2d", {
+                        {"enabled", GSH::instance().get_filter2d_enabled()},
+                        {"n1", GSH::instance().get_filter2d_n1()},
+                        {"n2", GSH::instance().get_filter2d_n2()}
+                    }
+                },
+                {"space transformation", space_transformation_to_string(GSH::instance().get_space_transformation())},
+                {"time transformation", time_transformation_to_string(GSH::instance().get_time_transformation())},
+                {"time transformation size", GSH::instance().get_time_transformation_size()},
+                {"lambda", GSH::instance().get_lambda()},
+                {"z distance", GSH::instance().get_z_distance()},
+                {"convolution", {
+                        {"enabled", GSH::instance().get_convolution_enabled()},
+                        {"type", UserInterfaceDescriptor::instance().convo_name},
+                        {"divide", GSH::instance().get_divide_convolution_enabled()}
+                    }
+                },
+            }
+        },
+        {"view", {
+                {"type", img_type_to_string(GSH::instance().get_img_type())},
+                {"fft shift", GSH::instance().get_fft_shift_enabled()},
+                {"x", GSH::instance().get_x()},
+                {"y", GSH::instance().get_y()},
+                {"p", GSH::instance().get_p()},
+                {"q", GSH::instance().get_q()},
+                {"window", {
+                        {"xy", GSH::instance().get_xy()},
+                        {"yz", GSH::instance().get_yz()},
+                        {"xz", GSH::instance().get_xz()},
+                        {"filter2d", GSH::instance().get_filter2d()}
+                    }
+                },
+                {"renorm", GSH::instance().get_renorm_enabled()},
+                {"reticle", {
+                        {"display enabled", GSH::instance().get_reticle_display_enabled()},
+                        {"scale", GSH::instance().get_reticle_scale()}
+                    }
+                },
+            }
+        },
+        {"composite", {
+                {"mode", composite_kind_to_string(GSH::instance().get_composite_kind())},
+                {"auto weight", GSH::instance().get_composite_auto_weights()},
+                {"rgb", GSH::instance().get_rgb()},
+                {"hsv", GSH::instance().get_hsv()},
+            }
+        },
+        {"advanced", {
+                {"buffer size", {
+                        {"input", GSH::instance().get_input_buffer_size()},
+                        {"file", GSH::instance().get_file_buffer_size()},
+                        {"record", GSH::instance().get_record_buffer_size()},
+                        {"output", GSH::instance().get_output_buffer_size()},
+                        {"time transformation cuts", GSH::instance().get_time_transformation_cuts_output_buffer_size()}
+                    }
+                },
+                {"filter2d smooth", {
+                        {"low", GSH::instance().get_filter2d_smooth_low()},
+                        {"high", GSH::instance().get_filter2d_smooth_high()}
+                    },
+                },
+                {"contrast", {
+                        {"lower", GSH::instance().get_contrast_lower_threshold()},
+                        {"upper", GSH::instance().get_contrast_upper_threshold()},
+                        {"cuts p offset", GSH::instance().get_cuts_contrast_p_offset()}
+                    }
+                },
+                {"renorm constant", GSH::instance().get_renorm_constant()}
+            },
         },
     };
 
     return j_cs;
 }
 
+// clang-format on
+
 void save_compute_settings(const std::string& json_path)
 {
+    LOG_TRACE << "Entering save_compute_settings()";
     if (json_path.empty())
         return;
 
-    auto j_cs = compute_settings_to_json();
-
     std::ofstream file(json_path);
-    file << j_cs.dump(1);
+    file << std::setw(1) << compute_settings_to_json();
 
     LOG_INFO << "Compute settings overwritten at : " << json_path;
 }

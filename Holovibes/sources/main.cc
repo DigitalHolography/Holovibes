@@ -60,6 +60,8 @@ static void check_cuda_graphic_card(bool gui)
 
 static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
+    holovibes.is_cli = false;
+
     QLocale::setDefault(QLocale("en_US"));
     // Create the Qt app
     QApplication app(argc, argv);

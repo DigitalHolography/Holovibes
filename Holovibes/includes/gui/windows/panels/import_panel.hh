@@ -23,11 +23,10 @@ class ImportPanel : public Panel
     ImportPanel(QWidget* parent = nullptr);
     ~ImportPanel();
 
-    void init() override;
     void on_notify() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
+    void load_gui(const json& j_us) override;
+    void save_gui(json& j_us) override;
 
     std::string& get_file_input_directory();
 
@@ -57,5 +56,11 @@ class ImportPanel : public Panel
 
     /*! \brief Handles the ui output fps */
     void import_end_spinbox_update();
+
+    /*! \brief Handles the ui input fps changes
+     *
+     * \param value the new value to set
+     */
+    void on_input_fps_change(int value);
 };
 } // namespace holovibes::gui

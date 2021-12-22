@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Qt widget embeded into layout.
+ * \brief Qt widget embedded into layout.
  */
 #pragma once
 
@@ -35,6 +35,8 @@ class QSpinBoxLayout : public QHBoxLayout
      * \param name the new name
      */
     void set_label(const std::string& name);
+
+    void set_label_min_size(int width, int height);
 
   private:
     QLabel* label_;

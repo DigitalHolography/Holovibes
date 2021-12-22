@@ -13,7 +13,7 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
     - Hamamatsu C11440
 - Import interferograms from `.cine` files
 - Import or export interferograms/holograms with `.holo` files
-- Modular configurations with `.ini` files
+- Modular configurations with `.json` files
 - Zone selection (zoom, signal/noise averaging, filtering)
 - Many various parameters: logarithm filter, rotations, flips, ...
 - Auto and manual contrast

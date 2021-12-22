@@ -4,6 +4,7 @@
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
 
 namespace holovibes::worker
 {
@@ -28,18 +29,30 @@ void FrameRecordWorker::integrate_fps_average()
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
     int current_fps = input_fps->load();
 
-    fps_buffer_[fps_current_index_++ % 4] = current_fps;
+    // An fps of 0 is not relevent. We do not includ it in fps average.
+    if (current_fps == 0)
+        return;
+
+    fps_buffer_[fps_current_index_++ % FPS_LAST_X_VALUES] = current_fps;
 }
+
+size_t FrameRecordWorker::compute_fps_average() const
+{
+    if (fps_current_index_ == 0)
+        return 0;
+
+    size_t ret = 0;
+    size_t upper = FPS_LAST_X_VALUES < fps_current_index_ ? FPS_LAST_X_VALUES : fps_current_index_;
+    for (size_t i = 0; i < upper; i++)
+        ret += fps_buffer_[i];
+
+    ret /= upper;
+
+    return ret;
+}
+
 void FrameRecordWorker::run()
 {
-    ComputeDescriptor& cd = Holovibes::instance().get_cd();
-
-    if (cd.batch_size > cd.record_buffer_size)
-    {
-        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
-        return;
-    }
-
     // Progress recording FastUpdatesHolder entry
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
@@ -85,6 +98,12 @@ void FrameRecordWorker::run()
 
             wait_for_frames(record_queue);
 
+            // While wait_for_frames() is running, a stop might be requested and the queue reset.
+            // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
+            // and stop recording if needed.
+            if (stop_requested_)
+                break;
+
             if (nb_frames_skip_ > 0)
             {
                 record_queue.dequeue();
@@ -115,9 +134,8 @@ void FrameRecordWorker::run()
             LOG_INFO << "[RECORDER] Record is contiguous!";
         }
 
-        auto fps_average = (fps_buffer_[0] + fps_buffer_[1] + fps_buffer_[2] + fps_buffer_[3]) / 4;
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        output_frame_file->export_compute_settings(fps_average, contiguous);
+        output_frame_file->export_compute_settings(compute_fps_average(), contiguous);
 
         output_frame_file->write_footer();
     }
@@ -133,6 +151,7 @@ void FrameRecordWorker::run()
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
+
     LOG_TRACE << "Exiting FrameRecordWorker::run()";
 }
 
@@ -183,9 +202,6 @@ void FrameRecordWorker::reset_gpu_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
-
-    while (pipe->get_disable_frame_record_requested() && !stop_requested_)
-        continue;
 
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)

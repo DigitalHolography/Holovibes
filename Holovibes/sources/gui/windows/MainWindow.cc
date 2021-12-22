@@ -13,6 +13,7 @@
 #include "update_exception.hh"
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
+#include "tools.hh"
 
 #include "API.hh"
 
@@ -96,28 +97,19 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    try
-    {
-        load_gui();
-    }
-    catch (const std::exception&)
-    {
-        LOG_INFO << ::holovibes::settings::global_config_filepath << ": global configuration file not found. "
-                 << "Initialization with default values.";
-        save_gui();
-    }
+    load_gui();
 
     try
     {
-        api::load_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::default_compute_config_filepath << ": Configuration file not found. "
+        LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
                  << "Initialization with default values.";
-        api::save_compute_settings(holovibes::settings::default_compute_config_filepath);
+        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
     // Display default values
@@ -157,6 +149,10 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    GSH::instance().set_update_view_callback(
+        [&](WindowKind kind, View_Window window)
+        { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
 }
 
 MainWindow::~MainWindow()
@@ -212,10 +208,13 @@ void MainWindow::on_notify()
         ui_->ExportPanel->setEnabled(true);
     }
 
-    ui_->CompositePanel->setHidden(api::is_raw_mode() || (api::get_cd().img_type != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
+                                   (api::get_img_type() != ImgType::Composite));
     resize(baseSize());
     adjustSize();
 }
+
+static void handle_accumulation_exception() { api::set_img_accu_xy_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -228,7 +227,7 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::get_cd().handle_update_exception();
+                api::handle_update_exception();
                 api::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR << "GPU computing error occured.";
@@ -242,7 +241,7 @@ void MainWindow::notify_error(const std::exception& e)
         {
             if (accu)
             {
-                api::get_cd().handle_accumulation_exception();
+                handle_accumulation_exception();
             }
             api::close_critical_compute();
 
@@ -285,9 +284,9 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 
 #pragma endregion
 /* ------------ */
-#pragma region Ini
+#pragma region Json
 
-void MainWindow::write_ini() { api::save_compute_settings(); }
+void MainWindow::write_compute_settings() { api::save_compute_settings(); }
 
 void MainWindow::browse_export_ini()
 {
@@ -324,7 +323,7 @@ void MainWindow::browse_import_ini()
         reload_ini(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::settings::default_compute_config_filepath); }
+void MainWindow::reload_ini() { reload_ini(::holovibes::settings::compute_settings_filepath); }
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -334,43 +333,96 @@ void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 
 void MainWindow::load_gui()
 {
-    boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(settings::global_config_filepath, ptree);
+    if (holovibes::settings::user_settings_filepath.empty())
+        return;
 
-    if (!ptree.empty())
+    json j_us;
+
+    try
     {
-        set_theme(ptree.get<int>("display.theme_type", theme_index_));
-
-        window_max_size = ptree.get<uint>("window_size.main_window_max_size", window_max_size);
-        auxiliary_window_max_size = ptree.get<uint>("window_size.auxiliary_window_max_size", 512);
-
-        api::load_user_preferences(ptree);
-
-        for (auto it = panels_.begin(); it != panels_.end(); it++)
-            (*it)->load_gui(ptree);
-
-        notify();
+        std::ifstream ifs(settings::user_settings_filepath);
+        j_us = json::parse(ifs);
     }
+    catch (json::parse_error)
+    {
+        LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
+                 << "Initialization with default values.";
+        save_gui();
+        return;
+    }
+
+    set_theme(string_to_theme[json_get_or_default<std::string>(j_us, "DARK", "display", "theme")]);
+
+    window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
+    auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
+
+    api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
+    api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
+
+    ui_->ExportPanel->set_record_frame_step(
+        json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
+
+    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
+                            "chart",
+                            "auto scale point threshold");
+    UserInterfaceDescriptor::instance().default_output_filename_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().default_output_filename_,
+                            "files",
+                            "default output filename");
+    UserInterfaceDescriptor::instance().record_output_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().record_output_directory_,
+                            "files",
+                            "record output directory");
+    UserInterfaceDescriptor::instance().file_input_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().file_input_directory_,
+                            "files",
+                            "file input directory");
+    UserInterfaceDescriptor::instance().batch_input_directory_ =
+        json_get_or_default(j_us,
+                            UserInterfaceDescriptor::instance().batch_input_directory_,
+                            "files",
+                            "batch input directory");
+
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->load_gui(j_us);
+
+    notify();
 }
 
 void MainWindow::save_gui()
 {
-    boost::property_tree::ptree ptree;
+    if (holovibes::settings::user_settings_filepath.empty())
+        return;
 
-    ptree.put<ushort>("display.theme_type", theme_index_);
+    json j_us;
 
-    ptree.put<uint>("window_size.main_window_max_size", window_max_size);
-    ptree.put<uint>("window_size.auxiliary_window_max_size", auxiliary_window_max_size);
+    j_us["display"]["theme"] = theme_to_string[theme_];
 
-    api::save_user_preferences(ptree);
+    j_us["windows"]["main window max size"] = window_max_size;
+    j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
+
+    j_us["display"]["refresh rate"] = api::get_display_rate();
+    j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
+    j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
+    j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
+    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
+    j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
+    j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
+    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
-        (*it)->save_gui(ptree);
+        (*it)->save_gui(j_us);
 
-    auto path = holovibes::settings::global_config_filepath;
-    boost::property_tree::write_ini(path, ptree);
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ofstream file(path);
+    file << j_us.dump(1);
 
-    LOG_INFO << " GUI settings overwritten at " << path;
+    LOG_INFO << "user settings overwritten at " << path;
 }
 
 #pragma endregion
@@ -474,8 +526,11 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
+    {
+        LOG_ERROR << "Cannot set view image type in raw mode";
         return;
+    }
 
     const std::string& str = value.toStdString();
 
@@ -488,6 +543,18 @@ void MainWindow::set_view_image_type(const QString& value)
         }
     }
 
+    // FIXME: delete comment
+    // C'est ce que philippe faisait pour les space/time_transform aussi
+    // Pas faux
+    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
+    // Perso la string me va très bien
+    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
+    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
+    // Faudrait peut-être demander l'avis de tt le monde
+    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
+    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
+    // On peut demander aux autres
+
     auto callback = ([=]() {
         api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
         notify();
@@ -498,7 +565,7 @@ void MainWindow::set_view_image_type(const QString& value)
     api::set_view_mode(str, callback);
 
     // Force cuts views autocontrast if needed
-    if (api::get_3d_cuts_view_enabled())
+    if (api::get_cuts_view_enabled())
         api::set_auto_contrast_cuts();
 }
 
@@ -546,7 +613,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    ASWMainWindowPanel* panel = new ASWMainWindowPanel(dynamic_cast<ImageRenderingPanel*>(panels_[0]));
+    ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
     api::open_advanced_settings(this, panel);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
@@ -578,8 +645,6 @@ void MainWindow::shift_screen()
 void MainWindow::set_night()
 {
     // Dark mode style
-    qApp->setStyle(QStyleFactory::create("Fusion"));
-
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -594,40 +659,31 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
     darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
     darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
+    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
     darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
     darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
     darkPalette.setColor(QPalette::Light, Qt::black);
 
     qApp->setPalette(darkPalette);
-    theme_index_ = 0;
+    theme_ = Theme::Dark;
 }
 
 void MainWindow::set_classic()
 {
     qApp->setPalette(this->style()->standardPalette());
     qApp->setStyleSheet("");
-    theme_index_ = 1;
+    theme_ = Theme::Classic;
 }
 
-void MainWindow::set_theme(const int index)
+void MainWindow::set_theme(const Theme theme)
 {
-    if (index == theme_index_)
-        return;
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 
-    switch (index)
-    {
-    case 0:
-        set_night();
-        break;
-    case 1:
+    if (theme == Theme::Classic)
         set_classic();
-        break;
-    default:
-        return;
-    }
-
-    theme_index_ = index;
+    else
+        set_night();
 }
 #pragma endregion
 } // namespace gui

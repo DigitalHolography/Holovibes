@@ -5,6 +5,7 @@ from struct import pack, unpack
 from typing import List, Tuple
 from PIL import Image
 from PIL import ImageChops
+from deepdiff import DeepDiff
 import numpy as np
 
 from .constant_name import *
@@ -135,6 +136,28 @@ class HoloFile:
 
         io.close()
 
+    def assert_footer(ref, chal: "HoloFile"):
+        ddiff = DeepDiff(ref.footer, chal.footer,
+                         ignore_order=True,
+                         significant_digits=5,
+                         exclude_paths=["root['info']['input fps']", ]
+                         )
+
+        if 'values_changed' in ddiff:
+            if "root['compute settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
+                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+            if "root['compute settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
+                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+
+            if not ddiff['values_changed']:
+                del ddiff['values_changed']
+
+        assert not ddiff, ddiff
+
     def assertHolo(ref, chal: "HoloFile", basepath: str):
 
         def __assert(lhs, rhs, name: str):
@@ -143,13 +166,7 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        def check_footer(lhs : json, rhs : json):
-            assert "info" in rhs
-            assert "input fps" in rhs["info"]
-            rhs["info"]["input fps"], lhs["info"]["input fps"] = 0, 0
-            assert lhs == lhs, f"Compute setings differs : {set(lhs.items()) ^ set(rhs.items())}"
-
-        check_footer(getattr(ref, 'footer'), getattr(chal, 'footer'))
+        ref.assert_footer(chal)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diff = ImageChops.difference(
@@ -158,7 +175,7 @@ class HoloFile:
                 l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
                 r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]}, )"
+            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]})"
 
 
 class HoloLazyReader(HoloLazyIO):

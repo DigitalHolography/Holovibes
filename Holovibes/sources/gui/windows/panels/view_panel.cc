@@ -32,16 +32,36 @@ ViewPanel::~ViewPanel()
     delete p_right_shortcut_;
 }
 
+// TODO: use parameters instead of directly the GSH
+void ViewPanel::view_callback(WindowKind, View_Window)
+{
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setEnabled(true);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
+
+    // Window selection
+    QComboBox* window_selection = ui_->WindowSelectionComboBox;
+    window_selection->setEnabled(!is_raw);
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+}
+
 void ViewPanel::on_notify()
 {
-    const bool is_raw = api::is_raw_mode();
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
 
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_3d_cuts_view_enabled());
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
 
@@ -66,7 +86,7 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
@@ -81,7 +101,7 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window() == WindowKind::Filter2D)
+    if (api::get_current_window_type() == WindowKind::Filter2D)
         set_xyzf_visibility(false);
     else
     {
@@ -96,13 +116,13 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
-    api::get_cd().check_p_limits(); // FIXME: May be moved in setters
+    api::check_p_limits(); // FIXME: May be moved in setters
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
-    ui_->PSpinBox->setValue(api::get_pindex());
+    ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
 
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
-    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_pindex() - 1);
+    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
@@ -114,7 +134,7 @@ void ViewPanel::on_notify()
 
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
 
-    api::get_cd().check_q_limits(); // FIXME: May be moved in setters
+    api::check_q_limits(); // FIXME: May be moved in setters
     ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
     ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);
@@ -147,27 +167,27 @@ void ViewPanel::on_notify()
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
 }
 
-void ViewPanel::load_gui(const boost::property_tree::ptree& ptree)
+void ViewPanel::load_gui(const json& j_us)
 {
-    bool h = ptree.get<bool>("window.view_hidden", isHidden());
+    bool h = json_get_or_default(j_us, isHidden(), "panels", "view hidden", isHidden());
     ui_->actionView->setChecked(!h);
     setHidden(h);
 
     time_transformation_cuts_window_max_size =
-        ptree.get<uint>("window_size.time_transformation_cuts_window_max_size", 512);
+        json_get_or_default(j_us, 512, "windows", "time transformation cuts window max size");
 }
 
-void ViewPanel::save_gui(boost::property_tree::ptree& ptree)
+void ViewPanel::save_gui(json& j_us)
 {
-    ptree.put<bool>("window.view_hidden", isHidden());
-    ptree.put<uint>("window_size.time_transformation_cuts_window_max_size", time_transformation_cuts_window_max_size);
+    j_us["panels"]["view hidden"] = isHidden();
+    j_us["windows"]["time transformation cuts window max size"] = time_transformation_cuts_window_max_size;
 }
 
 void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_type(value); }
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_unwrapping_2d(value);
@@ -205,21 +225,16 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
 void ViewPanel::cancel_time_transformation_cuts()
 {
-    if (!api::get_3d_cuts_view_enabled())
+    if (!api::get_cuts_view_enabled())
         return;
 
-    std::function<void()> callback = []() { return; };
+    std::function<void()> callback = ([=]() {
+        api::set_cuts_view_enabled(false);
+        Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
 
-    if (auto pipe = dynamic_cast<Pipe*>(Holovibes::instance().get_compute_pipe().get()))
-    {
-        callback = ([=]() {
-            api::set_3d_cuts_view_enabled(false);
-            pipe->delete_stft_slice_queue();
-
-            ui_->TimeTransformationCutsCheckBox->setChecked(false);
-            parent_->notify();
-        });
-    }
+        ui_->TimeTransformationCutsCheckBox->setChecked(false);
+        parent_->notify();
+    });
 
     api::cancel_time_transformation_cuts(callback);
 
@@ -230,10 +245,10 @@ void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_fft_shift(value);
+    api::set_fft_shift_enabled(value);
 
     api::pipe_refresh();
 }
@@ -264,21 +279,21 @@ void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->
 
 void ViewPanel::set_x_accu()
 {
-    api::set_x_accu(ui_->XAccSpinBox->value());
+    api::set_x_accu_level(ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::set_y_accu(ui_->YAccSpinBox->value());
+    api::set_y_accu_level(ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_p(int value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (value >= static_cast<int>(api::get_time_transformation_size()))
@@ -287,24 +302,24 @@ void ViewPanel::set_p(int value)
         return;
     }
 
-    api::set_p(value);
+    api::set_p_index(value);
 
     parent_->notify();
 }
 
 void ViewPanel::increment_p()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     // FIXME: Cannot append
-    if (api::get_pindex() >= api::get_time_transformation_size())
+    if (api::get_p_index() >= api::get_time_transformation_size())
     {
         LOG_ERROR << "p param has to be between 1 and #img";
         return;
     }
 
-    set_p(api::get_pindex() + 1);
+    set_p(api::get_p_index() + 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -312,17 +327,17 @@ void ViewPanel::increment_p()
 
 void ViewPanel::decrement_p()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     // FIXME: Cannot append
-    if (api::get_pindex() <= 0)
+    if (api::get_p_index() <= 0)
     {
         LOG_ERROR << "p param has to be between 1 and #img";
         return;
     }
 
-    set_p(api::get_pindex() - 1);
+    set_p(api::get_p_index() - 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -330,21 +345,21 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::set_p_accu(ui_->PAccSpinBox->value());
+    api::set_p_accu_level(ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    api::set_q(value);
+    api::set_q_index(value);
 
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    api::set_q_accu(ui_->Q_AccSpinBox->value());
+    api::set_q_accu_level(ui_->Q_AccSpinBox->value());
 
     parent_->notify();
 }
@@ -365,7 +380,7 @@ void ViewPanel::flipTexture()
 
 void ViewPanel::set_log_scale(const bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_log_scale(value);
@@ -375,7 +390,7 @@ void ViewPanel::set_log_scale(const bool value)
 
 void ViewPanel::set_accumulation_level(int value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_accumulation_level(value);
@@ -383,7 +398,7 @@ void ViewPanel::set_accumulation_level(int value)
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_contrast_mode(value);
@@ -393,7 +408,7 @@ void ViewPanel::set_contrast_mode(bool value)
 
 void ViewPanel::set_auto_contrast()
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_auto_contrast();
@@ -408,7 +423,7 @@ void ViewPanel::set_auto_refresh_contrast(bool value)
 
 void ViewPanel::invert_contrast(bool value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())
@@ -419,7 +434,7 @@ void ViewPanel::invert_contrast(bool value)
 
 void ViewPanel::set_contrast_min(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())
@@ -430,7 +445,7 @@ void ViewPanel::set_contrast_min(const double value)
 
 void ViewPanel::set_contrast_max(const double value)
 {
-    if (api::is_raw_mode())
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     if (!api::get_contrast_enabled())
@@ -443,7 +458,8 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 
 void ViewPanel::display_reticle(bool value)
 {
-    api::display_reticle(value);
+    if (api::get_reticle_display_enabled() != value)
+        api::display_reticle(value);
 
     parent_->notify();
 }
