@@ -8,7 +8,7 @@ from build.build_constants import *
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "10.7.1"
+    version = "10.7.2"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
