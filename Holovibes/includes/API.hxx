@@ -201,6 +201,7 @@ inline void set_filter2d_enabled(bool value) { return GSH::instance().set_filter
 inline bool get_filter2d_view_enabled() { return GSH::instance().get_filter2d_view_enabled(); }
 
 inline bool get_cuts_view_enabled() { return GSH::instance().get_cuts_view_enabled(); }
+inline void set_cuts_view_enabled(bool value) { GSH::instance().set_cuts_view_enabled(value); }
 
 inline bool get_lens_view_enabled() { return GSH::instance().get_lens_view_enabled(); }
 inline void set_lens_view_enabled(bool value) { GSH::instance().set_lens_view_enabled(value); }

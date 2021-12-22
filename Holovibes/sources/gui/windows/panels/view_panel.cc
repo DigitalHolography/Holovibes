@@ -229,7 +229,7 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        api::set_3d_cuts_view(false);
+        api::set_cuts_view_enabled(false);
         Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
 
         ui_->TimeTransformationCutsCheckBox->setChecked(false);
