@@ -1,5 +1,10 @@
 ## Changelog
 
+### 10.7.2
+
+* Fixed icons not being displayed properly
+* Fixed cine not being able to be imported properly
+
 ### 10.7.1
 
 * Fixed the color theme not working properly at the start
