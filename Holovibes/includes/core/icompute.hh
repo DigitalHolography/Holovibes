@@ -136,7 +136,7 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    RecordMode record_mode_ = RecordMode::NONE;
+    std::atomic<RecordMode> record_mode_{RecordMode::NONE};
 };
 
 /*! \struct ChartEnv
@@ -209,7 +209,7 @@ class ICompute : public Observable
     void request_disable_filter2d_view();
     void request_hologram_record();
     void request_raw_record();
-    void request_cuts_record();
+    void request_cuts_record(RecordMode rm);
     void request_disable_frame_record();
     void request_clear_img_acc();
     void request_convolution();
