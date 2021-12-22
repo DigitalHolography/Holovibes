@@ -377,6 +377,9 @@ bool set_3d_cuts_view(uint time_transformation_size)
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
+
+        pipe_refresh();
+
         return true;
     }
     catch (const std::logic_error& e)
