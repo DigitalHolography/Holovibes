@@ -1,5 +1,32 @@
 ## Changelog
 
+### Current
+
+* Fixed the color theme not working properly at the start
+* User settings are now in .json format instead of .ini
+* Reintroduced the record frame step in the advanced settings window
+* Fixed crashes when enabling the reticle
+* Fixed another crash when the reticle is enabled at the start of a .holo import
+* Fixed crash on loading .holo with no footer
+* CLI is now deterministic
+* Fixed use of useless pipe in raw mode in CLI
+* Input FPS in footer computed with 16 values
+* CLI is contiguous and FPS default value is not constrained
+
+### 10.7.0
+
+* Global state refacto, needed to organize and gather up the global state (formerly in the compute descriptor) :
+  - Creation of the global state holder (GSH), which puts rules on the flow of variables from the front to the backend (getters and setters), and centralizes the value specific state logic (like thresholds or constraints between variables)
+  - Removal of the hundreds of std::atomic<> used everywhere there was some state flowing between workers, by :
+    - mofifying the GSH only from the API, and the pipe refresh (to be modified)
+    - providing caches to the ComputeWorker, in order to have a quick access to needed variables, and to be able to choose when to synchronize the pipe (a first step towards the removal of the request mechanism)
+    - creating the FastUpdateHolder (has been implemented for a few releases already) for the high updated rate variables used by the InformationWorker
+
+### 10.6.4
+
+* Fixed a bug that prevented recording without crashing using the GUI
+* The info panel dynamically changes size to fit the text if its too big for the normal layout
+
 ### 10.6.3
 
 * Feat Add contiguous in footer.

@@ -53,7 +53,7 @@ def generate_holo_from(input: str, output: str, cli_argument: str, config: str =
         cmd += ['--compute_settings', config]
 
     sub = subprocess.run(cmd, stderr=subprocess.PIPE)
-    # assert sub.returncode == 0, sub.stderr.decode('utf-8')
+    assert sub.returncode == 0, sub.stderr.decode('utf-8')
 
     t2 = time.time()
     return (t2 - t1),
@@ -107,7 +107,8 @@ def test_holo(folder: str):
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
-        not_found(CONFIG_FILENAME)
+        config = None
+        print("Default values might have changed")
 
     if os.path.isfile(output):
         os.remove(output)

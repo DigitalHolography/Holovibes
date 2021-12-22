@@ -24,8 +24,8 @@ OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
 OverlayManager::~OverlayManager()
 {
     units::RectFd empty_zone;
-    api::get_cd().signalZone(empty_zone, AccessMode::Set);
-    api::get_cd().noiseZone(empty_zone, AccessMode::Set);
+    api::set_signal_zone(empty_zone);
+    api::set_noise_zone(empty_zone);
 }
 
 template <KindOfOverlay ko>

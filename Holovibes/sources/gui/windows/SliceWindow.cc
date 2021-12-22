@@ -35,7 +35,7 @@ void SliceWindow::initShaders()
     Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
     Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
-    if (api::get_cd().img_type == ImgType::Composite)
+    if (GSH::instance().get_img_type() == ImgType::Composite)
         overlay_manager_.create_overlay<Rainbow>();
     else
         overlay_manager_.create_default();
@@ -147,7 +147,7 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_cd().display_rate);
+    startTimer(1000 / api::get_display_rate());
 }
 
 void SliceWindow::paintGL()
@@ -194,9 +194,8 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::get_cd().change_window(
-        static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
-    api::get_cd().notify_observers();
+    api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+    // api::get_cd().notify_observers();
 }
 } // namespace gui
 } // namespace holovibes

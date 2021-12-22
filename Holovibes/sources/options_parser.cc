@@ -52,7 +52,7 @@ OptionsParser::OptionsParser()
     (
         "fps,f",
         po::value<unsigned int>(),
-        "Input file fps (default = 60)"
+        "Input file fps (default = infinite)"
     )
     (
         "n_rec,n",

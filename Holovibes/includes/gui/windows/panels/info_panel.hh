@@ -24,8 +24,8 @@ class InfoPanel : public Panel
 
     void init() override;
 
-    void load_gui(const boost::property_tree::ptree& ptree) override;
-    void save_gui(boost::property_tree::ptree& ptree) override;
+    void load_gui(const json& j_us) override;
+    void save_gui(json& j_us) override;
 
     /*! \brief Change the text in the text area */
     void set_text(const char* text);
@@ -35,5 +35,9 @@ class InfoPanel : public Panel
 
     /*! \brief Show or hide the record progress */
     void set_visible_record_progress(bool visible);
+
+  private:
+    int height_ = 0;
+    int resize_again_ = 0;
 };
 } // namespace holovibes::gui

@@ -61,7 +61,7 @@ class Pipe : public ICompute
      * \param desc ComputeDescriptor that contains computation parameters.
      * \param stream The compute stream on which all the computations are processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, ComputeDescriptor& desc, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
     ~Pipe();
 
@@ -70,8 +70,6 @@ class Pipe : public ICompute
 
     /*! \brief Runs a function after the current pipe iteration ends */
     void insert_fn_end_vect(std::function<void()> function);
-    /*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view */
-    void autocontrast_end_pipe(WindowKind kind);
 
     /*! \brief Execute one processing iteration.
      *
@@ -91,10 +89,10 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-  protected:
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
 
+  protected:
     /*! \brief Make requests at the beginning of the refresh.
      *
      * Make the allocation of buffers when it is requested.
@@ -169,5 +167,14 @@ class Pipe : public ICompute
      * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
      */
     void run_all();
+
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
+
+    /*! \brief Updates all attribute caches with the reference held by GSH */
+    void synchronize_caches();
 };
 } // namespace holovibes

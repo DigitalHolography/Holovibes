@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Qt widget embeded into layout.
+ * \brief Qt widget embedded into layout.
  */
 #pragma once
 
@@ -63,7 +63,7 @@ class QDoubleSpinBoxLayout : public QSpinBoxLayout
     double get_value();
 
   signals:
-    /*! \brief Calls when spin box is spinned*/
+    /*! \brief Calls when spin box is spinned */
     void value_changed();
 
   protected:

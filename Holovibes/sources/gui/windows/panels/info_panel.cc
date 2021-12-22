@@ -43,16 +43,33 @@ void InfoPanel::init()
     set_visible_record_progress(false);
 }
 
-void InfoPanel::load_gui(const boost::property_tree::ptree& ptree)
+void InfoPanel::load_gui(const json& j_us)
 {
-    bool h = ptree.get<bool>("window.info_hidden", isHidden());
+    bool h = json_get_or_default(j_us, isHidden(), "panels", "info hidden");
     ui_->actionInfo->setChecked(!h);
     setHidden(h);
 }
 
-void InfoPanel::save_gui(boost::property_tree::ptree& ptree) { ptree.put<bool>("window.info_hidden", isHidden()); }
+void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 
-void InfoPanel::set_text(const char* text) { ui_->InfoTextEdit->setText(text); }
+void InfoPanel::set_text(const char* text)
+{
+    QTextEdit* text_edit = ui_->InfoTextEdit;
+
+    text_edit->setText(text);
+
+    // For some reason, the GUI needs multiple updates to return to its base layout
+    if (resize_again_-- > 0)
+        parent_->adjustSize();
+
+    if (text_edit->document()->size().height() != height_)
+    {
+        height_ = text_edit->document()->size().height();
+        text_edit->setMinimumSize(0, height_);
+        parent_->adjustSize();
+        resize_again_ = 3;
+    }
+}
 
 void InfoPanel::set_visible_file_reader_progress(bool visible)
 {

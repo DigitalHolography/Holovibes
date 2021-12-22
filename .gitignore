@@ -37,6 +37,7 @@ $RECYCLE.BIN/
 # Build results
 bin/
 Testing/
+build/Ninja
 
 # Folders for setup creation
 setup_creator_files
@@ -47,9 +48,6 @@ Output
 !libs/**/*.dll
 
 libs/glm/
-
-# Holovibes global configuration file
-Holovibes/holovibes.ini
 
 # Doxygen generated files
 latex
@@ -63,6 +61,7 @@ out.png
 # Jinja Generated files
 setupCreator.iss
 
+*.dll
 # Python venv
 .venv/
 venv/
