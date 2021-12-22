@@ -215,7 +215,11 @@ void ImageRenderingPanel::set_filter2d(bool checked)
 
 void ImageRenderingPanel::set_filter2d_n1(int n) { api::set_filter2d_n1(n); }
 
-void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
+void ImageRenderingPanel::set_filter2d_n2(int n)
+{
+    ui_->Filter2DN1SpinBox->setMaximum(n - 1);
+    api::set_filter2d_n2(n);
+}
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
