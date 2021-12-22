@@ -9,7 +9,7 @@
 #include "chart.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
-#include "compute_descriptor.hh"
+
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"

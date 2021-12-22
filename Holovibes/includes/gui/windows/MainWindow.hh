@@ -15,6 +15,7 @@
 
 // namespace holovibes
 #include "custom_exception.hh"
+#include "observer.hh"
 
 // panel struct
 #include "import_panel.hh"

@@ -1,7 +1,7 @@
 #include "rendering.hh"
 #include "frame_desc.hh"
 #include "icompute.hh"
-#include "compute_descriptor.hh"
+
 #include "concurrent_deque.hh"
 #include "contrast_correction.cuh"
 #include "chart.cuh"

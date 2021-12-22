@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "compute_descriptor.hh"
 #include "icamera.hh"
 #include "pipe.hh"
 
@@ -114,9 +113,6 @@ class Holovibes
      * \{
      */
     std::shared_ptr<Pipe> get_compute_pipe();
-
-    /*! \return Common ComputeDescriptor */
-    ComputeDescriptor& get_cd();
 
     const CudaStreams& get_cuda_streams() const;
 
@@ -268,9 +264,6 @@ class Holovibes
     std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
-
-    /*! \brief Common compute descriptor shared between CLI/GUI and the Pipe. */
-    ComputeDescriptor cd_;
 
     CudaStreams cuda_streams_;
 };

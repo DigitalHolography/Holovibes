@@ -200,7 +200,6 @@ void CrossOverlay::move(QMouseEvent* e)
 
         api::set_x_cuts(mouse_position_.x());
         api::set_y_cuts(mouse_position_.y());
-        // api::get_cd().notify_observers();
     }
 }
 

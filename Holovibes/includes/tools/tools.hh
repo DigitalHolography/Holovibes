@@ -157,14 +157,6 @@ void json_get(const json& data, const std::string& key, void (GSH::*setter)(T))
 }
 
 template <typename T>
-void json_get(const json& data, const std::string& key, ComputeDescriptor& cd, void (ComputeDescriptor::*setter)(T))
-{
-    auto it = data.find(key);
-    if (it != data.end())
-        (cd.*setter)(*it);
-}
-
-template <typename T>
 void json_get(const json& data, const std::string& key, T& placeholder)
 {
     auto it = data.find(key);

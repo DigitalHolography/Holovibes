@@ -203,7 +203,6 @@ void RainbowOverlay::move(QMouseEvent* e)
         else
             api::set_composite_p_h(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
     }
-    // api::get_cd().notify_observers();
 }
 
 unsigned int RainbowOverlay::check_interval(int x)

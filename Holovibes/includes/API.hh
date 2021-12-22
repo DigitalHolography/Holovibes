@@ -733,8 +733,6 @@ void start_information_display(const std::function<void()>& callback = []() {});
 void open_advanced_settings(QMainWindow* parent = nullptr,
                             ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
 
-::holovibes::ComputeDescriptor& get_cd();
-
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 
 std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();

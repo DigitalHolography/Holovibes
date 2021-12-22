@@ -84,8 +84,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::GSH::instance().set_notify_callback([&]() { window.notify(); });
     holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
-    holovibes.get_cd().register_observer(window);
-
     if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
