@@ -755,7 +755,7 @@ bool slide_update_threshold(
 
 void set_wavelength(double value)
 {
-    set_lambda(static_cast<float>(value) * 1.0e-9f);
+    set_lambda(static_cast<float>(value));
 
     pipe_refresh();
 }

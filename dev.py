@@ -9,7 +9,6 @@ from time import sleep
 from dataclasses import dataclass
 from multiprocessing import cpu_count
 from typing import List
-from typing_extensions import runtime
 
 from tests.constant_name import *
 from build.build_constants import *

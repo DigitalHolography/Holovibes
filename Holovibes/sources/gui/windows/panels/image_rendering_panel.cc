@@ -289,11 +289,10 @@ void ImageRenderingPanel::set_time_transformation_size()
         ui_->ViewPanel->set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.
+        parent_->notify();
     };
 
     api::set_time_transformation_size(callback);
-
-    parent_->notify();
 }
 
 void ImageRenderingPanel::set_wavelength(const double value)
