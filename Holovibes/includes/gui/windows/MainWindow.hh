@@ -28,9 +28,7 @@
 
 Q_DECLARE_METATYPE(std::function<void()>)
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class MainWindow
  *
@@ -178,5 +176,4 @@ class MainWindow : public QMainWindow, public Observer
     // Additional attributes
     Theme theme_ = Theme::Dark;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

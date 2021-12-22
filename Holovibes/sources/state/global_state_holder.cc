@@ -273,7 +273,7 @@ void GSH::update_contrast(WindowKind kind, float min, float max)
     window->contrast_min = min;
     window->contrast_max = max;
 
-    update_view(kind);
+    notify();
 }
 
 std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)

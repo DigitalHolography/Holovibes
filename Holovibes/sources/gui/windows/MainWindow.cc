@@ -149,10 +149,6 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
-
-    GSH::instance().set_update_view_callback(
-        [&](WindowKind kind, View_Window window)
-        { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
 }
 
 MainWindow::~MainWindow()
