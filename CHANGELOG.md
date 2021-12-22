@@ -12,6 +12,7 @@
 * Fixed use of useless pipe in raw mode in CLI
 * Input FPS in footer computed with 16 values
 * CLI is contiguous and FPS default value is not constrained
+* Fixed 3d cuts crash when desactivated and reactivated
 
 ### 10.7.0
 
