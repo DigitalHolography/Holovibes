@@ -1,6 +1,6 @@
 ## Changelog
 
-### Current
+### 10.7.1
 
 * Fixed the color theme not working properly at the start
 * User settings are now in .json format instead of .ini
@@ -13,7 +13,7 @@
 * Input FPS in footer computed with 16 values
 * CLI is contiguous and FPS default value is not constrained
 * Fixed 3d cuts crash when desactivated and reactivated
-* Fixed 3d cuts : no need action to refresh the pipe
+* Fixed 3d cuts : automatically refresh the pipe on activation
 
 ### 10.7.0
 
