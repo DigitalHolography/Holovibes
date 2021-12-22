@@ -192,8 +192,11 @@ CHECK(condition) << "An error occured";
 
 #### Known issues
 
+
 2021-10-04: If you encounter the issue `clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory`. You have to find the file and put it in your PATH or copy it into the build directory for it to work
 
 2021-12-03: If `./dev.py` tells you that it cannot find conan or cmake. Please check if it's in your PATH.
 
 2021-12-05: If conan tells you that the `XXX/system` package needs to be installed. Please install the package `XXX` manually on your system
+
+2021-12-22: For some reason if you put a real function name like `OutputHoloFile::export_compute_settings()` in a log statement to be printed the program may segfault with an 0x5 SEH exception.
