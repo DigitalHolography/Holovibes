@@ -239,6 +239,11 @@ class Holovibes
      * used to know if queues have to keep contiguity or not. */
     bool is_cli;
 
+    /*! \brief function called when some thread throws an exception */
+    std::function<void(const std::exception&)> error_callback_;
+
+    void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
+
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;

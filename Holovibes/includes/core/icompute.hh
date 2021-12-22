@@ -10,7 +10,6 @@
 #include "queue.hh"
 
 #include "rect.hh"
-#include "observable.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
@@ -181,10 +180,8 @@ struct ImageAccEnv
  * of editing to the image (i.e. refresh functions or caller).
  */
 // #TODO Add \name tags between groups of methods and attributes to make the documentation clearer
-class ICompute : public Observable
+class ICompute
 {
-    friend class ThreadCompute;
-
   public:
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
@@ -278,7 +275,6 @@ class ICompute : public Observable
 
   protected:
     virtual void refresh() = 0;
-    virtual void pipe_error(const int& err_count, const std::exception& e);
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
@@ -291,6 +287,7 @@ class ICompute : public Observable
 
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
+    virtual ~ICompute() {}
 
   protected:
     /*! \brief Reference on the input queue */

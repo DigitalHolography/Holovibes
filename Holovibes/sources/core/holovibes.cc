@@ -54,6 +54,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
     CHECK(gpu_input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
+    file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
     file_read_worker_controller_
         .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
@@ -89,6 +90,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
+        camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
         camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
     }
@@ -129,6 +131,7 @@ void Holovibes::start_frame_record(const std::string& path,
     }
 
     frame_record_worker_controller_.set_callback(callback);
+    frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
@@ -144,6 +147,7 @@ void Holovibes::start_chart_record(const std::string& path,
                                    const std::function<void()>& callback)
 {
     chart_record_worker_controller_.set_callback(callback);
+    chart_record_worker_controller_.set_error_callback(error_callback_);
     chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     chart_record_worker_controller_.start(path, nb_points_to_record);
 }
@@ -158,6 +162,7 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
 {
     batch_gpib_worker_controller_.stop();
     batch_gpib_worker_controller_.set_callback(callback);
+    batch_gpib_worker_controller_.set_error_callback(error_callback_);
     batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     batch_gpib_worker_controller_.start(batch_input_path,
                                         output_path,
@@ -171,6 +176,7 @@ void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
 void Holovibes::start_information_display(const std::function<void()>& callback)
 {
     info_worker_controller_.set_callback(callback);
+    info_worker_controller_.set_error_callback(error_callback_);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     info_worker_controller_.start();
 }
@@ -204,6 +210,7 @@ void Holovibes::init_pipe()
 void Holovibes::start_compute_worker(const std::function<void()>& callback)
 {
     compute_worker_controller_.set_callback(callback);
+    compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
     compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 }

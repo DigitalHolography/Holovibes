@@ -168,12 +168,11 @@ void init_image_mode(QPoint& position, QSize& size)
     }
 }
 
-void create_pipe(Observer& observer)
+void create_pipe()
 {
     try
     {
         Holovibes::instance().start_compute();
-        get_compute_pipe()->register_observer(observer);
     }
     catch (const std::runtime_error& e)
     {
@@ -181,7 +180,7 @@ void create_pipe(Observer& observer)
     }
 }
 
-void set_raw_mode(Observer& observer, uint window_max_size)
+void set_raw_mode(uint window_max_size)
 {
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
@@ -192,7 +191,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     init_image_mode(pos, size);
 
     set_compute_mode(Computation::Raw);
-    create_pipe(observer); // To remove ?
+    create_pipe(); // To remove ?
 
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
@@ -236,14 +235,14 @@ void create_holo_window(ushort window_size)
     }
 }
 
-bool set_holographic_mode(Observer& observer, ushort window_size)
+bool set_holographic_mode(ushort window_size)
 {
     /* ---------- */
     try
     {
         set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
-        create_pipe(observer);
+        create_pipe();
         create_holo_window(window_size);
         /* Info Manager */
         auto fd = get_fd();
@@ -264,7 +263,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
 
 // TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
 // dictionary
-void refresh_view_mode(Observer& observer, ushort window_size, uint index)
+void refresh_view_mode(ushort window_size, uint index)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
@@ -281,7 +280,7 @@ void refresh_view_mode(Observer& observer, ushort window_size, uint index)
 
     try
     {
-        create_pipe(observer);
+        create_pipe();
         create_holo_window(window_size);
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);

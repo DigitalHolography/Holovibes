@@ -488,7 +488,7 @@ void MainWindow::configure_camera() { api::configure_camera(); }
 void MainWindow::refresh_view_mode()
 {
     // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(*this, window_max_size, ui_->ViewModeComboBox->currentIndex());
+    api::refresh_view_mode(window_max_size, ui_->ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();

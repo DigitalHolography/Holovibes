@@ -62,7 +62,7 @@ class Pipe : public ICompute
      */
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
-    ~Pipe();
+    ~Pipe() override;
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
