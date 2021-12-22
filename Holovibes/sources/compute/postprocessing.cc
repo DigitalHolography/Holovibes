@@ -9,7 +9,6 @@
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
 #include "map.cuh"
-#include "user_interface_descriptor.hh"
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -126,9 +125,10 @@ void Postprocessing::convolution_composite()
 
 void Postprocessing::insert_convolution()
 {
-    if (!compute_cache_.get_convolution_enabled() ||
-        UserInterfaceDescriptor::instance().convo_name == UID_CONVOLUTION_TYPE_DEFAULT)
+    if (!compute_cache_.get_convolution_enabled() || compute_cache_.get_convo_matrix_const_ref().empty())
         return;
+
+    LOG_INFO;
 
     if (view_cache_.get_img_type() != ImgType::Composite)
     {

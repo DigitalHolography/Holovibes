@@ -356,8 +356,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();
 
-    if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
 
     parent_->notify();
 }

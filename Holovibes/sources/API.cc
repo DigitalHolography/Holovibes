@@ -981,7 +981,11 @@ void enable_convolution(const std::string& filename)
                                                                                 : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+    {
+        // Refresh because the current convolution might have change.
+        pipe_refresh();
         return;
+    }
 
     try
     {
