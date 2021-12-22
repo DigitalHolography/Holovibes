@@ -120,14 +120,6 @@ class Holovibes
 
     const CudaStreams& get_cuda_streams() const;
 
-    /*! \brief Set ComputeDescriptor options
-     *
-     * Used when options are loaded from a JSON file.
-     *
-     * \param cd ComputeDescriptor to load
-     */
-    void set_cd(const ComputeDescriptor& cd);
-
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_name() const;
 
