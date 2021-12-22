@@ -63,26 +63,25 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 {
     try
     {
-        try
-        {
-            static std::map<CameraKind, LPCSTR> camera_dictionary = {
-                {CameraKind::Adimec, "CameraAdimec.dll"},
-                {CameraKind::BitflowCyton, "BitflowCyton.dll"},
-                {CameraKind::IDS, "CameraIds.dll"},
-                {CameraKind::Phantom, "CameraPhantom.dll"},
-                {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
-                {CameraKind::xiQ, "CameraXiq.dll"},
-                {CameraKind::xiB, "CameraXib.dll"},
-            };
-            active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
-        }
-        catch (const std::exception& e)
-        {
-            // Should never happen
-            LOG_ERROR << "This camera is not handled. (Exception: " << e.what() << ')';
-            throw;
-        }
+        const static std::map<CameraKind, LPCSTR> camera_dictionary = {
+            {CameraKind::Adimec, "CameraAdimec.dll"},
+            {CameraKind::BitflowCyton, "BitflowCyton.dll"},
+            {CameraKind::IDS, "CameraIds.dll"},
+            {CameraKind::Phantom, "CameraPhantom.dll"},
+            {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
+            {CameraKind::xiQ, "CameraXiq.dll"},
+            {CameraKind::xiB, "CameraXib.dll"},
+        };
+        active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "Camera library cannot be loaded. (Exception: " << e.what() << ')';
+        throw;
+    }
 
+    try
+    {
         GSH::instance().set_pixel_size(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
@@ -95,8 +94,8 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (std::exception& e)
     {
-        stop_frame_read();
         LOG_ERROR << "Error at camera frame read start worker. (Exception: " << e.what() << ')';
+        stop_frame_read();
         throw;
     }
 }

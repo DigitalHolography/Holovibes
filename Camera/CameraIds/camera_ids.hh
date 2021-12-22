@@ -7,7 +7,7 @@
 
 /* Disable warnings. */
 #pragma warning(push, 0)
-#include <uEye.h>
+#include "uEye.h"
 #pragma warning(pop)
 
 namespace camera
