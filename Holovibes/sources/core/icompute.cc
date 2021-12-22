@@ -320,21 +320,21 @@ void ICompute::request_filter2d_view()
     request_refresh();
 }
 
-void ICompute::request_hologram_record(std::optional<unsigned int> nb_frames_to_record)
+void ICompute::request_hologram_record()
 {
-    hologram_record_requested_ = nb_frames_to_record;
+    hologram_record_requested_ = true;
     request_refresh();
 }
 
-void ICompute::request_raw_record(std::optional<unsigned int> nb_frames_to_record)
+void ICompute::request_raw_record()
 {
-    raw_record_requested_ = nb_frames_to_record;
+    raw_record_requested_ = true;
     request_refresh();
 }
 
-void ICompute::request_cuts_record(std::optional<unsigned int> nb_frames_to_record)
+void ICompute::request_cuts_record()
 {
-    cuts_record_requested_ = nb_frames_to_record;
+    cuts_record_requested_ = true;
     request_refresh();
 }
 

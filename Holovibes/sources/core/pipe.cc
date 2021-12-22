@@ -279,7 +279,7 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
-    if (hologram_record_requested_.load() != std::nullopt)
+    if (hologram_record_requested_)
     {
         LOG_DEBUG << "Hologram Record Request Processing";
         auto record_fd = gpu_output_queue_.get_fd();
@@ -288,10 +288,10 @@ bool Pipe::make_requests()
             new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
-        hologram_record_requested_ = std::nullopt;
+        hologram_record_requested_ = false;
     }
 
-    if (raw_record_requested_.load() != std::nullopt)
+    if (raw_record_requested_)
     {
         LOG_DEBUG << "Raw Record Request Processing";
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -299,10 +299,10 @@ bool Pipe::make_requests()
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
-        raw_record_requested_ = std::nullopt;
+        raw_record_requested_ = false;
     }
 
-    if (cuts_record_requested_.load() != std::nullopt)
+    if (cuts_record_requested_)
     {
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
 
@@ -320,7 +320,7 @@ bool Pipe::make_requests()
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = rm;
-        cuts_record_requested_ = std::nullopt;
+        cuts_record_requested_ = false;
     }
 
     return success_allocation;
