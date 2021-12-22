@@ -15,7 +15,6 @@
 namespace holovibes
 {
 class Queue;
-class ComputeDescriptor;
 struct CoreBuffersEnv;
 struct ImageAccEnv;
 

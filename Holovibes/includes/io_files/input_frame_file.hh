@@ -6,12 +6,7 @@
 
 #include "frame_file.hh"
 
-namespace holovibes
-{
-// Fast forward declaration
-class ComputeDescriptor;
-
-namespace io_files
+namespace holovibes::io_files
 {
 /*! \class InputFrameFile
  *
@@ -69,5 +64,4 @@ class InputFrameFile : public FrameFile
     /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...) */
     size_t packed_frame_size_;
 };
-} // namespace io_files
-} // namespace holovibes
+} // namespace holovibes::io_files
