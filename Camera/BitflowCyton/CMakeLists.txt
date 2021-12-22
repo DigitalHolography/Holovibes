@@ -4,8 +4,6 @@ add_library("${PROJECT_NAME}" SHARED
     bitflow_cyton.cc
 )
 
-set(BITFLOW_SDK "C:/BitFlow SDK 6.50/")
-
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
