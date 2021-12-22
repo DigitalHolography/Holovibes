@@ -15,13 +15,10 @@ namespace holovibes::io_files
 class InputFrameFile : public FrameFile
 {
   public:
-    /*! \brief Update ComputeDescriptor with the settings present in the file */
+    /*! \brief Update Global State Holder with the settings present in the file */
     virtual void import_compute_settings() const = 0;
 
-    /*! \brief Update ComputeDescriptor with the info settings present in the file
-     *
-     * \param cd The ComputeDescriptor to update
-     */
+    /*! \brief Update Global State Holder with the info settings present in the file */
     virtual void import_info() const = 0;
 
     /*! \brief Set the pointer in the file to the frame requested
