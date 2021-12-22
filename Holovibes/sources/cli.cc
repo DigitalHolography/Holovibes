@@ -222,8 +222,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
                                  nb_frames_skip);
 
     // The following while ensure the record has been requested by the thread previously launched.
-    while ((holovibes.get_compute_pipe()->get_hologram_record_requested() == std::nullopt) &&
-           (holovibes.get_compute_pipe()->get_raw_record_requested() == std::nullopt))
+    while ((!holovibes.get_compute_pipe()->get_hologram_record_requested()) &&
+           (!holovibes.get_compute_pipe()->get_raw_record_requested()))
         continue;
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.

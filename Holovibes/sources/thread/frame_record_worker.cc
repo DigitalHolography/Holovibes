@@ -168,20 +168,20 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
 
     if (record_mode_ == RecordMode::RAW)
     {
-        pipe->request_raw_record(nb_frames_to_record_);
-        while (pipe->get_raw_record_requested() != std::nullopt && !stop_requested_)
+        pipe->request_raw_record();
+        while (pipe->get_raw_record_requested() && !stop_requested_)
             continue;
     }
     else if (record_mode_ == RecordMode::HOLOGRAM)
     {
-        pipe->request_hologram_record(nb_frames_to_record_);
-        while (pipe->get_hologram_record_requested() != std::nullopt && !stop_requested_)
+        pipe->request_hologram_record();
+        while (pipe->get_hologram_record_requested() && !stop_requested_)
             continue;
     }
     else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
     {
-        pipe->request_cuts_record(nb_frames_to_record_);
-        while (pipe->get_cuts_record_requested() != std::nullopt && !stop_requested_)
+        pipe->request_cuts_record();
+        while (pipe->get_cuts_record_requested() && !stop_requested_)
             continue;
     }
 
