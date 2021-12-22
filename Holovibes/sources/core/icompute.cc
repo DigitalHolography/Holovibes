@@ -332,9 +332,12 @@ void ICompute::request_raw_record()
     request_refresh();
 }
 
-void ICompute::request_cuts_record()
+void ICompute::request_cuts_record(RecordMode rm)
 {
     cuts_record_requested_ = true;
+
+    // Setted here to not store the value anywhere else while it can already be stored here.
+    frame_record_env_.record_mode_ = rm;
     request_refresh();
 }
 

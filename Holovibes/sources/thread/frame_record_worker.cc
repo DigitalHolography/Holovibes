@@ -180,7 +180,7 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
     }
     else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
     {
-        pipe->request_cuts_record();
+        pipe->request_cuts_record(record_mode_);
         while (pipe->get_cuts_record_requested() && !stop_requested_)
             continue;
     }

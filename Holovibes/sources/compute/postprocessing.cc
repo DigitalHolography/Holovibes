@@ -128,8 +128,6 @@ void Postprocessing::insert_convolution()
     if (!compute_cache_.get_convolution_enabled() || compute_cache_.get_convo_matrix_const_ref().empty())
         return;
 
-    LOG_INFO;
-
     if (view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
