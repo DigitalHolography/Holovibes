@@ -245,7 +245,7 @@ void set_q_index(uint value);
  * \param composite_p_red the new value
  * \param composite_p_blue the new value
  */
-void set_composite_intervals(uint composite_p_red, uint composite_p_blue);
+void set_composite_intervals(int composite_p_red, int composite_p_blue);
 
 /*! \brief Modifies HSV Hue min frequence
  *

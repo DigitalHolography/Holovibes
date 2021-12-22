@@ -127,7 +127,7 @@ void OverlayManager::set_current(std::shared_ptr<Overlay> new_overlay)
 {
     current_overlay_ = new_overlay;
     current_overlay_->onSetCurrent();
-    api::get_cd().notify_observers();
+    // api::get_cd().notify_observers();
 }
 
 void OverlayManager::press(QMouseEvent* e)

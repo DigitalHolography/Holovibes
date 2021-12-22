@@ -9,6 +9,8 @@
 namespace holovibes
 {
 
+using entities::Span;
+
 /*! \class GSH
  *
  * \brief The GSH (global state holder), is where all the global state of the program is stored.
@@ -219,6 +221,7 @@ class GSH
     inline Composite_HSV get_hsv() const noexcept { return composite_cache_.get_hsv(); }
     inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.p_min; }
     inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.p_max; }
+
     inline float get_slider_h_threshold_min() const noexcept
     {
         return composite_cache_.get_hsv().h.slider_threshold_min;
@@ -332,7 +335,11 @@ class GSH
 
     inline void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
     inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
-    inline void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
+    inline void set_p_index(uint value) noexcept
+    {
+        view_cache_.get_p_ref()->index = value;
+        notify_callback_();
+    }
 
     inline void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
@@ -506,8 +513,8 @@ class GSH
     // RGB
     inline void set_rgb(Composite_RGB value) { composite_cache_.set_rgb(value); }
 
-    inline void set_rgb_p_min(int value) { composite_cache_.get_rgb_ref()->p_min = value; }
-    inline void set_rgb_p_max(int value) { composite_cache_.get_rgb_ref()->p_max = value; }
+    void set_rgb_p(Span<int> span, bool notify = false);
+
     inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight_r = value; }
     inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight_g = value; }
     inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight_b = value; }
@@ -515,9 +522,9 @@ class GSH
     void set_weight_rgb(int r, int g, int b);
 
     // HSV
+    void set_composite_p_h(Span<uint> span, bool notify = false);
+
     inline void set_hsv(Composite_HSV value) { composite_cache_.set_hsv(value); }
-    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref()->h.p_min = value; }
-    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref()->h.p_max = value; }
     inline void set_slider_h_threshold_min(float value)
     {
         composite_cache_.get_hsv_ref()->h.slider_threshold_min = value;

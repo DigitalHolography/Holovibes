@@ -110,10 +110,8 @@ inline double get_rotation() { return GSH::instance().get_rotation(); }
 
 // RGB
 inline uint get_composite_p_red() { return GSH::instance().get_rgb_p_min(); }
-inline void set_composite_p_red(int value) { GSH::instance().set_rgb_p_min(value); }
-
 inline uint get_composite_p_blue() { return GSH::instance().get_rgb_p_max(); }
-inline void set_composite_p_blue(int value) { GSH::instance().set_rgb_p_max(value); }
+inline void set_rgb_p(int min, int max) { GSH::instance().set_rgb_p({min, max}, true); }
 
 inline float get_weight_r() { return GSH::instance().get_weight_r(); }
 
@@ -123,10 +121,11 @@ inline float get_weight_b() { return GSH::instance().get_weight_b(); }
 
 // HSV
 inline uint get_composite_p_min_h() { return GSH::instance().get_composite_p_min_h(); }
-inline void set_composite_p_min_h(int value) { GSH::instance().set_composite_p_min_h(value); }
-
 inline uint get_composite_p_max_h() { return GSH::instance().get_composite_p_max_h(); }
-inline void set_composite_p_max_h(int value) { GSH::instance().set_composite_p_max_h(value); }
+inline void set_composite_p_h(unsigned int min, unsigned int max)
+{
+    GSH::instance().set_composite_p_h({min, max}, true);
+}
 
 inline float get_slider_h_threshold_min() { return GSH::instance().get_slider_h_threshold_min(); }
 inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider_h_threshold_min(value); }

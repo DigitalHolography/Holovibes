@@ -156,6 +156,22 @@ void GSH::set_fft_shift_enabled(bool value)
     api::pipe_refresh();
 }
 
+void GSH::set_composite_p_h(Span<uint> span, bool notify)
+{
+    composite_cache_.get_hsv_ref()->h.p_max = span.min;
+    composite_cache_.get_hsv_ref()->h.p_max = span.max;
+    if (notify)
+        this->notify();
+}
+
+void GSH::set_rgb_p(Span<int> span, bool notify)
+{
+    composite_cache_.get_rgb_ref()->p_min = span.min;
+    composite_cache_.get_rgb_ref()->p_max = span.max;
+    if (notify)
+        this->notify();
+}
+
 void GSH::set_weight_rgb(int r, int g, int b)
 {
     set_weight_r(r);

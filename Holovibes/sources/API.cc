@@ -639,23 +639,21 @@ void set_p_index(uint value)
     pipe_refresh();
 }
 
-void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
+void set_composite_intervals(int composite_p_red, int composite_p_blue)
 {
-    GSH::instance().set_rgb_p_min(composite_p_red);
-    GSH::instance().set_rgb_p_max(composite_p_blue);
-
+    GSH::instance().set_rgb_p({composite_p_red, composite_p_blue});
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
-    set_composite_p_min_h(composite_p_min_h);
+    GSH::instance().set_composite_p_h({composite_p_min_h, GSH::instance().get_composite_p_max_h()});
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
-    set_composite_p_max_h(composite_p_max_h);
+    GSH::instance().set_composite_p_h({GSH::instance().get_composite_p_min_h(), composite_p_max_h});
     pipe_refresh();
 }
 
