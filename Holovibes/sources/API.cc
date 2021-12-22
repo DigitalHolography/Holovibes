@@ -404,16 +404,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
     get_compute_pipe()->insert_fn_end_vect(callback);
 
-    try
-    {
-        // Wait for refresh to be enabled for notify
-        while (get_compute_pipe()->get_refresh_request())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
+    // Refresh pipe to remove cuts linked lambda from pipe
+    pipe_refresh();
     GSH::instance().set_cuts_view_enabled(false);
 }
 

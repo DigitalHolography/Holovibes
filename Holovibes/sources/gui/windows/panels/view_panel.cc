@@ -229,16 +229,11 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        api::set_cuts_view_enabled(false);
         Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
-
-        ui_->TimeTransformationCutsCheckBox->setChecked(false);
         parent_->notify();
     });
 
     api::cancel_time_transformation_cuts(callback);
-
-    parent_->notify();
 }
 
 void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
