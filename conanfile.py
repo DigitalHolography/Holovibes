@@ -15,7 +15,7 @@ class HolovibesConan(ConanFile):
     description = "Real-time hologram rendering made easy"
     topics = "gpu", "cpp", "computer-vision", "opengl"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake_paths", "cmake_find_package"
+    generators = "cmake_paths", "cmake_find_package", "virtualrunenv"
 
     requires = (
         "qt/6.2.1",
