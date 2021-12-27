@@ -133,10 +133,10 @@ def get_conan_venv_start_cmd(build_dir: str, generator: str=None):
         print("Warning: using conan win venv cmd in not-windows env")
 
     venv_path = os.path.join(
-        build_utils.get_build_dir(
-            build_dir, build_utils.get_generator(generator)
+        get_build_dir(
+            build_dir, get_generator(generator)
         ),
-        "virtual_run_env.bat"
+        "activate_run.bat"
     )
     return ['cmd.exe', '/c', 'call', venv_path, '&&']
 
