@@ -146,6 +146,10 @@ def build(args):
 
 @goal
 def run(args):
+    if not build_utils.is_windows():
+        print("Holovibes is only runnable on Windows")
+        return 1
+    
     build_mode = build_utils.get_build_mode(args.build_mode)
     exe_path = os.path.join(
         build_utils.get_build_dir(
@@ -155,9 +159,9 @@ def run(args):
         RUN_BINARY_FILE,
     )
 
-    cmd = [
-        exe_path,
-    ] + args.goal_args
+    cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
+    cmd.append(exe_path)
+    cmd.extend(args.goal_args)
 
     if args.verbose:
         print("Run cmd: {}".format(" ".join(cmd)))
