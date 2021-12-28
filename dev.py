@@ -189,8 +189,10 @@ def pytest(args):
 
 @goal
 def ctest(args):
-    cmd = build_utils.get_vcvars_start_cmd(
-        args.build_env) if build_utils.is_windows() else []
+    # cmd = build_utils.get_vcvars_start_cmd(
+    #     args.build_env) if build_utils.is_windows() else []
+    cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
+
     exe_path = args.build_dir or os.path.join(
         DEFAULT_BUILD_BASE, build_utils.get_generator(
             args.generator), "Holovibes"
