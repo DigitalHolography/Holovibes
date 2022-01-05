@@ -7,6 +7,8 @@
 #include <QShortcut>
 #include <QStyleFactory>
 
+#include <cstdio>
+
 #include "MainWindow.hh"
 #include "logger.hh"
 #include "holovibes_config.hh"
@@ -432,7 +434,8 @@ void MainWindow::closeEvent(QCloseEvent*)
     api::camera_none();
 
     save_gui();
-    api::save_compute_settings();
+    if (save_cs)
+        api::save_compute_settings();
 }
 
 #pragma endregion
@@ -606,6 +609,21 @@ void MainWindow::close_advanced_settings()
     }
 
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+}
+
+void MainWindow::reset_settings()
+{
+    std::string to_remove = holovibes::settings::compute_settings_filepath;
+    if (std::remove(to_remove.c_str()) == 0)
+    {
+        save_cs = false;
+        LOG_INFO << to_remove << " has been removed!";
+        LOG_INFO << "Please, restart Holovibes!";
+    }
+    else
+        LOG_WARN << "Could not remove " << to_remove << "!";
+    
+    close();
 }
 
 void MainWindow::open_advanced_settings()
