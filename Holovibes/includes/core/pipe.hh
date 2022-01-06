@@ -58,12 +58,11 @@ class Pipe : public ICompute
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param desc ComputeDescriptor that contains computation parameters.
      * \param stream The compute stream on which all the computations are processed
      */
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
-    ~Pipe();
+    ~Pipe() override;
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
@@ -79,13 +78,6 @@ class Pipe : public ICompute
      * Enqueue the output frame contained in gpu_output_buffer.
      * Dequeue one frame of the input queue.
      * Check if a ICompute refresh has been requested.
-     *
-     * The ICompute can not be interrupted for parameters changes until the refresh method is called.
-     * If Holovibes crash in a cuda function right after updating something on the GUI, it probably
-     * means thatthe ComputeDescriptor has been updated before the end of the iteration.
-     * The pipe uses the ComputeDescriptor, and is refresh only at the end of the iteration.
-     * You **must** wait until the end of the refresh, or use the insert_fn_end_vect function to update
-     * the ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash.
      */
     void exec() override;
 

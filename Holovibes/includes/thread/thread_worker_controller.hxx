@@ -19,6 +19,12 @@ inline void ThreadWorkerController<T>::set_callback(std::function<void()> callba
 }
 
 template <WorkerDerived T>
+inline void ThreadWorkerController<T>::set_error_callback(std::function<void(const std::exception&)> error_callback)
+{
+    error_callback_ = error_callback;
+}
+
+template <WorkerDerived T>
 inline void ThreadWorkerController<T>::set_priority(int priority)
 {
     SetThreadPriority(thread_.native_handle(), priority);
@@ -65,7 +71,8 @@ void ThreadWorkerController<T>::run()
     catch (const std::exception& e)
     {
         LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
-        throw;
+        // Since we unwinded all the thread stack to go higher we must set a callback
+        error_callback_(e);
     }
 
     MutexGuard m_guard(mutex_);

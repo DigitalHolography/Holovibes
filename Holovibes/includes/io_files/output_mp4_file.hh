@@ -22,8 +22,8 @@ class OutputMp4File : public OutputFrameFile, public Mp4File
 
     /*! \brief Export the compute settings in the file
      *
-     * \param cd The ComputeDescriptor containing the compute settings
-     * \param record_raw Is the raw record enabled
+     * \param input_fps how fast the input was
+     * \param contiguous How many frames were contiguous in input
      */
     void export_compute_settings(int input_fps, size_t contiguous) override;
 

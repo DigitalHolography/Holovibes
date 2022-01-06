@@ -30,7 +30,7 @@ class RainbowOverlay : public Overlay
     void release(ushort frameSide) override {}
 
   private:
-    int check_interval(int x);
+    unsigned int check_interval(int x);
 
     void setBuffer() override;
 };

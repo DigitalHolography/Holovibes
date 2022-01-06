@@ -6,12 +6,7 @@
 
 #include "frame_file.hh"
 
-namespace holovibes
-{
-// Fast forward declaration
-class ComputeDescriptor;
-
-namespace io_files
+namespace holovibes::io_files
 {
 /*! \class InputFrameFile
  *
@@ -20,13 +15,10 @@ namespace io_files
 class InputFrameFile : public FrameFile
 {
   public:
-    /*! \brief Update ComputeDescriptor with the settings present in the file */
+    /*! \brief Update Global State Holder with the settings present in the file */
     virtual void import_compute_settings() const = 0;
 
-    /*! \brief Update ComputeDescriptor with the info settings present in the file
-     *
-     * \param cd The ComputeDescriptor to update
-     */
+    /*! \brief Update Global State Holder with the info settings present in the file */
     virtual void import_info() const = 0;
 
     /*! \brief Set the pointer in the file to the frame requested
@@ -69,5 +61,4 @@ class InputFrameFile : public FrameFile
     /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...) */
     size_t packed_frame_size_;
 };
-} // namespace io_files
-} // namespace holovibes
+} // namespace holovibes::io_files

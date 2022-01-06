@@ -149,10 +149,6 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
-
-    GSH::instance().set_update_view_callback(
-        [&](WindowKind kind, View_Window window)
-        { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
 }
 
 MainWindow::~MainWindow()
@@ -492,7 +488,7 @@ void MainWindow::configure_camera() { api::configure_camera(); }
 void MainWindow::refresh_view_mode()
 {
     // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(*this, window_max_size, ui_->ViewModeComboBox->currentIndex());
+    api::refresh_view_mode(window_max_size, ui_->ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();

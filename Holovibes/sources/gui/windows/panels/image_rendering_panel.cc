@@ -112,7 +112,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
             return;
 
-        api::set_raw_mode(*parent_, parent_->window_max_size);
+        api::set_raw_mode(parent_->window_max_size);
 
         // Because batch size is not set in on_notify() the value will not change on GUI.
         api::update_batch_size([]() {}, 1);
@@ -128,7 +128,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         api::close_windows();
         api::close_critical_compute();
 
-        const bool res = api::set_holographic_mode(*parent_, parent_->window_max_size);
+        const bool res = api::set_holographic_mode(parent_->window_max_size);
 
         if (res)
         {

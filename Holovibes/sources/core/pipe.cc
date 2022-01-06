@@ -1,6 +1,5 @@
 #include "pipe.hh"
 
-#include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
@@ -668,7 +667,9 @@ void Pipe::exec()
         }
         catch (CustomException& e)
         {
-            pipe_error(1, e);
+            LOG_ERROR << "Pipe error: ";
+            LOG_ERROR << "  message: " << e.what();
+            throw;
         }
     }
 }

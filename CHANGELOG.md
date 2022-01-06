@@ -7,6 +7,7 @@
 
 ### 10.7.1
 
+* Removed compute descriptor from the code
 * Fixed the color theme not working properly at the start
 * User settings are now in .json format instead of .ini
 * Reintroduced the record frame step in the advanced settings window

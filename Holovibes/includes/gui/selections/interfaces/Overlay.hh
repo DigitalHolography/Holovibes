@@ -14,7 +14,6 @@
 
 #include "frame_desc.hh"
 #include "rect.hh"
-#include "compute_descriptor.hh"
 
 namespace holovibes
 {
