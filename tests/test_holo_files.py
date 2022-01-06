@@ -7,6 +7,7 @@ import difflib
 import pytest
 import json
 from typing import List, Tuple
+from build import build_utils
 
 from build.build_constants import *
 from .constant_name import *
@@ -47,7 +48,8 @@ def generate_holo_from(input: str, output: str, cli_argument: str, config: str =
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
+    cmd = build_utils.get_conan_venv_start_cmd(None)
+    cmd += [HOLOVIBES_BIN, "-i", input, "-o", output] + \
         get_cli_arguments(cli_argument)
     if config:
         cmd += ['--compute_settings', config]

@@ -8,14 +8,14 @@ from build.build_constants import *
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "10.7.0"
+    version = "10.7.2"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
     description = "Real-time hologram rendering made easy"
     topics = "gpu", "cpp", "computer-vision", "opengl"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake_paths", "cmake_find_package"
+    generators = "cmake_paths", "cmake_find_package", "virtualrunenv"
 
     requires = (
         "qt/6.2.1",

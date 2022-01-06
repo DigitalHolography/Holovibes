@@ -1,5 +1,4 @@
 #include "global_state_holder.hh"
-#include "user_interface_descriptor.hh"
 
 #include "holovibes.hh"
 #include "API.hh"
@@ -182,7 +181,6 @@ void GSH::set_weight_rgb(int r, int g, int b)
 static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_matrix, const std::string& file)
 {
     auto& holo = Holovibes::instance();
-    convo_matrix->clear();
 
     try
     {
@@ -263,11 +261,13 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
     }
 }
 
-void GSH::enable_convolution(const std::string& file)
+void GSH::enable_convolution(std::optional<std::string> file)
 {
-    if (file != UID_CONVOLUTION_TYPE_DEFAULT)
-        load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file);
     compute_cache_.set_convolution_enabled(true);
+    compute_cache_.get_convo_matrix_ref()->clear();
+
+    if (file)
+        load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
 void GSH::set_convolution_enabled(bool value) { compute_cache_.set_convolution_enabled(value); }

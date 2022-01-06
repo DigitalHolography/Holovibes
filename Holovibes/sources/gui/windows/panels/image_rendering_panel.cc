@@ -215,7 +215,11 @@ void ImageRenderingPanel::set_filter2d(bool checked)
 
 void ImageRenderingPanel::set_filter2d_n1(int n) { api::set_filter2d_n1(n); }
 
-void ImageRenderingPanel::set_filter2d_n2(int n) { api::set_filter2d_n2(n); }
+void ImageRenderingPanel::set_filter2d_n2(int n)
+{
+    ui_->Filter2DN1SpinBox->setMaximum(n - 1);
+    api::set_filter2d_n2(n);
+}
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
@@ -352,8 +356,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();
 
-    if (UserInterfaceDescriptor::instance().convo_name != UID_CONVOLUTION_TYPE_DEFAULT)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
 
     parent_->notify();
 }

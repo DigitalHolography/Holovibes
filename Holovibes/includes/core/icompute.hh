@@ -135,7 +135,7 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    RecordMode record_mode_ = RecordMode::NONE;
+    std::atomic<RecordMode> record_mode_{RecordMode::NONE};
 };
 
 /*! \struct ChartEnv
@@ -204,9 +204,9 @@ class ICompute
     void request_disable_raw_view();
     void request_filter2d_view();
     void request_disable_filter2d_view();
-    void request_hologram_record(std::optional<unsigned int> nb_frames_to_record);
-    void request_raw_record(std::optional<unsigned int> nb_frames_to_record);
-    void request_cuts_record(std::optional<unsigned int> nb_frames_to_record);
+    void request_hologram_record();
+    void request_raw_record();
+    void request_cuts_record(RecordMode rm);
     void request_disable_frame_record();
     void request_clear_img_acc();
     void request_convolution();
@@ -251,12 +251,9 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
     bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
     bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
-    std::optional<std::optional<unsigned int>> get_hologram_record_requested() const
-    {
-        return hologram_record_requested_;
-    }
-    std::optional<std::optional<unsigned int>> get_raw_record_requested() const { return raw_record_requested_; }
-    std::optional<std::optional<unsigned int>> get_cuts_record_requested() const { return cuts_record_requested_; }
+    bool get_hologram_record_requested() const { return hologram_record_requested_; }
+    bool get_raw_record_requested() const { return raw_record_requested_; }
+    bool get_cuts_record_requested() const { return cuts_record_requested_; }
     bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
     bool get_convolution_requested() const { return convolution_requested_; }
     bool get_disable_convolution_requested() const { return convolution_requested_; }
@@ -362,9 +359,9 @@ class ICompute
     std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_transformation_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<std::optional<std::optional<unsigned int>>> hologram_record_requested_{std::nullopt};
-    std::atomic<std::optional<std::optional<unsigned int>>> raw_record_requested_{std::nullopt};
-    std::atomic<std::optional<std::optional<unsigned int>>> cuts_record_requested_{std::nullopt};
+    std::atomic<bool> hologram_record_requested_{false};
+    std::atomic<bool> raw_record_requested_{false};
+    std::atomic<bool> cuts_record_requested_{false};
     std::atomic<bool> disable_frame_record_requested_{false};
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};

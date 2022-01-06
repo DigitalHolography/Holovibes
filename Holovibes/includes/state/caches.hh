@@ -92,7 +92,7 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (b
 
 /*! \brief Construct a new new micro cache object
  * \param start_frame First frame read
- * \param start_frame Last frame read
+ * \param end_frame Last frame read
  */
 NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_frame, 0));
 

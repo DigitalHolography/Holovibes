@@ -22,9 +22,6 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-// TODO: Remove this include when GSH will handle record_mode
-#include "user_interface_descriptor.hh"
-
 namespace holovibes
 {
 
@@ -278,7 +275,7 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
-    if (hologram_record_requested_.load() != std::nullopt)
+    if (hologram_record_requested_)
     {
         LOG_DEBUG << "Hologram Record Request Processing";
         auto record_fd = gpu_output_queue_.get_fd();
@@ -287,10 +284,10 @@ bool Pipe::make_requests()
             new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
-        hologram_record_requested_ = std::nullopt;
+        hologram_record_requested_ = false;
     }
 
-    if (raw_record_requested_.load() != std::nullopt)
+    if (raw_record_requested_)
     {
         LOG_DEBUG << "Raw Record Request Processing";
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -298,28 +295,24 @@ bool Pipe::make_requests()
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
-        raw_record_requested_ = std::nullopt;
+        raw_record_requested_ = false;
     }
 
-    if (cuts_record_requested_.load() != std::nullopt)
+    if (cuts_record_requested_)
     {
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
 
-        RecordMode rm = UserInterfaceDescriptor::instance().record_mode_;
-
         fd_xyz.depth = sizeof(ushort);
-
-        if (rm == RecordMode::CUTS_XZ)
+        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
             fd_xyz.height = compute_cache_.get_time_transformation_size();
-        else if (rm == RecordMode::CUTS_YZ)
+        else
             fd_xyz.width = compute_cache_.get_time_transformation_size();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
-        frame_record_env_.record_mode_ = rm;
-        cuts_record_requested_ = std::nullopt;
+        cuts_record_requested_ = false;
     }
 
     return success_allocation;
@@ -710,6 +703,7 @@ void Pipe::synchronize_caches()
     filter2d_cache_.synchronize();
     view_cache_.synchronize();
     zone_cache_.synchronize();
+    composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
     // advanced_cache_.synchronize();

@@ -128,6 +128,15 @@ def get_vcvars_start_cmd(env) -> List[str]:
 
     return ['cmd.exe', '/c', 'call', env or find_vcvars(), '&&']
 
+def get_conan_venv_start_cmd(build_dir: str, generator: str=None):
+    if not is_windows():
+        print("Warning: using conan win venv cmd in not-windows env")
+
+    venv_path = os.path.join(os.getcwd(),
+                            get_build_dir(build_dir, get_generator(generator)),
+                            "activate_run.bat")
+    
+    return ['cmd.exe', '/c', 'call', venv_path, '&&']
 
 def get_lib_paths() -> str:
     with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'r') as fp:

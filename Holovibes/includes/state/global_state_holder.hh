@@ -303,7 +303,7 @@ class GSH
     void set_time_transformation_size(uint value);
     void set_time_transformation_stride(uint value);
     void disable_convolution();
-    void enable_convolution(const std::string& file);
+    void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
 
     inline void set_space_transformation(const SpaceTransformation value) noexcept

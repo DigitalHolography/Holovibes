@@ -376,6 +376,9 @@ bool set_3d_cuts_view(uint time_transformation_size)
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
+
+        pipe_refresh();
+
         return true;
     }
     catch (const std::logic_error& e)
@@ -400,16 +403,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
     get_compute_pipe()->insert_fn_end_vect(callback);
 
-    try
-    {
-        // Wait for refresh to be enabled for notify
-        while (get_compute_pipe()->get_refresh_request())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR << e.what();
-    }
+    // Refresh pipe to remove cuts linked lambda from pipe
+    pipe_refresh();
     GSH::instance().set_cuts_view_enabled(false);
 }
 
@@ -979,10 +974,15 @@ bool get_img_log_scale_slice_enabled() { return GSH::instance().get_img_log_scal
 
 void enable_convolution(const std::string& filename)
 {
-    GSH::instance().enable_convolution(filename);
+    GSH::instance().enable_convolution(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt
+                                                                                : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+    {
+        // Refresh because the current convolution might have change.
+        pipe_refresh();
         return;
+    }
 
     try
     {
