@@ -5,6 +5,7 @@
 #pragma once
 
 #include "frame_file.hh"
+#include "logger.hh"
 
 namespace holovibes::io_files
 {
