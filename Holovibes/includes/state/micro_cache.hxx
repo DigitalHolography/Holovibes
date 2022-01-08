@@ -9,7 +9,6 @@
 #include "map_macro.hh"
 #endif
 #include "micro_cache.hh"
-#include "checker.hh"
 
 /*
  * This macro is the core of the micro-cache's functioning.

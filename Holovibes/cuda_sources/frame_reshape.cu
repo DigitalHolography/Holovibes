@@ -2,7 +2,6 @@
 
 #include "tools.hh"
 #include "common.cuh"
-#include "checker.hh"
 
 cudaError_t embedded_frame_cpy(const char* input,
                                const uint input_width,
