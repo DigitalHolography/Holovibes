@@ -8,8 +8,6 @@
  * However, by doing so, those functions are exported.
  */
 
-#include "checker.hh"
-
 namespace _private
 {
 /*! \brief Basic kernel to apply a map operation.

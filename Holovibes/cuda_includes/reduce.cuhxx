@@ -2,7 +2,6 @@
 
 #include "cuda.h"
 #include "cuda_runtime.h"
-#include "checker.hh"
 
 #include <cassert>
 #include <limits>

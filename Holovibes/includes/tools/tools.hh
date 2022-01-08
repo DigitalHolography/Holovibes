@@ -28,7 +28,7 @@ using ulong = unsigned long;
 #include "hardware_limits.hh"
 #include "frame_desc.hh"
 #include "cufft.h"
-#include "checker.hh"
+
 #include "logger.hh"
 
 #include <nlohmann/json.hpp>
