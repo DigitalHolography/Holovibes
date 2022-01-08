@@ -39,6 +39,7 @@ find_package(OpenCV REQUIRED)
 find_package(GTest REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(glog REQUIRED)
 
 # Includes
 function(target_include_external_dirs target type)
@@ -51,6 +52,8 @@ SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${glm_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
+    ${glog_INCLUDE_DIRS}
+    ${gflags_INCLUDE_DIRS} #included with glog but needed
 )
 
 set(EXTERNAL_INCLUDES
@@ -147,8 +150,9 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    ${opencv_LIBRARIES}
-    ${opengl_system_LIBRARY_DIRS}
+    glog::glog
+    opencv::videoio
+    opengl::opengl
 
     cufft
     cublas

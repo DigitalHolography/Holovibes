@@ -106,20 +106,19 @@ static void print_help(holovibes::OptionsParser parser)
     std::cerr << parser.get_opts_desc();
 }
 
+static void init_logging(int argc, char* argv[])
+{
+    FLAGS_logtostderr = 1;
+#ifndef _DEBUG
+    FLAGS_log_dir = holovibes::settings::logs_dirpath;
+#endif
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+}
+
 int main(int argc, char* argv[])
 {
-
-#ifndef _DEBUG
-    // Put every log message in "everything.log":
-    loguru::add_file(holovibes::settings::everything_log_path.c_str(), loguru::Append, loguru::Verbosity_MAX);
-
-    // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
-    loguru::add_file(holovibes::settings::latest_readable_path.c_str(), loguru::Truncate, loguru::Verbosity_INFO);
-
-    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
-#else
-    loguru::g_stderr_verbosity = loguru::Verbosity_MAX;
-#endif
+    init_logging(argc, argv);
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
