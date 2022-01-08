@@ -8,33 +8,16 @@
 #include <functional>
 #include <iostream>
 
-#define LOGURU_WITH_STREAMS 1
+#include <glog/logging.h>
 
-#include <loguru.hpp>
+#define LOG_TRACE DLOG(INFO) // Compat
+#define LOG_DEBUG DLOG(INFO) // Compat
+#define LOG_INFO LOG(INFO)
+#define LOG_WARN LOG(WARNING)
+#define LOG_ERROR LOG(ERROR)
+#define LOG_FATAL LOG(FATAL)
 
-#define LOG_TRACE LOG_S(2)
-#define LOG_DEBUG LOG_S(1)
-#define LOG_INFO LOG_S(INFO)
-#define LOG_WARN LOG_S(WARNING)
-#define LOG_ERROR LOG_S(ERROR)
-#define LOG_FUNC LOG_SCOPE_FUNCTION(1)
-
-#define catch_log(e) catch_log__((e), __LINE__, __FILE__)
-
-#ifdef _DEBUG
-
-inline void catch_log__(const std::exception& e, int line, const char* file)
-{
-    LOG_ERROR << "Internal Error occured: " << e.what();
-    LOG_ERROR << "Error occured in file " << file << " at line " << line;
-    throw e;
-}
-
-#else
-
-inline void catch_log__(const std::exception& e, int, const char*)
-{
-    LOG_ERROR << "Internal Error occured: " << e.what() << '\n';
-}
-
-#endif
+// See glog doc for everything else
+// CHECK(x) : assert + stacktrace
+// PCHECK(x) : assert + stacktrace + check errno value
+// CHECK_NOTNULL: ...
