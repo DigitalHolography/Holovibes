@@ -18,13 +18,13 @@ DEFAULT_GOAL = "build"
 
 @dataclass
 class GoalArgs:
-    build_mode : str
-    generator : str
-    toolchain : str
-    build_env : str
-    build_dir : str
-    verbose : bool
-    goal_args : List[str]
+    build_mode: str
+    generator: str
+    toolchain: str
+    build_env: str
+    build_dir: str
+    verbose: bool
+    goal_args: List[str]
 
 GoalsFuncs = {}
 
@@ -41,7 +41,6 @@ def goal(func, name: str = None):
 
 @goal
 def conan(args) -> int:
-    cmd = []
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
@@ -58,16 +57,14 @@ def conan(args) -> int:
     else:
         runtime = "MD"
 
-    cmd += [
-        "conan",
-        "install",
-        ".",
-        "-if",
-        build_dir,
-        "--build",
-        "missing",
+    cmd = [
+        "conan", "install", ".",
+        "-if", build_dir,
+        "--build", "missing",
         "-s", f"build_type={build_mode}",
-        "-s", f"compiler.runtime={runtime}"
+        "-s", f"compiler.runtime={runtime}",
+        "-o", f"cmake_generator={generator}",
+        "-o", f"cmake_compiler={args.toolchain}",
     ] + args.goal_args
 
     if args.verbose:
@@ -81,75 +78,59 @@ def conan(args) -> int:
         raise
 
 
-@goal
-def cmake(args):
-    cmd = build_utils.get_vcvars_start_cmd(
-        args.build_env) if build_utils.is_windows() else []
-    toolchain = build_utils.get_toolchain(args.toolchain)
+def conan_build_goal(args, option: str):
     generator = build_utils.get_generator(args.generator)
-    build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
 
     if not os.path.isdir(build_dir):
         print("Build directory not found, Running conan goal before cmake")
         sys.stdout.flush()
-        if conan(args):
+        if option == "--install" and conan_build_goal(args, "--test"):
+            return 1
+        if option == "--test" and conan_build_goal(args, "--build"):
+            return 1
+        if option == "--build" and conan_build_goal(args, "--configure"):
+            return 1
+        if option == "--configure" and conan(args):
             return 1
 
-    cmd += [
-        "cmake",
-        "-B",
-        build_dir,
-        "-G",
-        generator,
-        "-S",
-        ".",
-        "-DCMAKE_VERBOSE_MAKEFILE=OFF",
-        f"-DCMAKE_BUILD_TYPE={build_mode}",
-        f"-DCMAKE_TOOLCHAIN_FILE={toolchain}",
+
+    cmd = [
+        "conan", "build", ".",
+        "-bf", build_dir,
+        "-if", build_dir,
+        "-sf", ".",
+        option
     ] + args.goal_args
 
     if args.verbose:
-        print("Cmake cmd: {}".format(" ".join(cmd)))
+        print("cmd: {}".format(" ".join(cmd)))
         sys.stdout.flush()
 
-    return subprocess.call(cmd)
+    try:
+        return subprocess.call(cmd)
+    except Exception as e:
+        print("Did you install build/requirements.txt ?")
+        raise
 
+@goal
+def cmake(args):
+    return conan_build_goal(args, "--configure")
 
 @goal
 def build(args):
-    cmd = build_utils.get_vcvars_start_cmd(
-        args.build_env) if build_utils.is_windows() else []
-    build_mode = build_utils.get_build_mode(args.build_mode)
-    build_dir = build_utils.get_build_dir(
-        args.build_dir, build_utils.get_generator(args.generator)
-    )
+    return conan_build_goal(args, "--build")
 
-    if not os.path.isdir(build_dir):
-        print("Build directory not found, Running cmake goal before build")
-        sys.stdout.flush()
-        if cmake(args):
-            return 1
-
-    cmd += ['cmake',
-            '--build',
-            build_dir,
-            '-j', str(cpu_count()),
-            ] + args.goal_args
-
-    if args.verbose:
-        print("Build cmd: {}".format(" ".join(cmd)))
-        sys.stdout.flush()
-
-    return subprocess.call(cmd)
-
+@goal
+def test(args):
+    return conan_build_goal(args, "--test")
 
 @goal
 def run(args):
     if not build_utils.is_windows():
         print("Holovibes is only runnable on Windows")
         return 1
-    
+
     build_mode = build_utils.get_build_mode(args.build_mode)
     exe_path = os.path.join(
         build_utils.get_build_dir(
@@ -173,6 +154,8 @@ def run(args):
 
 @goal
 def pytest(args):
+    """ deprecated: use test instead"""
+
     try:
         import pytest
     except ImportError as e:
@@ -189,6 +172,8 @@ def pytest(args):
 
 @goal
 def ctest(args):
+    """ deprecated: use test instead"""
+
     # cmd = build_utils.get_vcvars_start_cmd(
     #     args.build_env) if build_utils.is_windows() else []
     cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
@@ -291,25 +276,13 @@ def release(args) -> int:
         if clean(args):
             return 1
 
-    if build(args):
-        return 1
 
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
 
-    cmd += ["conan", "build", ".", "-if",
-            build_dir, "-s", f"build_type={build_mode}"]
-
-    if args.verbose:
-        print("conan cmd: {}".format(" ".join(cmd)))
-        sys.stdout.flush()
-
-    try:
-        if subprocess.call(cmd):
-            return 1
-    except:
-        print("Please make sure you have installed the build/requirements.txt")
-        raise
+    # run goal conan, cmake, build, test and
+    # Get libs paths and add them to the installer file
+    conan_build_goal(args, option="--install")
 
     paths = build_utils.get_lib_paths()
     nvcc_path = build_utils.get_cmake_variable(
