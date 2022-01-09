@@ -156,7 +156,6 @@ def run(args: GoalArgs) -> int:
 
 @goal
 def pytest(args: GoalArgs) -> int:
-    """ deprecated: use test instead"""
 
     try:
         import pytest
@@ -174,7 +173,6 @@ def pytest(args: GoalArgs) -> int:
 
 @goal
 def ctest(args: GoalArgs) -> int:
-    """ deprecated: use test instead"""
 
     # cmd = build_utils.get_vcvars_start_cmd(
     #     args.build_env) if build_utils.is_windows() else []
