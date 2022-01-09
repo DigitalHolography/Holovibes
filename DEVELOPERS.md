@@ -18,6 +18,8 @@ Some cameras needs there own libraries to be used:
 
 #### Install a compiler
 
+Please specify the compiler you have choosen with an option when running our dev tool documented later in the file.
+
 ##### Install MSVC (Visual Studio 2019)
 
 Install [Visual Studio 2019](https://visualstudio.microsoft.com/fr/)
@@ -54,9 +56,8 @@ To choose to build with Visual Studio (MSVC) or Clang
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 16*, *NMake Makefiles* or *Unix Makefiles*) with `./dev.py -g [generator]`.
 
-Alternatively, you can build from the command line (not recommended):
-* **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
-* **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+Alternatively, you can build from the command line directly calling conan:
+`conan build . -if bin/<generator> -bf bin/<generator> -sf .`
 
 Note: After changing an element of the front or to change between release/debug mode, please delete your build folder and recompile.
 
