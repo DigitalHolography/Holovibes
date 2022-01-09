@@ -230,9 +230,9 @@ endif()
 # ---------------------------------------------------------------------
 
 add_executable("${PROJECT_NAME}"
-    mainwindow.ui
-    advancedsettingswindow.ui
-    plotwindow.ui
+    # mainwindow.ui
+    # advancedsettingswindow.ui
+    # plotwindow.ui
 
     Holovibes.rc
     Holovibes.qrc
