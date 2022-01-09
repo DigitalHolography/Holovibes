@@ -5,9 +5,7 @@ import sys
 import subprocess
 import argparse
 import subprocess
-from time import sleep
 from dataclasses import dataclass
-from multiprocessing import cpu_count
 from typing import List
 
 from tests.constant_name import *
@@ -15,6 +13,7 @@ from build.build_constants import *
 from build import build_utils
 
 DEFAULT_GOAL = "build"
+
 
 @dataclass
 class GoalArgs:
@@ -25,6 +24,7 @@ class GoalArgs:
     build_dir: str
     verbose: bool
     goal_args: List[str]
+
 
 GoalsFuncs = {}
 
@@ -40,7 +40,7 @@ def goal(func, name: str = None):
 
 
 @goal
-def conan(args) -> int:
+def conan(args: GoalArgs) -> int:
     generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
@@ -78,12 +78,11 @@ def conan(args) -> int:
         raise
 
 
-def conan_build_goal(args, option: str):
+def conan_build_goal(args: GoalArgs, option: str) -> int:
     generator = build_utils.get_generator(args.generator)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
 
     if not os.path.isdir(build_dir):
-        print("Build directory not found, Running conan goal before cmake")
         sys.stdout.flush()
         if option == "--install" and conan_build_goal(args, "--test"):
             return 1
@@ -93,7 +92,6 @@ def conan_build_goal(args, option: str):
             return 1
         if option == "--configure" and conan(args):
             return 1
-
 
     cmd = [
         "conan", "build", ".",
@@ -113,20 +111,24 @@ def conan_build_goal(args, option: str):
         print("Did you install build/requirements.txt ?")
         raise
 
+
 @goal
-def cmake(args):
+def cmake(args: GoalArgs) -> int:
     return conan_build_goal(args, "--configure")
 
+
 @goal
-def build(args):
+def build(args: GoalArgs) -> int:
     return conan_build_goal(args, "--build")
 
-@goal
-def test(args):
-    return conan_build_goal(args, "--test")
 
 @goal
-def run(args):
+def test(args: GoalArgs) -> int:
+    return conan_build_goal(args, "--test")
+
+
+@goal
+def run(args: GoalArgs) -> int:
     if not build_utils.is_windows():
         print("Holovibes is only runnable on Windows")
         return 1
@@ -153,7 +155,7 @@ def run(args):
 
 
 @goal
-def pytest(args):
+def pytest(args: GoalArgs) -> int:
     """ deprecated: use test instead"""
 
     try:
@@ -171,7 +173,7 @@ def pytest(args):
 
 
 @goal
-def ctest(args):
+def ctest(args: GoalArgs) -> int:
     """ deprecated: use test instead"""
 
     # cmd = build_utils.get_vcvars_start_cmd(
@@ -196,8 +198,9 @@ def ctest(args):
     os.chdir(previous_path)
     return out
 
+
 @goal
-def build_ref(args) -> int:
+def build_ref(args: GoalArgs) -> int:
     from tests.test_holo_files import generate_holo_from
 
     for name in args.goal_args or find_tests():
@@ -230,7 +233,7 @@ def build_ref(args) -> int:
 
 
 @goal
-def clean(args) -> int:
+def clean(args: GoalArgs) -> int:
     # Remove build directory
     if os.path.isdir(DEFAULT_BUILD_BASE):
         if subprocess.call(f"rm -rf {DEFAULT_BUILD_BASE}", shell=True):
@@ -251,7 +254,7 @@ def clean(args) -> int:
 
 
 @goal
-def release(args) -> int:
+def release(args: GoalArgs) -> int:
     if len(args.goal_args) <= 0:
         print("Please specify part of version to bump")
         return 1
@@ -276,7 +279,6 @@ def release(args) -> int:
         if clean(args):
             return 1
 
-
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
 
@@ -298,7 +300,7 @@ def release(args) -> int:
     return subprocess.call(["iscc", ISCC_FILE])
 
 
-def run_goal(goal: str, args) -> int:
+def run_goal(goal: str, args: GoalArgs) -> int:
 
     goal_func = GoalsFuncs.get(goal)
     if not goal_func:
@@ -369,8 +371,10 @@ def parse_args():
         if arg in all_goals:
             current_goal = arg
             goals[current_goal] = []
-        else:
+        elif arg in goals:
             goals[current_goal].append(arg)
+        else:
+            raise Exception(f"Goal {arg} does not exist")
 
     return args, goals
 

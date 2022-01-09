@@ -90,7 +90,6 @@ class HolovibesConan(ConanFile):
         cmake.build()
 
         if self.should_test:
-            cmake.test()
             self._pytest()
 
         if self.should_install:
