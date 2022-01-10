@@ -79,11 +79,11 @@
 //         x.trigger_c();
 //     }
 // };
-// TEST(TestMicroCache, register_truth_works) { TestCache1::Ref x; }
+// TEST(TestMicroCache, register_reference_works) { TestCache1::Ref x; }
 
-// TEST(TestMicroCache, assert_not_truth_found)
+// TEST(TestMicroCache, assert_not_reference_found)
 // {
-//     ASSERT_DEATH({ TestCache1::Cache x; }, "You must register a truth cache for class: TestCache1");
+//     ASSERT_DEATH({ TestCache1::Cache x; }, "You must register a reference cache for class: TestCache1");
 // }
 
 // TEST(TestMicroCache, basic_types_simple)
