@@ -24,6 +24,7 @@ class HolovibesConan(ConanFile):
         "gtest/1.10.0",
         "nlohmann_json/3.10.4",
         "opencv/4.5.3",
+        "glog/0.5.0",
         "opengl/system",
         "freetype/2.11.0",  # needed to overwrite qt bad dependency
     )
