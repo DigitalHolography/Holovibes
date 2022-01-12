@@ -61,7 +61,7 @@ struct Reticle
 
 struct Views
 {
-    ImgType img_type = ImgType::MODULUS;
+    ImgType img_type = ImgType::Modulus;
     bool fft_shift = false;
     ViewXY x;
     ViewXY y;
