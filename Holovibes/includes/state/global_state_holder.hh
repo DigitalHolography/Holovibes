@@ -99,7 +99,7 @@ class GSH
     inline bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().flip_enabled; }
     inline float get_xy_rot() const noexcept { return view_cache_.get_xy().rot; }
     inline uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().img_accu_level; }
-    inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_scale_slice_enabled; }
+    inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_enabled; }
     inline bool get_xy_contrast_enabled() const noexcept { return view_cache_.get_xy().contrast.enabled; }
     inline bool get_xy_contrast_auto_refresh() const noexcept { return view_cache_.get_xy().contrast.auto_refresh; }
     inline bool get_xy_contrast_invert() const noexcept { return view_cache_.get_xy().contrast.invert; }
@@ -111,7 +111,7 @@ class GSH
     inline bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().flip_enabled; }
     inline float get_xz_rot() const noexcept { return view_cache_.get_xz().rot; }
     inline uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().img_accu_level; }
-    inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_scale_slice_enabled; }
+    inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_enabled; }
     inline bool get_xz_contrast_enabled() const noexcept { return view_cache_.get_xz().contrast.enabled; }
     inline bool get_xz_contrast_auto_refresh() const noexcept { return view_cache_.get_xz().contrast.auto_refresh; }
     inline bool get_xz_contrast_invert() const noexcept { return view_cache_.get_xz().contrast.invert; }
@@ -123,7 +123,7 @@ class GSH
     inline bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().flip_enabled; }
     inline float get_yz_rot() const noexcept { return view_cache_.get_yz().rot; }
     inline uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().img_accu_level; }
-    inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_scale_slice_enabled; }
+    inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_enabled; }
     inline bool get_yz_contrast_enabled() const noexcept { return view_cache_.get_yz().contrast.enabled; }
     inline bool get_yz_contrast_auto_refresh() const noexcept { return view_cache_.get_yz().contrast.auto_refresh; }
     inline bool get_yz_contrast_invert() const noexcept { return view_cache_.get_yz().contrast.invert; }
@@ -136,10 +136,7 @@ class GSH
     inline bool get_filter2d_contrast_invert() const noexcept { return view_cache_.get_filter2d().contrast.invert; }
     inline float get_filter2d_contrast_min() const noexcept { return view_cache_.get_filter2d().contrast.min; }
     inline float get_filter2d_contrast_max() const noexcept { return view_cache_.get_filter2d().contrast.max; }
-    inline bool get_filter2d_log_scale_slice_enabled() const noexcept
-    {
-        return view_cache_.get_filter2d().log_scale_slice_enabled;
-    }
+    inline bool get_filter2d_log_scale_slice_enabled() const noexcept { return view_cache_.get_filter2d().log_enabled; }
     inline bool get_filter2d_contrast_auto_refresh() const noexcept
     {
         return view_cache_.get_filter2d().contrast.auto_refresh;
@@ -212,57 +209,57 @@ class GSH
 
     // RGB
     inline CompositeRGB get_rgb() const noexcept { return composite_cache_.get_rgb(); }
-    inline uint get_rgb_p_min() const noexcept { return composite_cache_.get_rgb().p_min; }
-    inline uint get_rgb_p_max() const noexcept { return composite_cache_.get_rgb().p_max; }
-    inline float get_weight_r() const noexcept { return composite_cache_.get_rgb().weight_r; }
-    inline float get_weight_g() const noexcept { return composite_cache_.get_rgb().weight_g; }
-    inline float get_weight_b() const noexcept { return composite_cache_.get_rgb().weight_b; }
+    inline uint get_rgb_p_min() const noexcept { return composite_cache_.get_rgb().p.min; }
+    inline uint get_rgb_p_max() const noexcept { return composite_cache_.get_rgb().p.max; }
+    inline float get_weight_r() const noexcept { return composite_cache_.get_rgb().weight.r; }
+    inline float get_weight_g() const noexcept { return composite_cache_.get_rgb().weight.g; }
+    inline float get_weight_b() const noexcept { return composite_cache_.get_rgb().weight.b; }
 
     // HSV
     inline CompositeHSV get_hsv() const noexcept { return composite_cache_.get_hsv(); }
-    inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.p_min; }
-    inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.p_max; }
+    inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.p.min; }
+    inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.p.max; }
 
     inline float get_slider_h_threshold_min() const noexcept
     {
-        return composite_cache_.get_hsv().h.slider_threshold_min;
+        return composite_cache_.get_hsv().h.slider_threshold.min;
     }
     inline float get_slider_h_threshold_max() const noexcept
     {
-        return composite_cache_.get_hsv().h.slider_threshold_max;
+        return composite_cache_.get_hsv().h.slider_threshold.max;
     }
     inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
-    inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.low_threshold; }
-    inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.high_threshold; }
-    inline uint get_h_blur_kernel_size() const noexcept { return composite_cache_.get_hsv().h.blur_kernel_size; }
-    inline uint get_composite_p_min_s() const noexcept { return composite_cache_.get_hsv().s.p_min; }
-    inline uint get_composite_p_max_s() const noexcept { return composite_cache_.get_hsv().s.p_max; }
+    inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.min; }
+    inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.max; }
+    inline uint get_h_blur_kernel_size() const noexcept { return composite_cache_.get_hsv().h.blur.kernel_size; }
+    inline uint get_composite_p_min_s() const noexcept { return composite_cache_.get_hsv().s.p.min; }
+    inline uint get_composite_p_max_s() const noexcept { return composite_cache_.get_hsv().s.p.max; }
     inline float get_slider_s_threshold_min() const noexcept
     {
-        return composite_cache_.get_hsv().s.slider_threshold_min;
+        return composite_cache_.get_hsv().s.slider_threshold.min;
     }
     inline float get_slider_s_threshold_max() const noexcept
     {
-        return composite_cache_.get_hsv().s.slider_threshold_max;
+        return composite_cache_.get_hsv().s.slider_threshold.max;
     }
-    inline float get_composite_low_s_threshold() const noexcept { return composite_cache_.get_hsv().s.low_threshold; }
-    inline float get_composite_high_s_threshold() const noexcept { return composite_cache_.get_hsv().s.high_threshold; }
-    inline uint get_composite_p_min_v() const noexcept { return composite_cache_.get_hsv().v.p_min; }
-    inline uint get_composite_p_max_v() const noexcept { return composite_cache_.get_hsv().v.p_max; }
+    inline float get_composite_low_s_threshold() const noexcept { return composite_cache_.get_hsv().s.threshold.min; }
+    inline float get_composite_high_s_threshold() const noexcept { return composite_cache_.get_hsv().s.threshold.max; }
+    inline uint get_composite_p_min_v() const noexcept { return composite_cache_.get_hsv().v.p.min; }
+    inline uint get_composite_p_max_v() const noexcept { return composite_cache_.get_hsv().v.p.max; }
     inline float get_slider_v_threshold_min() const noexcept
     {
-        return composite_cache_.get_hsv().v.slider_threshold_min;
+        return composite_cache_.get_hsv().v.slider_threshold.min;
     }
     inline float get_slider_v_threshold_max() const noexcept
     {
-        return composite_cache_.get_hsv().v.slider_threshold_max;
+        return composite_cache_.get_hsv().v.slider_threshold.max;
     }
-    inline float get_composite_low_v_threshold() const noexcept { return composite_cache_.get_hsv().v.low_threshold; }
-    inline float get_composite_high_v_threshold() const noexcept { return composite_cache_.get_hsv().v.high_threshold; }
-    inline bool get_h_blur_activated() const noexcept { return composite_cache_.get_hsv().h.blur_enabled; }
-    inline bool get_composite_p_activated_s() const noexcept { return composite_cache_.get_hsv().s.p_activated; }
-    inline bool get_composite_p_activated_v() const noexcept { return composite_cache_.get_hsv().v.p_activated; }
+    inline float get_composite_low_v_threshold() const noexcept { return composite_cache_.get_hsv().v.threshold.min; }
+    inline float get_composite_high_v_threshold() const noexcept { return composite_cache_.get_hsv().v.threshold.max; }
+    inline bool get_h_blur_activated() const noexcept { return composite_cache_.get_hsv().h.blur.enabled; }
+    inline bool get_composite_p_activated_s() const noexcept { return composite_cache_.get_hsv().s.p.activated; }
+    inline bool get_composite_p_activated_v() const noexcept { return composite_cache_.get_hsv().v.p.activated; }
 
     inline float get_reticle_scale() const noexcept { return view_cache_.get_reticle_scale(); }
 
@@ -350,100 +347,91 @@ class GSH
     inline void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->flip_enabled = value; }
     inline void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rot = value; }
     inline void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref()->img_accu_level = value; }
-    inline void set_xy_log_scale_slice_enabled(bool value) noexcept
-    {
-        view_cache_.get_xy_ref()->log_scale_slice_enabled = value;
-    }
-    inline void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast_enabled = value; }
+    inline void set_xy_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_xy_ref()->log_enabled = value; }
+    inline void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast.enabled = value; }
     inline void set_xy_contrast_auto_refresh(bool value) noexcept
     {
-        view_cache_.get_xy_ref()->contrast_auto_refresh = value;
+        view_cache_.get_xy_ref()->contrast.auto_refresh = value;
     }
-    inline void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast_invert = value; }
+    inline void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast.invert = value; }
     inline void set_xy_contrast_min(float value) noexcept
     {
-        view_cache_.get_xy_ref()->contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xy_ref()->contrast.min = value > 1.0f ? value : 1.0f;
     }
     inline void set_xy_contrast_max(float value) noexcept
     {
-        view_cache_.get_xy_ref()->contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xy_ref()->contrast.max = value > 1.0f ? value : 1.0f;
     }
 
     inline void set_xz(ViewXYZ value) noexcept { view_cache_.set_xz(value); }
     inline void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->flip_enabled = value; }
     inline void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rot = value; }
     inline void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref()->img_accu_level = value; }
-    inline void set_xz_log_scale_slice_enabled(bool value) noexcept
-    {
-        view_cache_.get_xz_ref()->log_scale_slice_enabled = value;
-    }
-    inline void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast_enabled = value; }
+    inline void set_xz_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_xz_ref()->log_enabled = value; }
+    inline void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast.enabled = value; }
     inline void set_xz_contrast_auto_refresh(bool value) noexcept
     {
-        view_cache_.get_xz_ref()->contrast_auto_refresh = value;
+        view_cache_.get_xz_ref()->contrast.auto_refresh = value;
     }
-    inline void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast_invert = value; }
+    inline void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast.invert = value; }
     inline void set_xz_contrast_min(float value) noexcept
     {
-        view_cache_.get_xz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xz_ref()->contrast.min = value > 1.0f ? value : 1.0f;
     }
     inline void set_xz_contrast_max(float value) noexcept
     {
-        view_cache_.get_xz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_xz_ref()->contrast.max = value > 1.0f ? value : 1.0f;
     }
 
     inline void set_yz(ViewXYZ value) noexcept { view_cache_.set_yz(value); }
     inline void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref()->flip_enabled = value; }
     inline void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref()->rot = value; }
     inline void set_yz_img_accu_level(uint value) noexcept { view_cache_.get_yz_ref()->img_accu_level = value; }
-    inline void set_yz_log_scale_slice_enabled(bool value) noexcept
-    {
-        view_cache_.get_yz_ref()->log_scale_slice_enabled = value;
-    }
-    inline void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast_enabled = value; }
+    inline void set_yz_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_yz_ref()->log_enabled = value; }
+    inline void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast.enabled = value; }
     inline void set_yz_contrast_auto_refresh(bool value) noexcept
     {
-        view_cache_.get_yz_ref()->contrast_auto_refresh = value;
+        view_cache_.get_yz_ref()->contrast.auto_refresh = value;
     }
-    inline void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast_invert = value; }
+    inline void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast.invert = value; }
     inline void set_yz_contrast_min(float value) noexcept
     {
-        view_cache_.get_yz_ref()->contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_yz_ref()->contrast.min = value > 1.0f ? value : 1.0f;
     }
     inline void set_yz_contrast_max(float value) noexcept
     {
-        view_cache_.get_yz_ref()->contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_yz_ref()->contrast.max = value > 1.0f ? value : 1.0f;
     }
 
     inline void set_filter2d(ViewWindow value) noexcept { view_cache_.set_filter2d(value); }
     inline void set_filter2d_log_scale_slice_enabled(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref()->log_scale_slice_enabled = value;
+        view_cache_.get_filter2d_ref()->log_enabled = value;
     }
     inline void set_filter2d_contrast_enabled(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref()->contrast_enabled = value;
+        view_cache_.get_filter2d_ref()->contrast.enabled = value;
     }
     inline void set_filter2d_contrast_auto_refresh(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref()->contrast_auto_refresh = value;
+        view_cache_.get_filter2d_ref()->contrast.auto_refresh = value;
     }
     inline void set_filter2d_contrast_invert(bool value) noexcept
     {
-        view_cache_.get_filter2d_ref()->contrast_invert = value;
+        view_cache_.get_filter2d_ref()->contrast.invert = value;
     }
     inline void set_filter2d_contrast_min(float value) noexcept
     {
-        view_cache_.get_filter2d_ref()->contrast_min = value > 1.0f ? value : 1.0f;
+        view_cache_.get_filter2d_ref()->contrast.min = value > 1.0f ? value : 1.0f;
     }
     inline void set_filter2d_contrast_max(float value) noexcept
     {
-        view_cache_.get_filter2d_ref()->contrast_max = value > 1.0f ? value : 1.0f;
+        view_cache_.get_filter2d_ref()->contrast.max = value > 1.0f ? value : 1.0f;
     }
 
     inline void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled) noexcept
     {
-        view_cache_.get_filter2d_ref()->log_scale_slice_enabled = log_scale_filter2d_enabled;
+        view_cache_.get_filter2d_ref()->log_enabled = log_scale_filter2d_enabled;
     }
 
     // Over current window
@@ -516,9 +504,9 @@ class GSH
 
     void set_rgb_p(Span<int> span, bool notify = false);
 
-    inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight_r = value; }
-    inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight_g = value; }
-    inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight_b = value; }
+    inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight.r = value; }
+    inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight.g = value; }
+    inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight.b = value; }
 
     void set_weight_rgb(int r, int g, int b);
 
@@ -528,51 +516,42 @@ class GSH
     inline void set_hsv(CompositeHSV value) { composite_cache_.set_hsv(value); }
     inline void set_slider_h_threshold_min(float value)
     {
-        composite_cache_.get_hsv_ref()->h.slider_threshold_min = value;
+        composite_cache_.get_hsv_ref()->h.slider_threshold.min = value;
     }
     inline void set_slider_h_threshold_max(float value)
     {
-        composite_cache_.get_hsv_ref()->h.slider_threshold_max = value;
+        composite_cache_.get_hsv_ref()->h.slider_threshold.max = value;
     }
-    inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.low_threshold = value; }
-    inline void set_composite_high_h_threshold(float value)
-    {
-        composite_cache_.get_hsv_ref()->h.high_threshold = value;
-    }
-    inline void set_h_blur_kernel_size(uint value) { composite_cache_.get_hsv_ref()->h.blur_kernel_size = value; }
-    inline void set_composite_p_min_s(uint value) { composite_cache_.get_hsv_ref()->s.p_min = value; }
-    inline void set_composite_p_max_s(uint value) { composite_cache_.get_hsv_ref()->s.p_max = value; }
+    inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.min = value; }
+    inline void set_composite_high_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.max = value; }
+    inline void set_h_blur_kernel_size(uint value) { composite_cache_.get_hsv_ref()->h.blur.kernel_size = value; }
+    inline void set_composite_p_min_s(uint value) { composite_cache_.get_hsv_ref()->s.p.min = value; }
+    inline void set_composite_p_max_s(uint value) { composite_cache_.get_hsv_ref()->s.p.max = value; }
     inline void set_slider_s_threshold_min(float value)
     {
-        composite_cache_.get_hsv_ref()->s.slider_threshold_min = value;
+        composite_cache_.get_hsv_ref()->s.slider_threshold.min = value;
     }
     inline void set_slider_s_threshold_max(float value)
     {
-        composite_cache_.get_hsv_ref()->s.slider_threshold_max = value;
+        composite_cache_.get_hsv_ref()->s.slider_threshold.max = value;
     }
-    inline void set_composite_low_s_threshold(float value) { composite_cache_.get_hsv_ref()->s.low_threshold = value; }
-    inline void set_composite_high_s_threshold(float value)
-    {
-        composite_cache_.get_hsv_ref()->s.high_threshold = value;
-    }
-    inline void set_composite_p_min_v(uint value) { composite_cache_.get_hsv_ref()->v.p_min = value; }
-    inline void set_composite_p_max_v(uint value) { composite_cache_.get_hsv_ref()->v.p_max = value; }
+    inline void set_composite_low_s_threshold(float value) { composite_cache_.get_hsv_ref()->s.threshold.min = value; }
+    inline void set_composite_high_s_threshold(float value) { composite_cache_.get_hsv_ref()->s.threshold.max = value; }
+    inline void set_composite_p_min_v(uint value) { composite_cache_.get_hsv_ref()->v.p.min = value; }
+    inline void set_composite_p_max_v(uint value) { composite_cache_.get_hsv_ref()->v.p.max = value; }
     inline void set_slider_v_threshold_min(float value)
     {
-        composite_cache_.get_hsv_ref()->v.slider_threshold_min = value;
+        composite_cache_.get_hsv_ref()->v.slider_threshold.min = value;
     }
     inline void set_slider_v_threshold_max(float value)
     {
-        composite_cache_.get_hsv_ref()->v.slider_threshold_max = value;
+        composite_cache_.get_hsv_ref()->v.slider_threshold.max = value;
     }
-    inline void set_composite_low_v_threshold(float value) { composite_cache_.get_hsv_ref()->v.low_threshold = value; }
-    inline void set_composite_high_v_threshold(float value)
-    {
-        composite_cache_.get_hsv_ref()->v.high_threshold = value;
-    }
-    inline void set_h_blur_activated(bool value) { composite_cache_.get_hsv_ref()->h.blur_enabled = value; }
-    inline void set_composite_p_activated_s(bool value) { composite_cache_.get_hsv_ref()->s.p_activated = value; }
-    inline void set_composite_p_activated_v(bool value) { composite_cache_.get_hsv_ref()->v.p_activated = value; }
+    inline void set_composite_low_v_threshold(float value) { composite_cache_.get_hsv_ref()->v.threshold.min = value; }
+    inline void set_composite_high_v_threshold(float value) { composite_cache_.get_hsv_ref()->v.threshold.max = value; }
+    inline void set_h_blur_activated(bool value) { composite_cache_.get_hsv_ref()->h.blur.enabled = value; }
+    inline void set_composite_p_activated_s(bool value) { composite_cache_.get_hsv_ref()->s.p.activated = value; }
+    inline void set_composite_p_activated_v(bool value) { composite_cache_.get_hsv_ref()->v.p.activated = value; }
 
     inline void set_reticle_scale(float value) { view_cache_.set_reticle_scale(value); }
 
