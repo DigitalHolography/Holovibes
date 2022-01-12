@@ -32,6 +32,7 @@ struct AdvancedSettings
     BufferSizes buffer_size;
     Filter2DSmooth filter2d;
     ContrastThreshold contrast;
+    int raw_bitshift = 0;
     unsigned renorm_constant = 5;
 };
 

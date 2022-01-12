@@ -9,7 +9,6 @@ namespace holovibes
 {
 struct Filter2D
 {
-
     bool enabled = false;
     int n1 = 0;
     int n1 = 1;

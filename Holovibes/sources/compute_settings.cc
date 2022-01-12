@@ -40,12 +40,18 @@ NLOHMANN_JSON_SERIALIZE_ENUM(CompositeKind, {
     {CompositeKind::HSV, "HSV"},
 })
 
+NLOHMANN_JSON_SERIALIZE_ENUM(WindowKind, {
+    { WindowKind::XYview, "XYview", },
+    { WindowKind::XZview, "XZview", },
+    { WindowKind::YZview, "YZview", },
+    { WindowKind::Filter2D, "Filter2D", }
+})
 // clang-format on
 
 // Rendering
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Filter2D, enabled, n1, n2)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Convolution, enabled, type, divide)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Convolution, enabled, type, matrix, divide)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Rendering,
                                    image_mode,
                                    batch_size,
@@ -88,7 +94,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Composite, mode, composite_auto_weights, rgb,
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BufferSizes, input, file, record, output, time_transformation_cuts)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Filter2DSmooth, low, high)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ContrastThreshold, lower, upper, cuts_p_offset)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AdvancedSettings, buffer_size, filter2d, contrast, renorm_constant)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AdvancedSettings, buffer_size, filter2d, contrast, raw_bitshift, renorm_constant)
 
 // Polygone tools
 
@@ -161,9 +167,17 @@ void from_json(const json& j, RectFd& rect)
     )
 } // clang-format on
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
-
 } // namespace units
+
+// Internals
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewEnabled, lens, filter2d, raw, cuts)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Enabled, filter2d, chart, fft_shift, views)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Internals, zones, record, enabled, misc, convo_matrix, current_window)
 
 } // namespace holovibes
 
