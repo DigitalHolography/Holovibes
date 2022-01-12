@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <map>
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -18,14 +18,6 @@ enum class Theme
     Dark
 };
 
-static std::map<std::string, Theme> string_to_theme = {
-    {"CLASSIC", Theme::Classic},
-    {"DARK", Theme::Dark},
-};
-
-static std::map<Theme, std::string> theme_to_string = {
-    {Theme::Classic, "CLASSIC"},
-    {Theme::Dark, "DARK"},
-};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Theme)
 
 } // namespace holovibes

@@ -46,6 +46,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM(WindowKind, {
     { WindowKind::YZview, "YZview", },
     { WindowKind::Filter2D, "Filter2D", }
 })
+
+NLOHMANN_JSON_SERIALIZE_ENUM(Theme, {
+    {Theme::Classic, "CLASSIC"},
+    {Theme::Dark, "DARK"},
+})
+
 // clang-format on
 
 // Rendering
@@ -187,7 +193,7 @@ namespace holovibes::api
 {
 void load_image_rendering(const json& data)
 {
-    GSH::instance().set_compute_mode(computation_from_string(data["image mode"]));
+    GSH::instance().set_compute_mode(data["image mode"]);
     GSH::instance().set_batch_size(data["batch size"]);
     GSH::instance().set_time_stride(data["time transformation stride"]);
 
@@ -196,8 +202,8 @@ void load_image_rendering(const json& data)
     GSH::instance().set_filter2d_n1(filter_2d_data["n1"]);
     GSH::instance().set_filter2d_n2(filter_2d_data["n2"]);
 
-    GSH::instance().set_space_transformation(space_transformation_from_string(data["space transformation"]));
-    GSH::instance().set_time_transformation(time_transformation_from_string(data["time transformation"]));
+    GSH::instance().set_space_transformation(data["space transformation"]);
+    GSH::instance().set_time_transformation(data["time transformation"]);
     GSH::instance().set_time_transformation_size(data["time transformation size"]);
     GSH::instance().set_lambda(data["lambda"]);
     GSH::instance().set_z_distance(data["z distance"]);
@@ -215,7 +221,7 @@ void load_image_rendering(const json& data)
 
 void load_view(const json& data)
 {
-    GSH::instance().set_img_type(img_type_from_string(data["type"]));
+    GSH::instance().set_img_type(data["type"].get<ImgType>());
     GSH::instance().set_fft_shift_enabled(data["fft shift"]);
     GSH::instance().set_x(ViewXY(data["x"]));
     GSH::instance().set_y(ViewXY(data["y"]));
@@ -237,7 +243,7 @@ void load_view(const json& data)
 
 void load_composite(const json& data)
 {
-    GSH::instance().set_composite_kind(composite_kind_from_string(data["mode"]));
+    GSH::instance().set_composite_kind(data["mode"]);
     GSH::instance().set_composite_auto_weights(data["auto weight"]);
     GSH::instance().set_rgb(CompositeRGB(data["rgb"]));
     GSH::instance().set_hsv(CompositeHSV(data["hsv"]));
@@ -314,7 +320,7 @@ json compute_settings_to_json()
 
     auto j_cs = json{
         {"image rendering", {
-                {"image mode", computation_to_string(GSH::instance().get_compute_mode())},
+                {"image mode", GSH::instance().get_compute_mode()},
                 {"batch size", GSH::instance().get_batch_size()},
                 {"time transformation stride", GSH::instance().get_time_stride()},
                 {"filter2d", {
@@ -323,8 +329,8 @@ json compute_settings_to_json()
                         {"n2", GSH::instance().get_filter2d_n2()}
                     }
                 },
-                {"space transformation", space_transformation_to_string(GSH::instance().get_space_transformation())},
-                {"time transformation", time_transformation_to_string(GSH::instance().get_time_transformation())},
+                {"space transformation", GSH::instance().get_space_transformation()},
+                {"time transformation", GSH::instance().get_time_transformation()},
                 {"time transformation size", GSH::instance().get_time_transformation_size()},
                 {"lambda", GSH::instance().get_lambda()},
                 {"z distance", GSH::instance().get_z_distance()},
@@ -337,7 +343,7 @@ json compute_settings_to_json()
             }
         },
         {"view", {
-                {"type", img_type_to_string(GSH::instance().get_img_type())},
+                {"type",GSH::instance().get_img_type()},
                 {"fft shift", GSH::instance().get_fft_shift_enabled()},
                 {"x", GSH::instance().get_x()},
                 {"y", GSH::instance().get_y()},
@@ -359,7 +365,7 @@ json compute_settings_to_json()
             }
         },
         {"composite", {
-                {"mode", composite_kind_to_string(GSH::instance().get_composite_kind())},
+                {"mode", GSH::instance().get_composite_kind()},
                 {"auto weight", GSH::instance().get_composite_auto_weights()},
                 {"rgb", GSH::instance().get_rgb()},
                 {"hsv", GSH::instance().get_hsv()},

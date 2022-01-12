@@ -3,9 +3,9 @@
  * \brief Enum for the different computation mode
  */
 #pragma once
-#include <map>
 
 #include <map>
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -20,28 +20,6 @@ enum class Computation
 };
 } // namespace holovibes
 
-namespace holovibes::_internal
-{
-static std::map<std::string, Computation> string_to_computation = {
-    {"RAW", Computation::Raw},
-    {"HOLOGRAM", Computation::Hologram},
-};
-
-static std::map<Computation, std::string> computation_to_string = {
-    {Computation::Raw, "RAW"},
-    {Computation::Hologram, "HOLOGRAM"},
-};
-} // namespace holovibes::_internal
-
-namespace holovibes
-{
-inline std::string computation_to_string(Computation value) { return _internal::computation_to_string.at(value); }
-
-inline Computation computation_from_string(const std::string& in) { return _internal::string_to_computation.at(in); }
-
-inline std::ostream& operator<<(std::ostream& os, holovibes::Computation value)
-{
-    return os << computation_to_string(value);
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Computation)
 
 } // namespace holovibes
