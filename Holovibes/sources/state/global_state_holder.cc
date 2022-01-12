@@ -14,8 +14,6 @@ GSH& GSH::instance()
     return *instance_;
 }
 
-// GSH* GSH::instance_ = new GSH();
-
 #pragma region(collapsed) GETTERS
 
 bool GSH::is_current_window_xyz_type() const
@@ -26,14 +24,14 @@ bool GSH::is_current_window_xyz_type() const
 
 float GSH::get_contrast_min() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast_min
-                                                        : log10(get_current_window().contrast_min);
+    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast.min
+                                                        : log10(get_current_window().contrast.min);
 }
 
 float GSH::get_contrast_max() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast_max
-                                                        : log10(get_current_window().contrast_max);
+    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast.max
+                                                        : log10(get_current_window().contrast.max);
 }
 
 double GSH::get_rotation() const
@@ -41,7 +39,7 @@ double GSH::get_rotation() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.rot;
 }
 
@@ -51,7 +49,7 @@ bool GSH::get_flip_enabled() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.flip_enabled;
 }
 
@@ -62,7 +60,7 @@ unsigned GSH::get_img_accu_level() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.img_accu_level;
 }
 #pragma endregion
@@ -129,7 +127,7 @@ void GSH::set_accumulation_level(int value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->img_accu_level = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->img_accu_level = value;
 }
 
 void GSH::set_rotation(double value)
@@ -137,7 +135,7 @@ void GSH::set_rotation(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->rot = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->rot = value;
 }
 
 void GSH::set_flip_enabled(double value)
@@ -145,7 +143,7 @@ void GSH::set_flip_enabled(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->flip_enabled = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->flip_enabled = value;
 }
 
 void GSH::set_fft_shift_enabled(bool value)
@@ -284,16 +282,16 @@ void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast
 
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {
-    std::shared_ptr<View_Window> window = get_window(kind);
+    std::shared_ptr<ViewWindow> window = get_window(kind);
     window->contrast_min = min;
     window->contrast_max = max;
 
     notify();
 }
 
-std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)
+std::shared_ptr<ViewWindow> GSH::get_window(WindowKind kind)
 {
-    const std::map<WindowKind, std::shared_ptr<View_Window>> kind_window = {
+    const std::map<WindowKind, std::shared_ptr<ViewWindow>> kind_window = {
         {WindowKind::XYview, view_cache_.get_xy_ref()},
         {WindowKind::XZview, view_cache_.get_xz_ref()},
         {WindowKind::YZview, view_cache_.get_yz_ref()},
@@ -303,9 +301,9 @@ std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)
     return kind_window.at(kind);
 }
 
-const View_Window& GSH::get_window(WindowKind kind) const
+const ViewWindow& GSH::get_window(WindowKind kind) const
 {
-    const std::map<WindowKind, const View_Window*> kind_window = {
+    const std::map<WindowKind, const ViewWindow*> kind_window = {
         {WindowKind::XYview, &view_cache_.get_xy_const_ref()},
         {WindowKind::XZview, &view_cache_.get_xz_const_ref()},
         {WindowKind::YZview, &view_cache_.get_yz_const_ref()},
@@ -315,9 +313,9 @@ const View_Window& GSH::get_window(WindowKind kind) const
     return *kind_window.at(kind);
 }
 
-const View_Window& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
+const ViewWindow& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
 
 /* private */
-std::shared_ptr<View_Window> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
+std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
 } // namespace holovibes

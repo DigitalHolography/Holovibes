@@ -33,7 +33,7 @@ ViewPanel::~ViewPanel()
 }
 
 // TODO: use parameters instead of directly the GSH
-void ViewPanel::view_callback(WindowKind, View_Window)
+void ViewPanel::view_callback(WindowKind, ViewWindow)
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 

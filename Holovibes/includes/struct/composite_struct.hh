@@ -1,180 +1,85 @@
 #pragma once
 
-#include <atomic>
-
 #include "all_struct.hh"
-
-typedef unsigned int uint;
+#include "enum_composite_kind.hh"
 
 namespace holovibes
 {
-// clang-format off
-struct Composite_P // : public json_struct
+struct CompositeP
 {
-    int p_min = 0;
-    int p_max = 0;
-
-    operator json() const { return json{{"min", p_min}, {"max", p_max}}; }
-    Composite_P() = default;
-
-    explicit Composite_P(const json& data)
-    {
-        const json& p_data = data["p"];
-        p_min = p_data["min"];
-        p_max = p_data["max"];
-    }
-};
-struct Composite_RGB: public Composite_P
-{
-    float weight_r = 1;
-    float weight_g = 1;
-    float weight_b = 1;
-
-    operator json() const
-    {
-        return json{
-            {"p", static_cast<Composite_P>(*this)},
-            {"weight", {
-                    {"r", weight_r},
-                    {"g", weight_g},
-                    {"b", weight_b}
-                }
-            }
-        };
-    }
-
-    Composite_RGB() = default;
-
-    explicit Composite_RGB(const json& data)
-        : Composite_P(data)
-    {
-        auto weight_data = data["weight"];
-        weight_r = weight_data["r"];
-        weight_g = weight_data["g"];
-        weight_b = weight_data["b"];
-    }
+    int min = 0;
+    int max = 0;
 };
 
-struct Composite_hsv : public Composite_P
+struct ActivableCompositeP : public CompositeP
 {
-    float slider_threshold_min{0.01f};
-    float slider_threshold_max{1.0f};
-    float low_threshold{0.2f};
-    float high_threshold{99.8f};
-
-    operator json() const
-    {
-        return json{
-            {"p", static_cast<Composite_P>(*this)},
-            {"slider threshold", {
-                    {"min", slider_threshold_min},
-                    {"max", slider_threshold_max}
-                }
-            },
-            {"threshold", {
-                    {"low", low_threshold},
-                    {"high", high_threshold}
-                }
-            }
-        };
-    }
-
-    Composite_hsv() = default;
-
-    explicit Composite_hsv(const json& data)
-        : Composite_P(data)
-    {
-        const json& slider_data = data["slider threshold"];
-        slider_threshold_min = slider_data["min"];
-        slider_threshold_max = slider_data["max"];
-
-        const json& threshold_data = data["threshold"];
-        low_threshold = threshold_data["low"];
-        high_threshold = threshold_data["high"];
-    }
-};
-
-struct Composite_H : public Composite_hsv
-{
-    bool blur_enabled = false;
-    uint blur_kernel_size = 1;
-
-    operator json() const
-    {
-        json j = static_cast<Composite_hsv>(*this);
-        j["blur"] = json{
-            {"enabled", blur_enabled},
-            {"kernel size", blur_kernel_size}
-        };
-        return j;
-    }
-
-    Composite_H() = default;
-
-    explicit Composite_H(const json& data)
-        : Composite_hsv(data)
-    {
-        const json& blur_data = data["blur"];
-        blur_enabled = blur_data["enabled"];
-        blur_kernel_size = blur_data["kernel size"];
-    }
-};
-
-struct Composite_SV : public Composite_hsv
-{
-    bool p_activated = false;
-
-    operator json() const
-    {
-        json j = static_cast<Composite_hsv>(*this);
-        j["p"]["activated"] = p_activated;
-        return j;
-    }
-
-    Composite_SV() = default;
-
-    explicit Composite_SV(const json& data)
-        : Composite_hsv(data)
-        , p_activated(data["p"]["activated"])
-    {
-    }
-};
-
-struct Composite_HSV // : public json_struct
-{
-    Composite_H h{};
-    Composite_SV s{};
-    Composite_SV v{};
-
-    operator json() const { return json{{"h", h}, {"s", s}, {"v", v}}; }
-
-    Composite_HSV() = default;
-
-    explicit Composite_HSV(const json& data)
-        : h(data["h"])
-        , s(data["s"])
-        , v(data["v"])
-    {
-    }
-};
-// clang-format on
-
-inline std::ostream& operator<<(std::ostream& os, Composite_P obj)
-{
-    return os << "obj.pmin : " << obj.p_min << " - obj.pmax : " << obj.p_max;
+    bool activated = false;
 }
 
-inline std::ostream& operator<<(std::ostream& os, Composite_RGB obj)
+struct RGBWeights
 {
-    return os << "obj.weight_r : " << obj.weight_g << " - obj.weight_g" << obj.weight_b << " - obj.weight_b"
-              << static_cast<Composite_P>(obj);
+    float r;
+    float g;
+    float b;
+};
+
+struct CompositeRGB
+{
+    CompositeP p;
+    RGBWeights weight;
+};
+
+struct Threshold
+{
+    float min;
+    float max;
 }
 
-inline std::ostream& operator<<(std::ostream& os, Composite_hsv obj) { return os; }
+struct Blur
+{
+    bool enabled = false;
+    unsigned kernel_size = 1;
+}
 
-inline std::ostream& operator<<(std::ostream& os, Composite_H obj) { return os; }
+struct CompositeH
+{
+    CompositeP p;
+    Threshold slider_threshold;
+    Threshold threshold;
+    Blur blur;
+};
 
-inline std::ostream& operator<<(std::ostream& os, Composite_SV obj) { return os; }
+struct CompositeSV
+{
+    ActivableCompositeP p;
+    Threshold slider_threshold;
+    Threshold threshold;
+};
 
-inline std::ostream& operator<<(std::ostream& os, Composite_HSV obj) { return os; }
+struct CompositeHSV
+{
+    CompositeH h{};
+    CompositeSV s{};
+    CompositeSV v{};
+};
+
+struct Composite
+{
+    CompositeKind mode = CompositeKind::RGB;
+    bool composite_auto_weights = false;
+    CompositeRGB rgb;
+    CompositeHSV hsv;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeP)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(ActivableCompositeP)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(RGBWeights)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeRGB)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Threshold)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Blur)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeH)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeSV)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeHSV)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Composite)
+
 } // namespace holovibes

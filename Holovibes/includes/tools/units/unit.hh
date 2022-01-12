@@ -50,6 +50,8 @@ class Unit
     /*! \brief Exmplcit setter */
     void set(T x) { val_ = x; }
 
+    Axis get_axis() const noexcept { return axis_; }
+
     /*! \brief Explicit setter */
     template <typename U>
     Unit<T> operator+(const U& other)

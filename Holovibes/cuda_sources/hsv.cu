@@ -224,7 +224,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                           const size_t frame_res,
                           float* gpu_omega_arr,
                           size_t omega_arr_size,
-                          const holovibes::Composite_HSV& hsv_struct,
+                          const holovibes::CompositeHSV& hsv_struct,
                           const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
@@ -364,7 +364,7 @@ void apply_percentile_and_threshold(float* gpu_arr,
 }
 
 void apply_gaussian_blur(
-    float* gpu_arr, uint height, uint width, const holovibes::Composite_HSV& hsv_struct, const cudaStream_t stream)
+    float* gpu_arr, uint height, uint width, const holovibes::CompositeHSV& hsv_struct, const cudaStream_t stream)
 {
     size_t frame_res = height * width;
 
@@ -443,7 +443,7 @@ void apply_operations_on_h(float* gpu_arr,
                            uint width,
                            float* const gpu_min,
                            float* const gpu_max,
-                           const holovibes::Composite_HSV& hsv_struct,
+                           const holovibes::CompositeHSV& hsv_struct,
                            const cudaStream_t stream)
 {
     const uint frame_res = height * width;
@@ -479,7 +479,7 @@ void apply_operations_on_s(float* gpu_arr,
                            uint width,
                            float* const gpu_min,
                            float* const gpu_max,
-                           const holovibes::Composite_HSV& hsv_struct,
+                           const holovibes::CompositeHSV& hsv_struct,
                            const cudaStream_t stream)
 {
     const uint frame_res = height * width;
@@ -510,7 +510,7 @@ void apply_operations_on_v(float* gpu_arr,
                            uint width,
                            float* const gpu_min,
                            float* const gpu_max,
-                           const holovibes::Composite_HSV& hsv_struct,
+                           const holovibes::CompositeHSV& hsv_struct,
                            const cudaStream_t stream)
 {
     const uint frame_res = height * width;
@@ -542,7 +542,7 @@ void hsv(const cuComplex* gpu_input,
          const uint height,
          const cudaStream_t stream,
          const int time_transformation_size,
-         const holovibes::Composite_HSV& hsv_struct)
+         const holovibes::CompositeHSV& hsv_struct)
 {
     const uint frame_res = height * width;
 

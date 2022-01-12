@@ -12,7 +12,7 @@
 #include "user_interface_descriptor.hh"
 #include "global_state_holder.hh"
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
 
 namespace holovibes::api
@@ -509,25 +509,25 @@ bool get_img_log_scale_slice_enabled();
  *
  * \return x
  */
-View_XY get_x(void);
+ViewXY get_x(void);
 
 /*! \brief get y
  *
  * \return y
  */
-View_XY get_y(void);
+ViewXY get_y(void);
 
 /*! \brief get p
  *
  * \return p
  */
-View_PQ get_p(void);
+ViewPQ get_p(void);
 
 /*! \brief get q
  *
  * \return q
  */
-View_PQ get_q(void);
+ViewPQ get_q(void);
 
 /*! \name	Getter of the overlay positions.
  * \{

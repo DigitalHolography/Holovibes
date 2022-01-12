@@ -2,19 +2,17 @@
 
 #include <string>
 
-#include <nlohmann/json.hpp>
-using json = ::nlohmann::json;
+#include <nlohmann/json_fwd.hpp>
+
+#define NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Type)                                                                   \
+    inline void to_json(nlohmann::json& nlohmann_json_j, const Type& nlohmann_json_t);                                 \
+    inline void from_json(const nlohmann::json& nlohmann_json_j, Type& nlohmann_json_t);
 
 namespace holovibes
 {
-// TODO: Overide function in composite_struct.hh and view_struct.hh
-//       Due to undefined behaviour (maybe MSVC compiler), strange things append when we use json_struct as parent.
-//       Ex1: Middle computer 15-20; Cannot open some HOLO files without crashing
-//       Ex2: Right computer 15-20; Cannot close Holovibes windows without segfault
-//
-// struct json_struct
-// {
-//     virtual json to_json() const = 0;
-//     virtual void from_json(const json& data) = 0;
-// };
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const T& obj)
+{
+    return os << json{obj};
+}
 } // namespace holovibes

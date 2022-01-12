@@ -312,7 +312,7 @@ void FourierTransform::insert_ssa_stft()
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            View_PQ q_struct = view_cache_.get_q();
+            ViewPQ q_struct = view_cache_.get_q();
             int q = q_struct.accu_level != 0 ? q_struct.index : 0;
             int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
             int q_index = q * time_transformation_size;
@@ -382,8 +382,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                 const ushort width = fd_.width;
                 const ushort height = fd_.height;
 
-                View_XY x = view_cache_.get_x();
-                View_XY y = view_cache_.get_y();
+                ViewXY x = view_cache_.get_x();
+                ViewXY y = view_cache_.get_y();
                 if (x.cuts < width && y.cuts < height)
                 {
                     {

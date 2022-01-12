@@ -91,7 +91,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            View_PQ p = view_cache_.get_p();
+            ViewPQ p = view_cache_.get_p();
             pmin_ = p.index;
             if (p.accu_level != 0)
                 pmax_ = std::max(0,
@@ -143,7 +143,7 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            Composite_RGB rgb_struct = composite_cache_.get_rgb();
+            CompositeRGB rgb_struct = composite_cache_.get_rgb();
             if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_time_transformation_size()) ||
                 !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_time_transformation_size()))
                 return;
