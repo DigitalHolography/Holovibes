@@ -36,8 +36,8 @@ struct AdvancedSettings
     unsigned renorm_constant = 5;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(BufferSizes)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Filter2DSmooth)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(ContrastThreshold)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(AdvancedSettings)
+SERIALIZE_JSON_FWD(BufferSizes)
+SERIALIZE_JSON_FWD(Filter2DSmooth)
+SERIALIZE_JSON_FWD(ContrastThreshold)
+SERIALIZE_JSON_FWD(AdvancedSettings)
 } // namespace holovibes

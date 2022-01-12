@@ -19,6 +19,6 @@ enum class CompositeKind
 };
 } // namespace holovibes
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeKind)
+SERIALIZE_JSON_FWD(CompositeKind)
 
 } // namespace holovibes

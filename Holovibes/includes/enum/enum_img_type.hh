@@ -23,6 +23,6 @@ enum class ImgType
 };
 } // namespace holovibes
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(ImgType)
+SERIALIZE_JSON_FWD(ImgType)
 
 } // namespace holovibes

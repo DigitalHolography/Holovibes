@@ -146,11 +146,11 @@ T json_get_or_default(const json& data, T default_value, const char* key)
 }
 
 template <typename T>
-T json_get_or_default(const json& data, T default_value, const char* key, const char*& keys...)
+T json_get_or_default(const json& data, T default_value, const char* key, const char* keys...)
 {
     try
     {
-        return json_get_or_default<T>(data.at(key), default_value, std::forward(keys...);
+        return json_get_or_default<T>(data.at(key), default_value, keys);
     }
     catch (const json::exception& e)
     {

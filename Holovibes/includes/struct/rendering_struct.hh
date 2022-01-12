@@ -35,8 +35,8 @@ struct Rendering
     Convolution convolution;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Filter2D)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Convolution)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Rendering)
+SERIALIZE_JSON_FWD(Filter2D)
+SERIALIZE_JSON_FWD(Convolution)
+SERIALIZE_JSON_FWD(Rendering)
 
 } // namespace holovibes

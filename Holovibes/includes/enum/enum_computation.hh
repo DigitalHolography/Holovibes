@@ -20,6 +20,6 @@ enum class Computation
 };
 } // namespace holovibes
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Computation)
+SERIALIZE_JSON_FWD(Computation)
 
 } // namespace holovibes

@@ -20,6 +20,6 @@ enum class WindowKind
     Filter2D,   /*!< Filter2D view */
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(WindowKind)
+SERIALIZE_JSON_FWD(WindowKind)
 
 } // namespace holovibes

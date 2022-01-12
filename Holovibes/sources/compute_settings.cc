@@ -6,28 +6,36 @@
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
+#define SERIALIZE_JSON_STRUCT(Type, __VA_ARGS__)                                                                       \
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Type, __VA_ARGS__)                                                              \
+    std::ostream& operator<<(std::ostream& os, const Type& obj) { return os << json{obj}; }
+
+#define SERIALIZE_JSON_ENUM(Type, __VA_ARGS__)                                                                         \
+    NLOHMANN_JSON_SERIALIZE_ENUM(Type, __VA_ARGS__)                                                                    \
+    std::ostream& operator<<(std::ostream& os, const Type& obj) { return os << json{obj}; }
+
 namespace holovibes
 {
 // clang-format off
-NLOHMANN_JSON_SERIALIZE_ENUM(Computation, {
+SERIALIZE_JSON_ENUM(Computation, {
     {Computation::Raw, "RAW"},
     {Computation::Hologram, "HOLOGRAM"},
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(SpaceTransformation, {
+SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::NONE, "NONE"},
     {SpaceTransformation::FFT1, "FFT1"},
     {SpaceTransformation::FFT2, "FFT2"},
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(TimeTransformation, {
+SERIALIZE_JSON_ENUM(TimeTransformation, {
     {TimeTransformation::STFT, "STFT"},
     {TimeTransformation::PCA, "PCA"},
     {TimeTransformation::NONE, "NONE"},
     {TimeTransformation::SSA_STFT, "SSA_STFT"},
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(ImgType, {
+SERIALIZE_JSON_ENUM(ImgType, {
     {ImgType::Modulus, "MODULUS"},
     {ImgType::SquaredModulus, "SQUAREDMODULUS"},
     {ImgType::Argument, "ARGUMENT"},
@@ -35,19 +43,19 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ImgType, {
     {ImgType::Composite, "COMPOSITE"},
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(CompositeKind, {
+SERIALIZE_JSON_ENUM(CompositeKind, {
     {CompositeKind::RGB, "RGB"},
     {CompositeKind::HSV, "HSV"},
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(WindowKind, {
+SERIALIZE_JSON_ENUM(WindowKind, {
     { WindowKind::XYview, "XYview", },
     { WindowKind::XZview, "XZview", },
     { WindowKind::YZview, "YZview", },
     { WindowKind::Filter2D, "Filter2D", }
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(Theme, {
+SERIALIZE_JSON_ENUM(Theme, {
     {Theme::Classic, "CLASSIC"},
     {Theme::Dark, "DARK"},
 })
@@ -56,58 +64,58 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Theme, {
 
 // Rendering
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Filter2D, enabled, n1, n2)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Convolution, enabled, type, matrix, divide)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Rendering,
-                                   image_mode,
-                                   batch_size,
-                                   time_transformation_stride,
-                                   filter2d,
-                                   space_transformation,
-                                   time_transformation,
-                                   time_transformation_size,
-                                   lambda,
-                                   z_distance,
-                                   convolution)
+SERIALIZE_JSON_STRUCT(Filter2D, enabled, n1, n2)
+SERIALIZE_JSON_STRUCT(Convolution, enabled, type, matrix, divide)
+SERIALIZE_JSON_STRUCT(Rendering,
+                      image_mode,
+                      batch_size,
+                      time_transformation_stride,
+                      filter2d,
+                      space_transformation,
+                      time_transformation,
+                      time_transformation_size,
+                      lambda,
+                      z_distance,
+                      convolution)
 
 // Views
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewContrast, enabled, auto_refresh, invert, min, max)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewWindow, log_enabled, contrast)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewAccu, accu_level)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewPQ, accu_level, index)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewXY, accu_level, cuts)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Windows, xy, yz, xz, filter2d);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Reticle, display_enabled, reticle_scale);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Views, img_type, fft_shift, x, y, p, q, windows, renorm, reticle);
+SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
+SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
+SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
+SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
+SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
+SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
+SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
+SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
+SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, windows, renorm, reticle);
 
 // Composite
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CompositeP, min, max)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ActivableCompositeP, min, max, activated)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RGBWeights, r, g, b)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CompositeRGB, p, weight)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Threshold, min, max)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Blur, enabled, kernel_size)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CompositeH, p, slider_threshold, threshold, blur)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CompositeSV, p, slider_threshold, threshold)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CompositeHSV, h, s, v)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Composite, mode, composite_auto_weights, rgb, hsv)
+SERIALIZE_JSON_STRUCT(CompositeP, min, max)
+SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
+SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
+SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
+SERIALIZE_JSON_STRUCT(Threshold, min, max)
+SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
+SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
+SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
+SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
+SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
 
 // Advanced
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BufferSizes, input, file, record, output, time_transformation_cuts)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Filter2DSmooth, low, high)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ContrastThreshold, lower, upper, cuts_p_offset)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AdvancedSettings, buffer_size, filter2d, contrast, raw_bitshift, renorm_constant)
+SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
+SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
+SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
+SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d, contrast, raw_bitshift, renorm_constant)
 
 // Polygone tools
 
 namespace units
 {
 // clang-format off
-NLOHMANN_JSON_SERIALIZE_ENUM(Axis, {
+SERIALIZE_JSON_ENUM(Axis, {
     {HORIZONTAL, "HORIZONTAL"},
     {VERTICAL, "VERTICAL"},
 })
@@ -177,13 +185,13 @@ void from_json(const json& j, RectFd& rect)
 
 // Internals
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
+SERIALIZE_JSON_STRUCT(
     Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewEnabled, lens, filter2d, raw, cuts)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Enabled, filter2d, chart, fft_shift, views)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Internals, zones, record, enabled, misc, convo_matrix, current_window)
+SERIALIZE_JSON_STRUCT(ViewEnabled, lens, filter2d, raw, cuts)
+SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, views)
+SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
+SERIALIZE_JSON_STRUCT(Internals, zones, record, enabled, misc, convo_matrix, current_window)
 
 } // namespace holovibes
 

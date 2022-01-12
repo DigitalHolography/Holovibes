@@ -22,7 +22,7 @@ enum class TimeTransformation
 };
 } // namespace holovibes
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(TimeTransformation)
+SERIALIZE_JSON_FWD(TimeTransformation)
 
 // Vestiges, to remove if possible
 // these things should pass by the json serializer now

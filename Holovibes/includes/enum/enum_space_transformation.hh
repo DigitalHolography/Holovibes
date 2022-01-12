@@ -22,7 +22,7 @@ enum class SpaceTransformation
 };
 } // namespace holovibes
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(SpaceTransformation)
+SERIALIZE_JSON_FWD(SpaceTransformation)
 
 // Vestiges, to remove if possible
 // these things should pass by the json serializer now

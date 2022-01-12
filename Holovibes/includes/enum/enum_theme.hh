@@ -18,6 +18,6 @@ enum class Theme
     Dark
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Theme)
+SERIALIZE_JSON_FWD(Theme)
 
 } // namespace holovibes

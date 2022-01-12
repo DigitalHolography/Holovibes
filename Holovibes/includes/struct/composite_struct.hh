@@ -14,7 +14,7 @@ struct CompositeP
 struct ActivableCompositeP : public CompositeP
 {
     bool activated = false;
-}
+};
 
 struct RGBWeights
 {
@@ -33,13 +33,13 @@ struct Threshold
 {
     float min;
     float max;
-}
+};
 
 struct Blur
 {
     bool enabled = false;
     unsigned kernel_size = 1;
-}
+};
 
 struct CompositeH
 {
@@ -71,15 +71,15 @@ struct Composite
     CompositeHSV hsv;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeP)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(ActivableCompositeP)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(RGBWeights)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeRGB)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Threshold)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Blur)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeH)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeSV)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(CompositeHSV)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_FWD(Composite)
+SERIALIZE_JSON_FWD(CompositeP)
+SERIALIZE_JSON_FWD(ActivableCompositeP)
+SERIALIZE_JSON_FWD(RGBWeights)
+SERIALIZE_JSON_FWD(CompositeRGB)
+SERIALIZE_JSON_FWD(Threshold)
+SERIALIZE_JSON_FWD(Blur)
+SERIALIZE_JSON_FWD(CompositeH)
+SERIALIZE_JSON_FWD(CompositeSV)
+SERIALIZE_JSON_FWD(CompositeHSV)
+SERIALIZE_JSON_FWD(Composite)
 
 } // namespace holovibes
