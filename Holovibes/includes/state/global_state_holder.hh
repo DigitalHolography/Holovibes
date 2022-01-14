@@ -22,10 +22,14 @@ using entities::Span;
  * the GSH. This guarantees that only needed data is accessed to, and grants better code readability.
  * The same principle is applied to changes comming from the API, which come in the form of structured Commands.
  *
- * MicroCache : local state holder belonging to each worker. Previously, each worker had to fetch data at the same
- * place ; therefore, all variables had to be atomic, with the aim to be thread safe. In order to avoid that, each
- * worker now possess MicroCaches, containing all the state they need. Those MicroCaches are accessed only by their
+ * MicroCache : local state holder belonging to a worker. Previously, each worker had to fetch data at the same
+ * place ; therefore, all variables had to be atomic, with the aim to be thread safe. Furthermore, since global state was 
+ * used in the pipe, directly modifying the state was often not possible (changing operations or variables which have impact
+ * on buffers'size would have caused incoherent computations and/or segfaults and undefined behaviors).
+ * The ComputeWorker now possess MicroCaches, containing all the state it needs. Those MicroCaches are accessed only by their
  * worker, and are synchronized with the GSH when each worker chooses to (using a trigger system).
+ * The implementation of MicroCaches enabled the direct modification of the state, since the state used in the pipe is now
+ * desynchronized from the GSH.
  * More informations and explanations concerning their synchronization with the GSH are provided in files micro-cache.hh
  * and micro-cache.hxx.
  *
