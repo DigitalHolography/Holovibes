@@ -1,0 +1,18 @@
+[
+	{ "op": "move", "path": "/advanced/buffer size", "from": "/advanced/buffer_size" },
+	{ "op": "move", "path": "/advanced/buffer_size/time transformation cuts", "from": "/advanced/buffer_size/time_transformation_cuts" },
+	{ "op": "move", "path": "/advanced/contrast/cuts p offset", "from": "/advanced/contrast/cuts_p_offset" },
+	{ "op": "move", "path": "/advanced/filter2d smooth", "from": "/advanced/filter2d_smooth" },
+	{ "op": "move", "path": "/advanced/renorm constant", "from": "/advanced/renorm_constant" },
+	{ "op": "move", "path": "/composite/auto weight", "from": "/advanced/auto_weights" },
+	{ "op": "move", "path": "/composite/rgb/weight", "from": "/composite/rgb/weights" },
+	{ "op": "move", "path": "/image rendering", "from": "/image_rendering" },
+	{ "op": "move", "path": "/image_rendering/batch size", "from": "/image_rendering/batch_size" },
+	{ "op": "move", "path": "/image_rendering/image mode", "from": "/image_rendering/image_mode" },
+	{ "op": "move", "path": "/image_rendering/space transformation", "from": "/image_rendering/space_transformation" },
+	{ "op": "move", "path": "/image_rendering/time transformation", "from": "/image_rendering/time_transformation" },
+	{ "op": "move", "path": "/image_rendering/time transformation size", "from": "/image_rendering/time_transformation_size" },
+	{ "op": "move", "path": "/image_rendering/time transformation stride", "from": "/image_rendering/time_transformation_stride" },
+	{ "op": "move", "path": "/image_rendering/z distance", "from": "/image_rendering/z_distance" },
+	{ "op": "move", "path": "/view/reticle/display enabled", "from": "/view/reticle/display_enabled" },
+]

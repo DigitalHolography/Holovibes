@@ -349,7 +349,7 @@ void MainWindow::load_gui()
         return;
     }
 
-    set_theme(json_get_or_default<std::string>(j_us, Theme::Dark, "display", "theme"));
+    set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
 
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
     auxiliary_window_max_size =

@@ -8,6 +8,7 @@
 #include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
+#include "all_struct.hh"
 
 #include <cmath>
 
@@ -216,4 +217,72 @@ std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
     return o << '[' << r.src() << ", " << r.dst() << ']';
 }
 
-} // namespace holovibes::units
+// clang-format off
+SERIALIZE_JSON_ENUM(Axis, {
+    {HORIZONTAL, "HORIZONTAL"},
+    {VERTICAL, "VERTICAL"},
+})
+
+// Temporary situation needed to not touch all template classes in the units tools
+inline void to_json(json& j, const units::RectFd& rect)
+{
+    j = json{
+        {"src", {
+            {"x", {
+                {"val", rect.src().x().get()},
+                {"axis", rect.src().x().get_axis()},
+                {"conversion", (size_t)rect.src().x().getConversion().get_opengl()},
+            }},
+            {"y", {
+                {"val", rect.src().y().get()},
+                {"axis", rect.src().y().get_axis()},
+                {"conversion", (size_t)rect.src().y().getConversion().get_opengl()},
+            }},
+        }},
+        {"dst", {
+            {"x", {
+                {"val", rect.dst().x().get()},
+                {"axis", rect.dst().x().get_axis()},
+                {"conversion", (size_t)rect.dst().x().getConversion().get_opengl()},
+            }},
+            {"y", {
+                {"val", rect.dst().y().get()},
+                {"axis", rect.dst().y().get_axis()},
+                {"conversion", (size_t)rect.dst().y().getConversion().get_opengl()},
+            }},
+        }}
+    };
+}
+
+inline void from_json(const json& j, units::RectFd& rect)
+{
+    rect = units::RectFd(
+        units::PointFd(
+            units::FDPixel(
+                (const gui::BasicOpenGLWindow*)j.at("src").at("x").at("conversion").get<size_t>(),
+                j.at("src").at("x").at("axis").get<Axis>(),
+                j.at("src").at("x").at("val").get<int>()
+            ),
+            units::FDPixel(
+                (const gui::BasicOpenGLWindow*)j.at("src").at("y").at("conversion").get<size_t>(),
+                j.at("src").at("y").at("axis").get<Axis>(),
+                j.at("src").at("y").at("val").get<int>()
+            )
+        ),
+        units::PointFd(
+            units::FDPixel(
+                (const gui::BasicOpenGLWindow*)j.at("dst").at("x").at("conversion").get<size_t>(),
+                j.at("dst").at("x").at("axis").get<Axis>(),
+                j.at("dst").at("x").at("val").get<int>()
+            ),
+            units::FDPixel(
+                (const gui::BasicOpenGLWindow*)j.at("dst").at("y").at("conversion").get<size_t>(),
+                j.at("dst").at("y").at("axis").get<Axis>(),
+                j.at("dst").at("y").at("val").get<int>()
+            )
+        )
+    );
+}
+// clang-format on
+} // namespace units
+} // namespace holovibes

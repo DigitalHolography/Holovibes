@@ -1,197 +1,31 @@
+#include "enum_theme.hh"
 #include "API.hh"
 #include "view_struct.hh"
 #include "rendering_struct.hh"
 #include "composite_struct.hh"
-
-#include <nlohmann/json.hpp>
-using json = ::nlohmann::json;
-
-#define SERIALIZE_JSON_STRUCT(Type, __VA_ARGS__)                                                                       \
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Type, __VA_ARGS__)                                                              \
-    std::ostream& operator<<(std::ostream& os, const Type& obj) { return os << json{obj}; }
-
-#define SERIALIZE_JSON_ENUM(Type, __VA_ARGS__)                                                                         \
-    NLOHMANN_JSON_SERIALIZE_ENUM(Type, __VA_ARGS__)                                                                    \
-    std::ostream& operator<<(std::ostream& os, const Type& obj) { return os << json{obj}; }
+#include "internals_struct.hh"
+#include "advanced_struct.hh"
 
 namespace holovibes
 {
-// clang-format off
-SERIALIZE_JSON_ENUM(Computation, {
-    {Computation::Raw, "RAW"},
-    {Computation::Hologram, "HOLOGRAM"},
-})
 
-SERIALIZE_JSON_ENUM(SpaceTransformation, {
-    {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FFT1, "FFT1"},
-    {SpaceTransformation::FFT2, "FFT2"},
-})
+// Compute settings
 
-SERIALIZE_JSON_ENUM(TimeTransformation, {
-    {TimeTransformation::STFT, "STFT"},
-    {TimeTransformation::PCA, "PCA"},
-    {TimeTransformation::NONE, "NONE"},
-    {TimeTransformation::SSA_STFT, "SSA_STFT"},
-})
-
-SERIALIZE_JSON_ENUM(ImgType, {
-    {ImgType::Modulus, "MODULUS"},
-    {ImgType::SquaredModulus, "SQUAREDMODULUS"},
-    {ImgType::Argument, "ARGUMENT"},
-    {ImgType::PhaseIncrease, "PHASEINCREASE"},
-    {ImgType::Composite, "COMPOSITE"},
-})
-
-SERIALIZE_JSON_ENUM(CompositeKind, {
-    {CompositeKind::RGB, "RGB"},
-    {CompositeKind::HSV, "HSV"},
-})
-
-SERIALIZE_JSON_ENUM(WindowKind, {
-    { WindowKind::XYview, "XYview", },
-    { WindowKind::XZview, "XZview", },
-    { WindowKind::YZview, "YZview", },
-    { WindowKind::Filter2D, "Filter2D", }
-})
-
-SERIALIZE_JSON_ENUM(Theme, {
-    {Theme::Classic, "CLASSIC"},
-    {Theme::Dark, "DARK"},
-})
-
-// clang-format on
-
-// Rendering
-
-SERIALIZE_JSON_STRUCT(Filter2D, enabled, n1, n2)
-SERIALIZE_JSON_STRUCT(Convolution, enabled, type, matrix, divide)
-SERIALIZE_JSON_STRUCT(Rendering,
-                      image_mode,
-                      batch_size,
-                      time_transformation_stride,
-                      filter2d,
-                      space_transformation,
-                      time_transformation,
-                      time_transformation_size,
-                      lambda,
-                      z_distance,
-                      convolution)
-
-// Views
-
-SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
-SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
-SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
-SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
-SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
-SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
-SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
-SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
-SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, windows, renorm, reticle);
-
-// Composite
-
-SERIALIZE_JSON_STRUCT(CompositeP, min, max)
-SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
-SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
-SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
-SERIALIZE_JSON_STRUCT(Threshold, min, max)
-SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
-SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
-SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
-SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
-SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
-
-// Advanced
-
-SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
-SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
-SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
-SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d, contrast, raw_bitshift, renorm_constant)
-
-// Polygone tools
-
-namespace units
+struct ComputeSettings
 {
-// clang-format off
-SERIALIZE_JSON_ENUM(Axis, {
-    {HORIZONTAL, "HORIZONTAL"},
-    {VERTICAL, "VERTICAL"},
-})
+    Rendering image_rendering;
+    Views view;
+    Composite composite;
+    AdvancedSettings advanced;
 
-// Temporary situation needed to not touch all template classes in the units tools
-void to_json(json& j, const RectFd& rect)
+    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
+};
+
+static void debug_compute_settings()
 {
-    j = json{
-        {"src", {
-            {"x", {
-                {"val", rect.src().x().get()},
-                {"axis", rect.src().x().get_axis()},
-                {"conversion", (size_t)rect.src().x().getConversion()},
-            }},
-            {"y", {
-                {"val", rect.src().y().get()},
-                {"axis", rect.src().y().get_axis()},
-                {"conversion", (size_t)rect.src().y().getConversion()},
-            }},
-        }},
-        {"dst", {
-            {"x", {
-                {"val", rect.dst().x().get()},
-                {"axis", rect.dst().x().get_axis()},
-                {"conversion", (size_t)rect.dst().x().getConversion()},
-            }},
-            {"y", {
-                {"val", rect.dst().y().get()},
-                {"axis", rect.dst().y().get_axis()},
-                {"conversion", (size_t)rect.dst().y().getConversion()},
-            }},
-        }}
-    };
+    std::cout << std::setw(1) << json{ComputeSettings{}};
+    std::cout << std::setw(1) << api::compute_settings_to_json();
 }
-
-void from_json(const json& j, RectFd& rect)
-{
-    rect = RectFd(
-        PointFd(
-           FDPixel(
-                (void*)j.at("src").at("x").at("conversion").get<size_t>(),
-                j.at("src").at("x").at("axis").get<Axis>(),
-                j.at("src").at("x").at("val").get<int>()
-            ),
-            FDPixel(
-                (void*)j.at("src").at("y").at("conversion").get<size_t>(),
-                j.at("src").at("y").at("axis").get<Axis>(),
-                j.at("src").at("y").at("val").get<int>()
-            ),
-        ),
-        PointFd(
-            FDPixel(
-                (void*)j.at("dst").at("x").at("conversion").get<size_t>(),
-                j.at("dst").at("x").at("axis").get<Axis>(),
-                j.at("dst").at("x").at("val").get<int>()
-            ),
-            FDPixel(
-                (void*)j.at("dst").at("y").at("conversion").get<size_t>(),
-                j.at("dst").at("y").at("axis").get<Axis>(),
-                j.at("dst").at("y").at("val").get<int>()
-            ),
-        ),
-    )
-} // clang-format on
-
-} // namespace units
-
-// Internals
-
-SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
-SERIALIZE_JSON_STRUCT(
-    Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
-SERIALIZE_JSON_STRUCT(ViewEnabled, lens, filter2d, raw, cuts)
-SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, views)
-SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
-SERIALIZE_JSON_STRUCT(Internals, zones, record, enabled, misc, convo_matrix, current_window)
 
 } // namespace holovibes
 
@@ -303,8 +137,8 @@ void after_load_checks()
 
 void load_compute_settings(const std::string& json_path)
 {
-    LOG_FUNC(main, json_path);
-
+    LOG_TRACE(main, "Entering load_compute_settings()");
+    ::holovibes::debug_compute_settings();
     if (json_path.empty())
         return;
 

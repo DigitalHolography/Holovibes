@@ -1,9 +1,8 @@
 #pragma once
 
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
-#define SERIALIZE_JSON_FWD(Type)                                                                                       \
-    void to_json(json& json, const Type& obj);                                                                         \
-    void from_json(const json& json, Type& obj);                                                                       \
-    std::ostream& operator<<(std::ostream& os, const Type& obj);
+#define SERIALIZE_JSON_STRUCT(Type, ...) NLOHMANN_DEFINE_TYPE_INTRUSIVE(Type, __VA_ARGS__)
+
+#define SERIALIZE_JSON_ENUM(Type, ...) NLOHMANN_JSON_SERIALIZE_ENUM(Type, __VA_ARGS__)

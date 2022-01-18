@@ -9,11 +9,15 @@ struct CompositeP
 {
     int min = 0;
     int max = 0;
+
+    SERIALIZE_JSON_STRUCT(CompositeP, min, max)
 };
 
 struct ActivableCompositeP : public CompositeP
 {
     bool activated = false;
+
+    SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
 
 struct RGBWeights
@@ -21,24 +25,32 @@ struct RGBWeights
     float r;
     float g;
     float b;
+
+    SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 };
 
 struct CompositeRGB
 {
     CompositeP p;
     RGBWeights weight;
+
+    SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
 };
 
 struct Threshold
 {
     float min;
     float max;
+
+    SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
 struct Blur
 {
     bool enabled = false;
     unsigned kernel_size = 1;
+
+    SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
 };
 
 struct CompositeH
@@ -47,6 +59,8 @@ struct CompositeH
     Threshold slider_threshold;
     Threshold threshold;
     Blur blur;
+
+    SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
 };
 
 struct CompositeSV
@@ -54,6 +68,8 @@ struct CompositeSV
     ActivableCompositeP p;
     Threshold slider_threshold;
     Threshold threshold;
+
+    SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
 };
 
 struct CompositeHSV
@@ -61,6 +77,8 @@ struct CompositeHSV
     CompositeH h{};
     CompositeSV s{};
     CompositeSV v{};
+
+    SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
 };
 
 struct Composite
@@ -69,17 +87,8 @@ struct Composite
     bool composite_auto_weights = false;
     CompositeRGB rgb;
     CompositeHSV hsv;
-};
 
-SERIALIZE_JSON_FWD(CompositeP)
-SERIALIZE_JSON_FWD(ActivableCompositeP)
-SERIALIZE_JSON_FWD(RGBWeights)
-SERIALIZE_JSON_FWD(CompositeRGB)
-SERIALIZE_JSON_FWD(Threshold)
-SERIALIZE_JSON_FWD(Blur)
-SERIALIZE_JSON_FWD(CompositeH)
-SERIALIZE_JSON_FWD(CompositeSV)
-SERIALIZE_JSON_FWD(CompositeHSV)
-SERIALIZE_JSON_FWD(Composite)
+    SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
+};
 
 } // namespace holovibes

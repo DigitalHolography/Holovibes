@@ -5,39 +5,42 @@
 namespace holovibes
 {
 
-struct BufferSizes
-{
-    unsigned input = 512;
-    unsigned file = 512;
-    unsigned record = 1024;
-    unsigned output = 256;
-    unsigned time_transformation_cuts = 512;
-};
-
-struct Filter2DSmooth
-{
-    int low = 0;
-    int high = 0;
-};
-
-struct ContrastThreshold
-{
-    float lower = 0.5f;
-    float upper = 99.5f;
-    unsigned cuts_p_offset = 2;
-};
-
 struct AdvancedSettings
 {
+    struct BufferSizes
+    {
+        unsigned input = 512;
+        unsigned file = 512;
+        unsigned record = 1024;
+        unsigned output = 256;
+        unsigned time_transformation_cuts = 512;
+
+        SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
+    };
+
+    struct Filter2DSmooth
+    {
+        int low = 0;
+        int high = 0;
+
+        SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
+    };
+
+    struct ContrastThreshold
+    {
+        float lower = 0.5f;
+        float upper = 99.5f;
+        unsigned cuts_p_offset = 2;
+
+        SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
+    };
+
     BufferSizes buffer_size;
-    Filter2DSmooth filter2d;
+    Filter2DSmooth filter2d_smooth;
     ContrastThreshold contrast;
-    int raw_bitshift = 0;
     unsigned renorm_constant = 5;
+
+    SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant)
 };
 
-SERIALIZE_JSON_FWD(BufferSizes)
-SERIALIZE_JSON_FWD(Filter2DSmooth)
-SERIALIZE_JSON_FWD(ContrastThreshold)
-SERIALIZE_JSON_FWD(AdvancedSettings)
 } // namespace holovibes

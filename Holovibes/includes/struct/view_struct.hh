@@ -15,12 +15,16 @@ struct ViewContrast
     bool invert = false;
     float min = 1.f;
     float max = 65535.f;
+
+    SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
 };
 
 struct ViewWindow
 {
     bool log_enabled = false;
     ViewContrast contrast;
+
+    SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 };
 
 struct ViewXYZ : public ViewWindow
@@ -28,21 +32,29 @@ struct ViewXYZ : public ViewWindow
     bool flip_enabled = false;
     float rot = 0;
     unsigned img_accu_level = 1;
+
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 };
 
 struct ViewAccu
 {
     int accu_level = 0;
+
+    SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
 };
 
 struct ViewPQ : public ViewAccu
 {
     unsigned index = 0;
+
+    SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
 };
 
 struct ViewXY : public ViewAccu
 {
     unsigned cuts = 0;
+
+    SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
 };
 
 struct Windows
@@ -51,12 +63,16 @@ struct Windows
     ViewXYZ yz;
     ViewXYZ xz;
     ViewWindow filter2d;
+
+    SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
 };
 
 struct Reticle
 {
     bool display_enabled = false;
     float reticle_scale = 0.5f;
+
+    SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
 };
 
 struct Views
@@ -70,17 +86,8 @@ struct Views
     Windows window;
     bool renorm = false;
     Reticle reticle;
-};
 
-// Forward declaration for to_json() and from_json()
-SERIALIZE_JSON_FWD(ViewContrast)
-SERIALIZE_JSON_FWD(ViewWindow)
-SERIALIZE_JSON_FWD(ViewXYZ)
-SERIALIZE_JSON_FWD(ViewAccu)
-SERIALIZE_JSON_FWD(ViewPQ)
-SERIALIZE_JSON_FWD(ViewXY)
-SERIALIZE_JSON_FWD(Windows)
-SERIALIZE_JSON_FWD(Reticle)
-SERIALIZE_JSON_FWD(Views)
+    SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, window, renorm, reticle);
+};
 
 } // namespace holovibes

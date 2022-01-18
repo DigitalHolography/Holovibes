@@ -20,6 +20,11 @@ enum class Computation
 };
 } // namespace holovibes
 
-SERIALIZE_JSON_FWD(Computation)
+// clang-format off
+SERIALIZE_JSON_ENUM(Computation, {
+    {Computation::Raw, "RAW"},
+    {Computation::Hologram, "HOLOGRAM"},
+})
+// clang-format on
 
 } // namespace holovibes

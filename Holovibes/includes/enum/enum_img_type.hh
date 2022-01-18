@@ -23,6 +23,14 @@ enum class ImgType
 };
 } // namespace holovibes
 
-SERIALIZE_JSON_FWD(ImgType)
+// clang-format off
+SERIALIZE_JSON_ENUM(ImgType, {
+    {ImgType::Modulus, "MODULUS"},
+    {ImgType::SquaredModulus, "SQUAREDMODULUS"},
+    {ImgType::Argument, "ARGUMENT"},
+    {ImgType::PhaseIncrease, "PHASEINCREASE"},
+    {ImgType::Composite, "COMPOSITE"},
+})
+// clang-format on
 
 } // namespace holovibes

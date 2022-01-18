@@ -22,26 +22,14 @@ enum class TimeTransformation
 };
 } // namespace holovibes
 
-SERIALIZE_JSON_FWD(TimeTransformation)
+// clang-format off
+SERIALIZE_JSON_ENUM(TimeTransformation, {
+    {TimeTransformation::STFT, "STFT"},
+    {TimeTransformation::PCA, "PCA"},
+    {TimeTransformation::NONE, "NONE"},
+    {TimeTransformation::SSA_STFT, "SSA_STFT"},
+    {TimeTransformation::NONE, "None"}, // Compat
 
-// Vestiges, to remove if possible
-// these things should pass by the json serializer now
-namespace _internal
-{
-
-const std::map<std::string, TimeTransformation> string_to_time_transform = {
-    {"STFT", TimeTransformation::STFT},
-    {"PCA", TimeTransformation::PCA},
-    {"NONE", TimeTransformation::NONE},
-    {"None", TimeTransformation::NONE},
-    {"SSA_STFT", TimeTransformation::SSA_STFT},
-};
-
-} // namespace holovibes::_internal
-
-inline TimeTransformation time_transformation_from_string(const std::string& in)
-{
-    return _internal::string_to_time_transform.at(in);
-}
-
+})
+// clang-format on
 } // namespace holovibes

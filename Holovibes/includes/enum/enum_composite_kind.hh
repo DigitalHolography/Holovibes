@@ -19,6 +19,11 @@ enum class CompositeKind
 };
 } // namespace holovibes
 
-SERIALIZE_JSON_FWD(CompositeKind)
+// clang-format off
+SERIALIZE_JSON_ENUM(CompositeKind, {
+    {CompositeKind::RGB, "RGB"},
+    {CompositeKind::HSV, "HSV"},
+})
+// clang-format on
 
 } // namespace holovibes

@@ -20,6 +20,12 @@ enum class WindowKind
     Filter2D,   /*!< Filter2D view */
 };
 
-SERIALIZE_JSON_FWD(WindowKind)
-
+// clang-format off
+SERIALIZE_JSON_ENUM(WindowKind, {
+    { WindowKind::XYview, "XYview"},
+    { WindowKind::XZview, "XZview"},
+    { WindowKind::YZview, "YZview"},
+    { WindowKind::Filter2D, "Filter2D"}
+})
+// clang-format on
 } // namespace holovibes

@@ -22,26 +22,13 @@ enum class SpaceTransformation
 };
 } // namespace holovibes
 
-SERIALIZE_JSON_FWD(SpaceTransformation)
-
-// Vestiges, to remove if possible
-// these things should pass by the json serializer now
-namespace _internal
-{
-
-const std::map<std::string, SpaceTransformation> string_to_space_transform = {
-    {"NONE", SpaceTransformation::NONE},
-    {"None", SpaceTransformation::NONE},
-    {"1FFT", SpaceTransformation::FFT1},
-    {"2FFT", SpaceTransformation::FFT2},
-    {"FFT1", SpaceTransformation::FFT1},
-    {"FFT2", SpaceTransformation::FFT2},
-};
-} // namespace _internal
-
-inline SpaceTransformation space_transformation_from_string(const std::string& in)
-{
-    return _internal::string_to_space_transform.at(in);
-}
-
+// clang-format off
+SERIALIZE_JSON_ENUM(SpaceTransformation, {
+    {SpaceTransformation::NONE, "NONE"},
+    {SpaceTransformation::FFT1, "FFT1"},
+    {SpaceTransformation::FFT2, "FFT2"},
+    {SpaceTransformation::FFT1, "1FFT"}, // Compat
+    {SpaceTransformation::FFT2, "2FFT"}, // Compat
+})
+// clang-format on
 } // namespace holovibes

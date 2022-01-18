@@ -24,14 +24,14 @@ bool GSH::is_current_window_xyz_type() const
 
 float GSH::get_contrast_min() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast.min
-                                                        : log10(get_current_window().contrast.min);
+    return get_current_window().log_enabled ? get_current_window().contrast.min
+                                            : log10(get_current_window().contrast.min);
 }
 
 float GSH::get_contrast_max() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast.max
-                                                        : log10(get_current_window().contrast.max);
+    return get_current_window().log_enabled ? get_current_window().contrast.max
+                                            : log10(get_current_window().contrast.max);
 }
 
 double GSH::get_rotation() const
@@ -53,7 +53,7 @@ bool GSH::get_flip_enabled() const
     return w.flip_enabled;
 }
 
-bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_scale_slice_enabled; }
+bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_enabled; }
 
 unsigned GSH::get_img_accu_level() const
 {
@@ -101,26 +101,26 @@ void GSH::set_time_stride(uint value)
         compute_cache_.set_time_stride(value - value % compute_cache_.get_batch_size());
 }
 
-void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast_enabled = contrast_enabled; }
+void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast.enabled = contrast_enabled; }
 
 void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
 {
-    get_current_window()->contrast_auto_refresh = contrast_auto_refresh;
+    get_current_window()->contrast.auto_refresh = contrast_auto_refresh;
 }
 
-void GSH::set_contrast_invert(bool contrast_invert) { get_current_window()->contrast_invert = contrast_invert; }
+void GSH::set_contrast_invert(bool contrast_invert) { get_current_window()->contrast.invert = contrast_invert; }
 
 void GSH::set_contrast_min(float value)
 {
-    get_current_window()->contrast_min = get_current_window()->log_scale_slice_enabled ? value : pow(10, value);
+    get_current_window()->contrast.min = get_current_window()->log_enabled ? value : pow(10, value);
 }
 
 void GSH::set_contrast_max(float value)
 {
-    get_current_window()->contrast_max = get_current_window()->log_scale_slice_enabled ? value : pow(10, value);
+    get_current_window()->contrast.max = get_current_window()->log_enabled ? value : pow(10, value);
 }
 
-void GSH::set_log_scale_slice_enabled(bool value) { get_current_window()->log_scale_slice_enabled = value; }
+void GSH::set_log_scale_slice_enabled(bool value) { get_current_window()->log_enabled = value; }
 
 void GSH::set_accumulation_level(int value)
 {
@@ -154,16 +154,16 @@ void GSH::set_fft_shift_enabled(bool value)
 
 void GSH::set_composite_p_h(Span<uint> span, bool notify)
 {
-    composite_cache_.get_hsv_ref()->h.p_max = span.min;
-    composite_cache_.get_hsv_ref()->h.p_max = span.max;
+    composite_cache_.get_hsv_ref()->h.p.max = span.min;
+    composite_cache_.get_hsv_ref()->h.p.max = span.max;
     if (notify)
         this->notify();
 }
 
 void GSH::set_rgb_p(Span<int> span, bool notify)
 {
-    composite_cache_.get_rgb_ref()->p_min = span.min;
-    composite_cache_.get_rgb_ref()->p_max = span.max;
+    composite_cache_.get_rgb_ref()->p.min = span.min;
+    composite_cache_.get_rgb_ref()->p.max = span.max;
     if (notify)
         this->notify();
 }
@@ -283,8 +283,8 @@ void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {
     std::shared_ptr<ViewWindow> window = get_window(kind);
-    window->contrast_min = min;
-    window->contrast_max = max;
+    window->contrast.min = min;
+    window->contrast.max = max;
 
     notify();
 }

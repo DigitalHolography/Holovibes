@@ -105,11 +105,11 @@ void Rendering::insert_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_xy().log_scale_slice_enabled)
+    if (view_cache_.get_xy().log_enabled)
         insert_main_log();
     if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
-    if (view_cache_.get_filter2d().log_scale_slice_enabled)
+    if (view_cache_.get_filter2d().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -161,7 +161,7 @@ void Rendering::insert_slice_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_xz().log_scale_slice_enabled)
+    if (view_cache_.get_xz().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -172,7 +172,7 @@ void Rendering::insert_slice_log()
                           stream_);
             });
     }
-    if (view_cache_.get_yz().log_scale_slice_enabled)
+    if (view_cache_.get_yz().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()

@@ -18,6 +18,11 @@ enum class Theme
     Dark
 };
 
-SERIALIZE_JSON_FWD(Theme)
+// clang-format off
+SERIALIZE_JSON_ENUM(Theme, {
+    {Theme::Classic, "CLASSIC"},
+    {Theme::Dark, "DARK"},
+})
+// clang-format on
 
 } // namespace holovibes
