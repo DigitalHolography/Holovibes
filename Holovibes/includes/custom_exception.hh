@@ -2,12 +2,11 @@
  *
  * \brief Implementation of custom error class.
  */
+#pragma once
+
 #include <exception>
 #include <string>
-#pragma once
 #include "logger.hh"
-
-#define THROW(msg) throw holovibes::CustomException(msg, __LINE__, __FILE__)
 
 namespace holovibes
 {
@@ -24,8 +23,8 @@ class CustomException : public std::exception
      *
      * \param msg the message you want to display with the exception
      */
-    CustomException(const std::string& msg)
-        : std::exception(msg.c_str())
+    explicit CustomException(const std::string& msg)
+        : msg_(msg)
     {
         LOG_ERROR(main, "Create except : {}", msg);
     }
@@ -43,7 +42,9 @@ class CustomException : public std::exception
         LOG_ERROR(main, "{} {}:{}", msg, file, line);
     }
 
-    /*! \brief Destroy the Custom Exception object */
-    ~CustomException() {}
+    const char* what() const noexcept override { return msg_.c_str(); }
+
+  private:
+    std::string msg_;
 };
 } // namespace holovibes
