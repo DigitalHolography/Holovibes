@@ -2,6 +2,12 @@
 
 #include "holovibes.hh"
 #include "API.hh"
+#include "view_struct.hh"
+#include "rendering_struct.hh"
+#include "composite_struct.hh"
+#include "internals_struct.hh"
+#include "advanced_struct.hh"
+
 namespace holovibes
 {
 
@@ -317,5 +323,41 @@ const ViewWindow& GSH::get_current_window() const { return get_window(view_cache
 
 /* private */
 std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
+
+void debug_compute_settings()
+{
+    std::cout << std::setw(1) << json{ComputeSettings{}};
+    std::cout << std::setw(1) << api::compute_settings_to_json();
+}
+
+void GSH::load_compute_settings(const std::string& settings_path,
+                                ComputeSettingsVersion version = SerializerSettings::latest_version,
+                                bool no_converter = false)
+{
+    auto it = std::find_if(converters.begin(),
+                           converters.end(),
+                           [=](auto converter) -> bool {
+                               return converter.from == version && converter.to == SerializerSettings::internal_version
+                           });
+
+    if (!no_converter && it == converters.end())
+        throw std::out_of_range("No converter found");
+
+    json patch;
+    json settings;
+
+    {
+        std::ifstream settings_file{settings_path};
+        settings_file >> settings;
+    }
+
+    {
+        std::ifstream patch_file{SerializerSettings::patches_folder / it->patch_file};
+        patch_file >> patch;
+    }
+
+    auto cd = settings.patch(patch).get<SerializerSettings::ComputeSettings>();
+    // TODO: put settings into the GSH;
+}
 
 } // namespace holovibes

@@ -582,6 +582,45 @@ class GSH
     inline void set_zoomed_zone(units::RectFd value) { zone_cache_.set_zoomed_zone(value); }
     inline void set_reticle_zone(units::RectFd value) { zone_cache_.set_reticle_zone(value); }
 
+    class SerializerSettings
+    {
+        enum class ComputeSettingsVersion
+        {
+            V4,
+            InternalV4
+        };
+
+        struct ComputeSettings
+        {
+            Rendering image_rendering;
+            Views view;
+            Composite composite;
+            AdvancedSettings advanced;
+
+            SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
+        };
+
+        struct ComputeSettingsConverter
+        {
+            ComputeSettingsVersion from;
+            ComputeSettingsVersion to;
+            std::string patch_file;
+        };
+
+        static const auto internal_version = CompoteSettingsVersion::InternalV4;
+        static const auto latest_version = ComputeSettingsVersion::V4;
+        static const auto patches_folder = std::filesystem::path{"resources"} / "json_patches_holofile";
+
+        static const std::vector<ComputeSettingsConverter> converters = {
+            {ComputeSettingsVersion::V4, ComputeSettingsVersion::InternalV4, "v4_to_jsonified_gsh.json"},
+            {ComputeSettingsVersion::InternalV4, ComputeSettingsVersion::V4, "jsonified_gsh_to_v4.json"},
+        };
+    };
+
+    void load_compute_settings(const std::string& settings_path,
+                               SerializerSettings::ComputeSettingsVersion version = latest_version,
+                               bool no_converter = false);
+
 #pragma endregion
     void change_window(uint index);
 
