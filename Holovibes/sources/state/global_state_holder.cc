@@ -2,11 +2,6 @@
 
 #include "holovibes.hh"
 #include "API.hh"
-#include "view_struct.hh"
-#include "rendering_struct.hh"
-#include "composite_struct.hh"
-#include "internals_struct.hh"
-#include "advanced_struct.hh"
 
 namespace holovibes
 {
@@ -324,26 +319,62 @@ const ViewWindow& GSH::get_current_window() const { return get_window(view_cache
 /* private */
 std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
-void debug_compute_settings()
+struct JsonSettings
 {
-    std::cout << std::setw(1) << json{ComputeSettings{}};
-    std::cout << std::setw(1) << api::compute_settings_to_json();
-}
+    struct ComputeSettings
+    {
+        Rendering image_rendering;
+        Views view;
+        Composite composite;
+        AdvancedSettings advanced;
 
-void GSH::load_compute_settings(const std::string& settings_path,
-                                ComputeSettingsVersion version = SerializerSettings::latest_version,
-                                bool no_converter = false)
+        SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
+    };
+
+    struct ComputeSettingsConverter
+    {
+        GSH::ComputeSettingsVersion from;
+        GSH::ComputeSettingsVersion to;
+        std::string patch_file;
+    };
+
+    inline static const auto internal_version = GSH::ComputeSettingsVersion::InternalV4;
+    inline static const auto latest_version = GSH::ComputeSettingsVersion::V4;
+    inline static const auto patches_folder = std::filesystem::path{"resources"} / "json_patches_holofile";
+
+    inline static const std::vector<ComputeSettingsConverter> converters = {
+        {GSH::ComputeSettingsVersion::V4, GSH::ComputeSettingsVersion::InternalV4, "v4_to_jsonified_gsh.json"},
+        {GSH::ComputeSettingsVersion::InternalV4, GSH::ComputeSettingsVersion::V4, "jsonified_gsh_to_v4.json"},
+    };
+};
+
+static json get_json_patch(GSH::ComputeSettingsVersion from, GSH::ComputeSettingsVersion to)
 {
-    auto it = std::find_if(converters.begin(),
-                           converters.end(),
-                           [=](auto converter) -> bool {
-                               return converter.from == version && converter.to == SerializerSettings::internal_version
-                           });
+    auto it = std::find_if(JsonSettings::converters.begin(),
+                           JsonSettings::converters.end(),
+                           [=](auto converter) -> bool { return converter.from == from && converter.to == to; });
 
-    if (!no_converter && it == converters.end())
+    if (it == JsonSettings::converters.end())
         throw std::out_of_range("No converter found");
 
-    json patch;
+    std::ifstream patch_file{JsonSettings::patches_folder / it->patch_file};
+    return json::parse(patch_file);
+}
+
+static void set_compute_settings(const GSH& gsh, const JsonSettings::ComputeSettings& settings)
+{
+    // TODO
+}
+
+static JsonSettings::ComputeSettings get_compute_settings(const GSH& gsh) { return JsonSettings::ComputeSettings{}; }
+
+void GSH::load_compute_settings(const std::string& settings_path)
+{
+    return load_compute_settings(settings_path, JsonSettings::latest_version, false);
+}
+
+void GSH::load_compute_settings(const std::string& settings_path, ComputeSettingsVersion version, bool no_converter)
+{
     json settings;
 
     {
@@ -351,13 +382,28 @@ void GSH::load_compute_settings(const std::string& settings_path,
         settings_file >> settings;
     }
 
-    {
-        std::ifstream patch_file{SerializerSettings::patches_folder / it->patch_file};
-        patch_file >> patch;
-    }
+    if (!no_converter)
+        settings = settings.patch(get_json_patch(version, JsonSettings::internal_version));
 
-    auto cd = settings.patch(patch).get<SerializerSettings::ComputeSettings>();
-    // TODO: put settings into the GSH;
+    set_compute_settings(*this, settings.get<JsonSettings::ComputeSettings>());
+}
+
+void GSH::save_compute_settings(const std::string& settings_path)
+{
+    return save_compute_settings(settings_path, JsonSettings::latest_version, false);
+}
+
+void GSH::save_compute_settings(const std::string& settings_path, ComputeSettingsVersion version, bool no_converter)
+{
+    json settings{get_compute_settings(*this)};
+
+    if (!no_converter)
+        settings = settings.patch(get_json_patch(JsonSettings::internal_version, version));
+
+    {
+        std::ofstream settings_file{settings_path};
+        settings_file << settings;
+    }
 }
 
 } // namespace holovibes
