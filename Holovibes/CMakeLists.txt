@@ -195,6 +195,8 @@ set(SRC_TESTS
     unit_tests/test_batch_input_queue.cc
     unit_tests/test_subsample_frame.cc
     unit_tests/test_fast_updates_holder.cc
+    unit_tests/test_micro_cache.cc
+    unit_tests/test_job_list.cc
     # Add your test files here
 )
 
