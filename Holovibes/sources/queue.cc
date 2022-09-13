@@ -39,7 +39,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
-        LOG_ERROR << "Queue: could not allocate queue";
+        // LOG_ERROR << "Queue: could not allocate queue";
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 
@@ -59,7 +59,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
-        LOG_ERROR << "Queue: could not resize queue";
+        // LOG_ERROR << "Queue: could not resize queue";
         throw std::logic_error("Could not resize queue");
     }
 
@@ -85,7 +85,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
 
     if (cuda_status) // 0 = CUDA_SUCCESS
     {
-        LOG_ERROR << "Queue: could not enqueue: " << std::string(cudaGetErrorString(cuda_status));
+        // LOG_ERROR << "Queue: could not enqueue: " << std::string(cudaGetErrorString(cuda_status));
         data_.reset();
         return false;
     }
@@ -324,7 +324,7 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
 {
     MutexGuard mGuard(mutex_);
 
-    CHECK(size_ > 0) << "Queue size cannot be empty at dequeue";
+    // CHECK(size_ > 0) << "Queue size cannot be empty at dequeue";
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
@@ -342,8 +342,8 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    CHECK(size_ >= nb_elts) << "When dequeuing " << nb_elts << " elements, queue size should be bigger than it, not "
-                            << size_;
+    // CHECK(size_ >= nb_elts) << "When dequeuing " << nb_elts << " elements, queue size should be bigger than it, not "
+    // << size_;
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }

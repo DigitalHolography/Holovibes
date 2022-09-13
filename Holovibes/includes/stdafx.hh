@@ -131,3 +131,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+
+// Logger spdlog
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"

@@ -69,14 +69,14 @@ uint calculate_frame_res(const uint width,
     // This is a dirty fix, but it mostly works
     uint frame_res =
         (compute_on_sub_zone && sub_zone.area() != 0) ? sub_zone.area() : width * height - 2 * offset * factor;
-    CHECK(frame_res > 0);
+    // CHECK(frame_res > 0);
     return frame_res;
 }
 
 uint calculate_frame_res(const uint width, const uint height, const uint offset, const uint factor)
 {
     uint frame_res = width * height - 2 * offset * factor;
-    CHECK(frame_res > 0);
+    // CHECK(frame_res > 0);
     return frame_res;
 }
 
@@ -110,7 +110,7 @@ void compute_percentile_xy_view(const float* gpu_input,
     }
     catch (...)
     {
-        LOG_ERROR << "[Thrust] Error while computing a percentile";
+        // LOG_ERROR << "[Thrust] Error while computing a percentile";
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)
@@ -148,7 +148,7 @@ void compute_percentile_yz_view(const float* gpu_input,
     }
     catch (...)
     {
-        LOG_ERROR << "[Thrust] Error while computing a percentile";
+        // LOG_ERROR << "[Thrust] Error while computing a percentile";
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
     if (thrust_gpu_input_copy.get() != nullptr)

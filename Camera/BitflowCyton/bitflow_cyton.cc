@@ -20,8 +20,9 @@ static void print_BiError(Bd board, BFRC status)
     BFU32 error_text_size = const_error_text_size;
     char error_text[const_error_text_size];
     BiErrorTextGet(board, status, error_text, &error_text_size);
-    fprintf(stderr, "%.*s\n", error_text_size, error_text);
-    fflush(stderr);
+
+    // fprintf(stderr, "%.*s\n", error_text_size, error_text);
+    // fflush(stderr);
 }
 
 CameraPhantomBitflow::CameraPhantomBitflow()
@@ -36,7 +37,7 @@ CameraPhantomBitflow::CameraPhantomBitflow()
     }
     else
     {
-        std::cerr << "Could not open bitflow.ini config file" << std::endl;
+        // std::cerr << "Could not open bitflow.ini config file" << std::endl;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     load_default_params();
@@ -72,7 +73,7 @@ void CameraPhantomBitflow::create_buffers()
     frames = (PBFU32*)malloc(nb_buffers * sizeof(BFUPTR));
     if (frames == NULL)
     {
-        std::cerr << "Could not allocate pointers buffer" << std::endl;
+        // std::cerr << "Could not allocate pointers buffer" << std::endl;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -80,7 +81,7 @@ void CameraPhantomBitflow::create_buffers()
     cudaError_t status = cudaMallocHost(&data, total_mem_size);
     if (status != cudaSuccess || data == NULL)
     {
-        std::cerr << "Could not allocate data buffer" << std::endl;
+        // std::cerr << "Could not allocate data buffer" << std::endl;
         free(frames);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
@@ -247,7 +248,7 @@ void CameraPhantomBitflow::load_ini_params()
 
     if (nb_boards != 1 && nb_boards != 2 && nb_boards != 4)
     {
-        std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4" << std::endl;
+        // std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4" << std::endl;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -257,7 +258,7 @@ void CameraPhantomBitflow::load_ini_params()
 
         if (board_nums[i] == -1)
         {
-            std::cerr << "bitflow.ini: board" << i << " has an invalid value" << std::endl;
+            // std::cerr << "bitflow.ini: board" << i << " has an invalid value" << std::endl;
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
@@ -278,7 +279,7 @@ void CameraPhantomBitflow::bind_params()
 
     if (rc != BI_OK)
     {
-        std::cerr << "Could not read frame description" << std::endl;
+        // std::cerr << "Could not read frame description" << std::endl;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 

@@ -32,12 +32,12 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     MutexGuard m_guard(mutex_);
 
-    LOG_TRACE << "Starting Worker of type " << typeid(T).name();
+    // LOG_TRACE << "Starting Worker of type " << typeid(T).name();
 
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
+    // // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
 }
 
 template <WorkerDerived T>
@@ -64,7 +64,7 @@ void ThreadWorkerController<T>::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
+        // LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
         throw;
     }
 

@@ -107,8 +107,8 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
-                 << "Initialization with default values.";
+        // LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
+        // << "Initialization with default values.";
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
@@ -230,8 +230,8 @@ void MainWindow::notify_error(const std::exception& e)
                 api::handle_update_exception();
                 api::close_windows();
                 api::close_critical_compute();
-                LOG_ERROR << "GPU computing error occured.";
-                LOG_ERROR << e.what();
+                // LOG_ERROR << "GPU computing error occured.";
+                // LOG_ERROR << e.what();
                 notify();
             };
             synchronize_thread(lambda);
@@ -245,16 +245,16 @@ void MainWindow::notify_error(const std::exception& e)
             }
             api::close_critical_compute();
 
-            LOG_ERROR << "GPU computing error occured.";
-            LOG_ERROR << e.what();
+            // LOG_ERROR << "GPU computing error occured.";
+            // LOG_ERROR << e.what();
             notify();
         };
         synchronize_thread(lambda);
     }
     else
     {
-        LOG_ERROR << "Unknown error occured.";
-        LOG_ERROR << e.what();
+        // LOG_ERROR << "Unknown error occured.";
+        // LOG_ERROR << e.what();
     }
 }
 
@@ -345,8 +345,8 @@ void MainWindow::load_gui()
     }
     catch (json::parse_error)
     {
-        LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
-                 << "Initialization with default values.";
+        // LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
+        // << "Initialization with default values.";
         save_gui();
         return;
     }
@@ -422,7 +422,7 @@ void MainWindow::save_gui()
     std::ofstream file(path);
     file << j_us.dump(1);
 
-    LOG_INFO << "user settings overwritten at " << path;
+    // LOG_INFO << "user settings overwritten at " << path;
 }
 
 #pragma endregion
@@ -528,7 +528,7 @@ void MainWindow::set_view_image_type(const QString& value)
 {
     if (api::get_compute_mode() == Computation::Raw)
     {
-        LOG_ERROR << "Cannot set view image type in raw mode";
+        // LOG_ERROR << "Cannot set view image type in raw mode";
         return;
     }
 

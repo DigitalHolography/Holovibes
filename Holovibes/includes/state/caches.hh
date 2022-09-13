@@ -2,6 +2,7 @@
 
 #include "micro_cache.hh"
 #include "enum_space_transformation.hh"
+#include "enum_time_transformation.hh"
 #include "enum_window_kind.hh"
 #include "enum_img_type.hh"
 #include "enum_computation.hh"

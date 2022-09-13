@@ -119,7 +119,7 @@ inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int lin
                 __LINE__,
                 _cudaGetCublasErrorEnum(err));
         cudaDeviceReset();
-        CHECK(0);
+        // CHECK(0);
     }
 }
 #endif
@@ -160,7 +160,7 @@ inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int
                 __LINE__,
                 _cudaGetCusolverErrorEnum(err));
         cudaDeviceReset();
-        CHECK(0);
+        // CHECK(0);
     }
 }
 #endif
@@ -207,8 +207,9 @@ inline void __cufftSafeCall(cufftResult err, const char* file, const int line)
                 __FILE__,
                 __LINE__,
                 _cudaGetErrorEnum(err));
+
         cudaDeviceReset();
-        CHECK(0);
+        // CHECK(0);
     }
 }
 #endif

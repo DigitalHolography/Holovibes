@@ -1,5 +1,8 @@
 #pragma once
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
 #include <string>
 
 #include <exception>
@@ -8,16 +11,26 @@
 #include <functional>
 #include <iostream>
 
-#define LOGURU_WITH_STREAMS 1
+class Logger
+{
+  public:
+    static spdlog::logger& frame_read_worker();
+    static spdlog::logger& compute_worker();
+    static spdlog::logger& record_worker();
+    static spdlog::logger& information_worker();
 
-#include <loguru.hpp>
+    static spdlog::logger& cuda();
+    static spdlog::logger& fatal();
+    static spdlog::logger& trace();
+    static spdlog::logger& logger();
+};
 
-#define LOG_TRACE LOG_S(2)
-#define LOG_DEBUG LOG_S(1)
-#define LOG_INFO LOG_S(INFO)
-#define LOG_WARN LOG_S(WARNING)
-#define LOG_ERROR LOG_S(ERROR)
-#define LOG_FUNC LOG_SCOPE_FUNCTION(1)
+#define LOG_TRACE
+#define LOG_DEBUG
+#define LOG_INFO
+#define LOG_WARN
+#define LOG_ERROR
+#define LOG_FUNC
 
 #define catch_log(e) catch_log__((e), __LINE__, __FILE__)
 
@@ -25,8 +38,8 @@
 
 inline void catch_log__(const std::exception& e, int line, const char* file)
 {
-    LOG_ERROR << "Internal Error occured: " << e.what();
-    LOG_ERROR << "Error occured in file " << file << " at line " << line;
+    // LOG_ERROR << "Internal Error occured: " << e.what();
+    // LOG_ERROR << "Error occured in file " << file << " at line " << line;
     throw e;
 }
 
@@ -34,7 +47,7 @@ inline void catch_log__(const std::exception& e, int line, const char* file)
 
 inline void catch_log__(const std::exception& e, int, const char*)
 {
-    LOG_ERROR << "Internal Error occured: " << e.what() << '\n';
+    // LOG_ERROR << "Internal Error occured: " << e.what() << '\n';
 }
 
 #endif

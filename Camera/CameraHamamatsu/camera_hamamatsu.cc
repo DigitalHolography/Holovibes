@@ -52,7 +52,7 @@ void CameraHamamatsu::init_camera()
 
         // Gets and sets camera model name
         retrieve_camera_name();
-        std::cout << "Connected to " << name_ << std::endl;
+        // std::cout << "Connected to " << name_ << std::endl;
 
         // Binding parameters
         try
@@ -214,7 +214,7 @@ CapturedFramesDescriptor CameraHamamatsu::get_frames()
         // Log err here
         if (err_code == DCAMERR_TIMEOUT)
         {
-            std::cout << "Frame acquisition timed out" << std::endl;
+            // std::cout << "Frame acquisition timed out" << std::endl;
         }
         throw CameraException(CameraException::CANT_GET_FRAME);
     }

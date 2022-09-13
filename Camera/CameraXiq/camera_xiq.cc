@@ -138,7 +138,9 @@ void CameraXiq::load_ini_params()
             fd_.height = static_cast<unsigned short>(roi_height_);
         }
         else
-            std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
+        {
+            // std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
+        }
     }
 
     trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);

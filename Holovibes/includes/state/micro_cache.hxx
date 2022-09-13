@@ -98,7 +98,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 
 #ifdef _DEBUG
-#define LOG_UPDATE(var) LOG_DEBUG << "Update " << #var << " : " << var.obj << " -> " << cache_truth<ref_t>->var;
+#define LOG_UPDATE(var) // LOG_DEBUG << "Update " << #var << " : " << var.obj << " -> " << cache_truth<ref_t>->var;
 #else
 #define LOG_UPDATE(var)
 #endif
@@ -127,6 +127,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 
 #define _GETTER(type, var)                                                                                             \
     inline type get_##var() const noexcept { return var.obj; }
+
+// FIXME-LOG git discard Check
 
 #define _GETTER_SETTER_TRIGGER(type, var)                                                                              \
     void set_##var(const type& _val)                                                                                   \
@@ -178,7 +180,6 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
           public:                                                                                                      \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_truth<ref_t> != nullptr) << "You must register a truth cache for class: " << #name;        \
                 MAP(_SYNC_VAR, __VA_ARGS__);                                                                           \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \
@@ -276,7 +277,6 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             Cache& operator=(const Cache&) = delete;                                                                   \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_truth<ref_t> != nullptr) << "You must register a truth cache for class: " << #name;        \
                 MAP(_SYNC_VAR_INIT, __VA_ARGS__);                                                                      \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \

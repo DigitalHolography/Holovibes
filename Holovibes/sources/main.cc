@@ -53,7 +53,7 @@ static void check_cuda_graphic_card(bool gui)
     }
     else
     {
-        LOG_WARN << error_message;
+        // LOG_WARN << error_message;
     }
     std::exit(1);
 }
@@ -85,7 +85,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     {
         window.start_import(QString(filename.c_str()));
         // TODO: to restore
-        LOG_INFO << "TODO";
+        // LOG_INFO << "TODO";
     }
 
     // Resizing horizontally the window before starting
@@ -94,13 +94,16 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { std::cerr << "Holovibes " << __HOLOVIBES_VERSION__; }
+static void print_version()
+{
+    // std::cerr << "Holovibes " << __HOLOVIBES_VERSION__;
+}
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    std::cerr << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    std::cerr << parser.get_opts_desc();
+    // std::cerr << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    // std::cerr << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
@@ -108,15 +111,20 @@ int main(int argc, char* argv[])
 
 #ifndef _DEBUG
     // Put every log message in "everything.log":
-    loguru::add_file(holovibes::settings::everything_log_path.c_str(), loguru::Append, loguru::Verbosity_MAX);
+    // loguru::add_file(holovibes::settings::everything_log_path.c_str(), loguru::Append, loguru::Verbosity_MAX);
 
     // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
-    loguru::add_file(holovibes::settings::latest_readable_path.c_str(), loguru::Truncate, loguru::Verbosity_INFO);
+    // loguru::add_file(holovibes::settings::latest_readable_path.c_str(), loguru::Truncate,
+    // loguru::Verbosity_INFO);
 
-    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
+    // loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
 #else
-    loguru::g_stderr_verbosity = loguru::Verbosity_MAX;
+    // loguru::g_stderr_verbosity = loguru::Verbosity_MAX;
 #endif
+
+    // console->set_pattern("[%^%l%$] [%H:%M:%S.%e] [thread %t] %n >> %v");
+
+    Logger::logger().info("");
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
@@ -154,7 +162,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception: " << e.what();
+        // LOG_ERROR << "Uncaught exception: " << e.what();
         ret = 1;
     }
 
