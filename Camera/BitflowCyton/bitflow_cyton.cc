@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cuda_runtime.h>
+#include <spdlog/spdlog.h>
 
 #include "bitflow_cyton.hh"
 
@@ -21,8 +22,7 @@ static void print_BiError(Bd board, BFRC status)
     char error_text[const_error_text_size];
     BiErrorTextGet(board, status, error_text, &error_text_size);
 
-    // fprintf(stderr, "%.*s\n", error_text_size, error_text);
-    // fflush(stderr);
+    spdlog::get("setup")->error("{}", std::string(error_text, error_text_size));
 }
 
 CameraPhantomBitflow::CameraPhantomBitflow()
@@ -37,7 +37,7 @@ CameraPhantomBitflow::CameraPhantomBitflow()
     }
     else
     {
-        // std::cerr << "Could not open bitflow.ini config file" << std::endl;
+        spdlog::get("setup")->error("Could not open bitflow.ini config file");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     load_default_params();
@@ -248,7 +248,7 @@ void CameraPhantomBitflow::load_ini_params()
 
     if (nb_boards != 1 && nb_boards != 2 && nb_boards != 4)
     {
-        // std::cerr << "bitflow.ini: number_of_boards should be 1, 2 or 4" << std::endl;
+        spdlog::get("setup")->error("bitflow.ini: number_of_boards should be 1, 2 or 4");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -258,7 +258,7 @@ void CameraPhantomBitflow::load_ini_params()
 
         if (board_nums[i] == -1)
         {
-            // std::cerr << "bitflow.ini: board" << i << " has an invalid value" << std::endl;
+            spdlog::get("setup")->error("bitflow.ini: board {} has an invalid value", i);
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
@@ -279,7 +279,7 @@ void CameraPhantomBitflow::bind_params()
 
     if (rc != BI_OK)
     {
-        // std::cerr << "Could not read frame description" << std::endl;
+        spdlog::get("setup")->error("Could not read frame description");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 

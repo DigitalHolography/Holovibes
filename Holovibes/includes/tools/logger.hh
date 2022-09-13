@@ -14,23 +14,27 @@
 class Logger
 {
   public:
+    static void init_logger(bool debug_mode);
+
     static spdlog::logger& frame_read_worker();
     static spdlog::logger& compute_worker();
     static spdlog::logger& record_worker();
     static spdlog::logger& information_worker();
 
     static spdlog::logger& cuda();
+    static spdlog::logger& setup();
+
     static spdlog::logger& fatal();
     static spdlog::logger& trace();
-    static spdlog::logger& logger();
+    static spdlog::logger& main();
+    static std::shared_ptr<spdlog::logger> main_ptr();
 };
 
-#define LOG_TRACE
-#define LOG_DEBUG
-#define LOG_INFO
-#define LOG_WARN
-#define LOG_ERROR
-#define LOG_FUNC
+#define LOG_TRACE(...) Logger::main().trace(__VA_ARGS__)
+#define LOG_INFO(...) Logger::main().info(__VA_ARGS__)
+#define LOG_WARN(...) Logger::main().warn(__VA_ARGS__)
+#define LOG_ERROR(...) Logger::main().error(__VA_ARGS__)
+#define LOG_CRITICAL(...) Logger::main().critical(__VA_ARGS__)
 
 #define catch_log(e) catch_log__((e), __LINE__, __FILE__)
 
