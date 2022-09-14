@@ -243,7 +243,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     }
     catch (std::out_of_range& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
         throw;
     }
 

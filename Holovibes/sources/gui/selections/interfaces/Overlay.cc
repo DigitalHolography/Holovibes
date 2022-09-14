@@ -79,7 +79,7 @@ void Overlay::initProgram()
     Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.color.glsl"));
     Vao_.create();
     if (!Program_->bind())
-        Logger::main().error("{}", Program_->log().toStdString());
+        Logger::setup().error("Shader error : {}", Program_->log().toStdString());
     init();
     Program_->release();
 }

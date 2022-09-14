@@ -27,7 +27,7 @@ class CustomException : public std::exception
     CustomException(const std::string& msg)
         : std::exception(msg.c_str())
     {
-        Logger::main().error("{}", msg);
+        Logger::main().error("Create except : {}", msg);
     }
 
     /*!

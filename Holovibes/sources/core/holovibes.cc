@@ -223,7 +223,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
         return;
     }
 

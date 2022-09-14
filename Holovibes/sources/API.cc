@@ -144,7 +144,7 @@ bool change_camera(CameraKind c)
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 
     return false;
@@ -387,7 +387,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
     }
     catch (const std::logic_error& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 
     return false;
@@ -517,7 +517,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         }
         catch (const std::exception& e)
         {
-            Logger::main().error("{}", e.what());
+            Logger::main().error("Catch {}", e.what());
         }
     }
     else
@@ -877,7 +877,7 @@ bool set_auto_contrast()
     }
     catch (const std::runtime_error& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 
     return false;
@@ -1001,7 +1001,7 @@ void enable_convolution(const std::string& filename)
     catch (const std::exception& e)
     {
         disable_convolution();
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 }
 
@@ -1018,7 +1018,7 @@ void disable_convolution()
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 }
 
@@ -1098,7 +1098,7 @@ void stop_chart_display()
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
     }
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
@@ -1250,7 +1250,7 @@ bool import_start(
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
         UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();

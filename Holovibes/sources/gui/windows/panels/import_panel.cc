@@ -85,7 +85,7 @@ void ImportPanel::import_file(const QString& filename)
         // In case of bad format, we triggered the user
         QMessageBox messageBox;
         messageBox.critical(nullptr, "File Error", e.what());
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
         // Holovibes cannot be launched over this file
         set_start_stop_buttons(false);
         return;

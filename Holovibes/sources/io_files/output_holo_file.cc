@@ -79,7 +79,7 @@ void OutputHoloFile::write_footer()
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("{}", e.what());
+        Logger::main().error("Catch {}", e.what());
         throw;
     }
 }
