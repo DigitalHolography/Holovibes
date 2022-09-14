@@ -1124,6 +1124,8 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
 void set_record_mode(const std::string& text)
 {
+    Logger::api().trace("set_record_mode : {}", text);
+
     // TODO: Dictionnary
     if (text == "Chart")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
@@ -1198,6 +1200,8 @@ void start_record(const bool batch_enabled,
 
 void stop_record()
 {
+    Logger::api().trace("stop_record");
+
     Holovibes::instance().stop_batch_gpib();
 
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
@@ -1217,6 +1221,8 @@ void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = fal
 
 void import_stop()
 {
+    Logger::api().trace("import_stop");
+
     close_windows();
     close_critical_compute();
 
@@ -1231,6 +1237,13 @@ void import_stop()
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
+    Logger::api().trace("import_start file:{} ; fps:{} ; first_frame:{} ; last_frame:{} ; load_file_in_gpu:{}",
+                        file_path,
+                        fps,
+                        first_frame,
+                        last_frame,
+                        load_file_in_gpu);
+
     set_is_computation_stopped(false);
 
     // Because we are in file mode

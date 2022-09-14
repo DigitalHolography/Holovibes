@@ -11,6 +11,8 @@
 #include <functional>
 #include <iostream>
 
+#define LOGGER_PATTERN "[%^%l%$] [%H:%M:%S.%e] [thread %t] %n >> %v"
+
 class Logger
 {
   public:
@@ -24,8 +26,8 @@ class Logger
     static spdlog::logger& cuda();
     static spdlog::logger& setup();
 
-    static spdlog::logger& fatal();
-    static spdlog::logger& trace();
+    static spdlog::logger& api();
+
     static spdlog::logger& main();
     static std::shared_ptr<spdlog::logger> main_ptr();
 };

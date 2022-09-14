@@ -266,7 +266,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     main_loop(holovibes);
 
-    Logger::trace().info("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
+    Logger::main().trace("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

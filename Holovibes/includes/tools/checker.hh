@@ -7,22 +7,21 @@
 
 #define INTERNAL_CHECK_GET_ARGS()
 #define INTERNAL_CHECK_GET_ARGS(fmt)
-#define INTERNAL_CHECK_GET_ARGS(fmt, ...) ,__VA_ARGS__
+#define INTERNAL_CHECK_GET_ARGS(fmt, ...) , __VA_ARGS__
 
 #define CHECK(cond, ...)                                                                                               \
     {                                                                                                                  \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            Logger::fatal().critical("{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                     \
-                                     __FILE__,                                                                         \
-                                     __LINE__                                                                         \
-                                     INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                            \
+            Logger::main().critical("{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                      \
+                                    __FILE__,                                                                          \
+                                    __LINE__ INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                    \
             abort();                                                                                                   \
         }                                                                                                              \
     }
 
 #define CUDA_FATAL(file, line, fmt, ...)                                                                               \
     {                                                                                                                  \
-        Logger::fatal().critical("{}:{} " fmt, file, line, __VA_ARGS__);                                               \
+        Logger::cuda().critical("{}:{} " fmt, file, line, __VA_ARGS__);                                                \
         abort();                                                                                                       \
     }
