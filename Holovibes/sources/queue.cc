@@ -39,7 +39,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
-        // LOG_ERROR << "Queue: could not allocate queue";
+        Logger::main().error("Queue: could not allocate queue");
 
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
@@ -325,7 +325,7 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
 {
     MutexGuard mGuard(mutex_);
 
-    // CHECK(size_ > 0) << "Queue size cannot be empty at dequeue";
+    CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
@@ -343,8 +343,7 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    // CHECK(size_ >= nb_elts) << "When dequeuing " << nb_elts << " elements, queue size should be bigger than it, not "
-    // << size_;
+    CHECK(size_ >= nb_elts, "When dequeuing {} elements, queue size should be bigger than it, not {};", nb_elts, size_);
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }

@@ -10,6 +10,7 @@
 #include "global_state_holder.hh"
 #include "user_interface_descriptor.hh"
 #include "API.hh"
+#include "logger.hh"
 
 namespace cli
 {
@@ -115,7 +116,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         catch (std::exception&)
         {
-            // LOG_WARN << "Configuration file not found.";
+            Logger::setup().warn("Configuration file not found.");
             return 1;
         }
     }
@@ -138,7 +139,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
     catch (std::exception& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::setup().error("{}", e.what());
         return 1;
     }
 
@@ -211,7 +212,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
     if (record_nb_frames == 0)
     {
-        // LOG_ERROR << "Asking to record 0 frames, abort";
+        Logger::setup().error("Asking to record 0 frames, abort");
         return 2;
     }
 

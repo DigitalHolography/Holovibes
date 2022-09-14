@@ -241,7 +241,7 @@ void OverlayManager::create_default()
 
 units::RectWindow OverlayManager::getZone() const
 {
-    // CHECK(current_overlay_ != nullptr) << "Overlay should never be null";
+    CHECK(current_overlay_ != nullptr, "Overlay should never be null");
     return current_overlay_->getZone();
 }
 

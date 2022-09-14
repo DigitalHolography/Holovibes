@@ -1,5 +1,7 @@
 #include "API.hh"
 
+#include "logger.hh"
+
 namespace holovibes::api
 {
 void load_image_rendering(const json& data)
@@ -106,7 +108,7 @@ void after_load_checks()
 
 void load_compute_settings(const std::string& json_path)
 {
-    // LOG_TRACE << "Entering load_compute_settings()";
+    Logger::trace().info("Entering load_compute_settings()");
 
     if (json_path.empty())
         return;
@@ -115,12 +117,13 @@ void load_compute_settings(const std::string& json_path)
     auto j_cs = json::parse(ifs);
 
     json_to_compute_settings(j_cs);
-    // LOG_INFO << "Compute settings loaded from : " << json_path;
+
+    Logger::trace().info("Compute settings loaded from : {}", json_path);
 
     after_load_checks();
     pipe_refresh();
 
-    // LOG_INFO << "Compute settings loaded from : " << json_path;
+    Logger::trace().info("Compute settings loaded from : {}", json_path);
 }
 
 // clang-format off
@@ -213,13 +216,14 @@ json compute_settings_to_json()
 
 void save_compute_settings(const std::string& json_path)
 {
-    // LOG_TRACE << "Entering save_compute_settings()";
+    Logger::trace().info("Entering save_compute_settings()");
+
     if (json_path.empty())
         return;
 
     std::ofstream file(json_path);
     file << std::setw(1) << compute_settings_to_json();
 
-    // LOG_INFO << "Compute settings overwritten at : " << json_path;
+    Logger::trace().info("Compute settings overwritten at : {}", json_path);
 }
 } // namespace holovibes::api

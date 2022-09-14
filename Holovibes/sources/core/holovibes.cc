@@ -51,7 +51,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
 {
-    // CHECK(gpu_input_queue_.load() != nullptr);
+    CHECK(gpu_input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
@@ -215,7 +215,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
      * Here is a suggestion :
      * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
      */
-    // CHECK(gpu_input_queue_.load() != nullptr) << "Input queue not initialized";
+    CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
 
     try
     {

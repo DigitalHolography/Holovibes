@@ -143,8 +143,7 @@ void gpu_reduce(const float* const input, double* const result, const uint size,
     constexpr uint optimal_nb_blocks = 1024;
     constexpr uint optimal_block_size = 128;
     // Handling block_size smaller than 64 would reduce warp_reduce performances
-    // CHECK(optimal_block_size >= 64)
-        << "kernel reduce only works with with a block size equal or greater than 64 threads (128 pixels)";
+    CHECK(optimal_block_size >= 64, "kernel reduce only works with with a block size equal or greater than 64 threads (128 pixels)");
 
     // We still reduce the number of blocks if this reduce is used for really
     // small input

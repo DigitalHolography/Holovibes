@@ -21,21 +21,21 @@ ConversionData::ConversionData(const BasicOpenGLWindow* window)
 
 float ConversionData::window_size_to_opengl(int val, Axis axis) const
 {
-    // CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
 float ConversionData::fd_to_opengl(int val, Axis axis) const
 {
-    // CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
     return axis == Axis::VERTICAL ? -res : res;
 }
 
 int ConversionData::opengl_to_window_size(float val, Axis axis) const
 {
-    // CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     if (axis == Axis::VERTICAL)
         val *= -1;
     int res = ((val + 1.f) / 2.f) * get_window_size(axis);
@@ -44,7 +44,7 @@ int ConversionData::opengl_to_window_size(float val, Axis axis) const
 
 int ConversionData::opengl_to_fd(float val, Axis axis) const
 {
-    // CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     if (axis == Axis::VERTICAL)
         val *= -1;
     return ((val + 1.f) / 2.f) * get_fd_size(axis);
@@ -52,7 +52,7 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 
 double ConversionData::fd_to_real(int val, Axis axis) const
 {
-    // CHECK(window_ != nullptr) << "gui::BasicOpenGLWindow *window_ cannot be null";
+    CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     auto fd = window_->getFd();
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)

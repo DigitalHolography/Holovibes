@@ -63,7 +63,7 @@ template <typename T, typename FUNC>
 void _map_vectorize(
     const T* const input, T* const output, const size_t size, const FUNC func, const cudaStream_t stream)
 {
-    // CHECK(size % 4 == 0) << "Map vectorize requires a size divisible by 4.";
+    CHECK(size % 4 == 0, "Map vectorize requires a size divisible by 4.");
 
     // Instead of one thread per pixel, in vectorize map each thread works on 4 pixels.
     // The 4 pixels are grouped in the vectorize type (T)

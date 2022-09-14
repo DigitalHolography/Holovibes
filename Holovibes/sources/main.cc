@@ -13,6 +13,7 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
+
 #include "cli.hh"
 #include "global_state_holder.hh"
 
@@ -93,14 +94,13 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { Logger::main().info("Holovibes {}", __HOLOVIBES_VERSION__); }
+static void print_version() { std::cout << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    Logger::main().info("Usage: ./Holovibes.exe [OPTIONS]");
-    // FIXME Create specilaizer
-    // Logger::main().info("{}", parser.get_opts_desc());
+    std::cout << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cout << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
@@ -112,7 +112,6 @@ int main(int argc, char* argv[])
 #else
     Logger::init_logger(false);
 #endif
-
     Logger::main().info("Start Holovibes");
 
     holovibes::OptionsParser parser;

@@ -475,8 +475,9 @@ void Pipe::update_batch_index()
         [&]()
         {
             batch_env_.batch_index += compute_cache_.get_batch_size();
-            // CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride())
-            // << "batch_index = " << batch_env_.batch_index;
+            CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride(),
+                  "batch_index = {}",
+                  batch_env_.batch_index);
         });
 }
 

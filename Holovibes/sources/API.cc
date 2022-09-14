@@ -1,4 +1,5 @@
 #include "API.hh"
+#include "logger.hh"
 
 namespace holovibes::api
 {
@@ -16,7 +17,7 @@ void pipe_refresh()
     }
     catch (const std::runtime_error& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::compute_worker().error("{}", e.what());
     }
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }

@@ -149,22 +149,22 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.pca_dev_info.resize(1);
     }
     else // Should not happend or be handled (if add more time transformation)
-         // CHECK(false);
+        CHECK(false);
 
-        try
-        {
-            /* This will resize cuts buffers: Some modifications are to be applied
-             * on opengl to work */
-            time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
-        }
-        catch (std::exception&)
-        {
-            time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
-            request_time_transformation_cuts_ = false;
-            request_delete_time_transformation_cuts_ = true;
-            dispose_cuts();
-            err_count++;
-        }
+    try
+    {
+        /* This will resize cuts buffers: Some modifications are to be applied
+         * on opengl to work */
+        time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
+    }
+    catch (std::exception&)
+    {
+        time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
+        request_time_transformation_cuts_ = false;
+        request_delete_time_transformation_cuts_ = true;
+        dispose_cuts();
+        err_count++;
+    }
 
     if (err_count != 0)
     {
