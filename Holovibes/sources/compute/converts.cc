@@ -216,7 +216,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
         }
         catch (std::exception& e)
         {
-            // LOG_ERROR << "Error while trying to convert to float in Argument :" << e.what();
+            Logger::compute_worker().error("Error while trying to convert to float in Argument : {}", e.what());
         }
     }
 }
@@ -275,7 +275,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     }
     catch (std::exception& e)
     {
-        // LOG_ERROR << "Error while trying to convert to float in Phase increase: " << e.what();
+        Logger::compute_worker().error("Error while trying to convert to float in Phase increase : {}", e.what());
     }
 }
 

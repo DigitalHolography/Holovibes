@@ -5,6 +5,7 @@
 #include <shlobj.h>
 
 #include "tools.hh"
+#include "logger.hh"
 #include "tools_conversion.cuh"
 #include "power_of_two.hh"
 
@@ -46,7 +47,7 @@ std::string get_exe_dir()
         return p.parent_path().string();
     }
 
-    // LOG_ERROR << "Failed to find executable dir";
+    Logger::main().error("Failed to find executable dir");
     throw std::runtime_error("Failed to find executable dir");
 }
 

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include <spdlog/spdlog.h>
+
 #include "camera_adimec.hh"
 
 namespace camera
@@ -101,7 +103,8 @@ void CameraAdimec::stop_acquisition()
     BiBufferFree(board_, info_);
     if (BiCircCleanUp(board_, info_) != BI_OK)
     {
-        // std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
+        spdlog::get("Setup")->error("Could not stop acquisition cleanly.");
+
         shutdown_camera();
         throw CameraException(CameraException::CANT_STOP_ACQUISITION);
     }
@@ -145,7 +148,7 @@ void CameraAdimec::err_check(const BFRC status,
 {
     if (status != CI_OK)
     {
-        // std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
+        spdlog::get("Setup")->error("{} : {}", err_mess, status);
         if (flag & CloseFlag::BUFFER)
             BiBufferFree(board_, info_);
         if (flag & CloseFlag::BOARD)
@@ -194,26 +197,24 @@ void CameraAdimec::bind_params()
 
     if (BFCXPWriteReg(board_, 0xFF, RegAddress::FRAME_PERIOD, frame_period_) != BF_OK)
     {
-        // std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
+        spdlog::get("Setup")->error("Could not set frame period to {}", frame_period_);
     }
 
     if (BFCXPWriteReg(board_, 0xFF, RegAddress::EXPOSURE_TIME, exposure_time_) != BF_OK)
     {
-        // std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
+        spdlog::get("Setup")->error("Could not set exposure time to {}", exposure_time_);
     }
 
     /* After setting up the profile of the camera in SysReg, we read into the
      * registers of the camera to set width and height */
     if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_WIDTH, &roi_width_) != BF_OK)
     {
-        // std::cerr << "[CAMERA] Cannot read the roi width of the registers of "
-        // "the camera " << std::endl;
+        spdlog::get("Setup")->error("Cannot read the roi width of the registers of the camera");
     }
 
     if (BFCXPReadReg(board_, 0xFF, RegAddress::ROI_HEIGHT, &roi_height_) != BF_OK)
     {
-        // std::cerr << "[CAMERA] Cannot read the roi height of the registers of "
-        // "the camera " << std::endl;
+        spdlog::get("Setup")->error("Cannot read the roi height of the registers of the camera");
     }
     fd_.width = roi_width_;
     fd_.height = roi_height_;

@@ -38,14 +38,14 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
 
 void FileFrameReadWorker::run()
 {
-    // LOG_TRACE << "Entering FileFrameReadWorker::run()";
+    Logger::frame_read_worker().trace("Entering FileFrameReadWorker::run()");
     try
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
     }
     catch (const io_files::FileException& e)
     {
-        // LOG_ERROR << "[READER]" << e.what();
+        Logger::frame_read_worker().error("{}", e.what());
         return;
     }
 
@@ -76,7 +76,7 @@ void FileFrameReadWorker::run()
     }
     catch (const io_files::FileException& e)
     {
-        // LOG_ERROR << "[READER]" << e.what();
+        Logger::frame_read_worker().error("{}", e.what());
     }
 
     // No more enqueue, thus release the producer ressources
@@ -107,12 +107,12 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "[READER] Not enough CPU RAM to read file";
+        std::string error_message = "Not enough CPU RAM to read file";
 
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        // LOG_ERROR << error_message;
+        Logger::frame_read_worker().error("{}", error_message);
 
         return false;
     }
@@ -121,12 +121,12 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "[READER] Not enough GPU DRAM to read file";
+        std::string error_message = "Not enough GPU DRAM to read file";
 
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        // LOG_ERROR << error_message;
+        Logger::frame_read_worker().error("{}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         return false;
@@ -136,12 +136,12 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "[READER] Not enough GPU DRAM to read file";
+        std::string error_message = "Not enough GPU DRAM to read file";
 
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        // LOG_ERROR << error_message;
+        Logger::frame_read_worker().error("{}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         cudaXFree(gpu_frame_buffer_);
@@ -252,7 +252,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
     }
     catch (const io_files::FileException& e)
     {
-        // LOG_WARN << "[READER] " << e.what();
+        Logger::frame_read_worker().error("{}", e.what());
     }
 
     return frames_read;

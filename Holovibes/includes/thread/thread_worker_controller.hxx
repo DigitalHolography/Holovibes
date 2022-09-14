@@ -2,6 +2,8 @@
 
 #include "thread_worker_controller.hh"
 
+#include "logger.hh"
+
 namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
@@ -32,12 +34,13 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     MutexGuard m_guard(mutex_);
 
-    // LOG_TRACE << "Starting Worker of type " << typeid(T).name();
+    Logger::main().trace("Starting Worker of type {}", typeid(T).name());
 
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    // // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
+    int thread_id = std::hash<std::thread::id>{}(thread_.get_id());
+    Logger::main().trace("Worker of type {} started with ID: {}", typeid(T).name(), thread_id);
 }
 
 template <WorkerDerived T>
@@ -64,7 +67,7 @@ void ThreadWorkerController<T>::run()
     }
     catch (const std::exception& e)
     {
-        // LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
+        Logger::main().error("Uncaught exception in Worker of type {} : {}", typeid(T).name(), e.what());
         throw;
     }
 

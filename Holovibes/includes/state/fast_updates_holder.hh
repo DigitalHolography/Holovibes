@@ -36,7 +36,10 @@ class FastUpdatesHolder
             throw std::runtime_error("Key is already present in map");
 
         map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
-        // // LOG_DEBUG << "New FastUpdatesHolder<" << typeid(T).name() << "> entry: 0x" << map_[key];
+
+        std::ostringstream map_key_oss;
+        map_key_oss << map_[key];
+        Logger::main().debug("New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_key_oss.str());
 
         return map_[key];
     }

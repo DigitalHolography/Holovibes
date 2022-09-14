@@ -140,11 +140,11 @@ bool change_camera(CameraKind c)
     }
     catch (const camera::CameraException& e)
     {
-        // LOG_ERROR << "[CAMERA] " << e.what();
+        Logger::main().error("[CAMERA] {}", e.what());
     }
     catch (const std::exception& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 
     return false;
@@ -178,7 +178,7 @@ void create_pipe(Observer& observer)
     }
     catch (const std::runtime_error& e)
     {
-        // LOG_ERROR << "cannot create Pipe: " << e.what();
+        Logger::main().error("cannot create Pipe: {}", e.what());
     }
 }
 
@@ -233,7 +233,7 @@ void create_holo_window(ushort window_size)
     }
     catch (const std::runtime_error& e)
     {
-        // LOG_ERROR << "create_holo_window: " << e.what();
+        Logger::main().error("create_holo_window: {}", e.what());
     }
 }
 
@@ -257,7 +257,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
     }
     catch (const std::runtime_error& e)
     {
-        // LOG_ERROR << "cannot set holographic mode: " << e.what();
+        Logger::main().error("cannot set holographic mode: {}", e.what());
     }
 
     return false;
@@ -290,7 +290,7 @@ void refresh_view_mode(Observer& observer, ushort window_size, uint index)
     catch (const std::runtime_error& e)
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        // LOG_ERROR << "refresh_view_mode: " << e.what();
+        Logger::main().error("refresh_view_mode: {}", e.what());
     }
 }
 
@@ -311,7 +311,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 #pragma endregion
 
 #pragma region Batch
-// FIXME: Same fucntion as under
+// FIXME: Same function as under
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
     if (batch_size == api::get_batch_size())
@@ -326,7 +326,7 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
     }
     else
     {
-        // LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+        Logger::main().info("could not get pipe");
     }
 }
 
@@ -334,7 +334,7 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 
 #pragma region STFT
 
-// FIXME: Same fucntion as above
+// FIXME: Same function as above
 void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
     get_compute_pipe()->insert_fn_end_vect(callback);
@@ -387,7 +387,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
     }
     catch (const std::logic_error& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 
     return false;
@@ -517,7 +517,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         }
         catch (const std::exception& e)
         {
-            // LOG_ERROR << e.what();
+            Logger::main().error("{}", e.what());
         }
     }
     else
@@ -877,7 +877,7 @@ bool set_auto_contrast()
     }
     catch (const std::runtime_error& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 
     return false;
@@ -1001,7 +1001,7 @@ void enable_convolution(const std::string& filename)
     catch (const std::exception& e)
     {
         disable_convolution();
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 }
 
@@ -1018,7 +1018,7 @@ void disable_convolution()
     }
     catch (const std::exception& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 }
 
@@ -1098,7 +1098,7 @@ void stop_chart_display()
     }
     catch (const std::exception& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
     }
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
@@ -1152,13 +1152,13 @@ bool start_record_preconditions(const bool batch_enabled,
     if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
         nb_frames_to_record == std::nullopt)
     {
-        // LOG_ERROR << "Number of frames must be activated";
+        Logger::main().error("Number of frames must be activated");
         return false;
     }
 
     if (batch_enabled && batch_input_path.empty())
     {
-        // LOG_ERROR << "No batch input file";
+        Logger::main().error("No batch input file");
         return false;
     }
 
@@ -1250,7 +1250,7 @@ bool import_start(
     }
     catch (const std::exception& e)
     {
-        // LOG_ERROR << e.what();
+        Logger::main().error("{}", e.what());
         UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <cstring>
+#include "spdlog/spdlog.h"
 
 #include "camera_hamamatsu.hh"
 
@@ -52,7 +53,7 @@ void CameraHamamatsu::init_camera()
 
         // Gets and sets camera model name
         retrieve_camera_name();
-        // std::cout << "Connected to " << name_ << std::endl;
+        spdlog::get("Setup")->info("Connected to {}", name_);
 
         // Binding parameters
         try
@@ -214,7 +215,7 @@ CapturedFramesDescriptor CameraHamamatsu::get_frames()
         // Log err here
         if (err_code == DCAMERR_TIMEOUT)
         {
-            // std::cout << "Frame acquisition timed out" << std::endl;
+            spdlog::get("Setup")->error("Frame acquisition timed out");
         }
         throw CameraException(CameraException::CANT_GET_FRAME);
     }

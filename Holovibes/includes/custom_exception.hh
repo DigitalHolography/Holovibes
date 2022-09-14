@@ -27,7 +27,7 @@ class CustomException : public std::exception
     CustomException(const std::string& msg)
         : std::exception(msg.c_str())
     {
-        // LOG_ERROR << msg;
+        Logger::main().error("{}", msg);
     }
 
     /*!
@@ -40,7 +40,7 @@ class CustomException : public std::exception
     CustomException(const std::string& msg, const int line, const char* file)
         : std::exception(msg.c_str())
     {
-        // LOG_ERROR << msg << " " << file << ':' << line;
+        Logger::main().error("{} {}:{}", msg, file, line);
     }
 
     /*! \brief Destroy the Custom Exception object */

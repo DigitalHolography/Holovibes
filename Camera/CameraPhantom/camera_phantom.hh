@@ -6,6 +6,8 @@
 #include "camera.hh"
 #include "camera_exception.hh"
 
+#include <spdlog/spdlog.h>
+
 namespace camera
 {
 using namespace Euresys;
@@ -114,9 +116,9 @@ class EHoloGrabber
             cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr, 0);
 
             if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-                // std::cerr << "[CAMERA] Could not allocate buffers." << std::endl;
+                spdlog::get("Setup")->error("Could not allocate buffers.");
 
-                buffers_.push_back(ptr);
+            buffers_.push_back(ptr);
             for (size_t ix = 0; ix < grabber_count; ix++)
                 grabbers_[ix]->announceAndQueue(UserMemory(ptr, frame_size, device_ptr));
         }

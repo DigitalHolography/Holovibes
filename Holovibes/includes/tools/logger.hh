@@ -29,29 +29,3 @@ class Logger
     static spdlog::logger& main();
     static std::shared_ptr<spdlog::logger> main_ptr();
 };
-
-#define LOG_TRACE(...) Logger::main().trace(__VA_ARGS__)
-#define LOG_INFO(...) Logger::main().info(__VA_ARGS__)
-#define LOG_WARN(...) Logger::main().warn(__VA_ARGS__)
-#define LOG_ERROR(...) Logger::main().error(__VA_ARGS__)
-#define LOG_CRITICAL(...) Logger::main().critical(__VA_ARGS__)
-
-#define catch_log(e) catch_log__((e), __LINE__, __FILE__)
-
-#ifdef _DEBUG
-
-inline void catch_log__(const std::exception& e, int line, const char* file)
-{
-    // LOG_ERROR << "Internal Error occured: " << e.what();
-    // LOG_ERROR << "Error occured in file " << file << " at line " << line;
-    throw e;
-}
-
-#else
-
-inline void catch_log__(const std::exception& e, int, const char*)
-{
-    // LOG_ERROR << "Internal Error occured: " << e.what() << '\n';
-}
-
-#endif

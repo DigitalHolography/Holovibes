@@ -38,32 +38,29 @@ static void progress_bar(int current, int total, int length)
     text.append(length - n, ' ');
     text += ']';
 
-    // std::cout << '\r' << text;
-    // std::cout.flush();
+    std::cout << '\r' << text;
+    std::cout.flush();
 }
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
-    // std::cout << "Config:\n";
-    // std::cout << holovibes::api::compute_settings_to_json().dump(1);
-    // std::cout << std::endl;
+    Logger::main().info("Config:");
+    Logger::main().info("{}", holovibes::api::compute_settings_to_json().dump(1));
 
-    // std::cout << "Input file: " << opts.input_path.value() << "\n";
-    // std::cout << "Output file: " << opts.output_path.value() << "\n";
-    // std::cout << "FPS: " << opts.fps.value_or(DEFAULT_CLI_FPS) << "\n";
-    // std::cout << "Number of frames to record: ";
+    Logger::main().info("Input file: {}", opts.input_path.value());
+    Logger::main().info("Output file: {}", opts.output_path.value());
+    Logger::main().info("FPS: {}", opts.fps.value_or(DEFAULT_CLI_FPS));
+    Logger::main().info("Number of frames to record: ");
     if (opts.n_rec)
     {
-        // std::cout << opts.n_rec.value() << "\n";
+        Logger::main().info("{}", opts.n_rec.value());
     }
     else
     {
-        // std::cout << "full file\n";
-        // std::cout << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
-        // std::cout << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
-        // std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
-
-        // std::cout << std::endl;
+        Logger::main().info("full file");
+        Logger::main().info("Raw recording: {:b}", opts.record_raw);
+        Logger::main().info("Skip accumulation frames: {:b}", !opts.noskip_acc);
+        Logger::main().info("Load in GPU: {:b}", opts.gpu);
     }
 }
 
@@ -71,9 +68,13 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
-        // std::cerr << option << " (" << name << ") value: " << value
-        // << " is not valid. The valid condition is: 1 <= " << name
-        // << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";
+        spdlog::get("Setup")->error(
+            "{} ({}) value: {} is not valid. The valid condition is: 1 <= {} <= nb_frame. For this file nb_frame = ",
+            option,
+            name,
+            value,
+            name,
+            nb_frames);
     };
 
     uint start_frame = opts.start_frame.value_or(1);
@@ -94,7 +95,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
     if (start_frame > end_frame)
     {
-        // std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
+        spdlog::get("Setup")->error("-s (start_frame) must be lower or equal than -e (end_frame).");
         return 2;
     }
 
@@ -265,7 +266,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     main_loop(holovibes);
 
-    // printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);
+    Logger::trace().info("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

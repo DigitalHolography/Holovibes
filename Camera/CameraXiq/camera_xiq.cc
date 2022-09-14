@@ -4,6 +4,7 @@
 #include "camera_xiq.hh"
 
 #include <chrono>
+#include <spdlog/spdlog.h>
 
 namespace camera
 {
@@ -139,7 +140,7 @@ void CameraXiq::load_ini_params()
         }
         else
         {
-            // std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
+            spdlog::get("Setup")->error("Invalid ROI settings, ignoring ROI.");
         }
     }
 

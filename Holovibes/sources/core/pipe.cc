@@ -106,9 +106,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
         // If refresh() fails the compute descriptor settings will be
         // changed to something that should make refresh() work
         // (ex: lowering the GPU memory usage)
-        // LOG_WARN << "Pipe refresh failed, trying one more time with updated "
-        // "compute descriptor";
-        // LOG_WARN << "Exception: " << e.what();
+        Logger::compute_worker().warn("Pipe refresh failed, trying one more time with updated compute descriptor");
+        Logger::compute_worker().warn("Exception: {}", e.what());
         try
         {
             refresh();
@@ -117,8 +116,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            // LOG_ERROR << "Pipe could not be initialized, You might want to restart holovibes";
-            // LOG_ERROR << "Exception: " << e.what();
+            Logger::compute_worker().error("Pipe could not be initialized, You might want to restart holovibes");
+            Logger::compute_worker().error("Exception: {}", e.what());
             throw e;
         }
     }
@@ -213,7 +212,7 @@ bool Pipe::make_requests()
             GSH::instance().set_p_index(0);
             GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
-            // LOG_WARN << "Updating #img failed, #img updated to 1";
+            Logger::compute_worker().warn("Updating #img failed; #img updated to 1");
         }
         update_time_transformation_size_requested_ = false;
     }
@@ -278,7 +277,7 @@ bool Pipe::make_requests()
 
     if (hologram_record_requested_)
     {
-        // LOG_DEBUG << "Hologram Record Request Processing";
+        Logger::compute_worker().debug("Hologram Record Request Processing");
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -286,17 +285,19 @@ bool Pipe::make_requests()
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
+        Logger::compute_worker().debug("Hologram Record Request Processed");
     }
 
     if (raw_record_requested_)
     {
-        // LOG_DEBUG << "Raw Record Request Processing";
+        Logger::compute_worker().debug("Raw Record Request Processing");
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = false;
+        Logger::compute_worker().debug("Raw Record Request Processed");
     }
 
     if (cuts_record_requested_)
