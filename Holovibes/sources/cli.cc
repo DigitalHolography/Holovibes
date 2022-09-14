@@ -58,9 +58,9 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     else
     {
         Logger::main().info("full file");
-        Logger::main().info("Raw recording: {:b}", opts.record_raw);
-        Logger::main().info("Skip accumulation frames: {:b}", !opts.noskip_acc);
-        Logger::main().info("Load in GPU: {:b}", opts.gpu);
+        Logger::main().info("Raw recording: {}", opts.record_raw);
+        Logger::main().info("Skip accumulation frames: {}", !opts.noskip_acc);
+        Logger::main().info("Load in GPU: {}", opts.gpu);
     }
 }
 
