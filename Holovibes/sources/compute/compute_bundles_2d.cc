@@ -36,7 +36,7 @@ UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size, const cu
 
 UnwrappingResources_2d::~UnwrappingResources_2d()
 {
-    Logger::cuda().trace("UnwrappingResources_2d::~UnwrappingResources_2d()");
+    LOG_FUNC(cuda);
 
     cudaXFree(gpu_fx_);
     cudaXFree(gpu_fy_);
@@ -51,7 +51,7 @@ UnwrappingResources_2d::~UnwrappingResources_2d()
 
 void UnwrappingResources_2d::cudaRealloc(void* ptr, const size_t size)
 {
-    Logger::cuda().trace(" UnwrappingResources_2d::cudaRealloc(size={})", size);
+    LOG_FUNC(cuda, size);
 
     cudaXFree(ptr);
     cudaXMalloc(&ptr, size);
@@ -59,7 +59,7 @@ void UnwrappingResources_2d::cudaRealloc(void* ptr, const size_t size)
 
 void UnwrappingResources_2d::reallocate(const size_t image_size)
 {
-    Logger::cuda().trace("UnwrappingResources_2d::reallocate(image_size={})", image_size);
+    LOG_FUNC(cuda, image_size);
 
     image_resolution_ = image_size;
 

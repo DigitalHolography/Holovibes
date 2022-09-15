@@ -22,7 +22,7 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t i
     , gpu_unwrapped_angle_(nullptr)
     , stream_(stream)
 {
-    Logger::cuda().trace("UnwrappingResources::UnwrappingResources(capacity={}, image_size={})", capacity, image_size);
+    LOG_FUNC(cuda, capacity, image_size);
 
     auto nb_unwrap_elts = image_size * capacity_;
 
@@ -39,7 +39,7 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t i
 
 UnwrappingResources::~UnwrappingResources()
 {
-    Logger::cuda().trace("UnwrappingResources::~UnwrappingResources");
+    LOG_FUNC(cuda);
 
     cudaXFree(gpu_unwrap_buffer_);
     cudaXFree(gpu_predecessor_);
@@ -51,7 +51,7 @@ UnwrappingResources::~UnwrappingResources()
 
 void UnwrappingResources::cudaRealloc(void* ptr, const size_t size)
 {
-    Logger::cuda().trace("UnwrappingResources::cudaRealloc(size={})", size);
+    LOG_FUNC(cuda, size);
 
     cudaXFree(ptr);
     cudaXMalloc(&ptr, size);
@@ -59,7 +59,7 @@ void UnwrappingResources::cudaRealloc(void* ptr, const size_t size)
 
 void UnwrappingResources::reallocate(const size_t image_size)
 {
-    Logger::cuda().trace("UnwrappingResources::reallocate(image_size={})", image_size);
+    LOG_FUNC(cuda, image_size);
 
     // We compare requested memory against available memory, and reallocate if
     // needed.
@@ -80,7 +80,7 @@ void UnwrappingResources::reallocate(const size_t image_size)
 
 void UnwrappingResources::reset(const size_t capacity)
 {
-    Logger::cuda().trace("UnwrappingResources::reset(capacity={})", capacity);
+    LOG_FUNC(cuda, capacity);
 
     capacity_ = capacity;
     size_ = 0;
