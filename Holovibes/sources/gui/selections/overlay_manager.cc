@@ -250,7 +250,7 @@ KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? curren
 #ifdef _DEBUG
 void OverlayManager::printVector()
 {
-    Logger::main().info("Current overlay :");
+    LOG_INFO(main, "Current overlay :");
     if (current_overlay_)
         current_overlay_->print();
     for (auto o : overlays_)

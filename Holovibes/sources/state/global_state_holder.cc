@@ -241,7 +241,7 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
     catch (std::exception& e)
     {
         convo_matrix->clear();
-        Logger::main().error("Couldn't load convolution matrix : {}", e.what());
+        LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
     }
 }
 

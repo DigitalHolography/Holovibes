@@ -42,7 +42,7 @@ void CameraFrameReadWorker::run()
     }
     catch (const std::exception& e)
     {
-        Logger::setup().error("[CAPTURE] {}", e.what());
+        LOG_ERROR(setup, "[CAPTURE] {}", e.what());
     }
 
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);

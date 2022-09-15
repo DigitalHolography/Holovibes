@@ -44,23 +44,23 @@ static void progress_bar(int current, int total, int length)
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
-    Logger::main().info("Config:");
-    Logger::main().info("{}", holovibes::api::compute_settings_to_json().dump(1));
+    LOG_INFO(main, "Config:");
+    LOG_INFO(main, "{}", holovibes::api::compute_settings_to_json().dump(1));
 
-    Logger::main().info("Input file: {}", opts.input_path.value());
-    Logger::main().info("Output file: {}", opts.output_path.value());
-    Logger::main().info("FPS: {}", opts.fps.value_or(DEFAULT_CLI_FPS));
-    Logger::main().info("Number of frames to record: ");
+    LOG_INFO(main, "Input file: {}", opts.input_path.value());
+    LOG_INFO(main, "Output file: {}", opts.output_path.value());
+    LOG_INFO(main, "FPS: {}", opts.fps.value_or(DEFAULT_CLI_FPS));
+    LOG_INFO(main, "Number of frames to record: ");
     if (opts.n_rec)
     {
-        Logger::main().info("{}", opts.n_rec.value());
+        LOG_INFO(main, "{}", opts.n_rec.value());
     }
     else
     {
-        Logger::main().info("full file");
-        Logger::main().info("Raw recording: {}", opts.record_raw);
-        Logger::main().info("Skip accumulation frames: {}", !opts.noskip_acc);
-        Logger::main().info("Load in GPU: {}", opts.gpu);
+        LOG_INFO(main, "full file");
+        LOG_INFO(main, "Raw recording: {}", opts.record_raw);
+        LOG_INFO(main, "Skip accumulation frames: {}", !opts.noskip_acc);
+        LOG_INFO(main, "Load in GPU: {}", opts.gpu);
     }
 }
 
@@ -117,7 +117,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         catch (std::exception&)
         {
-            Logger::setup().warn("Configuration file not found.");
+            LOG_WARN(setup, "Configuration file not found.");
             return 1;
         }
     }
@@ -140,7 +140,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
     catch (std::exception& e)
     {
-        Logger::setup().error("{}", e.what());
+        LOG_ERROR(setup, "{}", e.what());
         return 1;
     }
 
@@ -213,7 +213,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
     if (record_nb_frames == 0)
     {
-        Logger::setup().error("Asking to record 0 frames, abort");
+        LOG_ERROR(setup, "Asking to record 0 frames, abort");
         return 2;
     }
 
@@ -266,7 +266,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     main_loop(holovibes);
 
-    Logger::main().trace("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
+    LOG_TRACE(main, "Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

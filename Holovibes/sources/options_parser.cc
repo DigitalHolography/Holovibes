@@ -117,7 +117,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        Logger::main().info("{}", e.what());
+        LOG_INFO(main, "{}", e.what());
         std::exit(1);
     }
 

@@ -178,7 +178,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 // Inserted
 void FourierTransform::enqueue_lens()
 {
-    LOG_FUNC(compute_worker);
+    // LOG-USELESS LOG_FUNC(compute_worker);
 
     if (gpu_lens_queue_)
     {

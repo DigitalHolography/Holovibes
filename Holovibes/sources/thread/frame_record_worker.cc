@@ -121,18 +121,18 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        Logger::record_worker().info("Recording stopped, written frames : {}", nb_frames_recorded);
+        LOG_INFO(record_worker, "Recording stopped, written frames : {}", nb_frames_recorded);
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
         if (contiguous_frames.has_value())
         {
-            Logger::record_worker().warn("Record lost its contiguousity at frame {}.", contiguous_frames.value());
-            Logger::record_worker().warn(
-                "To prevent this lost, you might need to increase Input AND/OR Record buffer size.");
+            LOG_WARN(record_worker, "Record lost its contiguousity at frame {}.", contiguous_frames.value());
+            LOG_WARN(record_worker,
+                     "To prevent this lost, you might need to increase Input AND/OR Record buffer size.");
         }
         else
         {
-            Logger::record_worker().info("Record is contiguous!");
+            LOG_INFO(record_worker, "Record is contiguous!");
         }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
@@ -142,7 +142,7 @@ void FrameRecordWorker::run()
     }
     catch (const io_files::FileException& e)
     {
-        Logger::record_worker().info("{}", e.what());
+        LOG_INFO(record_worker, "{}", e.what());
     }
 
     delete output_frame_file;
@@ -153,7 +153,7 @@ void FrameRecordWorker::run()
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
-    Logger::record_worker().trace("Exiting FrameRecordWorker::run()");
+    LOG_TRACE(record_worker, "Exiting FrameRecordWorker::run()");
 }
 
 Queue& FrameRecordWorker::init_gpu_record_queue()

@@ -23,21 +23,24 @@
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 // STOP : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 
-#define INTERNAL_LOGGER_GET_FMT()
-#define INTERNAL_LOGGER_GET_FMT(fmt, ...) fmt
-
-#define INTERNAL_LOGGER_GET_ARGS()
-#define INTERNAL_LOGGER_GET_ARGS(fmt)
-#define INTERNAL_LOGGER_GET_ARGS(fmt, ...) , __VA_ARGS__
+#define INTERNAL_LOGGER_GET_ARGS_(fmt, ...) __VA_OPT__(, __VA_ARGS__)
+#define INTERNAL_LOGGER_GET_ARGS(...) __VA_OPT__(INTERNAL_LOGGER_GET_ARGS_(__VA_ARGS__))
 
 #define LOGGER_PATTERN "[%^%l%$] [%H:%M:%S.%e] [thread %t] %n >> %v"
 
-#define INTERNAL_LOGGER_GET_FUNC_FMT_()
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
+#define LOG_TRACE(log, ...) Logger::log().trace(__VA_ARGS__)
+#define LOG_DEBUG(log, ...) Logger::log().debug(__VA_ARGS__)
+#define LOG_INFO(log, ...) Logger::log().info(__VA_ARGS__)
+#define LOG_WARN(log, ...) Logger::log().warn(__VA_ARGS__)
+#define LOG_ERROR(log, ...) Logger::log().error(__VA_ARGS__)
+#define LOG_CRITICAL(log, ...) Logger::log().critical(__VA_ARGS__)
+
 #define LOG_FUNC(log, ...)                                                                                             \
-    Logger::log().trace(                                                                                               \
+    LOG_TRACE(                                                                                                         \
+        log,                                                                                                           \
         "{}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")" INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
 
 class Logger
@@ -52,9 +55,7 @@ class Logger
 
     static spdlog::logger& cuda();
     static spdlog::logger& setup();
-
     static spdlog::logger& api();
-
     static spdlog::logger& main();
     static std::shared_ptr<spdlog::logger> main_ptr();
 };

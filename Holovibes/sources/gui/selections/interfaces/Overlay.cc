@@ -79,7 +79,7 @@ void Overlay::initProgram()
     Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.color.glsl"));
     Vao_.create();
     if (!Program_->bind())
-        Logger::setup().error("Shader error : {}", Program_->log().toStdString());
+        LOG_ERROR(setup, "Shader error : {}", Program_->log().toStdString());
     init();
     Program_->release();
 }
@@ -96,7 +96,7 @@ void Overlay::print()
 {
     std::ostringstream zone_oss;
     zone_oss << zone_;
-    Logger::main().info("Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
+    LOG_INFO(main, "Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
 }
 } // namespace gui
 } // namespace holovibes

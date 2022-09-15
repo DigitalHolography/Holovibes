@@ -31,8 +31,8 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
-    Logger::main().trace("Entering OutputHoloFile export_compute_settings()");
-    Logger::main().debug("raw bitshift : {}", GSH::instance().get_raw_bitshift());
+    LOG_TRACE(main, "Entering OutputHoloFile export_compute_settings()");
+    LOG_DEBUG(main, "raw bitshift : {}", GSH::instance().get_raw_bitshift());
 
     try
     {
@@ -46,8 +46,8 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
     catch (const json::exception& e)
     {
         meta_data_ = json();
-        Logger::main().warn("An error was encountered while trying to export compute settings");
-        Logger::main().warn("Exception: {}", e.what());
+        LOG_WARN(main, "An error was encountered while trying to export compute settings");
+        LOG_WARN(main, "Exception: {}", e.what());
     }
 }
 
@@ -69,7 +69,7 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputHoloFile::write_footer()
 {
-    Logger::main().trace("Entering OutputHoloFile::write_footer()");
+    LOG_TRACE(main, "Entering OutputHoloFile::write_footer()");
     std::string meta_data_str;
     try
     {
@@ -79,7 +79,7 @@ void OutputHoloFile::write_footer()
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("Catch {}", e.what());
+        LOG_ERROR(main, "Catch {}", e.what());
         throw;
     }
 }

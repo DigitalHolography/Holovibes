@@ -243,7 +243,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     }
     catch (std::out_of_range& e)
     {
-        Logger::main().error("Catch {}", e.what());
+        LOG_ERROR(main, "Catch {}", e.what());
         throw;
     }
 
@@ -263,7 +263,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
         return;
 
     TimeTransformation tt = time_transformation_from_string(value.toStdString());
-    Logger::main().debug("value.toStdString() : {}", value.toStdString());
+    LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)
         return;

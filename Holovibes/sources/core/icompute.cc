@@ -274,9 +274,9 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 
 void ICompute::pipe_error(const int& err_count, const std::exception& e)
 {
-    Logger::compute_worker().error("Pipe error: ");
-    Logger::compute_worker().error("  message: {}", e.what());
-    Logger::compute_worker().error("  err_count: {}", err_count);
+    LOG_ERROR(compute_worker, "Pipe error: ");
+    LOG_ERROR(compute_worker, "  message: {}", e.what());
+    LOG_ERROR(compute_worker, "  err_count: {}", err_count);
     notify_error_observers(e);
 }
 

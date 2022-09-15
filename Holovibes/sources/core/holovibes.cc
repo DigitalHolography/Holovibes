@@ -76,7 +76,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (const std::exception& e)
     {
-        Logger::main().error("Camera library cannot be loaded. (Exception: {})", e.what());
+        LOG_ERROR(main, "Camera library cannot be loaded. (Exception: {})", e.what());
         throw;
     }
 
@@ -94,7 +94,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (std::exception& e)
     {
-        Logger::main().error("Error at camera frame read start worker. (Exception: {})", e.what());
+        LOG_ERROR(main, "Error at camera frame read start worker. (Exception: {})", e.what());
         stop_frame_read();
         throw;
     }
@@ -102,7 +102,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
 void Holovibes::stop_frame_read()
 {
-    Logger::main().trace("Entering Holovibes::stop_frame_read()");
+    LOG_TRACE(main, "Entering Holovibes::stop_frame_read()");
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();
@@ -124,7 +124,7 @@ void Holovibes::start_frame_record(const std::string& path,
 {
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
-        Logger::main().error("[RECORDER] Batch size must be lower than record queue size");
+        LOG_ERROR(main, "[RECORDER] Batch size must be lower than record queue size");
         return;
     }
 
@@ -179,7 +179,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::init_pipe()
 {
-    Logger::main().trace("Entering Holovibes::init_pipe()");
+    LOG_TRACE(main, "Entering Holovibes::init_pipe()");
 
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
@@ -198,7 +198,7 @@ void Holovibes::init_pipe()
                                                    *(gpu_output_queue_.load()),
                                                    get_cuda_streams().compute_stream));
     }
-    Logger::main().trace("Exiting Holovibes::init_pipe()");
+    LOG_TRACE(main, "Exiting Holovibes::init_pipe()");
 }
 
 void Holovibes::start_compute_worker(const std::function<void()>& callback)
@@ -223,7 +223,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
-        Logger::main().error("Catch {}", e.what());
+        LOG_ERROR(main, "Catch {}", e.what());
         return;
     }
 
