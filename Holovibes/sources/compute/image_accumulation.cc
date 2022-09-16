@@ -131,7 +131,7 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
                                         const unsigned int image_acc_level,
                                         const size_t frame_res)
 {
-    LOG_FUNC(compute_worker, image_acc_level, frame_res);
+    // LOG-USELESS LOG_FUNC(compute_worker, image_acc_level, frame_res);
 
     if (gpu_accumulation_queue)
     {
