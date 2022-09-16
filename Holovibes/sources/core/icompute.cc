@@ -162,8 +162,9 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         request_time_transformation_cuts_ = false;
         request_delete_time_transformation_cuts_ = true;
         dispose_cuts();
-        LOG_ERROR << "error in update_time_transformation_size(time_transformation_size)";
-        LOG_ERROR << "  message: " << e.what();
+        LOG_ERROR(compute_worker,
+                  "error in update_time_transformation_size(time_transformation_size) message: {}",
+                  e.what());
         return false;
     }
 
@@ -266,6 +267,8 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
 
+/*
+    FIXME: Need to delete because of merge ?
 void ICompute::pipe_error(const int& err_count, const std::exception& e)
 {
     LOG_ERROR(compute_worker, "Pipe error: ");
@@ -273,6 +276,7 @@ void ICompute::pipe_error(const int& err_count, const std::exception& e)
     LOG_ERROR(compute_worker, "  err_count: {}", err_count);
     notify_error_observers(e);
 }
+*/
 
 void ICompute::soft_request_refresh()
 {

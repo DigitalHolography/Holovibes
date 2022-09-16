@@ -669,8 +669,7 @@ void Pipe::exec()
         }
         catch (CustomException& e)
         {
-            LOG_ERROR << "Pipe error: ";
-            LOG_ERROR << "  message: " << e.what();
+            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
             throw;
         }
     }
