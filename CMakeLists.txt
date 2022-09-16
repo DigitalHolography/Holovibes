@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.24)
 
 project(Holovibes)
 
@@ -20,6 +20,7 @@ find_package(Boost REQUIRED
 )
 
 # Add spdlog to include path || don't move it bellow
+include(FindCUDAToolkit)
 INCLUDE_DIRECTORIES(libs/ libs/spdlog/)
 
 add_subdirectory(Camera)

@@ -1,4 +1,4 @@
-project (BitflowCyton CXX CUDA)
+project (BitflowCyton CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     bitflow_cyton.cc
@@ -12,7 +12,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_SOURCE_DIR}/Camera/include/"
 )
 
-find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
+# find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
 
 target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/BFD.lib"
@@ -31,7 +31,7 @@ target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/clserbit.lib"
 
     Boost::boost
-    ${CUDART_LIBRARY}
+    CUDA::cudart
 )
 
 # Generate the dll file in build/Debug or build/Release

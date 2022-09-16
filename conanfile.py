@@ -17,7 +17,7 @@ class HolovibesConan(ConanFile):
     description = "Real-time hologram rendering made easy"
     topics = "gpu", "cpp", "computer-vision", "opengl"
     settings = "os", "compiler", "build_type", "arch"
-    build_requires = "cmake/3.22.0", "ninja/1.10.2"
+    build_requires = "cmake/3.24.0", "ninja/1.10.2"
     generators = "cmake_paths", "cmake_find_package", "virtualrunenv"
 
     options = {
@@ -32,8 +32,9 @@ class HolovibesConan(ConanFile):
         "gtest/1.10.0",
         "nlohmann_json/3.10.4",
         "opencv/4.5.3",
-        "glog/0.5.0",
         "opengl/system",
+        "zlib/1.2.12",  # needed to overwrite qt bad dependency
+        "openssl/1.1.1q",  # needed to overwrite qt bad dependency
         "freetype/2.11.0",  # needed to overwrite qt bad dependency
     )
 
@@ -70,8 +71,10 @@ class HolovibesConan(ConanFile):
         generator = self.options.cmake_generator
         toolchain = self.options.cmake_compiler
 
-        self._cmake = CMake(self, generator=build_utils.get_generator(generator))
-        self._cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = build_utils.get_toolchain(toolchain)
+        self._cmake = CMake(
+            self, generator=build_utils.get_generator(generator))
+        self._cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = build_utils.get_toolchain(
+            toolchain)
         return self._cmake
 
     def _pytest(self):

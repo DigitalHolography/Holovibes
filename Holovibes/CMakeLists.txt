@@ -39,7 +39,6 @@ find_package(OpenCV REQUIRED)
 find_package(GTest REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(glog REQUIRED)
 
 # Includes
 function(target_include_external_dirs target type)
@@ -52,8 +51,6 @@ SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${glm_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
-    ${glog_INCLUDE_DIRS}
-    ${gflags_INCLUDE_DIRS} #included with glog but needed
 )
 
 set(EXTERNAL_INCLUDES
@@ -150,7 +147,6 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    glog::glog
     opencv::videoio
     opengl::opengl
 
@@ -201,6 +197,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
     set(TEST_NAME "gtests")
 
     # Create an executable with all sources and lib needed
+    message(STATUS "test_name ${TEST_NAME}")
+    message(STATUS "src_tests ${SRC_TESTS}")
     add_executable(${TEST_NAME} ${SRC_TESTS})
 
     target_link_libraries(${TEST_NAME} PRIVATE

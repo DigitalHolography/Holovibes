@@ -15,9 +15,10 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 
 target_link_libraries("${PROJECT_NAME}"
     # Dirty fix to retrieve static libs of CUDA
-    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib/x64/cudart.lib"
+    # "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib/x64/cudart.lib"
 
     Boost::boost
+    CUDA::cudart
 )
 
 # Generate the dll file in build/Debug or build/Release
