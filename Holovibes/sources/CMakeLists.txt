@@ -9,6 +9,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     batch_input_queue.cc
     API.cc
 
+    tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/converts.cc

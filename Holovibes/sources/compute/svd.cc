@@ -1,4 +1,5 @@
 #include "svd.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -28,6 +29,8 @@ void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov)
 
 int eigen_values_vectors_work_buffer_size(int side)
 {
+    // LOG-USELESS LOG_FUNC(cuda, side);
+
     int size = 0;
     cusolverSafeCall(cusolverDnCheevd_bufferSize(cuda_tools::CusolverHandle::instance(),
                                                  CUSOLVER_EIG_MODE_VECTOR,
@@ -48,6 +51,8 @@ void eigen_values_vectors(cuComplex* matrix,
                           int work_buffer_size,
                           int* dev_info)
 {
+    // LOG-USELESS LOG_FUNC(cuda);
+
     *eigen_vectors = matrix;
     cusolverSafeCall(cusolverDnCheevd(cuda_tools::CusolverHandle::instance(),
                                       CUSOLVER_EIG_MODE_VECTOR,
@@ -70,6 +75,8 @@ void matrix_multiply(const cuComplex* A,
                      cublasOperation_t op_A,
                      cublasOperation_t op_B)
 {
+    // LOG-USELESS LOG_FUNC(cuda);
+
     cublasSafeCall(cublasCgemm3m(cuda_tools::CublasHandle::instance(),
                                  op_A,
                                  op_B,

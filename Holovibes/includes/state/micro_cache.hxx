@@ -35,7 +35,7 @@
  *      {
  *        private:
  *          int a;
- * 
+ *
  * 		  public:
  *          Ref() { cache_reference<ref_t> = this; }
  *          ~Ref() { cache_reference<ref_t> = nullptr; }
@@ -58,13 +58,12 @@
  *                     	cache->a.to_update = true;
  *             	}
  *         	}
- * 
- * 			Ref(const Ref&) = delete;                                                                                  \
- *			Ref& operator=(const Ref&) = delete;                                                                       \
- *			Ref() { <ref_t> = this; }                                                                       \
- *			~Ref() { cache_reference<ref_t> = nullptr; }
  *
- * 			friend struct Cache;  
+ * 			Ref(const Ref&) = delete; \
+ *			Ref& operator=(const Ref&) = delete; \
+ *			Ref() { <ref_t> = this; } \ ~Ref() { cache_reference<ref_t> = nullptr; }
+ *
+ * 			friend struct Cache;
  *      };
  *
  *      struct Cache : MicroCache
@@ -76,11 +75,9 @@
  *              volatile bool to_update;
  *          };
  *          a_t a;
- * 
+ *
  * 		  public:
- * 			Cache(const Cache&) = delete;                                                                              \
- *			Cache& operator=(const Cache&) = delete;
- *          Cache()
+ * 			Cache(const Cache&) = delete; \ Cache& operator=(const Cache&) = delete; Cache()
  *          {
  *              a.obj = <ref_t>.a.obj;
  *              a.to_update = false;
@@ -99,7 +96,7 @@
  *                  a.to_update = false;
  *              }
  *          }
- * 
+ *
  * 			friend struct Ref;
  *      };
  *  };
@@ -114,20 +111,20 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 
 #ifdef _DEBUG
-#define LOG_UPDATE(var) LOG_DEBUG << "Update " << #var << " : " << var.obj << " -> " << cache_reference<ref_t>->var;
+#define LOG_UPDATE(var) LOG_DEBUG(main, "Update {} : {} -> {}", #var, var.obj, cache_truth<ref_t>->var);
 #else
 #define LOG_UPDATE(var)
 #endif
 
 #define _SYNC_VAR(type, var)                                                                                           \
-    var.obj = cache_reference<ref_t>->var;                                                                                 \
+    var.obj = cache_reference<ref_t>->var;                                                                             \
     var.to_update = false;
 
 #define _IF_NEED_SYNC_VAR(type, var)                                                                                   \
     if (var.to_update)                                                                                                 \
     {                                                                                                                  \
         LOG_UPDATE(var)                                                                                                \
-        var.obj = cache_reference<ref_t>->var;                                                                             \
+        var.obj = cache_reference<ref_t>->var;                                                                         \
         var.to_update = false;                                                                                         \
     }
 
@@ -143,6 +140,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 
 #define _GETTER(type, var)                                                                                             \
     inline type get_##var() const noexcept { return var.obj; }
+
+// FIXME-LOG git discard Check
 
 #define _GETTER_SETTER_TRIGGER(type, var)                                                                              \
     void set_##var(const type& _val)                                                                                   \
@@ -179,8 +178,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             MAP(_DEFINE_VAR, __VA_ARGS__);                                                                             \
                                                                                                                        \
           public:                                                                                                      \
-            Ref() { cache_reference<ref_t> = this; }                                                                       \
-            ~Ref() { cache_reference<ref_t> = nullptr; }                                                                   \
+            Ref() { cache_reference<ref_t> = this; }                                                                   \
+            ~Ref() { cache_reference<ref_t> = nullptr; }                                                               \
                                                                                                                        \
             MAP(_GETTER_SETTER_TRIGGER, __VA_ARGS__);                                                                  \
             friend struct Cache;                                                                                       \
@@ -194,7 +193,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
           public:                                                                                                      \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_reference<ref_t> != nullptr) << "You must register a reference cache for class: " << #name;        \
+                CHECK(cache_reference<ref_t> != nullptr)                                                               \
+                    << "You must register a reference cache for class: " << #name;                                     \
                 MAP(_SYNC_VAR, __VA_ARGS__);                                                                           \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \
@@ -210,13 +210,13 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 /*---------------------------------------------------------------------*/
 
 #define _SYNC_VAR_INIT(type, var, val)                                                                                 \
-    var.obj = cache_reference<ref_t>->var;                                                                                 \
+    var.obj = cache_reference<ref_t>->var;                                                                             \
     var.to_update = false;
 
 #define _IF_NEED_SYNC_VAR_INIT(type, var, val)                                                                         \
     if (var.to_update)                                                                                                 \
     {                                                                                                                  \
-        var.obj = cache_reference<ref_t>->var;                                                                             \
+        var.obj = cache_reference<ref_t>->var;                                                                         \
         var.to_update = false;                                                                                         \
     }
 
@@ -253,8 +253,9 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             cache->var.to_update = true;                                                                               \
     }                                                                                                                  \
                                                                                                                        \
-    /* inline prevents MSVC from brain-dying, dunno why */																\
-	/* this shared pointer is used so that the trigger is called at the destruction of the pointer, when the value is sure to be modified*/                                                             \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    /* this shared pointer is used so that the trigger is called at the destruction of the pointer, when the value is  \
+     * sure to be modified*/                                                                                           \
     inline auto get_##var##_ref()                                                                                      \
     {                                                                                                                  \
         return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
@@ -277,8 +278,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
                                                                                                                        \
             Ref(const Ref&) = delete;                                                                                  \
             Ref& operator=(const Ref&) = delete;                                                                       \
-            Ref() { cache_reference<ref_t> = this; }                                                                       \
-            ~Ref() { cache_reference<ref_t> = nullptr; }                                                                   \
+            Ref() { cache_reference<ref_t> = this; }                                                                   \
+            ~Ref() { cache_reference<ref_t> = nullptr; }                                                               \
                                                                                                                        \
             friend struct Cache;                                                                                       \
         };                                                                                                             \
@@ -293,7 +294,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             Cache& operator=(const Cache&) = delete;                                                                   \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_reference<ref_t> != nullptr) << "You must register a reference cache for class: " << #name;        \
+                CHECK(cache_reference<ref_t> != nullptr)                                                               \
+                    << "You must register a reference cache for class: " << #name;                                     \
                 MAP(_SYNC_VAR_INIT, __VA_ARGS__);                                                                      \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \

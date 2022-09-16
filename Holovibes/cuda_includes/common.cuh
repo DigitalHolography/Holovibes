@@ -107,18 +107,16 @@ static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
         return "Unknown cublas error";
     }
 }
+
+
+
 #define cublasSafeCall(err) __cublasSafeCall(err, __FILE__, __LINE__)
 inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int line)
 {
     if (CUBLAS_STATUS_SUCCESS != err)
     {
-        fprintf(stderr,
-                "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
-                __FILE__,
-                __LINE__,
-                _cudaGetCublasErrorEnum(err));
         cudaDeviceReset();
-        CHECK(0);
+        CUDA_FATAL(file, line, "CUBLAS error {} -- terminating!", _cudaGetCublasErrorEnum(err));
     }
 }
 #endif
@@ -153,13 +151,8 @@ inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int
 {
     if (CUSOLVER_STATUS_SUCCESS != err)
     {
-        fprintf(stderr,
-                "CUBLAS error in file '%s', line %d\n%s\nterminating!\n",
-                __FILE__,
-                __LINE__,
-                _cudaGetCusolverErrorEnum(err));
         cudaDeviceReset();
-        CHECK(0);
+        CUDA_FATAL(file, line, "CULSOLVER error {} -- terminating!", _cudaGetCusolverErrorEnum(err));
     }
 }
 #endif
@@ -201,13 +194,8 @@ inline void __cufftSafeCall(cufftResult err, const char* file, const int line)
 {
     if (CUFFT_SUCCESS != err)
     {
-        fprintf(stderr,
-                "CUFFT error in file '%s', line %d\n%s\nterminating!\n",
-                __FILE__,
-                __LINE__,
-                _cudaGetErrorEnum(err));
         cudaDeviceReset();
-        CHECK(0);
+        CUDA_FATAL(file, line, "CUFFT error {} -- terminating!", _cudaGetErrorEnum(err));
     }
 }
 #endif

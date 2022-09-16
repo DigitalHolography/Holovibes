@@ -4,6 +4,7 @@
 
 #include "compute_bundles_2d.hh"
 #include "cuda_memory.cuh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -20,6 +21,8 @@ UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size, const cu
     , minmax_buffer_(nullptr)
     , stream_(stream)
 {
+    LOG_FUNC(cuda, image_size);
+
     cudaXMalloc(&gpu_fx_, sizeof(float) * image_resolution_);
     cudaXMalloc(&gpu_fy_, sizeof(float) * image_resolution_);
     cudaXMalloc(&gpu_shift_fx_, sizeof(float) * image_resolution_);
@@ -33,6 +36,8 @@ UnwrappingResources_2d::UnwrappingResources_2d(const size_t image_size, const cu
 
 UnwrappingResources_2d::~UnwrappingResources_2d()
 {
+    LOG_FUNC(cuda);
+
     cudaXFree(gpu_fx_);
     cudaXFree(gpu_fy_);
     cudaXFree(gpu_shift_fx_);
@@ -46,12 +51,16 @@ UnwrappingResources_2d::~UnwrappingResources_2d()
 
 void UnwrappingResources_2d::cudaRealloc(void* ptr, const size_t size)
 {
+    LOG_FUNC(cuda, size);
+
     cudaXFree(ptr);
     cudaXMalloc(&ptr, size);
 }
 
 void UnwrappingResources_2d::reallocate(const size_t image_size)
 {
+    LOG_FUNC(cuda, image_size);
+
     image_resolution_ = image_size;
 
     cudaRealloc(gpu_fx_, sizeof(float) * image_resolution_);

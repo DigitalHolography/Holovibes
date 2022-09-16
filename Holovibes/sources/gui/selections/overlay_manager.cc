@@ -240,7 +240,7 @@ void OverlayManager::create_default()
 
 units::RectWindow OverlayManager::getZone() const
 {
-    CHECK(current_overlay_ != nullptr) << "Overlay should never be null";
+    CHECK(current_overlay_ != nullptr, "Overlay should never be null");
     return current_overlay_->getZone();
 }
 
@@ -249,14 +249,11 @@ KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? curren
 #ifdef _DEBUG
 void OverlayManager::printVector()
 {
-    LOG_INFO << std::endl;
-    LOG_INFO << "Current overlay :" << std::endl;
+    LOG_INFO(main, "Current overlay :");
     if (current_overlay_)
         current_overlay_->print();
-    LOG_INFO << std::endl;
     for (auto o : overlays_)
         o->print();
-    LOG_INFO << std::endl;
 }
 #endif
 } // namespace gui

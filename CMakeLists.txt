@@ -19,6 +19,9 @@ find_package(Boost REQUIRED
 	program_options
 )
 
+# Add spdlog to include path || don't move it bellow
+INCLUDE_DIRECTORIES(libs/ libs/spdlog/)
+
 add_subdirectory(Camera)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)

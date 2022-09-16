@@ -10,6 +10,7 @@
 #include "global_state_holder.hh"
 #include "user_interface_descriptor.hh"
 #include "API.hh"
+#include "logger.hh"
 
 namespace cli
 {
@@ -43,31 +44,37 @@ static void progress_bar(int current, int total, int length)
 
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
-    std::cout << "Config:\n";
-    std::cout << holovibes::api::compute_settings_to_json().dump(1);
-    std::cout << std::endl;
+    LOG_INFO(main, "Config:");
+    LOG_INFO(main, "{}", holovibes::api::compute_settings_to_json().dump(1));
 
-    std::cout << "Input file: " << opts.input_path.value() << "\n";
-    std::cout << "Output file: " << opts.output_path.value() << "\n";
-    std::cout << "FPS: " << opts.fps.value_or(DEFAULT_CLI_FPS) << "\n";
-    std::cout << "Number of frames to record: ";
+    LOG_INFO(main, "Input file: {}", opts.input_path.value());
+    LOG_INFO(main, "Output file: {}", opts.output_path.value());
+    LOG_INFO(main, "FPS: {}", opts.fps.value_or(DEFAULT_CLI_FPS));
+    LOG_INFO(main, "Number of frames to record: ");
     if (opts.n_rec)
-        std::cout << opts.n_rec.value() << "\n";
+    {
+        LOG_INFO(main, "{}", opts.n_rec.value());
+    }
     else
-        std::cout << "full file\n";
-    std::cout << "Raw recording: " << std::boolalpha << opts.record_raw << std::dec << "\n";
-    std::cout << "Skip accumulation frames: " << std::boolalpha << !opts.noskip_acc << std::dec << "\n";
-    std::cout << "Load in GPU: " << std::boolalpha << opts.gpu << std::dec << "\n";
-    std::cout << std::endl;
+    {
+        LOG_INFO(main, "full file");
+        LOG_INFO(main, "Raw recording: {}", opts.record_raw);
+        LOG_INFO(main, "Skip accumulation frames: {}", !opts.noskip_acc);
+        LOG_INFO(main, "Load in GPU: {}", opts.gpu);
+    }
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
-        std::cerr << option << " (" << name << ") value: " << value
-                  << " is not valid. The valid condition is: 1 <= " << name
-                  << " <= nb_frame. For this file nb_frame = " << nb_frames << ".";
+        spdlog::get("Setup")->error(
+            "{} ({}) value: {} is not valid. The valid condition is: 1 <= {} <= nb_frame. For this file nb_frame = ",
+            option,
+            name,
+            value,
+            name,
+            nb_frames);
     };
 
     uint start_frame = opts.start_frame.value_or(1);
@@ -88,7 +95,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
     if (start_frame > end_frame)
     {
-        std::cerr << "-s (start_frame) must be lower or equal than -e (end_frame).";
+        spdlog::get("Setup")->error("-s (start_frame) must be lower or equal than -e (end_frame).");
         return 2;
     }
 
@@ -110,7 +117,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         catch (std::exception&)
         {
-            LOG_WARN << "Configuration file not found.";
+            LOG_WARN(setup, "Configuration file not found.");
             return 1;
         }
     }
@@ -133,7 +140,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
     catch (std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(setup, "{}", e.what());
         return 1;
     }
 
@@ -206,7 +213,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
     if (record_nb_frames == 0)
     {
-        LOG_ERROR << "Asking to record 0 frames, abort";
+        LOG_ERROR(setup, "Asking to record 0 frames, abort");
         return 2;
     }
 
@@ -259,7 +266,7 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
 
     main_loop(holovibes);
 
-    printf(" Time: %.3fs\n", chrono.get_milliseconds() / 1000.0f);
+    LOG_TRACE(main, "Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 
     holovibes.stop_all_worker_controller();
 

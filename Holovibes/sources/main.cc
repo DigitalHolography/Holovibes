@@ -13,6 +13,7 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
+
 #include "cli.hh"
 #include "global_state_holder.hh"
 
@@ -53,7 +54,7 @@ static void check_cuda_graphic_card(bool gui)
     }
     else
     {
-        LOG_WARN << error_message;
+        LOG_CRITICAL(setup, "{}", error_message);
     }
     std::exit(1);
 }
@@ -87,8 +88,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
-        // TODO: to restore
-        LOG_INFO << "TODO";
+        LOG_INFO(main, "TODO");
     }
 
     // Resizing horizontally the window before starting
@@ -97,28 +97,25 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { std::cerr << "Holovibes " << __HOLOVIBES_VERSION__; }
+static void print_version() { std::cout << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    std::cerr << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    std::cerr << parser.get_opts_desc();
-}
-
-static void init_logging(int argc, char* argv[])
-{
-    FLAGS_logtostderr = 1;
-#ifndef _DEBUG
-    FLAGS_log_dir = holovibes::settings::logs_dirpath;
-#endif
-    google::InitGoogleLogging(argv[0]);
-    google::InstallFailureSignalHandler();
+    std::cout << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cout << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
 {
-    init_logging(argc, argv);
+
+#ifndef _DEBUG
+    // FIXME add logging in log file
+    Logger::init_logger(true);
+#else
+    Logger::init_logger(false);
+#endif
+    LOG_INFO(main, "Start Holovibes");
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
@@ -156,7 +153,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception: " << e.what();
+        LOG_ERROR(main, "Uncaught exception: {}", e.what());
         ret = 1;
     }
 

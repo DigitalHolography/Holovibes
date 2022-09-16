@@ -40,6 +40,8 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
 
 void Postprocessing::init()
 {
+    LOG_FUNC(compute_worker);
+
     const size_t frame_res = fd_.get_frame_res();
 
     // No need for memset here since it will be completely overwritten by
@@ -71,6 +73,8 @@ void Postprocessing::init()
 
 void Postprocessing::dispose()
 {
+    LOG_FUNC(compute_worker);
+
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gpu_kernel_buffer_.reset(nullptr);
@@ -80,6 +84,8 @@ void Postprocessing::dispose()
 // Inserted
 void Postprocessing::convolution_composite()
 {
+    LOG_FUNC(compute_worker);
+
     const size_t frame_res = fd_.get_frame_res();
 
     from_interweaved_components_to_distinct_components(buffers_.gpu_postprocess_frame,
@@ -125,6 +131,8 @@ void Postprocessing::convolution_composite()
 
 void Postprocessing::insert_convolution()
 {
+    LOG_FUNC(compute_worker);
+
     if (!compute_cache_.get_convolution_enabled() || compute_cache_.get_convo_matrix_const_ref().empty())
         return;
 
@@ -152,6 +160,8 @@ void Postprocessing::insert_convolution()
 
 void Postprocessing::insert_renormalize()
 {
+    LOG_FUNC(compute_worker);
+
     if (!view_cache_.get_renorm_enabled())
         return;
 

@@ -77,8 +77,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
         {
             // does not throw an error if the meta data are not parsed
             // because they are not essential
-            LOG_WARN << "An error occurred while retrieving the meta data. Meta "
-                     << "data skipped";
+            LOG_WARN(main, "An error occurred while retrieving the meta data. Meta data skipped");
         }
     }
 }
@@ -147,14 +146,16 @@ void import_holo_v2_v3(const json& meta_data)
 
 void InputHoloFile::import_compute_settings() const
 {
-    // LOG_TRACE << "Entering Input HoloFile import_compute_settings";
+    LOG_TRACE(main, "Entering Input HoloFile import_compute_settings");
 
     if (holo_file_header_.version == 4)
         import_holo_v4(meta_data_);
     else if (holo_file_header_.version < 4)
         import_holo_v2_v3(meta_data_);
     else
-        LOG_ERROR << "HOLO file version not supported!";
+    {
+        LOG_ERROR(main, "HOLO file version not supported!");
+    }
 }
 
 void InputHoloFile::import_info() const
@@ -179,6 +180,8 @@ void InputHoloFile::import_info() const
         GSH::instance().set_pixel_size(get_value(meta_data_, "pixel_size", GSH::instance().get_pixel_size()));
     }
     else
-        LOG_ERROR << "HOLO file version not supported!";
+    {
+        LOG_ERROR(main, "HOLO file version not supported!");
+    }
 }
 } // namespace holovibes::io_files
