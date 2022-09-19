@@ -108,7 +108,7 @@ void after_load_checks()
 
 void load_compute_settings(const std::string& json_path)
 {
-    LOG_TRACE(main, "Entering load_compute_settings()");
+    LOG_FUNC(main, json_path);
 
     if (json_path.empty())
         return;
@@ -118,12 +118,10 @@ void load_compute_settings(const std::string& json_path)
 
     json_to_compute_settings(j_cs);
 
-    LOG_TRACE(main, "Compute settings loaded from : {}", json_path);
-
     after_load_checks();
     pipe_refresh();
 
-    LOG_TRACE(main, "Compute settings loaded from : {}", json_path);
+    LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 }
 
 // clang-format off

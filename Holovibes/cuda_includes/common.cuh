@@ -19,6 +19,7 @@
 #include "tools.cuh"
 #include "cudalaunch_exception.hh"
 #include "popup_error.hh"
+#include "logger.hh"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846 // pi
@@ -85,7 +86,7 @@ inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool ab
 #ifndef _DEBUG
 #define cublasSafeCall(err) err
 #else
-static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
+[[maybe_unused]] static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
 {
     switch (error)
     {
@@ -108,8 +109,6 @@ static const char* _cudaGetCublasErrorEnum(cublasStatus_t error)
     }
 }
 
-
-
 #define cublasSafeCall(err) __cublasSafeCall(err, __FILE__, __LINE__)
 inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int line)
 {
@@ -124,7 +123,7 @@ inline void __cublasSafeCall(cublasStatus_t err, const char* file, const int lin
 #ifndef _DEBUG
 #define cusolverSafeCall(err) err
 #else
-static const char* _cudaGetCusolverErrorEnum(cusolverStatus_t error)
+[[maybe_unused]] static const char* _cudaGetCusolverErrorEnum(cusolverStatus_t error)
 {
     switch (error)
     {
@@ -160,7 +159,7 @@ inline void __cusolverSafeCall(cusolverStatus_t err, const char* file, const int
 #ifndef _DEBUG
 #define cufftSafeCall(err) err
 #else
-static const char* _cudaGetErrorEnum(cufftResult error)
+[[maybe_unused]] static const char* _cudaGetErrorEnum(cufftResult error)
 {
     switch (error)
     {
