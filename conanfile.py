@@ -26,6 +26,7 @@ class HolovibesConan(ConanFile):
     }
 
     requires = (
+        "doxygen/1.9.4",
         "qt/6.2.1",
         "boost/1.71.0",
         "glm/0.9.9.8",
@@ -33,8 +34,8 @@ class HolovibesConan(ConanFile):
         "nlohmann_json/3.10.4",
         "opencv/4.5.3",
         "opengl/system",
-        "zlib/1.2.12",  # needed to overwrite qt bad dependency
-        "openssl/1.1.1q",  # needed to overwrite qt bad dependency
+        "zlib/1.2.12", # needed to overwrite qt bad dependency
+        "openssl/1.1.1q", # needed to overwrite qt bad dependency
         "freetype/2.11.0",  # needed to overwrite qt bad dependency
     )
 

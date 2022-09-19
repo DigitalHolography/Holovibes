@@ -1,4 +1,4 @@
-project (BitflowCyton CXX)
+project (BitflowCyton CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     bitflow_cyton.cc

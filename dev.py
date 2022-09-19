@@ -126,6 +126,30 @@ def build(args: GoalArgs) -> int:
 def test(args: GoalArgs) -> int:
     return conan_build_goal(args, "--test")
 
+@goal
+def doc(args: GoalArgs) -> int:
+    if conan_build_goal(args, "--configure"):
+        print("Fail to build project needed for documentation")
+        return 1
+
+    generator = build_utils.get_generator(args.generator)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    
+    cmd = ["cmake",
+           "--build",
+           build_dir,
+           "-t",
+           "doc"
+    ]
+
+    try:
+        return subprocess.call(cmd)
+    except:
+        print("Failed to build the documentation")
+        raise
+
+
+
 
 @goal
 def run(args: GoalArgs) -> int:
