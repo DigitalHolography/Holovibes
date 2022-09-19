@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 #pragma once
 
 #include <optional>
@@ -691,6 +696,11 @@ json compute_settings_to_json();
  * \param path the path where the .json file is
  */
 void load_compute_settings(const std::string& path);
+
+/*! \brief Setups program from .json file
+ *
+ * \param path the path where the .json file is
+ */
 void json_to_compute_settings(const json& data);
 
 /*! \brief Gets the documentation url
