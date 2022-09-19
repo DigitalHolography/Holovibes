@@ -5,6 +5,7 @@ import sys
 import subprocess
 import argparse
 import subprocess
+import webbrowser
 from dataclasses import dataclass
 from typing import List
 
@@ -143,7 +144,10 @@ def doc(args: GoalArgs) -> int:
     ]
 
     try:
-        return subprocess.call(cmd)
+        returnValue =  subprocess.call(cmd)
+        if not returnValue:
+            webbrowser.open("file://" + os.path.realpath("docs/html/index.html"))
+        return returnValue
     except:
         print("Failed to build the documentation")
         raise

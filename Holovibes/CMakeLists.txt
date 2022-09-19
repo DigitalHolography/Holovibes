@@ -197,8 +197,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
     set(TEST_NAME "gtests")
 
     # Create an executable with all sources and lib needed
-    message(STATUS "test_name ${TEST_NAME}")
-    message(STATUS "src_tests ${SRC_TESTS}")
     add_executable(${TEST_NAME} ${SRC_TESTS})
 
     target_link_libraries(${TEST_NAME} PRIVATE
