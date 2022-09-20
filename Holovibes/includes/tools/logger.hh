@@ -38,10 +38,20 @@
 #define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(Logger::log(), __VA_ARGS__)
 #define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(Logger::log(), __VA_ARGS__)
 
+static constexpr inline const char* const get_file_name(const char* path)
+{
+    const char* file = path;
+    while (*path)
+        if (*path++ == '\\')
+            file = path;
+    return file;
+}
+
 #define LOG_FUNC(log, ...)                                                                                             \
-    LOG_TRACE(                                                                                                         \
-        log,                                                                                                           \
-        "{}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")" INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
+    LOG_TRACE(log,                                                                                                     \
+              "{}:{} -> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")",                                            \
+              get_file_name(__FILE__),                                                                                 \
+              __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
 
 class Logger
 {
@@ -53,10 +63,10 @@ class Logger
     static std::shared_ptr<spdlog::logger> record_worker();
     static std::shared_ptr<spdlog::logger> information_worker();
 
-    static std::shared_ptr<spdlog::logger> cuda();
-    static std::shared_ptr<spdlog::logger> setup();
-    static std::shared_ptr<spdlog::logger> api();
-    static std::shared_ptr<spdlog::logger> main();
+    static spdlog::logger& cuda();
+    static spdlog::logger& setup();
+    static spdlog::logger& main();
+
     static std::shared_ptr<spdlog::logger> main_ptr();
 };
 

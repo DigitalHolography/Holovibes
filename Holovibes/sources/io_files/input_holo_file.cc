@@ -146,7 +146,7 @@ void import_holo_v2_v3(const json& meta_data)
 
 void InputHoloFile::import_compute_settings() const
 {
-    LOG_TRACE(main, "Entering Input HoloFile import_compute_settings");
+    LOG_FUNC(main);
 
     if (holo_file_header_.version == 4)
         import_holo_v4(meta_data_);
