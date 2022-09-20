@@ -40,13 +40,13 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     MutexGuard m_guard(mutex_);
 
-    LOG_TRACE(main, "Starting Worker of type {}", typeid(T).name());
+    LOG_DEBUG(main, "Starting Worker of type {}", typeid(T).name());
 
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
     int thread_id = std::hash<std::thread::id>{}(thread_.get_id());
-    LOG_TRACE(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_id);
+    LOG_DEBUG(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_id);
 }
 
 template <WorkerDerived T>

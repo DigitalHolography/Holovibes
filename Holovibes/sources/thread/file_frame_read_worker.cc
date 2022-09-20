@@ -38,7 +38,7 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
 
 void FileFrameReadWorker::run()
 {
-    LOG_TRACE(frame_read_worker, "Entering FileFrameReadWorker::run()");
+    LOG_FUNC(frame_read_worker);
     try
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));

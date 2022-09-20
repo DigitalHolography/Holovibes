@@ -31,7 +31,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
-    LOG_TRACE(main, "Entering OutputHoloFile export_compute_settings()");
+    LOG_FUNC(main, input_fps, contiguous);
     LOG_DEBUG(main, "raw bitshift : {}", GSH::instance().get_raw_bitshift());
 
     try
@@ -69,7 +69,7 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 
 void OutputHoloFile::write_footer()
 {
-    LOG_TRACE(main, "Entering OutputHoloFile::write_footer()");
+    LOG_FUNC(main);
     std::string meta_data_str;
     try
     {
