@@ -1,5 +1,7 @@
 #pragma once
 
+// FIXME Check for tweakme spdlog : maybe a bad idea ?
+
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
@@ -63,11 +65,9 @@ class Logger
     static std::shared_ptr<spdlog::logger> record_worker();
     static std::shared_ptr<spdlog::logger> information_worker();
 
-    static spdlog::logger& cuda();
-    static spdlog::logger& setup();
-    static spdlog::logger& main();
-
-    static std::shared_ptr<spdlog::logger> main_ptr();
+    static std::shared_ptr<spdlog::logger> cuda();
+    static std::shared_ptr<spdlog::logger> setup();
+    static std::shared_ptr<spdlog::logger> main();
 };
 
 #define INTERNAL_CHECK_GET_FMT()
