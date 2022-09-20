@@ -45,8 +45,10 @@ void ThreadWorkerController<T>::start(Args&&... args)
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    int thread_id = std::hash<std::thread::id>{}(thread_.get_id());
-    LOG_DEBUG(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_id);
+    LOG_INFO(main,
+             "Worker of type {} started with ID: {}",
+             typeid(T).name(),
+             std::hash<std::thread::id>{}(thread_.get_id()));
 }
 
 template <WorkerDerived T>
