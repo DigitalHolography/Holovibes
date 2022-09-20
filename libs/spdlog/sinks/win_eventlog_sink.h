@@ -177,14 +177,18 @@ struct eventlog
             return EVENTLOG_SUCCESS;
 
         case level::info:
-            return EVENT // LOG_INFORMATION_TYPE;
+            return EVENTLOG_INFORMATION_TYPE;
 
-                case level::warn : return EVENT // LOG_WARNING_TYPE;
+        case level::warn:
+            return EVENTLOG_WARNING_TYPE;
 
-                                   case level::err : case level::critical : case level::off : return EVENT // LOG_ERROR_TYPE;
+        case level::err:
+        case level::critical:
+        case level::off:
+            return EVENTLOG_ERROR_TYPE;
 
-                                                                                              default
-                : return EVENT // LOG_INFORMATION_TYPE;
+        default:
+            return EVENTLOG_INFORMATION_TYPE;
         }
     }
 

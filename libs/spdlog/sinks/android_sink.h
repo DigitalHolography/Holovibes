@@ -95,12 +95,15 @@ private:
         case spdlog::level::trace:
             return ANDROID_LOG_VERBOSE;
         case spdlog::level::debug:
-            return ANDROID_                                                                                     // LOG_DEBUG;
-                case spdlog::level::info : return ANDROID_                                                      // LOG_INFO;
-                                           case spdlog::level::warn : return ANDROID_                           // LOG_WARN;
-                                                                      case spdlog::level::err : return ANDROID_ // LOG_ERROR;
-                                                                                                case spdlog::level::critical
-                : return ANDROID_LOG_FATAL;
+            return ANDROID_LOG_DEBUG;
+        case spdlog::level::info:
+            return ANDROID_LOG_INFO;
+        case spdlog::level::warn:
+            return ANDROID_LOG_WARN;
+        case spdlog::level::err:
+            return ANDROID_LOG_ERROR;
+        case spdlog::level::critical:
+            return ANDROID_LOG_FATAL;
         default:
             return ANDROID_LOG_DEFAULT;
         }

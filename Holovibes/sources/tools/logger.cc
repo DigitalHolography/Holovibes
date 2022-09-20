@@ -1,44 +1,42 @@
 #include "logger.hh"
 
-spdlog::logger& Logger::frame_read_worker()
+std::shared_ptr<spdlog::logger> Logger::frame_read_worker()
 {
     static auto instance = spdlog::stdout_color_mt("FrameReadWorker");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::compute_worker()
+std::shared_ptr<spdlog::logger> Logger::compute_worker()
 {
     static auto instance = spdlog::stdout_color_mt("ComputeWorker");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::record_worker()
+std::shared_ptr<spdlog::logger> Logger::record_worker()
 {
     static auto instance = spdlog::stdout_color_mt("RecordWorker");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::information_worker()
+std::shared_ptr<spdlog::logger> Logger::information_worker()
 {
     static auto instance = spdlog::stdout_color_mt("InformationWorker");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::cuda()
+std::shared_ptr<spdlog::logger> Logger::cuda()
 {
     static auto instance = spdlog::stdout_color_mt("Cuda");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::setup()
+std::shared_ptr<spdlog::logger> Logger::setup()
 {
     static auto instance = spdlog::stdout_color_mt("Setup");
-    return *instance;
+    return instance;
 }
 
-spdlog::logger& Logger::main() { return *main_ptr(); }
-
-std::shared_ptr<spdlog::logger> Logger::main_ptr()
+std::shared_ptr<spdlog::logger> Logger::main()
 {
     static auto instance = spdlog::stdout_color_mt("Main");
     return instance;
@@ -69,5 +67,5 @@ void Logger::init_logger([[maybe_unused]] bool debug_mode)
     Logger::setup().set_level(spdlog::level::trace);
     Logger::main().set_level(spdlog::level::trace);
 
-    spdlog::set_default_logger(Logger::main_ptr());
+    spdlog::set_default_logger(Logger::main());
 }

@@ -21,7 +21,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment if source location logging is not needed.
-// This will prevent spdlog from using __FILE__, __LINE__ and SPD// LOG_FUNCTION
+// This will prevent spdlog from using __FILE__, __LINE__ and SPDLOG_FUNCTION
 //
 // #define SPDLOG_NO_SOURCE_LOC
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,9 +122,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment and set to compile time level with zero cost (default is INFO).
-// Macros like SPD// LOG_DEBUG(..), SPD// LOG_INFO(..)  will expand to empty statements if not enabled
+// Macros like SPDLOG_DEBUG(..), SPDLOG_INFO(..)  will expand to empty statements if not enabled
 //
-// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,8 +134,8 @@
 // Defaults to __FUNCTION__ (should work on all compilers) if not defined.
 //
 // #ifdef __PRETTY_FUNCTION__
-// # define SPD// LOG_FUNCTION __PRETTY_FUNCTION__
+// # define SPDLOG_FUNCTION __PRETTY_FUNCTION__
 // #else
-// # define SPD// LOG_FUNCTION __FUNCTION__
+// # define SPDLOG_FUNCTION __FUNCTION__
 // #endif
 ///////////////////////////////////////////////////////////////////////////////

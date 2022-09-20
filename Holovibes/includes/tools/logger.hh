@@ -31,12 +31,12 @@
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
-#define LOG_TRACE(log, ...) Logger::log().trace(__VA_ARGS__)
-#define LOG_DEBUG(log, ...) Logger::log().debug(__VA_ARGS__)
-#define LOG_INFO(log, ...) Logger::log().info(__VA_ARGS__)
-#define LOG_WARN(log, ...) Logger::log().warn(__VA_ARGS__)
-#define LOG_ERROR(log, ...) Logger::log().error(__VA_ARGS__)
-#define LOG_CRITICAL(log, ...) Logger::log().critical(__VA_ARGS__)
+#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(Logger::log(), __VA_ARGS__)
+#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(Logger::log(), __VA_ARGS__)
+#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(Logger::log(), __VA_ARGS__)
+#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(Logger::log(), __VA_ARGS__)
+#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(Logger::log(), __VA_ARGS__)
+#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(Logger::log(), __VA_ARGS__)
 
 static constexpr inline const char* const get_file_name(const char* path)
 {
@@ -56,16 +56,17 @@ static constexpr inline const char* const get_file_name(const char* path)
 class Logger
 {
   public:
-    static void init_logger(bool debug_mode);
+    static void init_logger();
 
-    static spdlog::logger& frame_read_worker();
-    static spdlog::logger& compute_worker();
-    static spdlog::logger& record_worker();
-    static spdlog::logger& information_worker();
+    static std::shared_ptr<spdlog::logger> frame_read_worker();
+    static std::shared_ptr<spdlog::logger> compute_worker();
+    static std::shared_ptr<spdlog::logger> record_worker();
+    static std::shared_ptr<spdlog::logger> information_worker();
 
     static spdlog::logger& cuda();
     static spdlog::logger& setup();
     static spdlog::logger& main();
+
     static std::shared_ptr<spdlog::logger> main_ptr();
 };
 
@@ -81,9 +82,10 @@ class Logger
     {                                                                                                                  \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            Logger::main().critical("{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                      \
-                                    __FILE__,                                                                          \
-                                    __LINE__ INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                    \
+            LOG_CRITICAL(main,                                                                                         \
+                         "{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                                 \
+                         __FILE__,                                                                                     \
+                         __LINE__ INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                               \
             abort();                                                                                                   \
         }                                                                                                              \
     }
