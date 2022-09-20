@@ -28,7 +28,7 @@
 #define INTERNAL_LOGGER_GET_ARGS_(fmt, ...) __VA_OPT__(, __VA_ARGS__)
 #define INTERNAL_LOGGER_GET_ARGS(...) __VA_OPT__(INTERNAL_LOGGER_GET_ARGS_(__VA_ARGS__))
 
-#define LOGGER_PATTERN "%^[%l] [%H:%M:%S.%e] [thread %t]%$ %n >> %v"
+#define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [thread %t]%$ %n >> %v"
 
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
