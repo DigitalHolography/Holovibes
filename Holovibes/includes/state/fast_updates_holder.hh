@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "fast_updates_types.hh"
+#include "spdlog/fmt/ostr.h"
 #include "logger.hh"
 
 namespace holovibes
@@ -37,9 +38,7 @@ class FastUpdatesHolder
 
         map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
 
-        std::ostringstream map_key_oss;
-        map_key_oss << map_[key];
-        LOG_DEBUG(main, "New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_key_oss.str());
+        LOG_DEBUG(main, "New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(),  map_[key]);
 
         return map_[key];
     }
