@@ -6,7 +6,6 @@
 #include <stdexcept>
 
 #include "fast_updates_types.hh"
-#include "spdlog/fmt/ostr.h"
 #include "logger.hh"
 
 namespace holovibes
