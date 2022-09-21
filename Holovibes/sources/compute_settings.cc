@@ -118,12 +118,12 @@ void load_compute_settings(const std::string& json_path)
 
     json_to_compute_settings(j_cs);
 
-    LOG_DEBUG(main, "Compute settings loaded from : {}", json_path);
+    LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 
     after_load_checks();
     pipe_refresh();
 
-    LOG_DEBUG(main, "Compute settings loaded from : {}", json_path);
+    LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 }
 
 // clang-format off

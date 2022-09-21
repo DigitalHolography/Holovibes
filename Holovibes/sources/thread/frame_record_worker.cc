@@ -53,6 +53,7 @@ size_t FrameRecordWorker::compute_fps_average() const
 
 void FrameRecordWorker::run()
 {
+    LOG_FUNC(record_worker)
     // Progress recording FastUpdatesHolder entry
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);

@@ -88,7 +88,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
-        LOG_INFO(main, "TODO");
+        LOG_INFO(main, "Imported file {}", filename.c_str());
     }
 
     // Resizing horizontally the window before starting
