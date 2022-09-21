@@ -7,6 +7,7 @@
 
 #include "gpib_controller.hh"
 #include "gpib_exceptions.hh"
+#include <spdlog/spdlog.h>
 
 namespace gpib
 {
@@ -71,7 +72,7 @@ void VisaInterface::initialize_instrument(const unsigned address)
                              &(pimpl_->sessions_.back().first));
     if (pimpl_->status_ != VI_SUCCESS)
     {
-        std::cerr << "[GPIB] Could not set up connection with instrument " << address << std::endl;
+        spdlog::get("Setup")->error("[GPIB] Could not set up connection with instrument {}", address);
         throw GpibInstrError(boost::lexical_cast<std::string>(address));
     }
 
@@ -153,7 +154,9 @@ void VisaInterface::close_line()
      * and so that a connection was set up.
      */
     if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
-        std::cerr << "[GPIB] Could not close connection to VISA driver." << std::endl;
+    {
+        spdlog::get("Setup")->error("[GPIB] Could not close connection to VISA driver");
+    }
 }
 
 IVisaInterface* new_gpib_controller() { return new VisaInterface(); }

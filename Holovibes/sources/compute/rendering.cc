@@ -1,7 +1,7 @@
 #include "rendering.hh"
 #include "frame_desc.hh"
 #include "icompute.hh"
-#include "compute_descriptor.hh"
+
 #include "concurrent_deque.hh"
 #include "contrast_correction.cuh"
 #include "chart.cuh"
@@ -9,6 +9,7 @@
 #include "percentile.cuh"
 #include "map.cuh"
 #include "cuda_memory.cuh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -49,6 +50,8 @@ Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
+    LOG_FUNC(compute_worker);
+
     if (view_cache_.get_fft_shift_enabled())
     {
         if (view_cache_.get_img_type() == ImgType::Composite)
@@ -68,6 +71,8 @@ void Rendering::insert_fft_shift()
 
 void Rendering::insert_chart()
 {
+    LOG_FUNC(compute_worker);
+
     if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
     {
         fn_compute_vect_.conditional_push_back(
@@ -100,6 +105,8 @@ void Rendering::insert_chart()
 
 void Rendering::insert_log()
 {
+    LOG_FUNC(compute_worker);
+
     if (view_cache_.get_xy().log_scale_slice_enabled)
         insert_main_log();
     if (view_cache_.get_cuts_view_enabled())
@@ -113,6 +120,8 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 std::atomic<bool>& autocontrast_slice_yz_request,
                                 std::atomic<bool>& autocontrast_filter2d_request)
 {
+    LOG_FUNC(compute_worker);
+
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
                                 autocontrast_slice_xz_request,
@@ -139,6 +148,8 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
 
 void Rendering::insert_main_log()
 {
+    LOG_FUNC(compute_worker);
+
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
@@ -150,6 +161,8 @@ void Rendering::insert_main_log()
 }
 void Rendering::insert_slice_log()
 {
+    LOG_FUNC(compute_worker);
+
     if (view_cache_.get_xz().log_scale_slice_enabled)
     {
         fn_compute_vect_.conditional_push_back(
@@ -176,6 +189,8 @@ void Rendering::insert_slice_log()
 
 void Rendering::insert_filter2d_view_log()
 {
+    LOG_FUNC(compute_worker);
+
     if (GSH::instance().get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back(
@@ -191,6 +206,8 @@ void Rendering::insert_filter2d_view_log()
 
 void Rendering::insert_apply_contrast(WindowKind view)
 {
+    LOG_FUNC(compute_worker);
+
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
@@ -246,6 +263,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                             std::atomic<bool>& autocontrast_slice_yz_request,
                                             std::atomic<bool>& autocontrast_filter2d_request)
 {
+    LOG_FUNC(compute_worker);
+
     // requested check are inside the lambda so that we don't need to
     // refresh the pipe at each autocontrast
     auto lambda_autocontrast = [&]()
@@ -301,6 +320,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
 void Rendering::autocontrast_caller(
     float* input, const uint width, const uint height, const uint offset, WindowKind view)
 {
+    LOG_FUNC(compute_worker);
+
     constexpr uint percent_size = 2;
 
     const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),

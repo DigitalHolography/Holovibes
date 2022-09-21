@@ -1,6 +1,6 @@
+
 #include "pipe.hh"
 
-#include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
@@ -106,9 +106,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
         // If refresh() fails the compute descriptor settings will be
         // changed to something that should make refresh() work
         // (ex: lowering the GPU memory usage)
-        LOG_WARN << "Pipe refresh failed, trying one more time with updated "
-                    "compute descriptor";
-        LOG_WARN << "Exception: " << e.what();
+        LOG_WARN(compute_worker, "Pipe refresh failed, trying one more time with updated compute descriptor");
+        LOG_WARN(compute_worker, "Exception: {}", e.what());
         try
         {
             refresh();
@@ -117,8 +116,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
         {
             // If it still didn't work holovibes is probably going to freeze
             // and the only thing you can do is restart it manually
-            LOG_ERROR << "Pipe could not be initialized, You might want to restart holovibes";
-            LOG_ERROR << "Exception: " << e.what();
+            LOG_ERROR(compute_worker, "Pipe could not be initialized, You might want to restart holovibes");
+            LOG_ERROR(compute_worker, "Exception: {}", e.what());
             throw e;
         }
     }
@@ -136,18 +135,24 @@ bool Pipe::make_requests()
     /* Free buffers */
     if (disable_convolution_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_convolution_requested");
+
         postprocess_->dispose();
         disable_convolution_requested_ = false;
     }
 
     if (request_disable_lens_view_)
     {
+        LOG_DEBUG(compute_worker, "request_disable_lens_view");
+
         fourier_transforms_->get_lens_queue().reset(nullptr);
         request_disable_lens_view_ = false;
     }
 
     if (disable_raw_view_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_raw_view_requested");
+
         gpu_raw_view_queue_.reset(nullptr);
         GSH::instance().set_raw_view_enabled(false);
         disable_raw_view_requested_ = false;
@@ -155,6 +160,8 @@ bool Pipe::make_requests()
 
     if (disable_filter2d_view_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_filter2D_view_requested");
+
         gpu_filter2d_view_queue_.reset(nullptr);
         GSH::instance().set_filter2d_view_enabled(false);
         disable_filter2d_view_requested_ = false;
@@ -162,12 +169,16 @@ bool Pipe::make_requests()
 
     if (request_delete_time_transformation_cuts_)
     {
+        LOG_DEBUG(compute_worker, "request_delete_time_transformation_cuts");
+
         dispose_cuts();
         request_delete_time_transformation_cuts_ = false;
     }
 
     if (disable_chart_display_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_chart_display_requested");
+
         chart_env_.chart_display_queue_.reset(nullptr);
         GSH::instance().set_chart_display_enabled(false);
         disable_chart_display_requested_ = false;
@@ -175,6 +186,8 @@ bool Pipe::make_requests()
 
     if (disable_chart_record_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_chart_record_requested");
+
         chart_env_.chart_record_queue_.reset(nullptr);
         GSH::instance().set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
@@ -183,6 +196,8 @@ bool Pipe::make_requests()
 
     if (disable_frame_record_requested_)
     {
+        LOG_DEBUG(compute_worker, "disable_frame_record_requested");
+
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
         GSH::instance().set_frame_record_enabled(false);
@@ -194,12 +209,16 @@ bool Pipe::make_requests()
     /* Allocate buffer */
     if (convolution_requested_)
     {
+        LOG_DEBUG(compute_worker, "convolution_requested");
+
         postprocess_->init();
         convolution_requested_ = false;
     }
 
     if (output_resize_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG(compute_worker, "output_resize_requested");
+
         gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
         output_resize_requested_ = std::nullopt;
     }
@@ -207,25 +226,31 @@ bool Pipe::make_requests()
     // Updating number of images
     if (update_time_transformation_size_requested_)
     {
+        LOG_DEBUG(compute_worker, "update_time_transformation_size_requested");
+
         if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
         {
             success_allocation = false;
             GSH::instance().set_p_index(0);
             GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
-            LOG_WARN << "Updating #img failed, #img updated to 1";
+            LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
         }
         update_time_transformation_size_requested_ = false;
     }
 
     if (request_update_time_transformation_stride_)
     {
+        LOG_DEBUG(compute_worker, "request_update_time_transformation_stride");
+
         batch_env_.batch_index = 0;
         request_update_time_transformation_stride_ = false;
     }
 
     if (request_update_batch_size_)
     {
+        LOG_DEBUG(compute_worker, "request_update_batch_size");
+
         update_spatial_transformation_parameters();
         gpu_input_queue_.resize(compute_cache_.get_batch_size());
         request_update_batch_size_ = false;
@@ -233,6 +258,8 @@ bool Pipe::make_requests()
 
     if (request_time_transformation_cuts_)
     {
+        LOG_DEBUG(compute_worker, "request_time_transformation_cuts");
+
         init_cuts();
         request_time_transformation_cuts_ = false;
     }
@@ -241,12 +268,16 @@ bool Pipe::make_requests()
 
     if (request_clear_img_accu)
     {
+        LOG_DEBUG(compute_worker, "request_clear_img_accu");
+
         image_accumulation_->clear();
         request_clear_img_accu = false;
     }
 
     if (raw_view_requested_)
     {
+        LOG_DEBUG(compute_worker, "raw_view_requested");
+
         auto fd = gpu_input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
         GSH::instance().set_raw_view_enabled(true);
@@ -255,6 +286,8 @@ bool Pipe::make_requests()
 
     if (filter2d_view_requested_)
     {
+        LOG_DEBUG(compute_worker, "filter2d_view_requested");
+
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
         GSH::instance().set_filter2d_view_enabled(true);
@@ -263,6 +296,8 @@ bool Pipe::make_requests()
 
     if (chart_display_requested_)
     {
+        LOG_DEBUG(compute_worker, "chart_display_requested");
+
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
         GSH::instance().set_chart_display_enabled(true);
         chart_display_requested_ = false;
@@ -270,6 +305,8 @@ bool Pipe::make_requests()
 
     if (chart_record_requested_.load() != std::nullopt)
     {
+        LOG_DEBUG(compute_worker, "chart_record_requested");
+
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
         GSH::instance().set_chart_record_enabled(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
@@ -278,7 +315,7 @@ bool Pipe::make_requests()
 
     if (hologram_record_requested_)
     {
-        LOG_DEBUG << "Hologram Record Request Processing";
+        LOG_DEBUG(compute_worker, "Hologram Record Request Processing");
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -286,21 +323,25 @@ bool Pipe::make_requests()
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
+        LOG_DEBUG(compute_worker, "Hologram Record Request Processed");
     }
 
     if (raw_record_requested_)
     {
-        LOG_DEBUG << "Raw Record Request Processing";
+        LOG_DEBUG(compute_worker, "Raw Record Request Processing");
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = false;
+        LOG_DEBUG(compute_worker, "Raw Record Request Processed");
     }
 
     if (cuts_record_requested_)
     {
+        LOG_DEBUG(compute_worker, "cuts_record_requested");
+
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
 
         fd_xyz.depth = sizeof(ushort);
@@ -475,8 +516,9 @@ void Pipe::update_batch_index()
         [&]()
         {
             batch_env_.batch_index += compute_cache_.get_batch_size();
-            CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride())
-                << "batch_index = " << batch_env_.batch_index;
+            CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride(),
+                  "batch_index = {}",
+                  batch_env_.batch_index);
         });
 }
 
@@ -668,7 +710,8 @@ void Pipe::exec()
         }
         catch (CustomException& e)
         {
-            pipe_error(1, e);
+            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
+            throw;
         }
     }
 }

@@ -8,7 +8,9 @@ struct ExampleCache
         get_example();
     };
 
-    ExampleCache::Cache { 
-		void synchronize();
-		get_example(); };
+    ExampleCache::Cache
+    {
+        void synchronize();
+        get_example();
+    };
 };

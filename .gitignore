@@ -65,3 +65,7 @@ setupCreator.iss
 # Python venv
 .venv/
 venv/
+
+
+# spdlog
+libs/spdlog/build

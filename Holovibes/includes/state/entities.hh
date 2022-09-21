@@ -32,22 +32,23 @@ struct TimeTransformationSizeCommand
     unsigned int value;
 };
 
+template <typename T = int>
 struct Span
 {
-    const float min;
-    const float max;
+    const T min;
+    const T max;
 };
 
 struct HSVSpan
 {
-    const Span h;
-    const Span s;
-    const Span v;
+    const Span<unsigned int> h;
+    const Span<unsigned int> s;
+    const Span<unsigned int> v;
 };
 
 struct RGB
 {
-    const Span p;
+    const Span<int> p;
     const float r;
     const float g;
     const float b;

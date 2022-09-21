@@ -54,6 +54,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
     CHECK(gpu_input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
+    file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
     file_read_worker_controller_
         .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
@@ -76,7 +77,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Camera library cannot be loaded. (Exception: " << e.what() << ')';
+        LOG_ERROR(main, "Camera library cannot be loaded. (Exception: {})", e.what());
         throw;
     }
 
@@ -89,12 +90,13 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
+        camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
         camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
     }
     catch (std::exception& e)
     {
-        LOG_ERROR << "Error at camera frame read start worker. (Exception: " << e.what() << ')';
+        LOG_ERROR(main, "Error at camera frame read start worker. (Exception: {})", e.what());
         stop_frame_read();
         throw;
     }
@@ -102,7 +104,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
 void Holovibes::stop_frame_read()
 {
-    LOG_TRACE << "Entering Holovibes::stop_frame_read()";
+    LOG_FUNC(main);
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();
@@ -124,11 +126,12 @@ void Holovibes::start_frame_record(const std::string& path,
 {
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
-        LOG_ERROR << "[RECORDER] Batch size must be lower than record queue size";
+        LOG_ERROR(main, "[RECORDER] Batch size must be lower than record queue size");
         return;
     }
 
     frame_record_worker_controller_.set_callback(callback);
+    frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
@@ -144,6 +147,7 @@ void Holovibes::start_chart_record(const std::string& path,
                                    const std::function<void()>& callback)
 {
     chart_record_worker_controller_.set_callback(callback);
+    chart_record_worker_controller_.set_error_callback(error_callback_);
     chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     chart_record_worker_controller_.start(path, nb_points_to_record);
 }
@@ -158,6 +162,7 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
 {
     batch_gpib_worker_controller_.stop();
     batch_gpib_worker_controller_.set_callback(callback);
+    batch_gpib_worker_controller_.set_error_callback(error_callback_);
     batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     batch_gpib_worker_controller_.start(batch_input_path,
                                         output_path,
@@ -171,6 +176,7 @@ void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
 void Holovibes::start_information_display(const std::function<void()>& callback)
 {
     info_worker_controller_.set_callback(callback);
+    info_worker_controller_.set_error_callback(error_callback_);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     info_worker_controller_.start();
 }
@@ -179,7 +185,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::init_pipe()
 {
-    LOG_TRACE << "Entering Holovibes::init_pipe()";
+    LOG_FUNC(main);
 
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
@@ -198,12 +204,12 @@ void Holovibes::init_pipe()
                                                    *(gpu_output_queue_.load()),
                                                    get_cuda_streams().compute_stream));
     }
-    LOG_TRACE << "Exiting Holovibes::init_pipe()";
 }
 
 void Holovibes::start_compute_worker(const std::function<void()>& callback)
 {
     compute_worker_controller_.set_callback(callback);
+    compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
     compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 }
@@ -211,11 +217,11 @@ void Holovibes::start_compute_worker(const std::function<void()>& callback)
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
     /**
-     * TODO change the assert by the CHECK macro, but we don't know yet if it's a strict equivalent of it.
+     * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
      * Here is a suggestion :
-     * CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
+     * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
      */
-    CHECK(gpu_input_queue_.load() != nullptr) << "Input queue not initialized";
+    CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
 
     try
     {
@@ -223,7 +229,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
         return;
     }
 

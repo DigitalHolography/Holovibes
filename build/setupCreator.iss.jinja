@@ -80,12 +80,15 @@ Source: "{#cudaPath}\bin\cusolver64_11.dll"; DestDir: "{app}\{#MyAppVersion}";Co
 Source: "{#cudaPath}\bin\cudart64_110.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 
 Source: "Camera\configs\*.ini"; DestDir: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"; Components: program; Flags: ignoreversion recursesubdirs
+Source: "Camera\configs\bfml\*.bfml"; DestDir: "{userappdata}\{#MyAppName}\{#MyAppVersion}\bfml"; Components: program; Flags: ignoreversion recursesubdirs
 
 Source: "resources\setup_creator_files\vcredist_2019_x64.exe"; DestDir: "{tmp}"; Components: visual; Flags: nocompression ignoreversion;
 
 [Dirs]
 Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}"
 Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\cameras_config"
+Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\bfml"
+Name: "{userappdata}\{#MyAppName}\{#MyAppVersion}\logs"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\{#MyAppVersion}"

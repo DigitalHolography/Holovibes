@@ -16,8 +16,8 @@ cublasHandle_t& CublasHandle::instance()
 {
     if (!initialized_)
     {
-        auto status = cublasCreate_v2(&handle_);
-        CHECK(status == CUBLAS_STATUS_SUCCESS) << "Could not create cublas handle";
+        [[maybe_unused]] auto status = cublasCreate_v2(&handle_);
+        CHECK(status == CUBLAS_STATUS_SUCCESS, "Could not create cublas handle");
         initialized_ = true;
     }
     return handle_;

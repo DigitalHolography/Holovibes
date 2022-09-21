@@ -13,6 +13,7 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
+
 #include "cli.hh"
 #include "global_state_holder.hh"
 
@@ -53,7 +54,7 @@ static void check_cuda_graphic_card(bool gui)
     }
     else
     {
-        LOG_WARN << error_message;
+        LOG_CRITICAL(setup, "{}", error_message);
     }
     std::exit(1);
 }
@@ -79,13 +80,15 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::gui::MainWindow window;
     window.show();
     splash.finish(&window);
-    holovibes.get_cd().register_observer(window);
+
+    // Set callbacks
+    holovibes::GSH::instance().set_notify_callback([&]() { window.notify(); });
+    holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
     if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
-        // TODO: to restore
-        LOG_INFO << "TODO";
+        LOG_INFO(main, "Imported file {}", filename.c_str());
     }
 
     // Resizing horizontally the window before starting
@@ -94,29 +97,21 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     return app.exec();
 }
 
-static void print_version() { std::cerr << "Holovibes " << __HOLOVIBES_VERSION__; }
+static void print_version() { std::cout << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
 static void print_help(holovibes::OptionsParser parser)
 {
     print_version();
-    std::cerr << std::endl << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
-    std::cerr << parser.get_opts_desc();
+    std::cout << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cout << parser.get_opts_desc();
 }
 
 int main(int argc, char* argv[])
 {
 
-#ifndef _DEBUG
-    // Put every log message in "everything.log":
-    loguru::add_file(holovibes::settings::everything_log_path.c_str(), loguru::Append, loguru::Verbosity_MAX);
+    // FIXME add logging in log file
 
-    // Only log INFO, WARNING, ERROR and FATAL to "latest_readable.log":
-    loguru::add_file(holovibes::settings::latest_readable_path.c_str(), loguru::Truncate, loguru::Verbosity_INFO);
-
-    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
-#else
-    loguru::g_stderr_verbosity = loguru::Verbosity_MAX;
-#endif
+    LOG_INFO(main, "Start Holovibes");
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
@@ -154,7 +149,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception: " << e.what();
+        LOG_ERROR(main, "Uncaught exception: {}", e.what());
         ret = 1;
     }
 

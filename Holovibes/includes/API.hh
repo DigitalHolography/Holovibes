@@ -95,24 +95,22 @@ void enable_convolution(const std::string& file);
 void disable_convolution();
 
 /*! \brief Changes display mode to Raw */
-void set_raw_mode(Observer& observer, uint window_max_size);
+void set_raw_mode(uint window_max_size);
 
 /*! \brief Changes display mode to Holographic
  *
- * \param observer parent of the new window that can be triggered on event
  * \param window_size the size of the window
  * \return true on success
  * \return false on failure
  */
-bool set_holographic_mode(Observer& observer, ushort window_size);
+bool set_holographic_mode(ushort window_size);
 
 /*! \brief Restarts everything to change the view mode
  *
- * \param observer parent of the new window that can be triggered on event
  * \param window_size the size of the window
  * \param index the index on the new mode
  */
-void refresh_view_mode(Observer& observer, ushort window_size, uint index);
+void refresh_view_mode(ushort window_size, uint index);
 
 /*! \brief Removes time transformation from computation
  *
@@ -184,7 +182,7 @@ bool change_camera(CameraKind c);
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
 void create_holo_window(ushort window_size);
-void create_pipe(Observer& observer);
+void create_pipe();
 
 /*! \brief Modifies p accumulation
  *
@@ -247,7 +245,7 @@ void set_q_index(uint value);
  * \param composite_p_red the new value
  * \param composite_p_blue the new value
  */
-void set_composite_intervals(uint composite_p_red, uint composite_p_blue);
+void set_composite_intervals(int composite_p_red, int composite_p_blue);
 
 /*! \brief Modifies HSV Hue min frequence
  *
@@ -734,8 +732,6 @@ void start_information_display(const std::function<void()>& callback = []() {});
  */
 void open_advanced_settings(QMainWindow* parent = nullptr,
                             ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
-
-::holovibes::ComputeDescriptor& get_cd();
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

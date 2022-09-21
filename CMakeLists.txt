@@ -1,8 +1,6 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.24)
 
 project(Holovibes)
-
-set(CONAN_CMAKE_SILENT_OUTPUT ON)
 
 # Create all the FindXXX.cmake needed for the project
 set(CONAN_CMAKE_SILENT_OUTPUT ON)
@@ -12,6 +10,7 @@ set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(SPDLOG_DIR "${CONAN_SPDLOG_ROOT}/")
 
 # Used in every sub project
 find_package(Boost REQUIRED
@@ -19,6 +18,12 @@ find_package(Boost REQUIRED
 	program_options
 )
 
-add_subdirectory(Camera)
+# Add spdlog to include path || don't move it bellow
+find_package(CUDAToolkit 11.5 REQUIRED)
+find_package(spdlog REQUIRED)
+include_directories("${SPDLOG_DIR}/include")
+
+#add_subdirectory(Camera)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
+add_subdirectory(docs)

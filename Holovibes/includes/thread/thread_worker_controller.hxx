@@ -2,6 +2,8 @@
 
 #include "thread_worker_controller.hh"
 
+#include "logger.hh"
+
 namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
@@ -19,6 +21,12 @@ inline void ThreadWorkerController<T>::set_callback(std::function<void()> callba
 }
 
 template <WorkerDerived T>
+inline void ThreadWorkerController<T>::set_error_callback(std::function<void(const std::exception&)> error_callback)
+{
+    error_callback_ = error_callback;
+}
+
+template <WorkerDerived T>
 inline void ThreadWorkerController<T>::set_priority(int priority)
 {
     SetThreadPriority(thread_.native_handle(), priority);
@@ -32,12 +40,12 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     MutexGuard m_guard(mutex_);
 
-    LOG_TRACE << "Starting Worker of type " << typeid(T).name();
+    LOG_DEBUG(main, "Starting Worker of type {}", typeid(T).name());
 
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    // LOG_TRACE << "Worker of type " << typeid(T).name() << " started with ID: " << thread_.get_id();
+    LOG_INFO(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
 }
 
 template <WorkerDerived T>
@@ -64,7 +72,7 @@ void ThreadWorkerController<T>::run()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << "Uncaught exception in Worker of type " << typeid(T).name() << " : " << e.what();
+        LOG_ERROR(main, "Uncaught exception in Worker of type {} : {}", typeid(T).name(), e.what());
         throw;
     }
 

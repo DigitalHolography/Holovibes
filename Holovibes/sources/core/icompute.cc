@@ -9,7 +9,7 @@
 #include "chart.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
-#include "compute_descriptor.hh"
+
 #include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
@@ -104,7 +104,6 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
-    unsigned int err_count = 0;
     time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
@@ -157,22 +156,18 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
          * on opengl to work */
         time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
     }
-    catch (std::exception&)
+    catch (const std::exception& e)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
         request_time_transformation_cuts_ = false;
         request_delete_time_transformation_cuts_ = true;
         dispose_cuts();
-        err_count++;
-    }
-
-    if (err_count != 0)
-    {
-        pipe_error(err_count, UpdateException("error in update_time_transformation_size(time_transformation_size)"));
+        LOG_ERROR(compute_worker,
+                  "error in update_time_transformation_size(time_transformation_size) message: {}",
+                  e.what());
         return false;
     }
 
-    notify_observers();
     return true;
 }
 
@@ -272,13 +267,16 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
 
+/*
+    FIXME: Need to delete because of merge ?
 void ICompute::pipe_error(const int& err_count, const std::exception& e)
 {
-    LOG_ERROR << "Pipe error: ";
-    LOG_ERROR << "  message: " << e.what();
-    LOG_ERROR << "  err_count: " << err_count;
+    LOG_ERROR(compute_worker, "Pipe error: ");
+    LOG_ERROR(compute_worker, "  message: {}", e.what());
+    LOG_ERROR(compute_worker, "  err_count: {}", err_count);
     notify_error_observers(e);
 }
+*/
 
 void ICompute::soft_request_refresh()
 {

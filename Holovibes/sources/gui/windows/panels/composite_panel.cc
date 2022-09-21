@@ -20,7 +20,6 @@ CompositePanel::~CompositePanel() {}
 void CompositePanel::on_notify()
 {
 
-
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);

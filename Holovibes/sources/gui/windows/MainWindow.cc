@@ -14,6 +14,7 @@
 #include "accumulation_exception.hh"
 #include "gui_group_box.hh"
 #include "tools.hh"
+#include "logger.hh"
 
 #include "API.hh"
 
@@ -107,8 +108,9 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO << ::holovibes::settings::compute_settings_filepath << ": Compute settings file not found. "
-                 << "Initialization with default values.";
+        LOG_INFO(main,
+                 "{}: Compute settings file not found. Initialization with default values.",
+                 ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
@@ -149,10 +151,6 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
-
-    GSH::instance().set_update_view_callback(
-        [&](WindowKind kind, View_Window window)
-        { synchronize_thread([&]() { ui_->ViewPanel->view_callback(kind, window); }); });
 }
 
 MainWindow::~MainWindow()
@@ -230,8 +228,7 @@ void MainWindow::notify_error(const std::exception& e)
                 api::handle_update_exception();
                 api::close_windows();
                 api::close_critical_compute();
-                LOG_ERROR << "GPU computing error occured.";
-                LOG_ERROR << e.what();
+                LOG_ERROR(main, "GPU computing error occured. : {}", e.what());
                 notify();
             };
             synchronize_thread(lambda);
@@ -245,16 +242,14 @@ void MainWindow::notify_error(const std::exception& e)
             }
             api::close_critical_compute();
 
-            LOG_ERROR << "GPU computing error occured.";
-            LOG_ERROR << e.what();
+            LOG_ERROR(main, "GPU computing error occured. : {}", e.what());
             notify();
         };
         synchronize_thread(lambda);
     }
     else
     {
-        LOG_ERROR << "Unknown error occured.";
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Unknown error occured. : {}", e.what());
     }
 }
 
@@ -345,8 +340,9 @@ void MainWindow::load_gui()
     }
     catch (json::parse_error)
     {
-        LOG_INFO << ::holovibes::settings::user_settings_filepath << ": User settings file not found. "
-                 << "Initialization with default values.";
+        LOG_INFO(main,
+                 "{} : User settings file not found. Initialization with default values.",
+                 ::holovibes::settings::user_settings_filepath);
         save_gui();
         return;
     }
@@ -422,7 +418,7 @@ void MainWindow::save_gui()
     std::ofstream file(path);
     file << j_us.dump(1);
 
-    LOG_INFO << "user settings overwritten at " << path;
+    LOG_INFO(main, "user settings overwritten at {}", path);
 }
 
 #pragma endregion
@@ -492,7 +488,7 @@ void MainWindow::configure_camera() { api::configure_camera(); }
 void MainWindow::refresh_view_mode()
 {
     // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(*this, window_max_size, ui_->ViewModeComboBox->currentIndex());
+    api::refresh_view_mode(window_max_size, ui_->ViewModeComboBox->currentIndex());
 
     notify();
     layout_toggled();
@@ -528,7 +524,7 @@ void MainWindow::set_view_image_type(const QString& value)
 {
     if (api::get_compute_mode() == Computation::Raw)
     {
-        LOG_ERROR << "Cannot set view image type in raw mode";
+        LOG_ERROR(main, "Cannot set view image type in raw mode");
         return;
     }
 

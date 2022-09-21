@@ -6,12 +6,12 @@ bump2version==1.0.1
 certifi==2021.10.8
 charset-normalizer==2.0.9
 colorama==0.4.4
-conan==1.42.2
+conan==1.52.0
 distro==1.6.0
 fasteners==0.16.3
 idna==3.3
 iniconfig==1.1.1
-Jinja2==2.11.3
+Jinja2>=3.0
 MarkupSafe==2.0.1
 node-semver==0.6.1
 numpy==1.19.3
@@ -23,7 +23,7 @@ pluggy==1.0.0
 pluginbase==1.0.1
 py==1.11.0
 Pygments==2.10.0
-PyJWT==1.7.1
+PyJWT>=2.4.0
 pyparsing==3.0.6
 pytest==6.2.5
 python-dateutil==2.8.2

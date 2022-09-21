@@ -18,6 +18,8 @@ Some cameras needs there own libraries to be used:
 
 #### Install a compiler
 
+Please specify the compiler you have choosen with an option when running our dev tool documented later in the file.
+
 ##### Install MSVC (Visual Studio 2019)
 
 Install [Visual Studio 2019](https://visualstudio.microsoft.com/fr/)
@@ -54,9 +56,8 @@ To choose to build with Visual Studio (MSVC) or Clang
 
 By default *Ninja* is used but you can rely on other build systems (*Visual Studio 16*, *NMake Makefiles* or *Unix Makefiles*) with `./dev.py -g [generator]`.
 
-Alternatively, you can build from the command line (not recommended):
-* **Visual Studio**: `cmake -G "Visual Studio 14/15/16" -B build -S . -A x64 && cmake --build build --config Debug/Release`
-* **Ninja**: `cmd.exe /c call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" && cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug/Release -DCMAKE_VERBOSE_MAKEFILE=ON && cmake --build build`
+Alternatively, you can build from the command line directly calling conan:
+`conan build . -if bin/<generator> -bf bin/<generator> -sf .`
 
 Note: After changing an element of the front or to change between release/debug mode, please delete your build folder and recompile.
 
@@ -171,16 +172,16 @@ ${datetime} <${time from start}> [${Thread ID}] ${filename}:${line_in_file} ${lo
 ##### Usage
 
 We have 5 levels of log:
-* Trace (LOG_TRACE)
-* Debug (LOG_DEBUG)
-* Infos (LOG_INFO)
-* Warnings (LOG_WARN)
-* Errors (LOG_ERROR)
+* Trace (// LOG_TRACE)
+* Debug (// LOG_DEBUG)
+* Infos (// LOG_INFO)
+* Warnings (// LOG_WARN)
+* Errors (// LOG_ERROR)
 
 They are usable as std:cout and any C++ Stream.
 For instance, if a file named `config.json` is not found, you could write:
 ```cpp
-LOG_ERROR << "File named config.json could not be found";
+// LOG_ERROR << "File named config.json could not be found";
 ```
 
 ##### Assertions
@@ -192,8 +193,11 @@ CHECK(condition) << "An error occured";
 
 #### Known issues
 
+
 2021-10-04: If you encounter the issue `clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory`. You have to find the file and put it in your PATH or copy it into the build directory for it to work
 
 2021-12-03: If `./dev.py` tells you that it cannot find conan or cmake. Please check if it's in your PATH.
 
 2021-12-05: If conan tells you that the `XXX/system` package needs to be installed. Please install the package `XXX` manually on your system
+
+2021-12-22: For some reason if you put a real function name like `OutputHoloFile::export_compute_settings()` in a log statement to be printed the program may segfault with an 0x5 SEH exception.

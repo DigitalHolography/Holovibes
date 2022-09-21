@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "compute_descriptor.hh"
 #include "icamera.hh"
 #include "pipe.hh"
 
@@ -115,18 +114,7 @@ class Holovibes
      */
     std::shared_ptr<Pipe> get_compute_pipe();
 
-    /*! \return Common ComputeDescriptor */
-    ComputeDescriptor& get_cd();
-
     const CudaStreams& get_cuda_streams() const;
-
-    /*! \brief Set ComputeDescriptor options
-     *
-     * Used when options are loaded from a JSON file.
-     *
-     * \param cd ComputeDescriptor to load
-     */
-    void set_cd(const ComputeDescriptor& cd);
 
     /*! \return Corresponding Camera INI file path */
     const char* get_camera_ini_name() const;
@@ -247,6 +235,11 @@ class Holovibes
      * used to know if queues have to keep contiguity or not. */
     bool is_cli;
 
+    /*! \brief function called when some thread throws an exception */
+    std::function<void(const std::exception&)> error_callback_;
+
+    void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
+
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
@@ -271,9 +264,6 @@ class Holovibes
     std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
-
-    /*! \brief Common compute descriptor shared between CLI/GUI and the Pipe. */
-    ComputeDescriptor cd_;
 
     CudaStreams cuda_streams_;
 };

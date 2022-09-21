@@ -5,6 +5,8 @@
 #include "compute_bundles.hh"
 #include "cuda_memory.cuh"
 
+#include "logger.hh"
+
 namespace holovibes
 {
 UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t image_size, const cudaStream_t& stream)
@@ -20,6 +22,8 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t i
     , gpu_unwrapped_angle_(nullptr)
     , stream_(stream)
 {
+    LOG_FUNC(cuda, capacity, image_size);
+
     auto nb_unwrap_elts = image_size * capacity_;
 
     cudaXMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts);
@@ -35,6 +39,8 @@ UnwrappingResources::UnwrappingResources(const unsigned capacity, const size_t i
 
 UnwrappingResources::~UnwrappingResources()
 {
+    LOG_FUNC(cuda);
+
     cudaXFree(gpu_unwrap_buffer_);
     cudaXFree(gpu_predecessor_);
     cudaXFree(gpu_angle_predecessor_);
@@ -45,12 +51,16 @@ UnwrappingResources::~UnwrappingResources()
 
 void UnwrappingResources::cudaRealloc(void* ptr, const size_t size)
 {
+    LOG_FUNC(cuda, size);
+
     cudaXFree(ptr);
     cudaXMalloc(&ptr, size);
 }
 
 void UnwrappingResources::reallocate(const size_t image_size)
 {
+    LOG_FUNC(cuda, image_size);
+
     // We compare requested memory against available memory, and reallocate if
     // needed.
     if (capacity_ <= total_memory_)
@@ -70,6 +80,8 @@ void UnwrappingResources::reallocate(const size_t image_size)
 
 void UnwrappingResources::reset(const size_t capacity)
 {
+    LOG_FUNC(cuda, capacity);
+
     capacity_ = capacity;
     size_ = 0;
     next_index_ = 0;

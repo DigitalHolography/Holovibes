@@ -147,8 +147,8 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    ${opencv_LIBRARIES}
-    ${opengl_system_LIBRARY_DIRS}
+    opencv::videoio
+    opengl::opengl
 
     cufft
     cublas
@@ -194,7 +194,7 @@ find_package(Threads)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
 
     message(STATUS "TESTS: Unit tests enabled")
-    set(TEST_NAME "unit_tests")
+    set(TEST_NAME "gtests")
 
     # Create an executable with all sources and lib needed
     add_executable(${TEST_NAME} ${SRC_TESTS})
@@ -208,12 +208,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
     set_target_properties(${TEST_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
 
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} "--gtest_color=yes")
     set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
-
-    ### Pytest
-
-    #add_test(NAME "pytest" COMMAND "python -m pytest ${CMAKE_SOURCE_DIR}")
 
 else()
     message(STATUS "TESTS: Unit tests disabled in Release mode")
@@ -226,9 +222,9 @@ endif()
 # ---------------------------------------------------------------------
 
 add_executable("${PROJECT_NAME}"
-    mainwindow.ui
-    advancedsettingswindow.ui
-    plotwindow.ui
+    # mainwindow.ui
+    # advancedsettingswindow.ui
+    # plotwindow.ui
 
     Holovibes.rc
     Holovibes.qrc

@@ -28,7 +28,7 @@ using ulong = unsigned long;
 #include "hardware_limits.hh"
 #include "frame_desc.hh"
 #include "cufft.h"
-#include "checker.hh"
+
 #include "logger.hh"
 
 #include <nlohmann/json.hpp>
@@ -53,7 +53,7 @@ inline unsigned map_blocks_to_problem(const size_t problem_size, const unsigned 
     unsigned nb_blocks =
         static_cast<unsigned>(std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
 
-    CHECK(nb_blocks <= get_max_blocks()) << "Too many blocks required.";
+    CHECK(nb_blocks <= get_max_blocks(), "Too many blocks required.");
 
     return nb_blocks;
 }
@@ -154,14 +154,6 @@ void json_get(const json& data, const std::string& key, void (GSH::*setter)(T))
     auto it = data.find(key);
     if (it != data.end())
         (GSH::instance().*setter)(*it);
-}
-
-template <typename T>
-void json_get(const json& data, const std::string& key, ComputeDescriptor& cd, void (ComputeDescriptor::*setter)(T))
-{
-    auto it = data.find(key);
-    if (it != data.end())
-        (cd.*setter)(*it);
 }
 
 template <typename T>

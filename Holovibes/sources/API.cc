@@ -1,4 +1,5 @@
 #include "API.hh"
+#include "logger.hh"
 
 namespace holovibes::api
 {
@@ -16,7 +17,7 @@ void pipe_refresh()
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(compute_worker, "{}", e.what());
     }
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
@@ -139,11 +140,11 @@ bool change_camera(CameraKind c)
     }
     catch (const camera::CameraException& e)
     {
-        LOG_ERROR << "[CAMERA] " << e.what();
+        LOG_ERROR(main, "[CAMERA] {}", e.what());
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 
     return false;
@@ -168,20 +169,19 @@ void init_image_mode(QPoint& position, QSize& size)
     }
 }
 
-void create_pipe(Observer& observer)
+void create_pipe()
 {
     try
     {
         Holovibes::instance().start_compute();
-        get_compute_pipe()->register_observer(observer);
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << "cannot create Pipe: " << e.what();
+        LOG_ERROR(main, "cannot create Pipe: {}", e.what());
     }
 }
 
-void set_raw_mode(Observer& observer, uint window_max_size)
+void set_raw_mode(uint window_max_size)
 {
     QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
@@ -192,7 +192,7 @@ void set_raw_mode(Observer& observer, uint window_max_size)
     init_image_mode(pos, size);
 
     set_compute_mode(Computation::Raw);
-    create_pipe(observer); // To remove ?
+    create_pipe(); // To remove ?
 
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
@@ -232,18 +232,18 @@ void create_holo_window(ushort window_size)
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << "create_holo_window: " << e.what();
+        LOG_ERROR(main, "create_holo_window: {}", e.what());
     }
 }
 
-bool set_holographic_mode(Observer& observer, ushort window_size)
+bool set_holographic_mode(ushort window_size)
 {
     /* ---------- */
     try
     {
         set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
-        create_pipe(observer);
+        create_pipe();
         create_holo_window(window_size);
         /* Info Manager */
         auto fd = get_fd();
@@ -256,7 +256,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << "cannot set holographic mode: " << e.what();
+        LOG_ERROR(main, "cannot set holographic mode: {}", e.what());
     }
 
     return false;
@@ -264,7 +264,7 @@ bool set_holographic_mode(Observer& observer, ushort window_size)
 
 // TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
 // dictionary
-void refresh_view_mode(Observer& observer, ushort window_size, uint index)
+void refresh_view_mode(ushort window_size, uint index)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
@@ -281,7 +281,7 @@ void refresh_view_mode(Observer& observer, ushort window_size, uint index)
 
     try
     {
-        create_pipe(observer);
+        create_pipe();
         create_holo_window(window_size);
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
@@ -289,7 +289,7 @@ void refresh_view_mode(Observer& observer, ushort window_size, uint index)
     catch (const std::runtime_error& e)
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        LOG_ERROR << "refresh_view_mode: " << e.what();
+        LOG_ERROR(main, "refresh_view_mode: {}", e.what());
     }
 }
 
@@ -310,7 +310,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 #pragma endregion
 
 #pragma region Batch
-// FIXME: Same fucntion as under
+// FIXME: Same function as under
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
     if (batch_size == api::get_batch_size())
@@ -324,14 +324,16 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
         pipe->insert_fn_end_vect(notify_callback);
     }
     else
-        LOG_INFO << "COULD NOT GET PIPE" << std::endl;
+    {
+        LOG_INFO(main, "could not get pipe");
+    }
 }
 
 #pragma endregion
 
 #pragma region STFT
 
-// FIXME: Same fucntion as above
+// FIXME: Same function as above
 void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
 {
     get_compute_pipe()->insert_fn_end_vect(callback);
@@ -384,7 +386,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
     }
     catch (const std::logic_error& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 
     return false;
@@ -514,7 +516,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR << e.what();
+            LOG_ERROR(main, "Catch {}", e.what());
         }
     }
     else
@@ -635,23 +637,21 @@ void set_p_index(uint value)
     pipe_refresh();
 }
 
-void set_composite_intervals(uint composite_p_red, uint composite_p_blue)
+void set_composite_intervals(int composite_p_red, int composite_p_blue)
 {
-    GSH::instance().set_rgb_p_min(composite_p_red);
-    GSH::instance().set_rgb_p_max(composite_p_blue);
-
+    GSH::instance().set_rgb_p({composite_p_red, composite_p_blue});
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_min(uint composite_p_min_h)
 {
-    set_composite_p_min_h(composite_p_min_h);
+    GSH::instance().set_composite_p_h({composite_p_min_h, GSH::instance().get_composite_p_max_h()});
     pipe_refresh();
 }
 
 void set_composite_intervals_hsv_h_max(uint composite_p_max_h)
 {
-    set_composite_p_max_h(composite_p_max_h);
+    GSH::instance().set_composite_p_h({GSH::instance().get_composite_p_min_h(), composite_p_max_h});
     pipe_refresh();
 }
 
@@ -874,7 +874,7 @@ bool set_auto_contrast()
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 
     return false;
@@ -998,7 +998,7 @@ void enable_convolution(const std::string& filename)
     catch (const std::exception& e)
     {
         disable_convolution();
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 }
 
@@ -1015,7 +1015,7 @@ void disable_convolution()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 }
 
@@ -1095,7 +1095,7 @@ void stop_chart_display()
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
     }
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
@@ -1121,6 +1121,8 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
 void set_record_mode(const std::string& text)
 {
+    LOG_FUNC(main, text);
+
     // TODO: Dictionnary
     if (text == "Chart")
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
@@ -1149,13 +1151,13 @@ bool start_record_preconditions(const bool batch_enabled,
     if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
         nb_frames_to_record == std::nullopt)
     {
-        LOG_ERROR << "Number of frames must be activated";
+        LOG_ERROR(main, "Number of frames must be activated");
         return false;
     }
 
     if (batch_enabled && batch_input_path.empty())
     {
-        LOG_ERROR << "No batch input file";
+        LOG_ERROR(main, "No batch input file");
         return false;
     }
 
@@ -1195,6 +1197,8 @@ void start_record(const bool batch_enabled,
 
 void stop_record()
 {
+    LOG_FUNC(main);
+
     Holovibes::instance().stop_batch_gpib();
 
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
@@ -1214,6 +1218,8 @@ void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = fal
 
 void import_stop()
 {
+    LOG_FUNC(main);
+
     close_windows();
     close_critical_compute();
 
@@ -1228,6 +1234,8 @@ void import_stop()
 bool import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
+    LOG_FUNC(main, file_path, fps, first_frame, last_frame, load_file_in_gpu);
+
     set_is_computation_stopped(false);
 
     // Because we are in file mode
@@ -1247,7 +1255,7 @@ bool import_start(
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR << e.what();
+        LOG_ERROR(main, "Catch {}", e.what());
         UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();

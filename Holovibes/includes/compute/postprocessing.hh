@@ -16,7 +16,6 @@ using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
 {
-class ComputeDescriptor;
 struct CoreBuffersEnv;
 
 namespace compute

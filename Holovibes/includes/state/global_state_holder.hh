@@ -9,6 +9,8 @@
 namespace holovibes
 {
 
+using entities::Span;
+
 /*! \class GSH
  *
  * \brief The GSH (global state holder), is where all the global state of the program is stored.
@@ -20,10 +22,14 @@ namespace holovibes
  * the GSH. This guarantees that only needed data is accessed to, and grants better code readability.
  * The same principle is applied to changes comming from the API, which come in the form of structured Commands.
  *
- * MicroCache : local state holder belonging to each worker. Previously, each worker had to fetch data at the same
- * place ; therefore, all variables had to be atomic, with the aim to be thread safe. In order to avoid that, each
- * worker now possess MicroCaches, containing all the state they need. Those MicroCaches are accessed only by their
- * worker, and are synchronized with the GSH when each worker chooses to (using a trigger system).
+ * MicroCache : local state holder belonging to a worker. Previously, each worker had to fetch data at the same
+ * place ; therefore, all variables had to be atomic, with the aim to be thread safe. Furthermore, since global state
+ * was used in the pipe, directly modifying the state was often not possible (changing operations or variables which
+ * have impact on buffers'size would have caused incoherent computations and/or segfaults and undefined behaviors). The
+ * ComputeWorker now possess MicroCaches, containing all the state it needs. Those MicroCaches are accessed only by
+ * their worker, and are synchronized with the GSH when each worker chooses to (using a trigger system). The
+ * implementation of MicroCaches enabled the direct modification of the state, since the state used in the pipe is now
+ * desynchronized from the GSH.
  * More informations and explanations concerning their synchronization with the GSH are provided in files micro-cache.hh
  * and micro-cache.hxx.
  *
@@ -219,6 +225,7 @@ class GSH
     inline Composite_HSV get_hsv() const noexcept { return composite_cache_.get_hsv(); }
     inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.p_min; }
     inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.p_max; }
+
     inline float get_slider_h_threshold_min() const noexcept
     {
         return composite_cache_.get_hsv().h.slider_threshold_min;
@@ -332,7 +339,11 @@ class GSH
 
     inline void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
     inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
-    inline void set_p_index(uint value) noexcept { view_cache_.get_p_ref()->index = value; }
+    inline void set_p_index(uint value) noexcept
+    {
+        view_cache_.get_p_ref()->index = value;
+        notify_callback_();
+    }
 
     inline void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
@@ -506,8 +517,8 @@ class GSH
     // RGB
     inline void set_rgb(Composite_RGB value) { composite_cache_.set_rgb(value); }
 
-    inline void set_rgb_p_min(int value) { composite_cache_.get_rgb_ref()->p_min = value; }
-    inline void set_rgb_p_max(int value) { composite_cache_.get_rgb_ref()->p_max = value; }
+    void set_rgb_p(Span<int> span, bool notify = false);
+
     inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight_r = value; }
     inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight_g = value; }
     inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight_b = value; }
@@ -515,9 +526,9 @@ class GSH
     void set_weight_rgb(int r, int g, int b);
 
     // HSV
+    void set_composite_p_h(Span<uint> span, bool notify = false);
+
     inline void set_hsv(Composite_HSV value) { composite_cache_.set_hsv(value); }
-    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref()->h.p_min = value; }
-    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref()->h.p_max = value; }
     inline void set_slider_h_threshold_min(float value)
     {
         composite_cache_.get_hsv_ref()->h.slider_threshold_min = value;
@@ -601,9 +612,7 @@ class GSH
     const View_Window& get_current_window() const;
     const View_Window& get_window(WindowKind kind) const;
 
-    void set_update_view_callback(std::function<void(WindowKind, View_Window)> func) { update_view_callback_ = func; }
-
-    void update_view(WindowKind kind) const { update_view_callback_(kind, get_window(kind)); }
+    void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
 
     void update_contrast(WindowKind kind, float min, float max);
 
@@ -613,7 +622,8 @@ class GSH
     std::shared_ptr<holovibes::View_Window> get_window(WindowKind kind);
     std::shared_ptr<holovibes::View_Window> get_current_window();
 
-    std::function<void(WindowKind, View_Window)> update_view_callback_ = [](auto, auto) {};
+    void notify() { notify_callback_(); }
+    std::function<void()> notify_callback_ = []() {};
 
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;
