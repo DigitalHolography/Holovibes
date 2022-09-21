@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
 
     // FIXME add logging in log file
 
-    Logger::init_logger();
     LOG_INFO(main, "Start Holovibes");
 
     holovibes::OptionsParser parser;

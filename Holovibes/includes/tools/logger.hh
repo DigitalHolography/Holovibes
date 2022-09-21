@@ -2,16 +2,20 @@
 
 // FIXME Check for tweakme spdlog : maybe a bad idea ?
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-
-#include <string>
-
 #include <exception>
 #include <fstream>
-#include <sstream>
 #include <functional>
 #include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "holovibes_config.hh"
+#include "spdlog/fmt/ostr.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 // FROM : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 #define PARENS ()
@@ -55,21 +59,6 @@ static constexpr inline const char* const get_file_name(const char* path)
               get_file_name(__FILE__),                                                                                 \
               __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
 
-class Logger
-{
-  public:
-    static void init_logger();
-
-    static std::shared_ptr<spdlog::logger> frame_read_worker();
-    static std::shared_ptr<spdlog::logger> compute_worker();
-    static std::shared_ptr<spdlog::logger> record_worker();
-    static std::shared_ptr<spdlog::logger> information_worker();
-
-    static std::shared_ptr<spdlog::logger> cuda();
-    static std::shared_ptr<spdlog::logger> setup();
-    static std::shared_ptr<spdlog::logger> main();
-};
-
 #define INTERNAL_CHECK_GET_FMT()
 #define INTERNAL_CHECK_GET_FMT(fmt) fmt
 #define INTERNAL_CHECK_GET_FMT(fmt, ...) fmt
@@ -95,3 +84,32 @@ class Logger
         LOG_CRITICAL(cuda, "{}:{} " fmt, file, line, __VA_ARGS__);                                                     \
         abort();                                                                                                       \
     }
+
+class Logger
+{
+  public:
+    static void init_logger();
+
+    static std::shared_ptr<spdlog::logger> frame_read_worker();
+    static std::shared_ptr<spdlog::logger> compute_worker();
+    static std::shared_ptr<spdlog::logger> record_worker();
+    static std::shared_ptr<spdlog::logger> information_worker();
+
+    static std::shared_ptr<spdlog::logger> cuda();
+    static std::shared_ptr<spdlog::logger> setup();
+    static std::shared_ptr<spdlog::logger> main();
+
+  private:
+    static std::shared_ptr<spdlog::logger> init_logger(std::string name, spdlog::level::level_enum);
+    static void init_sinks();
+
+    static std::shared_ptr<spdlog::logger> frame_read_worker_;
+    static std::shared_ptr<spdlog::logger> compute_worker_;
+    static std::shared_ptr<spdlog::logger> record_worker_;
+    static std::shared_ptr<spdlog::logger> information_worker_;
+    static std::shared_ptr<spdlog::logger> cuda_;
+    static std::shared_ptr<spdlog::logger> setup_;
+    static std::shared_ptr<spdlog::logger> main_;
+
+    static std::vector<spdlog::sink_ptr> sinks_;
+};
